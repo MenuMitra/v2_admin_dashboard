@@ -359,7 +359,7 @@ export default function FunctionalitiesPage() {
           onAdd={handleAddNew}
           onEdit={handleEdit}
           onDelete={handleDeleteClick}
-          onView={handleView}
+
           addButtonLabel="Add Functionality"
           emptyMessage={loading ? "Loading functionalities..." : "No functionalities found"}
         />

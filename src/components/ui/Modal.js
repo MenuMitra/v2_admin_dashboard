@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 
-const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
+const Modal = ({ isOpen = true, onClose, title, children, size = 'md', showClose = true }) => {
   // Close modal when Escape key is pressed
   useEffect(() => {
     const handleEscape = (e) => {
@@ -52,12 +52,14 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
         {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
           <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
-          <button 
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
-          >
-            <FiX className="h-5 w-5" />
-          </button>
+          {showClose && (
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-full p-1"
+            >
+              <FiX className="h-5 w-5" />
+            </button>
+          )}
         </div>
         
         {/* Content */}

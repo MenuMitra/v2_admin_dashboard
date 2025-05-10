@@ -44,11 +44,11 @@ const sidebarItems = [
     icon: <Shield size={20} />,
     href: '/access-control',
     subItems: [
-      {
-        title: 'Roles',
-        icon: <UserCog size={18} />,
-        href: '/access-control/roles',
-      },
+      // {
+      //   title: 'Roles',
+      //   icon: <UserCog size={18} />,
+      //   href: '/access-control/roles',
+      // },
       {
         title: 'Functionalities',
         icon: <Layers size={18} />,

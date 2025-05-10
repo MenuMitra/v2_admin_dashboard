@@ -40,11 +40,33 @@ export async function POST(request) {
       });
       
       // Get the response as JSON
-      const result = await response.json();
-      console.log('API response:', result);
-      
-      // Return the response
-      return Response.json(result, { status: response.status });
+      try {
+        const contentType = response.headers.get('content-type');
+        
+        // Check if the response is JSON
+        if (contentType && contentType.includes('application/json')) {
+          const result = await response.json();
+          console.log('API response:', result);
+          
+          // Return the response
+          return Response.json(result, { status: response.status });
+        } else {
+          // Handle HTML or other non-JSON responses
+          const text = await response.text();
+          console.error('Non-JSON response received:', text.substring(0, 200) + '...');
+          
+          return Response.json({ 
+            error: 'Unexpected response format received from server',
+            detail: 'Server did not return valid JSON. Please check server logs.'
+          }, { status: 500 });
+        }
+      } catch (error) {
+        console.error('Error parsing response:', error);
+        return Response.json({ 
+          error: 'Failed to parse server response',
+          detail: error.message
+        }, { status: 500 });
+      }
     }
     else {
       // Handle JSON requests
@@ -76,13 +98,35 @@ export async function POST(request) {
       console.log('Response status from API:', response.status);
       
       // Get the response as JSON
-      const result = await response.json();
-      console.log('API response:', result);
-      
-      // Return the response with appropriate status code
-      return Response.json(result, {
-        status: response.status
-      });
+      try {
+        const contentType = response.headers.get('content-type');
+        
+        // Check if the response is JSON
+        if (contentType && contentType.includes('application/json')) {
+          const result = await response.json();
+          console.log('API response:', result);
+          
+          // Return the response with appropriate status code
+          return Response.json(result, {
+            status: response.status
+          });
+        } else {
+          // Handle HTML or other non-JSON responses
+          const text = await response.text();
+          console.error('Non-JSON response received:', text.substring(0, 200) + '...');
+          
+          return Response.json({ 
+            error: 'Unexpected response format received from server',
+            detail: 'Server did not return valid JSON. Please check server logs.'
+          }, { status: 500 });
+        }
+      } catch (error) {
+        console.error('Error parsing response:', error);
+        return Response.json({ 
+          error: 'Failed to parse server response',
+          detail: error.message
+        }, { status: 500 });
+      }
     }
   } catch (error) {
     console.error('API proxy error:', error);

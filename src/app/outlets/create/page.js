@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { FiShoppingBag, FiMail, FiPhone, FiMapPin, FiClock, FiPercent, FiHash, FiInfo, FiArrowLeft, FiImage } from 'react-icons/fi';
+import { FiShoppingBag, FiMail, FiPhone, FiMapPin, FiClock, FiPercent, FiHash, FiInfo, FiArrowLeft, FiImage, FiUser, FiDollarSign } from 'react-icons/fi';
 import outletService from '@/api/services/outletService';
 import commonService from '@/api/services/commonService';
+import ownerService from '@/api/services/ownerService';
+import tokenService from '@/services/tokenService';
 import { isAuthenticated } from '@/utils/auth';
 
 export default function CreateOutletPage() {
@@ -13,6 +15,7 @@ export default function CreateOutletPage() {
   const [loading, setLoading] = useState(false);
   const [outletTypes, setOutletTypes] = useState({});
   const [foodTypes, setFoodTypes] = useState({});
+  const [owners, setOwners] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     mobile: '',
@@ -31,7 +34,7 @@ export default function CreateOutletPage() {
     website: '',
     opening_time: '',
     closing_time: '',
-    owner_id: '2', // Hardcoded as per specifications
+    owner_id: '', // Changed from hardcoded to empty
     image: null
   });
   const [errors, setErrors] = useState({});
@@ -48,6 +51,7 @@ export default function CreateOutletPage() {
     // Fetch dropdown options
     fetchOutletTypes();
     fetchFoodTypes();
+    fetchOwners();
   }, [router]);
 
   // Fetch outlet types from API
@@ -90,30 +94,51 @@ export default function CreateOutletPage() {
     }
   };
 
+  // Fetch owners list
+  const fetchOwners = async () => {
+    try {
+      const userData = tokenService.getUserData();
+      const userId = userData?.id || 1;
+      
+      const response = await ownerService.listOwners(userId);
+      if (Array.isArray(response)) {
+        setOwners(response);
+        // Set default owner if available
+        if (response.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            owner_id: response[0].user_id.toString()
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch owners:', error);
+      toast.error('Failed to load owners');
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
     
+    // Only validate mandatory fields
     if (!formData.name.trim()) newErrors.name = 'Outlet name is required';
     if (!formData.mobile.trim()) newErrors.mobile = 'Mobile number is required';
     else if (!/^\d{10}$/.test(formData.mobile)) newErrors.mobile = 'Enter a valid 10-digit mobile number';
     
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Enter a valid email address';
-    
     if (!formData.address.trim()) newErrors.address = 'Address is required';
+    if (!formData.owner_id) newErrors.owner_id = 'Owner selection is required';
+    if (!formData.upi_id.trim()) newErrors.upi_id = 'UPI ID is required';
     
-    if (!formData.service_charges) newErrors.service_charges = 'Service charges are required';
-    else if (parseFloat(formData.service_charges) < 0 || parseFloat(formData.service_charges) > 100) 
-      newErrors.service_charges = 'Service charges must be between 0 and 100';
+    if (!formData.veg_nonveg) newErrors.veg_nonveg = 'Food type selection is required';
     
-    if (!formData.gst) newErrors.gst = 'GST percentage is required';
-    else if (parseFloat(formData.gst) < 0 || parseFloat(formData.gst) > 100) 
-      newErrors.gst = 'GST must be between 0 and 100';
+    // For optional fields, only validate if they have values
+    if (formData.opening_time) {
+      // Time format is already correct from the HTML time input
+    }
     
-    if (!formData.opening_time) newErrors.opening_time = 'Opening time is required';
-    if (!formData.closing_time) newErrors.closing_time = 'Closing time is required';
-    
-    if (!formData.image) newErrors.image = 'Outlet image is required';
+    if (formData.closing_time) {
+      // Time format is already correct from the HTML time input
+    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -174,24 +199,54 @@ export default function CreateOutletPage() {
       // Create FormData object for file upload
       const formDataObj = new FormData();
       
+      // Add endpoint directly to FormData - using admin endpoint instead of common
+      formDataObj.append('endpoint', '/admin/create_outlet');
+      
+      // Process form data before sending
+      const processedFormData = { ...formData };
+      
+      // Format times if they exist - convert from HTML time inputs (HH:MM) to the API format
+      if (processedFormData.opening_time) {
+        // Keep the HH:MM format for opening_time
+        console.log("Original opening time:", processedFormData.opening_time);
+      }
+      
+      if (processedFormData.closing_time) {
+        // Keep the HH:MM format for closing_time
+        console.log("Original closing time:", processedFormData.closing_time);
+      }
+      
       // Append all form fields including the image
-      Object.keys(formData).forEach(key => {
+      Object.keys(processedFormData).forEach(key => {
         if (key === 'image') {
-          formDataObj.append(key, formData[key]);
+          if (processedFormData[key]) {
+            formDataObj.append(key, processedFormData[key]);
+          }
         } else {
-          formDataObj.append(key, formData[key]);
+          formDataObj.append(key, processedFormData[key]);
         }
       });
       
       // Add user_id
-      formDataObj.append('user_id', '1'); // As per specification
+      const userData = tokenService.getUserData();
+      const userId = userData?.id || 1;
+      formDataObj.append('user_id', userId.toString());
       
-      await outletService.createOutlet(formDataObj);
-      toast.success('Outlet created successfully');
-      router.push('/outlets');
+      const response = await outletService.createOutlet(formDataObj);
+      console.log('Outlet creation response:', response);
+      
+      if (response.detail && response.detail.includes('successfully')) {
+        toast.success('Outlet created successfully');
+        router.push('/outlets');
+      } else if (response.detail) {
+        toast.error(response.detail);
+      } else {
+        toast.success('Outlet created successfully');
+        router.push('/outlets');
+      }
     } catch (error) {
       console.error('Failed to create outlet:', error);
-      toast.error('Failed to create outlet');
+      toast.error('Failed to create outlet: ' + (error.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -277,8 +332,36 @@ export default function CreateOutletPage() {
                 </div>
 
                 <div className="col-span-1">
+                  <label htmlFor="owner_id" className="block text-sm font-medium text-gray-700 mb-1">
+                    Owner <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiUser className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <select
+                      id="owner_id"
+                      name="owner_id"
+                      value={formData.owner_id}
+                      onChange={handleInputChange}
+                      className={`block w-full pl-10 pr-3 py-2.5 border ${
+                        errors.owner_id ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                      } rounded-md shadow-sm text-sm text-black bg-white`}
+                    >
+                      <option value="">Select Owner</option>
+                      {owners.map((owner) => (
+                        <option key={owner.user_id} value={owner.user_id.toString()}>
+                          {owner.name} {owner.is_active ? '(Active)' : '(Inactive)'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  {errors.owner_id && <p className="mt-1 text-sm text-red-600">{errors.owner_id}</p>}
+                </div>
+
+                <div className="col-span-1">
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address <span className="text-red-500">*</span>
+                    Email Address
                   </label>
                   <div className="relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -297,10 +380,33 @@ export default function CreateOutletPage() {
                   {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
                 </div>
 
+                <div className="col-span-1">
+                  <label htmlFor="upi_id" className="block text-sm font-medium text-gray-700 mb-1">
+                    UPI ID <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <FiDollarSign className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      id="upi_id"
+                      name="upi_id"
+                      value={formData.upi_id}
+                      onChange={handleInputChange}
+                      className={`block w-full pl-10 pr-3 py-2.5 border ${
+                        errors.upi_id ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                      } rounded-md shadow-sm text-sm text-black bg-white`}
+                      placeholder="Enter UPI ID"
+                    />
+                  </div>
+                  {errors.upi_id && <p className="mt-1 text-sm text-red-600">{errors.upi_id}</p>}
+                </div>
+
                 {/* Image Upload */}
                 <div className="col-span-1 md:col-span-3">
                   <label htmlFor="image" className="block text-sm font-medium text-gray-700 mb-1">
-                    Outlet Image <span className="text-red-500">*</span>
+                    Outlet Image
                   </label>
                   <div className="mt-1 flex items-center space-x-4">
                     <div className={`flex justify-center items-center px-6 pt-5 pb-6 border-2 ${errors.image ? 'border-red-300' : 'border-gray-300'} border-dashed rounded-md w-full max-w-xs`}>
@@ -444,7 +550,7 @@ export default function CreateOutletPage() {
 
                 <div className="col-span-1">
                   <label htmlFor="service_charges" className="block text-sm font-medium text-gray-700 mb-1">
-                    Service Charges (%) <span className="text-red-500">*</span>
+                    Service Charges (%)
                   </label>
                   <div className="relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -468,7 +574,7 @@ export default function CreateOutletPage() {
 
                 <div className="col-span-1">
                   <label htmlFor="gst" className="block text-sm font-medium text-gray-700 mb-1">
-                    GST (%) <span className="text-red-500">*</span>
+                    GST (%)
                   </label>
                   <div className="relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -492,7 +598,7 @@ export default function CreateOutletPage() {
 
                 <div className="col-span-1">
                   <label htmlFor="opening_time" className="block text-sm font-medium text-gray-700 mb-1">
-                    Opening Time <span className="text-red-500">*</span>
+                    Opening Time
                   </label>
                   <div className="relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -505,14 +611,16 @@ export default function CreateOutletPage() {
                       value={formData.opening_time}
                       onChange={handleInputChange}
                       className={`block w-full pl-10 pr-3 py-2.5 border ${errors.opening_time ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} rounded-md shadow-sm text-sm text-gray-900 bg-white focus:bg-blue-50`}
+                      placeholder="09:00"
                     />
                   </div>
+                  <p className="mt-1 text-xs text-gray-500">Format: 24-hour (HH:MM)</p>
                   {errors.opening_time && <p className="mt-1 text-sm text-red-600">{errors.opening_time}</p>}
                 </div>
 
                 <div className="col-span-1">
                   <label htmlFor="closing_time" className="block text-sm font-medium text-gray-700 mb-1">
-                    Closing Time <span className="text-red-500">*</span>
+                    Closing Time
                   </label>
                   <div className="relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -525,8 +633,10 @@ export default function CreateOutletPage() {
                       value={formData.closing_time}
                       onChange={handleInputChange}
                       className={`block w-full pl-10 pr-3 py-2.5 border ${errors.closing_time ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} rounded-md shadow-sm text-sm text-gray-900 bg-white focus:bg-blue-50`}
+                      placeholder="21:00"
                     />
                   </div>
+                  <p className="mt-1 text-xs text-gray-500">Format: 24-hour (HH:MM)</p>
                   {errors.closing_time && <p className="mt-1 text-sm text-red-600">{errors.closing_time}</p>}
                 </div>
               </div>
@@ -566,21 +676,6 @@ export default function CreateOutletPage() {
                     onChange={handleInputChange}
                     className="block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-900 bg-white focus:bg-blue-50"
                     placeholder="Enter GST number"
-                  />
-                </div>
-
-                <div className="col-span-1">
-                  <label htmlFor="upi_id" className="block text-sm font-medium text-gray-700 mb-1">
-                    UPI ID
-                  </label>
-                  <input
-                    type="text"
-                    id="upi_id"
-                    name="upi_id"
-                    value={formData.upi_id}
-                    onChange={handleInputChange}
-                    className="block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-900 bg-white focus:bg-blue-50"
-                    placeholder="Enter UPI ID"
                   />
                 </div>
 

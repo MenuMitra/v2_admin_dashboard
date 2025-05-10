@@ -1,5 +1,4 @@
 import { getAuthHeaders } from '@/utils/apiUtils';
-import { ENDPOINTS } from '@/api/config';
 
 const partnerService = {
   // Create a new partner
@@ -11,7 +10,7 @@ const partnerService = {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          endpoint: ENDPOINTS.ADMIN.CREATE_PARTNER,
+          endpoint: `/admin/create_partner`,
           data
         }),
       });
@@ -28,7 +27,7 @@ const partnerService = {
     try {
       const headers = getAuthHeaders();
       
-      const response = await fetch(`/api/proxy?endpoint=${encodeURIComponent(`${ENDPOINTS.ADMIN.LISTVIEW_PARTNER}/${userId}`)}`, {
+      const response = await fetch(`/api/proxy?endpoint=${encodeURIComponent(`/admin/listview_partner/${userId}`)}`, {
         method: 'GET',
         headers,
       });
@@ -41,13 +40,20 @@ const partnerService = {
   },
 
   // View partner details
-  viewPartner: async (partnerId) => {
+  viewPartner: async (partnerId, userId) => {
     try {
       const headers = getAuthHeaders();
       
-      const response = await fetch(`/api/proxy?endpoint=${encodeURIComponent(`${ENDPOINTS.ADMIN.VIEW_PARTNER}/${partnerId}`)}`, {
-        method: 'GET',
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
         headers,
+        body: JSON.stringify({
+          endpoint: `/admin/view_partner`,
+          data: {
+            partner_id: parseInt(partnerId),
+            user_id: parseInt(userId)
+          }
+        }),
       });
       
       return await response.json();
@@ -66,7 +72,7 @@ const partnerService = {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          endpoint: ENDPOINTS.ADMIN.UPDATE_PARTNER,
+          endpoint: `/admin/update_partner`,
           method: 'PATCH',
           data
         }),
@@ -88,10 +94,11 @@ const partnerService = {
         method: 'POST',
         headers,
         body: JSON.stringify({
-          endpoint: ENDPOINTS.ADMIN.DELETE_PARTNER,
+          endpoint: `/admin/delete_partner`,
+          method: 'DELETE',
           data: {
-            partner_id: partnerId,
-            user_id: userId
+            partner_id: parseInt(partnerId),
+            user_id: parseInt(userId)
           }
         }),
       });

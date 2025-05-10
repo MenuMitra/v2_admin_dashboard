@@ -32,16 +32,21 @@ export const getAuthToken = () => {
 
 /**
  * Get the authentication header for API requests
+ * @param {string} contentType - Optional content type to use (default: application/json)
  * @returns {Object} - Headers object with Authorization if available
  */
-export const getAuthHeaders = () => {
-  console.log('Getting auth headers...');
+export const getAuthHeaders = (contentType = 'application/json') => {
+  console.log('Getting auth headers with content type:', contentType);
   const token = getAuthToken();
   const tokenType = localStorage.getItem('tokenType') || 'bearer';
   
-  const headers = {
-    'Content-Type': 'application/json',
-  };
+  const headers = {};
+  
+  // Only add Content-Type if it's not a multipart/form-data request
+  // For multipart/form-data, the browser will set the content type with boundary
+  if (contentType !== 'multipart/form-data') {
+    headers['Content-Type'] = contentType;
+  }
   
   if (token) {
     console.log('Adding Authorization header');

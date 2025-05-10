@@ -44,9 +44,16 @@ const ownerService = {
     try {
       const headers = getAuthHeaders();
       
-      const response = await fetch(`/api/proxy?endpoint=${encodeURIComponent(`/admin/view_owner/${ownerId}`)}`, {
-        method: 'GET',
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
         headers,
+        body: JSON.stringify({
+          endpoint: `/admin/view_owner`,
+          data: {
+            user_id: parseInt(ownerId),
+            owner_id: parseInt(ownerId)
+          }
+        }),
       });
       
       return await response.json();
@@ -88,9 +95,10 @@ const ownerService = {
         headers,
         body: JSON.stringify({
           endpoint: `/admin/delete_owner`,
+          method: 'DELETE',
           data: {
-            owner_id: ownerId,
-            user_id: userId
+            owner_id: parseInt(ownerId),
+            user_id: parseInt(userId)
           }
         }),
       });

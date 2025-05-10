@@ -82,21 +82,47 @@ const outletService = {
    */
   createOutlet: async (formData) => {
     try {
-      const response = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: formData, // FormData will be sent directly
-      });
+      // Check if formData is a FormData instance
+      if (formData instanceof FormData) {
+        // If it's FormData, we need to add the endpoint to it
+        formData.append('endpoint', '/admin/create_outlet');
+        
+        const response = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: getAuthHeaders('multipart/form-data'), // Use multipart headers
+          body: formData, // FormData will be sent directly
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to create outlet');
-      }
+        if (!response.ok) {
+          throw new Error('Failed to create outlet');
+        }
 
-      const data = await response.json();
-      if (data.detail?.includes('Error with token')) {
-        throw new Error('Authentication error: ' + data.detail);
+        const data = await response.json();
+        if (data.detail?.includes('Error with token')) {
+          throw new Error('Authentication error: ' + data.detail);
+        }
+        return data;
+      } else {
+        // If it's regular JSON data
+        const response = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            endpoint: '/admin/create_outlet',
+            data: formData
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create outlet');
+        }
+
+        const data = await response.json();
+        if (data.detail?.includes('Error with token')) {
+          throw new Error('Authentication error: ' + data.detail);
+        }
+        return data;
       }
-      return data;
     } catch (error) {
       console.error('Error creating outlet:', error);
       throw error;
@@ -171,50 +197,26 @@ const outletService = {
   // List all outlets
   listOutlets: async (userId) => {
     try {
-      console.log('Fetching outlets for user:', userId);
+      const headers = getAuthHeaders();
       
-      // Get auth header from tokenService instead of direct localStorage access
-      const authHeader = tokenService.getAuthHeader();
-      
-      if (!authHeader) {
-        console.error('No authorization token available');
-        throw new Error('Authentication required');
-      }
-
-      console.log('Using auth header:', authHeader);
-      
-      // Use the common endpoint for listview_outlet
       const response = await fetch('/api/proxy', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': authHeader
-        },
+        headers,
         body: JSON.stringify({
-          endpoint: '/common/listview_outlet', 
+          endpoint: '/common/listview_outlet',
           data: {
-            user_id: userId
+            user_id: parseInt(userId)
           }
         }),
       });
-
-      console.log('Response status:', response.status);
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('API error response:', errorData);
-        throw new Error(errorData.detail || `Failed to fetch outlets: ${response.status}`);
-      }
-
       const data = await response.json();
-      console.log('Response data:', data);
-
       if (data.detail?.includes('Error with token')) {
-        console.error('Authentication error:', data.detail);
         throw new Error('Authentication error: ' + data.detail);
       }
-
-      return data;
+      
+      // Return the data array if it exists, otherwise return the raw response
+      return data.data || data;
     } catch (error) {
       console.error('Error fetching outlets:', error);
       throw error;
@@ -224,27 +226,28 @@ const outletService = {
   // View outlet details
   viewOutlet: async (outletId, userId) => {
     try {
+      const userData = tokenService.getUserData();
+      const userIdToUse = userId || userData?.id || 1;
+      
       const response = await fetch('/api/proxy', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
           endpoint: '/common/view_outlet',
           data: {
-            outlet_id: outletId,
-            user_id: userId
+            outlet_id: parseInt(outletId),
+            user_id: parseInt(userIdToUse)
           }
         }),
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch outlet details');
-      }
 
       const data = await response.json();
       if (data.detail?.includes('Error with token')) {
         throw new Error('Authentication error: ' + data.detail);
       }
-      return data;
+      
+      // Return the data object if it exists, otherwise return the raw response
+      return data.data || data;
     } catch (error) {
       console.error('Error fetching outlet details:', error);
       throw error;

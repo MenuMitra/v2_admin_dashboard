@@ -58,6 +58,13 @@ export const ENDPOINTS = {
     DELETE_PARTNER: '/delete_partner',
     LISTVIEW_PARTNER: '/listview_partner',
     
+    // Outlet Management endpoints
+    CREATE_OUTLET: '/create_outlet',
+    UPDATE_OUTLET: '/update_outlet',
+    VIEW_OUTLET: '/view_outlet',
+    DELETE_OUTLET: '/delete_outlet',
+    LISTVIEW_OUTLET: '/listview_outlet',
+    
     // QR Template endpoints
     GET_QR_TEMPLATES: '/get_qr_templates',
     CREATE_QR_TEMPLATE: '/create_qr_templates',

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { FiShoppingBag, FiMail, FiPhone, FiMapPin, FiCalendar, FiEdit, FiArrowLeft } from 'react-icons/fi';
 import outletService from '@/api/services/outletService';
+import tokenService from '@/services/tokenService';
 import { isAuthenticated } from '@/utils/auth';
 
 // Format date for display
@@ -31,7 +32,11 @@ export default function ViewOutletPage({ params }) {
 
   const fetchOutletDetails = async () => {
     try {
-      const data = await outletService.viewOutlet(params.id);
+      const userData = tokenService.getUserData();
+      const userId = userData?.id || 1;
+      
+      const data = await outletService.viewOutlet(params.id, userId);
+      // Check if data is returned or if it's in the data field
       setOutlet(data);
     } catch (error) {
       console.error('Failed to fetch outlet details:', error);
