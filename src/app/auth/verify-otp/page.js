@@ -120,8 +120,8 @@ export default function VerifyOTP() {
       const response = await authService.verifyOtp(verificationData);
       console.log('OTP verification response:', response);
       
-      // Check if verification was successful
-      if (response.detail === 'Login successful' && response.access_token) {
+      // Check for successful login with either access_token or "Login successful" message
+      if (response.access_token || response.detail === 'Login successful') {
         // Token storage is handled in authService.verifyOtp
         
         // Show success message briefly before redirect

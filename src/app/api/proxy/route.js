@@ -3,6 +3,10 @@ export async function POST(request) {
     // Get JSON data or form data depending on content type
     const contentType = request.headers.get('content-type') || '';
     
+    // Get authorization token from headers
+    const authToken = request.headers.get('authorization');
+    console.log('Received auth token (first 20 chars):', authToken ? authToken.substring(0, 20) + '...' : 'none');
+    
     // Handle both JSON and FormData
     if (contentType.includes('multipart/form-data')) {
       // Handle direct form data uploads
@@ -21,12 +25,10 @@ export async function POST(request) {
       const apiUrl = `https://men4u.xyz/v2${endpoint}`;
       console.log(`Proxying ${method} form data request to: ${apiUrl}`);
       
-      // Get authorization token from headers
-      const authToken = request.headers.get('authorization');
-      
       // Create a headers object for the request
       const headers = {};
       if (authToken) {
+        console.log('Adding auth token to request headers for FormData request');
         headers['Authorization'] = authToken;
       }
       
@@ -42,10 +44,10 @@ export async function POST(request) {
       console.log('API response:', result);
       
       // Return the response
-      return Response.json(result);
+      return Response.json(result, { status: response.status });
     }
     else {
-      // Handle JSON requests (existing functionality)
+      // Handle JSON requests
       const { endpoint, data, method = 'POST' } = await request.json();
       
       // Set the target API URL
@@ -64,20 +66,23 @@ export async function POST(request) {
       };
       
       // Add authorization if available
-      const authToken = request.headers.get('authorization');
       if (authToken) {
+        console.log('Adding auth token to request headers:', authToken.substring(0, 20) + '...');
         options.headers['Authorization'] = authToken;
       }
       
       // Forward the request to the actual API
       const response = await fetch(apiUrl, options);
+      console.log('Response status from API:', response.status);
       
       // Get the response as JSON
       const result = await response.json();
       console.log('API response:', result);
       
-      // Return the response
-      return Response.json(result);
+      // Return the response with appropriate status code
+      return Response.json(result, {
+        status: response.status
+      });
     }
   } catch (error) {
     console.error('API proxy error:', error);

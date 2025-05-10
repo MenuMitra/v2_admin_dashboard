@@ -8,15 +8,26 @@
  */
 export const getAuthToken = () => {
   if (typeof window === 'undefined') {
+    console.log('Running on server side, no token available');
     return null;
   }
   
   const token = localStorage.getItem('authToken');
   const tokenType = localStorage.getItem('tokenType') || 'bearer';
   
-  if (!token) return null;
+  console.log('Retrieved token from storage, exists:', !!token);
+  if (token) {
+    console.log('Token length:', token.length, 'First 10 chars:', token.substring(0, 10) + '...');
+  }
+  console.log('Token type:', tokenType);
   
-  return `${tokenType} ${token}`;
+  if (!token) {
+    console.log('No token found in storage');
+    return null;
+  }
+  
+  // Return raw token without type
+  return token;
 };
 
 /**
@@ -24,15 +35,23 @@ export const getAuthToken = () => {
  * @returns {Object} - Headers object with Authorization if available
  */
 export const getAuthHeaders = () => {
+  console.log('Getting auth headers...');
   const token = getAuthToken();
+  const tokenType = localStorage.getItem('tokenType') || 'bearer';
+  
   const headers = {
     'Content-Type': 'application/json',
   };
   
   if (token) {
-    headers['Authorization'] = token;
+    console.log('Adding Authorization header');
+    // Format token with type
+    const authHeader = `${tokenType} ${token}`;
+    headers['Authorization'] = authHeader;
+    console.log('Authorization header format:', `${tokenType} ${token.substring(0, 10)}...`);
   }
   
+  console.log('Final headers:', headers);
   return headers;
 };
 
@@ -44,7 +63,13 @@ export const getAuthHeaders = () => {
 export const addAuthToOptions = (options = {}) => {
   const token = getAuthToken();
   
-  if (!token) return options;
+  console.log('Adding auth to options...');
+  console.log('Initial options:', options);
+  
+  if (!token) {
+    console.log('No token available for options');
+    return options;
+  }
   
   // Create headers if they don't exist
   if (!options.headers) {
@@ -54,5 +79,6 @@ export const addAuthToOptions = (options = {}) => {
   // Add authorization header
   options.headers['Authorization'] = token;
   
+  console.log('Final options with auth:', options);
   return options;
 }; 

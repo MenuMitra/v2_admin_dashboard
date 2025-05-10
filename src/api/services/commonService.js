@@ -97,7 +97,7 @@ const commonService = {
   getOutletTypes: async () => {
     try {
       const headers = getAuthHeaders();
-      const response = await fetch(`/api/proxy?endpoint=${ENDPOINTS.COMMON.GET_OUTLET_TYPES}`, {
+      const response = await fetch(`/api/proxy?endpoint=/common${ENDPOINTS.COMMON.GET_OUTLET_TYPES}`, {
         method: 'GET',
         headers,
       });
@@ -120,7 +120,7 @@ const commonService = {
   getFoodTypes: async () => {
     try {
       const headers = getAuthHeaders();
-      const response = await fetch(`/api/proxy?endpoint=${ENDPOINTS.COMMON.GET_FOOD_TYPES}`, {
+      const response = await fetch(`/api/proxy?endpoint=/common${ENDPOINTS.COMMON.GET_FOOD_TYPES}`, {
         method: 'GET',
         headers,
       });

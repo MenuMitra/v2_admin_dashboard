@@ -1,5 +1,7 @@
 import { getAuthHeaders } from '@/utils/apiUtils';
+import { debugAuthToken } from '@/utils/debug';
 import { ENDPOINTS } from '@/api/config';
+import tokenService from '@/services/tokenService';
 
 /**
  * Outlet Service - Handles all API calls related to outlets
@@ -169,25 +171,49 @@ const outletService = {
   // List all outlets
   listOutlets: async (userId) => {
     try {
+      console.log('Fetching outlets for user:', userId);
+      
+      // Get auth header from tokenService instead of direct localStorage access
+      const authHeader = tokenService.getAuthHeader();
+      
+      if (!authHeader) {
+        console.error('No authorization token available');
+        throw new Error('Authentication required');
+      }
+
+      console.log('Using auth header:', authHeader);
+      
+      // Use the common endpoint for listview_outlet
       const response = await fetch('/api/proxy', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authHeader
+        },
         body: JSON.stringify({
-          endpoint: '/common/listview_outlet',
+          endpoint: '/common/listview_outlet', 
           data: {
             user_id: userId
           }
         }),
       });
 
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch outlets');
+        const errorData = await response.json();
+        console.error('API error response:', errorData);
+        throw new Error(errorData.detail || `Failed to fetch outlets: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Response data:', data);
+
       if (data.detail?.includes('Error with token')) {
+        console.error('Authentication error:', data.detail);
         throw new Error('Authentication error: ' + data.detail);
       }
+
       return data;
     } catch (error) {
       console.error('Error fetching outlets:', error);

@@ -18,15 +18,12 @@ export const BASE_URLS = {
 export const ENDPOINTS = {
   // Common endpoints
   COMMON: {
-    LOGIN: '/login',
+    
     RESEND_OTP: '/resend_otp',
     VERIFY_OTP: '/verify_otp',
     GET_OUTLET_TYPES: '/get_outlet_type',
     GET_FOOD_TYPES: '/get_food_type_list',
-    MENU: '/menu',
-    CATEGORIES: '/categories',
-    ITEMS: '/items'
-  },
+     },
   // Admin endpoints
   ADMIN: {
     // Auth endpoints

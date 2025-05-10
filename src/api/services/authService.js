@@ -3,7 +3,7 @@
  */
 import apiClient from '../apiClient';
 import tokenService from '@/services/tokenService';
-import { ENDPOINTS } from '../config';
+import { ENDPOINTS, BASE_URLS } from '../config';
 
 const authService = {
   /**
@@ -11,17 +11,34 @@ const authService = {
    * @param {string} mobile - Admin's mobile number
    * @returns {Promise<Object>} - Response with status and message
    */
-  login: (mobile) => {
-    return fetch('/api/proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        endpoint: '/admin/admin_login',
-        data: { mobile }
-      }),
-    }).then(response => response.json());
+  login: async (mobile) => {
+    try {
+      // Get device information
+      const deviceId = authService.getDeviceId();
+      const deviceModel = authService.getDeviceModel();
+      
+      console.log('Using device info for login:', { deviceId, deviceModel });
+      
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          endpoint: `/admin${ENDPOINTS.ADMIN.ADMIN_LOGIN}`,
+          data: { 
+            mobile,
+            device_id: deviceId,
+            device_model: deviceModel
+          }
+        }),
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   },
 
   /**
@@ -36,10 +53,58 @@ const authService = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        endpoint: '/common/resend_otp',
+        endpoint: `/common${ENDPOINTS.COMMON.RESEND_OTP}`,
         data: { mobile }
       }),
     }).then(response => response.json());
+  },
+
+  /**
+   * Generate a unique device ID or retrieve the stored one
+   * @returns {string} Device ID
+   */
+  getDeviceId: () => {
+    // First check if we already have a stored device ID
+    const storedDeviceId = localStorage.getItem('deviceId');
+    if (storedDeviceId) {
+      return storedDeviceId;
+    }
+    
+    // Generate a new device ID based on navigator properties and timestamp
+    const timestamp = Date.now().toString(36);
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    const deviceId = `${timestamp}-${randomStr}`;
+    
+    // Store for future use
+    localStorage.setItem('deviceId', deviceId);
+    return deviceId;
+  },
+
+  /**
+   * Get the device model information
+   * @returns {string} Device model information
+   */
+  getDeviceModel: () => {
+    // Try to get device info from user agent
+    const userAgent = navigator.userAgent;
+    const platform = navigator.platform || 'Unknown';
+    
+    // Extract OS/browser info from user agent
+    let deviceModel = 'Unknown Device';
+    
+    if (/Windows/.test(userAgent)) {
+      deviceModel = `Windows ${/Windows NT ([0-9.]+)/.exec(userAgent)?.[1] || ''}`;
+    } else if (/Mac/.test(userAgent)) {
+      deviceModel = `Mac ${/Mac OS X ([0-9_.]+)/.exec(userAgent)?.[1]?.replace(/_/g, '.') || ''}`;
+    } else if (/Linux/.test(userAgent)) {
+      deviceModel = 'Linux';
+    } else if (/Android/.test(userAgent)) {
+      deviceModel = `Android ${/Android ([0-9.]+)/.exec(userAgent)?.[1] || ''}`;
+    } else if (/iPhone|iPad|iPod/.test(userAgent)) {
+      deviceModel = `iOS ${/OS ([0-9_]+)/.exec(userAgent)?.[1]?.replace(/_/g, '.') || ''}`;
+    }
+    
+    return `${deviceModel} - ${platform}`;
   },
 
   /**
@@ -52,45 +117,62 @@ const authService = {
   verifyOtp: async (data) => {
     console.log('Verifying OTP with data:', data);
     
-    const response = await fetch('/api/proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        endpoint: '/admin/admin_verify_otp',
-        data: {
-          mobile: data.mobile,
-          otp: data.otp
-        }
-      }),
-    }).then(response => response.json());
+    try {
+      // Using the admin-specific endpoint with just mobile and OTP
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          endpoint: `/admin${ENDPOINTS.ADMIN.ADMIN_VERIFY_OTP}`,
+          data: {
+            mobile: data.mobile,
+            otp: data.otp
+          }
+        }),
+      });
 
-    console.log('OTP verification response:', response);
+      if (!response.ok) {
+        console.error('OTP verification failed with status:', response.status);
+        throw new Error('OTP verification failed');
+      }
 
-    // If login is successful, store auth data
-    if (response.detail === 'Login successful' && response.access_token) {
-      console.log('Login successful, storing auth data...');
+      const responseData = await response.json();
+      console.log('OTP verification response:', responseData);
+
+      // If login is successful, store auth data
+      if (responseData.access_token) {
+        console.log('Login successful, storing auth data...');
+        
+        // Prepare auth data for storage
+        const authData = {
+          access_token: responseData.access_token,
+          token_type: responseData.token_type || 'bearer',
+          user_id: responseData.user_id,
+          name: responseData.name,
+          email: responseData.email,
+          role: responseData.role,
+          mobile: responseData.mobile || data.mobile,
+          expires_at: responseData.expires_at
+        };
+        
+        // Use tokenService to store auth data
+        tokenService.setAuthData(authData);
+        
+        // Log success for debugging
+        console.log('Auth data stored successfully');
+        console.log('Auth header will be:', tokenService.getAuthHeader());
+      } else {
+        console.log('Login not successful or missing access token');
+        throw new Error(responseData.detail || 'Login failed');
+      }
       
-      // Store auth data in localStorage
-      localStorage.setItem('authToken', response.access_token);
-      localStorage.setItem('tokenType', response.token_type || 'bearer');
-      localStorage.setItem('userId', response.user_id);
-      localStorage.setItem('userName', response.name);
-      localStorage.setItem('userEmail', response.email);
-      localStorage.setItem('userRole', response.role);
-      localStorage.setItem('userMobile', response.mobile);
-      localStorage.setItem('tokenExpiry', response.expires_at);
-
-      // Verify stored data
-      console.log('Stored auth token:', localStorage.getItem('authToken'));
-      console.log('Stored token type:', localStorage.getItem('tokenType'));
-      console.log('Auth header will be:', `${localStorage.getItem('tokenType')} ${localStorage.getItem('authToken')}`);
-    } else {
-      console.log('Login not successful or missing access token');
+      return responseData;
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      throw error;
     }
-    
-    return response;
   },
 
   /**
@@ -98,15 +180,7 @@ const authService = {
    */
   logout: () => {
     console.log('Logging out, clearing auth data...');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('tokenType');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userMobile');
-    localStorage.removeItem('tokenExpiry');
-    localStorage.removeItem('mobileNumber');
+    tokenService.clearAuthData();
   },
 
   /**
@@ -114,29 +188,7 @@ const authService = {
    * @returns {boolean}
    */
   isAuthenticated: () => {
-    const token = localStorage.getItem('authToken');
-    const expiry = localStorage.getItem('tokenExpiry');
-    
-    console.log('Checking authentication...');
-    console.log('Token exists:', !!token);
-    console.log('Token expiry:', expiry);
-    
-    if (!token || !expiry) {
-      console.log('No token or expiry found');
-      return false;
-    }
-    
-    // Check if token is expired
-    const expiryDate = new Date(expiry);
-    if (expiryDate < new Date()) {
-      console.log('Token expired, clearing storage');
-      // Token expired, clear storage
-      authService.logout();
-      return false;
-    }
-    
-    console.log('User is authenticated');
-    return true;
+    return tokenService.isAuthenticated();
   },
 
   /**
@@ -145,14 +197,7 @@ const authService = {
    */
   getCurrentUser: () => {
     if (!authService.isAuthenticated()) return null;
-    
-    return {
-      id: localStorage.getItem('userId'),
-      name: localStorage.getItem('userName'),
-      email: localStorage.getItem('userEmail'),
-      role: localStorage.getItem('userRole'),
-      mobile: localStorage.getItem('userMobile')
-    };
+    return tokenService.getUserData();
   }
 };
 
