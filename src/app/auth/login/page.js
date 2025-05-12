@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Phone, ArrowRight } from 'lucide-react';
@@ -8,76 +8,111 @@ import { authService } from '@/api';
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
-  const [animateIn, setAnimateIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success'); // 'success' or 'error'
   const router = useRouter();
   const { register, handleSubmit, formState: { errors } } = useForm();
 
-  useEffect(() => {
-    // Trigger animation on mount
-    setAnimateIn(true);
-  }, []);
+  const showToastNotification = (message, type = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    
+    // Auto-hide toast after 3 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
 
   const onSubmit = async (data) => {
     setIsLoading(true);
     setErrorMessage('');
     
-    console.log('Mobile number:', data.mobile);
-    
     try {
-      console.log('Sending login request to API...');
       const response = await authService.login(data.mobile);
-      console.log('Login API response:', response);
       
-      // Check if OTP was sent successfully
       if (response.detail === 'OTP sent successfully') {
-        // Store mobile number for verification
+        // Show success toast
+        showToastNotification('OTP sent successfully! Redirecting...', 'success');
+        
         localStorage.setItem('mobileNumber', data.mobile);
         
-        // Redirect to OTP verification
-        router.push('/auth/verify-otp');
+        // Redirect after a short delay
+        setTimeout(() => {
+          router.push('/auth/verify-otp');
+        }, 1000);
       } else {
         // Handle unsuccessful login
-        setErrorMessage(response?.msg || response?.detail || 'Failed to send OTP. Please try again.');
+        const errorMsg = response?.msg || response?.detail || 'Failed to send OTP. Please try again.';
+        setErrorMessage(errorMsg);
+        showToastNotification(errorMsg, 'error');
       }
     } catch (error) {
       console.error('Login error details:', error);
-      setErrorMessage('Error connecting to the server. Please try again later.');
+      const errorMsg = 'Error connecting to the server. Please try again later.';
+      setErrorMessage(errorMsg);
+      showToastNotification(errorMsg, 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-slate-900 to-black relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="glowing-stars"></div>
-        <div className="absolute top-1/4 left-1/3 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
-
-      <div className="w-full max-w-md z-10">
-        {/* Brand logo with animation */}
-        <div className="flex items-center justify-center mb-10">
-          <div className={`w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 transition-all duration-1000 ${animateIn ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
-            <span className="text-white font-bold text-3xl">A</span>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      {/* Toast notification */}
+      {showToast && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all transform duration-300 ${
+          toastType === 'success' ? 'bg-green-100 border-l-4 border-green-500' : 'bg-red-100 border-l-4 border-red-500'
+        }`}>
+          <div className="flex items-center">
+            <div className={`w-6 h-6 flex items-center justify-center rounded-full mr-3 ${
+              toastType === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`}>
+              {toastType === 'success' ? (
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              ) : (
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              )}
+            </div>
+            <p className={`text-sm font-medium ${toastType === 'success' ? 'text-green-800' : 'text-red-800'}`}>
+              {toastMessage}
+            </p>
           </div>
         </div>
+      )}
+
+      <div className="w-full max-w-md px-6">
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-20 h-20 mb-4">
+            <img 
+              src="/images/logo.png" 
+              alt="MM Outlet Management" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+        </div>
         
-        {/* Login card with animation */}
-        <div className={`bg-white/10 backdrop-blur-xl rounded-3xl p-10 shadow-2xl border border-white/20 transition-all duration-700 transform ${animateIn ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">Welcome back</h2>
-            <p className="text-gray-300">Enter your mobile number to sign in</p>
+        <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">Sign in</h2>
+            <p className="text-gray-600 text-sm">Enter your mobile number to receive an OTP</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-1">
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Phone size={18} className="text-indigo-300 group-focus-within:text-white transition-colors duration-300" />
+              <label htmlFor="mobile" className="block text-sm font-medium text-gray-700">
+                Mobile Number
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Phone size={18} className="text-gray-400" />
                 </div>
                 <input
                   id="mobile"
@@ -85,94 +120,43 @@ export default function Login() {
                   {...register("mobile", { 
                     required: "Mobile number is required"
                   })}
-                  className="block w-full pl-12 pr-4 py-4 bg-white/5 border border-gray-300/20 rounded-xl shadow-sm text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white/10 transition-all duration-300"
+                  className="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
                   placeholder="Enter your mobile number"
                 />
-                <div className="absolute bottom-0 left-0 h-0.5 w-0 group-focus-within:w-full bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-500 transition-all duration-500"></div>
               </div>
-              {errors.mobile && <p className="mt-2 text-sm text-red-400 fade-in">{errors.mobile.message}</p>}
-              {errorMessage && <p className="mt-2 text-sm text-red-400 fade-in">{errorMessage}</p>}
+              {errors.mobile && <p className="mt-2 text-sm text-red-600">{errors.mobile.message}</p>}
+              {errorMessage && <p className="mt-2 text-sm text-red-600">{errorMessage}</p>}
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full group flex justify-center items-center py-4 px-4 rounded-xl text-base font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none shadow-lg disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 transform hover:translate-y-[-2px] relative overflow-hidden"
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <span className="relative z-10 flex items-center">
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Sending OTP...
-                  </>
-                ) : (
-                  <>
-                    Continue
-                    <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                  </>
-                )}
-              </span>
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-600/0 via-white/20 to-purple-600/0 transform -skew-x-30 translate-x-[-150%] group-hover:translate-x-[150%] transition-all duration-1000"></div>
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Sending OTP...
+                </>
+              ) : (
+                <>
+                  Continue
+                  <ArrowRight size={18} className="ml-2" />
+                </>
+              )}
             </button>
           </form>
+
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <p className="text-xs text-gray-500 text-center">
+              By continuing, you agree to our Terms of Service and Privacy Policy.
+            </p>
+          </div>
         </div>
       </div>
-
-      {/* Custom CSS for animated background */}
-      <style jsx global>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(20px, -30px) scale(1.1); }
-          50% { transform: translate(-20px, 20px) scale(0.9); }
-          75% { transform: translate(-30px, -20px) scale(1.05); }
-        }
-        
-        .animate-blob {
-          animation: blob 10s infinite;
-        }
-        
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        
-        .glowing-stars {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          background-image: radial-gradient(2px 2px at 40px 60px, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 20px 50px, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 30px 100px, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 40px 60px, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 110px 70px, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 190px 150px, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0));
-          background-repeat: repeat;
-          background-size: 200px 200px;
-        }
-        
-        .fade-in {
-          animation: fadeIn 0.5s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes shine {
-          from { background-position: -200% center; }
-          to { background-position: 200% center; }
-        }
-      `}</style>
     </div>
   );
 } 

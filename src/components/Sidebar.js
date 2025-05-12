@@ -106,51 +106,58 @@ export default function SidebarLayout({ children }) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform 
+        fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform border-r border-gray-200
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
         lg:translate-x-0 lg:static lg:z-auto transition-transform duration-300 ease-in-out
       `}>
         <div className="flex flex-col h-full">
           {/* Sidebar header */}
-          <div className="flex items-center justify-between h-16 px-4 border-b">
+          <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
-                <span className="text-white font-bold text-lg">A</span>
+              <div className="w-10 h-10">
+                <img 
+                  src="/images/logo.png" 
+                  alt="MM Outlet Management" 
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <span className="text-xl font-semibold">Admin</span>
+              <div className="flex flex-col">
+                <span className="text-lg font-semibold text-gray-900">Admin</span>
+                <span className="text-xs text-gray-500">Outlet Management</span>
+              </div>
             </Link>
             <button 
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden"
+              className="lg:hidden p-1 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
               suppressHydrationWarning
             >
-              <X size={24} />
+              <X size={20} />
             </button>
           </div>
 
           {/* Navigation links */}
-          <nav className="flex-1 px-2 py-4 space-y-1">
+          <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {sidebarItems.map((item) => {
               const active = isItemActive(item);
               const expanded = expandedItems[item.href] || active;
               
               return (
-                <div key={item.href}>
+                <div key={item.href} className="mb-1">
                   {item.subItems ? (
                     // Parent item with subitems
                     <button
                       onClick={() => toggleSubMenu(item.href)}
                       className={`
-                        flex items-center justify-between w-full px-4 py-2.5 text-sm font-medium rounded-lg
+                        flex items-center justify-between w-full px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150
                         ${active 
-                          ? 'bg-indigo-50 text-indigo-600' 
+                          ? 'bg-gray-900 text-white' 
                           : 'text-gray-700 hover:bg-gray-100'
                         }
                       `}
                       suppressHydrationWarning
                     >
                       <div className="flex items-center">
-                        <span className={`mr-3 ${active ? 'text-indigo-600' : 'text-gray-500'}`}>
+                        <span className={`mr-3 ${active ? 'text-white' : 'text-gray-500'}`}>
                           {item.icon}
                         </span>
                         {item.title}
@@ -170,15 +177,15 @@ export default function SidebarLayout({ children }) {
                     <Link
                       href={item.href}
                       className={`
-                        flex items-center px-4 py-2.5 text-sm font-medium rounded-lg
+                        flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150
                         ${active 
-                          ? 'bg-indigo-50 text-indigo-600' 
+                          ? 'bg-gray-900 text-white' 
                           : 'text-gray-700 hover:bg-gray-100'
                         }
                       `}
                       suppressHydrationWarning
                     >
-                      <span className={`mr-3 ${active ? 'text-indigo-600' : 'text-gray-500'}`}>
+                      <span className={`mr-3 ${active ? 'text-white' : 'text-gray-500'}`}>
                         {item.icon}
                       </span>
                       {item.title}
@@ -195,15 +202,15 @@ export default function SidebarLayout({ children }) {
                             key={subItem.href}
                             href={subItem.href}
                             className={`
-                              flex items-center px-4 py-2 text-sm rounded-md
+                              flex items-center px-4 py-2 text-sm rounded-md transition-colors duration-150
                               ${subActive 
-                                ? 'bg-indigo-50 text-indigo-600' 
-                                : 'text-gray-600 hover:bg-gray-100'
+                                ? 'bg-gray-100 text-gray-900 font-medium' 
+                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                               }
                             `}
                             suppressHydrationWarning
                           >
-                            <span className={`mr-3 ${subActive ? 'text-indigo-600' : 'text-gray-500'}`}>
+                            <span className={`mr-3 ${subActive ? 'text-gray-900' : 'text-gray-500'}`}>
                               {subItem.icon}
                             </span>
                             {subItem.title}
@@ -218,9 +225,9 @@ export default function SidebarLayout({ children }) {
           </nav>
 
           {/* Sidebar footer */}
-          <div className="p-4 border-t">
+          <div className="p-4 border-t border-gray-200">
             <button 
-              className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100"
+              className="flex items-center w-full px-4 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-150"
               suppressHydrationWarning
             >
               <LogOut size={20} className="mr-3 text-gray-500" />
@@ -233,12 +240,12 @@ export default function SidebarLayout({ children }) {
       {/* Main content */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Top navbar */}
-        <header className="bg-white shadow-sm z-10">
+        <header className="bg-white shadow-sm z-10 border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6">
             {/* Left: Hamburger menu */}
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-gray-500 focus:outline-none lg:hidden"
+              className="text-gray-500 focus:outline-none lg:hidden p-1 rounded-md hover:bg-gray-100 transition-colors"
               suppressHydrationWarning
             >
               <Menu size={24} />
@@ -254,14 +261,14 @@ export default function SidebarLayout({ children }) {
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-64 pl-10 pr-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-64 pl-10 pr-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-colors"
                   suppressHydrationWarning
                 />
               </div>
 
               {/* Notifications */}
               <button 
-                className="p-1 text-gray-500 rounded-full hover:bg-gray-100 focus:outline-none relative"
+                className="p-1.5 text-gray-500 rounded-full hover:bg-gray-100 focus:outline-none relative transition-colors"
                 suppressHydrationWarning
               >
                 <Bell size={20} />
@@ -277,7 +284,7 @@ export default function SidebarLayout({ children }) {
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                     <User size={16} className="text-gray-600" />
                   </div>
-                  <span className="hidden md:inline-block text-sm font-medium">Admin User</span>
+                  <span className="hidden md:inline-block text-sm font-medium text-gray-700">Admin User</span>
                 </button>
               </div>
             </div>
@@ -285,7 +292,7 @@ export default function SidebarLayout({ children }) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <main className="flex-1 overflow-y-auto bg-gray-50">
           {children}
         </main>
       </div>

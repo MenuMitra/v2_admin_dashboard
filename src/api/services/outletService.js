@@ -227,7 +227,7 @@ const outletService = {
   viewOutlet: async (outletId, userId) => {
     try {
       const userData = tokenService.getUserData();
-      const userIdToUse = userId || userData?.id || 1;
+      const userIdToUse =  2;
       
       const response = await fetch('/api/proxy', {
         method: 'POST',

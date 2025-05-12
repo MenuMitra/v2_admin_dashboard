@@ -14,10 +14,9 @@ const authService = {
   login: async (mobile) => {
     try {
       // Get device information
-      const deviceId = authService.getDeviceId();
-      const deviceModel = authService.getDeviceModel();
       
-      console.log('Using device info for login:', { deviceId, deviceModel });
+      
+     
       
       const response = await fetch('/api/proxy', {
         method: 'POST',
@@ -28,8 +27,7 @@ const authService = {
           endpoint: `/admin${ENDPOINTS.ADMIN.ADMIN_LOGIN}`,
           data: { 
             mobile,
-            device_id: deviceId,
-            device_model: deviceModel
+           
           }
         }),
       });
@@ -63,49 +61,7 @@ const authService = {
    * Generate a unique device ID or retrieve the stored one
    * @returns {string} Device ID
    */
-  getDeviceId: () => {
-    // First check if we already have a stored device ID
-    const storedDeviceId = localStorage.getItem('deviceId');
-    if (storedDeviceId) {
-      return storedDeviceId;
-    }
-    
-    // Generate a new device ID based on navigator properties and timestamp
-    const timestamp = Date.now().toString(36);
-    const randomStr = Math.random().toString(36).substring(2, 8);
-    const deviceId = `${timestamp}-${randomStr}`;
-    
-    // Store for future use
-    localStorage.setItem('deviceId', deviceId);
-    return deviceId;
-  },
-
-  /**
-   * Get the device model information
-   * @returns {string} Device model information
-   */
-  getDeviceModel: () => {
-    // Try to get device info from user agent
-    const userAgent = navigator.userAgent;
-    const platform = navigator.platform || 'Unknown';
-    
-    // Extract OS/browser info from user agent
-    let deviceModel = 'Unknown Device';
-    
-    if (/Windows/.test(userAgent)) {
-      deviceModel = `Windows ${/Windows NT ([0-9.]+)/.exec(userAgent)?.[1] || ''}`;
-    } else if (/Mac/.test(userAgent)) {
-      deviceModel = `Mac ${/Mac OS X ([0-9_.]+)/.exec(userAgent)?.[1]?.replace(/_/g, '.') || ''}`;
-    } else if (/Linux/.test(userAgent)) {
-      deviceModel = 'Linux';
-    } else if (/Android/.test(userAgent)) {
-      deviceModel = `Android ${/Android ([0-9.]+)/.exec(userAgent)?.[1] || ''}`;
-    } else if (/iPhone|iPad|iPod/.test(userAgent)) {
-      deviceModel = `iOS ${/OS ([0-9_]+)/.exec(userAgent)?.[1]?.replace(/_/g, '.') || ''}`;
-    }
-    
-    return `${deviceModel} - ${platform}`;
-  },
+ 
 
   /**
    * Verify Admin OTP and handle login response

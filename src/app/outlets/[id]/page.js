@@ -3,7 +3,28 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { FiShoppingBag, FiMail, FiPhone, FiMapPin, FiCalendar, FiEdit, FiArrowLeft } from 'react-icons/fi';
+import { 
+  FiShoppingBag, 
+  FiMail, 
+  FiPhone, 
+  FiMapPin, 
+  FiCalendar, 
+  FiEdit,
+  FiArrowLeft, 
+  FiClock,
+  FiPercent,
+  FiFileText,
+  FiCreditCard,
+  FiUser,
+  FiAlertTriangle,
+  FiCheckCircle,
+  FiXCircle,
+  FiDollarSign,
+  FiTag,
+  FiLayers,
+  FiCoffee,
+  FiMessageCircle
+} from 'react-icons/fi';
 import outletService from '@/api/services/outletService';
 import tokenService from '@/services/tokenService';
 import { isAuthenticated } from '@/utils/auth';
@@ -14,6 +35,38 @@ const formatDate = (dateString) => {
   const options = { year: 'numeric', month: 'short', day: 'numeric' };
   return new Date(dateString).toLocaleDateString('en-US', options);
 };
+
+// Info Item component with label below value
+const InfoItem = ({ icon: Icon, label, value, iconClass = 'text-indigo-600' }) => (
+  <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200">
+    <div className="flex items-center mb-1">
+      <Icon className={`mr-2 ${iconClass}`} size={18} />
+      <span className="text-base font-semibold text-gray-900">{value || 'N/A'}</span>
+    </div>
+    <div className="text-sm font-medium text-gray-500 pl-6">{label}</div>
+  </div>
+);
+
+// Status badge component
+const StatusBadge = ({ isActive }) => (
+  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+    isActive 
+      ? 'bg-green-100 text-green-800 border border-green-200' 
+      : 'bg-gray-100 text-gray-800 border border-gray-200'
+  }`}>
+    {isActive ? (
+      <>
+        <span className="w-2 h-2 rounded-full bg-green-400 mr-1.5"></span>
+        Active
+      </>
+    ) : (
+      <>
+        <span className="w-2 h-2 rounded-full bg-gray-400 mr-1.5"></span>
+        Inactive
+      </>
+    )}
+  </span>
+);
 
 export default function ViewOutletPage({ params }) {
   const router = useRouter();
@@ -36,7 +89,6 @@ export default function ViewOutletPage({ params }) {
       const userId = userData?.id || 1;
       
       const data = await outletService.viewOutlet(params.id, userId);
-      // Check if data is returned or if it's in the data field
       setOutlet(data);
     } catch (error) {
       console.error('Failed to fetch outlet details:', error);
@@ -48,9 +100,33 @@ export default function ViewOutletPage({ params }) {
 
   if (loading) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500">Loading outlet details...</div>
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="animate-pulse">
+          <div className="h-8 w-64 bg-gray-200 rounded mb-6"></div>
+          <div className="h-4 w-32 bg-gray-200 rounded mb-8"></div>
+          
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="flex items-center">
+              <div className="h-16 w-16 bg-gray-200 rounded-md mr-6"></div>
+              <div className="flex-1">
+                <div className="h-6 w-40 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 w-60 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 w-40 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mb-8">
+            <div className="h-6 w-40 bg-gray-200 rounded mb-4"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                  <div className="h-6 w-40 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -58,32 +134,41 @@ export default function ViewOutletPage({ params }) {
 
   if (!outlet) {
     return (
-      <div className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-red-500">Outlet not found</div>
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="bg-white rounded-lg shadow-md p-8 text-center max-w-2xl mx-auto">
+          <FiAlertTriangle size={48} className="mx-auto text-red-500 mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Outlet Not Found</h2>
+          <p className="text-gray-600 mb-6">The outlet you are looking for could not be found or you don't have permission to view it.</p>
+          <button
+            onClick={() => router.push('/outlets')}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
+          >
+            <FiArrowLeft className="mr-2" />
+            Back to Outlets
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Outlet Details</h1>
-          <p className="mt-1 text-sm text-gray-600">View detailed information about the outlet</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Outlet Details</h1>
+          <p className="text-gray-600">View detailed information about {outlet.name}</p>
         </div>
-        <div className="flex space-x-3">
+        <div className="flex space-x-3 mt-4 sm:mt-0">
           <button
             onClick={() => router.push('/outlets')}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
           >
             <FiArrowLeft className="mr-2" />
             Back to List
           </button>
           <button
             onClick={() => router.push(`/outlets/${params.id}/edit`)}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
           >
             <FiEdit className="mr-2" />
             Edit Outlet
@@ -91,147 +176,140 @@ export default function ViewOutletPage({ params }) {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow">
-        <div className="p-6 space-y-6">
-          {/* Basic Information */}
-          <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-center mb-2">
-                  <FiShoppingBag className="text-blue-600 mr-2" />
-                  <span className="text-sm font-medium text-gray-500">Outlet Name</span>
-                </div>
-                <span className="text-base font-medium text-gray-900">{outlet.name}</span>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-center mb-2">
-                  <FiMail className="text-blue-600 mr-2" />
-                  <span className="text-sm font-medium text-gray-500">Email Address</span>
-                </div>
-                <span className="text-base font-medium text-gray-900">{outlet.email}</span>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-center mb-2">
-                  <FiPhone className="text-blue-600 mr-2" />
-                  <span className="text-sm font-medium text-gray-500">Mobile Number</span>
-                </div>
-                <span className="text-base font-medium text-gray-900">{outlet.mobile}</span>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex items-center mb-2">
-                  <FiMapPin className="text-blue-600 mr-2" />
-                  <span className="text-sm font-medium text-gray-500">Address</span>
-                </div>
-                <span className="text-base font-medium text-gray-900">{outlet.address}</span>
-              </div>
-            </div>
+      {/* Outlet Summary Card */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center">
+          <div className="h-16 w-16 rounded-md bg-indigo-100 flex items-center justify-center mr-6 mb-4 md:mb-0">
+            <FiShoppingBag className="text-indigo-600" size={24} />
           </div>
-
-          {/* Business Details */}
-          <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Business Details</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">Outlet Type</span>
-                <p className="mt-1 text-base font-medium text-gray-900 capitalize">{outlet.outlet_type}</p>
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-gray-900">{outlet.name}</h2>
+            {outlet.address && (
+              <div className="flex items-center text-sm text-gray-600 mt-1">
+                <FiMapPin className="mr-2 text-gray-400" />
+                {outlet.address}
               </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">Food Type</span>
-                <p className="mt-1 text-base font-medium text-gray-900 capitalize">{outlet.veg_nonveg}</p>
+            )}
+            {outlet.mobile && (
+              <div className="flex items-center text-sm text-gray-600 mt-1">
+                <FiPhone className="mr-2 text-gray-400" />
+                {outlet.mobile}
               </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">Service Charges</span>
-                <p className="mt-1 text-base font-medium text-gray-900">{outlet.service_charges}%</p>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">GST</span>
-                <p className="mt-1 text-base font-medium text-gray-900">{outlet.gst}%</p>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">Opening Hours</span>
-                <p className="mt-1 text-base font-medium text-gray-900">
-                  {outlet.opening_time} - {outlet.closing_time}
-                </p>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">Status</span>
-                <p className="mt-1">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    outlet.is_active 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {outlet.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </p>
-              </div>
-            </div>
+            )}
           </div>
-
-          {/* Additional Information */}
-          <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Additional Information</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">FSSAI Number</span>
-                <p className="mt-1 text-base font-medium text-gray-900">{outlet.fssainumber || 'N/A'}</p>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">GST Number</span>
-                <p className="mt-1 text-base font-medium text-gray-900">{outlet.gstnumber || 'N/A'}</p>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">UPI ID</span>
-                <p className="mt-1 text-base font-medium text-gray-900">{outlet.upi_id || 'N/A'}</p>
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">WhatsApp</span>
-                <p className="mt-1 text-base font-medium text-gray-900">{outlet.whatsapp || 'N/A'}</p>
-              </div>
-            </div>
+          <div className="mt-4 md:mt-0">
+            <StatusBadge isActive={outlet.is_active} />
           </div>
+        </div>
+      </div>
 
-          {/* Audit Information */}
-          <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Audit Information</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">Created On</span>
-                <p className="mt-1 text-base font-medium text-gray-900">{formatDate(outlet.created_on)}</p>
-              </div>
+      {/* Basic Information */}
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <InfoItem 
+            icon={FiShoppingBag} 
+            label="Outlet Name" 
+            value={outlet.name} 
+          />
+          <InfoItem 
+            icon={FiMail} 
+            label="Email Address" 
+            value={outlet.email} 
+          />
+          <InfoItem 
+            icon={FiPhone} 
+            label="Mobile Number" 
+            value={outlet.mobile} 
+          />
+          <InfoItem 
+            icon={FiMapPin} 
+            label="Address" 
+            value={outlet.address} 
+          />
+          <InfoItem 
+            icon={FiMessageCircle} 
+            label="WhatsApp" 
+            value={outlet.whatsapp} 
+          />
+          <InfoItem 
+            icon={FiCoffee} 
+            label="Outlet Type" 
+            value={outlet.outlet_type} 
+          />
+        </div>
+      </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <span className="text-sm font-medium text-gray-500">Created By</span>
-                <p className="mt-1 text-base font-medium text-gray-900">{outlet.created_by}</p>
-              </div>
+      {/* Business Details */}
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Business Details</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <InfoItem 
+            icon={FiLayers} 
+            label="Food Type" 
+            value={outlet.veg_nonveg?.toUpperCase()} 
+          />
+          <InfoItem 
+            icon={FiPercent} 
+            label="Service Charges" 
+            value={`${outlet.service_charges || 0}%`} 
+          />
+          <InfoItem 
+            icon={FiDollarSign} 
+            label="GST" 
+            value={`${outlet.gst || 0}%`} 
+          />
+          <InfoItem 
+            icon={FiClock} 
+            label="Opening Hours" 
+            value={outlet.opening_time && outlet.closing_time ? `${outlet.opening_time} - ${outlet.closing_time}` : 'Not specified'} 
+          />
+          <InfoItem 
+            icon={FiFileText} 
+            label="FSSAI Number" 
+            value={outlet.fssainumber} 
+          />
+          <InfoItem 
+            icon={FiTag} 
+            label="GST Number" 
+            value={outlet.gstnumber} 
+          />
+          <InfoItem 
+            icon={FiCreditCard} 
+            label="UPI ID" 
+            value={outlet.upi_id} 
+          />
+        </div>
+      </div>
 
-              {outlet.updated_on && (
-                <>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <span className="text-sm font-medium text-gray-500">Updated On</span>
-                    <p className="mt-1 text-base font-medium text-gray-900">{formatDate(outlet.updated_on)}</p>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <span className="text-sm font-medium text-gray-500">Updated By</span>
-                    <p className="mt-1 text-base font-medium text-gray-900">{outlet.updated_by}</p>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
+      {/* Audit Information */}
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Audit Information</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <InfoItem 
+            icon={FiCalendar} 
+            label="Created On" 
+            value={formatDate(outlet.created_on)} 
+          />
+          <InfoItem 
+            icon={FiUser} 
+            label="Created By" 
+            value={outlet.created_by} 
+          />
+          {outlet.updated_on && (
+            <>
+              <InfoItem 
+                icon={FiCalendar} 
+                label="Updated On" 
+                value={formatDate(outlet.updated_on)} 
+              />
+              <InfoItem 
+                icon={FiUser} 
+                label="Updated By" 
+                value={outlet.updated_by} 
+              />
+            </>
+          )}
         </div>
       </div>
     </div>

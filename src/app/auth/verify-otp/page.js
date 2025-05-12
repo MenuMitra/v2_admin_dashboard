@@ -9,12 +9,15 @@ import { authService } from '@/api';
 export default function VerifyOTP() {
   const [otp, setOtp] = useState(['', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(15); // 15 seconds countdown instead of 120
+  const [timeLeft, setTimeLeft] = useState(15);
   const [isResending, setIsResending] = useState(false);
-  const [animateIn, setAnimateIn] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success'); // 'success' or 'error'
   const [mobileNumber, setMobileNumber] = useState('');
+  const [maskedNumber, setMaskedNumber] = useState('');
   const router = useRouter();
   
   const inputRefs = [
@@ -35,27 +38,45 @@ export default function VerifyOTP() {
     
     setMobileNumber(storedMobile);
     
+    // Create masked version of mobile number (e.g., "xxxxxxxx90")
+    if (storedMobile.length > 2) {
+      const lastTwoDigits = storedMobile.slice(-2);
+      const masked = 'x'.repeat(storedMobile.length - 2) + lastTwoDigits;
+      setMaskedNumber(masked);
+    } else {
+      setMaskedNumber(storedMobile);
+    }
+    
     // Auto-focus the first input on component mount
     if (inputRefs[0].current) {
       inputRefs[0].current.focus();
     }
-    
-    // Trigger animation on mount
-    setAnimateIn(true);
-    
-    // Set up the countdown timer
-    const timer = setInterval(() => {
-      setTimeLeft(prevTime => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-    
-    return () => clearInterval(timer);
   }, [router]);
+
+  // Separate useEffect for timer to ensure it runs properly
+  useEffect(() => {
+    let timerId;
+    if (timeLeft > 0) {
+      timerId = setTimeout(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+    }
+    
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
+  }, [timeLeft]);
+
+  const showToastNotification = (message, type = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    
+    // Auto-hide toast after 3 seconds
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -124,16 +145,20 @@ export default function VerifyOTP() {
       if (response.access_token || response.detail === 'Login successful') {
         // Token storage is handled in authService.verifyOtp
         
-        // Show success message briefly before redirect
+        // Show success message
         setSuccessMessage('Login successful! Redirecting...');
+        showToastNotification('Login successful! Redirecting to dashboard...', 'success');
         
         // Redirect to dashboard after a short delay
         setTimeout(() => {
           router.push('/dashboard');
-        }, 1000);
+        }, 1500);
       } else {
         // Handle unsuccessful verification
-        setErrorMessage(response?.detail || 'Invalid OTP. Please try again.');
+        const errorMsg = response?.detail || 'Invalid OTP. Please try again.';
+        setErrorMessage(errorMsg);
+        showToastNotification(errorMsg, 'error');
+        
         // Clear OTP fields on error
         setOtp(['', '', '', '']);
         // Focus first input
@@ -141,7 +166,10 @@ export default function VerifyOTP() {
       }
     } catch (error) {
       console.error('OTP verification error:', error);
-      setErrorMessage('Error connecting to the server. Please try again later.');
+      const errorMsg = 'Error connecting to the server. Please try again later.';
+      setErrorMessage(errorMsg);
+      showToastNotification(errorMsg, 'error');
+      
       // Clear OTP fields on error
       setOtp(['', '', '', '']);
       // Focus first input
@@ -165,120 +193,141 @@ export default function VerifyOTP() {
       
       // Check if resend was successful
       if (response && (response.detail || response.st === 1)) {
-        // Reset timer to 15 seconds
-        setTimeLeft(15);
-        setSuccessMessage('OTP sent successfully! Please check your phone.');
+        // Reset timer to 60 seconds
+        setTimeLeft(60);
+        const successMsg = 'OTP sent successfully! Please check your phone.';
+        setSuccessMessage(successMsg);
+        showToastNotification(successMsg, 'success');
       } else {
         // Handle unsuccessful resend
-        setErrorMessage(response?.msg || 'Failed to resend OTP. Please try again.');
+        const errorMsg = response?.msg || 'Failed to resend OTP. Please try again.';
+        setErrorMessage(errorMsg);
+        showToastNotification(errorMsg, 'error');
       }
     } catch (error) {
       console.error('Resend OTP error:', error);
-      setErrorMessage('Error connecting to the server. Please try again later.');
+      const errorMsg = 'Error connecting to the server. Please try again later.';
+      setErrorMessage(errorMsg);
+      showToastNotification(errorMsg, 'error');
     } finally {
       setIsResending(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-slate-900 to-black relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="glowing-stars"></div>
-        <div className="absolute top-1/4 left-1/3 w-64 h-64 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-72 h-72 bg-pink-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
-
-      <div className="w-full max-w-md z-10">
-        {/* Brand logo with animation */}
-        <div className="flex items-center justify-center mb-10">
-          <div className={`w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 transition-all duration-1000 ${animateIn ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}>
-            <span className="text-white font-bold text-3xl">A</span>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      {/* Toast notification */}
+      {showToast && (
+        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all transform duration-300 ${
+          toastType === 'success' ? 'bg-green-100 border-l-4 border-green-500' : 'bg-red-100 border-l-4 border-red-500'
+        }`}>
+          <div className="flex items-center">
+            <div className={`w-6 h-6 flex items-center justify-center rounded-full mr-3 ${
+              toastType === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`}>
+              {toastType === 'success' ? (
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              ) : (
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              )}
+            </div>
+            <p className={`text-sm font-medium ${toastType === 'success' ? 'text-green-800' : 'text-red-800'}`}>
+              {toastMessage}
+            </p>
           </div>
         </div>
+      )}
+
+      <div className="w-full max-w-md px-6">
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-20 h-20 mb-4">
+            <img 
+              src="/images/logo.png" 
+              alt="MM Outlet Management" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+        </div>
         
-        {/* OTP verification card with animation */}
-        <div className={`bg-white/10 backdrop-blur-xl rounded-3xl p-10 shadow-2xl border border-white/20 transition-all duration-700 transform ${animateIn ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-          <div className="flex items-center mb-8">
-            <Link href="/auth/login" className="text-gray-300 hover:text-white inline-flex items-center group">
-              <ArrowLeft size={20} className="mr-1 group-hover:-translate-x-1 transition-transform duration-300" />
-              <span>Back</span>
+        <div className="bg-white rounded-lg shadow-md p-8 border border-gray-200">
+          <div className="flex items-center mb-6">
+            <Link href="/auth/login" className="text-gray-600 hover:text-gray-900 inline-flex items-center group">
+              <ArrowLeft size={18} className="mr-1 group-hover:-translate-x-1 transition-transform duration-300" />
+              <span>Back to login</span>
             </Link>
           </div>
           
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white mb-2">Verify OTP</h2>
-            <p className="text-gray-300">Enter the 4-digit code sent to your mobile</p>
-            {mobileNumber && <p className="text-gray-400 text-sm mt-1">{mobileNumber}</p>}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">Verify OTP</h2>
+            <p className="text-gray-600 text-sm">Enter the 4-digit code sent to your mobile</p>
+            {maskedNumber && (
+              <div className="mt-2 py-1 px-3 bg-gray-100 inline-block rounded-full">
+                <p className="text-gray-700 text-sm font-medium tracking-wider">{maskedNumber}</p>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-8">
-            <div className="flex justify-center space-x-4">
+          <div className="space-y-6">
+            <div className="flex justify-between space-x-2 sm:space-x-4">
               {otp.map((digit, index) => (
                 <input
                   key={index}
                   ref={inputRefs[index]}
                   type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
                   maxLength={1}
                   value={digit}
                   onChange={(e) => handleInputChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   onPaste={index === 0 ? handlePaste : null}
-                  className={`w-14 h-14 text-center text-xl font-semibold bg-white/5 border border-gray-300/20 text-white rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white/10 transition-all duration-300 transform delay-${index*100}`}
-                  style={{
-                    animationDelay: `${index * 100}ms`,
-                    opacity: animateIn ? 1 : 0,
-                    transform: animateIn ? 'translateY(0)' : 'translateY(20px)'
-                  }}
+                  className="w-12 h-12 sm:w-14 sm:h-14 text-center text-xl font-semibold bg-white border border-gray-300 text-gray-900 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all duration-200"
                 />
               ))}
             </div>
 
             {errorMessage && (
-              <div className="text-center">
-                <p className="text-sm text-red-400 fade-in">{errorMessage}</p>
-              </div>
+              <div className="text-sm text-red-600">{errorMessage}</div>
             )}
             
             {successMessage && (
-              <div className="text-center">
-                <p className="text-sm text-green-400 fade-in">{successMessage}</p>
-              </div>
+              <div className="text-sm text-green-600">{successMessage}</div>
             )}
 
             <button
               onClick={handleVerifyOtp}
               disabled={otp.join('').length !== 4 || isLoading}
-              className="w-full group flex justify-center items-center py-4 px-4 rounded-xl text-base font-medium text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none shadow-lg disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-300 transform hover:translate-y-[-2px] relative overflow-hidden"
+              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800 transition-colors duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              <span className="relative z-10 flex items-center">
-                {isLoading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Verifying...
-                  </>
-                ) : (
-                  'Verify & Continue'
-                )}
-              </span>
-              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-purple-600/0 via-white/20 to-purple-600/0 transform -skew-x-30 translate-x-[-150%] group-hover:translate-x-[150%] transition-all duration-1000"></div>
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Verifying...
+                </>
+              ) : (
+                'Verify & Continue'
+              )}
             </button>
 
-            <div className="text-center">
-              <p className="text-sm text-gray-300 mb-2">
+            <div className="text-center pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600 mb-2">
                 Didn't receive the code? {timeLeft > 0 ? (
-                  <span className="text-yellow-400 font-medium">Resend in {formatTime(timeLeft)}</span>
+                  <span className="text-gray-800 font-medium">Resend in {formatTime(timeLeft)}</span>
                 ) : 'Resend now'}
               </p>
               <button
                 onClick={handleResendOtp}
                 disabled={timeLeft > 0 || isResending}
                 className={`inline-flex items-center text-sm font-medium ${
-                  timeLeft > 0 ? 'text-gray-400 opacity-50 cursor-not-allowed' : 'text-white hover:text-purple-300 group'
+                  timeLeft > 0 ? 'text-gray-400 opacity-50 cursor-not-allowed' : 'text-gray-800 hover:text-gray-600'
                 }`}
               >
                 {isResending ? (
@@ -297,45 +346,6 @@ export default function VerifyOTP() {
           </div>
         </div>
       </div>
-      
-      {/* Custom CSS for animated background */}
-      <style jsx global>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(20px, -30px) scale(1.1); }
-          50% { transform: translate(-20px, 20px) scale(0.9); }
-          75% { transform: translate(-30px, -20px) scale(1.05); }
-        }
-        
-        .animate-blob {
-          animation: blob 10s infinite;
-        }
-        
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        
-        .glowing-stars {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          background-image: radial-gradient(2px 2px at 40px 60px, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 20px 50px, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 30px 100px, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 40px 60px, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 110px 70px, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0)),
-                          radial-gradient(2px 2px at 190px 150px, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0));
-          background-repeat: repeat;
-          background-size: 200px 200px;
-        }
-      `}</style>
     </div>
   );
 } 

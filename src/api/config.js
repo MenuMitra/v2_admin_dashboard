@@ -30,6 +30,9 @@ export const ENDPOINTS = {
     ADMIN_LOGIN: '/admin_login',
     ADMIN_VERIFY_OTP: '/admin_verify_otp',
     
+    // Dashboard endpoints
+    ADMIN_HOME: '/admin_home',
+    
     // UBAC endpoints
     CREATE_UBAC_ROLE: '/create_ubac_role',
     GET_UBAC_ROLES: '/get_ubac_roles',

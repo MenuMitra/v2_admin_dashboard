@@ -34,7 +34,7 @@ export default function CreateOutletPage() {
     website: '',
     opening_time: '',
     closing_time: '',
-    owner_id: '', // Changed from hardcoded to empty
+    owner_id: '', 
     image: null
   });
   const [errors, setErrors] = useState({});
@@ -253,35 +253,35 @@ export default function CreateOutletPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-7xl mx-auto bg-gray-100">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Create New Outlet</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Create New Outlet</h1>
           <p className="mt-1 text-sm text-gray-600">Add a new food outlet to your business network</p>
         </div>
         <button
           onClick={() => router.push('/outlets')}
-          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="inline-flex items-center px-4 py-2 border border-gray-800 rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition duration-150"
         >
           <FiArrowLeft className="mr-2 h-4 w-4" />
           Back to Outlets
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-lg font-medium text-gray-900">Outlet Information</h3>
-          <p className="mt-1 text-sm text-gray-500">
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <div className="px-6 py-5 border-b border-gray-200 bg-gray-900 text-white">
+          <h3 className="text-lg font-medium">Outlet Information</h3>
+          <p className="mt-1 text-sm text-gray-300">
             Fill in the details below to create a new outlet. All fields marked with * are required.
           </p>
         </div>
         
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="p-6 bg-gray-50">
           <div className="space-y-8">
             {/* Basic Information Section */}
-            <div>
-              <h4 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
-                <FiInfo className="mr-2 text-blue-600" />
+            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+              <h4 className="text-base font-semibold text-gray-800 mb-4 flex items-center border-b pb-2">
+                <FiInfo className="mr-2 text-gray-700" />
                 Basic Information
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -300,10 +300,8 @@ export default function CreateOutletPage() {
                       value={formData.name}
                       onChange={handleInputChange}
                       className={`block w-full pl-10 pr-3 py-2.5 border ${
-                        errors.name ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                      } rounded-md shadow-sm text-sm text-black placeholder-gray-400 bg-white focus:bg-white focus:bg-opacity-100 ${
-                        formData.name ? 'bg-gray-50' : ''
-                      }`}
+                        errors.name ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'
+                      } rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                       placeholder="Enter outlet name"
                     />
                   </div>
@@ -324,7 +322,7 @@ export default function CreateOutletPage() {
                       name="mobile"
                       value={formData.mobile}
                       onChange={handleInputChange}
-                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.mobile ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white focus:bg-blue-50`}
+                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.mobile ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                       placeholder="Enter mobile number"
                     />
                   </div>
@@ -345,8 +343,8 @@ export default function CreateOutletPage() {
                       value={formData.owner_id}
                       onChange={handleInputChange}
                       className={`block w-full pl-10 pr-3 py-2.5 border ${
-                        errors.owner_id ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                      } rounded-md shadow-sm text-sm text-black bg-white`}
+                        errors.owner_id ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'
+                      } rounded-md shadow-sm text-sm text-gray-900 bg-white hover:bg-gray-50 transition-colors duration-200`}
                     >
                       <option value="">Select Owner</option>
                       {owners.map((owner) => (
@@ -373,7 +371,7 @@ export default function CreateOutletPage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.email ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white focus:bg-blue-50`}
+                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.email ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                       placeholder="Enter email address"
                     />
                   </div>
@@ -395,8 +393,8 @@ export default function CreateOutletPage() {
                       value={formData.upi_id}
                       onChange={handleInputChange}
                       className={`block w-full pl-10 pr-3 py-2.5 border ${
-                        errors.upi_id ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                      } rounded-md shadow-sm text-sm text-black bg-white`}
+                        errors.upi_id ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'
+                      } rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                       placeholder="Enter UPI ID"
                     />
                   </div>
@@ -409,7 +407,7 @@ export default function CreateOutletPage() {
                     Outlet Image
                   </label>
                   <div className="mt-1 flex items-center space-x-4">
-                    <div className={`flex justify-center items-center px-6 pt-5 pb-6 border-2 ${errors.image ? 'border-red-300' : 'border-gray-300'} border-dashed rounded-md w-full max-w-xs`}>
+                    <div className={`flex justify-center items-center px-6 pt-5 pb-6 border-2 ${errors.image ? 'border-red-300' : 'border-gray-300'} border-dashed rounded-md w-full max-w-xs bg-white hover:bg-gray-50 transition-colors duration-200`}>
                       <div className="space-y-1 text-center">
                         {imagePreview ? (
                           <div className="relative w-full h-40 mb-4">
@@ -424,7 +422,7 @@ export default function CreateOutletPage() {
                                 setImagePreview(null);
                                 setFormData({...formData, image: null});
                               }}
-                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+                              className="absolute top-1 right-1 bg-gray-800 text-white rounded-full p-1 hover:bg-gray-700 transition-colors duration-200"
                               title="Remove image"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -438,7 +436,7 @@ export default function CreateOutletPage() {
                           </svg>
                         )}
                         <div className="flex text-sm text-gray-600">
-                          <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                          <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-gray-700 hover:text-gray-500 focus-within:outline-none">
                             <span>{imagePreview ? 'Change image' : 'Upload a file'}</span>
                             <input
                               id="file-upload"
@@ -478,7 +476,7 @@ export default function CreateOutletPage() {
                       value={formData.address}
                       onChange={handleInputChange}
                       rows={3}
-                      className={`block w-full pl-10 pr-3 py-2 border ${errors.address ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white focus:bg-blue-50`}
+                      className={`block w-full pl-10 pr-3 py-2 border ${errors.address ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                       placeholder="Enter complete address"
                     />
                   </div>
@@ -488,25 +486,25 @@ export default function CreateOutletPage() {
             </div>
 
             {/* Business Details Section */}
-            <div>
-              <h4 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
-                <FiHash className="mr-2 text-blue-600" />
+            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+              <h4 className="text-base font-semibold text-gray-800 mb-4 flex items-center border-b pb-2">
+                <FiHash className="mr-2 text-gray-700" />
                 Business Details
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="col-span-6 sm:col-span-3">
-                  <label htmlFor="outlet_type" className="block text-sm font-medium text-gray-700">
+                <div className="col-span-1">
+                  <label htmlFor="outlet_type" className="block text-sm font-medium text-gray-700 mb-1">
                     Outlet Type <span className="text-red-500">*</span>
                   </label>
-                  <div className="mt-1">
+                  <div className="relative rounded-md shadow-sm">
                     <select
                       id="outlet_type"
                       name="outlet_type"
                       value={formData.outlet_type}
                       onChange={handleInputChange}
                       className={`block w-full py-2.5 px-3 border ${
-                        errors.outlet_type ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                      } rounded-md shadow-sm text-sm text-black bg-white`}
+                        errors.outlet_type ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'
+                      } rounded-md shadow-sm text-sm text-gray-900 bg-white hover:bg-gray-50 transition-colors duration-200`}
                     >
                       <option value="">Select Outlet Type</option>
                       {Object.entries(outletTypes).map(([key, value]) => (
@@ -521,19 +519,19 @@ export default function CreateOutletPage() {
                   )}
                 </div>
 
-                <div className="col-span-6 sm:col-span-3">
-                  <label htmlFor="food_type" className="block text-sm font-medium text-gray-700">
+                <div className="col-span-1">
+                  <label htmlFor="veg_nonveg" className="block text-sm font-medium text-gray-700 mb-1">
                     Food Type <span className="text-red-500">*</span>
                   </label>
-                  <div className="mt-1">
+                  <div className="relative rounded-md shadow-sm">
                     <select
-                      id="food_type"
-                      name="food_type"
-                      value={formData.food_type}
+                      id="veg_nonveg"
+                      name="veg_nonveg"
+                      value={formData.veg_nonveg}
                       onChange={handleInputChange}
                       className={`block w-full py-2.5 px-3 border ${
-                        errors.food_type ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
-                      } rounded-md shadow-sm text-sm text-black bg-white`}
+                        errors.veg_nonveg ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'
+                      } rounded-md shadow-sm text-sm text-gray-900 bg-white hover:bg-gray-50 transition-colors duration-200`}
                     >
                       <option value="">Select Food Type</option>
                       {Object.entries(foodTypes).map(([key, value]) => (
@@ -543,8 +541,8 @@ export default function CreateOutletPage() {
                       ))}
                     </select>
                   </div>
-                  {errors.food_type && (
-                    <p className="mt-2 text-sm text-red-600">{errors.food_type}</p>
+                  {errors.veg_nonveg && (
+                    <p className="mt-2 text-sm text-red-600">{errors.veg_nonveg}</p>
                   )}
                 </div>
 
@@ -565,7 +563,7 @@ export default function CreateOutletPage() {
                       step="0.01"
                       value={formData.service_charges}
                       onChange={handleInputChange}
-                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.service_charges ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white focus:bg-blue-50`}
+                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.service_charges ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                       placeholder="Enter service charges"
                     />
                   </div>
@@ -589,7 +587,7 @@ export default function CreateOutletPage() {
                       step="0.01"
                       value={formData.gst}
                       onChange={handleInputChange}
-                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.gst ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white focus:bg-blue-50`}
+                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.gst ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'} rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                       placeholder="Enter GST percentage"
                     />
                   </div>
@@ -610,7 +608,7 @@ export default function CreateOutletPage() {
                       name="opening_time"
                       value={formData.opening_time}
                       onChange={handleInputChange}
-                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.opening_time ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} rounded-md shadow-sm text-sm text-gray-900 bg-white focus:bg-blue-50`}
+                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.opening_time ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'} rounded-md shadow-sm text-sm text-gray-900 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                       placeholder="09:00"
                     />
                   </div>
@@ -632,7 +630,7 @@ export default function CreateOutletPage() {
                       name="closing_time"
                       value={formData.closing_time}
                       onChange={handleInputChange}
-                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.closing_time ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} rounded-md shadow-sm text-sm text-gray-900 bg-white focus:bg-blue-50`}
+                      className={`block w-full pl-10 pr-3 py-2.5 border ${errors.closing_time ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-gray-700 focus:border-gray-700'} rounded-md shadow-sm text-sm text-gray-900 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                       placeholder="21:00"
                     />
                   </div>
@@ -643,9 +641,9 @@ export default function CreateOutletPage() {
             </div>
 
             {/* Additional Information Section */}
-            <div>
-              <h4 className="text-base font-semibold text-gray-900 mb-4 flex items-center">
-                <FiInfo className="mr-2 text-blue-600" />
+            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+              <h4 className="text-base font-semibold text-gray-800 mb-4 flex items-center border-b pb-2">
+                <FiInfo className="mr-2 text-gray-700" />
                 Additional Information
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -659,7 +657,7 @@ export default function CreateOutletPage() {
                     name="fssainumber"
                     value={formData.fssainumber}
                     onChange={handleInputChange}
-                    className="block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-900 bg-white focus:bg-blue-50"
+                    className={`block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-gray-700 focus:border-gray-700 sm:text-sm rounded-md text-gray-900 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                     placeholder="Enter FSSAI number"
                   />
                 </div>
@@ -674,7 +672,7 @@ export default function CreateOutletPage() {
                     name="gstnumber"
                     value={formData.gstnumber}
                     onChange={handleInputChange}
-                    className="block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-900 bg-white focus:bg-blue-50"
+                    className={`block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-gray-700 focus:border-gray-700 sm:text-sm rounded-md text-gray-900 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                     placeholder="Enter GST number"
                   />
                 </div>
@@ -689,7 +687,7 @@ export default function CreateOutletPage() {
                     name="whatsapp"
                     value={formData.whatsapp}
                     onChange={handleInputChange}
-                    className="block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-900 bg-white focus:bg-blue-50"
+                    className={`block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-gray-700 focus:border-gray-700 sm:text-sm rounded-md text-gray-900 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                     placeholder="Enter WhatsApp number"
                   />
                 </div>
@@ -704,7 +702,7 @@ export default function CreateOutletPage() {
                     name="facebook"
                     value={formData.facebook}
                     onChange={handleInputChange}
-                    className="block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-900 bg-white focus:bg-blue-50"
+                    className={`block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-gray-700 focus:border-gray-700 sm:text-sm rounded-md text-gray-900 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                     placeholder="Enter Facebook URL"
                   />
                 </div>
@@ -719,7 +717,7 @@ export default function CreateOutletPage() {
                     name="instagram"
                     value={formData.instagram}
                     onChange={handleInputChange}
-                    className="block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-900 bg-white focus:bg-blue-50"
+                    className={`block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-gray-700 focus:border-gray-700 sm:text-sm rounded-md text-gray-900 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                     placeholder="Enter Instagram URL"
                   />
                 </div>
@@ -734,7 +732,7 @@ export default function CreateOutletPage() {
                     name="website"
                     value={formData.website}
                     onChange={handleInputChange}
-                    className="block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md text-gray-900 bg-white focus:bg-blue-50"
+                    className={`block w-full px-3 py-2.5 border border-gray-300 focus:outline-none focus:ring-gray-700 focus:border-gray-700 sm:text-sm rounded-md text-gray-900 bg-white hover:bg-gray-50 focus:bg-white transition-colors duration-200`}
                     placeholder="Enter website URL"
                   />
                 </div>
@@ -746,14 +744,14 @@ export default function CreateOutletPage() {
             <button
               type="button"
               onClick={() => router.push('/outlets')}
-              className="px-4 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              className="px-4 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors duration-200"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 transition-colors duration-200"
+              className="px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 disabled:bg-gray-400 transition-colors duration-200"
             >
               {loading ? (
                 <span className="flex items-center">
