@@ -111,4 +111,64 @@ export async function GET(request) {
       { status: 500 }
     );
   }
+}
+
+export async function PATCH(request) {
+  try {
+    // Parse the request body as FormData
+    const formData = await request.formData();
+    
+    // Get the endpoint from FormData
+    const endpoint = formData.get('endpoint');
+    if (!endpoint) {
+      return Response.json(
+        { error: 'Endpoint is required in FormData' },
+        { status: 400 }
+      );
+    }
+    
+    // Set the target API URL
+    const apiUrl = `https://men4u.xyz/v2${endpoint}`;
+    console.log(`Proxying PATCH request to: ${apiUrl}`);
+    
+    // Create a new FormData object to send to the API
+    const apiFormData = new FormData();
+    
+    // Copy all fields from the original FormData to the new one
+    for (const [key, value] of formData.entries()) {
+      if (key !== 'endpoint') {  // Skip the endpoint field
+        apiFormData.append(key, value);
+      }
+    }
+    
+    // Configure request options
+    const options = {
+      method: 'PATCH',
+      body: apiFormData
+    };
+    
+    // Add authorization if available
+    const authHeader = request.headers.get('authorization');
+    if (authHeader) {
+      options.headers = { 'Authorization': authHeader };
+      console.log('Adding auth token to request headers:', authHeader);
+    }
+    
+    // Forward the request to the actual API
+    const response = await fetch(apiUrl, options);
+    const result = await response.json();
+    
+    // Log response for debugging
+    console.log('Response status from API:', response.status);
+    console.log('API response:', result);
+    
+    // Return the response with the appropriate status code
+    return Response.json(result, { status: response.status });
+  } catch (error) {
+    console.error('API proxy error for PATCH request:', error);
+    return Response.json(
+      { error: 'Failed to process PATCH request', detail: error.message },
+      { status: 500 }
+    );
+  }
 } 

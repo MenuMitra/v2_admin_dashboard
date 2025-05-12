@@ -10,21 +10,21 @@ const AccessControlDashboard = () => {
       title: 'Roles',
       description: 'Manage user roles for access control',
       icon: <FiUsers className="h-12 w-12 text-blue-500" />,
-      path: '/dashboard/access-control/roles',
+      path: '/access-control/roles',
       color: 'bg-blue-50 border-blue-200'
     },
     {
       title: 'Functionalities',
       description: 'Manage system functionalities',
       icon: <FiLayers className="h-12 w-12 text-green-500" />,
-      path: '/dashboard/access-control/functionalities',
+      path: '/access-control/functionalities',
       color: 'bg-green-50 border-green-200'
     },
     {
       title: 'Role-Functionality Mapping',
       description: 'Configure what functionalities each role can access',
       icon: <FiLink className="h-12 w-12 text-purple-500" />,
-      path: '/dashboard/access-control/roles',
+      path: '/access-control/roles',
       color: 'bg-purple-50 border-purple-200'
     }
   ];
@@ -69,11 +69,19 @@ const AccessControlDashboard = () => {
       <div className="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-lg">
         <h3 className="text-lg font-semibold text-gray-800 mb-2">How Access Control Works</h3>
         <ol className="list-decimal pl-5 space-y-2 text-gray-600">
-          <li><strong>Create Roles</strong> - Define different user roles (e.g., Admin, Manager, Staff)</li>
+          <li><strong>View Roles</strong> - The roles list is extracted from role-functionality mappings in the system</li>
           <li><strong>Define Functionalities</strong> - Specify system functionalities that can be controlled</li>
           <li><strong>Map Roles to Functionalities</strong> - Assign which functionalities each role can access</li>
-          <li><strong>Assign Roles to Users</strong> - Give users the appropriate roles</li>
+          <li><strong>Role Management</strong> - Click on a role to manage its functionality mappings</li>
         </ol>
+        
+        <div className="mt-4 bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-yellow-800">
+          <h4 className="font-semibold mb-1">Implementation Note</h4>
+          <p>
+            The system extracts role information from the role-functionality mappings. 
+            To manage roles, use the Role Mapping page accessible by clicking "View" on a role.
+          </p>
+        </div>
       </div>
     </div>
   );

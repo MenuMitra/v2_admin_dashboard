@@ -44,8 +44,8 @@ export default function QRTemplates() {
           image: data[0].image_name,
           qr_position: data[0].qr_overlay_position,
           created_on: data[0].created_on,
-          image_url: data[0].image_url, // Check if API already provides a URL
-          full_object: data[0]  // Log the entire object to see all fields
+          image_url: data[0].image_url,
+          full_object: data[0]
         });
       }
       
@@ -104,40 +104,37 @@ export default function QRTemplates() {
   };
   
   return (
-    <div className="space-y-6">
+    <div className="p-6 max-w-7xl mx-auto bg-gray-100">
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900 flex items-center">
-            <QrCode className="mr-2 text-indigo-600" size={28} />
-            QR Templates
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-800">QR Templates</h1>
           <p className="mt-1 text-sm text-gray-600">Create and manage QR code templates for your menus</p>
         </div>
         <div className="mt-4 sm:mt-0">
           <button
             onClick={handleCreateTemplate}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium flex items-center space-x-2 transition-colors duration-200 hover:bg-indigo-700 shadow-sm hover:shadow focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors duration-200"
           >
-            <Plus size={16} />
-            <span>Create Template</span>
+            <Plus className="mr-2 h-4 w-4" />
+            Create Template
           </button>
         </div>
       </div>
       
       {/* Search and filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white p-4 rounded-lg shadow-sm border border-gray-200">
         <div className="relative w-full sm:w-64">
           <input
             type="text"
             placeholder="Search templates..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-gray-700 focus:border-gray-700"
           />
           <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
         </div>
-        <div className="mt-4 sm:mt-0 flex items-center space-x-2">
+        <div className="mt-4 sm:mt-0 flex items-center">
           <span className="text-sm text-gray-500">
             {filteredTemplates.length} template{filteredTemplates.length !== 1 ? 's' : ''}
           </span>
@@ -146,7 +143,7 @@ export default function QRTemplates() {
 
       {/* Error message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start mb-6">
           <AlertCircle className="mr-2 mt-0.5 flex-shrink-0" size={16} />
           <span>{error}</span>
         </div>
@@ -167,21 +164,21 @@ export default function QRTemplates() {
                   <div className="h-8 bg-gray-200 rounded w-8"></div>
                   <div className="h-8 bg-gray-200 rounded w-8"></div>
                 </div>
-          </div>
-        </div>
+              </div>
+            </div>
           ))
         ) : filteredTemplates.length > 0 ? (
           filteredTemplates.map((template) => (
-            <div key={template.qr_code_template_id} className="bg-white rounded-lg border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-md group">
+            <div key={template.qr_code_template_id} className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 group">
               <div className="relative h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
                 {/* Template image or placeholder */}
                 {template.image_name ? (
                   <div className="relative h-full w-full">
                     <img 
                       src={templateService.getTemplateImageUrl(template.image_name)} 
-                            alt={template.name}
+                      alt={template.name}
                       className="w-full h-full object-cover"
-                            onError={(e) => {
+                      onError={(e) => {
                         const imgUrl = templateService.getTemplateImageUrl(template.image_name);
                         console.error(`Failed to load image: ${template.image_name}`, {
                           url: imgUrl,
@@ -206,59 +203,69 @@ export default function QRTemplates() {
                   </div>
                 )}
                 
-                {/* Overlay with actions, visible on hover */}
-                <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div className="flex space-x-4">
+                {/* Overlay with actions */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200">
+                  <div className="flex space-x-3">
                     <button 
                       onClick={() => handleViewTemplate(template.qr_code_template_id)}
-                      className="p-2 bg-indigo-500 text-white rounded-full hover:bg-indigo-600 transition-colors duration-200 transform hover:scale-110"
+                      className="p-2 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition-colors duration-200 transform hover:scale-110"
+                      title="View template"
                     >
-                      <Eye size={18} />
+                      <Eye size={16} />
                     </button>
-                        <button
+                    <button
                       onClick={() => handleEditTemplate(template.qr_code_template_id)}
-                      className="p-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors duration-200 transform hover:scale-110"
-                        >
-                      <Edit2 size={18} />
-                        </button>
-                        <button
+                      className="p-2 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition-colors duration-200 transform hover:scale-110"
+                      title="Edit template"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                    <button
                       onClick={() => openDeleteModal(template)}
-                      className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors duration-200 transform hover:scale-110"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
+                      className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors duration-200 transform hover:scale-110"
+                      title="Delete template"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="text-lg font-medium text-gray-900 truncate">{template.name}</h3>
-                <div className="mt-1 flex items-center">
-                  <span className="text-sm text-gray-500 capitalize">
-                    QR Position: {template.qr_overlay_position}
-                  </span>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-base font-medium text-gray-900 truncate">{template.name}</h3>
+                    <div className="mt-1 flex items-center">
+                      <span className="text-sm text-gray-600 capitalize">
+                        QR Position: {template.qr_overlay_position}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <QrCode className="text-gray-400" size={18} />
+                  </div>
                 </div>
-                <div className="mt-2 text-xs text-gray-400">
+                <div className="mt-2 text-xs text-gray-500">
                   Created: {template.created_on}
                 </div>
-          </div>
+              </div>
             </div>
           ))
         ) : (
           // No templates found
-          <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
-            <LayoutGrid size={48} className="mb-4 opacity-50" />
-            <h3 className="text-lg font-medium mb-2">No templates found</h3>
-            <p className="text-sm text-center mb-6">
+          <div className="col-span-full bg-white rounded-lg border border-gray-200 p-8 text-center shadow-sm">
+            <LayoutGrid size={40} className="mx-auto mb-4 text-gray-400" />
+            <h3 className="text-lg font-medium mb-2 text-gray-800">No templates found</h3>
+            <p className="text-sm text-gray-600 mb-6">
               {searchTerm 
                 ? `No templates match "${searchTerm}". Try a different search term.` 
                 : "You haven't created any QR templates yet."}
             </p>
             <button
               onClick={handleCreateTemplate}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium flex items-center space-x-2 hover:bg-indigo-700"
+              className="px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium inline-flex items-center shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors duration-200"
             >
-              <Plus size={16} />
-              <span>Create Your First Template</span>
+              <Plus className="mr-2" size={16} />
+              Create Your First Template
             </button>
           </div>
         )}
@@ -267,7 +274,7 @@ export default function QRTemplates() {
       {/* Delete confirmation modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md transform transition-all animate-fade-in">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-medium text-gray-900 flex items-center">
               <AlertCircle className="text-red-500 mr-2" size={20} />
               Confirm Deletion
@@ -278,13 +285,13 @@ export default function QRTemplates() {
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteTemplate}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
               >
                 Delete
               </button>
@@ -292,17 +299,6 @@ export default function QRTemplates() {
           </div>
         </div>
       )}
-      
-      {/* Add custom styles for animations */}
-      <style jsx global>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 } 

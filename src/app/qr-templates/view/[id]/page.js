@@ -77,61 +77,57 @@ export default function ViewTemplate({ params }) {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
-        <Loader2 size={40} className="text-indigo-600 animate-spin" />
+        <Loader2 size={40} className="text-gray-700 animate-spin" />
       </div>
     );
   }
 
   if (!template && !loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-500">
-        <FileImage size={64} className="mb-4 opacity-50" />
-        <h3 className="text-xl font-medium mb-2">Template Not Found</h3>
-        <p className="text-sm mb-6">The template you're looking for doesn't exist or has been deleted.</p>
-        <button 
-          onClick={() => router.push('/qr-templates')}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700"
-        >
-          Go Back to Templates
-        </button>
+      <div className="p-6 max-w-7xl mx-auto bg-gray-100">
+        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+          <FileImage size={64} className="mx-auto mb-4 text-gray-400" />
+          <h3 className="text-xl font-medium mb-2 text-gray-800">Template Not Found</h3>
+          <p className="text-gray-600 mb-6">The template you're looking for doesn't exist or has been deleted.</p>
+          <button 
+            onClick={() => router.push('/qr-templates')}
+            className="px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors duration-200"
+          >
+            Go Back to Templates
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 max-w-7xl mx-auto bg-gray-100">
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-        <div className="flex items-center">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">{template?.name}</h1>
+          <p className="mt-1 text-sm text-gray-600">QR template details and preview</p>
+        </div>
+        <div className="mt-4 sm:mt-0 flex space-x-3">
           <button
             onClick={() => router.push('/qr-templates')}
-            className="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
           >
-            <ArrowLeft size={20} className="text-gray-600" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Templates
           </button>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 flex items-center">
-              <QrCode className="mr-2 text-indigo-600" size={28} />
-              {template?.name}
-            </h1>
-            <p className="mt-1 text-sm text-gray-600">
-              QR template details and preview
-            </p>
-          </div>
-        </div>
-        <div className="flex space-x-3">
           <button
             onClick={() => router.push(`/qr-templates/edit/${templateId}`)}
-            className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors duration-200 flex items-center"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
           >
-            <Edit2 size={16} className="mr-1.5" />
-            Edit Template
+            <Edit2 className="mr-2 h-4 w-4" />
+            Edit
           </button>
           <button
             onClick={() => setShowDeleteModal(true)}
-            className="px-4 py-2 border border-red-300 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 hover:border-red-500 transition-colors duration-200 flex items-center"
+            className="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-600 bg-white hover:bg-red-50 hover:border-red-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
           >
-            <Trash2 size={16} className="mr-1.5" />
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete
           </button>
         </div>
@@ -139,7 +135,7 @@ export default function ViewTemplate({ params }) {
       
       {/* Error message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start mb-6">
           <AlertCircle className="mr-2 mt-0.5 flex-shrink-0" size={16} />
           <span>{error}</span>
         </div>
@@ -148,16 +144,16 @@ export default function ViewTemplate({ params }) {
       {/* Template content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Template image */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-              <FileImage className="text-indigo-600 mr-2" size={20} />
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-200 bg-gray-900 text-white">
+            <h3 className="text-lg font-medium flex items-center">
+              <FileImage className="mr-2" size={20} />
               Template Preview
-            </h2>
+            </h3>
           </div>
           <div className="p-5">
             {template?.image_name ? (
-              <div className="relative rounded-lg overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center h-64">
+              <div className="relative rounded-md overflow-hidden border border-gray-100 bg-gray-50 flex items-center justify-center h-64">
                 <img 
                   src={templateService.getTemplateImageUrl(template.image_name)} 
                   alt={template.name}
@@ -179,7 +175,7 @@ export default function ViewTemplate({ params }) {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-64 text-gray-400 border border-gray-200 rounded-lg">
+              <div className="flex flex-col items-center justify-center h-64 text-gray-400 border border-gray-200 rounded-md">
                 <FileImage size={48} />
                 <span className="text-sm mt-2">No image available</span>
               </div>
@@ -188,17 +184,15 @@ export default function ViewTemplate({ params }) {
         </div>
         
         {/* Template details */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-5 py-4 border-b border-gray-100">
-            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-              <LayoutTemplate className="text-indigo-600 mr-2" size={20} />
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+          <div className="px-6 py-5 border-b border-gray-200 bg-gray-900 text-white">
+            <h3 className="text-lg font-medium flex items-center">
+              <LayoutTemplate className="mr-2" size={20} />
               Template Details
-            </h2>
+            </h3>
           </div>
           <div className="p-5">
             <dl className="space-y-6">
-             
-              
               <div>
                 <dt className="text-sm font-medium text-gray-500">Name</dt>
                 <dd className="mt-1 text-lg text-gray-900">{template?.name}</dd>
@@ -225,16 +219,16 @@ export default function ViewTemplate({ params }) {
             
             <div className="mt-8 pt-6 border-t border-gray-100">
               <h3 className="text-sm font-medium text-gray-500 mb-3">QR Position Preview</h3>
-              <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="p-4 bg-gray-50 rounded-md">
                 <div className="relative w-full h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
                   {template?.qr_overlay_position === 'centre' ? (
-                    <div className="p-2 bg-white border border-gray-300 rounded-lg">
-                      <QrCode size={80} className="text-indigo-600" />
+                    <div className="p-2 bg-white border border-gray-300 rounded-md">
+                      <QrCode size={80} className="text-gray-800" />
                     </div>
                   ) : (
                     <div className="absolute top-4 left-0 right-0 flex justify-center">
-                      <div className="p-2 bg-white border border-gray-300 rounded-lg">
-                        <QrCode size={60} className="text-indigo-600" />
+                      <div className="p-2 bg-white border border-gray-300 rounded-md">
+                        <QrCode size={60} className="text-gray-800" />
                       </div>
                     </div>
                   )}
@@ -248,7 +242,7 @@ export default function ViewTemplate({ params }) {
       {/* Delete confirmation modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md transform transition-all animate-fade-in">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-medium text-gray-900 flex items-center">
               <AlertCircle className="text-red-500 mr-2" size={20} />
               Confirm Deletion
@@ -259,13 +253,13 @@ export default function ViewTemplate({ params }) {
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteTemplate}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
               >
                 Delete
               </button>
@@ -273,17 +267,6 @@ export default function ViewTemplate({ params }) {
           </div>
         </div>
       )}
-      
-      {/* Add custom styles for animations */}
-      <style jsx global>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out forwards;
-        }
-      `}</style>
     </div>
   );
 } 

@@ -46,17 +46,17 @@ export default function OwnersPage() {
       const data = await ownerService.listOwners(userId);
       
       if (data.detail && typeof data.detail === 'string') {
-        // This is likely an error message
+        // This is an error response from the API
         setError(data.detail);
-        // Don't show toast here, we'll display in the UI
+        setLoading(false);
         return;
       }
       
       setOwners(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch owners:', error);
-      setError(error.message || 'Failed to load owners');
-      // Don't show toast here, we'll display in the UI
+      // Set error to the exact API error message if available
+      setError(error.detail || error.message || 'Failed to load owners');
     } finally {
       setLoading(false);
     }
@@ -83,6 +83,12 @@ export default function OwnersPage() {
     setShowDeleteModal(true);
   };
 
+  // Close delete modal
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setOwnerToDelete(null);
+  };
+
   // Handle owner deletion
   const handleDelete = async () => {
     setLoading(true);
@@ -92,19 +98,23 @@ export default function OwnersPage() {
       
       const response = await ownerService.deleteOwner(ownerToDelete.user_id, userId);
       
-      if (response.detail && response.detail.includes("successfully")) {
-        toast.success('Owner deleted successfully');
-        fetchOwners(); // Refresh the list
-      } else if (response.detail) {
-        setError(response.detail);
-        setShowDeleteModal(false);
+      if (response.detail) {
+        if (response.detail.includes("successfully")) {
+          toast.success(response.detail);
+          fetchOwners(); // Refresh the list
+        } else {
+          // This is an error message from the API
+          setError(response.detail);
+          setShowDeleteModal(false);
+        }
       } else {
         toast.success('Owner deleted successfully');
         fetchOwners(); // Refresh the list
       }
     } catch (error) {
       console.error('Failed to delete owner:', error);
-      setError(error.message || 'Failed to delete owner');
+      // Set error to the exact API error message if available
+      setError(error.detail || error.message || 'Failed to delete owner');
     } finally {
       setLoading(false);
       setShowDeleteModal(false);
@@ -112,71 +122,160 @@ export default function OwnersPage() {
     }
   };
 
+  // Render delete confirmation modal content
+  const renderDeleteConfirmation = () => {
+    if (!ownerToDelete) return null;
+    
+    return (
+      <div className="space-y-4">
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <FiAlertCircle className="h-6 w-6 text-red-600" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900">Confirm Deletion</h3>
+          <p className="mt-2 text-sm text-gray-600">
+            Are you sure you want to delete this owner? This action cannot be undone. All data associated with this owner will be permanently removed.
+          </p>
+        </div>
+        <div className="mt-6 flex justify-end space-x-3">
+          <button
+            onClick={closeDeleteModal}
+            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md text-sm font-medium shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={loading}
+            className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200 disabled:bg-red-300"
+          >
+            {loading ? 'Deleting...' : 'Delete Owner'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Render skeleton loading elements
+  const renderSkeletonLoaders = () => (
+    <div className="overflow-x-auto">
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="bg-gray-50">
+          <tr>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              #
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Owner
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Contact
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Address
+            </th>
+            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Status
+            </th>
+            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {[...Array(5)].map((_, index) => (
+            <tr key={index} className="animate-pulse">
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 w-4 bg-gray-200 rounded"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex items-center">
+                  <div className="h-10 w-10 rounded-full bg-gray-200"></div>
+                  <div className="ml-4">
+                    <div className="h-4 w-24 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 w-16 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 w-32 bg-gray-200 rounded mb-2"></div>
+                <div className="h-3 w-24 bg-gray-200 rounded"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-4 w-32 bg-gray-200 rounded"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="h-5 w-16 bg-gray-200 rounded-full"></div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right">
+                <div className="flex items-center justify-end space-x-3">
+                  <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
+                  <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
+                  <div className="h-5 w-5 bg-gray-200 rounded-full"></div>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
-    <div className="max-w-6xl px-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-6 max-w-7xl mx-auto bg-gray-100">
+      {/* Page header */}
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Owner Management</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Owner Management</h1>
           <p className="mt-1 text-sm text-gray-600">View and manage all restaurant owners</p>
         </div>
-        <button
-          onClick={handleAddNew}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300 shadow-md"
-        >
-          <FiPlus className="mr-2" /> Add New Owner
-        </button>
+        <div className="mt-4 sm:mt-0">
+          <button
+            onClick={handleAddNew}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors duration-200"
+          >
+            <FiPlus className="mr-2 h-4 w-4" /> Add New Owner
+          </button>
+        </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-          <h2 className="text-lg font-medium text-gray-800">Owner List</h2>
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg flex items-start mb-6">
+          <FiAlertCircle className="mr-3 mt-0.5 flex-shrink-0" size={24} />
+          <div>
+            <h3 className="font-medium text-red-800 mb-1">Error</h3>
+            <p>{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Owner list */}
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <div className="px-6 py-5 border-b border-gray-200 bg-gray-900 text-white">
+          <h3 className="text-lg font-medium">Owner List</h3>
+          <p className="mt-1 text-sm text-gray-300">
+            Manage restaurant owners and their details
+          </p>
         </div>
         
         <div className="p-6">
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-pulse flex space-x-4">
-                <div className="rounded-full bg-slate-200 h-10 w-10"></div>
-                <div className="flex-1 space-y-6 py-1">
-                  <div className="h-2 bg-slate-200 rounded"></div>
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="h-2 bg-slate-200 rounded col-span-2"></div>
-                      <div className="h-2 bg-slate-200 rounded col-span-1"></div>
-                    </div>
-                    <div className="h-2 bg-slate-200 rounded"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : error ? (
-            <div className="flex items-center justify-center py-8 min-h-[300px]">
-              <div className="bg-white rounded-xl shadow-md p-8 text-center max-w-lg">
-                <FiAlertCircle size={48} className="mx-auto text-red-500 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Error Loading Owners</h3>
-                <p className="text-sm text-gray-500 mb-4">{error}</p>
-                <button
-                  onClick={() => router.push('/')}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                >
-                  <FiArrowLeft className="mr-2" /> Go Back to Dashboard
-                </button>
-              </div>
-            </div>
-          ) : owners.length === 0 ? (
+          {loading && !error ? (
+            renderSkeletonLoaders()
+          ) : owners.length === 0 && !error ? (
             <div className="text-center py-8">
               <FiUser size={48} className="mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium text-gray-900">No owners found</h3>
               <p className="mt-1 text-sm text-gray-500">Get started by creating a new owner</p>
               <button
                 onClick={handleAddNew}
-                className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700"
               >
-                <FiPlus className="-ml-1 mr-2 h-5 w-5" />
+                <FiPlus className="mr-2 h-4 w-4" />
                 Add New Owner
               </button>
             </div>
-          ) : (
+          ) : !error ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -209,8 +308,8 @@ export default function OwnersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
-                            <FiUser className="h-5 w-5 text-blue-600" />
+                          <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center">
+                            <FiUser className="h-5 w-5 text-gray-600" />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">{owner.name}</div>
@@ -238,19 +337,22 @@ export default function OwnersPage() {
                         <div className="flex items-center justify-end space-x-3">
                           <button
                             onClick={() => handleView(owner)}
-                            className="text-indigo-600 hover:text-indigo-900 transition-colors duration-200"
+                            className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                            title="View Owner"
                           >
                             <FiEye className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => handleEdit(owner)}
-                            className="text-amber-600 hover:text-amber-900 transition-colors duration-200"
+                            className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
+                            title="Edit Owner"
                           >
                             <FiEdit className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => confirmDelete(owner)}
                             className="text-red-600 hover:text-red-900 transition-colors duration-200"
+                            title="Delete Owner"
                           >
                             <FiTrash2 className="h-5 w-5" />
                           </button>
@@ -261,45 +363,19 @@ export default function OwnersPage() {
                 </tbody>
               </table>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
       
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <Modal
-          title="Delete Owner"
-          onClose={() => setShowDeleteModal(false)}
-          showClose={true}
-        >
-          <div className="p-6">
-            <div className="flex items-center justify-center mb-4 text-red-600">
-              <FiTrash2 size={48} />
-            </div>
-            <h3 className="text-lg text-center font-medium text-gray-900 mb-2">
-              Are you sure you want to delete this owner?
-            </h3>
-            <p className="text-sm text-center text-gray-500 mb-6">
-              This action cannot be undone. All data associated with this owner will be permanently removed.
-            </p>
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={loading}
-                className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 disabled:bg-red-300"
-              >
-                {loading ? 'Deleting...' : 'Delete Owner'}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+      {/* Delete confirmation modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={closeDeleteModal}
+        title="Confirm Delete"
+        size="sm"
+      >
+        {renderDeleteConfirmation()}
+      </Modal>
     </div>
   );
 } 

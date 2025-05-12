@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiCreditCard, FiArrowLeft, FiPlus, FiAlertCircle } from 'react-icons/fi';
+import { FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiCreditCard, FiArrowLeft, FiPlus, FiAlertCircle, FiAlertTriangle } from 'react-icons/fi';
 import partnerService from '@/api/services/partnerService';
 import tokenService from '@/services/tokenService';
 import { isAuthenticated } from '@/utils/auth';
@@ -97,28 +97,21 @@ export default function CreatePartnerPage() {
 
   if (!mounted) {
     return (
-      <div className="max-w-4xl px-6">
+      <div className="p-6 bg-gray-50 min-h-screen">
         {/* Loading skeleton */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="w-24 h-10 bg-gray-200 rounded"></div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-            <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-          </div>
+        <div className="animate-pulse">
+          <div className="h-8 w-64 bg-gray-200 rounded mb-6"></div>
+          <div className="h-4 w-32 bg-gray-200 rounded mb-8"></div>
           
-          <div className="p-6">
-            <div className="animate-pulse space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="h-20 bg-gray-200 rounded col-span-1"></div>
-                <div className="h-20 bg-gray-200 rounded col-span-1"></div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="h-20 bg-gray-200 rounded col-span-1"></div>
-                <div className="h-20 bg-gray-200 rounded col-span-1"></div>
-              </div>
-              <div className="h-20 bg-gray-200 rounded"></div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="h-6 w-40 bg-gray-200 rounded mb-4"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="bg-gray-50 p-5 rounded-lg border border-gray-200">
+                  <div className="h-4 w-24 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-8 w-full bg-gray-200 rounded"></div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -128,17 +121,18 @@ export default function CreatePartnerPage() {
 
   if (error) {
     return (
-      <div className="max-w-4xl px-6 h-screen flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-md p-8 text-center max-w-lg">
-          <FiAlertCircle size={48} className="mx-auto text-red-500 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Error Creating Partner</h3>
-          <p className="text-gray-500 mb-6">{error}</p>
+      <div className="p-6 bg-gray-50 min-h-screen">
+        <div className="bg-white rounded-lg shadow-md p-8 text-center max-w-2xl mx-auto">
+          <FiAlertTriangle size={48} className="mx-auto text-red-500 mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Creating Partner</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={goBack}
-            className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900"
             suppressHydrationWarning
           >
-            <FiArrowLeft className="mr-2" /> Go Back to Partners
+            <FiArrowLeft className="mr-2" />
+            Back to Partners
           </button>
         </div>
       </div>
@@ -146,22 +140,29 @@ export default function CreatePartnerPage() {
   }
 
   return (
-    <div className="max-w-4xl px-6">
-      {/* Header with back button */}
-      <div className="flex justify-between items-center mb-6">
-        <button
-          onClick={goBack}
-          className="inline-flex items-center text-gray-700 hover:text-indigo-600 transition-colors duration-200"
-          suppressHydrationWarning
-        >
-          <FiArrowLeft className="mr-2" /> Back to Partners
-        </button>
+    <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Page header */}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Add New Partner</h1>
+          <p className="text-gray-600">Create a new partner in the system</p>
+        </div>
+        <div className="mt-4 sm:mt-0">
+          <button
+            onClick={goBack}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+            suppressHydrationWarning
+          >
+            <FiArrowLeft className="mr-2 h-4 w-4" />
+            Back to Partners
+          </button>
+        </div>
       </div>
 
-      {/* Create form card */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-          <h1 className="text-xl font-semibold text-gray-900">Add New Partner</h1>
+      {/* Form container */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-200 bg-gray-900 text-white">
+          <h3 className="text-lg font-medium">Partner Information</h3>
         </div>
         
         <div className="p-6">
@@ -182,7 +183,7 @@ export default function CreatePartnerPage() {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter full name"
                     required
                   />
@@ -204,7 +205,7 @@ export default function CreatePartnerPage() {
                     name="mobile"
                     value={formData.mobile}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter mobile number"
                     pattern="[0-9]{10}"
                     title="Please enter a valid 10-digit mobile number"
@@ -228,7 +229,7 @@ export default function CreatePartnerPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter email address"
                     required
                   />
@@ -250,7 +251,7 @@ export default function CreatePartnerPage() {
                     name="dob"
                     value={formData.dob}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     required
                   />
                 </div>
@@ -271,7 +272,7 @@ export default function CreatePartnerPage() {
                     name="aadhar_number"
                     value={formData.aadhar_number}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter 12-digit Aadhar number"
                     pattern="[0-9]{12}"
                     title="Please enter a valid 12-digit Aadhar number"
@@ -295,7 +296,7 @@ export default function CreatePartnerPage() {
                     value={formData.address}
                     onChange={handleInputChange}
                     rows={3}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-gray-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter complete address"
                     required
                   />
@@ -303,11 +304,18 @@ export default function CreatePartnerPage() {
               </div>
             </div>
 
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md flex items-start">
+                <FiAlertCircle className="mr-2 mt-0.5 flex-shrink-0" size={16} />
+                <span>{error}</span>
+              </div>
+            )}
+
             <div className="pt-5 border-t border-gray-200 mt-8 flex justify-end space-x-3">
               <button
                 type="button"
                 onClick={goBack}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                 disabled={submitting}
                 suppressHydrationWarning
               >
@@ -316,7 +324,7 @@ export default function CreatePartnerPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300 transition-colors duration-200"
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:bg-gray-400 transition-colors"
                 suppressHydrationWarning
               >
                 <FiPlus className="mr-2 -ml-1 h-5 w-5" />

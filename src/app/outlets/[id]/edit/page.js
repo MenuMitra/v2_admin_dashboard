@@ -3,16 +3,73 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { FiShoppingBag, FiMail, FiPhone, FiMapPin, FiArrowLeft, FiInfo, FiPercent, FiHash, FiClock, FiDollarSign, FiGlobe, FiUser } from 'react-icons/fi';
+import { FiShoppingBag, FiMail, FiPhone, FiMapPin, FiArrowLeft, FiInfo, FiPercent, FiHash, FiClock, FiDollarSign, FiGlobe, FiUser, FiImage } from 'react-icons/fi';
 import outletService from '@/api/services/outletService';
 import commonService from '@/api/services/commonService';
 import { isAuthenticated } from '@/utils/auth';
+
+// Function to convert API time format to HTML time input format (HH:MM)
+const apiTimeToInputTime = (apiTime) => {
+  if (!apiTime) return '';
+  
+  try {
+    // Parse the API time format (e.g., "2024-01-01 10:00:00 AM")
+    const timePart = apiTime.split(' ');
+    if (timePart.length < 3) return '';
+    
+    const timeValue = timePart[1]; // "10:00:00"
+    const ampm = timePart[2]; // "AM" or "PM"
+    
+    // Extract hours and minutes
+    const [hours, minutes] = timeValue.split(':');
+    
+    // Convert to 24-hour format for HTML time input
+    let hour24 = parseInt(hours);
+    if (ampm === 'PM' && hour24 < 12) {
+      hour24 += 12;
+    } else if (ampm === 'AM' && hour24 === 12) {
+      hour24 = 0;
+    }
+    
+    // Format as HH:MM for HTML time input
+    return `${hour24.toString().padStart(2, '0')}:${minutes}`;
+  } catch (error) {
+    console.error('Error parsing API time:', error);
+    return '';
+  }
+};
+
+// Function to convert HTML time input (HH:MM) to API time format
+const inputTimeToApiTime = (inputTime) => {
+  if (!inputTime) return '';
+  
+  try {
+    // Parse the HTML time input format (HH:MM in 24-hour)
+    const [hours, minutes] = inputTime.split(':');
+    const hour = parseInt(hours);
+    
+    // Determine AM/PM
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    
+    // Convert to 12-hour format
+    let hour12 = hour % 12;
+    if (hour12 === 0) hour12 = 12;
+    
+    // Format as API time format (use current date as placeholder)
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    return `${today} ${hour12}:${minutes}:00 ${ampm}`;
+  } catch (error) {
+    console.error('Error formatting time for API:', error);
+    return '';
+  }
+};
 
 export default function EditOutletPage({ params }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [outletTypes, setOutletTypes] = useState({});
   const [foodTypes, setFoodTypes] = useState({});
+  const [imagePreview, setImagePreview] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     mobile: '',
@@ -34,7 +91,8 @@ export default function EditOutletPage({ params }) {
     opening_time: '',
     closing_time: '',
     is_open: 1,
-    outlet_status: 1
+    outlet_status: 1,
+    image: null
   });
 
   // Check authentication and fetch outlet details on component mount
@@ -82,7 +140,24 @@ export default function EditOutletPage({ params }) {
   const fetchOutletDetails = async () => {
     try {
       const data = await outletService.viewOutlet(params.id);
-      setFormData(data);
+      console.log('Outlet data from API:', data);
+      
+      // Format time values for the input fields
+      const formattedData = { ...data };
+      
+      // Convert API time format to HTML time input format
+      if (formattedData.opening_time) {
+        formattedData.opening_time = apiTimeToInputTime(formattedData.opening_time);
+      }
+      
+      if (formattedData.closing_time) {
+        formattedData.closing_time = apiTimeToInputTime(formattedData.closing_time);
+      }
+      
+      setFormData(formattedData);
+      if (formattedData.image) {
+        setImagePreview(formattedData.image);
+      }
     } catch (error) {
       console.error('Failed to fetch outlet details:', error);
       toast.error('Failed to load outlet details');
@@ -92,11 +167,41 @@ export default function EditOutletPage({ params }) {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox') {
+      setFormData({
+        ...formData,
+        [name]: checked ? 1 : 0
+      });
+    } else if (type === 'time') {
+      // For time inputs, store the value as is (already in HH:MM format)
+      setFormData({
+        ...formData,
+        [name]: value // HTML time inputs are in HH:MM format which matches API needs
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({
+        ...formData,
+        image: file
+      });
+      
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -104,17 +209,49 @@ export default function EditOutletPage({ params }) {
     setLoading(true);
 
     try {
+      // Create an object with only the fields specified in the API structure
       const updateData = {
-        ...formData,
-        outlet_id: params.id
+        outlet_id: parseInt(params.id),
+        user_id: 2,
+        name: formData.name,
+        outlet_type: formData.outlet_type,
+        fssainumber: formData.fssainumber,
+        gstnumber: formData.gstnumber,
+        mobile: formData.mobile,
+        veg_nonveg: formData.veg_nonveg,
+        service_charges: formData.service_charges,
+        gst: formData.gst,
+        address: formData.address,
+        is_open: formData.is_open,
+        outlet_status: formData.outlet_status,
+        upi_id: formData.upi_id,
+        website: formData.website,
+        whatsapp: formData.whatsapp,
+        facebook: formData.facebook,
+        instagram: formData.instagram,
+        google_business_link: formData.google_business_link,
+        google_review: formData.google_review
       };
+
+      // Only include time fields if they are provided and convert to API format
+      if (formData.opening_time && formData.opening_time.trim() !== '') {
+        updateData.opening_time = inputTimeToApiTime(formData.opening_time);
+      }
       
+      if (formData.closing_time && formData.closing_time.trim() !== '') {
+        updateData.closing_time = inputTimeToApiTime(formData.closing_time);
+      }
+      
+      console.log('Sending update data:', updateData);
+      
+      // Use the outletService to update the outlet
       await outletService.updateOutlet(updateData);
+      
       toast.success('Outlet updated successfully');
       router.push(`/outlets/${params.id}`);
     } catch (error) {
       console.error('Failed to update outlet:', error);
-      toast.error('Failed to update outlet');
+      toast.error('Failed to update outlet: ' + (error.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -122,9 +259,105 @@ export default function EditOutletPage({ params }) {
 
   if (loading) {
     return (
-      <div className="p-6 bg-gray-100">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-700">Loading outlet details...</div>
+      <div className="p-6 max-w-7xl mx-auto bg-gray-100">
+        <div className="mb-8 flex items-center justify-between">
+          <div className="animate-pulse">
+            <div className="h-8 w-48 bg-gray-300 rounded mb-2"></div>
+            <div className="h-4 w-64 bg-gray-200 rounded"></div>
+          </div>
+          <div className="animate-pulse">
+            <div className="h-10 w-32 bg-gray-300 rounded"></div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+          <div className="px-6 py-5 border-b border-gray-200 bg-gray-900">
+            <div className="animate-pulse">
+              <div className="h-5 w-36 bg-gray-700 rounded mb-2"></div>
+              <div className="h-4 w-64 bg-gray-700 rounded"></div>
+            </div>
+          </div>
+          
+          <div className="p-6 bg-gray-50">
+            <div className="space-y-8">
+              {/* Basic Information Section Skeleton */}
+              <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                <div className="animate-pulse">
+                  <div className="h-5 w-36 bg-gray-300 rounded mb-4 pb-2 border-b"></div>
+                  
+                  {/* Image Upload Skeleton */}
+                  <div className="mb-6 flex items-start space-x-6">
+                    <div className="w-32 h-32 bg-gray-200 rounded-md"></div>
+                    <div className="flex flex-col">
+                      <div className="h-8 w-28 bg-gray-300 rounded mb-2"></div>
+                      <div className="h-4 w-36 bg-gray-200 rounded"></div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(9)].map((_, i) => (
+                      <div key={i} className="col-span-1">
+                        <div className="h-4 w-24 bg-gray-300 rounded mb-2"></div>
+                        <div className="h-10 bg-gray-200 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Business Details Section Skeleton */}
+              <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                <div className="animate-pulse">
+                  <div className="h-5 w-36 bg-gray-300 rounded mb-4 pb-2 border-b"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="col-span-1">
+                        <div className="h-4 w-28 bg-gray-300 rounded mb-2"></div>
+                        <div className="h-10 bg-gray-200 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Media Section Skeleton */}
+              <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                <div className="animate-pulse">
+                  <div className="h-5 w-48 bg-gray-300 rounded mb-4 pb-2 border-b"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, i) => (
+                      <div key={i} className="col-span-1">
+                        <div className="h-4 w-32 bg-gray-300 rounded mb-2"></div>
+                        <div className="h-10 bg-gray-200 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Outlet Status Section Skeleton */}
+              <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+                <div className="animate-pulse">
+                  <div className="h-5 w-32 bg-gray-300 rounded mb-4 pb-2 border-b"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {[...Array(2)].map((_, i) => (
+                      <div key={i} className="col-span-1 flex items-center">
+                        <div className="h-4 w-4 bg-gray-300 rounded mr-2"></div>
+                        <div className="h-4 w-40 bg-gray-300 rounded"></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 mt-8 border-t border-gray-200 flex justify-end space-x-3">
+              <div className="animate-pulse flex space-x-3">
+                <div className="h-10 w-24 bg-gray-200 rounded"></div>
+                <div className="h-10 w-32 bg-gray-300 rounded"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -162,6 +395,43 @@ export default function EditOutletPage({ params }) {
                 <FiInfo className="mr-2 text-gray-700" />
                 Basic Information
               </h4>
+              
+              {/* Image Upload Section */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Outlet Image
+                </label>
+                <div className="flex items-center space-x-6">
+                  <div className="w-32 h-32 border-2 border-gray-300 border-dashed rounded-md overflow-hidden relative bg-gray-50 flex items-center justify-center">
+                    {imagePreview ? (
+                      <img 
+                        src={imagePreview} 
+                        alt="Outlet preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <FiImage className="h-12 w-12 text-gray-400" />
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <label htmlFor="outlet-image" className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 cursor-pointer">
+                      Select Image
+                    </label>
+                    <input
+                      id="outlet-image"
+                      name="image"
+                      type="file"
+                      className="sr-only"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                    <p className="mt-2 text-xs text-gray-500">
+                      JPG, PNG, or GIF up to 5MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="col-span-1">
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
@@ -324,7 +594,7 @@ export default function EditOutletPage({ params }) {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="col-span-1">
                   <label htmlFor="service_charges" className="block text-sm font-medium text-gray-700 mb-1">
-                    Service Charges (%) <span className="text-red-500">*</span>
+                    Service Charges (%)
                   </label>
                   <div className="relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -340,14 +610,13 @@ export default function EditOutletPage({ params }) {
                       value={formData.service_charges}
                       onChange={handleInputChange}
                       className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white hover:bg-gray-50 focus:bg-white focus:ring-gray-700 focus:border-gray-700 transition-colors duration-200"
-                      required
                     />
                   </div>
                 </div>
 
                 <div className="col-span-1">
                   <label htmlFor="gst" className="block text-sm font-medium text-gray-700 mb-1">
-                    GST (%) <span className="text-red-500">*</span>
+                    GST (%)
                   </label>
                   <div className="relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -363,7 +632,6 @@ export default function EditOutletPage({ params }) {
                       value={formData.gst}
                       onChange={handleInputChange}
                       className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm text-gray-900 placeholder-gray-400 bg-white hover:bg-gray-50 focus:bg-white focus:ring-gray-700 focus:border-gray-700 transition-colors duration-200"
-                      required
                     />
                   </div>
                 </div>
@@ -385,7 +653,7 @@ export default function EditOutletPage({ params }) {
                       className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm text-gray-900 bg-white hover:bg-gray-50 focus:bg-white focus:ring-gray-700 focus:border-gray-700 transition-colors duration-200"
                     />
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">Format: 24-hour (HH:MM)</p>
+                  <p className="mt-1 text-xs text-gray-500">Enter time in 24-hour format (HH:MM)</p>
                 </div>
 
                 <div className="col-span-1">
@@ -405,7 +673,7 @@ export default function EditOutletPage({ params }) {
                       className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm text-gray-900 bg-white hover:bg-gray-50 focus:bg-white focus:ring-gray-700 focus:border-gray-700 transition-colors duration-200"
                     />
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">Format: 24-hour (HH:MM)</p>
+                  <p className="mt-1 text-xs text-gray-500">Enter time in 24-hour format (HH:MM)</p>
                 </div>
 
                 <div className="col-span-1">
@@ -535,6 +803,47 @@ export default function EditOutletPage({ params }) {
                     className="block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm text-gray-900 bg-white hover:bg-gray-50 focus:bg-white focus:ring-gray-700 focus:border-gray-700 transition-colors duration-200"
                     placeholder="https://g.page/r/yourreviewpage"
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* Outlet Status Section */}
+            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+              <h4 className="text-base font-semibold text-gray-800 mb-4 flex items-center border-b pb-2">
+                <FiUser className="mr-2 text-gray-700" />
+                Outlet Status
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="col-span-1">
+                  <div className="flex items-center">
+                    <input
+                      id="is_open"
+                      name="is_open"
+                      type="checkbox"
+                      checked={formData.is_open === 1}
+                      onChange={handleInputChange}
+                      className="h-4 w-4 border-gray-300 rounded text-gray-900 focus:ring-gray-700"
+                    />
+                    <label htmlFor="is_open" className="ml-2 block text-sm font-medium text-gray-700">
+                      Outlet is currently open
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="col-span-1">
+                  <div className="flex items-center">
+                    <input
+                      id="outlet_status"
+                      name="outlet_status"
+                      type="checkbox"
+                      checked={formData.outlet_status === 1}
+                      onChange={handleInputChange}
+                      className="h-4 w-4 border-gray-300 rounded text-gray-900 focus:ring-gray-700"
+                    />
+                    <label htmlFor="outlet_status" className="ml-2 block text-sm font-medium text-gray-700">
+                      Outlet is active
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>

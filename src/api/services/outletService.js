@@ -131,29 +131,63 @@ const outletService = {
 
   /**
    * Update an existing outlet
-   * @param {Object} outletData - Outlet data with ID
+   * @param {Object|FormData} outletData - Outlet data with ID
    * @returns {Promise<Object>} - Response data
    */
   updateOutlet: async (outletData) => {
     try {
-      const response = await fetch('/api/proxy', {
-        method: 'POST', // Changed from PATCH to POST
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          endpoint: '/common/update_outlet',
-          data: outletData
-        }),
-      });
+      // Check if outletData is a FormData instance
+      if (outletData instanceof FormData) {
+        // If it's FormData, we need to convert to regular object and send as JSON
+        const formObject = {};
+        outletData.forEach((value, key) => {
+          // Skip image for now
+          if (key !== 'image') {
+            formObject[key] = value;
+          }
+        });
+        
+        const response = await fetch('/api/proxy', {
+          method: 'POST', // Use POST for the proxy
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            endpoint: '/common/update_outlet',
+            method: 'PATCH', // Tell the proxy to use PATCH for the actual API call
+            data: formObject
+          }),
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to update outlet');
-      }
+        if (!response.ok) {
+          throw new Error('Failed to update outlet');
+        }
 
-      const data = await response.json();
-      if (data.detail?.includes('Error with token')) {
-        throw new Error('Authentication error: ' + data.detail);
+        const data = await response.json();
+        if (data.detail?.includes('Error with token')) {
+          throw new Error('Authentication error: ' + data.detail);
+        }
+        return data;
+      } else {
+        // If it's regular JSON data
+        const response = await fetch('/api/proxy', {
+          method: 'POST', // Use POST for the proxy
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            endpoint: '/common/update_outlet',
+            method: 'PATCH', // Tell the proxy to use PATCH for the actual API call
+            data: outletData
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to update outlet');
+        }
+
+        const data = await response.json();
+        if (data.detail?.includes('Error with token')) {
+          throw new Error('Authentication error: ' + data.detail);
+        }
+        return data;
       }
-      return data;
     } catch (error) {
       console.error('Error updating outlet:', error);
       throw error;

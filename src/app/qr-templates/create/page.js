@@ -133,45 +133,48 @@ export default function CreateTemplate() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 max-w-7xl mx-auto bg-gray-100">
       {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Create QR Template</h1>
+          <p className="mt-1 text-sm text-gray-600">Create a new template for your QR code menus</p>
+        </div>
+        <div className="mt-4 sm:mt-0">
           <button
             onClick={() => router.push('/qr-templates')}
-            className="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
           >
-            <ArrowLeft size={20} className="text-gray-600" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Templates
           </button>
-          <div>
-            <h1 className="text-3xl font-semibold text-gray-900 flex items-center">
-              <QrCode className="mr-2 text-indigo-600" size={28} />
-              Create QR Template
-            </h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Create a new template for your QR code menus
-            </p>
-          </div>
         </div>
       </div>
       
       {/* Error message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start mb-6">
           <AlertCircle className="mr-2 mt-0.5 flex-shrink-0" size={16} />
           <span>{error}</span>
         </div>
       )}
       
       {/* Template form */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <div className="px-6 py-5 border-b border-gray-200 bg-gray-900 text-white">
+          <h3 className="text-lg font-medium">Template Information</h3>
+          <p className="mt-1 text-sm text-gray-300">
+            Fill in the details below to create a new QR code template
+          </p>
+        </div>
+        
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Form fields */}
             <div className="space-y-6">
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Template Name
+                  Template Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -179,18 +182,18 @@ export default function CreateTemplate() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g., Classic, Modern, Elegant"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-900 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:ring-gray-700 focus:border-gray-700"
                   required
                 />
               </div>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  QR Code Position
+                  QR Code Position <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <label 
-                    className={`relative flex items-center justify-center p-4 border ${position === 'centre' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'} rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50`}
+                    className={`relative flex items-center justify-center p-4 border ${position === 'centre' ? 'border-gray-800 bg-gray-50' : 'border-gray-300'} rounded-md cursor-pointer transition-colors duration-200 hover:bg-gray-50`}
                   >
                     <input
                       type="radio"
@@ -202,19 +205,19 @@ export default function CreateTemplate() {
                     />
                     <div className="text-center">
                       <div className="w-16 h-16 mx-auto border-2 border-dashed border-gray-300 flex items-center justify-center mb-2">
-                        <QrCode size={24} className={position === 'centre' ? 'text-indigo-600' : 'text-gray-400'} />
+                        <QrCode size={24} className={position === 'centre' ? 'text-gray-800' : 'text-gray-400'} />
                       </div>
-                      <span className={`text-sm font-medium ${position === 'centre' ? 'text-indigo-700' : 'text-gray-700'}`}>
+                      <span className={`text-sm font-medium ${position === 'centre' ? 'text-gray-800' : 'text-gray-700'}`}>
                         Center
                       </span>
                     </div>
                     {position === 'centre' && (
-                      <div className="absolute top-2 right-2 w-4 h-4 bg-indigo-500 rounded-full"></div>
+                      <div className="absolute top-2 right-2 w-4 h-4 bg-gray-800 rounded-full"></div>
                     )}
                   </label>
                   
                   <label 
-                    className={`relative flex items-center justify-center p-4 border ${position === 'top' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300'} rounded-lg cursor-pointer transition-colors duration-200 hover:bg-gray-50`}
+                    className={`relative flex items-center justify-center p-4 border ${position === 'top' ? 'border-gray-800 bg-gray-50' : 'border-gray-300'} rounded-md cursor-pointer transition-colors duration-200 hover:bg-gray-50`}
                   >
                     <input
                       type="radio"
@@ -227,53 +230,29 @@ export default function CreateTemplate() {
                     <div className="text-center">
                       <div className="w-16 h-16 mx-auto border-2 border-dashed border-gray-300 relative mb-2">
                         <div className="absolute top-1 left-0 right-0 flex justify-center">
-                          <QrCode size={24} className={position === 'top' ? 'text-indigo-600' : 'text-gray-400'} />
+                          <QrCode size={24} className={position === 'top' ? 'text-gray-800' : 'text-gray-400'} />
                         </div>
                       </div>
-                      <span className={`text-sm font-medium ${position === 'top' ? 'text-indigo-700' : 'text-gray-700'}`}>
+                      <span className={`text-sm font-medium ${position === 'top' ? 'text-gray-800' : 'text-gray-700'}`}>
                         Top
                       </span>
                     </div>
                     {position === 'top' && (
-                      <div className="absolute top-2 right-2 w-4 h-4 bg-indigo-500 rounded-full"></div>
+                      <div className="absolute top-2 right-2 w-4 h-4 bg-gray-800 rounded-full"></div>
                     )}
                   </label>
                 </div>
-              </div>
-              
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  disabled={loading || !imageFile}
-                  className={`w-full py-3 px-4 flex justify-center items-center rounded-lg text-white font-medium ${
-                    loading || !imageFile
-                      ? 'bg-indigo-400 cursor-not-allowed'
-                      : 'bg-indigo-600 hover:bg-indigo-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
-                  } transition-colors duration-200`}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 size={18} className="mr-2 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <Save size={18} className="mr-2" />
-                      Create Template
-                    </>
-                  )}
-                </button>
               </div>
             </div>
             
             {/* Image upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Template Image
+                Template Image <span className="text-red-500">*</span>
               </label>
               
               {imagePreview ? (
-                <div className="relative rounded-lg overflow-hidden border border-gray-200">
+                <div className="relative rounded-md overflow-hidden border border-gray-200 shadow-sm">
                   <img
                     src={imagePreview}
                     alt="Template preview"
@@ -294,8 +273,8 @@ export default function CreateTemplate() {
               ) : (
                 <div
                   className={`border-2 border-dashed ${
-                    dragActive ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 hover:border-gray-400'
-                  } rounded-lg p-6 transition-colors duration-200 flex flex-col items-center justify-center h-64 cursor-pointer`}
+                    dragActive ? 'border-gray-800 bg-gray-50' : 'border-gray-300 hover:border-gray-400'
+                  } rounded-md p-6 transition-colors duration-200 flex flex-col items-center justify-center h-64 cursor-pointer`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
@@ -310,7 +289,7 @@ export default function CreateTemplate() {
                     className="hidden"
                   />
                   <div className="flex flex-col items-center text-center">
-                    <FileImage size={48} className={`mb-3 ${dragActive ? 'text-indigo-500' : 'text-gray-400'}`} />
+                    <FileImage size={48} className={`mb-3 ${dragActive ? 'text-gray-800' : 'text-gray-400'}`} />
                     <p className="text-gray-700 font-medium mb-1">Drag and drop your image here</p>
                     <p className="text-sm text-gray-500 mb-4">or click to browse files</p>
                     <p className="text-xs text-gray-400">
@@ -320,6 +299,37 @@ export default function CreateTemplate() {
                 </div>
               )}
             </div>
+          </div>
+          
+          <div className="pt-6 mt-8 border-t border-gray-200 flex justify-end space-x-3">
+            <button
+              type="button"
+              onClick={() => router.push('/qr-templates')}
+              className="px-4 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !imageFile}
+              className={`px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                loading || !imageFile
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700'
+              } transition-colors duration-200`}
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={18} className="mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Save size={18} className="mr-2" />
+                  Create Template
+                </>
+              )}
+            </button>
           </div>
         </form>
       </div>

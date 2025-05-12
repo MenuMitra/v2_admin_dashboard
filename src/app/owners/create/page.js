@@ -52,24 +52,30 @@ export default function CreateOwnerPage() {
       
       const response = await ownerService.createOwner(createData);
       
-      if (response.detail && !response.user_id) {
-        // This is likely an error
-        setError(response.detail || 'Failed to create owner');
-        setSubmitting(false);
+      if (response.detail) {
+        // Check if this is an error response or a success message
+        if (response.user_id) {
+          toast.success(response.detail || 'Owner created successfully');
+          router.push(`/owners/view/${response.user_id}`);
+        } else {
+          // This is an error message from the API
+          setError(response.detail);
+          setSubmitting(false);
+        }
         return;
       }
       
-      toast.success('Owner created successfully');
-      
-      // Check if response contains the new owner ID to navigate to view page
+      // If no detail message but successful
       if (response && response.user_id) {
+        toast.success('Owner created successfully');
         router.push(`/owners/view/${response.user_id}`);
       } else {
         router.push('/owners');
       }
     } catch (error) {
       console.error('Failed to create owner:', error);
-      setError(error.message || 'Failed to create owner');
+      // Set error to the exact API error message if available
+      setError(error.detail || error.message || 'Failed to create owner');
       setSubmitting(false);
     }
   };
@@ -78,49 +84,46 @@ export default function CreateOwnerPage() {
     router.push('/owners');
   };
 
-  if (error) {
-    return (
-      <div className="max-w-4xl px-6 h-screen flex items-center justify-center">
-        <div className="bg-white rounded-xl shadow-md p-8 text-center max-w-lg">
-          <FiAlertCircle size={48} className="mx-auto text-red-500 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Error Creating Owner</h3>
-          <p className="text-gray-500 mb-6">{error}</p>
-          <button
-            onClick={goBack}
-            className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-          >
-            <FiArrowLeft className="mr-2" /> Go Back to Owners
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-4xl px-6">
-      {/* Header with back button */}
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-6 max-w-7xl mx-auto bg-gray-100">
+      {/* Page header */}
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Create New Owner</h1>
+          <p className="mt-1 text-sm text-gray-600">Add a new restaurant owner to the system</p>
+        </div>
         <button
           onClick={goBack}
-          className="inline-flex items-center text-gray-700 hover:text-blue-600 transition-colors duration-200"
+          className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
         >
-          <FiArrowLeft className="mr-2" /> Back to Owners
+          <FiArrowLeft className="mr-2 h-4 w-4" /> Back to Owners
         </button>
       </div>
 
+      {/* Error message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start mb-6">
+          <FiAlertCircle className="mr-2 mt-0.5 flex-shrink-0" size={16} />
+          <span>{error}</span>
+        </div>
+      )}
+      
       {/* Create form card */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
-        <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-          <h1 className="text-xl font-semibold text-gray-900">Add New Owner</h1>
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <div className="px-6 py-5 border-b border-gray-200 bg-gray-900 text-white">
+          <h3 className="text-lg font-medium">Owner Information</h3>
+          <p className="mt-1 text-sm text-gray-300">
+            Enter the new owner's details
+          </p>
         </div>
         
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div className="space-y-1">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Full Name
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -132,7 +135,7 @@ export default function CreateOwnerPage() {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter full name"
                     required
                   />
@@ -142,7 +145,7 @@ export default function CreateOwnerPage() {
               {/* Mobile */}
               <div className="space-y-1">
                 <label htmlFor="mobile" className="block text-sm font-medium text-gray-700">
-                  Mobile Number
+                  Mobile Number <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -154,7 +157,7 @@ export default function CreateOwnerPage() {
                     name="mobile"
                     value={formData.mobile}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter mobile number"
                     pattern="[0-9]{10}"
                     title="Please enter a valid 10-digit mobile number"
@@ -166,7 +169,7 @@ export default function CreateOwnerPage() {
               {/* Email */}
               <div className="space-y-1">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                  Email Address
+                  Email Address <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -178,7 +181,7 @@ export default function CreateOwnerPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter email address"
                     required
                   />
@@ -188,7 +191,7 @@ export default function CreateOwnerPage() {
               {/* Date of Birth */}
               <div className="space-y-1">
                 <label htmlFor="dob" className="block text-sm font-medium text-gray-700">
-                  Date of Birth
+                  Date of Birth <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -200,7 +203,7 @@ export default function CreateOwnerPage() {
                     name="dob"
                     value={formData.dob}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     required
                   />
                 </div>
@@ -209,7 +212,7 @@ export default function CreateOwnerPage() {
               {/* Aadhar Number */}
               <div className="space-y-1 md:col-span-2">
                 <label htmlFor="aadhar_number" className="block text-sm font-medium text-gray-700">
-                  Aadhar Number
+                  Aadhar Number <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -221,7 +224,7 @@ export default function CreateOwnerPage() {
                     name="aadhar_number"
                     value={formData.aadhar_number}
                     onChange={handleInputChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter 12-digit Aadhar number"
                     pattern="[0-9]{12}"
                     title="Please enter a valid 12-digit Aadhar number"
@@ -233,7 +236,7 @@ export default function CreateOwnerPage() {
               {/* Address */}
               <div className="space-y-1 md:col-span-2">
                 <label htmlFor="address" className="block text-sm font-medium text-gray-700">
-                  Address
+                  Address <span className="text-red-500">*</span>
                 </label>
                 <div className="mt-1 relative rounded-md shadow-sm">
                   <div className="absolute top-3 left-3 flex items-start pointer-events-none">
@@ -245,7 +248,7 @@ export default function CreateOwnerPage() {
                     value={formData.address}
                     onChange={handleInputChange}
                     rows={3}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-600 focus:border-gray-600 sm:text-sm text-gray-900 bg-white placeholder-gray-400"
                     placeholder="Enter complete address"
                     required
                   />
@@ -253,11 +256,11 @@ export default function CreateOwnerPage() {
               </div>
             </div>
 
-            <div className="pt-5 border-t border-gray-200 mt-8 flex justify-end space-x-3">
+            <div className="pt-6 mt-8 border-t border-gray-200 flex justify-end space-x-3">
               <button
                 type="button"
                 onClick={goBack}
-                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                className="px-4 py-2.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 transition-colors duration-200"
                 disabled={submitting}
               >
                 Cancel
@@ -265,10 +268,22 @@ export default function CreateOwnerPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300 transition-colors duration-200"
+                className="px-6 py-2.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700 disabled:bg-gray-400 transition-colors duration-200"
               >
-                <FiPlus className="mr-2 -ml-1 h-5 w-5" />
-                {submitting ? 'Creating...' : 'Create Owner'}
+                {submitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <FiPlus className="mr-2 h-4 w-4" />
+                    Create Owner
+                  </>
+                )}
               </button>
             </div>
           </form>

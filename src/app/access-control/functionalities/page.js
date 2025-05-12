@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
-import DataTable from '@/components/ui/DataTable';
+import { FiPlus, FiEdit, FiTrash2, FiEye } from 'react-icons/fi';
 import Modal from '@/components/ui/Modal';
 import ubacService from '@/api/services/ubacService';
 import { isAuthenticated } from '@/utils/auth';
@@ -42,20 +42,44 @@ export default function FunctionalitiesPage() {
   const columns = [
     {
       header: 'Sr No',
-      render: () => null, // This will be populated directly in the UI
+      render: (row, index) => (
+        <span className="text-gray-800 font-medium">{index + 1}</span>
+      ),
     },
     {
       header: 'Functionality Name',
       accessor: 'functionality_name',
       render: (row) => (
-        <span className="text-gray-900">{row.functionality_name}</span>
+        <span className="text-gray-800 font-medium capitalize">{row.functionality_name}</span>
       ),
     },
     {
       header: 'Created On',
       accessor: 'created_on',
       render: (row) => (
-        <span className="text-gray-900">{formatDate(row.created_on)}</span>
+        <span className="text-gray-800">{formatDate(row.created_on)}</span>
+      )
+    },
+    {
+      header: 'Actions',
+      render: (row) => (
+        <div className="flex space-x-3">
+         
+          <button
+            onClick={() => handleEdit(row)}
+            className="p-1.5 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+            title="Edit Functionality"
+          >
+            <FiEdit className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => handleDeleteClick(row)}
+            className="p-1.5 rounded-md bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+            title="Delete Functionality"
+          >
+            <FiTrash2 className="h-4 w-4" />
+          </button>
+        </div>
       )
     }
   ];
@@ -183,9 +207,23 @@ export default function FunctionalitiesPage() {
         router.push('/auth/login');
         return;
       }
-      
-      toast.success('Functionality deleted successfully');
-      fetchFunctionalities();
+
+      // Only update state if the backend operation was successful
+      if (response && response.detail === "Functionality deleted successfully") {
+        // Update state locally instead of fetching all data again
+        setFunctionalities(prev => 
+          prev.filter(item => item.ubac_functionality_id !== itemToDelete.ubac_functionality_id)
+        );
+        
+        toast.success('Functionality deleted successfully');
+      } else {
+        // If we get a response but without success message, something went wrong
+        console.error('Unexpected response from API:', response);
+        toast.error('Failed to delete functionality. Please try again.');
+        
+        // Refresh data to ensure UI is in sync with backend
+        fetchFunctionalities();
+      }
     } catch (error) {
       console.error('Failed to delete functionality:', error);
       
@@ -194,8 +232,11 @@ export default function FunctionalitiesPage() {
         toast.error('Authentication required. Please log in.');
         router.push('/auth/login');
       } else {
-        toast.error('Failed to delete functionality');
+        toast.error('Failed to delete functionality. Please try again.');
       }
+
+      // Refresh data to ensure UI is in sync with backend
+      fetchFunctionalities();
     } finally {
       setLoading(false);
       closeDeleteModal();
@@ -214,11 +255,28 @@ export default function FunctionalitiesPage() {
         response = await ubacService.createFunctionality({
           functionality_name: formData.functionality_name
         });
+        
+        // Update state locally
+        if (response && response.ubac_functionality_id) {
+          // Add the new functionality to the state
+          setFunctionalities(prev => [...prev, response]);
+        }
       } else if (modalMode === 'edit') {
         response = await ubacService.updateFunctionality({
           functionality_id: formData.functionality_id,
           functionality_name: formData.functionality_name
         });
+        
+        // Update state locally
+        if (response) {
+          setFunctionalities(prev => 
+            prev.map(item => 
+              item.ubac_functionality_id === formData.functionality_id 
+                ? {...item, functionality_name: formData.functionality_name}
+                : item
+            )
+          );
+        }
       }
       
       // Check for authentication error
@@ -230,7 +288,6 @@ export default function FunctionalitiesPage() {
       
       toast.success(`Functionality ${modalMode === 'add' ? 'created' : 'updated'} successfully`);
       setIsModalOpen(false);
-      fetchFunctionalities();
     } catch (error) {
       console.error(`Failed to ${modalMode} functionality:`, error);
       
@@ -253,7 +310,7 @@ export default function FunctionalitiesPage() {
     return (
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="functionality_name" className="block text-sm font-medium text-gray-900 mb-1">
+          <label htmlFor="functionality_name" className="block text-sm font-medium text-gray-700 mb-1">
             Functionality Name
           </label>
           {isViewMode ? (
@@ -267,7 +324,7 @@ export default function FunctionalitiesPage() {
               name="functionality_name"
               value={formData.functionality_name}
               onChange={handleInputChange}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-700 text-gray-900"
               placeholder="Enter functionality name"
               required
             />
@@ -277,7 +334,7 @@ export default function FunctionalitiesPage() {
         {isViewMode && (
           <div>
             <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-900 mb-1">Created On</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Created On</label>
               <div className="px-4 py-2 bg-gray-100 rounded-md text-gray-900">{formatDate(currentFunctionality?.created_on)}</div>
             </div>
           </div>
@@ -288,14 +345,14 @@ export default function FunctionalitiesPage() {
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-700"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-blue-300"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-700 disabled:bg-gray-400"
             >
               {loading ? 'Saving...' : (modalMode === 'add' ? 'Create' : 'Update')}
             </button>
@@ -327,7 +384,7 @@ export default function FunctionalitiesPage() {
           <button
             type="button"
             onClick={closeDeleteModal}
-            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-700"
           >
             Cancel
           </button>
@@ -345,24 +402,63 @@ export default function FunctionalitiesPage() {
   };
   
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-7xl mx-auto bg-gray-100">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Access Control Functionalities</h1>
-        <p className="text-gray-700 mt-1">Manage user access control functionalities</p>
+        <h1 className="text-2xl font-bold text-gray-800">Access Control Functionalities</h1>
+        <p className="text-gray-600 mt-1">Manage system functionalities for access control</p>
       </div>
       
-      <div className="mb-8">
-        <DataTable
-          title="Functionalities"
-          data={functionalities}
-          columns={columns}
-          onAdd={handleAddNew}
-          onEdit={handleEdit}
-          onDelete={handleDeleteClick}
-
-          addButtonLabel="Add Functionality"
-          emptyMessage={loading ? "Loading functionalities..." : "No functionalities found"}
-        />
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 bg-gray-900 text-white flex items-center justify-between">
+          <h2 className="text-lg font-medium">Functionalities</h2>
+          <button
+            onClick={handleAddNew}
+            className="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-700"
+          >
+            <FiPlus className="mr-1.5 h-4 w-4" />
+            Add Functionality
+          </button>
+        </div>
+        
+        <div className="overflow-x-auto">
+          {loading ? (
+            <div className="text-center py-6">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-gray-900 border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"></div>
+              <p className="mt-2 text-gray-600">Loading functionalities...</p>
+            </div>
+          ) : functionalities.length === 0 ? (
+            <div className="text-center py-6">
+              <p className="text-gray-500">No functionalities found</p>
+            </div>
+          ) : (
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {columns.map((column, index) => (
+                    <th 
+                      key={index}
+                      scope="col" 
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      {column.header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {functionalities.map((functionality, rowIndex) => (
+                  <tr key={functionality.ubac_functionality_id} className="hover:bg-gray-50">
+                    {columns.map((column, colIndex) => (
+                      <td key={colIndex} className="px-6 py-4 whitespace-nowrap">
+                        {column.render ? column.render(functionality, rowIndex) : functionality[column.accessor]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
       
       {/* Main Modal (Add/Edit/View) */}

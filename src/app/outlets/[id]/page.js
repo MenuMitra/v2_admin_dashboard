@@ -48,25 +48,31 @@ const InfoItem = ({ icon: Icon, label, value, iconClass = 'text-indigo-600' }) =
 );
 
 // Status badge component
-const StatusBadge = ({ isActive }) => (
-  <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-    isActive 
-      ? 'bg-green-100 text-green-800 border border-green-200' 
-      : 'bg-gray-100 text-gray-800 border border-gray-200'
-  }`}>
-    {isActive ? (
-      <>
-        <span className="w-2 h-2 rounded-full bg-green-400 mr-1.5"></span>
-        Active
-      </>
-    ) : (
-      <>
-        <span className="w-2 h-2 rounded-full bg-gray-400 mr-1.5"></span>
-        Inactive
-      </>
-    )}
-  </span>
-);
+const StatusBadge = ({ status, type }) => {
+  const isActive = status === 1;
+  const label = type === 'outlet_status' ? 'Active' : 'Open';
+  const inactiveLabel = type === 'outlet_status' ? 'Inactive' : 'Closed';
+  
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+      isActive 
+        ? 'bg-green-100 text-green-800 border border-green-200' 
+        : 'bg-red-100 text-red-800 border border-red-200'
+    }`}>
+      {isActive ? (
+        <>
+          <span className="w-2 h-2 rounded-full bg-green-400 mr-1.5"></span>
+          {label}
+        </>
+      ) : (
+        <>
+          <span className="w-2 h-2 rounded-full bg-red-400 mr-1.5"></span>
+          {inactiveLabel}
+        </>
+      )}
+    </span>
+  );
+};
 
 export default function ViewOutletPage({ params }) {
   const router = useRouter();
@@ -197,8 +203,9 @@ export default function ViewOutletPage({ params }) {
               </div>
             )}
           </div>
-          <div className="mt-4 md:mt-0">
-            <StatusBadge isActive={outlet.is_active} />
+          <div className="mt-4 md:mt-0 flex space-x-2">
+            <StatusBadge status={outlet.outlet_status} type="outlet_status" />
+            <StatusBadge status={outlet.is_open} type="is_open" />
           </div>
         </div>
       </div>
@@ -262,7 +269,24 @@ export default function ViewOutletPage({ params }) {
           <InfoItem 
             icon={FiClock} 
             label="Opening Hours" 
-            value={outlet.opening_time && outlet.closing_time ? `${outlet.opening_time} - ${outlet.closing_time}` : 'Not specified'} 
+            value={outlet.opening_time ? outlet.opening_time.split(' ')[1] + ' ' + (outlet.opening_time.split(' ')[2] || '') : 'Not specified'} 
+          />
+          <InfoItem 
+            icon={FiClock} 
+            label="Closing Hours" 
+            value={outlet.closing_time ? outlet.closing_time.split(' ')[1] + ' ' + (outlet.closing_time.split(' ')[2] || '') : 'Not specified'} 
+          />
+          <InfoItem 
+            icon={FiCheckCircle} 
+            label="Outlet Status" 
+            value={outlet.outlet_status === 1 ? 'Active' : 'Inactive'} 
+            iconClass={outlet.outlet_status === 1 ? 'text-green-600' : 'text-red-600'}
+          />
+          <InfoItem 
+            icon={outlet.is_open === 1 ? FiCheckCircle : FiXCircle} 
+            label="Currently" 
+            value={outlet.is_open === 1 ? 'Open' : 'Closed'} 
+            iconClass={outlet.is_open === 1 ? 'text-green-600' : 'text-red-600'}
           />
           <InfoItem 
             icon={FiFileText} 
