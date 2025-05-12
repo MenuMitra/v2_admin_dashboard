@@ -113,8 +113,15 @@ const authService = {
           expires_at: responseData.expires_at
         };
         
+        // Log auth data for debugging
+        console.log('Auth data to be stored:', authData);
+        
         // Use tokenService to store auth data
         tokenService.setAuthData(authData);
+        
+        // Double-check stored data
+        const storedData = tokenService.getUserData();
+        console.log('Stored user data:', storedData);
         
         // Log success for debugging
         console.log('Auth data stored successfully');

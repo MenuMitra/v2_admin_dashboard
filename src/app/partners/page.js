@@ -395,19 +395,17 @@ export default function PartnersPage() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {partners.map((partner, index) => (
-                    <tr key={partner.user_id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <tr 
+                      key={partner.user_id} 
+                      className={`hover:bg-gray-50 transition-colors duration-150 cursor-pointer ${!partner.is_active ? 'bg-gray-100' : ''}`}
+                      onClick={() => handleView(partner)}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {index + 1}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center">
-                            <FiUser className="h-5 w-5 text-gray-600" />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{partner.name}</div>
-                            <div className="text-sm text-gray-500">{partner.role}</div>
-                          </div>
+                          <div className="text-sm font-medium text-gray-900">{partner.name}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -429,19 +427,28 @@ export default function PartnersPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-3">
                           <button
-                            onClick={() => handleView(partner)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleView(partner);
+                            }}
                             className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
                           >
                             <FiEye className="h-5 w-5" />
                           </button>
                           <button
-                            onClick={() => handleEdit(partner)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(partner);
+                            }}
                             className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
                           >
                             <FiEdit className="h-5 w-5" />
                           </button>
                           <button
-                            onClick={() => confirmDelete(partner)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              confirmDelete(partner);
+                            }}
                             className="text-red-600 hover:text-red-900 transition-colors duration-200"
                           >
                             <FiTrash2 className="h-5 w-5" />

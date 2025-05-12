@@ -76,8 +76,58 @@ export default function ViewTemplate({ params }) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <Loader2 size={40} className="text-gray-700 animate-spin" />
+      <div className="p-6 max-w-7xl mx-auto bg-gray-100">
+        {/* Skeleton for header */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+          <div className="animate-pulse">
+            <div className="h-8 w-48 bg-gray-300 rounded mb-2"></div>
+            <div className="h-4 w-64 bg-gray-200 rounded"></div>
+          </div>
+          <div className="mt-4 sm:mt-0 flex space-x-3 animate-pulse">
+            <div className="h-10 w-36 bg-gray-300 rounded"></div>
+            <div className="h-10 w-20 bg-gray-300 rounded"></div>
+            <div className="h-10 w-24 bg-gray-300 rounded"></div>
+          </div>
+        </div>
+        
+        {/* Skeleton for content */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Image skeleton */}
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+            <div className="px-6 py-5 border-b border-gray-200 bg-gray-900">
+              <div className="h-5 w-36 bg-gray-700 rounded animate-pulse"></div>
+            </div>
+            <div className="p-5">
+              <div className="w-full h-64 bg-gray-200 rounded animate-pulse"></div>
+            </div>
+          </div>
+          
+          {/* Details skeleton */}
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+            <div className="px-6 py-5 border-b border-gray-200 bg-gray-900">
+              <div className="h-5 w-36 bg-gray-700 rounded animate-pulse"></div>
+            </div>
+            <div className="p-5">
+              <div className="space-y-6 animate-pulse">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i}>
+                    <div className="h-6 w-48 bg-gray-300 rounded mb-1"></div>
+                    <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-8 pt-6 border-t border-gray-100 animate-pulse">
+                <div className="h-4 w-36 bg-gray-200 rounded mb-3"></div>
+                <div className="p-4 bg-gray-50 rounded-md">
+                  <div className="w-full h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center">
+                    <div className="h-20 w-20 bg-gray-300 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -194,26 +244,26 @@ export default function ViewTemplate({ params }) {
           <div className="p-5">
             <dl className="space-y-6">
               <div>
-                <dt className="text-sm font-medium text-gray-500">Name</dt>
-                <dd className="mt-1 text-lg text-gray-900">{template?.name}</dd>
+                <dd className="text-lg font-medium text-gray-900">{template?.name}</dd>
+                <dt className="mt-1 text-sm text-gray-500">Name</dt>
               </div>
               
               <div>
-                <dt className="text-sm font-medium text-gray-500">QR Code Position</dt>
-                <dd className="mt-1 text-lg text-gray-900 capitalize">{template?.qr_overlay_position}</dd>
+                <dd className="text-lg font-medium text-gray-900 capitalize">{template?.qr_overlay_position}</dd>
+                <dt className="mt-1 text-sm text-gray-500">QR Code Position</dt>
               </div>
               
               <div>
-                <dt className="text-sm font-medium text-gray-500">Image Filename</dt>
-                <dd className="mt-1 text-lg text-gray-900 break-all">{template?.image_name || 'None'}</dd>
+                <dd className="text-lg font-medium text-gray-900 break-all">{template?.image_name || 'None'}</dd>
+                <dt className="mt-1 text-sm text-gray-500">Image Filename</dt>
               </div>
               
               <div>
-                <dt className="text-sm font-medium text-gray-500 flex items-center">
+                <dd className="text-lg font-medium text-gray-900">{template?.created_on}</dd>
+                <dt className="mt-1 text-sm text-gray-500 flex items-center">
                   <Calendar size={16} className="mr-1 text-gray-400" />
                   Created On
                 </dt>
-                <dd className="mt-1 text-lg text-gray-900">{template?.created_on}</dd>
               </div>
             </dl>
             

@@ -302,19 +302,17 @@ export default function OwnersPage() {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {owners.map((owner, index) => (
-                    <tr key={owner.user_id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <tr 
+                      key={owner.user_id} 
+                      className={`hover:bg-gray-50 transition-colors duration-150 cursor-pointer ${!owner.is_active ? 'bg-gray-100' : ''}`}
+                      onClick={() => handleView(owner)}
+                    >
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {index + 1}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center">
-                            <FiUser className="h-5 w-5 text-gray-600" />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{owner.name}</div>
-                            <div className="text-sm text-gray-500">{owner.role}</div>
-                          </div>
+                          <div className="text-sm font-medium text-gray-900">{owner.name}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -336,21 +334,30 @@ export default function OwnersPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex items-center justify-end space-x-3">
                           <button
-                            onClick={() => handleView(owner)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleView(owner);
+                            }}
                             className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
                             title="View Owner"
                           >
                             <FiEye className="h-5 w-5" />
                           </button>
                           <button
-                            onClick={() => handleEdit(owner)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(owner);
+                            }}
                             className="text-gray-600 hover:text-gray-900 transition-colors duration-200"
                             title="Edit Owner"
                           >
                             <FiEdit className="h-5 w-5" />
                           </button>
                           <button
-                            onClick={() => confirmDelete(owner)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              confirmDelete(owner);
+                            }}
                             className="text-red-600 hover:text-red-900 transition-colors duration-200"
                             title="Delete Owner"
                           >

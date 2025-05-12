@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, 
   ShoppingBag, 
@@ -21,6 +21,7 @@ import {
   Layers,
   FileText
 } from 'lucide-react';
+import tokenService from '@/services/tokenService';
 
 // Shared navigation items across the application
 const sidebarItems = [
@@ -67,12 +68,27 @@ const sidebarItems = [
     icon: <Users size={20} />,
     href: '/partners',
   },
+  {
+    title: 'My Profile',
+    icon: <User size={20} />,
+    href: '/profile',
+  }
 ];
 
 export default function SidebarLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [expandedItems, setExpandedItems] = useState({});
+  const [userData, setUserData] = useState(null);
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Get user data on component mount
+  useEffect(() => {
+    const storedUserData = tokenService.getUserData();
+    if (storedUserData) {
+      setUserData(storedUserData);
+    }
+  }, []);
 
   // Toggle submenu expansion
   const toggleSubMenu = (href) => {
@@ -84,15 +100,32 @@ export default function SidebarLayout({ children }) {
 
   // Check if an item or any of its subitems is active
   const isItemActive = (item) => {
-    if (pathname === item.href || pathname.startsWith(`${item.href}/`)) {
+    // Use exact matching for faster performance
+    if (pathname === item.href) {
       return true;
     }
+    
+    // Only do prefix matching for items that actually have subpaths
+    if (item.subItems || item.href !== '/profile') {
+      if (pathname.startsWith(`${item.href}/`)) {
+        return true;
+      }
+    }
+    
+    // Check subitems if they exist
     if (item.subItems) {
       return item.subItems.some(subItem => 
         pathname === subItem.href || pathname.startsWith(`${subItem.href}/`)
       );
     }
+    
     return false;
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    tokenService.clearToken();
+    router.push('/auth/login');
   };
 
   return (
@@ -228,6 +261,7 @@ export default function SidebarLayout({ children }) {
           {/* Sidebar footer */}
           <div className="p-4 border-t border-gray-200">
             <button 
+              onClick={handleLogout}
               className="flex items-center w-full px-4 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-150"
               suppressHydrationWarning
             >
@@ -252,41 +286,22 @@ export default function SidebarLayout({ children }) {
               <Menu size={24} />
             </button>
 
-            {/* Right: User menu, notifications */}
-            <div className="flex items-center space-x-4">
-              {/* Search */}
-              <div className="relative hidden md:block">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <Search size={18} className="text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  className="w-64 pl-10 pr-4 py-2 text-sm text-gray-700 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-colors"
-                  suppressHydrationWarning
-                />
-              </div>
-
-              {/* Notifications */}
-              <button 
-                className="p-1.5 text-gray-500 rounded-full hover:bg-gray-100 focus:outline-none relative transition-colors"
-                suppressHydrationWarning
-              >
-                <Bell size={20} />
-                <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              
+            {/* Right: User profile */}
+            <div className="flex items-center">
               {/* User profile */}
               <div className="relative">
-                <button 
+                <Link 
+                  href="/profile"
                   className="flex items-center space-x-2 focus:outline-none"
                   suppressHydrationWarning
                 >
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                     <User size={16} className="text-gray-600" />
                   </div>
-                  <span className="hidden md:inline-block text-sm font-medium text-gray-700">Admin User</span>
-                </button>
+                  <span className="text-sm font-medium text-gray-700">
+                    {userData?.name || 'Admin User'}
+                  </span>
+                </Link>
               </div>
             </div>
           </div>
