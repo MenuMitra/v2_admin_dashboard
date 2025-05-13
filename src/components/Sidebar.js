@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import tokenService from '@/services/tokenService';
 
-// Shared navigation items across the application
+// Move sidebarItems outside component to prevent recreation on renders
 const sidebarItems = [
   {
     title: 'Dashboard',
@@ -55,7 +55,6 @@ const sidebarItems = [
         icon: <Layers size={18} />,
         href: '/access-control/functionalities',
       },
-      
     ]
   },
   {
@@ -82,34 +81,41 @@ export default function SidebarLayout({ children }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Get user data on component mount
+  // Get user data on component mount only
   useEffect(() => {
-    const storedUserData = tokenService.getUserData();
-    if (storedUserData) {
-      setUserData(storedUserData);
+    try {
+      const storedUserData = tokenService.getUserData();
+      if (storedUserData?.name) {
+        setUserData(storedUserData);
+      }
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
     }
   }, []);
 
-  // Toggle submenu expansion
-  const toggleSubMenu = (href) => {
+  // Memoize toggle submenu function to prevent recreation on renders
+  const toggleSubMenu = useCallback((href) => {
     setExpandedItems(prev => ({
       ...prev,
       [href]: !prev[href]
     }));
-  };
+  }, []);
 
-  // Check if an item or any of its subitems is active
-  const isItemActive = (item) => {
-    // Use exact matching for faster performance
+  // Memoize active item logic to prevent recalculation on every render
+  const isItemActive = useCallback((item) => {
+    // Simple exact match first (fastest check)
     if (pathname === item.href) {
       return true;
     }
     
-    // Only do prefix matching for items that actually have subpaths
-    if (item.subItems || item.href !== '/profile') {
-      if (pathname.startsWith(`${item.href}/`)) {
-        return true;
-      }
+    // Avoid unnecessary startsWith checks for profile
+    if (item.href === '/profile') {
+      return pathname === '/profile';
+    }
+    
+    // Only do prefix matching for items with subpaths
+    if (pathname.startsWith(`${item.href}/`)) {
+      return true;
     }
     
     // Check subitems if they exist
@@ -120,21 +126,35 @@ export default function SidebarLayout({ children }) {
     }
     
     return false;
-  };
+  }, [pathname]);
 
-  // Handle logout
-  const handleLogout = () => {
-    tokenService.clearToken();
-    router.push('/auth/login');
-  };
+  // Handle logout - memoize to prevent recreation
+  const handleLogout = useCallback(() => {
+    try {
+      tokenService.clearAuthData(); // Use proper method name
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  }, [router]);
+
+  // Memoize sidebar toggle handler
+  const handleToggleSidebar = useCallback(() => {
+    setSidebarOpen(prev => !prev);
+  }, []);
+
+  // Memoize backdrop click handler
+  const handleBackdropClick = useCallback(() => {
+    setSidebarOpen(false);
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Mobile sidebar backdrop */}
+      {/* Mobile sidebar backdrop - optimized */}
       {sidebarOpen && (
         <div 
           className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+          onClick={handleBackdropClick}
         />
       )}
 
@@ -161,15 +181,14 @@ export default function SidebarLayout({ children }) {
               </div>
             </Link>
             <button 
-              onClick={() => setSidebarOpen(false)}
+              onClick={handleToggleSidebar}
               className="lg:hidden p-1 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-              suppressHydrationWarning
             >
               <X size={20} />
             </button>
           </div>
 
-          {/* Navigation links */}
+          {/* Navigation links - optimized rendering */}
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {sidebarItems.map((item) => {
               const active = isItemActive(item);
@@ -188,7 +207,6 @@ export default function SidebarLayout({ children }) {
                           : 'text-gray-700 hover:bg-gray-100'
                         }
                       `}
-                      suppressHydrationWarning
                     >
                       <div className="flex items-center">
                         <span className={`mr-3 ${active ? 'text-white' : 'text-gray-500'}`}>
@@ -207,9 +225,10 @@ export default function SidebarLayout({ children }) {
                       </svg>
                     </button>
                   ) : (
-                    // Regular link
+                    // Regular link - prefetch for fast navigation
                     <Link
                       href={item.href}
+                      prefetch={true}
                       className={`
                         flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors duration-150
                         ${active 
@@ -217,7 +236,6 @@ export default function SidebarLayout({ children }) {
                           : 'text-gray-700 hover:bg-gray-100'
                         }
                       `}
-                      suppressHydrationWarning
                     >
                       <span className={`mr-3 ${active ? 'text-white' : 'text-gray-500'}`}>
                         {item.icon}
@@ -226,7 +244,7 @@ export default function SidebarLayout({ children }) {
                     </Link>
                   )}
                   
-                  {/* Subitems */}
+                  {/* Subitems - only render when expanded */}
                   {item.subItems && expanded && (
                     <div className="mt-1 ml-6 space-y-1">
                       {item.subItems.map((subItem) => {
@@ -235,6 +253,7 @@ export default function SidebarLayout({ children }) {
                           <Link
                             key={subItem.href}
                             href={subItem.href}
+                            prefetch={true}
                             className={`
                               flex items-center px-4 py-2 text-sm rounded-md transition-colors duration-150
                               ${subActive 
@@ -242,7 +261,6 @@ export default function SidebarLayout({ children }) {
                                 : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                               }
                             `}
-                            suppressHydrationWarning
                           >
                             <span className={`mr-3 ${subActive ? 'text-gray-900' : 'text-gray-500'}`}>
                               {subItem.icon}
@@ -263,7 +281,6 @@ export default function SidebarLayout({ children }) {
             <button 
               onClick={handleLogout}
               className="flex items-center w-full px-4 py-2.5 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-150"
-              suppressHydrationWarning
             >
               <LogOut size={20} className="mr-3 text-gray-500" />
               Sign out
@@ -279,9 +296,8 @@ export default function SidebarLayout({ children }) {
           <div className="flex items-center justify-between h-16 px-4 sm:px-6">
             {/* Left: Hamburger menu */}
             <button
-              onClick={() => setSidebarOpen(true)}
+              onClick={handleToggleSidebar}
               className="text-gray-500 focus:outline-none lg:hidden p-1 rounded-md hover:bg-gray-100 transition-colors"
-              suppressHydrationWarning
             >
               <Menu size={24} />
             </button>
@@ -292,8 +308,8 @@ export default function SidebarLayout({ children }) {
               <div className="relative">
                 <Link 
                   href="/profile"
+                  prefetch={true}
                   className="flex items-center space-x-2 focus:outline-none"
-                  suppressHydrationWarning
                 >
                   <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
                     <User size={16} className="text-gray-600" />

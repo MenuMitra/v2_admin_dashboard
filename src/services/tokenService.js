@@ -1,6 +1,7 @@
 /**
  * Token management service for handling authentication tokens
  */
+import { getCachedUserData, isCachedAuthenticated, invalidateAuthCache } from '@/utils/optimizedAuth';
 
 const TOKEN_KEYS = {
   AUTH_TOKEN: 'authToken',
@@ -12,6 +13,9 @@ const TOKEN_KEYS = {
   USER_MOBILE: 'userMobile',
   TOKEN_EXPIRY: 'tokenExpiry'
 };
+
+// Cache for auth header to avoid repeated construction
+let authHeaderCache = null;
 
 const tokenService = {
   /**
@@ -32,26 +36,50 @@ const tokenService = {
       expires_at
     } = authData;
 
-    localStorage.setItem(TOKEN_KEYS.AUTH_TOKEN, access_token);
-    localStorage.setItem(TOKEN_KEYS.TOKEN_TYPE, token_type);
-    localStorage.setItem(TOKEN_KEYS.USER_ID, user_id);
-    localStorage.setItem(TOKEN_KEYS.USER_NAME, name);
-    localStorage.setItem(TOKEN_KEYS.USER_EMAIL, email);
-    localStorage.setItem(TOKEN_KEYS.USER_ROLE, role);
-    localStorage.setItem(TOKEN_KEYS.USER_MOBILE, mobile);
-    localStorage.setItem(TOKEN_KEYS.TOKEN_EXPIRY, expires_at);
+    try {
+      // Clear any existing cache first
+      invalidateAuthCache();
+      authHeaderCache = null;
+      
+      // Store all token data at once
+      localStorage.setItem(TOKEN_KEYS.AUTH_TOKEN, access_token);
+      localStorage.setItem(TOKEN_KEYS.TOKEN_TYPE, token_type);
+      localStorage.setItem(TOKEN_KEYS.USER_ID, user_id);
+      localStorage.setItem(TOKEN_KEYS.USER_NAME, name);
+      localStorage.setItem(TOKEN_KEYS.USER_EMAIL, email);
+      localStorage.setItem(TOKEN_KEYS.USER_ROLE, role);
+      localStorage.setItem(TOKEN_KEYS.USER_MOBILE, mobile);
+      localStorage.setItem(TOKEN_KEYS.TOKEN_EXPIRY, expires_at);
+      
+      console.log('Auth data set successfully');
+    } catch (error) {
+      console.error('Error storing auth data:', error);
+    }
   },
 
   /**
-   * Get the full authorization header value
+   * Get the full authorization header value with caching
    * @returns {string|null} Authorization header value
    */
   getAuthHeader: () => {
-    const token = localStorage.getItem(TOKEN_KEYS.AUTH_TOKEN);
-    const tokenType = localStorage.getItem(TOKEN_KEYS.TOKEN_TYPE);
+    // Return cached value if available
+    if (authHeaderCache) {
+      return authHeaderCache;
+    }
     
-    if (!token || !tokenType) return null;
-    return `${tokenType} ${token}`;
+    try {
+      const token = localStorage.getItem(TOKEN_KEYS.AUTH_TOKEN);
+      const tokenType = localStorage.getItem(TOKEN_KEYS.TOKEN_TYPE);
+      
+      if (!token || !tokenType) return null;
+      
+      // Cache the auth header
+      authHeaderCache = `${tokenType} ${token}`;
+      return authHeaderCache;
+    } catch (error) {
+      console.error('Error getting auth header:', error);
+      return null;
+    }
   },
 
   /**
@@ -59,16 +87,7 @@ const tokenService = {
    * @returns {boolean}
    */
   isAuthenticated: () => {
-    const token = localStorage.getItem(TOKEN_KEYS.AUTH_TOKEN);
-    const expiry = localStorage.getItem(TOKEN_KEYS.TOKEN_EXPIRY);
-    
-    if (!token || !expiry) return false;
-    
-    // Convert expiry date string to timestamp
-    const expiryDate = new Date(expiry).getTime();
-    const now = new Date().getTime();
-    
-    return token && expiryDate > now;
+    return isCachedAuthenticated();
   },
 
   /**
@@ -76,23 +95,27 @@ const tokenService = {
    * @returns {Object} User data
    */
   getUserData: () => {
-    return {
-      id: localStorage.getItem(TOKEN_KEYS.USER_ID),
-      name: localStorage.getItem(TOKEN_KEYS.USER_NAME),
-      email: localStorage.getItem(TOKEN_KEYS.USER_EMAIL),
-      role: localStorage.getItem(TOKEN_KEYS.USER_ROLE),
-      mobile: localStorage.getItem(TOKEN_KEYS.USER_MOBILE)
-    };
+    return getCachedUserData();
   },
 
   /**
    * Clear all auth data from localStorage
    */
   clearAuthData: () => {
-    Object.values(TOKEN_KEYS).forEach(key => {
-      localStorage.removeItem(key);
-    });
-    localStorage.removeItem('mobileNumber'); // Also clear mobile used for OTP
+    try {
+      // Clear cache first
+      invalidateAuthCache();
+      authHeaderCache = null;
+      
+      // Clear localStorage items
+      Object.values(TOKEN_KEYS).forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      localStorage.removeItem('mobileNumber'); // Also clear mobile used for OTP
+    } catch (error) {
+      console.error('Error clearing auth data:', error);
+    }
   }
 };
 

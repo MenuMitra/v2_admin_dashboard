@@ -7,7 +7,14 @@ const nextConfig = {
   images: {
     domains: ['men4u.xyz', 'dev.men4u.xyz', 'staging.men4u.xyz'],
   },
- 
+  // Performance optimizations
+  swcMinify: true,
+  reactStrictMode: true,
+  poweredByHeader: false,
+  // Optimize JavaScript
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
 };
 
 module.exports = nextConfig; 
