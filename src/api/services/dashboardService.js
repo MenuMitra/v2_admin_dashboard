@@ -1,6 +1,5 @@
-import { getAuthHeaders } from '@/utils/apiUtils';
-import { ENDPOINTS, API_URL } from '@/api/config';
-import { isStaticExport } from '@/utils/staticConfig';
+import { getAuthHeaders, makeApiRequest } from '@/utils/apiUtils';
+import { ENDPOINTS } from '@/api/config';
 
 /**
  * Dashboard Service - Handles all API calls related to dashboard data
@@ -12,36 +11,11 @@ const dashboardService = {
    */
   getAdminHomeData: async () => {
     try {
-      const headers = getAuthHeaders();
-      const endpoint = `/admin${ENDPOINTS.ADMIN.ADMIN_HOME}`;
-      
-      // For static exports, make direct API calls
-      if (isStaticExport) {
-        const directUrl = `${API_URL}${endpoint}`;
-        const response = await fetch(directUrl, {
-          method: 'GET',
-          headers,
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch admin home data');
-        }
-        
-        return await response.json();
-      }
-      
-      // Using URL parameter for GET requests to the proxy
-      const apiUrl = `/api/proxy?endpoint=${encodeURIComponent(endpoint)}`;
-      const response = await fetch(apiUrl, {
-        method: 'GET',
-        headers,
+      // Use the makeApiRequest utility for consistency with other services
+      return await makeApiRequest({
+        endpoint: `/admin${ENDPOINTS.ADMIN.ADMIN_HOME}`,
+        method: 'GET'
       });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch admin home data');
-      }
-      
-      return await response.json();
     } catch (error) {
       console.error('Error fetching admin home data:', error);
       throw error;

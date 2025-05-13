@@ -1,0 +1,18 @@
+[build]
+  command = "npm run build:static"
+  publish = "out"
+  
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+  NEXT_PUBLIC_API_ENV = "prod"
+  NEXT_PUBLIC_API_URL = "https://men4u.xyz/v2"
+  NEXT_PUBLIC_STATIC_EXPORT = "true"
+
+[build.processing]
+  skip_processing = false
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200 

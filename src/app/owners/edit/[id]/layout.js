@@ -4,7 +4,6 @@ export const generateStaticParams = () => {
   return generateStaticParamsForIds(20);
 };
 
-export default function EditTemplateLayout({ children }) {
-  // No additional layout - directly pass children through
+export default function OwnerEditLayout({ children }) {
   return children;
 } 
