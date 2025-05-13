@@ -3,6 +3,7 @@
  */
 import tokenService from '@/services/tokenService';
 import { API_URL } from './config';
+import { isStaticExport, API_BASE_URL } from '@/utils/staticConfig';
 
 const apiClient = {
   /**
@@ -23,28 +24,41 @@ const apiClient = {
       headers['Authorization'] = authHeader;
     }
 
-    // Prepare request options
-    const requestOptions = {
-      ...options,
-      headers,
-      body: options.body ? JSON.stringify(options.body) : undefined
-    };
-
     try {
-      const response = await fetch('/api/proxy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          endpoint,
-          data: options.body,
-          method: options.method || 'GET',
-          headers: authHeader ? { Authorization: authHeader } : undefined
-        })
-      });
+      let response;
+      let data;
 
-      const data = await response.json();
+      // For static export, make direct API calls to the backend
+      if (isStaticExport) {
+        const directUrl = `${API_BASE_URL}${endpoint}`;
+        const directOptions = {
+          method: options.method || 'GET',
+          headers,
+        };
+
+        if (options.body) {
+          directOptions.body = JSON.stringify(options.body);
+        }
+
+        response = await fetch(directUrl, directOptions);
+        data = await response.json();
+      } else {
+        // For non-static deployment, use the API proxy
+        response = await fetch('/api/proxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            endpoint,
+            data: options.body,
+            method: options.method || 'GET',
+            headers: authHeader ? { Authorization: authHeader } : undefined
+          })
+        });
+
+        data = await response.json();
+      }
 
       // Handle unauthorized responses
       if (response.status === 401) {

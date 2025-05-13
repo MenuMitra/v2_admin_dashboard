@@ -1,3 +1,7 @@
+// Add these exports for static export compatibility
+export const dynamic = 'force-static';
+export const revalidate = false;
+
 export async function POST(request) {
   try {
     // Get JSON data or form data depending on content type
