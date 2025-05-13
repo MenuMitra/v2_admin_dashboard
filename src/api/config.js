@@ -77,6 +77,20 @@ export const ENDPOINTS = {
   }
 };
 
+// API Endpoints for direct use in service files
+export const API_ENDPOINTS = {
+  COMMON: {
+    MENU: `${BASE_URLS.COMMON}/menu`,
+    CATEGORIES: `${BASE_URLS.COMMON}/categories`,
+    ITEMS: `${BASE_URLS.COMMON}/items`,
+  },
+  ADMIN: {
+    DASHBOARD: `${BASE_URLS.ADMIN}/dashboard`,
+    OUTLETS: `${BASE_URLS.ADMIN}/outlets`,
+    OUTLET_DETAILS: `${BASE_URLS.ADMIN}/outlet_details`,
+  }
+};
+
 // API Request Timeouts (in milliseconds)
 export const API_TIMEOUT = 30000; // 30 seconds
 
