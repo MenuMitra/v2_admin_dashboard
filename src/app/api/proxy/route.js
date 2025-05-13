@@ -1,6 +1,20 @@
 // Add these exports for static export compatibility
-export const dynamic = 'force-static';
-export const revalidate = false;
+export const dynamic = 'force-dynamic';
+
+// Configure CORS headers
+function setCorsHeaders(response) {
+  response.headers.set('Access-Control-Allow-Credentials', 'true');
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'GET,DELETE,PATCH,POST,PUT');
+  response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization');
+  return response;
+}
+
+// Handle OPTIONS requests for CORS preflight
+export async function OPTIONS() {
+  const response = new Response(null, { status: 204 });
+  return setCorsHeaders(response);
+}
 
 export async function POST(request) {
   try {
@@ -19,10 +33,10 @@ export async function POST(request) {
       const method = formData.get('method') || 'POST';
       
       if (!endpoint) {
-        return Response.json(
+        return setCorsHeaders(Response.json(
           { error: 'Endpoint parameter is required' },
           { status: 400 }
-        );
+        ));
       }
       
       // Set the target API URL
@@ -53,23 +67,23 @@ export async function POST(request) {
           console.log('API response:', result);
           
           // Return the response
-          return Response.json(result, { status: response.status });
+          return setCorsHeaders(Response.json(result, { status: response.status }));
         } else {
           // Handle HTML or other non-JSON responses
           const text = await response.text();
           console.error('Non-JSON response received:', text.substring(0, 200) + '...');
           
-          return Response.json({ 
+          return setCorsHeaders(Response.json({ 
             error: 'Unexpected response format received from server',
             detail: 'Server did not return valid JSON. Please check server logs.'
-          }, { status: 500 });
+          }, { status: 500 }));
         }
       } catch (error) {
         console.error('Error parsing response:', error);
-        return Response.json({ 
+        return setCorsHeaders(Response.json({ 
           error: 'Failed to parse server response',
           detail: error.message
-        }, { status: 500 });
+        }, { status: 500 }));
       }
     }
     else {
@@ -111,33 +125,33 @@ export async function POST(request) {
           console.log('API response:', result);
           
           // Return the response with appropriate status code
-          return Response.json(result, {
+          return setCorsHeaders(Response.json(result, {
             status: response.status
-          });
+          }));
         } else {
           // Handle HTML or other non-JSON responses
           const text = await response.text();
           console.error('Non-JSON response received:', text.substring(0, 200) + '...');
           
-          return Response.json({ 
+          return setCorsHeaders(Response.json({ 
             error: 'Unexpected response format received from server',
             detail: 'Server did not return valid JSON. Please check server logs.'
-          }, { status: 500 });
+          }, { status: 500 }));
         }
       } catch (error) {
         console.error('Error parsing response:', error);
-        return Response.json({ 
+        return setCorsHeaders(Response.json({ 
           error: 'Failed to parse server response',
           detail: error.message
-        }, { status: 500 });
+        }, { status: 500 }));
       }
     }
   } catch (error) {
     console.error('API proxy error:', error);
-    return Response.json(
+    return setCorsHeaders(Response.json(
       { error: 'Failed to fetch data from API', details: error.message },
       { status: 500 }
-    );
+    ));
   }
 }
 
@@ -147,10 +161,10 @@ export async function GET(request) {
   const endpoint = url.searchParams.get('endpoint');
   
   if (!endpoint) {
-    return Response.json(
+    return setCorsHeaders(Response.json(
       { error: 'Endpoint parameter is required' }, 
       { status: 400 }
-    );
+    ));
   }
   
   try {
@@ -183,12 +197,12 @@ export async function GET(request) {
     console.log('API response:', result);
     
     // Return the response
-    return Response.json(result);
+    return setCorsHeaders(Response.json(result));
   } catch (error) {
     console.error('API proxy error:', error);
-    return Response.json(
+    return setCorsHeaders(Response.json(
       { error: 'Failed to fetch data from API' },
       { status: 500 }
-    );
+    ));
   }
 } 

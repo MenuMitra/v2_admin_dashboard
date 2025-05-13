@@ -1,6 +1,7 @@
 import { commonApiClient } from '../client';
-import { API_ENDPOINTS, ENDPOINTS } from '../config';
+import { API_ENDPOINTS, ENDPOINTS, API_URL } from '../config';
 import { getAuthHeaders } from '@/utils/apiUtils';
+import { isStaticExport } from '@/utils/staticConfig';
 
 /**
  * Common Service - Handles all API calls related to common endpoints
@@ -97,7 +98,25 @@ const commonService = {
   getOutletTypes: async () => {
     try {
       const headers = getAuthHeaders();
-      const response = await fetch(`/api/proxy?endpoint=/common${ENDPOINTS.COMMON.GET_OUTLET_TYPES}`, {
+      const endpoint = `/common${ENDPOINTS.COMMON.GET_OUTLET_TYPES}`;
+      
+      // For static exports, make direct API calls
+      if (isStaticExport) {
+        const directUrl = `${API_URL}${endpoint}`;
+        const response = await fetch(directUrl, {
+          method: 'GET',
+          headers,
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch outlet types');
+        }
+
+        return await response.json();
+      }
+      
+      // For SSR, use the API proxy
+      const response = await fetch(`/api/proxy?endpoint=${encodeURIComponent(endpoint)}`, {
         method: 'GET',
         headers,
       });
@@ -120,7 +139,25 @@ const commonService = {
   getFoodTypes: async () => {
     try {
       const headers = getAuthHeaders();
-      const response = await fetch(`/api/proxy?endpoint=/common${ENDPOINTS.COMMON.GET_FOOD_TYPES}`, {
+      const endpoint = `/common${ENDPOINTS.COMMON.GET_FOOD_TYPES}`;
+      
+      // For static exports, make direct API calls
+      if (isStaticExport) {
+        const directUrl = `${API_URL}${endpoint}`;
+        const response = await fetch(directUrl, {
+          method: 'GET',
+          headers,
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch food types');
+        }
+
+        return await response.json();
+      }
+      
+      // For SSR, use the API proxy
+      const response = await fetch(`/api/proxy?endpoint=${encodeURIComponent(endpoint)}`, {
         method: 'GET',
         headers,
       });

@@ -2,6 +2,7 @@
  * Admin service for handling admin-specific API endpoints
  */
 import { ENDPOINTS } from '../config';
+import { makeApiRequest } from '@/utils/apiUtils';
 
 const adminService = {
   /**
@@ -9,16 +10,11 @@ const adminService = {
    * @returns {Promise<Object>} - Response with dashboard statistics
    */
   getDashboard: () => {
-    return fetch('/api/proxy', {
+    return makeApiRequest({
+      endpoint: `/admin${ENDPOINTS.ADMIN.DASHBOARD}`,
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        endpoint: `/admin${ENDPOINTS.ADMIN.DASHBOARD}`,
-        data: {}
-      }),
-    }).then(response => response.json());
+      data: {}
+    });
   },
 
   /**
@@ -26,16 +22,11 @@ const adminService = {
    * @returns {Promise<Object>} - Response with outlets data
    */
   getOutlets: () => {
-    return fetch('/api/proxy', {
+    return makeApiRequest({
+      endpoint: `/admin${ENDPOINTS.ADMIN.OUTLETS}`,
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        endpoint: `/admin${ENDPOINTS.ADMIN.OUTLETS}`,
-        data: {}
-      }),
-    }).then(response => response.json());
+      data: {}
+    });
   },
 
   /**
@@ -44,16 +35,11 @@ const adminService = {
    * @returns {Promise<Object>} - Response with outlet details
    */
   getOutletDetails: (outletId) => {
-    return fetch('/api/proxy', {
+    return makeApiRequest({
+      endpoint: `/admin${ENDPOINTS.ADMIN.OUTLET_DETAILS}`,
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        endpoint: `/admin${ENDPOINTS.ADMIN.OUTLET_DETAILS}`,
-        data: { outlet_id: outletId }
-      }),
-    }).then(response => response.json());
+      data: { outlet_id: outletId }
+    });
   }
 };
 

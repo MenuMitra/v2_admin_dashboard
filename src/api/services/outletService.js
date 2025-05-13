@@ -1,5 +1,4 @@
-import { getAuthHeaders } from '@/utils/apiUtils';
-import { debugAuthToken } from '@/utils/debug';
+import { makeApiRequest } from '@/utils/apiUtils';
 import { ENDPOINTS } from '@/api/config';
 import tokenService from '@/services/tokenService';
 
@@ -13,21 +12,12 @@ const outletService = {
    * @returns {Promise<Object>} - Response data containing list of outlets
    */
   getAllOutlets: (params = {}) => {
-    return fetch('/api/proxy', {
+    return makeApiRequest({
+      endpoint: '/common/listview_outlet',
       method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        endpoint: '/common/listview_outlet',
-        data: {
-          ...params
-        }
-      }),
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch outlets');
+      data: {
+        ...params
       }
-      return response.json();
     })
     .then(data => {
       if (data.detail?.includes('Error with token')) {
@@ -47,21 +37,12 @@ const outletService = {
    * @returns {Promise<Object>} - Response data containing outlet details
    */
   getOutletDetails: (outletId) => {
-    return fetch('/api/proxy', {
+    return makeApiRequest({
+      endpoint: '/common/view_outlet',
       method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        endpoint: '/common/view_outlet',
-        data: {
-          outlet_id: outletId
-        }
-      }),
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to fetch outlet details');
+      data: {
+        outlet_id: outletId
       }
-      return response.json();
     })
     .then(data => {
       if (data.detail?.includes('Error with token')) {
@@ -84,44 +65,19 @@ const outletService = {
     try {
       // Check if formData is a FormData instance
       if (formData instanceof FormData) {
-        // If it's FormData, we need to add the endpoint to it
-        formData.append('endpoint', '/admin/create_outlet');
-        
-        const response = await fetch('/api/proxy', {
+        return await makeApiRequest({
+          endpoint: '/admin/create_outlet',
           method: 'POST',
-          headers: getAuthHeaders('multipart/form-data'), // Use multipart headers
-          body: formData, // FormData will be sent directly
+          data: formData,
+          useFormData: true
         });
-
-        if (!response.ok) {
-          throw new Error('Failed to create outlet');
-        }
-
-        const data = await response.json();
-        if (data.detail?.includes('Error with token')) {
-          throw new Error('Authentication error: ' + data.detail);
-        }
-        return data;
       } else {
         // If it's regular JSON data
-        const response = await fetch('/api/proxy', {
+        return await makeApiRequest({
+          endpoint: '/admin/create_outlet',
           method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            endpoint: '/admin/create_outlet',
-            data: formData
-          }),
+          data: formData
         });
-
-        if (!response.ok) {
-          throw new Error('Failed to create outlet');
-        }
-
-        const data = await response.json();
-        if (data.detail?.includes('Error with token')) {
-          throw new Error('Authentication error: ' + data.detail);
-        }
-        return data;
       }
     } catch (error) {
       console.error('Error creating outlet:', error);
@@ -147,46 +103,18 @@ const outletService = {
           }
         });
         
-        const response = await fetch('/api/proxy', {
-          method: 'POST', // Use POST for the proxy
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            endpoint: '/common/update_outlet',
-            method: 'PATCH', // Tell the proxy to use PATCH for the actual API call
-            data: formObject
-          }),
+        return await makeApiRequest({
+          endpoint: '/common/update_outlet',
+          method: 'PATCH',
+          data: formObject
         });
-
-        if (!response.ok) {
-          throw new Error('Failed to update outlet');
-        }
-
-        const data = await response.json();
-        if (data.detail?.includes('Error with token')) {
-          throw new Error('Authentication error: ' + data.detail);
-        }
-        return data;
       } else {
         // If it's regular JSON data
-        const response = await fetch('/api/proxy', {
-          method: 'POST', // Use POST for the proxy
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            endpoint: '/common/update_outlet',
-            method: 'PATCH', // Tell the proxy to use PATCH for the actual API call
-            data: outletData
-          }),
+        return await makeApiRequest({
+          endpoint: '/common/update_outlet',
+          method: 'PATCH',
+          data: outletData
         });
-
-        if (!response.ok) {
-          throw new Error('Failed to update outlet');
-        }
-
-        const data = await response.json();
-        if (data.detail?.includes('Error with token')) {
-          throw new Error('Authentication error: ' + data.detail);
-        }
-        return data;
       }
     } catch (error) {
       console.error('Error updating outlet:', error);
@@ -200,21 +128,12 @@ const outletService = {
    * @returns {Promise<Object>} - Response data
    */
   deleteOutlet: (outletId) => {
-    return fetch('/api/proxy', {
-      method: 'POST', // Changed from DELETE to POST
-      headers: getAuthHeaders(),
-      body: JSON.stringify({
-        endpoint: '/common/delete_outlet',
-        data: {
-          outlet_id: outletId
-        }
-      }),
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to delete outlet');
+    return makeApiRequest({
+      endpoint: '/common/delete_outlet',
+      method: 'POST',
+      data: {
+        outlet_id: outletId
       }
-      return response.json();
     })
     .then(data => {
       if (data.detail?.includes('Error with token')) {
@@ -231,20 +150,14 @@ const outletService = {
   // List all outlets
   listOutlets: async (userId) => {
     try {
-      const headers = getAuthHeaders();
-      
-      const response = await fetch('/api/proxy', {
+      const data = await makeApiRequest({
+        endpoint: '/common/listview_outlet',
         method: 'POST',
-        headers,
-        body: JSON.stringify({
-          endpoint: '/common/listview_outlet',
-          data: {
-            user_id: parseInt(userId)
-          }
-        }),
+        data: {
+          user_id: parseInt(userId)
+        }
       });
       
-      const data = await response.json();
       if (data.detail?.includes('Error with token')) {
         throw new Error('Authentication error: ' + data.detail);
       }
@@ -261,21 +174,17 @@ const outletService = {
   viewOutlet: async (outletId, userId) => {
     try {
       const userData = tokenService.getUserData();
-      const userIdToUse =  2;
+      const userIdToUse = 2;
       
-      const response = await fetch('/api/proxy', {
+      const data = await makeApiRequest({
+        endpoint: '/common/view_outlet',
         method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          endpoint: '/common/view_outlet',
-          data: {
-            outlet_id: parseInt(outletId),
-            user_id: parseInt(userIdToUse)
-          }
-        }),
+        data: {
+          outlet_id: parseInt(outletId),
+          user_id: parseInt(userIdToUse)
+        }
       });
-
-      const data = await response.json();
+      
       if (data.detail?.includes('Error with token')) {
         throw new Error('Authentication error: ' + data.detail);
       }

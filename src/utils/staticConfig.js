@@ -6,20 +6,16 @@
 // Base API URL - used for direct API calls in static deployment
 export const API_BASE_URL = 'https://men4u.xyz/v2';
 
-// Check if we're in a static export environment
-export const isStaticExport = 
-  process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true' || 
-  typeof window !== 'undefined';  // Client-side is always treated as static
+// Check if we're in a static export environment - only true when explicitly set
+export const isStaticExport = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_STATIC_EXPORT === 'true';
+
+// For testing and debug purposes
+console.log('Static export mode:', isStaticExport ? 'enabled' : 'disabled');
 
 // Function to get the appropriate API URL based on deployment type
 export const getApiUrl = (endpoint) => {
-  // In static exports, call the API directly
-  if (isStaticExport) {
-    return `${API_BASE_URL}${endpoint}`;
-  }
-  
-  // In server-side rendering, use the API route
-  return `/api/proxy?endpoint=${encodeURIComponent(endpoint)}`;
+  // Always return the direct API URL - we're no longer using the proxy
+  return `${API_BASE_URL}${endpoint}`;
 };
 
 // Static API client that can be used for direct API calls in static deployments

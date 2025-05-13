@@ -1,9 +1,10 @@
 /**
  * Authentication service for admin login and OTP verification
  */
-import apiClient from '../apiClient';
 import tokenService from '@/services/tokenService';
-import { ENDPOINTS, BASE_URLS } from '../config';
+import { ENDPOINTS, API_URL } from '../config';
+import { isStaticExport } from '@/utils/staticConfig';
+import { makeApiRequest } from '@/utils/apiUtils';
 
 const authService = {
   /**
@@ -13,26 +14,15 @@ const authService = {
    */
   login: async (mobile) => {
     try {
-      // Get device information
+      // Prepare the data payload
+      const data = { mobile };
+      const endpoint = `/admin${ENDPOINTS.ADMIN.ADMIN_LOGIN}`;
       
-      
-     
-      
-      const response = await fetch('/api/proxy', {
+      return await makeApiRequest({
+        endpoint: endpoint,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          endpoint: `/admin${ENDPOINTS.ADMIN.ADMIN_LOGIN}`,
-          data: { 
-            mobile,
-           
-          }
-        }),
+        data: data
       });
-      
-      return await response.json();
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -44,24 +34,21 @@ const authService = {
    * @param {string} mobile - Admin's mobile number
    * @returns {Promise<Object>} - Response with status and message
    */
-  resendOtp: (mobile) => {
-    return fetch('/api/proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        endpoint: `/common${ENDPOINTS.COMMON.RESEND_OTP}`,
-        data: { mobile }
-      }),
-    }).then(response => response.json());
+  resendOtp: async (mobile) => {
+    try {
+      const endpoint = `/common${ENDPOINTS.COMMON.RESEND_OTP}`;
+      const data = { mobile };
+      
+      return await makeApiRequest({
+        endpoint: endpoint,
+        method: 'POST',
+        data: data
+      });
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      throw error;
+    }
   },
-
-  /**
-   * Generate a unique device ID or retrieve the stored one
-   * @returns {string} Device ID
-   */
- 
 
   /**
    * Verify Admin OTP and handle login response
@@ -74,27 +61,19 @@ const authService = {
     console.log('Verifying OTP with data:', data);
     
     try {
-      // Using the admin-specific endpoint with just mobile and OTP
-      const response = await fetch('/api/proxy', {
+      // Prepare the request data
+      const endpoint = `/admin${ENDPOINTS.ADMIN.ADMIN_VERIFY_OTP}`;
+      const requestData = {
+        mobile: data.mobile,
+        otp: data.otp
+      };
+      
+      const responseData = await makeApiRequest({
+        endpoint: endpoint,
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          endpoint: `/admin${ENDPOINTS.ADMIN.ADMIN_VERIFY_OTP}`,
-          data: {
-            mobile: data.mobile,
-            otp: data.otp
-          }
-        }),
+        data: requestData
       });
 
-      if (!response.ok) {
-        console.error('OTP verification failed with status:', response.status);
-        throw new Error('OTP verification failed');
-      }
-
-      const responseData = await response.json();
       console.log('OTP verification response:', responseData);
 
       // If login is successful, store auth data
