@@ -8,38 +8,12 @@ import { isStaticExport } from '@/utils/staticConfig';
 // Flag to check if we're on client side
 const isClient = typeof window !== 'undefined';
 
-// Flag to enable CORS proxy in development - only on client side
-const USE_CORS_PROXY = isClient && process.env.NODE_ENV !== 'production';
-
-// Conditionally import client-only dependencies
-let fetchWithProxy;
-let logApiCall;
-let logApiResponse;
-let DEBUG = false;
-
-// Only import client-side modules on the client
-if (isClient) {
-  try {
-    const devConfig = require('@/utils/devConfig');
-    const corsProxy = require('@/utils/corsProxy');
-    
-    DEBUG = devConfig.DEBUG;
-    logApiCall = devConfig.logApiCall;
-    logApiResponse = devConfig.logApiResponse;
-    fetchWithProxy = corsProxy.fetchWithProxy;
-  } catch (e) {
-    // Fallback implementations if modules can't be loaded
-    DEBUG = false;
-    logApiCall = () => {};
-    logApiResponse = () => {};
-    fetchWithProxy = (url, options) => fetch(url, options);
+// Simplified logging function
+const logDebug = (message, data) => {
+  if (isClient && process.env.NODE_ENV !== 'production') {
+    console.log(message, data);
   }
-} else {
-  // Server-side stubs
-  logApiCall = () => {};
-  logApiResponse = () => {};
-  fetchWithProxy = (url, options) => fetch(url, options);
-}
+};
 
 /**
  * Get the authentication token from localStorage
@@ -53,16 +27,7 @@ export const getAuthToken = () => {
   const token = localStorage.getItem('authToken');
   const tokenType = localStorage.getItem('tokenType') || 'bearer';
   
-  if (DEBUG) {
-    console.log('Retrieved token from storage, exists:', !!token);
-    if (token) {
-      console.log('Token length:', token.length, 'First 10 chars:', token.substring(0, 10) + '...');
-    }
-    console.log('Token type:', tokenType);
-  }
-  
   if (!token) {
-    if (DEBUG) console.log('No token found in storage');
     return null;
   }
   
@@ -120,13 +85,7 @@ export const getAuthHeader = () => {
 export const addAuthToOptions = (options = {}) => {
   const token = getAuthToken();
   
-  if (DEBUG) {
-    console.log('Adding auth to options...');
-    console.log('Initial options:', options);
-  }
-  
   if (!token) {
-    if (DEBUG) console.log('No token available for options');
     return options;
   }
   
@@ -138,7 +97,6 @@ export const addAuthToOptions = (options = {}) => {
   // Add authorization header
   options.headers['Authorization'] = token;
   
-  if (DEBUG) console.log('Final options with auth:', options);
   return options;
 };
 
@@ -160,8 +118,8 @@ export const makeApiRequest = async ({
   useFormData = false 
 }) => {
   try {
-    // Log API call for debugging
-    if (logApiCall) logApiCall(endpoint, method, data);
+    // Log API call
+    logDebug(`API Request: ${method} ${endpoint}`, data);
     
     // Get auth headers and merge with provided headers
     const authHeaders = getAuthHeaders();
@@ -170,9 +128,7 @@ export const makeApiRequest = async ({
     // Prepare the request options
     const requestOptions = {
       method,
-      headers: requestHeaders,
-      mode: 'cors', // Enable CORS
-      credentials: 'omit' // Don't include credentials which can cause CORS issues
+      headers: requestHeaders
     };
     
     // Add body for non-GET requests
@@ -188,7 +144,7 @@ export const makeApiRequest = async ({
     
     // Build the URL
     const directUrl = `${API_URL}${endpoint}`;
-    if (DEBUG) console.log(`Calling API at: ${directUrl}`);
+    logDebug(`Calling API at: ${directUrl}`);
     
     let response;
     
@@ -197,19 +153,9 @@ export const makeApiRequest = async ({
       const queryParams = new URLSearchParams(data).toString();
       const urlWithParams = `${directUrl}?${queryParams}`;
       
-      // Use CORS proxy in development
-      if (USE_CORS_PROXY && fetchWithProxy) {
-        response = await fetchWithProxy(urlWithParams, requestOptions);
-      } else {
-        response = await fetch(urlWithParams, requestOptions);
-      }
+      response = await fetch(urlWithParams, requestOptions);
     } else {
-      // Use CORS proxy in development
-      if (USE_CORS_PROXY && fetchWithProxy) {
-        response = await fetchWithProxy(directUrl, requestOptions);
-      } else {
-        response = await fetch(directUrl, requestOptions);
-      }
+      response = await fetch(directUrl, requestOptions);
     }
     
     // Parse the response
@@ -218,11 +164,11 @@ export const makeApiRequest = async ({
       result = await response.json();
     } catch (e) {
       console.error('Failed to parse response as JSON:', e);
-      throw new Error('Error processing API response - check if backend allows CORS');
+      throw new Error('Error processing API response');
     }
     
-    // Log API response for debugging
-    if (logApiResponse) logApiResponse(endpoint, result);
+    // Log API response
+    logDebug(`API Response for ${endpoint}:`, result);
     
     if (!response.ok) {
       console.error('API error response:', result);
@@ -231,13 +177,32 @@ export const makeApiRequest = async ({
     
     return result;
   } catch (error) {
-    // Check for network-related errors (likely CORS)
-    if (error.message === 'Failed to fetch' || error.name === 'TypeError') {
-      console.error('Network error - likely a CORS issue:', error);
+    // Special handling for network errors
+    if (error.message === 'Failed to fetch') {
+      if (API_URL.includes('localhost:3001')) {
+        console.error(`
+          PROXY ERROR: Unable to connect to the local proxy server
+          
+          Please ensure:
+          1. You've installed the required dependencies: npm install express cors http-proxy-middleware --save
+          2. The proxy server is running: npm run proxy
+          3. The proxy server is accessible at http://localhost:3001
+          
+          See PROXY_SETUP.md for more details on setting up the proxy.
+        `);
+      } else {
+        console.error(`
+          NETWORK ERROR: Unable to connect to the API server at ${API_URL}
+          
+          This could be due to:
+          1. Your network connection
+          2. The API server is down or not accessible
+          3. CORS restrictions (if not using the proxy)
+        `);
+      }
     }
     
-    // Log the error
-    if (logApiResponse) logApiResponse(endpoint, null, error);
+    console.error(`API request failed for ${endpoint}:`, error);
     throw error;
   }
 }; 

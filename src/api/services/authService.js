@@ -3,7 +3,6 @@
  */
 import tokenService from '@/services/tokenService';
 import { ENDPOINTS, API_URL } from '../config';
-import { isStaticExport } from '@/utils/staticConfig';
 import { makeApiRequest } from '@/utils/apiUtils';
 
 const authService = {
@@ -18,6 +17,7 @@ const authService = {
       const data = { mobile };
       const endpoint = `/admin${ENDPOINTS.ADMIN.ADMIN_LOGIN}`;
       
+      // Use makeApiRequest for consistent error handling
       return await makeApiRequest({
         endpoint: endpoint,
         method: 'POST',
@@ -92,19 +92,8 @@ const authService = {
           expires_at: responseData.expires_at
         };
         
-        // Log auth data for debugging
-        console.log('Auth data to be stored:', authData);
-        
         // Use tokenService to store auth data
         tokenService.setAuthData(authData);
-        
-        // Double-check stored data
-        const storedData = tokenService.getUserData();
-        console.log('Stored user data:', storedData);
-        
-        // Log success for debugging
-        console.log('Auth data stored successfully');
-        console.log('Auth header will be:', tokenService.getAuthHeader());
       } else {
         console.log('Login not successful or missing access token');
         throw new Error(responseData.detail || 'Login failed');

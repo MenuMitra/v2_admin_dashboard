@@ -1,12 +1,15 @@
 // API Configuration - Structured with base URLs for different API groups
 
-// Environment selector
-export const API_ENV = (typeof window !== 'undefined' && localStorage.getItem('apiEnvironment')) || 'dev';
+// Check if we're in a browser environment
+const isBrowser = typeof window !== 'undefined';
 
-// Main API base URLs based on environment
-export const API_URL = API_ENV === 'dev' 
-  ? 'https://men4u.xyz/v2' 
-  : 'https://menusmitra.xyz/v2';
+// Environment selector - safely get from localStorage
+export const API_ENV = isBrowser && localStorage.getItem('apiEnvironment') || 'dev';
+
+// Use local proxy for development to avoid CORS issues
+export const API_URL = isBrowser && window.location.hostname === 'localhost' 
+  ? 'http://localhost:3001/api'  // Local proxy server
+  : 'https://men4u.xyz/v2';      // Production API
 
 // Base URLs for specific API groups
 export const BASE_URLS = {

@@ -5,15 +5,17 @@
  * providing functions to route API requests through public CORS proxies.
  */
 
+// Make sure we're running on the client side
+const isClient = typeof window !== 'undefined';
+
 // Available free CORS proxies
 const CORS_PROXIES = {
-  CORS_ANYWHERE: 'https://cors-anywhere.herokuapp.com/',
-  ALLORIGINS: 'https://api.allorigins.win/raw?url=',
   CORSPROXY_IO: 'https://corsproxy.io/?',
-  THINGPROXY: 'https://thingproxy.freeboard.io/fetch/'
+  THINGPROXY: 'https://thingproxy.freeboard.io/fetch/',
+  ALLORIGINS: 'https://api.allorigins.win/raw?url=',
 };
 
-// The default proxy to use - CORSPROXY_IO is often reliable
+// The default proxy to use
 export const DEFAULT_PROXY = CORS_PROXIES.CORSPROXY_IO;
 
 /**
@@ -24,18 +26,23 @@ export const DEFAULT_PROXY = CORS_PROXIES.CORSPROXY_IO;
  */
 export const applyProxy = (url, proxy = DEFAULT_PROXY) => {
   // For development only - don't use in production
-  if (process.env.NODE_ENV === 'production') {
+  if (!isClient || process.env.NODE_ENV === 'production') {
     return url;
   }
   
-  // Remove any existing proxy
-  const cleanUrl = url.replace(/https?:\/\/cors-anywhere\.herokuapp\.com\//, '')
-    .replace(/https?:\/\/api\.allorigins\.win\/raw\?url=/, '')
-    .replace(/https?:\/\/corsproxy\.io\/\?/, '')
-    .replace(/https?:\/\/thingproxy\.freeboard\.io\/fetch\//, '');
-  
-  // Apply the selected proxy
-  return `${proxy}${cleanUrl}`;
+  try {
+    // Remove any existing proxy
+    const cleanUrl = url.replace(/https?:\/\/cors-anywhere\.herokuapp\.com\//, '')
+      .replace(/https?:\/\/api\.allorigins\.win\/raw\?url=/, '')
+      .replace(/https?:\/\/corsproxy\.io\/\?/, '')
+      .replace(/https?:\/\/thingproxy\.freeboard\.io\/fetch\//, '');
+    
+    // Apply the selected proxy
+    return `${proxy}${cleanUrl}`;
+  } catch (e) {
+    console.error('Error applying CORS proxy:', e);
+    return url;
+  }
 };
 
 /**
@@ -44,21 +51,23 @@ export const applyProxy = (url, proxy = DEFAULT_PROXY) => {
  * @param {string} proxy - The proxy being used
  * @returns {Object} - Modified headers for the proxy
  */
-export const formatProxyHeaders = (headers, proxy = DEFAULT_PROXY) => {
-  // Clone the headers to avoid modifying the original
-  const formattedHeaders = { ...headers };
+export const formatProxyHeaders = (headers = {}, proxy = DEFAULT_PROXY) => {
+  if (!isClient) return headers;
   
-  // allorigins doesn't support custom headers
-  if (proxy === CORS_PROXIES.ALLORIGINS) {
-    return {}; 
+  try {
+    // Clone the headers to avoid modifying the original
+    const formattedHeaders = { ...headers };
+    
+    // allorigins doesn't support custom headers
+    if (proxy === CORS_PROXIES.ALLORIGINS) {
+      return {}; 
+    }
+    
+    return formattedHeaders;
+  } catch (e) {
+    console.error('Error formatting proxy headers:', e);
+    return headers;
   }
-  
-  // CORS Anywhere requires X-Requested-With header
-  if (proxy === CORS_PROXIES.CORS_ANYWHERE) {
-    formattedHeaders['X-Requested-With'] = 'XMLHttpRequest';
-  }
-  
-  return formattedHeaders;
 };
 
 /**
@@ -69,18 +78,24 @@ export const formatProxyHeaders = (headers, proxy = DEFAULT_PROXY) => {
  * @returns {Promise<Response>} - Fetch response
  */
 export const fetchWithProxy = async (url, options = {}, proxy = DEFAULT_PROXY) => {
-  // Don't use in production
-  if (process.env.NODE_ENV === 'production') {
+  // Don't use in production or server-side
+  if (!isClient || process.env.NODE_ENV === 'production') {
     return fetch(url, options);
   }
   
-  const proxiedUrl = applyProxy(url, proxy);
-  const proxyOptions = { ...options };
-  
-  // Modify headers for the proxy if needed
-  if (proxyOptions.headers) {
-    proxyOptions.headers = formatProxyHeaders(proxyOptions.headers, proxy);
+  try {
+    const proxiedUrl = applyProxy(url, proxy);
+    const proxyOptions = { ...options };
+    
+    // Modify headers for the proxy if needed
+    if (proxyOptions.headers) {
+      proxyOptions.headers = formatProxyHeaders(proxyOptions.headers, proxy);
+    }
+    
+    return fetch(proxiedUrl, proxyOptions);
+  } catch (e) {
+    console.error('Error fetching with proxy:', e);
+    // Fall back to direct fetch if proxy fails
+    return fetch(url, options);
   }
-  
-  return fetch(proxiedUrl, proxyOptions);
 }; 
