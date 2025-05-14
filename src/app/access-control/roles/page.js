@@ -101,13 +101,35 @@ export default function RolesPage() {
         mappingsData.forEach(mapping => {
           if (!roleIds.has(mapping.ubac_role_id)) {
             roleIds.add(mapping.ubac_role_id);
+            
+            // Get the earliest created_on date for this role
+            const roleCreatedOn = mappingsData
+              .filter(m => m.ubac_role_id === mapping.ubac_role_id)
+              .reduce((earliest, curr) => {
+                const eDate = new Date(earliest.created_on || '2099-01-01');
+                const cDate = new Date(curr.created_on || '2099-01-01');
+                return cDate < eDate ? curr : earliest;
+              }, mapping).created_on;
+              
             uniqueRoles.push({
               ubac_role_id: mapping.ubac_role_id,
               role_name: `Role ${mapping.ubac_role_id}`, // Default name
-              created_on: mapping.created_on
+              created_on: roleCreatedOn
             });
           }
         });
+        
+        // For each role, fetch specific mappings to get role_name
+        for (const role of uniqueRoles) {
+          try {
+            const roleMappings = await ubacService.listviewRoleFunctionalityMapping(role.ubac_role_id);
+            if (Array.isArray(roleMappings) && roleMappings.length > 0 && roleMappings[0].role_name) {
+              role.role_name = roleMappings[0].role_name;
+            }
+          } catch (error) {
+            console.error(`Failed to fetch name for role ${role.ubac_role_id}:`, error);
+          }
+        }
         
         setRoles(uniqueRoles);
       } else {

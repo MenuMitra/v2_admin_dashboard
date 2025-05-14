@@ -77,6 +77,13 @@ export default function RoleMappingPage({ params }) {
       // Set the retrieved mappings
       setRoleMappings(mappings);
 
+      // Set role name from the first mapping, if available
+      if (mappings.length > 0 && mappings[0].role_name) {
+        setRoleName(mappings[0].role_name);
+      } else {
+        setRoleName(`Role ${roleId}`);
+      }
+
       // Fetch all functionalities to populate the dropdown
       const allFunctionalities = await ubacService.getFunctionalities();
       if (!Array.isArray(allFunctionalities)) {
@@ -84,10 +91,6 @@ export default function RoleMappingPage({ params }) {
         throw new Error('Failed to load functionalities');
       }
       setFunctionalities(allFunctionalities);
-
-      // Set role name based on roleId
-      // Since there's no dedicated API endpoint to get role details
-      setRoleName(`Role ${roleId}`);
       
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -110,7 +113,7 @@ export default function RoleMappingPage({ params }) {
   // Open edit modal
   const handleEditClick = (mapping) => {
     setSelectedMapping(mapping);
-    setSelectedFunctionality(mapping.ubac_functionality_id.toString());
+    setSelectedFunctionality(mapping.functionality_id.toString());
     setIsEditModalOpen(true);
   };
 
@@ -170,6 +173,32 @@ export default function RoleMappingPage({ params }) {
     }
   };
 
+  // Get mapping ID from mappings list for edit/delete operations
+  const getMappingId = async (funcId) => {
+    try {
+      // Fetch the complete mappings list to get the mapping ID
+      const mappingsList = await ubacService.getRoleFunctionalityMappings();
+      
+      if (Array.isArray(mappingsList)) {
+        // Find the mapping with the correct role_id and functionality_id
+        const mapping = mappingsList.find(m => 
+          m.ubac_role_id === roleId && 
+          m.ubac_functionality_id === funcId
+        );
+        
+        if (mapping) {
+          return mapping.ubac_role_functionality_mapping_id;
+        }
+      }
+      
+      console.error('Could not find mapping ID for functionality:', funcId);
+      return null;
+    } catch (error) {
+      console.error('Error finding mapping ID:', error);
+      return null;
+    }
+  };
+
   // Submit updated mapping
   const handleSubmitEditMapping = async (e) => {
     e.preventDefault();
@@ -180,9 +209,18 @@ export default function RoleMappingPage({ params }) {
 
     setLoading(true);
     try {
+      // Get mapping ID for the selected mapping
+      const mappingId = await getMappingId(selectedMapping.functionality_id);
+      
+      if (!mappingId) {
+        toast.error('Could not find mapping information. Please try again.');
+        closeEditModal();
+        return;
+      }
+      
       // Use the updateRoleFunctionalityMapping method
       const response = await ubacService.updateRoleFunctionalityMapping({
-        role_functionality_mapping_id: selectedMapping.ubac_role_functionality_mapping_id,
+        role_functionality_mapping_id: mappingId,
         role_id: roleId,
         functionality_id: parseInt(selectedFunctionality, 10)
       });
@@ -190,10 +228,20 @@ export default function RoleMappingPage({ params }) {
       if (response && response.detail) {
         toast.success(response.detail || 'Functionality updated successfully');
         
+        // Get the functionality name for the updated functionality
+        const updatedFunctionality = functionalities.find(
+          f => f.ubac_functionality_id === parseInt(selectedFunctionality, 10) ||
+               f.functionality_id === parseInt(selectedFunctionality, 10)
+        );
+        
         // Update the state locally to avoid a full re-fetch
         setRoleMappings(prev => prev.map(mapping => 
-          mapping.ubac_role_functionality_mapping_id === selectedMapping.ubac_role_functionality_mapping_id
-            ? {...mapping, ubac_functionality_id: parseInt(selectedFunctionality, 10)}
+          mapping.functionality_id === selectedMapping.functionality_id
+            ? {
+                ...mapping, 
+                functionality_id: parseInt(selectedFunctionality, 10),
+                functionality_name: updatedFunctionality?.functionality_name || ''
+              }
             : mapping
         ));
       } else {
@@ -218,8 +266,15 @@ export default function RoleMappingPage({ params }) {
 
     setLoading(true);
     try {
-      // Use the mapping ID from the selected mapping
-      const mappingId = selectedMapping.ubac_role_functionality_mapping_id;
+      // Get mapping ID for the selected mapping
+      const mappingId = await getMappingId(selectedMapping.functionality_id);
+      
+      if (!mappingId) {
+        toast.error('Could not find mapping information. Please try again.');
+        closeDeleteModal();
+        return;
+      }
+      
       const response = await ubacService.deleteRoleFunctionalityMapping(mappingId);
       
       // Only update state if the backend operation was successful
@@ -227,7 +282,7 @@ export default function RoleMappingPage({ params }) {
           response.detail === 'Mapping deleted successfully')) {
         // Update mappings locally to avoid full page refresh
         setRoleMappings(prev => 
-          prev.filter(mapping => mapping.ubac_role_functionality_mapping_id !== mappingId)
+          prev.filter(mapping => mapping.functionality_id !== selectedMapping.functionality_id)
         );
         
         toast.success(response.detail || 'Functionality unassigned successfully');
@@ -254,9 +309,10 @@ export default function RoleMappingPage({ params }) {
 
   // Render add mapping form
   const renderAddForm = () => {
+    // Filter out functionalities that are already assigned to this role
     const availableFunctionalities = functionalities.filter(
       func => !roleMappings.some(
-        mapping => mapping.ubac_functionality_id === func.ubac_functionality_id
+        mapping => mapping.functionality_id === func.ubac_functionality_id
       )
     );
 
@@ -304,19 +360,21 @@ export default function RoleMappingPage({ params }) {
 
   // Render edit mapping form
   const renderEditForm = () => {
+    // Filter out functionalities that are already assigned to other mappings
     const availableFunctionalities = functionalities.filter(
       func => !roleMappings.some(
-        mapping => mapping.ubac_functionality_id === func.ubac_functionality_id && 
-                  mapping.ubac_role_functionality_mapping_id !== selectedMapping?.ubac_role_functionality_mapping_id
+        mapping => mapping.functionality_id === func.ubac_functionality_id && 
+                  mapping.functionality_id !== selectedMapping?.functionality_id
       )
     );
     
     // Add the currently selected functionality if it's not in the list
     const currentFunctionality = functionalities.find(
-      func => func.ubac_functionality_id === selectedMapping?.ubac_functionality_id
+      func => func.ubac_functionality_id === selectedMapping?.functionality_id
     );
     
-    if (currentFunctionality && !availableFunctionalities.some(f => f.ubac_functionality_id === currentFunctionality.ubac_functionality_id)) {
+    if (currentFunctionality && !availableFunctionalities.some(f => 
+      f.ubac_functionality_id === currentFunctionality.ubac_functionality_id)) {
       availableFunctionalities.push(currentFunctionality);
     }
 
@@ -366,11 +424,14 @@ export default function RoleMappingPage({ params }) {
   const renderDeleteConfirmation = () => {
     if (!selectedMapping) return null;
     
-    // Find the functionality name
+    // Get the functionality name from the mapping or from functionalities list
     const functionality = functionalities.find(
-      f => f.ubac_functionality_id === selectedMapping.ubac_functionality_id
+      f => f.ubac_functionality_id === selectedMapping.functionality_id
     );
-    const functionalityName = functionality ? functionality.functionality_name : 'this functionality';
+    
+    // Use functionality_name from the mapping or from functionalities list if available
+    const functionalityName = selectedMapping.functionality_name || 
+                            (functionality ? functionality.functionality_name : 'this functionality');
 
     return (
       <div className="space-y-4">
@@ -467,19 +528,20 @@ export default function RoleMappingPage({ params }) {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {roleMappings.map((mapping, index) => {
-                  const functionality = functionalities.find(
-                    f => f.ubac_functionality_id === mapping.ubac_functionality_id
-                  );
+                  // Find functionality name from our list if not provided in mapping
+                  const functionalityName = mapping.functionality_name || functionalities.find(
+                    f => f.ubac_functionality_id === mapping.functionality_id
+                  )?.functionality_name || 'Unknown';
                   
                   return (
-                    <tr key={mapping.ubac_role_functionality_mapping_id} className="hover:bg-gray-50">
+                    <tr key={index} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-gray-800 font-medium">{index + 1}</span>
                       </td>
                      
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="text-gray-800">
-                          {functionality ? functionality.functionality_name : 'Unknown'}
+                          {functionalityName}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">

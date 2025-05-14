@@ -8,6 +8,9 @@ import { isStaticExport } from '@/utils/staticConfig';
 // Flag to check if we're on client side
 const isClient = typeof window !== 'undefined';
 
+// Flag to check if we're running in local development
+const isLocalDev = isClient && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
 // Simplified logging function
 const logDebug = (message, data) => {
   if (isClient && process.env.NODE_ENV !== 'production') {
@@ -142,20 +145,40 @@ export const makeApiRequest = async ({
       }
     }
     
-    // Build the URL
-    const directUrl = `${API_URL}${endpoint}`;
-    logDebug(`Calling API at: ${directUrl}`);
-    
     let response;
     
-    // For GET requests with query params in data
-    if (method === 'GET' && data && Object.keys(data).length > 0) {
-      const queryParams = new URLSearchParams(data).toString();
-      const urlWithParams = `${directUrl}?${queryParams}`;
+    // For local development, use the proxy server
+    if (isLocalDev && !isStaticExport) {
+      // Proxy API request via /api/proxy endpoint
+      logDebug(`Using local proxy for API request: ${endpoint}`);
       
-      response = await fetch(urlWithParams, requestOptions);
+      const proxyOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          endpoint,
+          method,
+          data,
+          headers: authHeaders
+        })
+      };
+      
+      response = await fetch('/api/proxy', proxyOptions);
     } else {
-      response = await fetch(directUrl, requestOptions);
+      // Direct API call
+      // Build the URL
+      const directUrl = `${API_URL}${endpoint}`;
+      logDebug(`Direct API call to: ${directUrl}`);
+      
+      // For GET requests with query params
+      if (method === 'GET' && data && Object.keys(data).length > 0) {
+        const queryParams = new URLSearchParams(data).toString();
+        const urlWithParams = `${directUrl}?${queryParams}`;
+        
+        response = await fetch(urlWithParams, requestOptions);
+      } else {
+        response = await fetch(directUrl, requestOptions);
+      }
     }
     
     // Parse the response
@@ -179,7 +202,7 @@ export const makeApiRequest = async ({
   } catch (error) {
     // Special handling for network errors
     if (error.message === 'Failed to fetch') {
-      if (API_URL.includes('localhost:3001')) {
+      if (isLocalDev) {
         console.error(`
           PROXY ERROR: Unable to connect to the local proxy server
           
