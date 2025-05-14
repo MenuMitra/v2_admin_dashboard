@@ -6,6 +6,9 @@
  */
 import { NextResponse } from 'next/server';
 
+// Required for static export
+export const dynamic = "force-static";
+
 // The API server URL
 const API_BASE_URL = 'https://men4u.xyz/v2';
 

@@ -11,6 +11,9 @@ const isClient = typeof window !== 'undefined';
 // Flag to check if we're running in local development
 const isLocalDev = isClient && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
+// Flag to check if we're in production mode
+const isProduction = process.env.NODE_ENV === 'production';
+
 // Simplified logging function
 const logDebug = (message, data) => {
   if (isClient && process.env.NODE_ENV !== 'production') {
@@ -147,8 +150,8 @@ export const makeApiRequest = async ({
     
     let response;
     
-    // For local development, use the proxy server
-    if (isLocalDev && !isStaticExport) {
+    // For local development and not in production, use the proxy server
+    if (isLocalDev && !isProduction && !isStaticExport) {
       // Proxy API request via /api/proxy endpoint
       logDebug(`Using local proxy for API request: ${endpoint}`);
       
