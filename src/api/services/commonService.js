@@ -1,7 +1,6 @@
 import { commonApiClient } from '../client';
 import { API_ENDPOINTS, ENDPOINTS, API_URL } from '../config';
-import { getAuthHeaders } from '@/utils/apiUtils';
-import { isStaticExport } from '@/utils/staticConfig';
+import { getAuthHeaders, makeApiRequest } from '@/utils/apiUtils';
 
 /**
  * Common Service - Handles all API calls related to common endpoints
@@ -97,35 +96,10 @@ const commonService = {
    */
   getOutletTypes: async () => {
     try {
-      const headers = getAuthHeaders();
-      const endpoint = `/common${ENDPOINTS.COMMON.GET_OUTLET_TYPES}`;
-      
-      // For static exports, make direct API calls
-      if (isStaticExport) {
-        const directUrl = `${API_URL}${endpoint}`;
-        const response = await fetch(directUrl, {
-          method: 'GET',
-          headers,
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch outlet types');
-        }
-
-        return await response.json();
-      }
-      
-      // For SSR, use the API proxy
-      const response = await fetch(`/api/proxy?endpoint=${encodeURIComponent(endpoint)}`, {
-        method: 'GET',
-        headers,
+      return makeApiRequest({
+        endpoint: `/common${ENDPOINTS.COMMON.GET_OUTLET_TYPES}`,
+        method: 'GET'
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch outlet types');
-      }
-
-      return await response.json();
     } catch (error) {
       console.error('Error fetching outlet types:', error);
       throw error;
@@ -138,35 +112,10 @@ const commonService = {
    */
   getFoodTypes: async () => {
     try {
-      const headers = getAuthHeaders();
-      const endpoint = `/common${ENDPOINTS.COMMON.GET_FOOD_TYPES}`;
-      
-      // For static exports, make direct API calls
-      if (isStaticExport) {
-        const directUrl = `${API_URL}${endpoint}`;
-        const response = await fetch(directUrl, {
-          method: 'GET',
-          headers,
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch food types');
-        }
-
-        return await response.json();
-      }
-      
-      // For SSR, use the API proxy
-      const response = await fetch(`/api/proxy?endpoint=${encodeURIComponent(endpoint)}`, {
-        method: 'GET',
-        headers,
+      return makeApiRequest({
+        endpoint: `/common${ENDPOINTS.COMMON.GET_FOOD_TYPES}`,
+        method: 'GET'
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch food types');
-      }
-
-      return await response.json();
     } catch (error) {
       console.error('Error fetching food types:', error);
       throw error;
