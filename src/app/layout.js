@@ -7,7 +7,12 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Admin Dashboard",
-  description: "Admin dashboard for restaurant management",
+  description: "Admin dashboard for outlet management",
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({ children }) {
