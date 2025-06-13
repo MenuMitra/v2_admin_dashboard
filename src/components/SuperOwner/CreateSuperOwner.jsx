@@ -193,7 +193,7 @@ function CreateSuperOwner() {
         {/* Form Section */}
         <div className="bg-white p-6 rounded-lg shadow">
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input
@@ -259,7 +259,7 @@ function CreateSuperOwner() {
           </form>
         </div>
 
-        {/* Owner Selection Section */}
+        {/* Owner and Outlet Selection */}
         <div className="grid grid-cols-2 gap-6">
           <div>
             <h3 className="text-lg font-semibold mb-4">Select Owner</h3>
@@ -284,7 +284,6 @@ function CreateSuperOwner() {
             </div>
           </div>
 
-          {/* Outlets Selection Section */}
           {selectedOwner && (
             <div>
               <h3 className="text-lg font-semibold mb-4">Select Outlets</h3>
