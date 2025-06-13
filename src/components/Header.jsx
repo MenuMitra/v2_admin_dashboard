@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -35,6 +35,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const { adminData, clearAdmin } = useAdmin();
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const searchInputRef = useRef(null);
 
   const notifications = [
     {
@@ -80,6 +81,29 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       // You might want to show an error toast/notification here
     }
   };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // Check if it's Mac (Command + K) or Windows/Linux (Ctrl + K)
+      const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+      const hotkey = isMac 
+        ? event.metaKey && event.key.toLowerCase() === 'k'
+        : event.ctrlKey && event.key.toLowerCase() === 'k';
+
+      if (hotkey) {
+        event.preventDefault(); // Prevent default browser behavior
+        searchInputRef.current?.focus();
+      }
+    };
+
+    // Add event listener when component mounts
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup event listener when component unmounts
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []); // Empty dependency array since we don't use any dependencies
 
   // Early return if no admin data
   if (!adminData) {
@@ -130,6 +154,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                   />
                 </span>
                 <input 
+                  ref={searchInputRef}
                   type="text"
                   placeholder="Search or type command..."
                   className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-14 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
