@@ -47,6 +47,18 @@ const menuData = {
       icon: faGrip,
     },
     {
+      title: "Owners",
+      path: "/owners",
+      id: "owners",
+      icon: faUsers,
+    },
+    {
+      title: "Super Owners",
+      path: "/super-owners",
+      id: "super-owners",
+      icon: faUsers,
+    },
+    {
       title: "Outlets",
       path: "/outlets",
       id: "outlets",
@@ -65,12 +77,6 @@ const menuData = {
         { name: "Roles", path: "/roles", icon: faUserShield },
         { name: "Functionalities", path: "/functionalities",  icon: faList },
       ],
-    },
-    {
-      title: "Owners",
-      path: "/owners",
-      id: "owners",
-      icon: faUsers,
     },
     {
       title: "Partners",
