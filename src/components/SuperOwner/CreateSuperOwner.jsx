@@ -89,10 +89,10 @@ function CreateSuperOwner() {
         }
       );
 
-      if (response.data.st === 1) {
-        setOutlets(response.data.outlet_list);
+      if (response.data.detail) {
+        setOutlets(response.data.outlets);
       } else {
-        throw new Error(response.data.msg || 'Failed to fetch outlets');
+        throw new Error('Failed to fetch outlets');
       }
     } catch (error) {
       console.error('Error fetching outlets:', error);
@@ -271,7 +271,7 @@ function CreateSuperOwner() {
             {selectedOwner && (
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-4">Select Outlets</h3>
-                <div className="grid grid-cols-2 gap-4 bg-white border border-gray-200 p-4 rounded-lg max-h-[300px] overflow-y-auto">
+                <div className="grid grid-cols-2 gap-4 bg-white border border-gray-200 p-4 rounded-lg max-h-[400px] overflow-y-auto">
                   {outlets.map((outlet) => (
                     <div 
                       key={outlet.outlet_id}
@@ -282,15 +282,46 @@ function CreateSuperOwner() {
                           : 'border-gray-200 hover:border-blue-300'
                       }`}
                     >
-                      <h4 className="font-medium text-gray-900">{outlet.name}</h4>
-                      <p className="text-sm text-gray-600 mt-1">{outlet.address}</p>
-                      {selectedOutlets.includes(outlet.outlet_id) && (
-                        <div className="mt-2 text-blue-600">
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-medium text-gray-900">{outlet.name}</h4>
+                          <p className="text-sm text-gray-600">{outlet.address}</p>
                         </div>
-                      )}
+                        {selectedOutlets.includes(outlet.outlet_id) && (
+                          <div className="text-blue-600">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">
+                          Code: {outlet.outlet_code}
+                        </span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          outlet.is_open 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {outlet.is_open ? 'Open' : 'Closed'}
+                        </span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          outlet.outlet_status 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {outlet.outlet_status ? 'Active' : 'Inactive'}
+                        </span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          outlet.account_type === 'live' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {outlet.account_type}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
