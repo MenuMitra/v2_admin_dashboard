@@ -21,12 +21,54 @@ function CreateSuperOwner() {
   const [success, setSuccess] = useState('');
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlets, setSelectedOutlets] = useState([]);
+  const [owners, setOwners] = useState([]);
+  const [selectedOwner, setSelectedOwner] = useState(null);
 
   useEffect(() => {
-    fetchOutlets();
+    fetchOwners();
   }, []);
 
-  const fetchOutlets = async () => {
+  useEffect(() => {
+    if (selectedOwner) {
+      fetchOutlets(selectedOwner.user_id);
+    } else {
+      setOutlets([]);
+    }
+  }, [selectedOwner]);
+
+  const fetchOwners = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.get(
+        `https://men4u.xyz/v2/admin/listview_owner/${adminData?.user_id}`,
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data) {
+        setOwners(response.data);
+        setError(''); // Clear any previous errors
+      }
+    } catch (error) {
+      console.error('Error fetching owners:', error);
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please login again.');
+      } else {
+        setError('Failed to fetch owners list. Please try again.');
+      }
+      setOwners([]); // Reset owners list on error
+    }
+  };
+
+  const fetchOutlets = async (ownerId) => {
     try {
       const token = getToken();
       if (!token) {
@@ -36,11 +78,11 @@ function CreateSuperOwner() {
       const response = await axios.post(
         'https://men4u.xyz/v2/common/get_outlet_list',
         {
-          owner_id: adminData?.user_id
+          owner_id: ownerId
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: token,
             "Content-Type": "application/json",
           },
         }
@@ -55,6 +97,15 @@ function CreateSuperOwner() {
       console.error('Error fetching outlets:', error);
       setError('Failed to fetch outlets');
     }
+  };
+
+  const handleOwnerSelect = (owner) => {
+    setSelectedOwner(owner);
+    setSelectedOutlets([]);
+    setFormData(prev => ({
+      ...prev,
+      outlet_ids: []
+    }));
   };
 
   const handleOutletSelect = (outletId) => {
@@ -78,27 +129,6 @@ function CreateSuperOwner() {
       ...prev,
       [name]: value
     }));
-  };
-
-  const fetchOwners = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      await axios.get(
-        `https://men4u.xyz/v2/admin/listview_owner/${adminData.user_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    } catch (error) {
-      console.error('Error fetching owners:', error);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -125,7 +155,7 @@ function CreateSuperOwner() {
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: token,
             'Content-Type': 'application/json',
           },
         }
@@ -239,31 +269,56 @@ function CreateSuperOwner() {
           </form>
         </div>
 
-        <div>
-          <h3 className="text-lg font-semibold mb-4">Select Outlets</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded-lg shadow max-h-[600px] overflow-y-auto">
-            {outlets.map((outlet) => (
-              <div 
-                key={outlet.outlet_id}
-                onClick={() => handleOutletSelect(outlet.outlet_id)}
-                className={`cursor-pointer p-4 rounded-lg border-2 transition-all ${
-                  selectedOutlets.includes(outlet.outlet_id)
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-blue-300'
-                }`}
-              >
-                <h4 className="font-medium text-gray-900">{outlet.name}</h4>
-                <p className="text-sm text-gray-600 mt-1">{outlet.address}</p>
-                {selectedOutlets.includes(outlet.outlet_id) && (
-                  <div className="mt-2 text-blue-600">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            ))}
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Select Owner</h3>
+            <div className="grid grid-cols-1 gap-4 bg-white p-6 rounded-lg shadow max-h-[300px] overflow-y-auto">
+              {owners.map((owner) => (
+                <div 
+                  key={owner.user_id}
+                  onClick={() => handleOwnerSelect(owner)}
+                  className={`cursor-pointer p-4 rounded-lg border-2 transition-all ${
+                    selectedOwner?.user_id === owner.user_id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-blue-300'
+                  }`}
+                >
+                  <h4 className="font-medium text-gray-900">{owner.name}</h4>
+                  <p className="text-sm text-gray-600">{owner.email}</p>
+                  <p className="text-sm text-gray-600">{owner.mobile}</p>
+                </div>
+              ))}
+            </div>
           </div>
+
+          {selectedOwner && (
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Select Outlets</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-6 rounded-lg shadow max-h-[300px] overflow-y-auto">
+                {outlets.map((outlet) => (
+                  <div 
+                    key={outlet.outlet_id}
+                    onClick={() => handleOutletSelect(outlet.outlet_id)}
+                    className={`cursor-pointer p-4 rounded-lg border-2 transition-all ${
+                      selectedOutlets.includes(outlet.outlet_id)
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-blue-300'
+                    }`}
+                  >
+                    <h4 className="font-medium text-gray-900">{outlet.name}</h4>
+                    <p className="text-sm text-gray-600 mt-1">{outlet.address}</p>
+                    {selectedOutlets.includes(outlet.outlet_id) && (
+                      <div className="mt-2 text-blue-600">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
