@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 function CreateSuperOwner() {
   const { getToken, isAuthenticated } = useAuth();
   const { adminData } = useAdmin();
+  const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
     user_id: adminData?.user_id || '',
@@ -106,15 +108,7 @@ function CreateSuperOwner() {
 
       if (response.data) {
         setSuccess('Super owner created successfully!');
-        setFormData({
-          user_id: adminData?.user_id || '',
-          name: '',
-          mobile: '',
-          email: '',
-          aadhar_number: '',
-          app_source: 'admin_dashboard'
-        });
-        setSelectedOutlets([]);
+        navigate('/super-owners');
       }
     } catch (err) {
       setError(err.response?.data?.detail || 'Something went wrong');
