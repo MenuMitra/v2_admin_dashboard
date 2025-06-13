@@ -147,7 +147,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
   const [selected, setSelected] = useState("Dashboard");
   const [page, setPage] = useState("ecommerce");
   const navigate = useNavigate();
-  const { getToken } = useAuth();
+  const { getToken, logout } = useAuth();
   const { adminData, clearAdmin } = useAdmin();
 
   const MenuGroup = ({ title, items }) => (
@@ -278,8 +278,9 @@ const Sidebar = ({ sidebarToggle = false }) => {
         }
       );
 
-      // Clear admin data from local storage
+      // Clear both admin and auth data from local storage
       clearAdmin();
+      logout();
       
       // Navigate to login page
       navigate('/');
