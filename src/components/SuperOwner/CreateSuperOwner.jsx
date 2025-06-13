@@ -79,6 +79,11 @@ function CreateSuperOwner() {
       return;
     }
 
+    if (selectedOutlets.length === 0) {
+      setError('Please select at least one outlet');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccess('');
@@ -87,7 +92,10 @@ function CreateSuperOwner() {
       const token = getToken();
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/create_super_owner',
-        formData,
+        {
+          ...formData,
+          outlet_ids: selectedOutlets
+        },
         {
           headers: {
             Authorization: token,
@@ -106,6 +114,7 @@ function CreateSuperOwner() {
           aadhar_number: '',
           app_source: 'admin_dashboard'
         });
+        setSelectedOutlets([]);
       }
     } catch (err) {
       setError(err.response?.data?.detail || 'Something went wrong');
