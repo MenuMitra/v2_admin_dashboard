@@ -184,7 +184,7 @@ function CreateSuperOwner() {
                   <div
                     key={outlet.outlet_id}
                     onClick={() => handleOutletSelect(outlet.outlet_id)}
-                    className={`cursor-pointer p-4 rounded-lg border-2 transition-all ${
+                    className={`cursor-pointer p-4 rounded-lg border-2 transition-all relative ${
                       selectedOutlets.includes(outlet.outlet_id)
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 hover:border-blue-300'
@@ -193,22 +193,14 @@ function CreateSuperOwner() {
                     <div className="flex flex-col">
                       <h4 className="font-medium text-gray-900">{outlet.outlet_name}</h4>
                       <p className="text-sm text-gray-600 mt-1">{outlet.address}</p>
-                      <div className="mt-2 space-y-1">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Owner:</span> {outlet.owner_name}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Created:</span> {outlet.created_on}
-                        </p>
-                      </div>
-                      {selectedOutlets.includes(outlet.outlet_id) && (
-                        <div className="absolute top-2 right-2 text-blue-600">
-                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                      )}
                     </div>
+                    {selectedOutlets.includes(outlet.outlet_id) && (
+                      <div className="absolute top-2 right-2 text-blue-600">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
