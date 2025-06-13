@@ -78,7 +78,8 @@ function CreateSuperOwner() {
       const response = await axios.post(
         'https://men4u.xyz/v2/common/get_outlet_list',
         {
-          owner_id: ownerId
+          owner_id: ownerId,
+          app_source: 'admin_dashboard'
         },
         {
           headers: {
@@ -245,6 +246,57 @@ function CreateSuperOwner() {
               </div>
             </div>
 
+            {/* Owner Dropdown */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Select Owner</label>
+              <select
+                value={selectedOwner?.user_id || ''}
+                onChange={(e) => {
+                  const owner = owners.find(o => o.user_id === Number(e.target.value));
+                  handleOwnerSelect(owner || null);
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select an owner</option>
+                {owners.map((owner) => (
+                  <option key={owner.user_id} value={owner.user_id}>
+                    {owner.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Outlets Selection */}
+            {selectedOwner && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-4">Select Outlets</h3>
+                <div className="grid grid-cols-2 gap-4 bg-white border border-gray-200 p-4 rounded-lg max-h-[300px] overflow-y-auto">
+                  {outlets.map((outlet) => (
+                    <div 
+                      key={outlet.outlet_id}
+                      onClick={() => handleOutletSelect(outlet.outlet_id)}
+                      className={`cursor-pointer p-4 rounded-lg border-2 transition-all ${
+                        selectedOutlets.includes(outlet.outlet_id)
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:border-blue-300'
+                      }`}
+                    >
+                      <h4 className="font-medium text-gray-900">{outlet.name}</h4>
+                      <p className="text-sm text-gray-600 mt-1">{outlet.address}</p>
+                      {selectedOutlets.includes(outlet.outlet_id) && (
+                        <div className="mt-2 text-blue-600">
+                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading || !isAuthenticated() || selectedOutlets.length === 0}
@@ -257,61 +309,6 @@ function CreateSuperOwner() {
               {loading ? 'Creating...' : 'Create Super Owner'}
             </button>
           </form>
-        </div>
-
-        {/* Owner and Outlet Selection */}
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Select Owner</h3>
-            <div className="bg-white p-6 rounded-lg shadow max-h-[400px] overflow-y-auto">
-              <div className="grid grid-cols-1 gap-4">
-                {owners.map((owner) => (
-                  <div 
-                    key={owner.user_id}
-                    onClick={() => handleOwnerSelect(owner)}
-                    className={`cursor-pointer p-4 rounded-lg border-2 transition-all ${
-                      selectedOwner?.user_id === owner.user_id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-blue-300'
-                    }`}
-                  >
-                    <h4 className="font-medium text-gray-900">{owner.name}</h4>
-                    <p className="text-sm text-gray-600">{owner.email}</p>
-                    <p className="text-sm text-gray-600">{owner.mobile}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {selectedOwner && (
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Select Outlets</h3>
-              <div className="grid grid-cols-1 gap-4 bg-white p-6 rounded-lg shadow max-h-[400px] overflow-y-auto">
-                {outlets.map((outlet) => (
-                  <div 
-                    key={outlet.outlet_id}
-                    onClick={() => handleOutletSelect(outlet.outlet_id)}
-                    className={`cursor-pointer p-4 rounded-lg border-2 transition-all ${
-                      selectedOutlets.includes(outlet.outlet_id)
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-blue-300'
-                    }`}
-                  >
-                    <h4 className="font-medium text-gray-900">{outlet.name}</h4>
-                    <p className="text-sm text-gray-600 mt-1">{outlet.address}</p>
-                    {selectedOutlets.includes(outlet.outlet_id) && (
-                      <div className="mt-2 text-blue-600">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
