@@ -45,6 +45,45 @@ function SuperOwner() {
     }
   };
 
+  const handleViewDetails = async (superOwnerId) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.post(
+        'https://men4u.xyz/v2/admin/view_super_owner',
+        {
+          user_id: 1, // You might want to get this from adminData
+          super_owner_id: superOwnerId,
+          app_source: 'admin_dashboard'
+        },
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.data?.super_owner) {
+        navigate(`/super-owner-details/${superOwnerId}`, { 
+          state: { 
+            superOwnerData: response.data.super_owner,
+            assignedOutlets: response.data.assigned_outlets,
+            assignedFunctionalities: response.data.assigned_functionalities,
+            totalOutlets: response.data.total_outlets,
+            totalFunctionalities: response.data.total_functionalities
+          } 
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching super owner details:', error);
+      setError('Failed to fetch super owner details');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -80,7 +119,11 @@ function SuperOwner() {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-3">
         {superOwners.map((owner) => (
-          <div key={owner.super_owner_id} className="rounded-2xl border border-gray-200 bg-white p-5">
+          <div 
+            key={owner.super_owner_id} 
+            onClick={() => handleViewDetails(owner.super_owner_id)}
+            className="rounded-2xl border border-gray-200 bg-white p-5 cursor-pointer hover:border-brand-500 transition-all"
+          >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50">
