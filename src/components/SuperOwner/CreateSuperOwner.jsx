@@ -163,7 +163,7 @@ function CreateSuperOwner() {
 
       if (response.data) {
         setSuccess('Super owner created successfully!');
-        await fetchOwners(); // Refresh owners list after creation
+        await fetchOwners();
         setFormData({
           user_id: adminData?.user_id || '',
           name: '',
@@ -193,20 +193,7 @@ function CreateSuperOwner() {
         {/* Form Section */}
         <div className="bg-white p-6 rounded-lg shadow">
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-5 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">User ID</label>
-                <input
-                  type="number"
-                  name="user_id"
-                  value={formData.user_id}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                  disabled={adminData?.user_id}
-                />
-              </div>
-
+            <div className="grid grid-cols-4 gap-4 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                 <input
