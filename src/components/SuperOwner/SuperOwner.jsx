@@ -2,6 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faPlus, 
+  faUser, 
+  faPhone, 
+  faCalendar, 
+  faBuilding,
+  faUserShield
+} from '@fortawesome/free-solid-svg-icons';
 
 function SuperOwner() {
   const { getToken } = useAuth();
@@ -103,71 +112,70 @@ function SuperOwner() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 h-[calc(100vh-theme(spacing.16))]">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Super Owners</h2>
         <button 
           onClick={() => navigate('/create-super-owner')}
           className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-          </svg>
+          <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
           <span>Add Super Owner</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-3">
-        {superOwners.map((owner) => (
-          <div 
-            key={owner.super_owner_id} 
-            onClick={() => handleViewDetails(owner.super_owner_id)}
-            className="rounded-2xl border border-gray-200 bg-white p-5 cursor-pointer hover:border-brand-500 transition-all"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50">
-                  <svg className="h-6 w-6 text-brand-500" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-gray-800">{owner.name}</h4>
-                  <p className="text-sm text-gray-500">{owner.email}</p>
-                </div>
-              </div>
-              <div className={`px-3 py-1 rounded-full text-xs ${
-                owner.is_active 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-red-100 text-red-800'
-              }`}>
-                {owner.is_active ? 'Active' : 'Inactive'}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-gray-600">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                </svg>
-                <span className="text-sm">{owner.mobile}</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
-                <span className="text-sm">{owner.created_on}</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                </svg>
-                <span className="text-sm">{owner.outlet_ids.length} Outlets</span>
-              </div>
-            </div>
+      {superOwners.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-[calc(100%-theme(spacing.16))]">
+          <div className="text-center">
+            <FontAwesomeIcon icon={faUserShield} className="h-10 w-10 text-gray-400 mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900">No Super Owners Found</h3>
           </div>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-3">
+          {superOwners.map((owner) => (
+            <div 
+              key={owner.super_owner_id} 
+              onClick={() => handleViewDetails(owner.super_owner_id)}
+              className="rounded-2xl border border-gray-200 bg-white p-5 cursor-pointer hover:border-brand-500 transition-all"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50">
+                    <FontAwesomeIcon icon={faUserShield} className="h-6 w-6 text-brand-500" />
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-800">{owner.name}</h4>
+                    <p className="text-sm text-gray-500">{owner.email}</p>
+                  </div>
+                </div>
+                <div className={`px-3 py-1 rounded-full text-xs ${
+                  owner.is_active 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-red-100 text-red-800'
+                }`}>
+                  {owner.is_active ? 'Active' : 'Inactive'}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <FontAwesomeIcon icon={faPhone} className="w-4 h-4" />
+                  <span className="text-sm">{owner.mobile}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <FontAwesomeIcon icon={faCalendar} className="w-4 h-4" />
+                  <span className="text-sm">{owner.created_on}</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <FontAwesomeIcon icon={faBuilding} className="w-4 h-4" />
+                  <span className="text-sm">{owner.outlet_ids.length} Outlets</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
