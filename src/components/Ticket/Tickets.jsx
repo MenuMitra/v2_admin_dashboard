@@ -15,7 +15,9 @@ import {
   faKitchenSet,
   faSort,
   faSortUp,
-  faSortDown
+  faSortDown,
+  faChevronLeft,
+  faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 
 function Tickets() {
@@ -30,6 +32,8 @@ function Tickets() {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState('asc');
   const [sortCount, setSortCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
   const navigate = useNavigate();
 
   // Fetch outlets on component mount
@@ -199,6 +203,74 @@ function Tickets() {
       <FontAwesomeIcon icon={faSortDown} className="ml-1 text-brand-500 w-4 h-4" />;
   };
 
+  // Add these pagination helper functions
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = getSortedTickets().slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(getSortedTickets().length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const renderPaginationNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 7; // Show max 7 page numbers
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > maxVisiblePages) {
+      const middlePage = Math.floor(maxVisiblePages / 2);
+      if (currentPage <= middlePage) {
+        endPage = maxVisiblePages;
+      } else if (currentPage + middlePage >= totalPages) {
+        startPage = totalPages - maxVisiblePages + 1;
+      } else {
+        startPage = currentPage - middlePage;
+        endPage = currentPage + middlePage;
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <li key={i}>
+          <button
+            onClick={() => handlePageChange(i)}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
+              currentPage === i
+                ? 'bg-brand-500 text-white'
+                : 'text-gray-700 hover:bg-brand-500 hover:text-white dark:text-gray-400 dark:hover:text-white'
+            }`}
+          >
+            {i}
+          </button>
+        </li>
+      );
+    }
+
+    // Add ellipsis if needed
+    if (startPage > 1) {
+      pages.unshift(
+        <li key="start-ellipsis">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
+            ...
+          </span>
+        </li>
+      );
+    }
+    if (endPage < totalPages) {
+      pages.push(
+        <li key="end-ellipsis">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
+            ...
+          </span>
+        </li>
+      );
+    }
+
+    return pages;
+  };
+
   return (
     <div className="container mx-auto flex-grow py-6 px-4">
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -326,7 +398,7 @@ function Tickets() {
                   </tr>
                 </thead>
                 <tbody>
-                  {getSortedTickets().map((ticket, index) => (
+                  {currentItems.map((ticket, index) => (
                     <tr key={ticket.ticket_id || `ticket-${index}`} className="border-t border-gray-100 dark:border-gray-800">
                       <td className="px-6 py-3.5">
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -382,26 +454,45 @@ function Tickets() {
             </div>
           )}
 
-          {/* Pagination Info */}
+          {/* Pagination */}
           {selectedOutlet && tickets.length > 0 && (
-            <div className="flex items-center justify-between mt-4 px-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4">
               <div className="text-gray-500 text-theme-sm dark:text-gray-400">
-                Showing {filteredTickets.length} of {tickets.length} entries
+                Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, getSortedTickets().length)} of {getSortedTickets().length} entries
                 {searchInput && (
                   <span className="ml-2 text-gray-500">
                     (filtered from {tickets.length} total entries)
                   </span>
                 )}
               </div>
-              <div className="flex gap-1">
-                <button className="px-3 py-1 border border-gray-300 rounded-md text-theme-sm dark:border-gray-700 dark:text-gray-400">
-                  Previous
+              
+              <div className="flex items-center justify-between gap-2 sm:justify-normal">
+                <button
+                  onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 ${
+                    currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
                 </button>
-                <button className="px-3 py-1 border border-gray-300 rounded-md bg-brand-500 text-white text-theme-sm">
-                  1
-                </button>
-                <button className="px-3 py-1 border border-gray-300 rounded-md text-theme-sm dark:border-gray-700 dark:text-gray-400">
-                  Next
+
+                <span className="block text-sm font-medium text-gray-700 dark:text-gray-400 sm:hidden">
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                <ul className="hidden items-center gap-0.5 sm:flex">
+                  {renderPaginationNumbers()}
+                </ul>
+
+                <button
+                  onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 ${
+                    currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
                 </button>
               </div>
             </div>
