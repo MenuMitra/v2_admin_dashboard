@@ -298,14 +298,7 @@ function Owners() {
             Outlet Owners
           </div>
 
-          <div className="flex flex-col items-end gap-2">
-            <button 
-              onClick={() => navigate("/create-owner")}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-success-500 px-4 py-3 font-medium text-white hover:bg-success-600"
-            >
-              <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
-              Create
-            </button>
+          <div className="flex items-center gap-2">
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                 <FontAwesomeIcon icon={faSearch} className="w-4 h-4" />
@@ -315,9 +308,16 @@ function Owners() {
                 placeholder="Search owners..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-14 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+                className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2.5 pr-14 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
               />
             </div>
+            <button 
+              onClick={() => navigate("/create-owner")}
+              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-success-500 px-4 py-3 font-medium text-white hover:bg-success-600"
+            >
+              <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
+              Create
+            </button>
           </div>
         </div>
       </div>
