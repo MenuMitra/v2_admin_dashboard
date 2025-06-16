@@ -229,6 +229,10 @@ function Owners() {
     return pages;
   };
 
+  const getTotalCount = () => owners.length;
+  const getActiveCount = () => owners.filter(owner => owner.is_active === 1).length;
+  const getInactiveCount = () => owners.filter(owner => owner.is_active === 0).length;
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -242,14 +246,29 @@ function Owners() {
       {/* Table Container */}
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              Restaurant Owners
-            </h3>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+            >
+              <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="text-gray-800 dark:text-white/90">
+                <span className="text-lg font-semibold">Total: {getTotalCount()}</span>
+                <div className="flex gap-3 mt-1 text-sm">
+                  <span className="text-success-600">Active: {getActiveCount()}</span>
+                  <span className="text-error-500">Inactive: {getInactiveCount()}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-xl font-semibold">
+            Outlet Owners
           </div>
 
           <div className="flex items-center gap-3">
-
             <button 
               onClick={() => navigate('/create-owner')}
               className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-success-500 px-4 py-3 font-medium text-white hover:bg-success-600"
