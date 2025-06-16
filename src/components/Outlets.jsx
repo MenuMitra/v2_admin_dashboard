@@ -15,7 +15,10 @@ import {
   faChevronLeft, 
   faChevronRight,
   faPlus,
-  faSearch
+  faSearch,
+  faSort,
+  faSortUp,
+  faSortDown
 } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import Breadcrumb from './Breadcrumb';
@@ -333,6 +336,9 @@ function Outlets() {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [outletToDelete, setOutletToDelete] = useState(null);
+  const [sortField, setSortField] = useState(null);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortCount, setSortCount] = useState(0);
 
   // Transform outlet data to match UI structure
   const transformOutletData = (outlets) => {
@@ -412,9 +418,10 @@ function Outlets() {
 
   // Get current items
   const getCurrentItems = () => {
+    const sortedData = getSortedOutlets();
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    return filteredData.slice(startIndex, endIndex);
+    return sortedData.slice(startIndex, endIndex);
   };
 
   // Calculate total pages based on filtered data
@@ -483,6 +490,62 @@ function Outlets() {
     { label: 'Outlets' }
   ];
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      if (sortCount === 0) {
+        setSortOrder("asc");
+        setSortCount(1);
+      } else if (sortCount === 1) {
+        setSortOrder("desc");
+        setSortCount(2);
+      } else {
+        setSortField(null);
+        setSortOrder("asc");
+        setSortCount(0);
+      }
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+      setSortCount(1);
+    }
+  };
+
+  const renderSortIcon = (field) => {
+    if (sortField !== field) {
+      return <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 w-4 h-4" />;
+    }
+    return sortOrder === "asc" ? (
+      <FontAwesomeIcon icon={faSortUp} className="ml-1 text-brand-500 w-4 h-4" />
+    ) : (
+      <FontAwesomeIcon icon={faSortDown} className="ml-1 text-brand-500 w-4 h-4" />
+    );
+  };
+
+  const getSortedOutlets = () => {
+    let sorted = [...filteredData];
+
+    if (!sortField) return sorted;
+
+    return sorted.sort((a, b) => {
+      let aValue = a[sortField] || "";
+      let bValue = b[sortField] || "";
+
+      if (sortField === "outletStatus" || sortField === "isOpen") {
+        aValue = parseInt(aValue) || 0;
+        bValue = parseInt(bValue) || 0;
+      } else {
+        aValue = String(aValue).toLowerCase();
+        bValue = String(bValue).toLowerCase();
+      }
+
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  };
+
   return (
     <div className="p-6">
       <Breadcrumb items={breadcrumbItems} />
@@ -548,16 +611,77 @@ function Outlets() {
           <table className="w-full">
             <thead>
               <tr className="border-t border-gray-100 dark:border-gray-800">
-                {tableHeaders.map((header) => (
-                  <th
-                    key={header.key}
-                    className="px-6 py-3 text-center"
-                  >
+                <th
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  onClick={() => handleSort("name")}
+                >
+                  <div className="flex items-center justify-center">
                     <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                        {header.label}
-                      </p>
-                  </th>
-                ))}
+                      Outlet Name
+                    </p>
+                    {renderSortIcon("name")}
+                  </div>
+                </th>
+                <th
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  onClick={() => handleSort("code")}
+                >
+                  <div className="flex items-center justify-center">
+                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                      Outlet Code
+                    </p>
+                    {renderSortIcon("code")}
+                  </div>
+                </th>
+                <th
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  onClick={() => handleSort("mobile")}
+                >
+                  <div className="flex items-center justify-center">
+                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                      Mobile
+                    </p>
+                    {renderSortIcon("mobile")}
+                  </div>
+                </th>
+                <th
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  onClick={() => handleSort("accountType")}
+                >
+                  <div className="flex items-center justify-center">
+                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                      Account Type
+                    </p>
+                    {renderSortIcon("accountType")}
+                  </div>
+                </th>
+                <th
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  onClick={() => handleSort("isOpen")}
+                >
+                  <div className="flex items-center justify-center">
+                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                      Open/Close
+                    </p>
+                    {renderSortIcon("isOpen")}
+                  </div>
+                </th>
+                <th
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  onClick={() => handleSort("outletStatus")}
+                >
+                  <div className="flex items-center justify-center">
+                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                      Status
+                    </p>
+                    {renderSortIcon("outletStatus")}
+                  </div>
+                </th>
+                <th className="px-6 py-3 text-center">
+                  <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                    Actions
+                  </p>
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -580,7 +704,7 @@ function Outlets() {
                   </td>
                   <td className="px-6 py-3.5 text-center">
                     <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-                      {outlet.accountType}
+                      {outlet.accountType?.toUpperCase()}
                     </p>
                   </td>
                   <td className="px-6 py-3.5 text-center">
