@@ -13,6 +13,7 @@ function EditOutlet() {
   const [formData, setFormData] = useState({
     outlet_id: '',
     user_id: '',
+    owner_id: '',
     name: '',
     outlet_type: '',
     fssainumber: '',
@@ -41,12 +42,14 @@ function EditOutlet() {
   const [isLoading, setIsLoading] = useState(true);
   const [outletTypes, setOutletTypes] = useState({});
   const [foodTypes, setFoodTypes] = useState({});
+  const [owners, setOwners] = useState([]);
 
   // Fetch outlet data when component mounts
   useEffect(() => {
     if (adminData?.user_id && outletId) {
       fetchOutletTypes();
       fetchFoodTypes();
+      fetchOwners();
       fetchOutletData();
     }
   }, [adminData?.user_id, outletId]);
@@ -80,6 +83,7 @@ function EditOutlet() {
         setFormData({
           outlet_id: outletId,
           user_id: data.owner_id,
+          owner_id: data.owner_id,
           name: data.name,
           outlet_type: data.outlet_type,
           fssainumber: data.fssainumber,
@@ -164,6 +168,30 @@ function EditOutlet() {
     }
   };
 
+  const fetchOwners = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.get(
+        `https://men4u.xyz/v2/admin/listview_owner/${adminData.user_id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (Array.isArray(response.data)) {
+        setOwners(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching owners:', error);
+    }
+  };
+
   // Show loading state while fetching data
   if (isLoading) {
     return (
@@ -210,7 +238,7 @@ function EditOutlet() {
       // Prepare API data with exact field names and format
       const apiData = {
         outlet_id: parseInt(outletId),
-        user_id: parseInt(formData.user_id),         
+        user_id: parseInt(formData.owner_id),
         name: formData.name,
         outlet_type: formData.outlet_type,
         fssainumber: formData.fssainumber,
@@ -279,6 +307,26 @@ function EditOutlet() {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="col-span-3">
+              <label className="block text-sm font-medium text-gray-700">
+                Select Owner *
+              </label>
+              <select
+                name="owner_id"
+                value={formData.owner_id}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Owner</option>
+                {owners.map((owner) => (
+                  <option key={owner.user_id} value={owner.user_id}>
+                    {owner.name} ({owner.mobile}) - {owner.account_type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Outlet Image */}
             <div className="col-span-1">
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">

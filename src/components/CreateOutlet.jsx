@@ -10,6 +10,7 @@ function CreateOutlet() {
   const { adminData } = useAdmin();
   const [outletTypes, setOutletTypes] = useState({});
   const [foodTypes, setFoodTypes] = useState({});
+  const [owners, setOwners] = useState([]);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -32,7 +33,8 @@ function CreateOutlet() {
     google_review: '',
     email: '',
     opening_time: '',
-    closing_time: ''
+    closing_time: '',
+    owner_id: ''
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -41,6 +43,7 @@ function CreateOutlet() {
   useEffect(() => {
     fetchOutletTypes();
     fetchFoodTypes();
+    fetchOwners();
   }, []);
 
   const fetchOutletTypes = async () => {
@@ -91,6 +94,30 @@ function CreateOutlet() {
     }
   };
 
+  const fetchOwners = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.get(
+        `https://men4u.xyz/v2/admin/listview_owner/${adminData.user_id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (Array.isArray(response.data)) {
+        setOwners(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching owners:', error);
+    }
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -138,7 +165,7 @@ function CreateOutlet() {
       const formDataToSend = new FormData();
       
       // Required fields from the form
-      formDataToSend.append('owner_id', '142');
+      formDataToSend.append('owner_id', formData.owner_id);
       formDataToSend.append('user_id', adminData.user_id.toString());
       formDataToSend.append('name', formData.name);
       formDataToSend.append('mobile', formData.mobile);
@@ -215,6 +242,26 @@ function CreateOutlet() {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="col-span-3">
+              <label className="block text-sm font-medium text-gray-700">
+                Select Owner *
+              </label>
+              <select
+                name="owner_id"
+                value={formData.owner_id}
+                onChange={handleInputChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Owner</option>
+                {owners.map((owner) => (
+                  <option key={owner.user_id} value={owner.user_id}>
+                    {owner.name} ({owner.mobile}) - {owner.account_type}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Outlet Image */}
             <div className="col-span-1">
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
