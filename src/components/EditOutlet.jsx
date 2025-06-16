@@ -236,24 +236,26 @@ function EditOutlet() {
         throw new Error('No authentication token available');
       }
 
-      // Prepare API data with exact field names and format
+      // Prepare API data with updated owner_id fields
       const apiData = {
         outlet_id: parseInt(outletId),
-        user_id: parseInt(formData.owner_id),
+        user_id: parseInt(adminData.user_id),
+        curr_owner_id: parseInt(formData.user_id), // Current owner ID
+        new_owner_id: parseInt(formData.owner_id), // New selected owner ID
         name: formData.name,
         outlet_type: formData.outlet_type,
         fssainumber: formData.fssainumber,
         gstnumber: formData.gstnumber,
         mobile: formData.mobile,
         veg_nonveg: formData.veg_nonveg,
-        service_charges: formData.service_charges.toString(),  // Convert to string
-        gst: formData.gst.toString(),  // Convert to string
+        service_charges: formData.service_charges.toString(),
+        gst: formData.gst.toString(),
         address: formData.address,
         is_open: formData.is_open ? 1 : 0,
         outlet_status: formData.outlet_status ? 1 : 0,
         upi_id: formData.upi_id,
         website: formData.website || '',
-        whatsapp: formData.whatsapp || '',  // This will be the 10-digit number
+        whatsapp: formData.whatsapp || '',
         facebook: formData.facebook || '',
         instagram: formData.instagram || '',
         google_business_link: formData.google_business_link || '',
