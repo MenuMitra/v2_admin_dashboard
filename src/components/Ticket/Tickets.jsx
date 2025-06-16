@@ -12,7 +12,10 @@ import {
   faUtensils,
   faStore,
   faQuestionCircle,
-  faKitchenSet
+  faKitchenSet,
+  faSort,
+  faSortUp,
+  faSortDown
 } from '@fortawesome/free-solid-svg-icons';
 
 function Tickets() {
@@ -24,6 +27,9 @@ function Tickets() {
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlet, setSelectedOutlet] = useState(null);
   const [filteredTickets, setFilteredTickets] = useState([]);
+  const [sortField, setSortField] = useState(null);
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [sortCount, setSortCount] = useState(0);
   const navigate = useNavigate();
 
   // Fetch outlets on component mount
@@ -141,6 +147,58 @@ function Tickets() {
     navigate(`/ticket-details/${ticketId}`);  // Updated to match App.jsx route
   };
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      if (sortCount === 0) {
+        setSortOrder('asc');
+        setSortCount(1);
+      } else if (sortCount === 1) {
+        setSortOrder('desc');
+        setSortCount(2);
+      } else {
+        setSortField(null);
+        setSortOrder('asc');
+        setSortCount(0);
+      }
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+      setSortCount(1);
+    }
+  };
+
+  const getSortedTickets = () => {
+    if (!sortField) return filteredTickets;
+
+    return [...filteredTickets].sort((a, b) => {
+      let aValue = a[sortField] || '';
+      let bValue = b[sortField] || '';
+
+      if (sortField === 'ticket_number') {
+        aValue = parseInt(aValue) || 0;
+        bValue = parseInt(bValue) || 0;
+      } else {
+        aValue = String(aValue).toLowerCase();
+        bValue = String(bValue).toLowerCase();
+      }
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  };
+
+  const renderSortIcon = (field) => {
+    if (sortField !== field) {
+      return <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 w-4 h-4" />;
+    }
+    return sortOrder === 'asc' ? 
+      <FontAwesomeIcon icon={faSortUp} className="ml-1 text-brand-500 w-4 h-4" /> : 
+      <FontAwesomeIcon icon={faSortDown} className="ml-1 text-brand-500 w-4 h-4" />;
+  };
+
   return (
     <div className="container mx-auto flex-grow py-6 px-4">
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -217,20 +275,38 @@ function Tickets() {
               <table className="w-full">
                 <thead>
                   <tr className="border-t border-gray-100 dark:border-gray-800">
-                    <th className="px-6 py-3 text-left">
-                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                        Ticket Number
-                      </p>
+                    <th 
+                      className="px-6 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                      onClick={() => handleSort('ticket_number')}
+                    >
+                      <div className="flex items-center">
+                        <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                          Ticket Number
+                        </p>
+                        {renderSortIcon('ticket_number')}
+                      </div>
                     </th>
-                    <th className="px-6 py-3 text-left">
-                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                        Title
-                      </p>
+                    <th 
+                      className="px-6 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                      onClick={() => handleSort('title')}
+                    >
+                      <div className="flex items-center">
+                        <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                          Title
+                        </p>
+                        {renderSortIcon('title')}
+                      </div>
                     </th>
-                    <th className="px-6 py-3 text-left">
-                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                        Status
-                      </p>
+                    <th 
+                      className="px-6 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                      onClick={() => handleSort('status')}
+                    >
+                      <div className="flex items-center">
+                        <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                          Status
+                        </p>
+                        {renderSortIcon('status')}
+                      </div>
                     </th>
                     <th className="px-6 py-3 text-left">
                       <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
@@ -250,7 +326,7 @@ function Tickets() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTickets.map((ticket, index) => (
+                  {getSortedTickets().map((ticket, index) => (
                     <tr key={ticket.ticket_id || `ticket-${index}`} className="border-t border-gray-100 dark:border-gray-800">
                       <td className="px-6 py-3.5">
                         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
