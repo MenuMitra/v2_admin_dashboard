@@ -11,6 +11,7 @@ import {
   faBuilding,
   faUserShield
 } from '@fortawesome/free-solid-svg-icons';
+import Breadcrumb from '../Breadcrumb';
 
 function SuperOwner() {
   const { getToken } = useAuth();
@@ -93,6 +94,11 @@ function SuperOwner() {
     }
   };
 
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'Super Owners', path: '/super-owners' }
+  ];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -113,6 +119,8 @@ function SuperOwner() {
 
   return (
     <div className="p-6 h-[calc(100vh-theme(spacing.16))]">
+      <Breadcrumb items={breadcrumbItems} />
+      
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Super Owners</h2>
         <button 
