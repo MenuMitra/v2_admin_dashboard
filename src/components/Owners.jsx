@@ -14,7 +14,9 @@ import {
   faArrowRight,
   faSort,
   faSortUp,
-  faSortDown
+  faSortDown,
+  faChevronLeft,
+  faChevronRight
 } from '@fortawesome/free-solid-svg-icons';
 
 function Owners() {
@@ -28,6 +30,8 @@ function Owners() {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState('asc');
   const [sortCount, setSortCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     if (adminData?.user_id) {
@@ -158,6 +162,73 @@ function Owners() {
       <FontAwesomeIcon icon={faSortDown} className="ml-1 text-brand-500 w-4 h-4" />;
   };
 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = getSortedOwners().slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(getSortedOwners().length / itemsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const renderPaginationNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 7; // Show max 7 page numbers
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > maxVisiblePages) {
+      const middlePage = Math.floor(maxVisiblePages / 2);
+      if (currentPage <= middlePage) {
+        endPage = maxVisiblePages;
+      } else if (currentPage + middlePage >= totalPages) {
+        startPage = totalPages - maxVisiblePages + 1;
+      } else {
+        startPage = currentPage - middlePage;
+        endPage = currentPage + middlePage;
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <li key={i}>
+          <button
+            onClick={() => handlePageChange(i)}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
+              currentPage === i
+                ? 'bg-brand-500 text-white'
+                : 'text-gray-700 hover:bg-brand-500 hover:text-white dark:text-gray-400 dark:hover:text-white'
+            }`}
+          >
+            {i}
+          </button>
+        </li>
+      );
+    }
+
+    // Add ellipsis if needed
+    if (startPage > 1) {
+      pages.unshift(
+        <li key="start-ellipsis">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
+            ...
+          </span>
+        </li>
+      );
+    }
+    if (endPage < totalPages) {
+      pages.push(
+        <li key="end-ellipsis">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
+            ...
+          </span>
+        </li>
+      );
+    }
+
+    return pages;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -265,7 +336,7 @@ function Owners() {
               </tr>
             </thead>
             <tbody>
-              {getSortedOwners().map((owner) => (
+              {currentItems.map((owner) => (
                 <tr key={owner.user_id} className="border-t border-gray-100 dark:border-gray-800">
                   <td className="px-6 py-3.5 text-center">
                     <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -398,6 +469,43 @@ function Owners() {
           </div>
         </div>
       )}
+
+      {/* Pagination */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4">
+        <div className="text-gray-500 text-theme-sm dark:text-gray-400">
+          Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, getSortedOwners().length)} of {getSortedOwners().length} entries
+        </div>
+        
+        <div className="flex items-center justify-between gap-2 sm:justify-normal">
+          <button
+            onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 ${
+              currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
+          </button>
+
+          <span className="block text-sm font-medium text-gray-700 dark:text-gray-400 sm:hidden">
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <ul className="hidden items-center gap-0.5 sm:flex">
+            {renderPaginationNumbers()}
+          </ul>
+
+          <button
+            onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 ${
+              currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
