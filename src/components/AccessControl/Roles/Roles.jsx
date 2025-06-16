@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faSearch, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faSearch, faEye, faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
 import DataTable from '../../common/DataTable';
@@ -90,15 +90,17 @@ function Roles() {
     },
     {
       field: 'actions',
-      header: 'Actions',
+      header: 'ACTIONS',
       sortable: false,
       render: () => (
-        <button
-          className="text-blue-500 hover:text-blue-600 transition-colors"
-          title="View Details"
-        >
-          <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-        </button>
+        <div className="flex items-center justify-center gap-2">
+          <button
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+        </div>
       )
     }
   ];
@@ -138,14 +140,16 @@ function Roles() {
         onSearchChange={setSearchTerm}
         counts={{
           total: roles.length,
-          active: roles.length, // Update these with actual counts if available
+          active: roles.length,
           inactive: 0
         }}
         createButton={{
           label: "Create Role",
           onClick: () => {/* Add your create role handler */},
-          className: "bg-brand-500 hover:bg-brand-600",
-          position: "right"
+          className: "bg-success-500 hover:bg-success-600",
+          position: "right",
+          icon: faPlus,
+          showIconOnly: false
         }}
         searchPlaceholder="Search roles..."
         enableSort={true}
