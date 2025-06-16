@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from 'axios';
 import { useAuth } from '../hooks/useAuth';
@@ -144,7 +144,7 @@ const menuData = {
 };
 
 const Sidebar = ({ sidebarToggle = false }) => {
-  const [selected, setSelected] = useState("Dashboard");
+  const location = useLocation();
   const [page, setPage] = useState("ecommerce");
   const navigate = useNavigate();
   const { getToken, logout } = useAuth();
@@ -174,7 +174,10 @@ const Sidebar = ({ sidebarToggle = false }) => {
   );
 
   const MenuItem = ({ item }) => {
-    const isActive = selected === item.title;
+    const isActive = item.path 
+      ? location.pathname === item.path
+      : item.items?.some(subItem => location.pathname === subItem.path);
+    
     const hasDropdown = !!item.items;
 
     return (
@@ -182,8 +185,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
         <Link
           to={item.path || "#"}
           onClick={(e) => {
-            if (!item.path || hasDropdown) e.preventDefault();
-            setSelected(selected === item.title ? "" : item.title);
+            if (!item.path && hasDropdown) e.preventDefault();
           }}
           className={`menu-item group ${
             isActive ? "menu-item-active" : "menu-item-inactive"
@@ -228,7 +230,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
                   <Link
                     to={subItem.path}
                     className={`menu-dropdown-item group ${
-                      page === subItem.id
+                      location.pathname === subItem.path
                         ? "menu-dropdown-item-active"
                         : "menu-dropdown-item-inactive"
                     }`}
