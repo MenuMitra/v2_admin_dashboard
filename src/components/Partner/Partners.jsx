@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
+import DataTable from '../common/DataTable';
 
 function Partners() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [entries, setEntries] = useState(10);
   const [partners, setPartners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [partnerToDelete, setPartnerToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Stats state
   const [stats, setStats] = useState({
@@ -20,11 +25,6 @@ function Partners() {
     active: 0,
     inactive: 0
   });
-
-  // Add these state variables at the top of the Partners component
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [partnerToDelete, setPartnerToDelete] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (adminData?.user_id) {
@@ -109,6 +109,67 @@ function Partners() {
     }
   };
 
+  // Define columns for DataTable
+  const columns = [
+    {
+      field: 'name',
+      header: 'Name',
+      sortable: true
+    },
+    {
+      field: 'mobile',
+      header: 'Mobile',
+      sortable: true
+    },
+    {
+      field: 'is_active',
+      header: 'Status',
+      sortable: true,
+      render: (value) => (
+        <span className={`px-2 py-1 text-xs rounded-full ${
+          value === 1 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-red-100 text-red-800'
+        }`}>
+          {value === 1 ? 'Active' : 'Inactive'}
+        </span>
+      )
+    },
+    {
+      field: 'actions',
+      header: 'ACTIONS',
+      sortable: false,
+      render: (_, partner) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => navigate(`/partner-details/${partner.user_id}`)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Partner"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => navigate(`/edit-partner/${partner.user_id}`)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Partner"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              setPartnerToDelete(partner);
+              setIsDeleteModalOpen(true);
+            }}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Partner"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
+        </div>
+      )
+    }
+  ];
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -117,175 +178,49 @@ function Partners() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="p-4 text-center text-red-500">
-        {error}
-      </div>
-    );
-  }
-
   return (
-    <div className="p-4">
+    <div className="p-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm mb-6">
-        <a href="/" className="text-gray-500 hover:text-gray-700">Home</a>
+        <Link to="/dashboard" className="text-gray-500 hover:text-gray-700">Dashboard</Link>
         <span className="text-gray-500">/</span>
-        <span>Partner</span>
+        <span className="text-gray-700">Partners</span>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="text-4xl font-semibold text-center">{stats.total}</div>
-          <div className="text-center text-gray-600">Total Count</div>
+      {error && (
+        <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
+          {error}
         </div>
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="text-4xl font-semibold text-center text-green-500">{stats.active}</div>
-          <div className="text-center text-gray-600">Total Active</div>
-        </div>
-        <div className="bg-white rounded-lg p-6 shadow-sm">
-          <div className="text-4xl font-semibold text-center text-red-500">{stats.inactive}</div>
-          <div className="text-center text-gray-600">Total Inactive</div>
-        </div>
-      </div>
+      )}
 
-      {/* Main Content Card */}
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-4 flex flex-wrap items-center justify-between gap-4">
-          {/* Back Button and Title */}
-          <div className="flex items-center gap-4">
-            <button 
-              className="p-2 hover:bg-gray-100 rounded-lg"
-              onClick={() => navigate(-1)}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-            </button>
-            <h2 className="text-xl">Partner</h2>
-          </div>
-
-          {/* Create Partner Button */}
-          <button 
-            className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-            onClick={() => navigate('/create-partner')}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Create Partner
-          </button>
-        </div>
-
-        {/* Table Controls */}
-        <div className="p-4 flex flex-wrap items-center justify-between gap-4 border-t">
-          <div className="flex items-center gap-2">
-            <span>Show</span>
-            <select 
-              className="border rounded px-2 py-1"
-              value={entries}
-              onChange={(e) => setEntries(Number(e.target.value))}
-            >
-              <option value="10">10</option>
-              <option value="25">25</option>
-              <option value="50">50</option>
-            </select>
-            <span>entries</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span>Search:</span>
-            <input
-              type="text"
-              className="border rounded px-3 py-1"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search partners..."
-            />
-          </div>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mobile</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Account Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {partners
-                .filter(partner => 
-                  partner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  partner.mobile.includes(searchTerm) ||
-                  partner.email.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((partner) => (
-                  <tr key={partner.user_id}>
-                    <td className="px-6 py-4">{partner.name}</td>
-                    <td className="px-6 py-4">{partner.mobile}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        partner.is_active === 1 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {partner.is_active === 1 ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-2">
-                        <button 
-                          className="p-1 text-blue-500 hover:bg-blue-50 rounded"
-                          onClick={() => navigate(`/partner-details/${partner.user_id}`)}
-                        >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                            <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                        <button 
-                          className="p-1 text-purple-500 hover:bg-purple-50 rounded"
-                          onClick={() => navigate(`/edit-partner/${partner.user_id}`)}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                          </svg>
-                        </button>
-                        <button 
-                          className="p-1 text-red-500 hover:bg-red-50 rounded"
-                          onClick={() => {
-                            setPartnerToDelete(partner);
-                            setIsDeleteModalOpen(true);
-                          }}
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="p-4 flex items-center justify-between border-t">
-          <div className="text-sm text-gray-500">
-            Showing 1 to {Math.min(partners.length, entries)} of {partners.length} entries
-          </div>
-          <div className="flex gap-2">
-            <button className="px-3 py-1 border rounded bg-gray-50 text-gray-400" disabled>Previous</button>
-            <button className="px-3 py-1 border rounded bg-blue-50 text-blue-600">1</button>
-            <button className="px-3 py-1 border rounded bg-gray-50 text-gray-400" disabled>Next</button>
-          </div>
-        </div>
-      </div>
+      <DataTable
+        data={partners}
+        columns={columns}
+        title="Partners"
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        counts={{
+          total: partners.length,
+          active: partners.filter(p => p.is_active === 1).length,
+          inactive: partners.filter(p => p.is_active !== 1).length
+        }}
+        createButton={{
+          label: "Create Partner",
+          onClick: () => navigate('/create-partner'),
+          className: "bg-success-500 hover:bg-success-600",
+          position: "right",
+          icon: faPlus,
+          showIconOnly: false
+        }}
+        searchPlaceholder="Search partners..."
+        enableSort={true}
+        enablePagination={true}
+        enableSearch={true}
+        itemsPerPage={10}
+        onBackClick={() => navigate(-1)}
+        showBackButton={true}
+        backButtonLabel="Back"
+      />
 
       {/* Add the Modal JSX at the bottom of your return statement, before the closing div */}
       {isDeleteModalOpen && (
