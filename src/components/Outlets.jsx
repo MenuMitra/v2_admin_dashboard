@@ -8,8 +8,17 @@ import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { 
+  faEye, 
+  faPenToSquare, 
+  faTrash, 
+  faChevronLeft, 
+  faChevronRight,
+  faPlus,
+  faSearch
+} from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import Breadcrumb from './Breadcrumb';
 
 const transactionsData = [
   {
@@ -209,91 +218,102 @@ const TableRow = ({ outlet, handleViewOutlet, handleEditOutlet, onDeleteClick })
   );
 };
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  // Generate page numbers array dynamically
-  const getPageNumbers = () => {
-    const pageNumbers = [];
-    const maxPagesToShow = 5; // Show max 5 page numbers at a time
-    
-    if (totalPages <= maxPagesToShow) {
-      // If total pages are less than or equal to maxPagesToShow, show all pages
-      for (let i = 1; i <= totalPages; i++) {
-        pageNumbers.push(i);
+const Pagination = ({ currentPage, totalPages, onPageChange, totalEntries, itemsPerPage }) => {
+  const renderPaginationNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 7; // Show max 7 page numbers
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > maxVisiblePages) {
+      const middlePage = Math.floor(maxVisiblePages / 2);
+      if (currentPage <= middlePage) {
+        endPage = maxVisiblePages;
+      } else if (currentPage + middlePage >= totalPages) {
+        startPage = totalPages - maxVisiblePages + 1;
+      } else {
+        startPage = currentPage - middlePage;
+        endPage = currentPage + middlePage;
       }
-    } else {
-      // Always show first page
-      pageNumbers.push(1);
-      
-      // Calculate start and end of middle pages
-      let start = Math.max(2, currentPage - 1);
-      let end = Math.min(totalPages - 1, currentPage + 1);
-      
-      // Add ellipsis after first page if needed
-      if (start > 2) {
-        pageNumbers.push('...');
-      }
-      
-      // Add middle pages
-      for (let i = start; i <= end; i++) {
-        pageNumbers.push(i);
-      }
-      
-      // Add ellipsis before last page if needed
-      if (end < totalPages - 1) {
-        pageNumbers.push('...');
-      }
-      
-      // Always show last page
-      pageNumbers.push(totalPages);
     }
-    
-    return pageNumbers;
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <li key={i}>
+          <button
+            onClick={() => onPageChange(i)}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
+              currentPage === i
+                ? "bg-brand-500 text-white"
+                : "text-gray-700 hover:bg-brand-500 hover:text-white dark:text-gray-400 dark:hover:text-white"
+            }`}
+          >
+            {i}
+          </button>
+        </li>
+      );
+    }
+
+    // Add ellipsis if needed
+    if (startPage > 1) {
+      pages.unshift(
+        <li key="start-ellipsis">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
+            ...
+          </span>
+        </li>
+      );
+    }
+    if (endPage < totalPages) {
+      pages.push(
+        <li key="end-ellipsis">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
+            ...
+          </span>
+        </li>
+      );
+    }
+
+    return pages;
   };
 
+  // Calculate the range of entries being shown
+  const startEntry = ((currentPage - 1) * itemsPerPage) + 1;
+  const endEntry = Math.min(currentPage * itemsPerPage, totalEntries);
+
   return (
-    <div className="border-t border-gray-200 px-6 py-4 dark:border-gray-800">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4">
+      <div className="text-gray-500 text-theme-sm dark:text-gray-400">
+        Showing {startEntry} to {endEntry} of {totalEntries} entries
+      </div>
+
+      <div className="flex items-center justify-between gap-2 sm:justify-normal">
         <button
-          onClick={() => onPageChange(currentPage - 1)}
+          onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="text-theme-sm shadow-theme-xs flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-2 py-2 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 sm:px-3.5 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 ${
+            currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          <span className="hidden sm:inline">Previous</span>
+          <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
         </button>
 
-        <span className="block text-sm font-medium text-gray-700 sm:hidden dark:text-gray-400">
+        <span className="block text-sm font-medium text-gray-700 dark:text-gray-400 sm:hidden">
           Page {currentPage} of {totalPages}
         </span>
 
         <ul className="hidden items-center gap-0.5 sm:flex">
-          {getPageNumbers().map((page, index) => (
-            <li key={index}>
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (page !== "...") onPageChange(page);
-                }}
-                className={`text-theme-sm ${
-                  page === currentPage
-                    ? "bg-brand-500/[0.08] text-brand-500"
-                    : "text-gray-700 dark:text-gray-400 hover:bg-brand-500/[0.08] hover:text-brand-500"
-                } flex h-10 w-10 items-center justify-center rounded-lg font-medium dark:hover:text-brand-500 ${
-                  page === "..." ? "cursor-default" : "cursor-pointer"
-                }`}
-              >
-                {page}
-              </a>
-            </li>
-          ))}
+          {renderPaginationNumbers()}
         </ul>
 
         <button
-          onClick={() => onPageChange(currentPage + 1)}
+          onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
-          className="text-theme-sm shadow-theme-xs flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-2 py-2 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 sm:px-3.5 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 ${
+            currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          <span className="hidden sm:inline">Next</span>
+          <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
         </button>
       </div>
     </div>
@@ -458,96 +478,171 @@ function Outlets() {
     }
   };
 
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Outlets' }
+  ];
+
   return (
-    <div className="border-t border-gray-100 p-5 sm:p-6 dark:border-gray-800">
-      <div className="rounded-2xl border border-gray-200 bg-white pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="mb-4 flex flex-col gap-2 px-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              Outlet Management
-            </h3>
+    <div className="p-6">
+      <Breadcrumb items={breadcrumbItems} />
+      
+      {/* Header Section - Matching Owners.jsx style */}
+      <div className="overflow-hidden rounded-t-2xl pt-4 dark:border-gray-800 dark:bg-white/[0.03] mb-4">
+        <div className="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-4">
+          <button
+              onClick={() => navigate(-1)}
+              className="flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+            >
+              <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
+          </button>
+            <div className="flex items-center gap-3">
+              <div className="text-gray-800 dark:text-white/90">
+                <span className="text-lg font-semibold">
+                  Total: {filteredData.length}
+                </span>
+                <div className="flex gap-3 mt-1 text-sm">
+                  <span className="text-success-600">
+                    Active: {filteredData.filter(outlet => outlet.outletStatus === 1).length}
+                  </span>
+                  <span className="text-error-500">
+                    Inactive: {filteredData.filter(outlet => outlet.outletStatus === 0).length}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          
-          <button
-            onClick={() => navigate('/create-outlet')}
-            className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-          >
-            <svg
-              class="fill-current"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
-                d="M9.77692 3.24224C9.91768 3.17186 10.0834 3.17186 10.2241 3.24224L15.3713 5.81573L10.3359 8.33331C10.1248 8.43888 9.87626 8.43888 9.66512 8.33331L4.6298 5.81573L9.77692 3.24224ZM3.70264 7.0292V13.4124C3.70264 13.6018 3.80964 13.775 3.97903 13.8597L9.25016 16.4952L9.25016 9.7837C9.16327 9.75296 9.07782 9.71671 8.99432 9.67496L3.70264 7.0292ZM10.7502 16.4955V9.78396C10.8373 9.75316 10.923 9.71683 11.0067 9.67496L16.2984 7.0292V13.4124C16.2984 13.6018 16.1914 13.775 16.022 13.8597L10.7502 16.4955ZM9.41463 17.4831L9.10612 18.1002C9.66916 18.3817 10.3319 18.3817 10.8949 18.1002L16.6928 15.2013C17.3704 14.8625 17.7984 14.17 17.7984 13.4124V6.58831C17.7984 5.83076 17.3704 5.13823 16.6928 4.79945L10.8949 1.90059C10.3319 1.61908 9.66916 1.61907 9.10612 1.90059L9.44152 2.57141L9.10612 1.90059L3.30823 4.79945C2.63065 5.13823 2.20264 5.83076 2.20264 6.58831V13.4124C2.20264 14.17 2.63065 14.8625 3.30823 15.2013L9.10612 18.1002L9.41463 17.4831Z"
-                fill=""
-              ></path>
-            </svg>
-            Add Outlet
-          </button>
+          <div className="text-xl font-semibold text-gray-800 dark:text-white/90">
+            Outlets
         </div>
-        <div className="mb-4 flex flex-col gap-2 px-5 sm:flex-row sm:items-center sm:justify-between sm:px-6"><div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <form>
+
+          <div className="flex items-center gap-2">
               <div className="relative">
-                <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
-                  <SearchIcon />
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                  <FontAwesomeIcon icon={faSearch} className="w-5 h-5" />
                 </span>
                 <input
                   type="text"
-                  placeholder="Search..."
+                placeholder="Search outlets..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-[42px] w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pr-4 pl-[42px] text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[300px] dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+                className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2.5 pr-14 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
                 />
               </div>
-            </form>
-          </div></div>
+            <button 
+              onClick={() => navigate('/create-outlet')}
+              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-success-500 px-4 py-3 font-medium text-white hover:bg-success-600"
+            >
+              <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
 
-        <div className="custom-scrollbar max-w-full overflow-x-auto overflow-y-visible px-5 sm:px-6">
-          <table className="min-w-full">
-            <thead className="border-y border-gray-100 py-3 dark:border-gray-800">
-              <tr>
+      {/* Table Section - Matching Owners.jsx style */}
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="max-w-full overflow-x-auto custom-scrollbar">
+          <table className="w-full">
+            <thead>
+              <tr className="border-t border-gray-100 dark:border-gray-800">
                 {tableHeaders.map((header) => (
                   <th
                     key={header.key}
-                    className="py-3 pr-5 font-normal whitespace-nowrap sm:pr-6"
+                    className="px-6 py-3 text-center"
                   >
-                    <div className="flex items-center justify-center">
-                      <p className="text-theme-sm text-gray-500 dark:text-gray-400">
+                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
                         {header.label}
                       </p>
-                    </div>
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {getCurrentItems().map((outlet) => (
-                <TableRow 
-                  key={outlet.id} 
-                  outlet={outlet} 
-                  handleViewOutlet={handleViewOutlet}
-                  handleEditOutlet={handleEditOutlet}
-                  onDeleteClick={handleDeleteClick}
-                />
+                <tr key={outlet.id} className="border-t border-gray-100 dark:border-gray-800">
+                  <td className="px-6 py-3.5 text-center">
+                    <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                      {outlet.name}
+                    </p>
+                  </td>
+                  <td className="px-6 py-3.5 text-center">
+                    <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+                      {outlet.code}
+                    </p>
+                  </td>
+                  <td className="px-6 py-3.5 text-center">
+                    <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+                      {outlet.mobile}
+                    </p>
+                  </td>
+                  <td className="px-6 py-3.5 text-center">
+                    <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+                      {outlet.accountType}
+                    </p>
+                  </td>
+                  <td className="px-6 py-3.5 text-center">
+                    <span className={`inline-block px-2 py-1 text-xs ${
+                      outlet.isOpen === 1
+                        ? "bg-success-100 text-success-600"
+                        : "bg-error-100 text-error-500"
+                    }`}>
+                      {outlet.isOpen === 1 ? "Open" : "Closed"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-3.5 text-center">
+                    <span className={`inline-block px-2 py-1 text-xs ${
+                      outlet.outletStatus === 1
+                        ? "bg-success-100 text-success-600"
+                        : "bg-error-100 text-error-500"
+                    }`}>
+                      {outlet.outletStatus === 1 ? "Active" : "Inactive"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-3.5 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        onClick={() => handleViewOutlet(outlet.id)}
+                        className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+                        title="View Details"
+                      >
+                        <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleEditOutlet(outlet.id)}
+                        className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+                        title="Edit Outlet"
+                      >
+                        <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteClick(outlet)}
+                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                        title="Delete Outlet"
+                      >
+                        <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
         </div>
+        </div>
 
+      {/* Pagination */}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
+          totalEntries={filteredData.length}
+          itemsPerPage={itemsPerPage}
         />
-      </div>
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Modal - Keep existing implementation */}
       {showDeleteModal && (
         <>
           {/* Backdrop */}
