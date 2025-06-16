@@ -2,6 +2,18 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faArrowLeft, 
+  faSpinner,
+  faEye,
+  faCrown,
+  faUser,
+  faUtensils,
+  faStore,
+  faQuestionCircle,
+  faKitchenSet
+} from '@fortawesome/free-solid-svg-icons';
 
 function Tickets() {
   const { getToken } = useAuth();
@@ -131,27 +143,29 @@ function Tickets() {
 
   return (
     <div className="container mx-auto flex-grow py-6 px-4">
-      <div className="w-full bg-white rounded-lg shadow-md">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex items-center mb-6">
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        {/* Header */}
+        <div className="px-5 py-4 sm:px-6 sm:py-5">
+          <div className="flex items-center justify-between">
             <button
               onClick={handleBack}
-              className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
               Back
             </button>
-            <h1 className="text-2xl font-semibold text-center flex-grow">Tickets</h1>
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+              Tickets Management
+            </h3>
           </div>
+        </div>
 
+        <div className="border-t border-gray-100 p-5 sm:p-6 dark:border-gray-800">
           {/* Outlet Selection */}
-          <div className="mb-6">
-            <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
               <select
-                className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
                 value={selectedOutlet || ''}
                 onChange={(e) => setSelectedOutlet(e.target.value)}
               >
@@ -164,15 +178,12 @@ function Tickets() {
               </select>
               <button
                 onClick={fetchTickets}
-                className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
                 disabled={loading || !selectedOutlet}
               >
                 {loading ? (
                   <>
-                    <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                    </svg>
+                    <FontAwesomeIcon icon={faSpinner} className="h-4 w-4 mr-2 animate-spin" />
                     Loading...
                   </>
                 ) : (
@@ -180,119 +191,143 @@ function Tickets() {
                 )}
               </button>
             </div>
+
+            {/* Search Input */}
+            {selectedOutlet && tickets.length > 0 && (
+              <input
+                type="text"
+                placeholder="Search by ticket number, title, or user..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="w-full sm:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
+              />
+            )}
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="text-red-500 text-center mb-4">
+            <div className="text-red-500 text-center mb-4 px-6">
               {error}
             </div>
           )}
 
-          {/* Only show tickets UI if outlet is selected and tickets are loaded */}
+          {/* Table */}
           {selectedOutlet && tickets.length > 0 && (
-            <>
-              {/* Search Form */}
-              <div className="mb-6 flex flex-wrap items-center justify-center gap-4">
-                <input
-                  type="text"
-                  placeholder="Search by ticket number, title, or user..."
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className="w-full sm:w-96 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-
-              {/* Table Controls */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <span className="mr-2">Show</span>
-                  <select className="border border-gray-300 rounded px-2 py-1">
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
-                    <option>100</option>
-                  </select>
-                  <span className="ml-2">entries</span>
-                </div>
-              </div>
-
-              {/* Results Table */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ticket Number</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created On</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+            <div className="max-w-full overflow-x-auto custom-scrollbar">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-t border-gray-100 dark:border-gray-800">
+                    <th className="px-6 py-3 text-left">
+                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                        Ticket Number
+                      </p>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                        Title
+                      </p>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                        Status
+                      </p>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                        Created On
+                      </p>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                        User
+                      </p>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                        Action
+                      </p>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTickets.map((ticket, index) => (
+                    <tr key={ticket.ticket_id || `ticket-${index}`} className="border-t border-gray-100 dark:border-gray-800">
+                      <td className="px-6 py-3.5">
+                        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                          {ticket.ticket_number || '-'}
+                        </p>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+                          {ticket.title || '-'}
+                        </p>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(ticket.status)}`}>
+                          {ticket.status || 'Unknown'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+                          {ticket.created_on || '-'}
+                        </p>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+                          {ticket.user_name || '-'}
+                        </p>
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <button 
+                          onClick={() => handleViewTicket(ticket.ticket_id)}
+                          className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 font-medium text-white hover:bg-brand-600"
+                        >
+                          <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+                          View
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredTickets.map((ticket, index) => (
-                      <tr key={ticket.ticket_id || `ticket-${index}`} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap font-medium">{ticket.ticket_number || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">{ticket.title || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(ticket.status)}`}>
-                            {ticket.status || 'Unknown'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">{ticket.created_on || '-'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="flex items-center gap-1">
-                            {getTypeIcon(ticket.user_role)} {ticket.user_name || '-'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button 
-                            onClick={() => handleViewTicket(ticket.ticket_id)}
-                            className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-                          >
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                            </svg>
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              <div className="flex items-center justify-between mt-4">
-                <div>
-                  Showing {filteredTickets.length} of {tickets.length} entries
-                  {searchInput && (
-                    <span className="ml-2 text-gray-500">
-                      (filtered from {tickets.length} total entries)
-                    </span>
-                  )}
-                </div>
-                <div className="flex gap-1">
-                  <button className="px-3 py-1 border border-gray-300 rounded-md">Previous</button>
-                  <button className="px-3 py-1 border border-gray-300 rounded-md bg-purple-600 text-white">1</button>
-                  <button className="px-3 py-1 border border-gray-300 rounded-md">Next</button>
-                </div>
-              </div>
-            </>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
 
+          {/* Empty States */}
           {selectedOutlet && tickets.length === 0 && !loading && (
-            <div className="text-center text-gray-500 mt-4">
+            <div className="text-center text-gray-500 dark:text-gray-400 mt-4 px-6">
               No tickets found for this outlet
             </div>
           )}
 
-          {selectedOutlet && filteredTickets.length === 0 && !loading && (
-            <div className="text-center text-gray-500 mt-4">
-              {tickets.length > 0 
-                ? 'No matching tickets found for your search'
-                : 'No tickets found for this outlet'}
+          {selectedOutlet && filteredTickets.length === 0 && tickets.length > 0 && !loading && (
+            <div className="text-center text-gray-500 dark:text-gray-400 mt-4 px-6">
+              No matching tickets found for your search
+            </div>
+          )}
+
+          {/* Pagination Info */}
+          {selectedOutlet && tickets.length > 0 && (
+            <div className="flex items-center justify-between mt-4 px-6">
+              <div className="text-gray-500 text-theme-sm dark:text-gray-400">
+                Showing {filteredTickets.length} of {tickets.length} entries
+                {searchInput && (
+                  <span className="ml-2 text-gray-500">
+                    (filtered from {tickets.length} total entries)
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-1">
+                <button className="px-3 py-1 border border-gray-300 rounded-md text-theme-sm dark:border-gray-700 dark:text-gray-400">
+                  Previous
+                </button>
+                <button className="px-3 py-1 border border-gray-300 rounded-md bg-brand-500 text-white text-theme-sm">
+                  1
+                </button>
+                <button className="px-3 py-1 border border-gray-300 rounded-md text-theme-sm dark:border-gray-700 dark:text-gray-400">
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -300,22 +335,5 @@ function Tickets() {
     </div>
   );
 }
-
-const getTypeIcon = (type) => {
-  switch (type?.toLowerCase()) {
-    case 'owner':
-      return '👑';
-    case 'waiter':
-      return '👨‍🍳';
-    case 'customer':
-      return '👤';
-    case 'outlet':
-      return '🏪';
-    case 'chef':
-      return '🍳';
-    default:
-      return '❓';
-  }
-};
 
 export default Tickets;
