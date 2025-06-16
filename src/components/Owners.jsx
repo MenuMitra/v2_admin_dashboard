@@ -19,6 +19,7 @@ import {
   faChevronRight,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from './Breadcrumb';
 
 function Owners() {
   const { getToken } = useAuth();
@@ -257,6 +258,11 @@ function Owners() {
   const getInactiveCount = () =>
     owners.filter((owner) => owner.is_active === 0).length;
 
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Outlet Owners' }
+  ];
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -267,6 +273,7 @@ function Owners() {
 
   return (
     <div className="p-6">
+      <Breadcrumb items={breadcrumbItems} />
       {/* Header Section */}
       <div className="overflow-hidden rounded-t-2xl pt-4 dark:border-gray-800 dark:bg-white/[0.03] mb-4">
         <div className="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
