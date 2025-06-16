@@ -30,8 +30,17 @@ function DataTable({
     inactive: 0
   },
   onBackClick = () => {},
-  onCreateClick = () => {},
-  createButtonLabel = "Create",
+  createButton = {
+    show: true,
+    label: "Create",
+    icon: faPlus,
+    onClick: () => {},
+    className: "bg-success-500 hover:bg-success-600",
+    position: "right",
+    showIconOnly: false,
+    disabled: false,
+    tooltip: "",
+  },
   searchPlaceholder = "Search...",
   showBackButton = true,
   showCreateButton = true,
@@ -193,65 +202,118 @@ function DataTable({
     return pages;
   };
 
+  // Merge legacy props with new createButton object for backward compatibility
+  const mergedCreateButton = {
+    ...{
+      show: showCreateButton,
+      label: createButton.label,
+      onClick: createButton.onClick,
+      icon: createButton.icon,
+      className: createButton.className,
+      position: createButton.position,
+      showIconOnly: createButton.showIconOnly,
+      disabled: createButton.disabled,
+      tooltip: createButton.tooltip,
+    },
+    ...createButton
+  };
+
+  const renderCreateButton = () => {
+    if (!mergedCreateButton.show) return null;
+
+    const buttonClasses = `
+      inline-flex items-center gap-2 
+      px-3 py-1.5 sm:px-4 sm:py-2 
+      text-sm font-medium text-white 
+      transition rounded-full 
+      shadow-theme-xs
+      ${mergedCreateButton.disabled ? 'opacity-50 cursor-not-allowed' : ''}
+      ${mergedCreateButton.className}
+    `;
+
+    return (
+      <button 
+        onClick={mergedCreateButton.onClick}
+        disabled={mergedCreateButton.disabled}
+        className={buttonClasses}
+        title={mergedCreateButton.tooltip}
+      >
+        <FontAwesomeIcon 
+          icon={mergedCreateButton.icon} 
+          className="w-4 h-4" 
+        />
+        {!mergedCreateButton.showIconOnly && (
+          <span className="hidden sm:inline">
+            {mergedCreateButton.label}
+          </span>
+        )}
+      </button>
+    );
+  };
+
   return (
     <div className={`rounded-2xl border border-gray-200 bg-white ${darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""}`}>
       {/* Header Section */}
       {showHeader && (
         <div className="overflow-hidden pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
           {/* Top Row - Back, Title, Create */}
-          <div className="flex items-center justify-between px-6 mb-3">
-            {/* Left - Back Button */}
-            {showBackButton && (
-              <button 
-                onClick={onBackClick}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
-              >
-                <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
-                {backButtonLabel}
-              </button>
-            )}
-
-            {/* Center - Title */}
-            <div className="text-xl font-semibold text-gray-800 dark:text-white/90">
-              {title}
+          <div className="flex items-center px-6 mb-3">
+            {/* Left Side */}
+            <div className={`flex items-center gap-2 ${
+              mergedCreateButton.position === 'left' ? 'order-2' : 'order-1'
+            }`}>
+              {showBackButton && (
+                <button 
+                  onClick={onBackClick}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                >
+                  <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
+                  <span className="hidden sm:inline">{backButtonLabel}</span>
+                </button>
+              )}
+              {mergedCreateButton.position === 'left' && renderCreateButton()}
             </div>
 
-            {/* Right - Create Button */}
-            {showCreateButton && (
-              <button 
-                onClick={onCreateClick}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-success-500 hover:bg-success-600 shadow-theme-xs"
-              >
-                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-                {createButtonLabel}
-              </button>
-            )}
+            {/* Center - Title */}
+            <div className={`text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90 ${
+              mergedCreateButton.position === 'center' ? 'flex items-center gap-4' : 'flex-1 text-center'
+            }`}>
+              {title}
+              {mergedCreateButton.position === 'center' && renderCreateButton()}
+            </div>
+
+            {/* Right Side */}
+            <div className={`flex items-center justify-end ${
+              mergedCreateButton.position === 'right' ? 'order-3' : 'order-2'
+            }`}>
+              {mergedCreateButton.position === 'right' && renderCreateButton()}
+            </div>
           </div>
 
-          {/* Bottom Row - Stats and Search */}
-          <div className="flex items-center justify-between px-6 mb-4">
-            {/* Left - Stats */}
-            <div className="flex items-center gap-6 text-sm">
-              <span className="font-medium text-gray-800 dark:text-white/90">
+          {/* Stats and Search - Responsive Layout */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center justify-between px-6 mb-4">
+            {/* Stats - Scrollable on Mobile */}
+            <div className="flex items-center gap-4 sm:gap-6 text-sm overflow-x-auto whitespace-nowrap pb-2 sm:pb-0">
+              <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
                 Total: {counts.total}
               </span>
-              <span className="text-success-600">
+              <span className="text-success-600 shrink-0">
                 Active: {counts.active}
               </span>
-              <span className="text-error-500">
+              <span className="text-error-500 shrink-0">
                 Inactive: {counts.inactive}
               </span>
             </div>
 
-            {/* Right - Search */}
+            {/* Search - Full Width on Mobile */}
             {showSearch && (
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
                   <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
                 </span>
                 <input 
                   placeholder={searchPlaceholder}
-                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-10 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+                  className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 shadow-theme-xs"
                   type="text"
                   value={searchTerm}
                   onChange={(e) => onSearchChange(e.target.value)}

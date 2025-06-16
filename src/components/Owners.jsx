@@ -385,12 +385,17 @@ function Owners() {
           inactive: getInactiveCount()
         }}
         showBackButton={true}
-        showCreateButton={true}
         showSearch={true}
-        createButtonLabel="Create"
         searchPlaceholder="Search..."
-        onBackClick={() => navigate(-1)}
-        onCreateClick={() => navigate("/create-restaurant")}
+        onBackClick={() => navigate("/dashboard")}
+        createButton={{
+          show: true,
+          label: "Create",
+          icon: faPlus,
+          onClick: () => navigate("/create-owner"),
+          className: "bg-success-500 hover:bg-success-600",
+          position: "right"
+        }}
       />
 
       {/* Delete Modal */}
