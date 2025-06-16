@@ -11,6 +11,7 @@ import {
   faEye,
   faPenToSquare
 } from '@fortawesome/free-solid-svg-icons';
+import DataTable from './common/DataTable';
 
 function Dashboard() {
   const { getToken, isAuthenticated } = useAuth();
@@ -25,6 +26,104 @@ function Dashboard() {
       guest_count: 0
     }
   });
+
+  // Add search state
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Define columns for the DataTable
+  const columns = [
+    {
+      field: 'outlet_name',
+      header: 'Outlet Name',
+      sortable: true
+    },
+    {
+      field: 'total_order_count',
+      header: 'Orders',
+      sortable: true
+    },
+    {
+      field: 'total_cooking_count',
+      header: 'Cooking',
+      sortable: true
+    },
+    {
+      field: 'total_placed_count',
+      header: 'Placed',
+      sortable: true
+    },
+    {
+      field: 'total_paid_count',
+      header: 'Paid',
+      sortable: true
+    },
+    {
+      field: 'total_cancel_count',
+      header: 'Cancelled',
+      sortable: true
+    },
+    {
+      field: 'total_category',
+      header: 'Categories',
+      sortable: true
+    },
+    {
+      field: 'total_menu',
+      header: 'Menu Items',
+      sortable: true
+    },
+    {
+      field: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (_, item) => (
+        <span className={`px-2 py-1 text-xs rounded-full ${
+          item.total_order_count > 0 
+            ? 'bg-green-100 text-green-800' 
+            : 'bg-gray-100 text-gray-800'
+        }`}>
+          {item.total_order_count > 0 ? 'Active' : 'Inactive'}
+        </span>
+      )
+    },
+    {
+      field: 'account_type',
+      header: 'Account Type',
+      sortable: true,
+      render: (value) => (
+        <span className={`px-2 py-1 text-xs rounded-full ${
+          value === 'test' 
+            ? 'bg-yellow-100 text-yellow-800' 
+            : 'bg-blue-100 text-blue-800'
+        }`}>
+          {value}
+        </span>
+      )
+    },
+    {
+      field: 'actions',
+      header: 'Actions',
+      sortable: false,
+      render: (_, item) => (
+        <div className="flex gap-2">
+          <button 
+            onClick={() => handleViewClick(item)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Outlet"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => handleEditClick(item)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Outlet"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+        </div>
+      )
+    }
+  ];
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -135,82 +234,30 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Table Section */}
-      <div className="mt-6 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="flex justify-between items-center p-5 border-b border-gray-200 dark:border-gray-800">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
-            Showing 1 to {data.outlet_data?.length} of {data.outlet_data?.length} entries
-          </span>
-          <div className="flex items-center gap-2">
-            <span className="text-gray-700 dark:text-gray-300">All Outlets</span>
-            <input 
-              type="text" 
-              placeholder="Search outlets..." 
-              className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <th className="px-6 py-3">Outlet Name</th>
-                <th className="px-6 py-3">Orders</th>
-                <th className="px-6 py-3">Cooking</th>
-                <th className="px-6 py-3">Placed</th>
-                <th className="px-6 py-3">Paid</th>
-                <th className="px-6 py-3">Cancelled</th>
-                <th className="px-6 py-3">Categories</th>
-                <th className="px-6 py-3">Menu Items</th>
-                <th className="px-6 py-3">Status</th>
-                <th className="px-6 py-3">Account Type</th>
-                <th className="px-6 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-              {data.outlet_data?.map((outlet) => (
-                <tr key={outlet.outlet_id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="px-6 py-4">{outlet.outlet_name}</td>
-                  <td className="px-6 py-4">{outlet.total_order_count}</td>
-                  <td className="px-6 py-4">{outlet.total_cooking_count}</td>
-                  <td className="px-6 py-4">{outlet.total_placed_count}</td>
-                  <td className="px-6 py-4">{outlet.total_paid_count}</td>
-                  <td className="px-6 py-4">{outlet.total_cancel_count}</td>
-                  <td className="px-6 py-4">{outlet.total_category}</td>
-                  <td className="px-6 py-4">{outlet.total_menu}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs rounded-full ${outlet.total_order_count > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                      {outlet.total_order_count > 0 ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 text-xs rounded-full ${outlet.account_type === 'test' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'}`}>
-                      {outlet.account_type}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleEditClick(outlet)}
-                        className="p-2 text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg"
-                        title="Edit Outlet"
-                      >
-                        <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={() => handleViewClick(outlet)}
-                        className="p-2 text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 rounded-lg"
-                        title="View Outlet"
-                      >
-                        <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      {/* Replace Table Section with DataTable */}
+      <div className="mt-6">
+        <DataTable 
+          data={data.outlet_data || []}
+          columns={columns}
+          title="All Outlets"
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search outlets..."
+          counts={{
+            total: data.outlet_data?.length || 0,
+            active: data.outlet_data?.filter(outlet => outlet.total_order_count > 0).length || 0,
+            inactive: data.outlet_data?.filter(outlet => outlet.total_order_count === 0).length || 0
+          }}
+          showBackButton={false}
+          createButton={{
+            show: false
+          }}
+          enableSort={true}
+          enablePagination={true}
+          enableSearch={true}
+          itemsPerPage={10}
+          darkMode={false}
+        />
       </div>
     </div>
   );
