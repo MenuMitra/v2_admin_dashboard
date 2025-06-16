@@ -253,20 +253,21 @@ function CreateOutlet() {
           </h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="col-span-3">
-              <div className="col-span-3 relative">
-              <label className="block text-sm font-medium text-gray-700">
+            <div className="col-span-3 relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Select Owner *
               </label>
-                
-                {isLoading ? (
-                  <div className="mt-1 p-2 text-gray-500">Loading owners...</div>
-                ) : (
-                  <div className="relative">
+              
+              {isLoading ? (
+                <div className="mt-1 p-2 text-gray-500">Loading owners...</div>
+              ) : (
+                <div className="relative">
+                  {!formData.owner_id ? (
+                    // Search Input when no owner is selected
                     <div className="relative">
-                <input
-                  type="text"
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10"
+                      <input
+                        type="text"
+                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10"
                         placeholder="Search owner by name, mobile or email"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -275,62 +276,96 @@ function CreateOutlet() {
                         <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-              </div>
-            </div>
+                      </div>
+                    </div>
+                  ) : (
+                    // Selected Owner Display
+                    <div className="bg-white border rounded-md shadow-sm">
+                      <div className="p-3 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="bg-blue-100 rounded-full p-2">
+                            <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile} 
+                              <span className="mx-1">•</span> 
+                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.account_type}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, owner_id: '' }));
+                            setSearchTerm('');
+                          }}
+                          className="text-sm text-gray-400 hover:text-gray-500 flex items-center"
+                        >
+                          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                          </svg>
+                          <span className="ml-1">Change</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
-                    {formData.owner_id && (
-                      <div className="mt-2 p-2 bg-blue-50 rounded-md">
-                        <div className="flex items-center justify-between">
-            <div>
-                            <span className="font-medium">Selected: </span>
-                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
-                            <span className="text-sm text-gray-600 ml-2">
-                              ({allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile})
-                            </span>
-          </div>
-          <button
-            type="button"
+                  {/* Dropdown for search results */}
+                  {searchTerm && !formData.owner_id && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                      {filteredOwners.length > 0 ? (
+                        filteredOwners.map((owner) => (
+                          <div
+                            key={owner.user_id}
+                            className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-0 transition-colors"
                             onClick={() => {
-                              setFormData(prev => ({ ...prev, owner_id: '' }));
+                              setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
                               setSearchTerm('');
                             }}
-                            className="text-sm text-blue-600 hover:text-blue-800"
                           >
-                            Change
-          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {searchTerm && !formData.owner_id && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                        {filteredOwners.length > 0 ? (
-                          filteredOwners.map((owner) => (
-                            <div
-                              key={owner.user_id}
-                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0"
-                              onClick={() => {
-                                setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
-                                setSearchTerm('');
-                              }}
-                            >
-                              <div className="font-medium">{owner.name}</div>
-                              <div className="text-sm text-gray-600">
-                                {owner.mobile} - {owner.account_type}
+                            <div className="flex items-center space-x-3">
+                              <div className="flex-shrink-0">
+                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                                  <span className="text-lg font-medium text-gray-600">
+                                    {owner.name.charAt(0)}
+                                  </span>
+                                </div>
                               </div>
-                              {owner.email && (
-                                <div className="text-sm text-gray-500">{owner.email}</div>
-                              )}
+                              <div>
+                                <div className="font-medium text-gray-900">{owner.name}</div>
+                                <div className="text-sm text-gray-500">
+                                  {owner.mobile}
+                                  {owner.account_type && (
+                                    <>
+                                      <span className="mx-1">•</span>
+                                      <span className={`capitalize ${owner.account_type === 'live' ? 'text-green-600' : 'text-orange-600'}`}>
+                                        {owner.account_type}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                                {owner.email && (
+                                  <div className="text-sm text-gray-500">{owner.email}</div>
+                                )}
+                              </div>
                             </div>
-                          ))
-                        ) : (
-                          <div className="px-4 py-2 text-gray-500">No owners found</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-3 text-sm text-gray-500">
+                          No owners found matching "{searchTerm}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Outlet Image */}
