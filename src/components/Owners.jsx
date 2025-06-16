@@ -198,10 +198,10 @@ function Owners() {
             <thead>
               <tr className="border-t border-gray-100 dark:border-gray-800">
                 <th 
-                  className="px-6 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                   onClick={() => handleSort('name')}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
                       Name
                     </p>
@@ -209,10 +209,10 @@ function Owners() {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                   onClick={() => handleSort('email')}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
                       Email
                     </p>
@@ -220,26 +220,26 @@ function Owners() {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                   onClick={() => handleSort('mobile')}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
                       Mobile
                     </p>
                     {renderSortIcon('mobile')}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left">
+                <th className="px-6 py-3 text-center">
                   <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
                     Address
                   </p>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                   onClick={() => handleSort('is_active')}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
                       Status
                     </p>
@@ -247,17 +247,17 @@ function Owners() {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                   onClick={() => handleSort('account_type')}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center justify-center">
                     <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
                       Account Type
                     </p>
                     {renderSortIcon('account_type')}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left">
+                <th className="px-6 py-3 text-center">
                   <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
                     Actions
                   </p>
@@ -267,28 +267,28 @@ function Owners() {
             <tbody>
               {getSortedOwners().map((owner) => (
                 <tr key={owner.user_id} className="border-t border-gray-100 dark:border-gray-800">
-                  <td className="px-6 py-3.5">
+                  <td className="px-6 py-3.5 text-center">
                     <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
                       {owner.name}
                     </p>
                   </td>
-                  <td className="px-6 py-3.5">
+                  <td className="px-6 py-3.5 text-center">
                     <p className="text-gray-500 text-theme-sm dark:text-gray-400">
                       {owner.email}
                     </p>
                   </td>
-                  <td className="px-6 py-3.5">
+                  <td className="px-6 py-3.5 text-center">
                     <p className="text-gray-500 text-theme-sm dark:text-gray-400">
                       {owner.mobile}
                     </p>
                   </td>
-                  <td className="px-6 py-3.5">
+                  <td className="px-6 py-3.5 text-center">
                     <p className="text-gray-500 text-theme-sm dark:text-gray-400">
                       {owner.address}
                     </p>
                   </td>
-                  <td className="px-6 py-3.5">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
+                  <td className="px-6 py-3.5 text-center">
+                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
                       owner.is_active === 1 
                         ? 'bg-success-100 text-success-600' 
                         : 'bg-error-100 text-error-500'
@@ -296,8 +296,8 @@ function Owners() {
                       {owner.is_active === 1 ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="px-6 py-3.5">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
+                  <td className="px-6 py-3.5 text-center">
+                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
                       owner.account_type === 'live' 
                         ? 'bg-brand-100 text-brand-600' 
                         : 'bg-warning-100 text-warning-600'
@@ -305,7 +305,7 @@ function Owners() {
                       {owner.account_type}
                     </span>
                   </td>
-                  <td className="px-6 py-3.5">
+                  <td className="px-6 py-3.5 text-center">
                     <div className="flex items-center justify-center gap-2">
                       {/* View Button - Blue */}
                       <button 
