@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAdmin } from '../hooks/useAdmin';
 import axios from 'axios';
+import Flatpickr from 'react-flatpickr';
+import 'flatpickr/dist/flatpickr.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 
 function CreateOwner() {
   const navigate = useNavigate();
@@ -149,17 +153,27 @@ function CreateOwner() {
               Date of Birth <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              </div>
-              <input
-                type="date"
-                name="dob"
-                placeholder="dd-mm-yyyy"
+              <Flatpickr
                 value={formData.dob}
-                onChange={handleInputChange}
-                className="pl-10 w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
-                required
+                onChange={date => {
+                  handleInputChange({
+                    target: {
+                      name: 'dob',
+                      value: date[0]
+                    }
+                  });
+                }}
+                options={{
+                  dateFormat: "Y-m-d",
+                  maxDate: new Date(), // Prevents future dates
+                  disableMobile: true,
+                }}
+                className="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 pl-4 pr-11 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                placeholder="Select date"
               />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-gray-400">
+                <FontAwesomeIcon icon={faCalendar} className="w-4 h-4" />
+              </div>
             </div>
           </div>
 
@@ -185,7 +199,7 @@ function CreateOwner() {
           </div>
 
           {/* Address */}
-          <div>
+          <div className="col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Address <span className="text-red-500">*</span>
             </label>
