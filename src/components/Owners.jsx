@@ -21,6 +21,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from './Breadcrumb';
 import TablesViewHeader from './common/TablesViewHeader';
+import DataTable from './common/DataTable';
 
 function Owners() {
   const { getToken } = useAuth();
@@ -264,6 +265,96 @@ function Owners() {
     { label: 'Outlet Owners' }
   ];
 
+  const columns = [
+    {
+      field: "name",
+      header: "Name",
+      sortable: true,
+      render: (value) => (
+        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+          {value}
+        </p>
+      ),
+    },
+    {
+      field: "email",
+      header: "Email",
+      sortable: true,
+    },
+    {
+      field: "mobile",
+      header: "Mobile",
+      sortable: true,
+    },
+    {
+      field: "address",
+      header: "Address",
+      sortable: false,
+    },
+    {
+      field: "is_active",
+      header: "Status",
+      sortable: true,
+      render: (value) => (
+        <span
+          className={`inline-block px-2 py-1 text-xs ${
+            value === 1
+              ? "bg-success-100 text-success-600"
+              : "bg-error-100 text-error-500"
+          }`}
+        >
+          {value === 1 ? "Active" : "Inactive"}
+        </span>
+      ),
+    },
+    {
+      field: "account_type",
+      header: "Account Type",
+      sortable: true,
+      render: (value) => (
+        <span
+          className={`inline-block px-2 py-1 text-xs ${
+            value === "live"
+              ? "text-error-600"
+              : "text-success-600"
+          }`}
+        >
+          {value?.toUpperCase()}
+        </span>
+      ),
+    },
+    {
+      field: "actions",
+      header: "Actions",
+      sortable: false,
+      render: (_, owner) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => handleViewOwner(owner.user_id)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleEditOwner(owner.user_id)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Owner"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => openDeleteModal(owner.user_id)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Owner"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -275,7 +366,18 @@ function Owners() {
   return (
     <div className="p-6">
       <Breadcrumb items={breadcrumbItems} />
-      <TablesViewHeader 
+      <DataTable
+        data={owners}
+        columns={columns}
+        itemsPerPage={10}
+        enableSort={true}
+        enablePagination={true}
+        enableSearch={true}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        darkMode={true}
+        
+        // Header props
         title="Owners"
         counts={{
           total: getTotalCount(),
@@ -289,168 +391,7 @@ function Owners() {
         searchPlaceholder="Search..."
         onBackClick={() => navigate(-1)}
         onCreateClick={() => navigate("/create-restaurant")}
-        onSearchChange={(value) => setSearchTerm(value)}
       />
-      {/* Table Section */}
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="max-w-full overflow-x-auto custom-scrollbar">
-          <table className="w-full">
-            <thead>
-              <tr className="border-t border-gray-100 dark:border-gray-800">
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("name")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Name
-                    </p>
-                    {renderSortIcon("name")}
-                  </div>
-                </th>
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("email")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Email
-                    </p>
-                    {renderSortIcon("email")}
-                  </div>
-                </th>
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("mobile")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Mobile
-                    </p>
-                    {renderSortIcon("mobile")}
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-center">
-                  <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                    Address
-                  </p>
-                </th>
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("is_active")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Status
-                    </p>
-                    {renderSortIcon("is_active")}
-                  </div>
-                </th>
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("account_type")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Account Type
-                    </p>
-                    {renderSortIcon("account_type")}
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-center">
-                  <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                    Actions
-                  </p>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.map((owner) => (
-                <tr
-                  key={owner.user_id}
-                  className="border-t border-gray-100 dark:border-gray-800"
-                >
-                  <td className="px-6 py-3.5 text-center">
-                    <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                      {owner.name}
-                    </p>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-                      {owner.email}
-                    </p>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-                      {owner.mobile}
-                    </p>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-                      {owner.address}
-                    </p>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <span
-                      className={`inline-block px-2 py-1 text-xs ${
-                        owner.is_active === 1
-                          ? "bg-success-100 text-success-600"
-                          : "bg-error-100 text-error-500"
-                      }`}
-                    >
-                      {owner.is_active === 1 ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <span
-                      className={`inline-block px-2 py-1 text-xs ${
-                        owner.account_type === "live"
-                          ? "text-error-600"
-                          : "text-success-600"
-                      }`}
-                    >
-                      {owner.account_type?.toUpperCase()}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      {/* View Button - Blue */}
-                      <button
-                        onClick={() => handleViewOwner(owner.user_id)}
-                        className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-                        title="View Details"
-                      >
-                        <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-                      </button>
-
-                      {/* Edit Button - Yellow/Warning */}
-                      <button
-                        onClick={() => handleEditOwner(owner.user_id)}
-                        className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-                        title="Edit Owner"
-                      >
-                        <FontAwesomeIcon
-                          icon={faPenToSquare}
-                          className="w-4 h-4"
-                        />
-                      </button>
-
-                      {/* Delete Button - Red */}
-                      <button
-                        onClick={() => openDeleteModal(owner.user_id)}
-                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-                        title="Delete Owner"
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
       {/* Delete Modal */}
       {showDeleteModal && (
@@ -511,47 +452,6 @@ function Owners() {
           </div>
         </div>
       )}
-
-      {/* Pagination */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4">
-        <div className="text-gray-500 text-theme-sm dark:text-gray-400">
-          Showing {indexOfFirstItem + 1} to{" "}
-          {Math.min(indexOfLastItem, getSortedOwners().length)} of{" "}
-          {getSortedOwners().length} entries
-        </div>
-
-        <div className="flex items-center justify-between gap-2 sm:justify-normal">
-          <button
-            onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 ${
-              currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
-          </button>
-
-          <span className="block text-sm font-medium text-gray-700 dark:text-gray-400 sm:hidden">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <ul className="hidden items-center gap-0.5 sm:flex">
-            {renderPaginationNumbers()}
-          </ul>
-
-          <button
-            onClick={() =>
-              currentPage < totalPages && handlePageChange(currentPage + 1)
-            }
-            disabled={currentPage === totalPages}
-            className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 ${
-              currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
