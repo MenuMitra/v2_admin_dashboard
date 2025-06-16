@@ -20,6 +20,7 @@ import {
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from './Breadcrumb';
+import TablesViewHeader from './common/TablesViewHeader';
 
 function Owners() {
   const { getToken } = useAuth();
@@ -274,61 +275,18 @@ function Owners() {
   return (
     <div className="p-6">
       <Breadcrumb items={breadcrumbItems} />
-      {/* Header Section */}
-      <div className="overflow-hidden rounded-t-2xl pt-4 dark:border-gray-800 dark:bg-white/[0.03] mb-4">
-        <div className="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-            >
-              <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-3">
-              <div className="text-gray-800 dark:text-white/90">
-                <span className="text-lg font-semibold">
-                  Total: {getTotalCount()}
-                </span>
-                <div className="flex gap-3 mt-1 text-sm">
-                  <span className="text-success-600">
-                    Active: {getActiveCount()}
-                  </span>
-                  <span className="text-error-500">
-                    Inactive: {getInactiveCount()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-xl font-semibold text-gray-800 dark:text-white/90">
-            Outlet Owners
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                <FontAwesomeIcon icon={faSearch} className="w-4 h-4" />
-              </span>
-              <input
-                type="text"
-                placeholder="Search owners..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2.5 pr-14 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
-              />
-            </div>
-            <button 
-              onClick={() => navigate("/create-owner")}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-success-500 px-4 py-3 font-medium text-white hover:bg-success-600"
-            >
-              <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
-              Create
-            </button>
-          </div>
-        </div>
-      </div>
-
+      <TablesViewHeader 
+        title="Outlet Owners"
+        totalCount={getTotalCount()}
+        activeCount={getActiveCount()}
+        inactiveCount={getInactiveCount()}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onBackClick={() => navigate(-1)}
+        onCreateClick={() => navigate("/create-owner")}
+        createButtonLabel="Create"
+        searchPlaceholder="Search owners..."
+      />
       {/* Table Section */}
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto custom-scrollbar">
