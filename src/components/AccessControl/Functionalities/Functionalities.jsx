@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faSearch, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft, faSearch, faPlus, faEye, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
+import DataTable from '../../common/DataTable';
 
 function Functionalities() {
   const { getToken } = useAuth();
@@ -157,10 +158,60 @@ function Functionalities() {
     }
   };
 
-  // Filter functionalities based on search term
-  const filteredFunctionalities = functionalities.filter(functionality => 
-    functionality.functionality_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Define columns for DataTable
+  const columns = [
+    {
+      field: 'index',
+      header: 'Sr',
+      sortable: true,
+      render: (value, item, index) => {
+        // Ensure index is a number and add 1, fallback to array index if needed
+        const displayIndex = typeof index === 'number' ? 
+          index + 1 : 
+          functionalities.indexOf(item) + 1;
+        return displayIndex;
+      }
+    },
+    {
+      field: 'functionality_name',
+      header: 'Functionality Name',
+      sortable: true,
+      render: (value) => (
+        <span className="font-medium text-gray-900 capitalize">
+          {value.replace(/_/g, ' ')}
+        </span>
+      )
+    },
+    {
+      field: 'actions',
+      header: 'Actions',
+      sortable: false,
+      render: (_, functionality) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => {
+              setEditingFunctionality(functionality);
+              setShowEditModal(true);
+            }}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Functionality"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              setDeletingFunctionality(functionality);
+              setShowDeleteModal(true);
+            }}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Functionality"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
+        </div>
+      )
+    }
+  ];
 
   if (isLoading) {
     return (
@@ -181,108 +232,40 @@ function Functionalities() {
         <span className="text-gray-700">Functionalities</span>
       </div>
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => window.history.back()}
-            className="inline-flex items-center px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-          >
-            <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3 mr-1" />
-            Back
-          </button>
-          <h1 className="text-xl font-semibold">Functionalities</h1>
-        </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-        >
-          <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-          Add Functionality
-        </button>
-      </div>
-
-      {/* Stats and Search Section */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <div className="text-2xl font-semibold">{functionalities.length}</div>
-          <div className="text-xs text-gray-500 uppercase">TOTAL</div>
-        </div>
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search functionalities..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-64 h-10 pl-10 pr-4 text-gray-600 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-300"
-          />
-          <FontAwesomeIcon 
-            icon={faSearch} 
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"
-          />
-        </div>
-      </div>
-
       {error && (
         <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
           {error}
         </div>
       )}
 
-      {/* Functionalities Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SR NO</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FUNCTIONALITY NAME</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ACTIONS</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredFunctionalities.map((functionality, index) => (
-              <tr key={functionality.functionality_id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{index + 1}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 capitalize">
-                  {functionality.functionality_name.replace(/_/g, ' ')}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        setEditingFunctionality(functionality);
-                        setShowEditModal(true);
-                      }}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => {
-                        setDeletingFunctionality(functionality);
-                        setShowDeleteModal(true);
-                      }}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
-        <div>Showing 1 to {filteredFunctionalities.length} of {filteredFunctionalities.length} entries</div>
-        <div className="flex items-center gap-2">
-          <button className="px-3 py-1 text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>Previous</button>
-          <button className="px-3 py-1 text-white bg-blue-500 rounded">1</button>
-          <button className="px-3 py-1 text-gray-500 hover:text-gray-700 disabled:opacity-50" disabled>Next</button>
-        </div>
-      </div>
+      <DataTable
+        data={functionalities}
+        columns={columns}
+        title="Functionalities"
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        counts={{
+          total: functionalities.length,
+          active: functionalities.length,
+          inactive: 0
+        }}
+        createButton={{
+          label: "Add Functionality",
+          onClick: () => setShowCreateModal(true),
+          className: "bg-success-500 hover:bg-success-600",
+          position: "right",
+          icon: faPlus,
+          showIconOnly: false
+        }}
+        searchPlaceholder="Search functionalities..."
+        enableSort={true}
+        enablePagination={true}
+        enableSearch={true}
+        itemsPerPage={10}
+        onBackClick={() => window.history.back()}
+        showBackButton={true}
+        backButtonLabel="Back"
+      />
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
