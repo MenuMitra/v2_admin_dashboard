@@ -359,7 +359,7 @@ function Owners() {
                     </p>
                   </td>
                   <td className="px-6 py-3.5 text-center">
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                    <span className={`inline-block px-2 py-1 text-xs ${
                       owner.is_active === 1 
                         ? 'bg-success-100 text-success-600' 
                         : 'bg-error-100 text-error-500'
@@ -368,12 +368,12 @@ function Owners() {
                     </span>
                   </td>
                   <td className="px-6 py-3.5 text-center">
-                    <span className={`inline-block px-2 py-1 text-xs rounded-full ${
+                    <span className={`inline-block px-2 py-1 text-xs ${
                       owner.account_type === 'live' 
-                        ? 'bg-brand-100 text-brand-600' 
-                        : 'bg-warning-100 text-warning-600'
+                        ? 'text-error-600' 
+                        : 'text-success-600'
                     }`}>
-                      {owner.account_type}
+                      {owner.account_type?.toUpperCase()}
                     </span>
                   </td>
                   <td className="px-6 py-3.5 text-center">
