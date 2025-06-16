@@ -156,10 +156,11 @@ function CreateOwner() {
               <Flatpickr
                 value={formData.dob}
                 onChange={date => {
+                  const formattedDate = date[0] ? date[0].toISOString().split('T')[0] : '';
                   handleInputChange({
                     target: {
                       name: 'dob',
-                      value: date[0]
+                      value: formattedDate
                     }
                   });
                 }}
