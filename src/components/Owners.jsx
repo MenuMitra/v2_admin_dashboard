@@ -276,17 +276,20 @@ function Owners() {
     <div className="p-6">
       <Breadcrumb items={breadcrumbItems} />
       <TablesViewHeader 
-        title="Outlet Owners"
-        totalCount={getTotalCount()}
-        activeCount={getActiveCount()}
-        inactiveCount={getInactiveCount()}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
+        title="Restaurant"
+        counts={{
+          total: getTotalCount(),
+          active: getActiveCount(),
+          inactive: getInactiveCount()
+        }}
+        showBackButton={true}
+        showCreateButton={true}
+        showSearch={true}
+        createButtonLabel="Create Restaurant"
+        searchPlaceholder="Search..."
         onBackClick={() => navigate(-1)}
-        onCreateClick={() => navigate("/create-owner")}
-        createButtonLabel="Create"
-        searchPlaceholder="Search owners..."
-        backButtonLabel="Back"
+        onCreateClick={() => navigate("/create-restaurant")}
+        onSearchChange={(value) => setSearchTerm(value)}
       />
       {/* Table Section */}
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
