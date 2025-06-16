@@ -21,6 +21,7 @@ function TablesViewHeader({
   showCreateButton = true,
   showSearch = true,
   showStats = true,
+  backButtonLabel = "Back"
 }) {
   return (
     <div className="overflow-hidden rounded-t-2xl pt-4 dark:border-gray-800 dark:bg-white/[0.03] mb-4">
@@ -30,9 +31,10 @@ function TablesViewHeader({
           {showBackButton && (
             <button 
               onClick={onBackClick}
-              className="flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+              className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-black transition rounded-full bg-transparent border-2 border-sky-500 shadow-theme-xs hover:bg-gray-600"
             >
               <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
+              {backButtonLabel}
             </button>
           )}
           {showStats && (

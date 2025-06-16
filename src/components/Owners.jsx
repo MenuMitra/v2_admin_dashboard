@@ -286,6 +286,7 @@ function Owners() {
         onCreateClick={() => navigate("/create-owner")}
         createButtonLabel="Create"
         searchPlaceholder="Search owners..."
+        backButtonLabel="Back"
       />
       {/* Table Section */}
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
