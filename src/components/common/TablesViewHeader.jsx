@@ -26,42 +26,29 @@ function TablesViewHeader({
 }) {
   return (
     <div className="overflow-hidden pt-4 dark:border-gray-800 dark:bg-white/[0.03] mb-4">
-      {/* Top Row - Back, Title with Stats, Create */}
-      <div className="flex items-center justify-between px-6 mb-6">
+      {/* Top Row - Back, Title, Create */}
+      <div className="flex items-center justify-between px-6 mb-3">
         {/* Left - Back Button */}
         {showBackButton && (
           <button 
             onClick={onBackClick}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-black transition rounded-full bg-transparent border-2 border-sky-500 shadow-theme-xs hover:bg-gray-600"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
           >
             <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
             {backButtonLabel}
           </button>
         )}
 
-        {/* Center - Title and Stats */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="text-xl font-semibold text-gray-800 dark:text-white/90">
-            {title}
-          </div>
-          <div className="flex items-center gap-6 text-sm">
-            <span className="font-medium text-gray-800 dark:text-white/90">
-              Total: {counts.total}
-            </span>
-            <span className="text-success-600">
-              Active: {counts.active}
-            </span>
-            <span className="text-error-500">
-              Inactive: {counts.inactive}
-            </span>
-          </div>
+        {/* Center - Title */}
+        <div className="text-xl font-semibold text-gray-800 dark:text-white/90">
+          {title}
         </div>
 
         {/* Right - Create Button */}
         {showCreateButton && (
           <button 
             onClick={onCreateClick}
-            className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-success-500 px-4 py-2 font-medium text-white hover:bg-success-600"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-success-500 hover:bg-success-600 shadow-theme-xs"
           >
             <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
             {createButtonLabel}
@@ -69,8 +56,22 @@ function TablesViewHeader({
         )}
       </div>
 
-      {/* Bottom Row - Search */}
-      <div className="flex items-center justify-end px-6 mb-4">
+      {/* Bottom Row - Stats and Search */}
+      <div className="flex items-center justify-between px-6 mb-4">
+        {/* Left - Stats */}
+        <div className="flex items-center gap-6 text-sm">
+          <span className="font-medium text-gray-800 dark:text-white/90">
+            Total: {counts.total}
+          </span>
+          <span className="text-success-600">
+            Active: {counts.active}
+          </span>
+          <span className="text-error-500">
+            Inactive: {counts.inactive}
+          </span>
+        </div>
+
+        {/* Right - Search */}
         {showSearch && (
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">

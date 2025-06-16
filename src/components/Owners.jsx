@@ -276,7 +276,7 @@ function Owners() {
     <div className="p-6">
       <Breadcrumb items={breadcrumbItems} />
       <TablesViewHeader 
-        title="Restaurant"
+        title="Owners"
         counts={{
           total: getTotalCount(),
           active: getActiveCount(),
@@ -285,7 +285,7 @@ function Owners() {
         showBackButton={true}
         showCreateButton={true}
         showSearch={true}
-        createButtonLabel="Create Restaurant"
+        createButtonLabel="Create"
         searchPlaceholder="Search..."
         onBackClick={() => navigate(-1)}
         onCreateClick={() => navigate("/create-restaurant")}
