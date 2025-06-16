@@ -180,41 +180,87 @@ const Sidebar = ({ sidebarToggle = false }) => {
     
     const hasDropdown = !!item.items;
 
+    // For Access Control, we'll always show the submenu
+    const isAccessControl = item.title === "Access Control";
+
     return (
       <li>
-        <Link
-          to={item.path || "#"}
-          onClick={(e) => {
-            if (!item.path && hasDropdown) e.preventDefault();
-          }}
-          className={`menu-item group ${
-            isActive ? "menu-item-active" : "menu-item-inactive"
-          }`}
-        >
-          <FontAwesomeIcon
-            icon={item.icon}
-            className={`menu-item-icon ${
-              isActive ? "menu-item-icon-active" : "menu-item-icon-inactive"
+        {!isAccessControl ? (
+          // Regular menu items remain the same
+          <Link
+            to={item.path || "#"}
+            onClick={(e) => {
+              if (!item.path && hasDropdown) e.preventDefault();
+            }}
+            className={`menu-item group ${
+              isActive ? "menu-item-active" : "menu-item-inactive"
             }`}
-          />
-
-          <span
-            className={`menu-item-text ${sidebarToggle ? "lg:hidden" : ""}`}
           >
-            {item.title}
-          </span>
-
-          {hasDropdown && (
             <FontAwesomeIcon
-              icon={faChevronDown}
-              className={`menu-item-arrow ${
-                isActive ? "menu-item-arrow-active" : "menu-item-arrow-inactive"
-              } ${sidebarToggle ? "lg:hidden" : ""}`}
+              icon={item.icon}
+              className={`menu-item-icon ${
+                isActive ? "menu-item-icon-active" : "menu-item-icon-inactive"
+              }`}
             />
-          )}
-        </Link>
 
-        {hasDropdown && (
+            <span
+              className={`menu-item-text ${sidebarToggle ? "lg:hidden" : ""}`}
+            >
+              {item.title}
+            </span>
+          </Link>
+        ) : (
+          // Access Control section is always expanded
+          <>
+            <div className="menu-item group">
+              <FontAwesomeIcon
+                icon={item.icon}
+                className={`menu-item-icon ${
+                  isActive ? "menu-item-icon-active" : "menu-item-icon-inactive"
+                }`}
+              />
+
+              <span
+                className={`menu-item-text ${sidebarToggle ? "lg:hidden" : ""}`}
+              >
+                {item.title}
+              </span>
+            </div>
+
+            <div className="block">
+              <ul
+                className={`menu-dropdown mt-2 flex flex-col gap-1 pl-9 ${
+                  sidebarToggle ? "lg:hidden" : "flex"
+                }`}
+              >
+                {item.items.map((subItem, idx) => (
+                  <li key={idx}>
+                    <Link
+                      to={subItem.path}
+                      className={`menu-dropdown-item group ${
+                        location.pathname === subItem.path
+                          ? "menu-dropdown-item-active"
+                          : "menu-dropdown-item-inactive"
+                      }`}
+                    >
+                      <FontAwesomeIcon
+                        icon={subItem.icon}
+                        className={`menu-item-icon ${
+                          location.pathname === subItem.path
+                            ? "menu-item-icon-active"
+                            : "menu-item-icon-inactive"
+                        }`}
+                      />
+                      {subItem.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        {hasDropdown && !isAccessControl && (
           <div
             className={`translate transform overflow-hidden ${
               isActive ? "block" : "hidden"
