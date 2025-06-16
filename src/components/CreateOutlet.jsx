@@ -10,7 +10,9 @@ function CreateOutlet() {
   const { adminData } = useAdmin();
   const [outletTypes, setOutletTypes] = useState({});
   const [foodTypes, setFoodTypes] = useState({});
-  const [owners, setOwners] = useState([]);
+  const [allOwners, setAllOwners] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   
   const [formData, setFormData] = useState({
     name: '',
@@ -96,6 +98,7 @@ function CreateOutlet() {
 
   const fetchOwners = async () => {
     try {
+      setIsLoading(true);
       const token = getToken();
       if (!token) {
         throw new Error('No authentication token available');
@@ -111,10 +114,12 @@ function CreateOutlet() {
       );
 
       if (Array.isArray(response.data)) {
-        setOwners(response.data);
+        setAllOwners(response.data);
       }
     } catch (error) {
       console.error('Error fetching owners:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -216,6 +221,12 @@ function CreateOutlet() {
     }
   };
 
+  const filteredOwners = allOwners.filter(owner => 
+    owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    owner.mobile.includes(searchTerm) ||
+    owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center mb-6">
@@ -243,23 +254,83 @@ function CreateOutlet() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="col-span-3">
+              <div className="col-span-3 relative">
               <label className="block text-sm font-medium text-gray-700">
                 Select Owner *
               </label>
-              <select
-                name="owner_id"
-                value={formData.owner_id}
-                onChange={handleInputChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                required
-              >
-                <option value="">Select Owner</option>
-                {owners.map((owner) => (
-                  <option key={owner.user_id} value={owner.user_id}>
-                    {owner.name} ({owner.mobile}) - {owner.account_type}
-                  </option>
-                ))}
-              </select>
+                
+                {isLoading ? (
+                  <div className="mt-1 p-2 text-gray-500">Loading owners...</div>
+                ) : (
+                  <div className="relative">
+                    <div className="relative">
+                <input
+                  type="text"
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10"
+                        placeholder="Search owner by name, mobile or email"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+              </div>
+            </div>
+
+                    {formData.owner_id && (
+                      <div className="mt-2 p-2 bg-blue-50 rounded-md">
+                        <div className="flex items-center justify-between">
+            <div>
+                            <span className="font-medium">Selected: </span>
+                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
+                            <span className="text-sm text-gray-600 ml-2">
+                              ({allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile})
+                            </span>
+          </div>
+          <button
+            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, owner_id: '' }));
+                              setSearchTerm('');
+                            }}
+                            className="text-sm text-blue-600 hover:text-blue-800"
+                          >
+                            Change
+          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {searchTerm && !formData.owner_id && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                        {filteredOwners.length > 0 ? (
+                          filteredOwners.map((owner) => (
+                            <div
+                              key={owner.user_id}
+                              className="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0"
+                              onClick={() => {
+                                setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
+                                setSearchTerm('');
+                              }}
+                            >
+                              <div className="font-medium">{owner.name}</div>
+                              <div className="text-sm text-gray-600">
+                                {owner.mobile} - {owner.account_type}
+                              </div>
+                              {owner.email && (
+                                <div className="text-sm text-gray-500">{owner.email}</div>
+                              )}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="px-4 py-2 text-gray-500">No owners found</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Outlet Image */}
