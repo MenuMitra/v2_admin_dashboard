@@ -21,6 +21,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
+
 // Import your logo images
 import logoLight from '../assets/images/logo/logo.svg';
 import logoDark from '../assets/images/logo/logo-dark.svg';
@@ -33,7 +34,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifying, setNotifying] = useState(true);
   const { adminData, clearAdmin } = useAdmin();
-  const { getToken } = useAuth();
+  const { getToken, logout } = useAuth();
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
 
@@ -69,6 +70,8 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
       // Clear admin data from local storage
       clearAdmin();
+      logout();
+
       
       // Close the dropdown
       setDropdownOpen(false);
