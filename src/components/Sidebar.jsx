@@ -189,25 +189,28 @@ const Sidebar = ({ sidebarToggle = false }) => {
           // Regular menu items remain the same
           <Link
             to={item.path || "#"}
-            onClick={(e) => {
-              if (!item.path && hasDropdown) e.preventDefault();
-            }}
-            className={`menu-item group ${
-              isActive ? "menu-item-active" : "menu-item-inactive"
-            }`}
+            className={`
+              flex items-center gap-3 rounded-md px-4 py-2.5
+              hover:bg-gray-100 dark:hover:bg-gray-800
+              ${isActive ? 'bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-brand-400' : ''}
+              transition-all duration-300
+            `}
           >
             <FontAwesomeIcon
               icon={item.icon}
-              className={`menu-item-icon ${
-                isActive ? "menu-item-icon-active" : "menu-item-icon-inactive"
-              }`}
+              className={`w-5 h-5 ${isActive ? 'text-brand-600 dark:text-brand-400' : ''}`}
             />
-
-            <span
-              className={`menu-item-text ${sidebarToggle ? "lg:hidden" : ""}`}
-            >
+            <span className={`whitespace-nowrap ${sidebarToggle ? 'lg:hidden' : ''}`}>
               {item.title}
             </span>
+            {hasDropdown && (
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                className={`ml-auto transition-transform duration-300 ${
+                  isActive ? 'rotate-180' : ''
+                } ${sidebarToggle ? 'lg:hidden' : ''}`}
+              />
+            )}
           </Link>
         ) : (
           // Access Control section is always expanded
@@ -341,20 +344,21 @@ const Sidebar = ({ sidebarToggle = false }) => {
 
   return (
     <aside
-      className={`sidebar fixed top-0 left-0 z-9999 flex h-screen w-[290px] flex-col overflow-y-auto 
-                      border-r border-gray-200 bg-white px-5 transition-all duration-300 relative
-                      ${
-                        sidebarToggle
-                          ? "translate-x-0 lg:w-[90px]"
-                          : "-translate-x-full"
-                      } 
-                      lg:static lg:translate-x-0 dark:border-gray-800 dark:bg-black`}
+      className={`
+        fixed top-0 left-0 z-50 flex h-screen w-[290px] flex-col 
+        overflow-y-auto bg-white transition-transform duration-300
+        border-r border-gray-200 dark:border-gray-800 dark:bg-black
+        lg:static lg:translate-x-0
+        ${sidebarToggle ? 'translate-x-0' : '-translate-x-full'}
+        ${sidebarToggle ? 'lg:w-[90px]' : 'lg:w-[290px]'}
+      `}
     >
       {/* Sidebar Header */}
       <div
-        className={`sidebar-header flex items-center gap-2 pt-8 pb-7 ${
-          sidebarToggle ? "justify-center" : "justify-between"
-        }`}
+        className={`
+          flex items-center gap-2 pt-8 pb-7 px-5
+          ${sidebarToggle ? 'justify-center' : 'justify-between'}
+        `}
       >
         <Link to="/">
           <span className={`logo ${sidebarToggle ? "hidden" : ""}`}>
@@ -369,8 +373,8 @@ const Sidebar = ({ sidebarToggle = false }) => {
         </Link>
       </div>
 
-      {/* Sidebar Content */}
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
+      {/* Menu Items */}
+      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-5">
         <nav>
           {Object.entries(menuData).map(([groupName, items], idx) => (
             <MenuGroup key={idx} title={groupName} items={items} />
