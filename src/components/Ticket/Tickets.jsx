@@ -178,10 +178,17 @@ function Tickets() {
       let aValue = a[sortField] || '';
       let bValue = b[sortField] || '';
 
+      // Handle different types of sorting
       if (sortField === 'ticket_number') {
+        // Numeric sorting
         aValue = parseInt(aValue) || 0;
         bValue = parseInt(bValue) || 0;
+      } else if (sortField === 'created_on') {
+        // Date sorting
+        aValue = new Date(aValue).getTime() || 0;
+        bValue = new Date(bValue).getTime() || 0;
       } else {
+        // String sorting
         aValue = String(aValue).toLowerCase();
         bValue = String(bValue).toLowerCase();
       }
@@ -380,10 +387,16 @@ function Tickets() {
                         {renderSortIcon('status')}
                       </div>
                     </th>
-                    <th className="px-6 py-3 text-left">
-                      <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                        Created On
-                      </p>
+                    <th 
+                      className="px-6 py-3 text-left cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                      onClick={() => handleSort('created_on')}
+                    >
+                      <div className="flex items-center">
+                        <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
+                          Created On
+                        </p>
+                        {renderSortIcon('created_on')}
+                      </div>
                     </th>
                     <th className="px-6 py-3 text-left">
                       <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
