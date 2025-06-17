@@ -8,6 +8,7 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import DataTable from '../common/DataTable';
+import Breadcrumb from '../Breadcrumb';
 
 function QRTemplates() {
   const navigate = useNavigate();
@@ -37,6 +38,12 @@ function QRTemplates() {
     disabled: false,
     tooltip: "Create new QR template"
   };
+
+  // Define breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'QR Templates', path: '/qr-templates' }
+  ];
 
   useEffect(() => {
     fetchTemplates();
@@ -118,6 +125,9 @@ function QRTemplates() {
 
   return (
     <div className="container mx-auto flex-grow py-6 px-4">
+      {/* Add Breadcrumb */}
+      <Breadcrumb items={breadcrumbItems} />
+
       <DataTable
         data={filteredTemplates}
         columns={columns}
