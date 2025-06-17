@@ -262,7 +262,7 @@ function Owners() {
 
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Outlet Owners' }
+    { label: 'Owners' }
   ];
 
   const columns = [

@@ -3,6 +3,9 @@ import { useAuth } from '../hooks/useAuth';
 import { useAdmin } from '../hooks/useAdmin';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
+import Form from './forms/Form';
 
 function EditOwner() {
   const { getToken } = useAuth();
@@ -10,13 +13,15 @@ function EditOwner() {
   const { ownerId } = useParams();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [functionalities, setFunctionalities] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     mobile: '',
     dob: '',
     aadhar_number: '',
-    address: ''
+    address: '',
+    functionality_ids: []
   });
 
   useEffect(() => {
@@ -24,6 +29,31 @@ function EditOwner() {
       fetchOwnerDetails();
     }
   }, [adminData?.user_id, ownerId]);
+
+  useEffect(() => {
+    const fetchFunctionalities = async () => {
+      try {
+        const token = getToken();
+        if (!token) {
+          throw new Error('No authentication token available');
+        }
+
+        const response = await axios.get(
+          'https://men4u.xyz/v2/admin/get_ubac_functionalities',
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
+        );
+        setFunctionalities(response.data);
+      } catch (error) {
+        console.error('Error fetching functionalities:', error);
+      }
+    };
+
+    fetchFunctionalities();
+  }, []);
 
   const fetchOwnerDetails = async () => {
     try {
@@ -52,7 +82,8 @@ function EditOwner() {
         mobile: response.data.mobile,
         dob: response.data.dob,
         aadhar_number: response.data.aadhar_number,
-        address: response.data.address
+        address: response.data.address,
+        functionality_ids: response.data.functionality_ids || []
       });
       setIsLoading(false);
     } catch (error) {
@@ -62,11 +93,22 @@ function EditOwner() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox') {
+      const functionalityId = parseInt(value);
+      setFormData(prev => ({
+        ...prev,
+        functionality_ids: checked 
+          ? [...prev.functionality_ids, functionalityId]
+          : prev.functionality_ids.filter(id => id !== functionalityId)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -77,20 +119,19 @@ function EditOwner() {
         throw new Error('No authentication token available');
       }
 
-      // Make the PATCH request to update owner
       const response = await axios.patch(
         'https://men4u.xyz/v2/admin/update_owner',
         {
-          update_user_id: adminData.user_id,  // admin's user_id
-          user_id: parseInt(ownerId),         // owner's ID from URL params
+          update_user_id: adminData.user_id,
+          user_id: parseInt(ownerId),
           name: formData.name,
           mobile: formData.mobile,
           address: formData.address,
           aadhar_number: formData.aadhar_number,
           dob: formData.dob,
           email: formData.email,
-          account_type: 'test',              
-          functionality_ids: [] 
+          account_type: 'test',
+          functionality_ids: formData.functionality_ids
         },
         {
           headers: {
@@ -108,6 +149,112 @@ function EditOwner() {
     }
   };
 
+  // Define form fields configuration
+  const formFields = [
+    {
+      type: 'text',
+      name: 'name',
+      label: 'Full Name',
+      placeholder: 'Enter full name',
+      required: true,
+      fullWidth: true,
+    },
+    {
+      type: 'tel',
+      name: 'mobile',
+      label: 'Mobile Number',
+      placeholder: 'Enter mobile number',
+      required: true,
+      pattern: '[0-9]{10}',
+      fullWidth: true,
+    },
+    {
+      type: 'email',
+      name: 'email',
+      label: 'Email Address',
+      placeholder: 'Enter email address',
+      required: true,
+      fullWidth: true,
+    },
+    {
+      type: 'custom',
+      name: 'dob',
+      component: (
+        <div className="w-full">
+          <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+            Date of Birth <span className="text-red-500">*</span>
+          </label>
+          <div className="relative">
+            <input
+              type="date"
+              name="dob"
+              value={formData.dob}
+              onChange={handleInputChange}
+              className="h-10 md:h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent px-3 md:px-4 py-2 text-xs md:text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+              required
+            />
+            <div className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500 dark:text-gray-400">
+              <FontAwesomeIcon icon={faCalendar} className="w-3.5 h-3.5 md:w-4 md:h-4" />
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      type: 'text',
+      name: 'aadhar_number',
+      label: 'Aadhar Number',
+      placeholder: 'Enter 12-digit Aadhar number',
+      required: true,
+      pattern: '[0-9]{12}',
+      fullWidth: true,
+    },
+    {
+      type: 'textarea',
+      name: 'address',
+      label: 'Address',
+      placeholder: 'Enter complete address',
+      required: true,
+      rows: 3,
+      span: 2,
+      fullWidth: true,
+      className: 'col-span-1 md:col-span-2'
+    },
+    {
+      type: 'custom',
+      name: 'functionalities',
+      component: (
+        <div className="w-full">
+          <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+            Functionalities <span className="text-red-500">*</span>
+          </label>
+          <div className="flex flex-wrap gap-4 mt-2">
+            {functionalities.map((functionality) => (
+              <div key={functionality.functionality_id} className="flex items-center">
+                <input
+                  type="checkbox"
+                  id={`functionality-${functionality.functionality_id}`}
+                  name="functionality_ids"
+                  value={functionality.functionality_id}
+                  checked={formData.functionality_ids.includes(functionality.functionality_id)}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor={`functionality-${functionality.functionality_id}`}
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  {functionality.functionality_name}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      ),
+      className: 'col-span-1 md:col-span-2'
+    },
+  ];
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -117,188 +264,21 @@ function EditOwner() {
   }
 
   return (
-    <div className="p-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center text-sm text-gray-500 mb-4">
-        <span>Dashboard</span>
-        <span className="mx-2">›</span>
-        <span>Owners</span>
-        <span className="mx-2">›</span>
-        <span>Edit</span>
-      </div>
-
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <button 
-          onClick={() => navigate(-1)}
-          className="flex items-center text-gray-600 hover:text-gray-800"
-        >
-          <span className="mr-2">‹</span>
-          Back
-        </button>
-        <h1 className="text-xl font-semibold">Edit Owner</h1>
-        <div className="w-[70px]"></div> {/* Spacer for alignment */}
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name <span className="text-red-500">*</span>
-            </label>
-            <div className="relative flex items-center">
-              <span className="absolute left-4">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </span>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                className="w-full pl-12 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Mobile Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Mobile Number <span className="text-red-500">*</span>
-            </label>
-            <div className="relative flex items-center">
-              <span className="absolute left-4">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              </span>
-              <input
-                type="tel"
-                name="mobile"
-                value={formData.mobile}
-                onChange={handleInputChange}
-                className="w-full pl-12 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
-                required
-                pattern="[0-9]{10}"
-              />
-            </div>
-          </div>
-
-          {/* Email Address */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email Address <span className="text-red-500">*</span>
-            </label>
-            <div className="relative flex items-center">
-              <span className="absolute left-4">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </span>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full pl-12 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Date of Birth */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date of Birth <span className="text-red-500">*</span>
-            </label>
-            <div className="relative flex items-center">
-              <span className="absolute left-4">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </span>
-              <input
-                type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleInputChange}
-                className="w-full pl-12 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Aadhar Number */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Aadhar Number <span className="text-red-500">*</span>
-            </label>
-            <div className="relative flex items-center">
-              <span className="absolute left-4">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" />
-                </svg>
-              </span>
-              <input
-                type="text"
-                name="aadhar_number"
-                value={formData.aadhar_number}
-                onChange={handleInputChange}
-                className="w-full pl-12 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
-                required
-                pattern="[0-9]{12}"
-              />
-            </div>
-          </div>
-
-          {/* Address */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Address <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-3">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </span>
-              <textarea
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                className="w-full pl-12 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
-                rows="4"
-                required
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="mt-6 flex gap-2">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 transition rounded-lg bg-white border border-gray-300 shadow-theme-xs hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-            </svg>
-            Save Changes
-          </button>
-        </div>
-      </form>
+    <div>
+      <Form
+        title="Edit Owner"
+        formFields={formFields}
+        formData={formData}
+        onInputChange={handleInputChange}
+        onSubmit={handleSubmit}
+        onCancel={() => navigate(-1)}
+        onBackClick={() => navigate(-1)}
+        showBackButton={true}
+        showCancel={true}
+        submitText="Save Changes"
+        gridCols={2}
+        backButtonLabel="Back"
+      />
     </div>
   );
 }
