@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
+import Modal from './common/Modal';
 
 function OwnerDetails() {
   const { getToken } = useAuth();
@@ -350,58 +351,44 @@ function OwnerDetails() {
         </div>
       </div>
 
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50">
-          <div className="flex items-center justify-center min-h-screen">
-            {/* Backdrop */}
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75" onClick={() => setShowDeleteModal(false)} />
-
-            {/* Modal */}
-            <div className="relative bg-white rounded-lg w-[400px] z-50">
-              <div className="p-6">
-                {/* Header */}
-                <div className="flex items-start">
-                  <div className="flex-shrink-0">
-                    <svg className="w-6 h-6 text-error-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                  </div>
-                  <div className="ml-4">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      Confirm Deletion
-                    </h3>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Are you sure you want to delete this owner? This action
-                        cannot be undone. All data associated with this owner will
-                        be permanently removed.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Buttons */}
-                <div className="mt-6 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowDeleteModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleDeleteOwner}
-                    className="px-4 py-2 text-sm font-medium text-white bg-error-500 rounded-lg hover:bg-error-600 focus:outline-none"
-                  >
-                    Delete Owner
-                  </button>
-                </div>
-              </div>
-            </div>
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        type="error"
+        title="Confirm Deletion"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(false)}
+              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteOwner}
+              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+            >
+              Delete Owner
+            </button>
+          </>
+        }
+      >
+        <div className="flex items-start">
+          <div className="ml-4">
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete this owner? This action
+              cannot be undone.
+            </p>
+            <p className="text-sm text-gray-500">
+            All data associated with this owner will
+            be permanently removed.
+            </p>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }
