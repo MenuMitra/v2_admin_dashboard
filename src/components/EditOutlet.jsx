@@ -46,6 +46,7 @@ function EditOutlet() {
   const [foodTypes, setFoodTypes] = useState({});
   const [allOwners, setAllOwners] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Fetch outlet data when component mounts
   useEffect(() => {
@@ -326,100 +327,148 @@ function EditOutlet() {
                   Select Owner *
                 </label>
                 
-                {!formData.owner_id ? (
-                  <div className="relative">
-                    <input
-                      type="text"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-8 sm:pl-10 text-xs sm:text-sm"
-                      placeholder="Search owner by name, mobile or email"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
-                      <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-white border rounded-md shadow-sm">
-                    <div className="p-2 sm:p-3 flex items-center justify-between">
-                      <div className="flex items-center space-x-2 sm:space-x-3">
-                        <div className="bg-blue-100 rounded-full p-1.5 sm:p-2">
-                          <svg className="h-4 w-4 sm:h-6 sm:w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
+                <div className="border rounded-lg shadow-sm bg-white">
+                  {/* Selected Owner Display or Search Bar */}
+                  {formData.owner_id && !isDropdownOpen ? (
+                    // Selected Owner Display
+                    <div className="p-3 flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        {/* Owner Avatar */}
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                            <span className="text-lg font-medium text-blue-600">
+                              {allOwners.find(o => o.user_id === formData.owner_id)?.name.charAt(0)}
+                            </span>
+                          </div>
                         </div>
+                        
+                        {/* Owner Details */}
                         <div>
-                          <div className="font-medium text-xs sm:text-sm text-gray-900">
-                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
+                          <div className="font-medium text-sm text-gray-900">
+                            {allOwners.find(o => o.user_id === formData.owner_id)?.name}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile}
+                            {allOwners.find(o => o.user_id === formData.owner_id)?.mobile}
                           </div>
                         </div>
                       </div>
+                      
+                      {/* Change Button */}
                       <button
                         type="button"
-                        onClick={() => {
-                          setFormData(prev => ({ ...prev, owner_id: '' }));
-                          setSearchTerm('');
-                        }}
-                        className="text-xs sm:text-sm text-gray-400 hover:text-gray-500 flex items-center"
+                        onClick={() => setIsDropdownOpen(true)}
+                        className="text-sm text-blue-600 hover:text-blue-700"
                       >
-                        <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
-                        <span className="ml-1 hidden sm:inline">Change</span>
+                        Change
                       </button>
                     </div>
-                  </div>
-                )}
-
-                {searchTerm && !formData.owner_id && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 sm:max-h-60 overflow-auto">
-                    {filteredOwners.length > 0 ? (
-                      filteredOwners.map((owner) => (
-                        <div
-                          key={owner.user_id}
-                          className="px-3 py-2 sm:px-4 sm:py-3 hover:bg-gray-50 cursor-pointer border-b last:border-0 transition-colors"
-                          onClick={() => {
-                            setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
-                            setSearchTerm('');
-                          }}
-                        >
-                          <div className="flex items-center space-x-2 sm:space-x-3">
-                            <div className="flex-shrink-0">
-                              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                                <span className="text-sm sm:text-lg font-medium text-gray-600">
-                                  {owner.name.charAt(0)}
-                                </span>
-                              </div>
-                            </div>
-                            <div>
-                              <div className="font-medium text-xs sm:text-sm text-gray-900">{owner.name}</div>
-                              <div className="text-xs text-gray-500">
-                                {owner.mobile}
-                                {owner.account_type && (
-                                  <>
-                                    <span className="mx-1">•</span>
-                                    <span className={`capitalize ${owner.account_type === 'live' ? 'text-green-600' : 'text-orange-600'}`}>
-                                      {owner.account_type}
-                                    </span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
+                  ) : (
+                    // Search and Dropdown
+                    <>
+                      {/* Search Bar */}
+                      <div className="p-2 border-b">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            className="w-full rounded-md border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="Search owners..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onClick={() => setIsDropdownOpen(true)}
+                          />
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                           </div>
                         </div>
-                      ))
-                    ) : (
-                      <div className="px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm text-gray-500">
-                        No owners found matching "{searchTerm}"
                       </div>
-                    )}
-                  </div>
-                )}
+
+                      {/* Owners List - Only show if dropdown is open */}
+                      {isDropdownOpen && (
+                        <div className="max-h-[400px] overflow-y-auto" style={{ maxHeight: filteredOwners.length > 10 ? '400px' : 'auto' }}>
+                          {filteredOwners.length > 0 ? (
+                            filteredOwners.map((owner, index) => (
+                              <div
+                                key={owner.user_id}
+                                onClick={() => {
+                                  setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
+                                  setIsDropdownOpen(false);
+                                  setSearchTerm('');
+                                }}
+                                className={`flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer transition-colors ${
+                                  formData.owner_id === owner.user_id ? 'bg-blue-50' : ''
+                                } ${index !== filteredOwners.length - 1 ? 'border-b border-gray-200' : ''}`}
+                              >
+                                <div className="flex items-center space-x-3">
+                                  {/* Owner Avatar */}
+                                  <div className="flex-shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                      <span className="text-lg font-medium text-blue-600">
+                                        {owner.name.charAt(0)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Owner Details */}
+                                  <div>
+                                    <div className="font-medium text-sm text-gray-900">
+                                      {owner.name}
+                                    </div>
+                                    <div className="text-xs text-gray-500 flex items-center">
+                                      <span>{owner.mobile}</span>
+                                      {owner.account_type && (
+                                        <>
+                                          <span className="mx-1.5">•</span>
+                                          <span className={`capitalize px-1.5 py-0.5 rounded-full text-xs ${
+                                            owner.account_type === 'live' 
+                                              ? 'bg-green-100 text-green-700'
+                                              : 'bg-orange-100 text-orange-700'
+                                          }`}>
+                                            {owner.account_type}
+                                          </span>
+                                        </>
+                                      )}
+                                    </div>
+                                    {owner.email && (
+                                      <div className="text-xs text-gray-500 mt-0.5">
+                                        {owner.email}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Selection Indicator */}
+                                {formData.owner_id === owner.user_id && (
+                                  <div className="flex-shrink-0">
+                                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  </div>
+                                )}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="p-4 text-center text-sm text-gray-500">
+                              {allOwners.length === 0 ? (
+                                'No owners available'
+                              ) : (
+                                `No owners found matching "${searchTerm}"`
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Show count if more than 10 items and dropdown is open */}
+                      {isDropdownOpen && filteredOwners.length > 10 && (
+                        <div className="px-3 py-2 bg-gray-50 border-t text-xs text-gray-500">
+                          Showing {filteredOwners.length} owners
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="w-full">
