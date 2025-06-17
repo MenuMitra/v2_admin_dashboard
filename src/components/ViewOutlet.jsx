@@ -8,8 +8,9 @@ import {
   faUtensils,
   faUserGroup,
   faUserGear,
+  faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Breadcrumb from './Breadcrumb';
 
 function ViewOutlet() {
@@ -19,6 +20,7 @@ function ViewOutlet() {
   const [outletData, setOutletData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const fetchOutletDetails = async () => {
     try {
@@ -65,19 +67,54 @@ function ViewOutlet() {
   ];
 
   return (
-    <>
-      <div className="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
-          <Breadcrumb items={breadcrumbItems} className="self-start" />
-        <div className="flex flex-col items-center gap-3 mb-6">
-          
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-white/90 text-center">
-            {outletData?.name}
-          </h2>
+    <div className="rounded-2xl border border-gray-200 bg-white">
+      <div className="overflow-hidden pt-4">
+        {/* Top Row - Back, Title */}
+        <div className="flex items-center px-6 mb-3">
+          {/* Left Side - Back Button */}
+          <div>
+            <button 
+              onClick={() => navigate('/outlets')}
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+            >
+              <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+              <span className="hidden sm:inline">Back</span>
+            </button>
+          </div>
+
+          {/* Center - Title */}
+          <div className="flex-1 text-center">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+              {outletData?.name || 'View Outlet'}
+            </h2>
+          </div>
         </div>
 
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
+        {/* Stats Row */}
+        <div className="flex items-center justify-between px-6 mb-4">
+          <div className="flex items-center gap-4 sm:gap-6 text-sm">
+            <span className="font-medium text-gray-800">
+              Status: {outletData?.outlet_status === 1 ? "Active" : "Inactive"}
+            </span>
+            <span className={outletData?.is_open === 1 ? "text-success-600" : "text-error-500"}>
+              Currently: {outletData?.is_open === 1 ? "Open" : "Closed"}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="p-6">
+        {/* Breadcrumb */}
+        <Breadcrumb items={breadcrumbItems} className="mb-6" />
+
+        <div className="flex flex-col items-center gap-3 mb-6">
+          {/* Remove the duplicate title since we now have it in the header */}
+        </div>
+
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
           <h2
-            class="text-xl font-semibold text-gray-800 dark:text-white/90"
+            className="text-xl font-semibold text-gray-800 dark:text-white/90"
             x-text="pageName"
           >
             Basic Information
@@ -204,7 +241,9 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.outlet_type?.charAt(0).toUpperCase() + outletData?.outlet_type?.slice(1)}
+                    {outletData?.outlet_type 
+                      ? outletData.outlet_type.charAt(0).toUpperCase() + outletData.outlet_type.slice(1)
+                      : '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Outlet Type
@@ -214,9 +253,9 @@ function ViewOutlet() {
             </div>
           </div>
         </div>
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
           <h2
-            class="text-xl font-semibold text-gray-800 dark:text-white/90"
+            className="text-xl font-semibold text-gray-800 dark:text-white/90"
             x-text="pageName"
           >
             Business Details
@@ -235,7 +274,9 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.veg_nonveg?.charAt(0).toUpperCase() + outletData?.veg_nonveg?.slice(1)}
+                    {outletData?.veg_nonveg 
+                      ? outletData.veg_nonveg.charAt(0).toUpperCase() + outletData.veg_nonveg.slice(1)
+                      : '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Food Type
@@ -256,7 +297,9 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.service_charges}%
+                    {outletData?.service_charges != null 
+                      ? `${outletData.service_charges}%` 
+                      : '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Service Charges
@@ -278,7 +321,9 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.gst}%
+                    {outletData?.gst != null 
+                      ? `${outletData.gst}%` 
+                      : '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   GST
@@ -299,7 +344,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.opening_time || "-"}
+                    {outletData?.opening_time || '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Opening Hours
@@ -320,7 +365,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.closing_time || "-"}
+                    {outletData?.closing_time || '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Closing Hours
@@ -341,49 +386,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.outlet_status === 1 ? "Active" : "Inactive"}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Outlet Status
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Managers Metric */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                  <FontAwesomeIcon
-                    icon={faUserGear}
-                    className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                  />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.is_open === 1 ? "Open" : "Closed"}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Currently
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Managers Metric */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                  <FontAwesomeIcon
-                    icon={faUserGear}
-                    className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                  />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.fssainumber}
+                    {outletData?.fssainumber || '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   FSSAI Number
@@ -404,7 +407,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.gstnumber}
+                    {outletData?.gstnumber || '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   GST Number
@@ -425,7 +428,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.upi_id}
+                    {outletData?.upi_id || '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   UPI ID
@@ -438,9 +441,9 @@ function ViewOutlet() {
 
 
 
-        <div class="flex flex-wrap items-center justify-between gap-3 my-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 my-6">
           <h2
-            class="text-xl font-semibold text-gray-800 dark:text-white/90"
+            className="text-xl font-semibold text-gray-800 dark:text-white/90"
             x-text="pageName"
           >
             Manage Staff Details
@@ -459,7 +462,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.waiter_count}
+                    {outletData?.waiter_count ?? '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Waiters
@@ -481,7 +484,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.chef_count}
+                    {outletData?.chef_count ?? '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Chefs
@@ -503,7 +506,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.captain_count}
+                    {outletData?.captain_count ?? '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Captains
@@ -525,7 +528,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.manager_count}
+                    {outletData?.manager_count ?? '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Managers
@@ -535,9 +538,9 @@ function ViewOutlet() {
             </div>
           </div>
         </div>
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
           <h2
-            class="text-xl font-semibold text-gray-800 dark:text-white/90"
+            className="text-xl font-semibold text-gray-800 dark:text-white/90"
             x-text="pageName"
           >
             Manage Outlet Details
@@ -556,7 +559,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.total_menu}
+                    {outletData?.total_menu ?? '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Menus
@@ -578,7 +581,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.total_category}
+                    {outletData?.total_category ?? '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Categories
@@ -600,7 +603,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.section_count}
+                    {outletData?.section_count ?? '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Sections
@@ -622,7 +625,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.orders_count}
+                    {outletData?.orders_count ?? '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Orders
@@ -642,7 +645,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.table_count}
+                    {outletData?.table_count ?? '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                     Tables
@@ -652,9 +655,9 @@ function ViewOutlet() {
             </div>
           </div>
         </div>
-        <div class="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
           <h2
-            class="text-xl font-semibold text-gray-800 dark:text-white/90"
+            className="text-xl font-semibold text-gray-800 dark:text-white/90"
             x-text="pageName"
           >
             Audit Information
@@ -673,7 +676,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.created_on}
+                    {outletData?.created_on || '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Created On
@@ -695,7 +698,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.created_by || "-"}
+                    {outletData?.created_by || '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Created By
@@ -717,7 +720,7 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.updated_on}
+                    {outletData?.updated_on || '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Updated On
@@ -739,7 +742,9 @@ function ViewOutlet() {
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {(outletData?.updated_by && outletData.updated_by.charAt(0).toUpperCase() + outletData.updated_by.slice(1)) || "-"}
+                    {outletData?.updated_by 
+                      ? outletData.updated_by.charAt(0).toUpperCase() + outletData.updated_by.slice(1)
+                      : '-'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Updated By
@@ -750,7 +755,7 @@ function ViewOutlet() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
