@@ -97,12 +97,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Outlet Name
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.name}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Outlet Name
+                  </p>
                 </div>
               </div>
             </div>
@@ -141,12 +141,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Mobile Number
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.mobile}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Mobile Number
+                  </p>
                 </div>
               </div>
             </div>
@@ -163,12 +163,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Address
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.address}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Address
+                  </p>
                 </div>
               </div>
             </div>
@@ -184,12 +184,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {outletData?.whatsapp || '-'}
+                  </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   WhatsApp
                   </p>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.whatsapp}
-                  </h4>
                 </div>
               </div>
             </div>
@@ -205,12 +205,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Outlet Type
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.outlet_type?.charAt(0).toUpperCase() + outletData?.outlet_type?.slice(1)}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Outlet Type
+                  </p>
                 </div>
               </div>
             </div>
@@ -236,12 +236,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Food Type
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.veg_nonveg?.charAt(0).toUpperCase() + outletData?.veg_nonveg?.slice(1)}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Food Type
+                  </p>
                 </div>
               </div>
             </div>
@@ -257,12 +257,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Service Charges
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.service_charges}%
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Service Charges
+                  </p>
                 </div>
               </div>
             </div>
@@ -279,12 +279,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  GST
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.gst}%
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  GST
+                  </p>
                 </div>
               </div>
             </div>
@@ -300,12 +300,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {outletData?.opening_time || "-"}
+                  </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Opening Hours
                   </p>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.opening_time}
-                  </h4>
                 </div>
               </div>
             </div>
@@ -321,12 +321,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {outletData?.closing_time || "-"}
+                  </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
                   Closing Hours
                   </p>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {outletData?.closing_time}
-                  </h4>
                 </div>
               </div>
             </div>
@@ -342,12 +342,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Outlet Status
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.outlet_status === 1 ? "Active" : "Inactive"}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Outlet Status
+                  </p>
                 </div>
               </div>
             </div>
@@ -363,12 +363,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Currently
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.is_open === 1 ? "Open" : "Closed"}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Currently
+                  </p>
                 </div>
               </div>
             </div>
@@ -384,12 +384,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  FSSAI Number
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.fssainumber}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  FSSAI Number
+                  </p>
                 </div>
               </div>
             </div>
@@ -405,12 +405,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  GST Number
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.gstnumber}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  GST Number
+                  </p>
                 </div>
               </div>
             </div>
@@ -426,12 +426,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  UPI ID
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.upi_id}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  UPI ID
+                  </p>
                 </div>
               </div>
             </div>
@@ -460,12 +460,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Waiters
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.waiter_count}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Waiters
+                  </p>
                 </div>
               </div>
             </div>
@@ -482,12 +482,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Chefs
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.chef_count}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Chefs
+                  </p>
                 </div>
               </div>
             </div>
@@ -504,12 +504,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Captains
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.captain_count}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Captains
+                  </p>
                 </div>
               </div>
             </div>
@@ -526,12 +526,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Managers
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.manager_count}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Managers
+                  </p>
                 </div>
               </div>
             </div>
@@ -557,12 +557,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Menus
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.total_menu}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Menus
+                  </p>
                 </div>
               </div>
             </div>
@@ -579,12 +579,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Categories
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.total_category}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Categories
+                  </p>
                 </div>
               </div>
             </div>
@@ -601,12 +601,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Sections
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.section_count}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Sections
+                  </p>
                 </div>
               </div>
             </div>
@@ -623,12 +623,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Orders
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.orders_count}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Orders
+                  </p>
                 </div>
               </div>
             </div>
@@ -643,12 +643,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Tables
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.table_count}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Tables
+                  </p>
                 </div>
               </div>
             </div>
@@ -674,12 +674,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Created On
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.created_on}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Created On
+                  </p>
                 </div>
               </div>
             </div>
@@ -696,12 +696,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Created By
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.created_by || "-"}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Created By
+                  </p>
                 </div>
               </div>
             </div>
@@ -718,12 +718,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Updated On
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {outletData?.updated_on}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Updated On
+                  </p>
                 </div>
               </div>
             </div>
@@ -740,12 +740,12 @@ function ViewOutlet() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Updated By
-                  </p>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {(outletData?.updated_by && outletData.updated_by.charAt(0).toUpperCase() + outletData.updated_by.slice(1)) || "-"}
                   </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Updated By
+                  </p>
                 </div>
               </div>
             </div>
