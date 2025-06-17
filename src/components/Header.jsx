@@ -147,7 +147,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
           </button>
 
           {/* Search Bar */}
-          <div className="hidden lg:block">
+          {/* <div className="hidden lg:block">
             <form>
               <div className="relative">
                 <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
@@ -168,7 +168,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                 </button>
               </div>
             </form>
-          </div>
+          </div> */}
         </div>
 
         {/* Right Side Menu */}

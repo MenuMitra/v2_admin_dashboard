@@ -383,7 +383,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
       </div>
 
       {/* Updated Logout Button */}
-      <div className="absolute bottom-0 left-0 right-0 px-5 py-4 bg-white border-t border-gray-200 dark:bg-black dark:border-gray-800">
+      {/* <div className="absolute bottom-0 left-0 right-0 px-5 py-4 bg-white border-t border-gray-200 dark:bg-black dark:border-gray-800">
         <button
           onClick={handleLogout}
           className={`w-full inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-error-500 hover:text-error-600 transition rounded-lg ${
@@ -395,7 +395,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
             Sign out
           </span>
         </button>
-      </div>
+      </div> */}
 
       {/* Promo Box */}
       {/* <div
