@@ -140,7 +140,7 @@ function EditSuperOwner() {
 
     try {
       const token = getToken();
-      const response = await axios.post(
+      const response = await axios.put(
         'https://men4u.xyz/v2/admin/update_super_owner',
         {
           ...formData,
