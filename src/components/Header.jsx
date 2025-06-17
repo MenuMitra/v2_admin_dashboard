@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Sidebar from './Sidebar';
-import { Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import React, { useState, useRef, useEffect } from "react";
+import Sidebar from "./Sidebar";
+import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
   faXmark,
@@ -14,17 +14,16 @@ import {
   faUser,
   faCog,
   faCircleInfo,
-  faSignOutAlt
-} from '@fortawesome/free-solid-svg-icons';
-import { useAdmin } from '../hooks/useAdmin';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-
+  faSignOutAlt,
+} from "@fortawesome/free-solid-svg-icons";
+import { useAdmin } from "../hooks/useAdmin";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 // Import your logo images
-import ownerImage from '../assets/images/user/owner.jpg';
-import logo from '../assets/images/logo/logo.png';
+import ownerImage from "../assets/images/user/owner.jpg";
+import logo from "../assets/images/logo/logo.png";
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [menuToggle, setMenuToggle] = useState(false);
@@ -41,12 +40,12 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
     {
       id: 1,
       user: {
-        name: 'Terry Franci',
-        image: 'user-02.jpg',
-        online: true
+        name: "Terry Franci",
+        image: "user-02.jpg",
+        online: true,
       },
-      project: 'Project - Nganter App',
-      time: '5 min ago'
+      project: "Project - Nganter App",
+      time: "5 min ago",
     },
     // Add more notifications as needed
   ];
@@ -54,11 +53,11 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        'https://men4u.xyz/v2/common/logout',
+        "https://men4u.xyz/v2/common/logout",
         {
           user_id: adminData.user_id,
           role: adminData.role,
-          app: "admin_dashboard"
+          app: "admin_dashboard",
         },
         {
           headers: {
@@ -71,15 +70,13 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       clearAdmin();
       logout();
 
-      
       // Close the dropdown
       setDropdownOpen(false);
 
       // Navigate to login page
-      navigate('/');
-      
+      navigate("/");
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
       // You might want to show an error toast/notification here
     }
   };
@@ -88,9 +85,9 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
     const handleKeyDown = (event) => {
       // Check if it's Mac (Command + K) or Windows/Linux (Ctrl + K)
       const isMac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
-      const hotkey = isMac 
-        ? event.metaKey && event.key.toLowerCase() === 'k'
-        : event.ctrlKey && event.key.toLowerCase() === 'k';
+      const hotkey = isMac
+        ? event.metaKey && event.key.toLowerCase() === "k"
+        : event.ctrlKey && event.key.toLowerCase() === "k";
 
       if (hotkey) {
         event.preventDefault(); // Prevent default browser behavior
@@ -99,11 +96,11 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
     };
 
     // Add event listener when component mounts
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
 
     // Cleanup event listener when component unmounts
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []); // Empty dependency array since we don't use any dependencies
 
@@ -117,14 +114,16 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       <div className="flex grow flex-col items-center justify-between lg:flex-row lg:px-6">
         <div className="flex w-full items-center justify-between gap-2 border-b border-gray-200 px-3 py-3 sm:gap-4 lg:justify-normal lg:border-b-0 lg:px-0 lg:py-4 dark:border-gray-800">
           {/* Hamburger Toggle Button */}
-          <button 
+          <button
             className={`z-99999 flex h-10 w-10 items-center justify-center rounded-lg border-gray-200 text-gray-500 lg:h-11 lg:w-11 lg:border dark:border-gray-800 dark:text-gray-400 ${
-              sidebarToggle ? 'lg:bg-transparent dark:lg:bg-transparent bg-gray-100 dark:bg-gray-800' : ''
+              sidebarToggle
+                ? "lg:bg-transparent dark:lg:bg-transparent bg-gray-100 dark:bg-gray-800"
+                : ""
             }`}
             onClick={() => setSidebarToggle(!sidebarToggle)}
           >
-            <FontAwesomeIcon 
-              icon={sidebarToggle ? faXmark : faBars} 
+            <FontAwesomeIcon
+              icon={sidebarToggle ? faXmark : faBars}
               className="fill-current"
             />
           </button>
@@ -132,13 +131,14 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
           {/* Logo */}
           <Link to="/" className="lg:hidden">
             <img className="dark:hidden" src={logo} alt="Logo" />
-            <img className="hidden dark:block" src={logo} alt="Logo" />df
+            <img className="hidden dark:block" src={logo} alt="Logo" />
+            df
           </Link>
 
           {/* Menu Toggle Button */}
-          <button 
+          <button
             className={`z-99999 flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 hover:bg-gray-100 lg:hidden dark:text-gray-400 dark:hover:bg-gray-800 ${
-              menuToggle ? 'bg-gray-100 dark:bg-gray-800' : ''
+              menuToggle ? "bg-gray-100 dark:bg-gray-800" : ""
             }`}
             onClick={() => setMenuToggle(!menuToggle)}
           >
@@ -171,10 +171,14 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
         </div>
 
         {/* Right Side Menu */}
-        <div className={`${menuToggle ? 'flex' : 'hidden'} shadow-theme-md w-full items-center justify-between gap-4 px-5 py-4 lg:flex lg:justify-end lg:px-0 lg:shadow-none`}>
+        <div
+          className={`${
+            menuToggle ? "flex" : "hidden"
+          } shadow-theme-md w-full items-center justify-between gap-4 px-5 py-4 lg:flex lg:justify-end lg:px-0 lg:shadow-none`}
+        >
           <div className="2xsm:gap-3 flex items-center gap-2">
             {/* Dark Mode Toggle */}
-            <button 
+            <button
               className="hover:text-dark-900 relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
               onClick={() => setDarkMode(!darkMode)}
             >
@@ -183,7 +187,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
             {/* Notification Button */}
             <div className="relative">
-              <button 
+              <button
                 className="hover:text-dark-900 relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
                 onClick={() => {
                   setNotificationOpen(!notificationOpen);
@@ -209,7 +213,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
           {/* User Profile */}
           <div className="relative">
-            <button 
+            <button
               className="flex items-center text-gray-700 dark:text-gray-400"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
@@ -219,9 +223,11 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
               <span className="text-theme-sm mr-1 block font-medium">
                 {adminData.name}
               </span>
-              <FontAwesomeIcon 
-                icon={faChevronDown} 
-                className={`stroke-gray-500 dark:stroke-gray-400 ${dropdownOpen ? 'rotate-180' : ''}`}
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                className={`stroke-gray-500 dark:stroke-gray-400 ${
+                  dropdownOpen ? "rotate-180" : ""
+                }`}
               />
             </button>
 
@@ -236,19 +242,19 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                     {adminData.email}
                   </p>
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    Role: {adminData.role}
+                    {adminData.role}
                   </p>
                 </div>
                 <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
-                <Link 
-                  to="/profile" 
+                <Link
+                  to="/profile"
                   className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                   onClick={() => setDropdownOpen(false)}
                 >
                   <FontAwesomeIcon icon={faUser} className="w-4 h-4" />
                   View Profile
                 </Link>
-                <button 
+                <button
                   className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-error-600 hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-950"
                   onClick={handleLogout}
                 >
