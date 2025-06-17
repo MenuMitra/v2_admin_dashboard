@@ -287,77 +287,75 @@ function EditOutlet() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="rounded-xl md:rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="overflow-hidden pt-4 dark:border-gray-800">
-          <div className="flex items-center px-4 md:px-6 mb-4">
+    <div className="p-3 sm:p-4 md:p-6 max-w-6xl mx-auto">
+      <div className="rounded-lg md:rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="overflow-hidden pt-3 sm:pt-4 dark:border-gray-800">
+          <div className="flex items-center px-3 sm:px-4 md:px-6 mb-3 sm:mb-4">
             <div className="flex items-center">
               <button 
                 onClick={() => navigate(-1)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 md:px-4 md:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 md:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
               >
-                <FontAwesomeIcon icon={faBack} className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                <span className="text-xs md:text-sm">Back</span>
+                <FontAwesomeIcon icon={faBack} className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">Back</span>
               </button>
             </div>
 
             <div className="flex-1 text-center">
-              <h1 className="text-base md:text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h1 className="text-sm sm:text-base md:text-xl font-semibold text-gray-800 dark:text-white/90">
                 Edit Outlet
               </h1>
             </div>
 
-            <div className="w-[42px] md:w-[70px]"></div>
+            <div className="w-8 sm:w-[42px] md:w-[70px]"></div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-4 md:px-6 pb-4 md:pb-6 space-y-8">
-          <section className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <form onSubmit={handleSubmit} className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6 space-y-4 sm:space-y-6 md:space-y-8">
+          <section className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
+            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Basic Information
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="col-span-3 relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6">
+              <div className="relative">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Select Owner *
                 </label>
                 
                 {!formData.owner_id ? (
                   <div className="relative">
-                  <input
-                    type="text"
-                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10"
+                    <input
+                      type="text"
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-8 sm:pl-10 text-xs sm:text-sm"
                       placeholder="Search owner by name, mobile or email"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="absolute inset-y-0 left-0 pl-2 sm:pl-3 flex items-center pointer-events-none">
+                      <svg className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              </div>
-            </div>
+                      </svg>
+                    </div>
+                  </div>
                 ) : (
                   <div className="bg-white border rounded-md shadow-sm">
-                    <div className="p-3 flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-blue-100 rounded-full p-2">
-                          <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="p-2 sm:p-3 flex items-center justify-between">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                        <div className="bg-blue-100 rounded-full p-1.5 sm:p-2">
+                          <svg className="h-4 w-4 sm:h-6 sm:w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              </div>
-              <div>
-                          <div className="font-medium text-gray-900">
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="font-medium text-xs sm:text-sm text-gray-900">
                             {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
-              </div>
-                          <div className="text-sm text-gray-500">
-                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile} 
-                            <span className="mx-1">•</span> 
-                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.account_type}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile}
                           </div>
                         </div>
                       </div>
@@ -367,40 +365,40 @@ function EditOutlet() {
                           setFormData(prev => ({ ...prev, owner_id: '' }));
                           setSearchTerm('');
                         }}
-                        className="text-sm text-gray-400 hover:text-gray-500 flex items-center"
+                        className="text-xs sm:text-sm text-gray-400 hover:text-gray-500 flex items-center"
                       >
-                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
-                        <span className="ml-1">Change</span>
+                        <span className="ml-1 hidden sm:inline">Change</span>
                       </button>
                     </div>
                   </div>
                 )}
 
                 {searchTerm && !formData.owner_id && (
-                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 sm:max-h-60 overflow-auto">
                     {filteredOwners.length > 0 ? (
                       filteredOwners.map((owner) => (
                         <div
                           key={owner.user_id}
-                          className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-0 transition-colors"
+                          className="px-3 py-2 sm:px-4 sm:py-3 hover:bg-gray-50 cursor-pointer border-b last:border-0 transition-colors"
                           onClick={() => {
                             setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
                             setSearchTerm('');
                           }}
                         >
-                          <div className="flex items-center space-x-3">
+                          <div className="flex items-center space-x-2 sm:space-x-3">
                             <div className="flex-shrink-0">
-                              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
-                                <span className="text-lg font-medium text-gray-600">
+                              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                                <span className="text-sm sm:text-lg font-medium text-gray-600">
                                   {owner.name.charAt(0)}
                                 </span>
                               </div>
                             </div>
                             <div>
-                              <div className="font-medium text-gray-900">{owner.name}</div>
-                              <div className="text-sm text-gray-500">
+                              <div className="font-medium text-xs sm:text-sm text-gray-900">{owner.name}</div>
+                              <div className="text-xs text-gray-500">
                                 {owner.mobile}
                                 {owner.account_type && (
                                   <>
@@ -411,15 +409,12 @@ function EditOutlet() {
                                   </>
                                 )}
                               </div>
-                              {owner.email && (
-                                <div className="text-sm text-gray-500">{owner.email}</div>
-                              )}
                             </div>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="px-4 py-3 text-sm text-gray-500">
+                      <div className="px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm text-gray-500">
                         No owners found matching "{searchTerm}"
                       </div>
                     )}
@@ -427,16 +422,16 @@ function EditOutlet() {
                 )}
               </div>
 
-              <div className="col-span-1">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+              <div className="w-full">
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 sm:p-4 text-center">
                   {previewUrl ? (
-                    <img src={previewUrl} alt="Preview" className="mx-auto max-h-40 object-contain" />
+                    <img src={previewUrl} alt="Preview" className="mx-auto h-32 sm:h-40 object-contain" />
                   ) : (
                     <div className="flex flex-col items-center">
-                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <p className="mt-2 text-sm text-gray-500">Click to select image</p>
+                      <p className="mt-2 text-xs sm:text-sm text-gray-500">Click to select image</p>
                       <p className="text-xs text-gray-400">JPG, PNG, or GIF up to 5MB</p>
                     </div>
                   )}
@@ -450,9 +445,9 @@ function EditOutlet() {
                 </div>
               </div>
 
-              <div className="col-span-2 grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
                     Outlet Name *
                   </label>
                   <input
@@ -466,7 +461,7 @@ function EditOutlet() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
                     Mobile Number *
                   </label>
                   <input
@@ -480,7 +475,7 @@ function EditOutlet() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
                     Email Address
                   </label>
                   <input
@@ -493,7 +488,7 @@ function EditOutlet() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
                     UPI ID *
                   </label>
                   <input
@@ -507,7 +502,7 @@ function EditOutlet() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
                     Outlet Type *
                   </label>
                   <select
@@ -527,7 +522,7 @@ function EditOutlet() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
                     Food Type *
                   </label>
                   <select
@@ -547,8 +542,8 @@ function EditOutlet() {
                 </div>
               </div>
 
-              <div className="col-span-3">
-                <label className="block text-sm font-medium text-gray-700">
+              <div className="sm:col-span-2">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   Address *
                 </label>
                 <textarea
@@ -563,17 +558,17 @@ function EditOutlet() {
             </div>
           </section>
 
-          <section className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <section className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
+            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               Business Details
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   Service Charges (%)
                 </label>
                 <input
@@ -586,7 +581,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   GST (%)
                 </label>
                 <input
@@ -599,7 +594,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   Opening Time
                 </label>
                 <input
@@ -612,7 +607,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   Closing Time
                 </label>
                 <input
@@ -625,7 +620,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   FSSAI Number
                 </label>
                 <input
@@ -638,7 +633,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   GST Number
                 </label>
                 <input
@@ -652,17 +647,17 @@ function EditOutlet() {
             </div>
           </section>
 
-          <section className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <section className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
+            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
               </svg>
               Social Media & Web Presence
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   Website
                 </label>
                 <input
@@ -676,7 +671,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   WhatsApp Number
                 </label>
                 <input
@@ -692,7 +687,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   Facebook
                 </label>
                 <input
@@ -706,7 +701,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   Instagram
                 </label>
                 <input
@@ -720,7 +715,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   Google Business Link
                 </label>
                 <input
@@ -734,7 +729,7 @@ function EditOutlet() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
                   Google Review Link
                 </label>
                 <input
@@ -749,15 +744,15 @@ function EditOutlet() {
             </div>
           </section>
 
-          <section className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <section className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
+            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Outlet Status
             </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -766,7 +761,7 @@ function EditOutlet() {
                   onChange={handleInputChange}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label className="ml-2 block text-sm text-gray-900">
+                <label className="ml-2 block text-xs sm:text-sm text-gray-900">
                   Outlet is currently open
                 </label>
               </div>
@@ -779,32 +774,32 @@ function EditOutlet() {
                   onChange={handleInputChange}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label className="ml-2 block text-sm text-gray-900">
+                <label className="ml-2 block text-xs sm:text-sm text-gray-900">
                   Outlet is active
                 </label>
               </div>
             </div>
           </section>
 
-          <div className="flex justify-end gap-3 md:gap-4">
+          <div className="flex justify-end gap-2 sm:gap-3 md:gap-4">
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 hover:bg-gray-50"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 md:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 hover:bg-gray-50"
             >
-              <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
               <span>Cancel</span>
             </button>
             <button
               type="submit"
-              className="inline-flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 md:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
             >
-              <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
-              <span>Save Changes</span>
+              <span>Save</span>
             </button>
           </div>
         </form>
