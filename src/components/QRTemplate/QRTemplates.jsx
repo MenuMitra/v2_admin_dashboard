@@ -33,7 +33,7 @@ function QRTemplates() {
   // Create button configuration
   const createButton = {
     show: true,
-    label: "Create Template",
+    label: "Create",
     icon: faPlus,
     onClick: () => navigate('/create-template'),
     className: "bg-success-500 hover:bg-success-600",
@@ -215,25 +215,38 @@ function QRTemplates() {
         </div>
 
         {/* Templates Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6 px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4 p-4">
           {filteredTemplates.map((template) => (
-            <div key={template.qr_code_template_id} className="bg-white rounded-lg shadow-sm">
-              <div className="aspect-[4/3] flex flex-col items-center justify-center bg-gray-50">
-                <FontAwesomeIcon 
-                  icon={faImage} 
-                  className="w-12 h-12 text-gray-300 mb-3"
-                />
-                <div className="text-sm text-gray-400">Image not available</div>
-                <div className="text-xs text-gray-400 mt-2">{template.image_name}</div>
+            <div key={template.qr_code_template_id} className="bg-white rounded-md shadow-sm">
+              {/* Image Container - Fixed 100px size */}
+              <div className="w-[100px] h-[100px] mx-auto flex flex-col items-center justify-center bg-gray-50 border-b overflow-hidden">
+                {template.image_url ? (
+                  <img 
+                    src={template.image_url} 
+                    alt={template.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = "https://www.mangobeds.com/images/image-fallback.jpg";
+                    }}
+                  />
+                ) : (
+                  <img 
+                    src="https://www.mangobeds.com/images/image-fallback.jpg"
+                    alt="Template fallback"
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
-              <div className="p-4 border-t border-gray-100">
-                <div className="flex items-center justify-between mb-2">
+
+              {/* Content Section - More compact */}
+              <div className="p-3 border-t border-gray-100">
+                <div className="flex items-center justify-between mb-1.5">
                   <h3 className="text-sm font-medium text-gray-900 truncate">{template.name}</h3>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     {/* View Button */}
                     <button
                       onClick={() => navigate(`/template-details/${template.qr_code_template_id}`)}
-                      className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="p-0.5 text-gray-400 hover:text-gray-600 transition-colors"
                       title="View Details"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,7 +257,7 @@ function QRTemplates() {
                     {/* Edit Button */}
                     <button
                       onClick={() => navigate(`/edit-template/${template.qr_code_template_id}`)}
-                      className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                      className="p-0.5 text-gray-400 hover:text-gray-600 transition-colors"
                       title="Edit Template"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -257,7 +270,7 @@ function QRTemplates() {
                         setTemplateToDelete(template);
                         setShowDeleteModal(true);
                       }}
-                      className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                      className="p-0.5 text-gray-400 hover:text-red-600 transition-colors"
                       title="Delete Template"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,7 +279,7 @@ function QRTemplates() {
                     </button>
                   </div>
                 </div>
-                <div className="mt-2 space-y-1">
+                <div className="mt-1.5 space-y-0.5">
                   <div className="flex items-center text-xs">
                     <span className="text-gray-500">QR Position:</span>
                     <span className="text-gray-900 ml-1 capitalize">{template.qr_overlay_position}</span>
