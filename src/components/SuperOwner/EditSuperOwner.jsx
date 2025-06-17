@@ -57,10 +57,6 @@ function EditSuperOwner() {
           aadhar_number,
           super_owner_id: parseInt(superOwnerId)
         }));
-
-        if (response.data.assigned_outlets) {
-          setSelectedOutlets(response.data.assigned_outlets.map(outlet => outlet.outlet_id));
-        }
       }
     } catch (error) {
       console.error('Error fetching super owner details:', error);
@@ -85,7 +81,8 @@ function EditSuperOwner() {
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/get_outlets_for_super_owner',
         {
-          app_source: 'admin_dashboard'
+          app_source: 'admin_dashboard',
+          super_owner_id: parseInt(superOwnerId)
         },
         {
           headers: {
@@ -97,6 +94,11 @@ function EditSuperOwner() {
 
       if (response.data?.data?.outlets) {
         setOutlets(response.data.data.outlets);
+        setSelectedOutlets(
+          response.data.data.outlets
+            .filter(outlet => outlet.is_currently_assigned === 1)
+            .map(outlet => outlet.outlet_id)
+        );
       }
     } catch (error) {
       console.error('Error fetching outlets:', error);
