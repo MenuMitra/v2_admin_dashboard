@@ -97,22 +97,12 @@ function ViewOutlet() {
             </div>
           </div>
 
-          {/* Stats Row */}
-          <div className="flex items-center justify-between px-6 mb-4">
-            <div className="flex items-center gap-4 sm:gap-6 text-sm">
-              <span className="font-medium text-gray-800">
-                Status: {outletData?.outlet_status === 1 ? "Active" : "Inactive"}
-              </span>
-              <span className={outletData?.is_open === 1 ? "text-success-600" : "text-error-500"}>
-                Currently: {outletData?.is_open === 1 ? "Open" : "Closed"}
-              </span>
-            </div>
-          </div>
+          
         </div>
 
         {/* Main Content */}
         <div className="p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
             <h2
               className="text-xl font-semibold text-gray-800 dark:text-white/90"
               x-text="pageName"
