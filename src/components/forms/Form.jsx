@@ -120,7 +120,9 @@ const Form = ({
           {formFields.map((field) => (
             <div 
               key={field.name}
-              className={`${field.span ? `md:col-span-${field.span}` : ''}`}
+              className={`${
+                field.span ? `col-span-1 md:col-span-${field.span}` : 'col-span-1'
+              }`}
             >
               {getFormComponent(field)}
             </div>

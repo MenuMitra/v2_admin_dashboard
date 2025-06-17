@@ -197,22 +197,24 @@ const ExampleUsage = () => {
 const FormTextarea = ({
   label,
   placeholder,
-  rows = 6,
+  rows = 3,
   fullWidth = true,
   className = "",
+  required,
   ...props
 }) => {
   return (
-    <div className={`${fullWidth ? "w-full" : "w-1/2"} px-2.5 ${className}`}>
+    <div className={`w-full ${className}`}>
       {label && (
-        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-          {label}
+        <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1 dark:text-gray-400">
+          {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
       <textarea
         placeholder={placeholder}
         rows={rows}
-        className="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+        className="h-auto w-full rounded-lg border border-gray-300 bg-transparent px-3 md:px-4 py-2 text-xs md:text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+        required={required}
         {...props}
       />
     </div>

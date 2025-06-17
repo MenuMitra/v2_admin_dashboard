@@ -132,6 +132,7 @@ function CreateOwner() {
       rows: 3,
       span: 2,
       fullWidth: true,
+      className: 'col-span-1 md:col-span-2'
     },
   ];
 
