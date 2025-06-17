@@ -23,9 +23,8 @@ import { useAuth } from '../hooks/useAuth';
 
 
 // Import your logo images
-import logoLight from '../assets/images/logo/logo.svg';
-import logoDark from '../assets/images/logo/logo-dark.svg';
 import ownerImage from '../assets/images/user/owner.jpg';
+import logo from '../assets/images/logo/logo.png';
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [menuToggle, setMenuToggle] = useState(false);
@@ -132,8 +131,8 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
           {/* Logo */}
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src={logoLight} alt="Logo" />
-            <img className="hidden dark:block" src={logoDark} alt="Logo" />
+            <img className="dark:hidden" src={logo} alt="Logo" />
+            <img className="hidden dark:block" src={logo} alt="Logo" />df
           </Link>
 
           {/* Menu Toggle Button */}

@@ -22,9 +22,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
-import logoLight from "../assets/images/logo/logo.svg";
-import logoDark from "../assets/images/logo/logo-dark.svg";
-import logoIcon from "../assets/images/logo/logo-icon.svg";
+import logo from '../assets/images/logo/logo.png';
 
 const menuData = {
   MENU: [
@@ -313,34 +311,34 @@ const Sidebar = ({ sidebarToggle = false }) => {
     );
   };
 
-  const handleLogout = async () => {
-    try {
-      await axios.post(
-        'https://men4u.xyz/v2/common/logout',
-        {
-          user_id: adminData.user_id,
-          role: adminData.role,
-          app: "admin_dashboard"
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-        }
-      );
+  // const handleLogout = async () => {
+  //   try {
+  //     await axios.post(
+  //       'https://men4u.xyz/v2/common/logout',
+  //       {
+  //         user_id: adminData.user_id,
+  //         role: adminData.role,
+  //         app: "admin_dashboard"
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: getToken(),
+  //         },
+  //       }
+  //     );
 
-      // Clear both admin and auth data from local storage
-      clearAdmin();
-      logout();
+  //     // Clear both admin and auth data from local storage
+  //     clearAdmin();
+  //     logout();
       
-      // Navigate to login page
-      navigate('/');
+  //     // Navigate to login page
+  //     navigate('/');
       
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // You might want to show an error toast/notification here
-    }
-  };
+  //   } catch (error) {
+  //     console.error('Logout failed:', error);
+  //     // You might want to show an error toast/notification here
+  //   }
+  // };
 
   return (
     <aside
@@ -361,15 +359,10 @@ const Sidebar = ({ sidebarToggle = false }) => {
         `}
       >
         <Link to="/">
-          <span className={`logo ${sidebarToggle ? "hidden" : ""}`}>
-            <img className="dark:hidden" src={logoLight} alt="Logo" />
-            <img className="hidden dark:block" src={logoDark} alt="Logo" />
-          </span>
-          <img
-            className={`logo-icon ${sidebarToggle ? "lg:block" : "hidden"}`}
-            src={logoIcon}
-            alt="Logo"
-          />
+          <div className="flex items-center gap-2">
+            <img className="w-10" src={logo} alt="Logo" />
+            <span className={`text-2xl font-bold ${sidebarToggle ? "lg:hidden" : ""}`}>Admin Dashboard</span>
+          </div>
         </Link>
       </div>
 
