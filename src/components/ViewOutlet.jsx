@@ -32,6 +32,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate } from 'react-router-dom';
 import Breadcrumb from './Breadcrumb';
+import Modal from './common/Modal';
 
 function ViewOutlet() {
   const { getToken } = useAuth();
@@ -41,6 +42,7 @@ function ViewOutlet() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fetchOutletDetails = async () => {
     try {
@@ -92,9 +94,35 @@ function ViewOutlet() {
   };
 
   const handleDelete = async () => {
-    // Implement delete functionality
-    if (window.confirm("Are you sure you want to delete this outlet?")) {
-      // Add your delete API call here
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.delete(
+        "https://men4u.xyz/v2/admin/delete_outlet",
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+          data: {
+            outlet_id: outletId,
+            user_id: adminData?.user_id,
+          },
+        }
+      );
+
+      if (response.data.detail === "Outlet deleted successfully") {
+        setShowDeleteModal(false);
+        navigate('/outlets');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to delete outlet");
+      console.error("Error deleting outlet:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -796,6 +824,33 @@ function ViewOutlet() {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Outlet"
+        type="error"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              className="inline-flex items-center gap-2 rounded-full bg-gray-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="inline-flex items-center gap-2 rounded-full bg-error-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-error-600"
+            >
+              Delete
+            </button>
+          </>
+        }
+      >
+        <p>Are you sure you want to delete this outlet? This action cannot be undone.</p>
+      </Modal>
     </>
   );
 }
