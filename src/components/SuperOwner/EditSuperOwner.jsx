@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 function EditSuperOwner() {
   const { getToken, isAuthenticated } = useAuth();
   const { adminData } = useAdmin();
   const navigate = useNavigate();
+  const { superOwnerId } = useParams();
   
   const [formData, setFormData] = useState({
     user_id: adminData?.user_id || '',
+    super_owner_id: superOwnerId,
     name: '',
     mobile: '',
     email: '',
@@ -23,9 +25,55 @@ function EditSuperOwner() {
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlets, setSelectedOutlets] = useState([]);
 
+  const fetchSuperOwnerDetails = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.post(
+        'https://men4u.xyz/v2/admin/view_super_owner',
+        {
+          user_id: adminData?.user_id,
+          super_owner_id: parseInt(superOwnerId),
+          app_source: 'admin_dashboard'
+        },
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.data?.super_owner) {
+        const { name, mobile, email, aadhar_number } = response.data.super_owner;
+        setFormData(prev => ({
+          ...prev,
+          name,
+          mobile,
+          email,
+          aadhar_number,
+          super_owner_id: parseInt(superOwnerId)
+        }));
+
+        if (response.data.assigned_outlets) {
+          setSelectedOutlets(response.data.assigned_outlets.map(outlet => outlet.outlet_id));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching super owner details:', error);
+      setError('Failed to fetch super owner details');
+    }
+  };
+
   useEffect(() => {
-    fetchOutlets();
-  }, []);
+    if (superOwnerId) {
+      fetchSuperOwnerDetails();
+      fetchOutlets();
+    }
+  }, [superOwnerId]);
 
   const fetchOutlets = async () => {
     try {
@@ -93,9 +141,10 @@ function EditSuperOwner() {
     try {
       const token = getToken();
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/create_super_owner',
+        'https://men4u.xyz/v2/admin/update_super_owner',
         {
           ...formData,
+          super_owner_id: parseInt(superOwnerId),
           outlet_ids: selectedOutlets
         },
         {
@@ -107,7 +156,7 @@ function EditSuperOwner() {
       );
 
       if (response.data) {
-        setSuccess('Super owner created successfully!');
+        setSuccess('Super owner updated successfully!');
         navigate('/super-owners');
       }
     } catch (err) {
