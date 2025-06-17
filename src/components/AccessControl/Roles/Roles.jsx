@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faSearch, faEye, faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
@@ -12,6 +12,7 @@ function Roles() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   // Process roles data to group by role
   const processRolesData = (data) => {
@@ -144,13 +145,15 @@ function Roles() {
           inactive: 0
         }}
         createButton={{
-          label: "Create Role",
+          label: "Create",
           onClick: () => {/* Add your create role handler */},
           className: "bg-success-500 hover:bg-success-600",
           position: "right",
           icon: faPlus,
           showIconOnly: false
         }}
+        showBackButton={true}
+        onBackClick={() => navigate(-1)}
         searchPlaceholder="Search roles..."
         enableSort={true}
         enablePagination={true}
