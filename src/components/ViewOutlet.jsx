@@ -67,16 +67,14 @@ function ViewOutlet() {
   return (
     <>
       <div className="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          {/* Replace old breadcrumb with new component */}
-          <Breadcrumb items={breadcrumbItems} />
+          <Breadcrumb items={breadcrumbItems} className="self-start" />
+        <div className="flex flex-col items-center gap-3 mb-6">
           
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-white/90 text-center">
             {outletData?.name}
           </h2>
         </div>
 
-        
         <div class="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
           <h2
             class="text-xl font-semibold text-gray-800 dark:text-white/90"
