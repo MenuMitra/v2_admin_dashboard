@@ -9,6 +9,7 @@ import {
   faChevronLeft as faBack,
   faMagnifyingGlass,
   faPlus,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 
 function DataTable({
@@ -46,7 +47,13 @@ function DataTable({
   showCreateButton = true,
   showSearch = true,
   backButtonLabel = "Back",
-  showHeader = true
+  showHeader = true,
+  showOutletSelect = false,
+  outlets = [],
+  selectedOutlet = null,
+  onOutletChange = () => {},
+  onShowData = () => {},
+  isLoading = false,
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -290,36 +297,68 @@ function DataTable({
             </div>
           </div>
 
-          {/* Stats and Search - Responsive Layout */}
+          {/* Stats and Controls Row */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center justify-between px-6 mb-4">
-            {/* Stats - Scrollable on Mobile */}
-            <div className="flex items-center gap-4 sm:gap-6 text-sm overflow-x-auto whitespace-nowrap pb-2 sm:pb-0">
-              <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
-                Total: {counts.total}
-              </span>
-              <span className="text-success-600 shrink-0">
-                Active: {counts.active}
-              </span>
-              <span className="text-error-500 shrink-0">
-                Inactive: {counts.inactive}
-              </span>
-            </div>
-
-            {/* Search - Full Width on Mobile */}
-            {showSearch && (
-              <div className="relative w-full sm:w-auto">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                  <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+            {/* Stats */}
+            {counts && (
+              <div className="flex items-center gap-4 sm:gap-6 text-sm overflow-x-auto whitespace-nowrap pb-2 sm:pb-0">
+                <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
+                  Total: {counts.total}
                 </span>
-                <input 
-                  placeholder={searchPlaceholder}
-                  className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 shadow-theme-xs"
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => onSearchChange(e.target.value)}
-                />
+                <span className="text-success-600 shrink-0">
+                  Active: {counts.active}
+                </span>
+                <span className="text-error-500 shrink-0">
+                  Inactive: {counts.inactive}
+                </span>
               </div>
             )}
+
+            {/* Outlet Selection and Controls */}
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              {showOutletSelect && (
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <select
+                      className={`w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${
+                        isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                      value={selectedOutlet || ''}
+                      onChange={(e) => onOutletChange(e.target.value)}
+                      disabled={isLoading}
+                    >
+                      <option value="">Select an outlet</option>
+                      {outlets.map((outlet) => (
+                        <option key={outlet.outlet_id} value={outlet.outlet_id}>
+                          {outlet.outlet_name} ({outlet.outlet_code})
+                        </option>
+                      ))}
+                    </select>
+                    {isLoading && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <FontAwesomeIcon icon={faSpinner} className="h-4 w-4 animate-spin text-gray-400" />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Search Input */}
+              {showSearch && (
+                <div className="relative w-full sm:w-auto">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                    <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+                  </span>
+                  <input 
+                    placeholder={searchPlaceholder}
+                    className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 shadow-theme-xs"
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
