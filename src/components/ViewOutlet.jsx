@@ -4,13 +4,31 @@ import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faUserTie,
   faUtensils,
   faUserGroup,
   faUserGear,
   faChevronLeft,
   faEdit,
   faTrash,
+  faStore,
+  faPhone,
+  faLocationDot,
+  faBowlFood,
+  faPercent,
+  faClock,
+  faIdCard,
+  faFileInvoice,
+  faQrcode,
+  faBook,
+  faListUl,
+  faTableCells,
+  faReceipt,
+  faTable,
+  faCalendarPlus,
+  faUser,
+  faCalendarCheck,
+  faUserPen,
+  faMessage
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate } from 'react-router-dom';
 import Breadcrumb from './Breadcrumb';
@@ -149,7 +167,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserTie}
+                      icon={faStore}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -193,7 +211,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGroup}
+                      icon={faPhone}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -215,7 +233,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faLocationDot}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -236,7 +254,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faMessage}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -257,7 +275,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faUtensils}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -290,7 +308,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserTie}
+                      icon={faBowlFood}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -313,7 +331,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGroup}
+                      icon={faPercent}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -337,7 +355,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faPercent}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -360,7 +378,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faClock}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -381,7 +399,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faClock}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -402,7 +420,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faIdCard}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -423,7 +441,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faFileInvoice}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -444,7 +462,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faQrcode}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -478,7 +496,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserTie}
+                      icon={faUser}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -575,7 +593,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserTie}
+                      icon={faBook}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -597,7 +615,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUtensils}
+                      icon={faListUl}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -619,7 +637,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGroup}
+                      icon={faTableCells}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -641,7 +659,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faReceipt}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -661,7 +679,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faTable}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -692,7 +710,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserTie}
+                      icon={faCalendarPlus}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -714,7 +732,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUtensils}
+                      icon={faUser}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -736,7 +754,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGroup}
+                      icon={faCalendarCheck}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
@@ -758,7 +776,7 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUserGear}
+                      icon={faUserPen}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
