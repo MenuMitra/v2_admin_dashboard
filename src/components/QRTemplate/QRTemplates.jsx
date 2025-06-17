@@ -29,7 +29,7 @@ function QRTemplates() {
   // Create button configuration
   const createButton = {
     show: true,
-    label: "Create Template",
+    label: "Create",
     icon: faPlus,
     onClick: () => navigate('/create-template'),
     className: "bg-success-500 hover:bg-success-600",
