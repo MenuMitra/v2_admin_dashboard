@@ -361,9 +361,12 @@ function CreatePartner() {
         showHeader={true}
         enablePagination={false}
         showCreateButton={false}
-        data={[{ id: 1 }]} // Single item for the form
+        createButton={{
+          show: false
+        }}
+        data={[{}]}
         columns={[{
-          field: 'id',
+          field: 'content',
           header: '',
           render: () => renderForm()
         }]}
