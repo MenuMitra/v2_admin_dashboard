@@ -104,6 +104,15 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
     };
   }, []); // Empty dependency array since we don't use any dependencies
 
+  const handleSidebarToggle = () => {
+    setSidebarToggle(prevState => {
+      console.log('Current sidebar state:', prevState);
+      const newState = !prevState;
+      console.log('New sidebar state:', newState);
+      return newState;
+    });
+  };
+
   // Early return if no admin data
   if (!adminData) {
     return null;
@@ -120,7 +129,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                 ? "lg:bg-transparent dark:lg:bg-transparent bg-gray-100 dark:bg-gray-800"
                 : ""
             }`}
-            onClick={() => setSidebarToggle(!sidebarToggle)}
+            onClick={handleSidebarToggle}
           >
             <FontAwesomeIcon
               icon={sidebarToggle ? faXmark : faBars}
