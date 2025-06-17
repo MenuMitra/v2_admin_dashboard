@@ -9,6 +9,8 @@ import {
   faUserGroup,
   faUserGear,
   faChevronLeft,
+  faEdit,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate } from 'react-router-dom';
 import Breadcrumb from './Breadcrumb';
@@ -66,6 +68,18 @@ function ViewOutlet() {
     { label: outletData?.name || 'View Outlet' }
   ];
 
+  // Add these handler functions
+  const handleEdit = () => {
+    navigate(`/outlets/edit/${outletId}`);
+  };
+
+  const handleDelete = async () => {
+    // Implement delete functionality
+    if (window.confirm("Are you sure you want to delete this outlet?")) {
+      // Add your delete API call here
+    }
+  };
+
   return (
     <>
       {/* Breadcrumb - Moved outside the card */}
@@ -76,7 +90,7 @@ function ViewOutlet() {
       {/* Main Card */}
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
-          {/* Top Row - Back, Title */}
+          {/* Top Row - Back, Title, Actions */}
           <div className="flex items-center px-6 mb-3">
             {/* Left Side - Back Button */}
             <div>
@@ -95,9 +109,27 @@ function ViewOutlet() {
                 {outletData?.name || 'View Outlet'}
               </h2>
             </div>
+
+            {/* Right Side - Action Buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleEdit}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
+                <span className="hidden sm:inline">Edit</span>
+              </button>
+              <button
+                onClick={handleDelete}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 hover:bg-error-600 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                <span className="hidden sm:inline">Delete</span>
+              </button>
+            </div>
           </div>
 
-          
+         
         </div>
 
         {/* Main Content */}
