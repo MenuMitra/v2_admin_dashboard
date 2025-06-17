@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAdmin } from '../hooks/useAdmin';
@@ -11,21 +11,59 @@ function CreateOwner() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const [functionalities, setFunctionalities] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     mobile: '',
     email: '',
     dob: '',
     aadhar_number: '',
-    address: ''
+    address: '',
+    functionality_ids: []
   });
 
+  useEffect(() => {
+    const fetchFunctionalities = async () => {
+      try {
+        const token = getToken();
+        if (!token) {
+          throw new Error('No authentication token available');
+        }
+
+        const response = await axios.get(
+          'https://men4u.xyz/v2/admin/get_ubac_functionalities',
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
+        );
+        setFunctionalities(response.data);
+      } catch (error) {
+        console.error('Error fetching functionalities:', error);
+      }
+    };
+
+    fetchFunctionalities();
+  }, [getToken]);
+
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const { name, value, type, checked } = e.target;
+    
+    if (type === 'checkbox') {
+      const functionalityId = parseInt(value);
+      setFormData(prev => ({
+        ...prev,
+        functionality_ids: checked 
+          ? [...prev.functionality_ids, functionalityId]
+          : prev.functionality_ids.filter(id => id !== functionalityId)
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -44,7 +82,7 @@ function CreateOwner() {
         address: formData.address,
         aadhar_number: formData.aadhar_number,
         dob: formData.dob,
-        functionality_ids: [1]
+        functionality_ids: formData.functionality_ids
       };
 
       await axios.post(
@@ -132,6 +170,39 @@ function CreateOwner() {
       rows: 3,
       span: 2,
       fullWidth: true,
+      className: 'col-span-1 md:col-span-2'
+    },
+    {
+      type: 'custom',
+      name: 'functionalities',
+      component: (
+        <div className="w-full">
+          <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">
+            Functionalities <span className="text-red-500">*</span>
+          </label>
+          <div className="flex flex-wrap gap-4 mt-2">
+            {functionalities.map((functionality) => (
+              <div key={functionality.functionality_id} className="flex items-center">
+                <input
+                  type="checkbox"
+                  id={`functionality-${functionality.functionality_id}`}
+                  name="functionality_ids"
+                  value={functionality.functionality_id}
+                  checked={formData.functionality_ids.includes(functionality.functionality_id)}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor={`functionality-${functionality.functionality_id}`}
+                  className="ml-2 block text-sm text-gray-900"
+                >
+                  {functionality.functionality_name}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      ),
       className: 'col-span-1 md:col-span-2'
     },
   ];
