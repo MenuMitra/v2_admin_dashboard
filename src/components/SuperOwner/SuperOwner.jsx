@@ -147,7 +147,7 @@ function SuperOwner() {
               onClick={() => handleViewDetails(owner.super_owner_id)}
               className="rounded-2xl border border-gray-200 bg-white p-5 cursor-pointer hover:border-brand-500 transition-all"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50">
                     <FontAwesomeIcon icon={faUserShield} className="h-6 w-6 text-brand-500" />
@@ -163,21 +163,6 @@ function SuperOwner() {
                     : 'bg-red-100 text-red-800'
                 }`}>
                   {owner.is_active ? 'Active' : 'Inactive'}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-gray-600">
-                  <FontAwesomeIcon icon={faPhone} className="w-4 h-4" />
-                  <span className="text-sm">{owner.mobile}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <FontAwesomeIcon icon={faCalendar} className="w-4 h-4" />
-                  <span className="text-sm">{owner.created_on}</span>
-                </div>
-                <div className="flex items-center gap-2 text-gray-600">
-                  <FontAwesomeIcon icon={faBuilding} className="w-4 h-4" />
-                  <span className="text-sm">{owner.outlet_ids.length} Outlets</span>
                 </div>
               </div>
             </div>
