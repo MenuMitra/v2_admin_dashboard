@@ -130,9 +130,9 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
           {/* Logo */}
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src={logo} alt="Logo" />
-            <img className="hidden dark:block" src={logo} alt="Logo" />
-            df
+            <img className="h-10 dark:hidden" src={logo} alt="Logo" />
+            <img className="h-10 hidden dark:block" src={logo} alt="Logo" />
+
           </Link>
 
           {/* Menu Toggle Button */}
