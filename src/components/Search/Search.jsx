@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import DataTable from '../common/DataTable';
 
 const Search = () => {
@@ -97,83 +97,103 @@ const Search = () => {
   ];
 
   return (
-    <DataTable
-      data={searchResults}
-      columns={columns}
-      title="Search"
-      onBackClick={handleBack}
-      showBackButton={true}
-      showCreateButton={false}
-      showSearch={false}
-      enableSort={true}
-      enablePagination={true}
-      counts={{
-        total: totalResults,
-        active: searchResults.filter(r => r.is_active === 1).length,
-        inactive: searchResults.filter(r => r.is_active === 0).length
-      }}
-    >
-      {/* Custom Search Controls */}
-      <div className="px-6 py-4 border-t border-gray-100">
-        <form onSubmit={handleSearch} className="flex gap-4 justify-center">
-          <select 
-            className="px-4 py-2 border rounded-lg border-gray-200 bg-transparent text-sm text-gray-800 focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 focus:outline-none shadow-theme-xs"
-            value={searchType}
-            onChange={(e) => setSearchType(e.target.value)}
-          >
-            <option value="name">Search by Name</option>
-            <option value="mobile">Search by Mobile</option>
-            <option value="outlet_name">Search by Outlet</option>
-          </select>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
-            </span>
+    <div className="rounded-2xl border border-gray-200 bg-white">
+      <div className="overflow-hidden pt-4">
+        {/* Header Section */}
+        <div className="flex items-center px-6 mb-3">
+          {/* Left Side - Back Button */}
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={handleBack}
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+            >
+              <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
+              <span className="hidden sm:inline">Back</span>
+            </button>
+          </div>
+
+          {/* Center - Title */}
+          <div className="flex-1 text-center text-lg sm:text-xl font-semibold text-gray-800">
+            Search
+          </div>
+
+          {/* Right Side - Empty for symmetry */}
+          <div className="flex items-center gap-2"></div>
+        </div>
+
+        {/* Search Controls - Keeping Original */}
+        <div className="px-6 py-4">
+          <form onSubmit={handleSearch} className="flex gap-4 mb-8 justify-center">
+            <select 
+              className="px-4 py-2 border rounded-md"
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value)}
+            >
+              <option value="name">Search by Name</option>
+              <option value="mobile">Search by Mobile</option>
+              <option value="outlet_name">Search by Outlet</option>
+            </select>
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder={`Search by ${searchType}...`}
-              className="w-[250px] h-10 rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 focus:outline-none shadow-theme-xs"
+              className="px-4 py-2 border rounded-md"
               required
             />
-          </div>
-          <select 
-            className="px-4 py-2 border rounded-lg border-gray-200 bg-transparent text-sm text-gray-800 focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 focus:outline-none shadow-theme-xs min-w-[120px]"
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-          >
-            <option>All Roles</option>
-            <option>Owner</option>
-            <option>Customer</option>
-            <option>Waiter</option>
-            <option>Chef</option>
-            <option>Outlet</option>
-          </select>
-          <button 
-            type="submit" 
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading || !searchInput.trim()}
-          >
-            {loading ? 'Searching...' : 'Search'}
-          </button>
-        </form>
+            <select 
+              className="px-4 py-2 border rounded-md min-w-[120px]"
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+            >
+              <option>All Roles</option>
+              <option>Owner</option>
+              <option>Customer</option>
+              <option>Waiter</option>
+              <option>Chef</option>
+              <option>Outlet</option>
+            </select>
+            <button 
+              type="submit" 
+              className="px-6 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:bg-purple-300"
+              disabled={loading || !searchInput.trim()}
+            >
+              {loading ? 'Searching...' : 'Search'}
+            </button>
+          </form>
 
-        {/* Error Message */}
-        {error && (
-          <div className="text-error-500 text-center mt-4">
-            {error}
-          </div>
-        )}
+          {/* Error Message */}
+          {error && (
+            <div className="text-red-500 text-center mb-4">
+              {error}
+            </div>
+          )}
 
-        {/* Empty State */}
-        {!loading && searchResults.length === 0 && searchInput && (
-          <div className="text-center text-gray-500 mt-8">
-            No results found
-          </div>
-        )}
+          {/* Results Section using DataTable */}
+          {searchResults.length > 0 ? (
+            <DataTable
+              data={searchResults}
+              columns={columns}
+              showBackButton={false}
+              showCreateButton={false}
+              showSearch={false}
+              showHeader={false}
+              enableSort={true}
+              enablePagination={true}
+              counts={{
+                total: totalResults,
+                active: searchResults.filter(r => r.is_active === 1).length,
+                inactive: searchResults.filter(r => r.is_active === 0).length
+              }}
+            />
+          ) : (
+            <div className="text-center text-gray-500 mt-8">
+              {loading ? 'Searching...' : (searchInput ? 'No results found' : 'Enter a search term to begin')}
+            </div>
+          )}
+        </div>
       </div>
-    </DataTable>
+    </div>
   );
 };
 
