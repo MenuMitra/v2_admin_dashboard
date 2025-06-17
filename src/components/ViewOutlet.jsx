@@ -142,7 +142,7 @@ function ViewOutlet() {
             <div>
               <button 
                 onClick={() => navigate('/outlets')}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
                 <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>

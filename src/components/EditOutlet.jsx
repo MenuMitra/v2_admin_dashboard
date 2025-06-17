@@ -295,7 +295,7 @@ function EditOutlet() {
             <div className="flex items-center">
               <button 
                 onClick={() => navigate(-1)}
-                className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 md:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
                 <FontAwesomeIcon icon={faBack} className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
                 <span className="hidden sm:inline">Back</span>

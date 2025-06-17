@@ -88,7 +88,7 @@ const Form = ({
             {showBackButton && (
               <button 
                 onClick={onBackClick}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 md:px-4 md:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
                 <FontAwesomeIcon icon={faBack} className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 <span className="text-xs md:text-sm">{backButtonLabel}</span>
