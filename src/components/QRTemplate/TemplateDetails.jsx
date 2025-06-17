@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faImage, faPen } from '@fortawesome/free-solid-svg-icons';
+import { faImage, faPen } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
+import DataTable from '../common/DataTable';
 
 function TemplateDetails() {
   const navigate = useNavigate();
@@ -18,7 +19,13 @@ function TemplateDetails() {
     createdOn: ''
   });
 
-  // Fetch template details on component mount
+  // Define breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'QR Templates', path: '/qr-templates' },
+    { label: 'View', path: '#' }
+  ];
+
   useEffect(() => {
     fetchTemplateDetails();
   }, [templateId]);
@@ -46,7 +53,6 @@ function TemplateDetails() {
         }
       );
 
-      // Update template data with fetched details
       setTemplateData({
         name: response.data.name,
         qrPosition: response.data.qr_overlay_position,
@@ -62,59 +68,10 @@ function TemplateDetails() {
     }
   };
 
-  if (isLoading && !templateData.name) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm mb-6">
-        <Link to="/dashboard" className="text-gray-500 hover:text-gray-700">Dashboard</Link>
-        <span className="text-gray-500">/</span>
-        <Link to="/qr-templates" className="text-gray-500 hover:text-gray-700">Qr-templates</Link>
-        <span className="text-gray-500">/</span>
-        <span className="text-gray-700">View</span>
-      </div>
-
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center px-3 py-1.5 text-sm text-gray-600 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-          >
-            <FontAwesomeIcon icon={faChevronLeft} className="w-3 h-3 mr-1" />
-            Back
-          </button>
-          <h1 className="text-xl font-semibold">Template Details</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Edit Button */}
-          <button
-            onClick={() => navigate(`/edit-template/${templateId}`)}
-            className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-            Edit
-          </button>
-        </div>
-      </div>
-
-      {error && (
-        <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="bg-white rounded-lg shadow-sm">
+  // Custom row render for template details
+  const renderTemplateDetails = () => (
+    <tr>
+      <td className="px-6 py-4" colSpan="100%">
         <div className="grid grid-cols-2 gap-8">
           {/* Left Column - Image */}
           <div className="p-6">
@@ -131,40 +88,84 @@ function TemplateDetails() {
               {/* Name */}
               <div>
                 <h3 className="text-sm text-gray-500 mb-1">Name</h3>
-                <p className="text-sm text-gray-900">{templateData.name}</p>
+                <p className="text-sm text-gray-900 dark:text-white/90">{templateData.name}</p>
               </div>
 
               {/* QR Code Position */}
               <div>
                 <h3 className="text-sm text-gray-500 mb-1">QR Code Position</h3>
-                <p className="text-sm text-gray-900">{templateData.qrPosition}</p>
+                <p className="text-sm text-gray-900 dark:text-white/90">{templateData.qrPosition}</p>
               </div>
 
               {/* Image Filename */}
               <div>
                 <h3 className="text-sm text-gray-500 mb-1">Image Filename</h3>
-                <p className="text-sm text-gray-900">{templateData.filename}</p>
+                <p className="text-sm text-gray-900 dark:text-white/90">{templateData.filename}</p>
               </div>
 
               {/* Created On */}
               <div>
                 <h3 className="text-sm text-gray-500 mb-1">Created On</h3>
-                <p className="text-sm text-gray-900">{templateData.createdOn}</p>
+                <p className="text-sm text-gray-900 dark:text-white/90">{templateData.createdOn}</p>
               </div>
 
               {/* QR Position Preview */}
               <div>
                 <h3 className="text-sm text-gray-500 mb-2">QR Position Preview</h3>
-                <div className="border-2 border-dashed border-gray-200 rounded-lg p-6">
+                <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6">
                   <div className="flex justify-center">
-                    <div className="w-12 h-12 bg-gray-200 rounded"></div>
+                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </td>
+    </tr>
+  );
+
+  // Configure edit button
+  const editButton = {
+    show: true,
+    label: "Edit",
+    icon: faPen,
+    onClick: () => navigate(`/edit-template/${templateId}`),
+    className: "bg-brand-500 hover:bg-brand-600",
+    position: "right",
+    showIconOnly: false,
+    disabled: false,
+    tooltip: "Edit this template"
+  };
+
+  if (isLoading && !templateData.name) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
+    );
+  }
+
+  return (
+    <div className="p-6">
+      <DataTable
+        title="Template Details"
+        showBackButton={true}
+        onBackClick={() => navigate(-1)}
+        showCreateButton={true}
+        createButton={editButton}
+        showSearch={false}
+        showHeader={true}
+        showOutletSelect={false}
+        isLoading={isLoading}
+        error={error}
+        data={[templateData]} // Pass template data as single item array
+        columns={[{ field: 'details', header: '' }]} // Single column for the entire content
+        customRowRender={() => renderTemplateDetails()} // Custom render function for the content
+        enablePagination={false}
+        enableSort={false}
+        darkMode={true}
+      />
     </div>
   );
 }
