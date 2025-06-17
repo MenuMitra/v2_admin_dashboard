@@ -324,7 +324,7 @@ function Tickets() {
       <DataTable
         data={filteredTickets}
         columns={columns}
-        title="Tickets Management"
+        title="Tickets"
         onBackClick={handleBack}
         showBackButton={true}
         showCreateButton={false}
@@ -351,6 +351,7 @@ function Tickets() {
             : "No matching tickets found for your search"
         }
         darkMode={true}
+        createButton={{ show: false }}
       />
     </div>
   );
