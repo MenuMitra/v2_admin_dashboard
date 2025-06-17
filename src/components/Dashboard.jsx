@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
+import { useAdmin } from "../hooks/useAdmin";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -14,7 +15,8 @@ import {
 import DataTable from './common/DataTable';
 
 function Dashboard() {
-  const { getToken, isAuthenticated } = useAuth();
+  const { getToken, isAuthenticated, logout } = useAuth();
+  const { adminData } = useAdmin();
   const navigate = useNavigate();
   const [data, setData] = useState({
     outlet_data: [],
@@ -136,6 +138,11 @@ function Dashboard() {
             'Content-Type': 'application/json'
           }
         });
+
+        if (response.status === 401) {
+          navigate('/');
+          logout();
+        }
 
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');
