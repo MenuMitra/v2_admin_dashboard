@@ -30,6 +30,7 @@ import CustomerDetails from './components/Customer/CustomerDetails';
 import SuperOwner from './components/SuperOwner/SuperOwner';
 import CreateSuperOwner from './components/SuperOwner/CreateSuperOwner';
 import SuperOwnerDetails from './components/SuperOwner/SuperOwnerDetails';
+import EditSuperOwner from './components/SuperOwner/EditSuperOwner';
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
           <Route path="/super-owners" element={<SuperOwner />} />
           <Route path="/create-super-owner" element={<CreateSuperOwner />} />
           <Route path="/super-owner-details/:superOwnerId" element={<SuperOwnerDetails />} />
+          <Route path="/edit-super-owner/:superOwnerId" element={<EditSuperOwner />} />
           {/* Add other protected routes here */}
         </Route>
       </Routes>
