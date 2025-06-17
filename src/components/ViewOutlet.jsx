@@ -88,7 +88,7 @@ function ViewOutlet() {
 
   // Add these handler functions
   const handleEdit = () => {
-    navigate(`/outlets/edit/${outletId}`);
+    navigate(`/edit-outlet/${outletId}`);
   };
 
   const handleDelete = async () => {
