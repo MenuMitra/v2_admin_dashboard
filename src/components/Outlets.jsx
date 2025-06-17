@@ -22,6 +22,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import Breadcrumb from './Breadcrumb';
+import DataTable from './common/DataTable';
 
 const transactionsData = [
   {
@@ -546,225 +547,138 @@ function Outlets() {
     });
   };
 
+  // Define columns for DataTable
+  const columns = [
+    {
+      field: "name",
+      header: "Outlet Name",
+      sortable: true,
+      render: (value, row) => (
+        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+          {value}
+        </p>
+      )
+    },
+    {
+      field: "code",
+      header: "Outlet Code",
+      sortable: true,
+      render: (value) => (
+        <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+          {value}
+        </p>
+      )
+    },
+    {
+      field: "mobile",
+      header: "Mobile",
+      sortable: true,
+      render: (value) => (
+        <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+          {value}
+        </p>
+      )
+    },
+    {
+      field: "accountType",
+      header: "Account Type",
+      sortable: true,
+      render: (value) => (
+        <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+          {value?.toUpperCase()}
+        </p>
+      )
+    },
+    {
+      field: "isOpen",
+      header: "Open/Close",
+      sortable: true,
+      render: (value) => (
+        <span className={`inline-block px-2 py-1 text-xs ${
+          value === 1
+            ? "bg-success-100 text-success-600"
+            : "bg-error-100 text-error-500"
+        }`}>
+          {value === 1 ? "Open" : "Closed"}
+        </span>
+      )
+    },
+    {
+      field: "outletStatus",
+      header: "Status",
+      sortable: true,
+      render: (value) => (
+        <span className={`inline-block px-2 py-1 text-xs ${
+          value === 1
+            ? "bg-success-100 text-success-600"
+            : "bg-error-100 text-error-500"
+        }`}>
+          {value === 1 ? "Active" : "Inactive"}
+        </span>
+      )
+    },
+    {
+      field: "actions",
+      header: "Actions",
+      render: (_, row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => handleViewOutlet(row.id)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleEditOutlet(row.id)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Outlet"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleDeleteClick(row)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Outlet"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="p-6">
       <Breadcrumb items={breadcrumbItems} />
       
-      {/* Header Section - Matching Owners.jsx style */}
-      <div className="overflow-hidden rounded-t-2xl pt-4 dark:border-gray-800 dark:bg-white/[0.03] mb-4">
-        <div className="flex flex-col gap-4 px-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
-          <button
-              onClick={() => navigate(-1)}
-              className="flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-            >
-              <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
-          </button>
-            <div className="flex items-center gap-3">
-              <div className="text-gray-800 dark:text-white/90">
-                <span className="text-lg font-semibold">
-                  Total: {filteredData.length}
-                </span>
-                <div className="flex gap-3 mt-1 text-sm">
-                  <span className="text-success-600">
-                    Active: {filteredData.filter(outlet => outlet.outletStatus === 1).length}
-                  </span>
-                  <span className="text-error-500">
-                    Inactive: {filteredData.filter(outlet => outlet.outletStatus === 0).length}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="text-xl font-semibold text-gray-800 dark:text-white/90">
-            Outlets
-        </div>
-
-          <div className="flex items-center gap-2">
-              <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                  <FontAwesomeIcon icon={faSearch} className="w-5 h-5" />
-                </span>
-                <input
-                  type="text"
-                placeholder="Search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-white dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2.5 pr-14 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
-                />
-              </div>
-            <button 
-              onClick={() => navigate('/create-outlet')}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-success-500 px-4 py-3 font-medium text-white hover:bg-success-600"
-            >
-              <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
-              Create
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Table Section - Matching Owners.jsx style */}
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="max-w-full overflow-x-auto custom-scrollbar">
-          <table className="w-full">
-            <thead>
-              <tr className="border-t border-gray-100 dark:border-gray-800">
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("name")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Outlet Name
-                    </p>
-                    {renderSortIcon("name")}
-                  </div>
-                </th>
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("code")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Outlet Code
-                    </p>
-                    {renderSortIcon("code")}
-                  </div>
-                </th>
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("mobile")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Mobile
-                    </p>
-                    {renderSortIcon("mobile")}
-                  </div>
-                </th>
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("accountType")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Account Type
-                    </p>
-                    {renderSortIcon("accountType")}
-                  </div>
-                </th>
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("isOpen")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Open/Close
-                    </p>
-                    {renderSortIcon("isOpen")}
-                  </div>
-                </th>
-                <th
-                  className="px-6 py-3 text-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                  onClick={() => handleSort("outletStatus")}
-                >
-                  <div className="flex items-center justify-center">
-                    <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                      Status
-                    </p>
-                    {renderSortIcon("outletStatus")}
-                  </div>
-                </th>
-                <th className="px-6 py-3 text-center">
-                  <p className="font-medium text-gray-500 text-theme-xs dark:text-gray-400">
-                    Actions
-                  </p>
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {getCurrentItems().map((outlet) => (
-                <tr key={outlet.id} className="border-t border-gray-100 dark:border-gray-800">
-                  <td className="px-6 py-3.5 text-center">
-                    <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                      {outlet.name}
-                    </p>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-                      {outlet.code}
-                    </p>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-                      {outlet.mobile}
-                    </p>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-                      {outlet.accountType?.toUpperCase()}
-                    </p>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <span className={`inline-block px-2 py-1 text-xs ${
-                      outlet.isOpen === 1
-                        ? "bg-success-100 text-success-600"
-                        : "bg-error-100 text-error-500"
-                    }`}>
-                      {outlet.isOpen === 1 ? "Open" : "Closed"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <span className={`inline-block px-2 py-1 text-xs ${
-                      outlet.outletStatus === 1
-                        ? "bg-success-100 text-success-600"
-                        : "bg-error-100 text-error-500"
-                    }`}>
-                      {outlet.outletStatus === 1 ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3.5 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => handleViewOutlet(outlet.id)}
-                        className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-                        title="View Details"
-                      >
-                        <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleEditOutlet(outlet.id)}
-                        className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-                        title="Edit Outlet"
-                      >
-                        <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(outlet)}
-                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-                        title="Delete Outlet"
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        </div>
-
-      {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-          totalEntries={filteredData.length}
-          itemsPerPage={itemsPerPage}
-        />
+      <DataTable
+        data={filteredData}
+        columns={columns}
+        title="Outlets"
+        counts={{
+          total: filteredData.length,
+          active: filteredData.filter(outlet => outlet.outletStatus === 1).length,
+          inactive: filteredData.filter(outlet => outlet.outletStatus === 0).length
+        }}
+        searchTerm={searchQuery}
+        onSearchChange={setSearchQuery}
+        createButton={{
+          show: true,
+          label: "Create",
+          icon: faPlus,
+          onClick: () => navigate('/create-outlet'),
+          className: "bg-success-500 hover:bg-success-600",
+          position: "right"
+        }}
+        onBackClick={() => navigate(-1)}
+        showBackButton={true}
+        searchPlaceholder="Search outlets..."
+        darkMode={false}
+        enableSort={true}
+        enablePagination={true}
+        enableSearch={true}
+      />
 
       {/* Delete Modal - Keep existing implementation */}
       {showDeleteModal && (
