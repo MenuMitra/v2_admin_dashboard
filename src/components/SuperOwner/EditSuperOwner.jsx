@@ -226,7 +226,7 @@ function EditSuperOwner() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg">
               <form onSubmit={handleSubmit}>
-                <div className="flex gap-6 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                     <input
@@ -234,7 +234,7 @@ function EditSuperOwner() {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   </div>
@@ -247,7 +247,7 @@ function EditSuperOwner() {
                       value={formData.mobile}
                       onChange={handleChange}
                       pattern="[0-9]{10}"
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   </div>
@@ -259,7 +259,7 @@ function EditSuperOwner() {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   </div>
@@ -272,7 +272,7 @@ function EditSuperOwner() {
                       value={formData.aadhar_number}
                       onChange={handleChange}
                       pattern="[0-9]{12}"
-                      className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                   </div>
