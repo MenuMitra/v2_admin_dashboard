@@ -45,6 +45,12 @@ const menuData = {
       icon: faGrip,
     },
     {
+      title: "Admins",
+      path: "/admins",
+      id: "admins",
+      icon: faUser,
+    },
+    {
       title: "Owners",
       path: "/owners",
       id: "owners",

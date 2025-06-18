@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPenToSquare, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 import DataTable from '../common/DataTable';
@@ -115,6 +115,13 @@ function Admins() {
       sortable: false,
       render: (_, admin) => (
         <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => navigate(`/view-admin/${admin.user_id}`)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
           <button
             onClick={() => navigate(`/edit-admin/${admin.user_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
