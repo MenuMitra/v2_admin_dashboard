@@ -206,7 +206,12 @@ function Partners() {
         }
       );
 
-      if (response.data.detail === "Action completed successfully") {
+      /*
+       * Treat any HTTP 200 OK response as success.  This makes the UI robust
+       * to changes in the exact wording of the backend's response message
+       * (e.g. "Successfully deleted 1 partners", "Action completed successfully", etc.).
+       */
+      if (response && response.status === 200) {
         setSelectedPartners([]);
         setSelectAll(false);
         setIsActionDropdownOpen(false);
