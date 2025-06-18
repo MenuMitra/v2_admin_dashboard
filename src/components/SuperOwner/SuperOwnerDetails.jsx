@@ -44,7 +44,7 @@ function SuperOwnerDetails() {
   }
 
   const handleBack = () => {
-    navigate('/super-owners');
+    navigate(-1);
   };
 
   const handleDelete = async () => {
@@ -97,8 +97,8 @@ function SuperOwnerDetails() {
                 onClick={handleBack}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-left" className="svg-inline--fa fa-chevron-left w-4 h-4" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                  <path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"></path>
                 </svg>
                 <span className="hidden sm:inline">Back</span>
               </button>

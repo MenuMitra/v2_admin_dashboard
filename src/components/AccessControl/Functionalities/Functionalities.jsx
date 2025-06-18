@@ -251,7 +251,7 @@ function Functionalities() {
           inactive: 0
         }}
         createButton={{
-          label: "Add Functionality",
+          label: "Create",
           onClick: () => setShowCreateModal(true),
           className: "bg-success-500 hover:bg-success-600",
           position: "right",
