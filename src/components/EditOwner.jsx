@@ -214,7 +214,7 @@ function EditOwner() {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <TextInput
                 label="Full Name"
                 name="name"
@@ -264,9 +264,23 @@ function EditOwner() {
                 pattern="[0-9]{12}"
                 maxLength="12"
               />
+
+              {/* Owner Status - Added to the grid */}
+              <SelectInput
+                label="Owner Status"
+                name="is_active"
+                value={formData.is_active}
+                onChange={handleChange}
+                required
+                options={[
+                  { value: 1, label: 'Active' },
+                  { value: 0, label: 'Inactive' }
+                ]}
+                placeholder="Select Status"
+              />
             </div>
 
-            {/* Address */}
+            {/* Address - Keep this outside the grid as it's full width */}
             <Textarea
               label="Address"
               name="address"
@@ -343,20 +357,6 @@ function EditOwner() {
                 </div>
               )}
             </div>
-
-            {/* Owner Status */}
-            <SelectInput
-              label="Owner Status"
-              name="is_active"
-              value={formData.is_active}
-              onChange={handleChange}
-              required
-              options={[
-                { value: 1, label: 'Active' },
-                { value: 0, label: 'Inactive' }
-              ]}
-              placeholder="Select Status"
-            />
 
             {/* Error Message */}
             {error && (
