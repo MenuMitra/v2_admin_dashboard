@@ -198,27 +198,27 @@ function AdminDetails() {
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
                 Admin Information
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
-                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
+                
+                <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {admin.name}
                   </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
                   <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {admin.email}
                   </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Mobile</p>
                   <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {admin.mobile}
                   </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Mobile</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
                   <div className="mt-1 flex items-center gap-2">
                     <FontAwesomeIcon 
                       icon={admin.is_active ? faCircleCheck : faCircleXmark} 
@@ -228,18 +228,19 @@ function AdminDetails() {
                       {admin.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Created On</p>
                   <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {formatDate(admin.created_on)}
                   </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Created On</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Last Updated</p>
                   <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {formatDate(admin.updated_on)}
                   </p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Last Updated</p>
                 </div>
               </div>
             </div>
