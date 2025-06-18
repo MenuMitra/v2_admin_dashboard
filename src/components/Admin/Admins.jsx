@@ -174,10 +174,10 @@ function Admins() {
         }}
         createButton={{
           show: true,
-          label: "Create Admin",
+          label: "Create",
           icon: faPlus,
           onClick: () => navigate('/create-admin'),
-          className: "bg-brand-500 hover:bg-brand-600",
+          className: "bg-success-500 hover:bg-success-600",
           position: "right",
           showIconOnly: false,
           disabled: false,
