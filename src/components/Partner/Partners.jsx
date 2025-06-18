@@ -183,11 +183,42 @@ function Partners() {
     setIsActionDropdownOpen(false);
   };
 
-  const handleBulkAction = async (action) => {
+  const handleBulkAction = async (action, selectedIds) => {
     try {
       const token = getToken();
       if (!token) {
         throw new Error('No authentication token available');
+      }
+
+      // Show confirmation modal first
+      const { title, message } = getConfirmationDetails(action);
+      setConfirmModal({
+        isOpen: true,
+        action,
+        title,
+        message
+      });
+      
+      // Store selected IDs for use after confirmation
+      setSelectedPartners(selectedIds.filter(id => id !== null));
+    } catch (err) {
+      setError(err.response?.data?.detail || `Failed to ${action} partners`);
+      console.error('Error performing bulk action:', err);
+    }
+  };
+
+  const executeBulkAction = async (action) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      // Ensure we have valid IDs
+      const validPartnerIds = selectedPartners.filter(id => id !== null && id !== undefined);
+
+      if (validPartnerIds.length === 0) {
+        throw new Error('No valid partner IDs selected');
       }
 
       const response = await axios.post(
@@ -196,7 +227,7 @@ function Partners() {
           user_id: adminData.user_id,
           action: action,
           app_source: "admin_dashboard",
-          partner_ids: selectedPartners
+          partner_ids: validPartnerIds
         },
         {
           headers: {
@@ -206,11 +237,6 @@ function Partners() {
         }
       );
 
-      /*
-       * Treat any HTTP 200 OK response as success.  This makes the UI robust
-       * to changes in the exact wording of the backend's response message
-       * (e.g. "Successfully deleted 1 partners", "Action completed successfully", etc.).
-       */
       if (response && response.status === 200) {
         setSelectedPartners([]);
         setSelectAll(false);
@@ -348,7 +374,11 @@ function Partners() {
                   <ul className="flex flex-col gap-1">
                     <li>
                       <button
-                        onClick={() => showConfirmation('active')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBulkAction('active', selectedPartners);
+                          setIsActionDropdownOpen(false);
+                        }}
                         className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
                       >
                         Set Active
@@ -356,7 +386,11 @@ function Partners() {
                     </li>
                     <li>
                       <button
-                        onClick={() => showConfirmation('inactive')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBulkAction('inactive', selectedPartners);
+                          setIsActionDropdownOpen(false);
+                        }}
                         className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
                       >
                         Set Inactive
@@ -364,7 +398,11 @@ function Partners() {
                     </li>
                     <li>
                       <button
-                        onClick={() => showConfirmation('delete')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBulkAction('delete', selectedPartners);
+                          setIsActionDropdownOpen(false);
+                        }}
                         className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-error-600 hover:bg-error-50"
                       >
                         Delete Selected
@@ -407,8 +445,9 @@ function Partners() {
         backButtonLabel="Back"
         enableSelection={true}
         onSelectionChange={(selectedIds) => {
-          console.log('Selected items:', selectedIds);
+          setSelectedPartners(selectedIds.filter(id => id !== null));
         }}
+        onBulkAction={handleBulkAction}
       />
 
       {/* Add the Modal JSX at the bottom of your return statement, before the closing div */}
@@ -497,7 +536,7 @@ function Partners() {
             Cancel
           </button>
           <button
-            onClick={() => handleBulkAction(confirmModal.action)}
+            onClick={() => executeBulkAction(confirmModal.action)}
             className={`px-4 py-2 text-sm font-medium text-white rounded-md transition ${
               confirmModal.action === 'delete' 
                 ? 'bg-error-500 hover:bg-error-600' 
