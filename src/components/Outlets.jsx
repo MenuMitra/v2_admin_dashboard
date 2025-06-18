@@ -733,9 +733,15 @@ function Outlets() {
       );
 
       if (response && response.status === 200) {
+        // Reset all selection states
         setSelectedOutlets([]);
         setConfirmModal({ isOpen: false, action: null, title: '', message: '' });
-        fetchOutlets(); // Refresh the list
+        
+        // Refresh the data
+        await fetchOutlets();
+
+        // Show success message if needed
+        // You can add a toast or notification here
       }
     } catch (err) {
       setError(err.response?.data?.detail || `Failed to ${action} outlets`);
@@ -774,6 +780,7 @@ function Outlets() {
         enablePagination={true}
         enableSearch={true}
         enableSelection={true}
+        selectedItems={selectedOutlets}
         onSelectionChange={(selectedIds) => {
           setSelectedOutlets(selectedIds.filter(id => id !== null));
         }}
