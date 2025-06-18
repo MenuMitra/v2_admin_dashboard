@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { TextInput } from '../forms/FormElements';
+import { useAdmin } from '../../hooks/useAdmin';
+import { TextInput, SelectInput } from '../forms/FormElements';
 import axios from 'axios';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,6 +12,7 @@ function EditAdmin() {
   const { adminId } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState(null);
@@ -18,13 +20,19 @@ function EditAdmin() {
     name: '',
     mobile: '',
     email: '',
-    is_active: true
+    is_active: 1
   });
   const [errors, setErrors] = useState({
     name: '',
     mobile: '',
     email: ''
   });
+
+  // Status options for the select input
+  const statusOptions = [
+    { value: 1, label: 'Active' },
+    { value: 0, label: 'Inactive' }
+  ];
 
   // Breadcrumb configuration
   const breadcrumbItems = [
@@ -58,12 +66,12 @@ function EditAdmin() {
         }
       );
 
-      // Set form data directly from response
+      // Set form data with numeric is_active value
       setFormData({
         name: response.data.name,
         mobile: response.data.mobile,
         email: response.data.email,
-        is_active: response.data.is_active
+        is_active: response.data.is_active ? 1 : 0
       });
     } catch (err) {
       setApiError(err.response?.data?.detail || err.message || 'Failed to fetch admin details');
@@ -77,13 +85,15 @@ function EditAdmin() {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: name === 'is_active' ? parseInt(value) : value
     }));
     // Clear error when user starts typing
-    setErrors(prev => ({
-      ...prev,
-      [name]: ''
-    }));
+    if (name in errors) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const validateForm = () => {
@@ -119,7 +129,7 @@ function EditAdmin() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setApiError(null);
     
     if (!validateForm()) {
@@ -134,9 +144,16 @@ function EditAdmin() {
         throw new Error('No authentication token available');
       }
 
-      const response = await axios.put(
-        `https://men4u.xyz/v2/admin/update_admin/${adminId}`,
-        formData,
+      const response = await axios.patch(
+        'https://men4u.xyz/v2/admin/update_admin',
+        {
+          user_id: adminData.user_id,
+          admin_id: parseInt(adminId),
+          name: formData.name,
+          email: formData.email,
+          mobile: formData.mobile,
+          is_active: formData.is_active
+        },
         {
           headers: {
             Authorization: token,
@@ -258,18 +275,15 @@ function EditAdmin() {
               )}
             </div>
 
-            <div className="flex items-center gap-2 mb-4">
-              <input
-                type="checkbox"
-                id="is_active"
+            <div>
+              <SelectInput
+                label="Status"
                 name="is_active"
-                checked={formData.is_active}
-                onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                value={formData.is_active}
+                onChange={handleChange}
+                options={statusOptions}
+                required
               />
-              <label htmlFor="is_active" className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                Active
-              </label>
             </div>
           </form>
         </div>
