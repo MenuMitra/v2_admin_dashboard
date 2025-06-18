@@ -21,6 +21,7 @@ function Partners() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [selectedPartners, setSelectedPartners] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
 
   // Stats state
   const [stats, setStats] = useState({
@@ -140,6 +141,41 @@ function Partners() {
     });
   };
 
+  const handleBulkAction = async (action) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.post(
+        'https://men4u.xyz/v2/common/bulk_partner_action',
+        {
+          user_id: adminData.user_id,
+          action: action,
+          app_source: "admin_dashboard",
+          partner_ids: selectedPartners
+        },
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.detail === "Action completed successfully") {
+        setSelectedPartners([]);
+        setSelectAll(false);
+        setIsActionDropdownOpen(false);
+        fetchPartners(); // Refresh the list
+      }
+    } catch (err) {
+      setError(err.response?.data?.detail || `Failed to ${action} partners`);
+      console.error('Error performing bulk action:', err);
+    }
+  };
+
   // Define columns for DataTable
   const columns = [
     {
@@ -193,7 +229,7 @@ function Partners() {
     },
     {
       field: 'actions',
-      header: 'ACTIONS',
+      header: 'Actions',
       sortable: false,
       render: (_, partner) => (
         <div className="flex items-center justify-center gap-2">
@@ -213,8 +249,7 @@ function Partners() {
           </button>
           <button
             onClick={() => {
-              setPartnerToDelete(partner);
-              setIsDeleteModalOpen(true);
+              handleBulkAction('delete', [partner.user_id]);
             }}
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
             title="Delete Partner"
@@ -258,16 +293,63 @@ function Partners() {
               {selectedPartners.length} {selectedPartners.length === 1 ? 'partner' : 'partners'} selected
             </span>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                setPartnerToDelete({ user_ids: selectedPartners });
-                setIsDeleteModalOpen(true);
-              }}
-              className="px-3 py-1 text-sm text-white bg-error-500 hover:bg-error-600 rounded-lg transition"
-            >
-              Delete Selected
-            </button>
+          <div className="flex gap-2 items-center">
+            <div className="relative inline-block">
+              <button
+                onClick={() => setIsActionDropdownOpen(!isActionDropdownOpen)}
+                onBlur={() => setTimeout(() => setIsActionDropdownOpen(false), 200)}
+                className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600"
+              >
+                Actions
+                <svg
+                  className={`stroke-current duration-200 ease-in-out ${isActionDropdownOpen ? 'rotate-180' : ''}`}
+                  width="16"
+                  height="16"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M4.79199 7.396L10.0003 12.6043L15.2087 7.396"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              
+              {isActionDropdownOpen && (
+                <div className="absolute right-0 top-full z-40 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
+                  <ul className="flex flex-col gap-1">
+                    <li>
+                      <button
+                        onClick={() => handleBulkAction('active')}
+                        className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                      >
+                        Set Active
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => handleBulkAction('inactive')}
+                        className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                      >
+                        Set Inactive
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => handleBulkAction('delete')}
+                        className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-error-600 hover:bg-error-50"
+                      >
+                        Delete Selected
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
