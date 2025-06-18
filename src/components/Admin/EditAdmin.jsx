@@ -231,59 +231,61 @@ function EditAdmin() {
           )}
 
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
-            <div>
-              <TextInput
-                label="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter admin name"
-                required
-              />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-              )}
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div>
+                <TextInput
+                  label="Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter admin name"
+                  required
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                )}
+              </div>
 
-            <div>
-              <TextInput
-                label="Mobile Number"
-                name="mobile"
-                value={formData.mobile}
-                onChange={handleChange}
-                placeholder="Enter 10 digit mobile number"
-                pattern="[0-9]{10}"
-                required
-              />
-              {errors.mobile && (
-                <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
-              )}
-            </div>
+              <div>
+                <TextInput
+                  label="Mobile Number"
+                  name="mobile"
+                  value={formData.mobile}
+                  onChange={handleChange}
+                  placeholder="Enter 10 digit mobile number"
+                  pattern="[0-9]{10}"
+                  required
+                />
+                {errors.mobile && (
+                  <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
+                )}
+              </div>
 
-            <div>
-              <TextInput
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter email address"
-                required
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-              )}
-            </div>
+              <div>
+                <TextInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
+                  required
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
 
-            <div>
-              <SelectInput
-                label="Status"
-                name="is_active"
-                value={formData.is_active}
-                onChange={handleChange}
-                options={statusOptions}
-                required
-              />
+              <div>
+                <SelectInput
+                  label="Status"
+                  name="is_active"
+                  value={formData.is_active}
+                  onChange={handleChange}
+                  options={statusOptions}
+                  required
+                />
+              </div>
             </div>
           </form>
         </div>

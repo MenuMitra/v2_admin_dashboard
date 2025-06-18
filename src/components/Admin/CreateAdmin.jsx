@@ -144,64 +144,68 @@ function CreateAdmin() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <TextInput
-                label="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter admin name"
-                required
-              />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-              )}
+            {/* Form fields container with responsive grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div>
+                <TextInput
+                  label="Name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter admin name"
+                  required
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                )}
+              </div>
+
+              <div>
+                <TextInput
+                  label="Mobile Number"
+                  name="mobile"
+                  value={formData.mobile}
+                  onChange={handleChange}
+                  placeholder="Enter 10 digit mobile number"
+                  pattern="[0-9]{10}"
+                  required
+                />
+                {errors.mobile && (
+                  <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
+                )}
+              </div>
+
+              <div>
+                <TextInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
+                  required
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <PasswordInput
+                  label="Password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter password"
+                  required
+                />
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
             </div>
 
-            <div>
-              <TextInput
-                label="Mobile Number"
-                name="mobile"
-                value={formData.mobile}
-                onChange={handleChange}
-                placeholder="Enter 10 digit mobile number"
-                pattern="[0-9]{10}"
-                required
-              />
-              {errors.mobile && (
-                <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
-              )}
-            </div>
-
-            <div>
-              <TextInput
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter email address"
-                required
-              />
-              {errors.email && (
-                <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-              )}
-            </div>
-
-            <div>
-              <PasswordInput
-                label="Password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter password"
-                required
-              />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-              )}
-            </div>
-
+            {/* Action buttons - keep these outside the grid */}
             <div className="flex items-center justify-end gap-3">
               <button
                 type="button"

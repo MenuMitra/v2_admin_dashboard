@@ -288,7 +288,7 @@ function AdminDetails() {
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
                 Assigned Functionalities
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 {admin.functionalities.map((functionality) => (
                   <div
                     key={functionality.id}

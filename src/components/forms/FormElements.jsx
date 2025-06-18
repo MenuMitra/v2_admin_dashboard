@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import DatePickerInput from '../common/DatePickerInput';
 import TimePickerInput from '../common/TimePickerInput';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 // Base input styles
 const baseInputStyles = `
@@ -78,20 +80,16 @@ const PasswordInput = React.forwardRef(({
           className={`${baseInputStyles} pr-11`}
           {...props}
         />
-        <span
+        <button
+          type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute top-1/2 right-4 z-30 -translate-y-1/2 cursor-pointer"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
         >
-          {showPassword ? (
-            <svg className="fill-gray-500 dark:fill-gray-400" width="20" height="20" viewBox="0 0 20 20">
-              <path fillRule="evenodd" clipRule="evenodd" d="M10.0002 13.8619C7.23361 13.8619 4.86803 12.1372 3.92328 9.70241C4.86804 7.26761 7.23361 5.54297 10.0002 5.54297C12.7667 5.54297 15.1323 7.26762 16.0771 9.70243C15.1323 12.1372 12.7667 13.8619 10.0002 13.8619Z"/>
-            </svg>
-          ) : (
-            <svg className="fill-gray-500 dark:fill-gray-400" width="20" height="20" viewBox="0 0 20 20">
-              <path fillRule="evenodd" clipRule="evenodd" d="M10.0002 4.04297C6.48191 4.04297 3.49489 6.30917 2.4155 9.4593C2.3615 9.61687 2.3615 9.78794 2.41549 9.94552C3.49488 13.0957 6.48191 15.3619 10.0002 15.3619Z"/>
-            </svg>
-          )}
-        </span>
+          <FontAwesomeIcon 
+            icon={showPassword ? faEye : faEyeSlash} 
+            className="w-5 h-5"
+          />
+        </button>
       </div>
     </div>
   );
