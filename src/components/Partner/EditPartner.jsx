@@ -32,7 +32,7 @@ function EditPartner() {
     dob: '',
     aadhar_number: '',
     address: '',
-    is_active: false,
+    is_active: 0,
     functionality_ids: []
   });
 
@@ -102,7 +102,7 @@ function EditPartner() {
         dob: response.data.dob,
         aadhar_number: response.data.aadhar_number,
         address: response.data.address,
-        is_active: response.data.is_active === 1,
+        is_active: response.data.is_active,
         functionality_ids: funcIds
       });
       setIsLoading(false);
@@ -148,7 +148,8 @@ function EditPartner() {
         dob: formattedDate,
         aadhar_number: formData.aadhar_number,
         address: formData.address,
-        functionality_ids: selectedFunctionalities
+        functionality_ids: selectedFunctionalities,
+        is_active: Number(formData.is_active)
       };
 
       console.log('Updating partner with data:', requestData);
@@ -276,14 +277,18 @@ function EditPartner() {
               />
 
               {/* Active Partner Checkbox */}
-              <div className="flex items-center">
-                <Checkbox
-                  label="Active Partner"
-                  name="is_active"
-                  checked={formData.is_active}
-                  onChange={handleChange}
-                />
-              </div>
+              <SelectInput
+                label="Partner Status"
+                name="is_active"
+                value={formData.is_active}
+                onChange={handleChange}
+                required
+                options={[
+                  { value: 1, label: 'Active' },
+                  { value: 0, label: 'Inactive' }
+                ]}
+                placeholder="Select Status"
+              />
             </div>
 
             {/* Address */}
