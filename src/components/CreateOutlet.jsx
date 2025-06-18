@@ -440,6 +440,7 @@ function CreateOutlet() {
                     onChange={handleInputChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
+                    placeholder="Enter Outlet Name"
                   />
                 </div>
 
@@ -454,6 +455,7 @@ function CreateOutlet() {
                     onChange={handleInputChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
+                    placeholder="Enter Mobile Number"
                   />
                 </div>
 
@@ -467,6 +469,7 @@ function CreateOutlet() {
                     value={formData.email}
                     onChange={handleInputChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter Email Address"
                   />
                 </div>
 
@@ -481,6 +484,7 @@ function CreateOutlet() {
                     onChange={handleInputChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
+                    placeholder="Enter UPI ID"
                   />
                 </div>
 
@@ -536,6 +540,7 @@ function CreateOutlet() {
                   rows={3}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
+                  placeholder="Enter Address"
                 />
               </div>
             </div>
@@ -561,6 +566,7 @@ function CreateOutlet() {
                   value={formData.service_charges}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Enter Service Charges"
                 />
               </div>
 
@@ -574,6 +580,7 @@ function CreateOutlet() {
                   value={formData.gst}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Enter GST"
                 />
               </div>
 
@@ -613,6 +620,7 @@ function CreateOutlet() {
                   value={formData.fssainumber}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Enter FSSAI Number"
                 />
               </div>
 
@@ -626,6 +634,7 @@ function CreateOutlet() {
                   value={formData.gstnumber}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Enter GST Number"
                 />
               </div>
             </div>
@@ -786,7 +795,7 @@ function CreateOutlet() {
               <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              <span>Create Outlet</span>
+              <span>Create</span>
             </button>
           </div>
         </form>
