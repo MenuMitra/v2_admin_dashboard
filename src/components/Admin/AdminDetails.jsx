@@ -5,6 +5,7 @@ import axios from 'axios';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import Modal from '../common/Modal';
 
 function AdminDetails() {
   const { adminId } = useParams();
@@ -13,6 +14,7 @@ function AdminDetails() {
   const [admin, setAdmin] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Breadcrumb configuration
   const breadcrumbItems = [
@@ -67,6 +69,33 @@ function AdminDetails() {
     }
   };
 
+  // Add delete handler
+  const handleDeleteAdmin = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      await axios.delete(
+        `https://men4u.xyz/v2/admin/delete_admin/${adminId}`,
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      navigate('/admins');
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Failed to delete admin');
+      console.error('Error deleting admin:', err);
+    } finally {
+      setShowDeleteModal(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -87,100 +116,189 @@ function AdminDetails() {
   }
 
   return (
-    <div className="p-6">
-      <Breadcrumb items={breadcrumbItems} />
-
-      <div className="max-w-4xl mx-auto mt-6">
-        {/* Header with back button */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() => navigate('/admins')}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-          >
-            <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
-            Back to Admins
-          </button>
-        </div>
-
-        {/* Admin Details Card */}
-        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden dark:border-gray-800 dark:bg-gray-900">
-          {/* Basic Info Section */}
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
-              Admin Information
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
-                <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                  {admin.name}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                  {admin.email}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Mobile</p>
-                <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                  {admin.mobile}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
-                <div className="mt-1 flex items-center gap-2">
-                  <FontAwesomeIcon 
-                    icon={admin.is_active ? faCircleCheck : faCircleXmark} 
-                    className={`w-5 h-5 ${admin.is_active ? 'text-success-500' : 'text-error-500'}`} 
-                  />
-                  <span className={`text-base font-medium ${admin.is_active ? 'text-success-700' : 'text-error-700'}`}>
-                    {admin.is_active ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Created On</p>
-                <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                  {formatDate(admin.created_on)}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Last Updated</p>
-                <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                  {formatDate(admin.updated_on)}
-                </p>
-              </div>
-            </div>
+    <div className="rounded-2xl border border-gray-200 bg-white">
+      <div className="overflow-hidden pt-4">
+        {/* Header Section - Matching OwnerDetails.jsx style */}
+        <div className="flex items-center px-6 mb-3">
+          {/* Left Side - Back Button */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate('/admins')}
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+            >
+              <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+              <span className="hidden sm:inline">Back</span>
+            </button>
           </div>
 
-          {/* Functionalities Section */}
-          <div className="p-6">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
-              Assigned Functionalities
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {admin.functionalities.map((functionality) => (
-                <div
-                  key={functionality.id}
-                  className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                >
-                  <FontAwesomeIcon 
-                    icon={faCircleCheck} 
-                    className="w-4 h-4 text-success-500" 
-                  />
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                    {functionality.name.split('_').map(word => 
-                      word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ')}
-                  </span>
+          {/* Center - Title */}
+          <div className="flex-1 text-center text-lg sm:text-xl font-semibold text-gray-800">
+            Admin Details
+          </div>
+
+          {/* Right Side - Action Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/edit-admin/${adminId}`)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                />
+              </svg>
+              <span className="hidden sm:inline">Edit</span>
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+              <span className="hidden sm:inline">Delete</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Existing content */}
+        <div className="p-6">
+          {/* Admin Details Card */}
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden dark:border-gray-800 dark:bg-gray-900">
+            {/* Basic Info Section */}
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
+                Admin Information
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
+                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
+                    {admin.name}
+                  </p>
                 </div>
-              ))}
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
+                    {admin.email}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Mobile</p>
+                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
+                    {admin.mobile}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <FontAwesomeIcon 
+                      icon={admin.is_active ? faCircleCheck : faCircleXmark} 
+                      className={`w-5 h-5 ${admin.is_active ? 'text-success-500' : 'text-error-500'}`} 
+                    />
+                    <span className={`text-base font-medium ${admin.is_active ? 'text-success-700' : 'text-error-700'}`}>
+                      {admin.is_active ? 'Active' : 'Inactive'}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Created On</p>
+                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
+                    {formatDate(admin.created_on)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Last Updated</p>
+                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
+                    {formatDate(admin.updated_on)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Functionalities Section */}
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+                Assigned Functionalities
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {admin.functionalities.map((functionality) => (
+                  <div
+                    key={functionality.id}
+                    className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                  >
+                    <FontAwesomeIcon 
+                      icon={faCircleCheck} 
+                      className="w-4 h-4 text-success-500" 
+                    />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                      {functionality.name.split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(' ')}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        type="error"
+        title="Confirm Deletion"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(false)}
+              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteAdmin}
+              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+            >
+              Delete Admin
+            </button>
+          </>
+        }
+      >
+        <div className="flex items-start">
+          <div className="ml-4">
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete this admin? This action cannot be undone.
+            </p>
+            <p className="text-sm text-gray-500">
+              All data associated with this admin will be permanently removed.
+            </p>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
