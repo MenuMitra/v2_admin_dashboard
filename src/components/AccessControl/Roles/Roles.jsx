@@ -22,7 +22,6 @@ function Roles() {
           role_id: item.role_id,
           role_name: item.role_name,
           functionalities: [],
-          created_on: 'Jun 13, 2025' // Hardcoded for now, update if API provides this
         };
       }
       acc[item.role_name].functionalities.push({
@@ -85,11 +84,6 @@ function Roles() {
       render: (functionalities) => `${functionalities.length} assigned`
     },
     {
-      field: 'created_on',
-      header: 'Created On',
-      sortable: true
-    },
-    {
       field: 'actions',
       header: 'ACTIONS',
       sortable: false,
@@ -144,19 +138,13 @@ function Roles() {
           active: roles.length,
           inactive: 0
         }}
-        createButton={{
-          label: "Create",
-          onClick: () => {/* Add your create role handler */},
-          className: "bg-success-500 hover:bg-success-600",
-          position: "right",
-          icon: faPlus,
-          showIconOnly: false
-        }}
+        createButton={{show:false}}
+        
         showBackButton={true}
         onBackClick={() => navigate(-1)}
         searchPlaceholder="Search roles..."
         enableSort={true}
-        enablePagination={true}
+        enablePagination={false}
         enableSearch={true}
         itemsPerPage={10}
       />
