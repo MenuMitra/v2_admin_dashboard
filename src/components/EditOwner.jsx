@@ -76,7 +76,7 @@ function EditOwner() {
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/view_owner',
+        'https://men4u.xyz/v2/common/view_owner',
         {
           owner_id: Number(ownerId),
           user_id: adminData.user_id

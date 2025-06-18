@@ -116,7 +116,7 @@ function Admins() {
       render: (_, admin) => (
         <div className="flex items-center justify-center gap-2">
           <button
-            onClick={() => navigate(`/view-admin/${admin.user_id}`)}
+            onClick={() => navigate(`/admin-details/${admin.user_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
             title="View Details"
           >
