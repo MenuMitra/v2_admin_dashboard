@@ -7,6 +7,14 @@ import DataTable from '../common/DataTable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
 import DatePickerInput from '../common/DatePickerInput';
+import {
+  TextInput,
+  DateInput,
+  Textarea,
+  SelectInput,
+  Checkbox,
+  labelStyles
+} from '../forms/FormElements.jsx';
 
 function CreatePartner() {
   const navigate = useNavigate();
@@ -124,186 +132,139 @@ function CreatePartner() {
       {/* Basic Information */}
       <div className="grid grid-cols-2 gap-6">
         {/* Full Name */}
-        <div className="text-left">
-          <label className="block text-sm text-gray-700 mb-1">
-            Full Name
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Enter full name"
-            className="w-full px-3 py-2 border rounded-md"
-            required
-          />
-        </div>
+        <TextInput
+          label="Full Name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="Enter full name"
+          required
+        />
 
         {/* Mobile Number */}
-        <div className="text-left">
-          <label className="block text-sm text-gray-700 mb-1">
-            Mobile Number
-          </label>
-          <input
-            type="tel"
-            name="mobile"
-            value={formData.mobile}
-            onChange={handleChange}
-            placeholder="Enter mobile number"
-            className="w-full px-3 py-2 border rounded-md"
-            required
-          />
-        </div>
+        <TextInput
+          label="Mobile Number"
+          name="mobile"
+          type="tel"
+          value={formData.mobile}
+          onChange={handleChange}
+          placeholder="Enter mobile number"
+          required
+        />
 
         {/* Email Address */}
-        <div className="text-left">
-          <label className="block text-sm text-gray-700 mb-1">
-            Email Address
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Enter email address"
-            className="w-full px-3 py-2 border rounded-md"
-            required
-          />
-        </div>
+        <TextInput
+          label="Email Address"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="Enter email address"
+          required
+        />
 
         {/* Date of Birth */}
-        <div className="text-left">
-          <DatePickerInput
-            label="Date of Birth"
-            name="dob"
-            value={formData.dob}
-            onChange={handleChange}
-            required
-            placeholder="Select date of birth"
-            className="w-full"
-          />
-        </div>
+        <DateInput
+          label="Date of Birth"
+          name="dob"
+          value={formData.dob}
+          onChange={handleChange}
+          required
+          placeholder="Select date of birth"
+        />
 
         {/* Aadhar Number */}
-        <div className="text-left">
-          <label className="block text-sm text-gray-700 mb-1">
-            Aadhar Number
-          </label>
-          <input
-            type="text"
-            name="aadhar_number"
-            value={formData.aadhar_number}
-            onChange={handleChange}
-            placeholder="Enter 12-digit Aadhar number"
-            className="w-full px-3 py-2 border rounded-md"
-            required
-            maxLength="12"
-          />
-        </div>
+        <TextInput
+          label="Aadhar Number"
+          name="aadhar_number"
+          value={formData.aadhar_number}
+          onChange={handleChange}
+          placeholder="Enter 12-digit Aadhar number"
+          required
+          maxLength="12"
+        />
 
         {/* Empty div for grid alignment */}
         <div></div>
       </div>
 
       {/* Address - Full Width */}
-      <div className="mt-6 text-left">
-        <label className="block text-sm text-gray-700 mb-1">
-            Address
-          </label>
-          <textarea
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="Enter complete address"
-            rows="3"
-          className="w-full px-3 py-2 border rounded-md"
-            required
-          />
-        </div>
+      <div className="mt-6">
+        <Textarea
+          label="Address"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          placeholder="Enter complete address"
+          rows={3}
+          required
+        />
+      </div>
 
       {/* Functionalities - Full Width */}
-      <div className="mt-6 text-left">
-        <label className="block text-sm text-gray-700 mb-1">
-            Functionalities
-          </label>
-          <div className="relative">
-            <button
-              type="button"
-              className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-left focus:outline-none focus:ring-1 focus:ring-blue-500"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              <span className="block truncate">
-                {selectedFunctionalities.length > 0
-                  ? `${selectedFunctionalities.length} selected`
-                  : 'Select functionalities'}
-              </span>
-            </button>
-            
-            {isOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto border border-gray-300">
-                {functionalities.map((func) => (
-                  <label
-                    key={func.functionality_id}
-                    className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
+      <div className="mt-6">
+        <label className={labelStyles}>
+          Functionalities
+        </label>
+        <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
+          <div className="flex flex-wrap gap-4">
+            {functionalities.map((func) => (
+              <div key={func.functionality_id} className="min-w-[200px] flex-1">
+                <Checkbox
+                  label={func.functionality_name}
+                  value={func.functionality_id}
+                  checked={selectedFunctionalities.includes(func.functionality_id)}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    setSelectedFunctionalities(prev =>
+                      e.target.checked
+                        ? [...prev, value]
+                        : prev.filter(id => id !== value)
+                    );
+                    setFormData(prev => ({
+                      ...prev,
+                      functionality_ids: e.target.checked
+                        ? [...prev.functionality_ids, value]
+                        : prev.functionality_ids.filter(id => id !== value)
+                    }));
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Selected Functionalities Tags */}
+        {selectedFunctionalities.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {selectedFunctionalities.map(id => {
+              const func = functionalities.find(f => f.functionality_id === id);
+              return (
+                <span
+                  key={id}
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                >
+                  {func?.functionality_name}
+                  <button
+                    type="button"
+                    className="ml-1 inline-flex items-center justify-center"
+                    onClick={() => {
+                      setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
+                      setFormData(prev => ({
+                        ...prev,
+                        functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
+                      }));
+                    }}
                   >
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 text-blue-600 border-gray-300 rounded"
-                      value={func.functionality_id}
-                      checked={selectedFunctionalities.includes(func.functionality_id)}
-                      onChange={(e) => {
-                        const value = Number(e.target.value);
-                        setSelectedFunctionalities(prev =>
-                          e.target.checked
-                            ? [...prev, value]
-                            : prev.filter(id => id !== value)
-                        );
-                        setFormData(prev => ({
-                          ...prev,
-                          functionality_ids: e.target.checked
-                            ? [...prev.functionality_ids, value]
-                            : prev.functionality_ids.filter(id => id !== value)
-                        }));
-                      }}
-                    />
-                    <span className="ml-2">{func.functionality_name}</span>
-                  </label>
-                ))}
-              </div>
-            )}
+                    <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </span>
+              );
+            })}
           </div>
-          <div className="mt-2 text-sm text-gray-500">
-            {selectedFunctionalities.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {selectedFunctionalities.map(id => {
-                  const func = functionalities.find(f => f.functionality_id === id);
-                  return (
-                    <span
-                      key={id}
-                      className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                    >
-                      {func?.functionality_name}
-                      <button
-                        type="button"
-                        className="ml-1 inline-flex items-center justify-center"
-                        onClick={() => {
-                          setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
-                          setFormData(prev => ({
-                            ...prev,
-                            functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
-                          }));
-                        }}
-                      >
-                        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      </button>
-                    </span>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+        )}
       </div>
     </form>
   );
