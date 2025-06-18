@@ -410,7 +410,7 @@ function DataTable({
 
               {/* Bulk Actions column - Only visible when items are selected */}
               {enableSelection && selectedItems.length > 0 && (
-                <th className="px-6 py-3">
+                <th className="px-0 py-2">
                   <div className="relative">
                     <button
                       onClick={(e) => {
@@ -418,7 +418,7 @@ function DataTable({
                         setIsActionDropdownOpen(!isActionDropdownOpen);
                       }}
                       onBlur={() => setTimeout(() => setIsActionDropdownOpen(false), 200)}
-                      className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600"
+                      className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 px-5 "
                     >
                       Actions
                       <svg

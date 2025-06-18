@@ -336,7 +336,7 @@ function Partners() {
         </div>
       )}
 
-      {selectedPartners.length > 0 && (
+      {/* {selectedPartners.length > 0 && (
         <div className="mb-4 p-4 bg-blue-50 rounded-lg flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-blue-700">
@@ -414,7 +414,7 @@ function Partners() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       <DataTable
         data={partners}
