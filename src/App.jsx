@@ -31,6 +31,8 @@ import SuperOwner from './components/SuperOwner/SuperOwner';
 import CreateSuperOwner from './components/SuperOwner/CreateSuperOwner';
 import SuperOwnerDetails from './components/SuperOwner/SuperOwnerDetails';
 import EditSuperOwner from './components/SuperOwner/EditSuperOwner';
+import AddRoleAssignFunctionalities from './components/AccessControl/Roles/AddRoleAssignFunctionalities';
+import AssignFunctionlaityRole from './components/AccessControl/Functionalities/AssignFunctionlaityRole';
 
 function App() {
   return (
@@ -70,6 +72,8 @@ function App() {
           <Route path="/create-super-owner" element={<CreateSuperOwner />} />
           <Route path="/super-owner-details/:superOwnerId" element={<SuperOwnerDetails />} />
           <Route path="/edit-super-owner/:superOwnerId" element={<EditSuperOwner />} />
+          <Route path="/add-role-assign-functionalities/:roleId" element={<AddRoleAssignFunctionalities />} />
+          <Route path="/assign-functionality-role/:functionalityId" element={<AssignFunctionlaityRole />} />
           {/* Add other protected routes here */}
         </Route>
       </Routes>

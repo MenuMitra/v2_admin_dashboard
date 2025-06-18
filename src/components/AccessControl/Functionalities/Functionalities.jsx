@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faSearch, faPlus, faEye, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
 import DataTable from '../../common/DataTable';
@@ -10,6 +10,7 @@ import Breadcrumb from '../../Breadcrumb';
 
 function Functionalities() {
   const { getToken } = useAuth();
+  const navigate = useNavigate();
   const [functionalities, setFunctionalities] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -191,12 +192,9 @@ function Functionalities() {
       render: (_, functionality) => (
         <div className="flex items-center justify-center gap-2">
           <button
-            onClick={() => {
-              setEditingFunctionality(functionality);
-              setShowEditModal(true);
-            }}
+            onClick={() => navigate(`/assign-functionality-role/${functionality.functionality_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-            title="Edit Functionality"
+            title="Assign Roles"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
