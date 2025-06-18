@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import DataTable from '../common/DataTable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
 
 function CreatePartner() {
   const navigate = useNavigate();
@@ -346,31 +346,265 @@ function CreatePartner() {
   }
 
   return (
-    <div className="p-4">
+    <div className="rounded-2xl border border-gray-200 bg-white">
+      {/* Header Section */}
+      <div className="overflow-hidden pt-4 dark:border-gray-800">
+        {/* Top Row - Back & Title */}
+        <div className="flex items-center px-6 mb-3">
+          {/* Left Side - Back Button */}
+          <div className="flex items-center">
+            <button 
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+            >
+              <FontAwesomeIcon icon={faBack} className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              <span className="text-xs md:text-sm">Back</span>
+            </button>
+          </div>
+
+          {/* Center - Title */}
+          <div className="flex-1 text-center">
+            <h1 className="text-base md:text-xl font-semibold text-gray-800 dark:text-white/90">
+              Create Partner
+            </h1>
+          </div>
+
+          {/* Right Side - Spacer for alignment */}
+          <div className="w-[42px] md:w-[70px]"></div>
+        </div>
+      </div>
+
+      {/* Form Content */}
+      <div className="p-6">
       {error && (
-        <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-lg">
+          <div className="mb-6 p-4 text-red-700 bg-red-100 rounded-lg">
           {error}
         </div>
       )}
       
-      <DataTable
-        title="Create Partner"
-        showBackButton={true}
-        onBackClick={() => navigate(-1)}
-        showSearch={false}
-        showHeader={true}
-        enablePagination={false}
-        showCreateButton={false}
-        createButton={{
-          show: false
-        }}
-        data={[{}]}
-        columns={[{
-          field: 'content',
-          header: '',
-          render: () => renderForm()
-        }]}
-      />
+        {isLoading && !formData.name ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Full Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter full name"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+                  required
+                />
+              </div>
+
+              {/* Mobile Number */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Mobile Number
+                </label>
+                <input
+                  type="tel"
+                  name="mobile"
+                  value={formData.mobile}
+                  onChange={handleChange}
+                  placeholder="Enter mobile number"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+                  required
+                />
+              </div>
+
+              {/* Email Address */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+                  required
+                />
+              </div>
+
+              {/* Date of Birth */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Date of Birth
+                </label>
+                <input
+                  type="date"
+                  name="dob"
+                  value={formData.dob}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+                  required
+                />
+              </div>
+
+              {/* Aadhar Number */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Aadhar Number
+                </label>
+                <input
+                  type="text"
+                  name="aadhar_number"
+                  value={formData.aadhar_number}
+                  onChange={handleChange}
+                  placeholder="Enter 12-digit Aadhar number"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+                  required
+                  maxLength="12"
+                />
+              </div>
+
+              {/* Address */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Address
+                </label>
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Enter complete address"
+                  rows="3"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+                  required
+                />
+              </div>
+
+              {/* Functionalities */}
+              <div className="md:col-span-2 relative">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Functionalities
+                </label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    className="w-full bg-white border border-gray-300 rounded-md px-3 py-2 text-left focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    onClick={() => setIsOpen(!isOpen)}
+                  >
+                    <span className="block truncate">
+                      {selectedFunctionalities.length > 0
+                        ? `${selectedFunctionalities.length} selected`
+                        : 'Select functionalities'}
+                    </span>
+                  </button>
+                  
+                  {isOpen && (
+                    <div className="absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto border border-gray-300">
+                      {functionalities.map((func) => (
+                        <label
+                          key={func.functionality_id}
+                          className="flex items-center px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                            value={func.functionality_id}
+                            checked={selectedFunctionalities.includes(func.functionality_id)}
+                            onChange={(e) => {
+                              const value = Number(e.target.value);
+                              setSelectedFunctionalities(prev =>
+                                e.target.checked
+                                  ? [...prev, value]
+                                  : prev.filter(id => id !== value)
+                              );
+                              setFormData(prev => ({
+                                ...prev,
+                                functionality_ids: e.target.checked
+                                  ? [...prev.functionality_ids, value]
+                                  : prev.functionality_ids.filter(id => id !== value)
+                              }));
+                            }}
+                          />
+                          <span className="ml-2">{func.functionality_name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="mt-2 text-sm text-gray-500">
+                  {selectedFunctionalities.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {selectedFunctionalities.map(id => {
+                        const func = functionalities.find(f => f.functionality_id === id);
+                        return (
+                          <span
+                            key={id}
+                            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                          >
+                            {func?.functionality_name}
+                            <button
+                              type="button"
+                              className="ml-1 inline-flex items-center justify-center"
+                              onClick={() => {
+                                setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
+                                setFormData(prev => ({
+                                  ...prev,
+                                  functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
+                                }));
+                              }}
+                            >
+                              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end space-x-4 pt-4">
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-lg border border-gray-300 hover:bg-gray-50"
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                    <span>Create Partner</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
