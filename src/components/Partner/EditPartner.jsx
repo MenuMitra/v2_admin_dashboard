@@ -171,11 +171,11 @@ function EditPartner() {
 
   // Create a custom render function for the form
   const renderForm = () => (
-    <form onSubmit={handleSubmit} className="p-6">
+    <form onSubmit={handleSubmit} className="p-6 text-left">
       {/* Basic Information */}
       <div className="grid grid-cols-2 gap-6">
         {/* Full Name */}
-        <div>
+        <div className="text-left">
           <label className="block text-sm text-gray-700 mb-1">
             Full Name
           </label>
@@ -189,7 +189,7 @@ function EditPartner() {
         </div>
 
         {/* Mobile Number */}
-        <div>
+        <div className="text-left">
           <label className="block text-sm text-gray-700 mb-1">
             Mobile Number
           </label>
@@ -203,7 +203,7 @@ function EditPartner() {
         </div>
 
         {/* Email Address */}
-        <div>
+        <div className="text-left">
           <label className="block text-sm text-gray-700 mb-1">
             Email Address
           </label>
@@ -217,7 +217,7 @@ function EditPartner() {
         </div>
 
         {/* Date of Birth */}
-        <div>
+        <div className="text-left">
           <label className="block text-sm text-gray-700 mb-1">
             Date of Birth
           </label>
@@ -231,7 +231,7 @@ function EditPartner() {
         </div>
 
         {/* Aadhar Number */}
-        <div>
+        <div className="text-left">
           <label className="block text-sm text-gray-700 mb-1">
             Aadhar Number
           </label>
@@ -245,7 +245,7 @@ function EditPartner() {
         </div>
 
         {/* Active Partner Checkbox */}
-        <div>
+        <div className="text-left">
           <label className="flex items-center h-full">
             <input
               type="checkbox"
@@ -260,7 +260,7 @@ function EditPartner() {
       </div>
 
       {/* Address - Full Width */}
-      <div className="mt-6">
+      <div className="mt-6 text-left">
         <label className="block text-sm text-gray-700 mb-1">
           Address
         </label>
@@ -274,7 +274,7 @@ function EditPartner() {
       </div>
 
       {/* Functionalities - Full Width */}
-      <div className="mt-6">
+      <div className="mt-6 text-left">
         <label className="block text-sm text-gray-700 mb-1">
           Functionalities
         </label>
