@@ -54,11 +54,15 @@ function DataTable({
   onOutletChange = () => {},
   onShowData = () => {},
   isLoading = false,
+  enableSelection = false,
+  onSelectionChange = () => {},
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [sortCount, setSortCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   // Sorting Logic
   const handleSort = (field) => {
@@ -258,6 +262,27 @@ function DataTable({
     );
   };
 
+  // Add selection handling functions
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedItems(currentItems.map(item => item.id));
+      onSelectionChange(currentItems.map(item => item.id));
+    } else {
+      setSelectedItems([]);
+      onSelectionChange([]);
+    }
+  };
+
+  const handleSelectItem = (id) => {
+    setSelectedItems(prev => {
+      const newSelection = prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id];
+      onSelectionChange(newSelection);
+      return newSelection;
+    });
+  };
+
   return (
     <div className={`rounded-2xl border border-gray-200 bg-white ${darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""}`}>
       {/* Header Section */}
@@ -368,6 +393,98 @@ function DataTable({
         <table className="w-full">
           <thead>
             <tr className={`border-t border-gray-100 ${darkMode ? "dark:border-gray-800" : ""}`}>
+              {/* Checkbox column */}
+              {enableSelection && (
+                <th className="px-2 py-3 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedItems.length === currentItems.length}
+                    onChange={handleSelectAll}
+                    className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </th>
+              )}
+
+              {/* Bulk Actions column - Only visible when items are selected */}
+              {enableSelection && selectedItems.length > 0 && (
+                <th className="px-6 py-3">
+                  <div className="relative">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsActionDropdownOpen(!isActionDropdownOpen);
+                      }}
+                      onBlur={() => setTimeout(() => setIsActionDropdownOpen(false), 200)}
+                      className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600"
+                    >
+                      Actions
+                      <svg
+                        className={`stroke-current duration-200 ease-in-out ${isActionDropdownOpen ? 'rotate-180' : ''}`}
+                        width="16"
+                        height="16"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M4.79199 7.396L10.0003 12.6043L15.2087 7.396"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+
+                    {/* Dropdown Menu */}
+                    {isActionDropdownOpen && (
+                      <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
+                        <ul className="flex flex-col gap-1">
+                          <li>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Handle active action
+                                setIsActionDropdownOpen(false);
+                              }}
+                              className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                            >
+                              Set Active
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Handle inactive action
+                                setIsActionDropdownOpen(false);
+                              }}
+                              className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
+                            >
+                              Set Inactive
+                            </button>
+                          </li>
+                          <li>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Handle delete action
+                                setIsActionDropdownOpen(false);
+                              }}
+                              className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-error-600 hover:bg-error-50"
+                            >
+                              Delete Selected
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </th>
+              )}
+
+              {/* Regular columns */}
               {columns.map((column) => (
                 <th
                   key={column.field}
@@ -392,26 +509,41 @@ function DataTable({
           </thead>
           <tbody>
             {currentItems.map((item, index) => (
-              customRowRender ? (
-                customRowRender(item, index)
-              ) : (
-                <tr key={index} className={`border-t border-gray-100 ${darkMode ? "dark:border-gray-800" : ""}`}>
-                  {columns.map((column) => (
-                    <td 
-                      key={column.field} 
-                      className={`${column.field === 'selection' ? 'px-2' : 'px-6'} py-3.5 text-center`}
-                    >
-                      {column.render ? (
-                        column.render(item[column.field], item)
-                      ) : (
-                        <p className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
-                          {item[column.field]}
-                        </p>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              )
+              <tr key={index} className={`border-t border-gray-100 ${darkMode ? "dark:border-gray-800" : ""}`}>
+                {/* Checkbox cell */}
+                {enableSelection && (
+                  <td className="px-2 py-3.5 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.includes(item.id)}
+                      onChange={() => handleSelectItem(item.id)}
+                      className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </td>
+                )}
+
+                {/* Empty cell for bulk actions column when items are selected */}
+                {enableSelection && selectedItems.length > 0 && (
+                  <td className="px-6 py-3.5"></td>
+                )}
+
+                {/* Regular cells */}
+                {columns.map((column) => (
+                  <td 
+                    key={column.field} 
+                    className={`${column.field === 'selection' ? 'px-2' : 'px-6'} py-3.5 text-center`}
+                  >
+                    {column.render ? (
+                      column.render(item[column.field], item)
+                    ) : (
+                      <p className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
+                        {item[column.field]}
+                      </p>
+                    )}
+                  </td>
+                ))}
+              </tr>
             ))}
           </tbody>
         </table>

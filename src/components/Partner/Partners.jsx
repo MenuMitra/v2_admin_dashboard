@@ -227,31 +227,6 @@ function Partners() {
   // Define columns for DataTable
   const columns = [
     {
-      field: 'selection',
-      header: (
-        <div className="flex items-center justify-center">
-          <input
-            type="checkbox"
-            checked={selectAll}
-            onChange={(e) => handleSelectAll(e.target.checked)}
-            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-          />
-        </div>
-      ),
-      sortable: false,
-      width: '40px',
-      render: (_, partner) => (
-        <div className="flex items-center justify-center">
-          <input
-            type="checkbox"
-            checked={selectedPartners.includes(partner.user_id)}
-            onChange={(e) => handleSelectPartner(partner.user_id, e.target.checked)}
-            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-          />
-        </div>
-      )
-    },
-    {
       field: 'name',
       header: 'Name',
       sortable: true
@@ -430,6 +405,10 @@ function Partners() {
         onBackClick={() => navigate(-1)}
         showBackButton={true}
         backButtonLabel="Back"
+        enableSelection={true}
+        onSelectionChange={(selectedIds) => {
+          console.log('Selected items:', selectedIds);
+        }}
       />
 
       {/* Add the Modal JSX at the bottom of your return statement, before the closing div */}
