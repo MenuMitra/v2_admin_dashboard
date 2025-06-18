@@ -169,8 +169,8 @@ function CreatePartner() {
           name="dob"
           value={formData.dob}
           onChange={handleChange}
-          required
           placeholder="Select date of birth"
+          required
         />
 
         {/* Aadhar Number */}
@@ -204,6 +204,7 @@ function CreatePartner() {
       {/* Functionalities - Full Width */}
       <div className="mt-6">
         <label className={labelStyles}>
+          <span className="text-error-600 text-red-500 mr-1">*</span>
           Functionalities
         </label>
         <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">

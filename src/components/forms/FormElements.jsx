@@ -14,9 +14,18 @@ export const labelStyles = `
   mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400
 `;
 
+// Update the Required Label component to show asterisk on the left
+const RequiredLabel = ({ label }) => (
+  <span>
+    <span className="text-error-600 text-red-500 mr-1">*</span>
+    {label}
+  </span>
+);
+
 // Text Input Component
 export const TextInput = React.forwardRef(({ 
   label, 
+  required,
   placeholder = '', 
   type = 'text',
   value,
@@ -25,13 +34,18 @@ export const TextInput = React.forwardRef(({
 }, ref) => {
   return (
     <div>
-      {label && <label className={labelStyles}>{label}</label>}
+      {label && (
+        <label className={labelStyles}>
+          {required ? <RequiredLabel label={label} /> : label}
+        </label>
+      )}
       <input
         ref={ref}
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        required={required}
         className={baseInputStyles}
         {...props}
       />
@@ -153,18 +167,24 @@ export const Checkbox = React.forwardRef(({
 // Date Input Component
 export const DateInput = React.forwardRef(({
   label,
+  required,
   value,
   onChange,
   ...props
 }, ref) => {
   return (
     <div>
-      {label && <label className={labelStyles}>{label}</label>}
+      {label && (
+        <label className={labelStyles}>
+          {required ? <RequiredLabel label={label} /> : label}
+        </label>
+      )}
       <input
         ref={ref}
         type="date"
         value={value}
         onChange={onChange}
+        required={required}
         className={baseInputStyles}
         {...props}
       />
@@ -175,6 +195,7 @@ export const DateInput = React.forwardRef(({
 // Textarea Component
 export const Textarea = React.forwardRef(({
   label,
+  required,
   value,
   onChange,
   rows = 4,
@@ -182,12 +203,17 @@ export const Textarea = React.forwardRef(({
 }, ref) => {
   return (
     <div>
-      {label && <label className={labelStyles}>{label}</label>}
+      {label && (
+        <label className={labelStyles}>
+          {required ? <RequiredLabel label={label} /> : label}
+        </label>
+      )}
       <textarea
         ref={ref}
         value={value}
         onChange={onChange}
         rows={rows}
+        required={required}
         className={`${baseInputStyles} min-h-[100px] resize-y`}
         {...props}
       />
