@@ -151,17 +151,17 @@ const Sidebar = ({ sidebarToggle = false }) => {
   const MenuGroup = ({ title, items }) => (
     <div>
       <h3 className="mb-4 text-xs leading-[20px] text-gray-400 uppercase">
-        <span
+        {/* <span
           className={`menu-group-title ${sidebarToggle ? "lg:hidden" : ""}`}
         >
           {title}
-        </span>
-        <FontAwesomeIcon
+        </span> */}
+        {/* <FontAwesomeIcon
           icon={faEllipsis}
           className={`menu-group-icon mx-auto fill-current ${
             sidebarToggle ? "lg:block hidden" : "hidden"
           }`}
-        />
+        /> */}
       </h3>
       <ul className="mb-6 flex flex-col gap-4">
         {items.map((item, index) => (
