@@ -18,11 +18,14 @@ import {
   faSearch,
   faSort,
   faSortUp,
-  faSortDown
+  faSortDown,
+  faXmark,
+  faCheck
 } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import Breadcrumb from './Breadcrumb';
 import DataTable from './common/DataTable';
+import Modal from './common/Modal';
 
 const transactionsData = [
   {
@@ -340,11 +343,19 @@ function Outlets() {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
   const [sortCount, setSortCount] = useState(0);
+  const [selectedOutlets, setSelectedOutlets] = useState([]);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    action: null,
+    title: '',
+    message: ''
+  });
 
   // Transform outlet data to match UI structure
   const transformOutletData = (outlets) => {
     return outlets.map((outlet) => ({
       id: outlet.outlet_id,
+      user_id: outlet.outlet_id,
       name: outlet.outlet_name,
       code: outlet.outlet_code,
       mobile: outlet.mobile,
@@ -648,6 +659,90 @@ function Outlets() {
     }
   ];
 
+  // Add this function to handle bulk actions
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      // Show confirmation modal first
+      const { title, message } = getConfirmationDetails(action);
+      setConfirmModal({
+        isOpen: true,
+        action,
+        title,
+        message
+      });
+      
+      // Store selected IDs for use after confirmation
+      setSelectedOutlets(selectedIds.filter(id => id !== null));
+    } catch (err) {
+      setError(err.response?.data?.detail || `Failed to ${action} outlets`);
+      console.error('Error performing bulk action:', err);
+    }
+  };
+
+  // Add this function to get confirmation details
+  const getConfirmationDetails = (action) => {
+    switch(action) {
+      case 'active':
+        return {
+          title: 'Confirm Activation',
+          message: `Are you sure you want to activate ${selectedOutlets.length} selected outlet(s)?`
+        };
+      case 'inactive':
+        return {
+          title: 'Confirm Deactivation',
+          message: `Are you sure you want to deactivate ${selectedOutlets.length} selected outlet(s)?`
+        };
+      case 'delete':
+        return {
+          title: 'Confirm Deletion',
+          message: `Are you sure you want to delete ${selectedOutlets.length} selected outlet(s)? This action cannot be undone.`
+        };
+      default:
+        return { title: '', message: '' };
+    }
+  };
+
+  // Add this function to execute bulk actions
+  const executeBulkAction = async (action) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const validOutletIds = selectedOutlets.filter(id => id !== null && id !== undefined);
+
+      if (validOutletIds.length === 0) {
+        throw new Error('No valid outlet IDs selected');
+      }
+
+      const response = await axios.post(
+        'https://men4u.xyz/v2/common/bulk_outlet_action',
+        {
+          user_id: adminData.user_id,
+          action: action,
+          app_source: "admin_dashboard",
+          outlet_ids: validOutletIds
+        },
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response && response.status === 200) {
+        setSelectedOutlets([]);
+        setConfirmModal({ isOpen: false, action: null, title: '', message: '' });
+        fetchOutlets(); // Refresh the list
+      }
+    } catch (err) {
+      setError(err.response?.data?.detail || `Failed to ${action} outlets`);
+      console.error('Error performing bulk action:', err);
+    }
+  };
+
   return (
     <div className="p-6">
       <Breadcrumb items={breadcrumbItems} />
@@ -678,7 +773,43 @@ function Outlets() {
         enableSort={true}
         enablePagination={true}
         enableSearch={true}
+        enableSelection={true}
+        onSelectionChange={(selectedIds) => {
+          setSelectedOutlets(selectedIds.filter(id => id !== null));
+        }}
+        onBulkAction={handleBulkAction}
       />
+
+      {/* Add Modal component for confirmations */}
+      <Modal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+        title={confirmModal.title}
+        type={confirmModal.action === 'delete' ? 'error' : 'warning'}
+        size="small"
+      >
+        <p className="mb-6">{confirmModal.message}</p>
+        <div className="flex justify-between items-center w-full gap-3">
+          <button
+            onClick={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
+          >
+            <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+            Cancel
+          </button>
+          <button
+            onClick={() => executeBulkAction(confirmModal.action)}
+            className={`px-4 py-2 text-sm font-medium text-white rounded-full transition ${
+              confirmModal.action === 'delete' 
+                ? 'bg-error-500 hover:bg-error-600' 
+                : 'bg-warning-500 hover:bg-warning-600'
+            }`}
+          >
+            <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
+            Confirm
+          </button>
+        </div>
+      </Modal>
 
       {/* Delete Modal - Keep existing implementation */}
       {showDeleteModal && (
