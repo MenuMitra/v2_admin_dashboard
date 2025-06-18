@@ -5,6 +5,7 @@ import { faChevronLeft, faSearch, faPlus, faEye, faPenToSquare, faTrash } from '
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
 import DataTable from '../../common/DataTable';
+import Modal from '../../common/Modal';
 
 function Functionalities() {
   const { getToken } = useAuth();
@@ -268,24 +269,17 @@ function Functionalities() {
       />
 
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Add New Functionality</h3>
-              <button
-                onClick={() => {
-                  setShowCreateModal(false);
-                  setNewFunctionalityName('');
-                  setError(null);
-                }}
-                className="text-gray-400 hover:text-gray-500 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-
+        <Modal
+          isOpen={showCreateModal}
+          onClose={() => {
+            setShowCreateModal(false);
+            setNewFunctionalityName('');
+            setError(null);
+          }}
+          title="Add New Functionality"
+          size="small"
+        >
+          <div className="text-left">
             {error && (
               <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
                 {error}
@@ -293,7 +287,7 @@ function Functionalities() {
             )}
 
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
                 Functionality Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -307,60 +301,53 @@ function Functionalities() {
                 Use underscores instead of spaces (e.g., manage_orders, view_reports)
               </p>
             </div>
-
-            <div className="flex items-center justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowCreateModal(false);
-                  setNewFunctionalityName('');
-                  setError(null);
-                }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-                disabled={isCreating}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleCreateFunctionality}
-                disabled={isCreating || !newFunctionalityName.trim()}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50"
-              >
-                {isCreating ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>Creating...</span>
-                  </>
-                ) : (
-                  'Create Functionality'
-                )}
-              </button>
-            </div>
           </div>
-        </div>
+
+          <div className="flex items-center justify-end gap-3">
+            <button
+              onClick={() => {
+                setShowCreateModal(false);
+                setNewFunctionalityName('');
+                setError(null);
+              }}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              disabled={isCreating}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCreateFunctionality}
+              disabled={isCreating || !newFunctionalityName.trim()}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50"
+            >
+              {isCreating ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Creating...</span>
+                </>
+              ) : (
+                'Create Functionality'
+              )}
+            </button>
+          </div>
+        </Modal>
       )}
 
       {showEditModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Edit Functionality</h3>
-              <button
-                onClick={() => {
-                  setShowEditModal(false);
-                  setEditingFunctionality(null);
-                  setError(null);
-                }}
-                className="text-gray-400 hover:text-gray-500 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-
+        <Modal
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingFunctionality(null);
+            setError(null);
+          }}
+          title="Edit Functionality"
+          size="small"
+        >
+          <div className="text-left">
             {error && (
               <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
                 {error}
@@ -368,7 +355,7 @@ function Functionalities() {
             )}
 
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
                 Functionality Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -385,60 +372,54 @@ function Functionalities() {
                 Use underscores instead of spaces (e.g., manage_orders, view_reports)
               </p>
             </div>
-
-            <div className="flex items-center justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowEditModal(false);
-                  setEditingFunctionality(null);
-                  setError(null);
-                }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-                disabled={isEditing}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleEditFunctionality}
-                disabled={isEditing || !editingFunctionality?.functionality_name.trim()}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50"
-              >
-                {isEditing ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>Updating...</span>
-                  </>
-                ) : (
-                  'Update Functionality'
-                )}
-              </button>
-            </div>
           </div>
-        </div>
+
+          <div className="flex items-center justify-end gap-3">
+            <button
+              onClick={() => {
+                setShowEditModal(false);
+                setEditingFunctionality(null);
+                setError(null);
+              }}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              disabled={isEditing}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEditFunctionality}
+              disabled={isEditing || !editingFunctionality?.functionality_name.trim()}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50"
+            >
+              {isEditing ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Updating...</span>
+                </>
+              ) : (
+                'Update Functionality'
+              )}
+            </button>
+          </div>
+        </Modal>
       )}
 
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Delete Functionality</h3>
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setDeletingFunctionality(null);
-                  setError(null);
-                }}
-                className="text-gray-400 hover:text-gray-500 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </button>
-            </div>
-
+        <Modal
+          isOpen={showDeleteModal}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setDeletingFunctionality(null);
+            setError(null);
+          }}
+          title="Delete Functionality"
+          size="small"
+          type="error"
+        >
+          <div className="text-left">
             {error && (
               <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
                 {error}
@@ -446,43 +427,43 @@ function Functionalities() {
             )}
 
             <div className="mb-6">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 text-left">
                 Are you sure you want to delete the functionality "{deletingFunctionality?.functionality_name.replace(/_/g, ' ')}"? This action cannot be undone.
               </p>
             </div>
-
-            <div className="flex items-center justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setDeletingFunctionality(null);
-                  setError(null);
-                }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteFunctionality}
-                disabled={isDeleting}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 disabled:opacity-50"
-              >
-                {isDeleting ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>Deleting...</span>
-                  </>
-                ) : (
-                  'Delete Functionality'
-                )}
-              </button>
-            </div>
           </div>
-        </div>
+
+          <div className="flex items-center justify-end gap-3">
+            <button
+              onClick={() => {
+                setShowDeleteModal(false);
+                setDeletingFunctionality(null);
+                setError(null);
+              }}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              disabled={isDeleting}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteFunctionality}
+              disabled={isDeleting}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 disabled:opacity-50"
+            >
+              {isDeleting ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  <span>Deleting...</span>
+                </>
+              ) : (
+                'Delete Functionality'
+              )}
+            </button>
+          </div>
+        </Modal>
       )}
     </div>
   );
