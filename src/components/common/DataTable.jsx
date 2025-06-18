@@ -371,7 +371,7 @@ function DataTable({
               {columns.map((column) => (
                 <th
                   key={column.field}
-                  className={`px-6 py-3 text-center ${
+                  className={`${column.field === 'selection' ? 'px-2' : 'px-6'} py-3 text-center ${
                     enableSort && column.sortable
                       ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                       : ""
@@ -397,7 +397,10 @@ function DataTable({
               ) : (
                 <tr key={index} className={`border-t border-gray-100 ${darkMode ? "dark:border-gray-800" : ""}`}>
                   {columns.map((column) => (
-                    <td key={column.field} className="px-6 py-3.5 text-center">
+                    <td 
+                      key={column.field} 
+                      className={`${column.field === 'selection' ? 'px-2' : 'px-6'} py-3.5 text-center`}
+                    >
                       {column.render ? (
                         column.render(item[column.field], item)
                       ) : (

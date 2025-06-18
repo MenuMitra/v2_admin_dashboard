@@ -19,6 +19,8 @@ function Partners() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [partnerToDelete, setPartnerToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [selectedPartners, setSelectedPartners] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
 
   // Stats state
   const [stats, setStats] = useState({
@@ -74,7 +76,7 @@ function Partners() {
     }
   };
 
-  // Add this function to handle delete
+  // Modify the handleDelete function to handle both single and bulk deletions
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
@@ -83,35 +85,88 @@ function Partners() {
         throw new Error('No authentication token available');
       }
 
-      const response = await axios.delete(
-        'https://men4u.xyz/v2/admin/delete_partner',
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json'
-          },
-          data: {
-            partner_id: partnerToDelete.user_id,
+      const isBulkDelete = Array.isArray(partnerToDelete.user_ids);
+      const endpoint = isBulkDelete 
+        ? 'https://men4u.xyz/v2/admin/bulk_delete_partners'  // You'll need to create this endpoint
+        : 'https://men4u.xyz/v2/admin/delete_partner';
+
+      const data = isBulkDelete
+        ? {
+            partner_ids: partnerToDelete.user_ids,
             user_id: adminData.user_id
           }
-        }
-      );
+        : {
+            partner_id: partnerToDelete.user_id,
+            user_id: adminData.user_id
+          };
 
-      if (response.data.detail === "Partner deleted successfully") {
+      const response = await axios.delete(endpoint, {
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json'
+        },
+        data
+      });
+
+      if (response.data.detail.includes("deleted successfully")) {
         setIsDeleteModalOpen(false);
         setPartnerToDelete(null);
+        setSelectedPartners([]);
+        setSelectAll(false);
         fetchPartners(); // Refresh the list
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to delete partner');
-      console.error('Error deleting partner:', err);
+      setError(err.response?.data?.detail || 'Failed to delete partner(s)');
+      console.error('Error deleting partner(s):', err);
     } finally {
       setIsDeleting(false);
     }
   };
 
+  const handleSelectAll = (checked) => {
+    setSelectAll(checked);
+    setSelectedPartners(checked ? partners.map(partner => partner.user_id) : []);
+  };
+
+  const handleSelectPartner = (partnerId, checked) => {
+    setSelectedPartners(prev => {
+      const newSelected = checked 
+        ? [...prev, partnerId]
+        : prev.filter(id => id !== partnerId);
+      
+      // Update selectAll state based on whether all items are selected
+      setSelectAll(newSelected.length === partners.length);
+      return newSelected;
+    });
+  };
+
   // Define columns for DataTable
   const columns = [
+    {
+      field: 'selection',
+      header: (
+        <div className="flex items-center justify-center">
+          <input
+            type="checkbox"
+            checked={selectAll}
+            onChange={(e) => handleSelectAll(e.target.checked)}
+            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+          />
+        </div>
+      ),
+      sortable: false,
+      width: '40px',
+      render: (_, partner) => (
+        <div className="flex items-center justify-center">
+          <input
+            type="checkbox"
+            checked={selectedPartners.includes(partner.user_id)}
+            onChange={(e) => handleSelectPartner(partner.user_id, e.target.checked)}
+            className="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+          />
+        </div>
+      )
+    },
     {
       field: 'name',
       header: 'Name',
@@ -193,6 +248,27 @@ function Partners() {
       {error && (
         <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
           {error}
+        </div>
+      )}
+
+      {selectedPartners.length > 0 && (
+        <div className="mb-4 p-4 bg-blue-50 rounded-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-blue-700">
+              {selectedPartners.length} {selectedPartners.length === 1 ? 'partner' : 'partners'} selected
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setPartnerToDelete({ user_ids: selectedPartners });
+                setIsDeleteModalOpen(true);
+              }}
+              className="px-3 py-1 text-sm text-white bg-error-500 hover:bg-error-600 rounded-lg transition"
+            >
+              Delete Selected
+            </button>
+          </div>
         </div>
       )}
 
