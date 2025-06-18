@@ -177,17 +177,77 @@ export const DateInput = React.forwardRef(({
   error = "",
   ...props
 }, ref) => {
+  // Function to format date to DD MMM YYYY
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return ''; // Invalid date
+    
+    return d.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).replace(/ /g, ' '); // Ensure proper spacing
+  };
+
+  // Custom onChange handler to format the date
+  const handleDateChange = (e) => {
+    const inputDate = e.target.value; // This will be in YYYY-MM-DD format from the date input
+    
+    // Create a synthetic event to match the standard onChange format
+    const syntheticEvent = {
+      target: {
+        name: e.target.name,
+        value: formatDate(inputDate) // Convert to DD MMM YYYY format
+      }
+    };
+
+    onChange(syntheticEvent);
+  };
+
+  // Convert DD MMM YYYY to YYYY-MM-DD for the input value
+  const getInputValue = () => {
+    if (!value) return '';
+    
+    // If it's already in YYYY-MM-DD format, return as is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+
+    // Try to parse DD MMM YYYY format
+    const parts = value.split(' ');
+    if (parts.length === 3) {
+      const months = {
+        'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+        'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+      };
+      
+      const day = parts[0].padStart(2, '0');
+      const month = months[parts[1]] || '';
+      const year = parts[2];
+
+      if (day && month && year) {
+        return `${year}-${month}-${day}`;
+      }
+    }
+
+    return '';
+  };
+
   return (
     <DatePickerInput
       ref={ref}
       label={required ? <RequiredLabel label={label} /> : label}
-      value={value}
-      onChange={onChange}
+      value={getInputValue()}
+      onChange={handleDateChange}
       placeholder={placeholder}
       required={required}
       disabled={disabled}
       className={className}
       error={error}
+      type="date" // Enforce date type
+      max="2999-12-31" // Reasonable future date limit
+      min="1900-01-01" // Reasonable past date limit
       {...props}
     />
   );
