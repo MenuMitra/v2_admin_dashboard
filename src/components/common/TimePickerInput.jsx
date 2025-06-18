@@ -5,67 +5,52 @@ const TimePickerInput = ({
   value, 
   onChange, 
   name, 
-  placeholder = "Select time",
+  placeholder = "12:00 AM",
   required = false,
   disabled = false,
   className = "",
   error = ""
 }) => {
-  // Generate time options in 30-minute intervals
-  const generateTimeOptions = () => {
-    const options = [];
-    for (let hour = 0; hour < 24; hour++) {
-      for (let minute of ['00', '30']) {
-        const time = `${hour.toString().padStart(2, '0')}:${minute}`;
-        const formattedHour = hour % 12 || 12;
-        const ampm = hour < 12 ? 'AM' : 'PM';
-        const label = `${formattedHour}:${minute} ${ampm}`;
-        options.push({ value: time, label });
-      }
-    }
-    return options;
-  };
-
-  const timeOptions = generateTimeOptions();
-
-  const formatTimeForAPI = (timeString) => {
-    if (!timeString) return '';
-    
-    // Split the time into hours and minutes
-    const [hours, minutes] = timeString.split(':');
-    const hour = parseInt(hours);
-    
-    // Determine AM/PM
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    
-    // Convert to 12-hour format
-    const formattedHour = (hour % 12) || 12;
-    
-    // Return only the time part, let the parent component handle the date
-    return `${formattedHour.toString().padStart(2, '0')}:${minutes} ${ampm}`;
-  };
-
   const handleTimeChange = (e) => {
     const selectedTime = e.target.value;
-    const formattedTime = formatTimeForAPI(selectedTime);
+    if (!selectedTime) return;
+
+    // Convert 24h time to 12h format with AM/PM
+    const [hours, minutes] = selectedTime.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const formattedHour = (hour % 12) || 12;
     
-    // Create a synthetic event to match the standard onChange format
+    // Just send the time and AM/PM without the date
+    const formattedTime = `${formattedHour.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+    
     const syntheticEvent = {
       target: {
         name,
-        value: formattedTime // This will now be in format "HH:MM AM/PM"
+        value: formattedTime // Now just "HH:MM AM/PM"
       }
     };
     onChange(syntheticEvent);
   };
 
-  // Extract time from the datetime string for display in the select
-  const getDisplayTime = (dateTimeString) => {
-    if (!dateTimeString) return '';
+  // Convert API time format back to 24h format for input
+  const getInputValue = () => {
+    if (!value) return '';
     try {
-      const timePart = dateTimeString.split(' ')[1];
-      const [hours, minutes] = timePart.split(':');
-      return `${hours}:${minutes}`;
+      // Extract just the time part, ignoring the date portion
+      const parts = value.split(' ');
+      const timePart = parts.length > 2 ? `${parts[1]} ${parts[2]}` : value;
+      const [time, period] = timePart.split(' ');
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const isPM = period === 'PM';
+      
+      // Convert to 24h format
+      let hour24 = hour;
+      if (isPM && hour !== 12) hour24 += 12;
+      if (!isPM && hour === 12) hour24 = 0;
+      
+      return `${hour24.toString().padStart(2, '0')}:${minutes}`;
     } catch (error) {
       return '';
     }
@@ -81,38 +66,30 @@ const TimePickerInput = ({
       )}
 
       <div className="relative">
-        <select
-          value={getDisplayTime(value)}
+        <input
+          type="time"
+          value={getInputValue()}
           onChange={handleTimeChange}
-          disabled={disabled}
+          placeholder={placeholder}
           required={required}
+          disabled={disabled}
+          onClick={(e) => e.target.showPicker()}
           className={`
-            h-11 w-full appearance-none rounded-lg border border-gray-300 
-            bg-transparent px-4 py-2.5 pr-11 pl-4 text-sm 
-            text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden 
+            dark:bg-dark-900 shadow-theme-xs 
             focus:border-brand-300 focus:ring-brand-500/10 
-            dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 
-            dark:placeholder:text-white/30 dark:focus:border-brand-800
-            select-none
-            [-webkit-appearance:none]
-            [-moz-appearance:none]
-            [&::-ms-expand]{display:none}
-            [&::-webkit-inner-spin-button]{display:none}
-            [&::-webkit-calendar-picker-indicator]{display:none}
-            [&::-webkit-dropdown-button]{display:none}
+            dark:focus:border-brand-800 
+            h-11 w-full appearance-none rounded-lg 
+            border border-gray-300 bg-transparent 
+            px-4 py-2.5 pr-11 pl-4 text-sm 
+            text-gray-800 placeholder:text-gray-400 
+            focus:ring-3 focus:outline-hidden 
+            dark:border-gray-700 dark:bg-gray-900 
+            dark:text-white/90 dark:placeholder:text-white/30
             bg-none
             ${error ? 'border-red-500' : ''}
             ${disabled ? 'cursor-not-allowed opacity-50' : ''}
           `}
-          style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
-        >
-          <option value="">{placeholder}</option>
-          {timeOptions.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+        />
         <span className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none">
           <svg 
             className="fill-current" 

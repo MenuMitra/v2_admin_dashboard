@@ -178,20 +178,23 @@ function CreateOutlet() {
         formDataToSend.append('website', formData.website);
       }
 
+      // Get current date in YYYY-MM-DD format
+      const currentDate = new Date().toISOString().split('T')[0];
+
       // Fix the time formatting to match exactly "YYYY-MM-DD HH:MM:SS AM/PM"
       if (formData.opening_time) {
-        // opening_time now comes as "HH:MM AM/PM"
-        const [time, period] = formData.opening_time.split(' ');
-        const [hours, minutes] = time.split(':');
-        const formattedOpeningTime = `2024-01-01 ${hours}:${minutes}:00 ${period}`;
+        // opening_time comes as "HH:MM AM/PM"
+        const [timeStr, period] = formData.opening_time.split(' ');
+        const [hours, minutes] = timeStr.split(':');
+        const formattedOpeningTime = `${currentDate} ${hours}:${minutes}:00 ${period}`;
         formDataToSend.append('opening_time', formattedOpeningTime);
       }
 
       if (formData.closing_time) {
-        // closing_time now comes as "HH:MM AM/PM"
-        const [time, period] = formData.closing_time.split(' ');
-        const [hours, minutes] = time.split(':');
-        const formattedClosingTime = `2024-01-01 ${hours}:${minutes}:00 ${period}`;
+        // closing_time comes as "HH:MM AM/PM"
+        const [timeStr, period] = formData.closing_time.split(' ');
+        const [hours, minutes] = timeStr.split(':');
+        const formattedClosingTime = `${currentDate} ${hours}:${minutes}:00 ${period}`;
         formDataToSend.append('closing_time', formattedClosingTime);
       }
 
