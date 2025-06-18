@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPenToSquare, faTrash, faPlus, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
@@ -489,7 +489,7 @@ function Partners() {
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
                     onClick={() => setIsDeleteModalOpen(false)}
                     disabled={isDeleting}
                   >
@@ -528,21 +528,23 @@ function Partners() {
         size="small"
       >
         <p className="mb-6">{confirmModal.message}</p>
-        <div className="flex gap-3">
+        <div className="flex justify-between items-center w-full gap-3">
           <button
             onClick={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
           >
+            <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
             Cancel
           </button>
           <button
             onClick={() => executeBulkAction(confirmModal.action)}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-md transition ${
+            className={`px-4 py-2 text-sm font-medium text-white rounded-full transition ${
               confirmModal.action === 'delete' 
                 ? 'bg-error-500 hover:bg-error-600' 
                 : 'bg-warning-500 hover:bg-warning-600'
             }`}
           >
+            <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
             Confirm
           </button>
         </div>

@@ -552,7 +552,7 @@ function DataTable({
       </div>
 
       {/* Pagination Section */}
-      {enablePagination && (
+      {enablePagination && processedData.length > 10 && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-800">
           <div className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
             Showing {indexOfFirstItem + 1} to{" "}
