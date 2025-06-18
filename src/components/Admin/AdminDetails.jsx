@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { useAdmin } from '../../hooks/useAdmin';
-import axios from 'axios';
-import Breadcrumb from '../Breadcrumb';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import Modal from '../common/Modal';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
+import axios from "axios";
+import Breadcrumb from "../Breadcrumb";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChevronLeft,
+  faCircleCheck,
+  faCircleXmark,
+} from "@fortawesome/free-solid-svg-icons";
+import Modal from "../common/Modal";
 
 function AdminDetails() {
   const { adminId } = useParams();
@@ -20,20 +24,33 @@ function AdminDetails() {
 
   // Breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Admins', path: '/admins' },
-    { label: 'Admin Details', path: `/admin-details/${adminId}` }
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Admins", path: "/admins" },
+    { label: "Admin Details", path: `/admin-details/${adminId}` },
   ];
 
   // Format date helper function
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const month = months[date.getMonth()];
-    const day = date.getDate().toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, "0");
     const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
     return `${month} ${day}, ${year} at ${hours}:${minutes}`;
   };
 
@@ -45,27 +62,31 @@ function AdminDetails() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/view_admin',
+        "https://men4u.xyz/v2/admin/view_admin",
         { admin_id: parseInt(adminId) },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       setAdmin(response.data);
     } catch (err) {
-      setError(err.response?.data?.detail || err.message || 'Failed to fetch admin details');
-      console.error('Error fetching admin details:', err);
+      setError(
+        err.response?.data?.detail ||
+          err.message ||
+          "Failed to fetch admin details"
+      );
+      console.error("Error fetching admin details:", err);
     } finally {
       setIsLoading(false);
     }
@@ -76,31 +97,31 @@ function AdminDetails() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/delete_admin',
+        "https://men4u.xyz/v2/admin/delete_admin",
         {
           admin_id: parseInt(adminId),
-          user_id: adminData.user_id
+          user_id: adminData.user_id,
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (response.data.detail === "Admin deleted successfully") {
-        navigate('/admins');
+        navigate("/admins");
       } else {
-        throw new Error('Failed to delete admin');
+        throw new Error("Failed to delete admin");
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to delete admin');
-      console.error('Error deleting admin:', err);
+      setError(err.response?.data?.detail || "Failed to delete admin");
+      console.error("Error deleting admin:", err);
     } finally {
       setShowDeleteModal(false);
     }
@@ -133,7 +154,7 @@ function AdminDetails() {
           {/* Left Side - Back Button */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => navigate('/admins')}
+              onClick={() => navigate("/admins")}
               className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
             >
               <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
@@ -198,49 +219,66 @@ function AdminDetails() {
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
                 Admin Information
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <div>
-                
-                <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
+                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {admin.name}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Name
+                  </p>
                 </div>
                 <div>
                   <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {admin.email}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Email
+                  </p>
                 </div>
                 <div>
                   <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {admin.mobile}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Mobile</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Mobile
+                  </p>
                 </div>
                 <div>
                   <div className="mt-1 flex items-center gap-2">
-                    <FontAwesomeIcon 
-                      icon={admin.is_active ? faCircleCheck : faCircleXmark} 
-                      className={`w-5 h-5 ${admin.is_active ? 'text-success-500' : 'text-error-500'}`} 
+                    <FontAwesomeIcon
+                      icon={admin.is_active ? faCircleCheck : faCircleXmark}
+                      className={`w-5 h-5 ${
+                        admin.is_active ? "text-success-500" : "text-error-500"
+                      }`}
                     />
-                    <span className={`text-base font-medium ${admin.is_active ? 'text-success-700' : 'text-error-700'}`}>
-                      {admin.is_active ? 'Active' : 'Inactive'}
+                    <span
+                      className={`text-base font-medium ${
+                        admin.is_active ? "text-success-700" : "text-error-700"
+                      }`}
+                    >
+                      {admin.is_active ? "Active" : "Inactive"}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Status
+                  </p>
                 </div>
                 <div>
                   <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {formatDate(admin.created_on)}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Created On</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Created On
+                  </p>
                 </div>
                 <div>
                   <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
                     {formatDate(admin.updated_on)}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Last Updated</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    Last Updated
+                  </p>
                 </div>
               </div>
             </div>
@@ -256,14 +294,17 @@ function AdminDetails() {
                     key={functionality.id}
                     className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                   >
-                    <FontAwesomeIcon 
-                      icon={faCircleCheck} 
-                      className="w-4 h-4 text-success-500" 
+                    <FontAwesomeIcon
+                      icon={faCircleCheck}
+                      className="w-4 h-4 text-success-500"
                     />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      {functionality.name.split('_').map(word => 
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                      ).join(' ')}
+                      {functionality.name
+                        .split("_")
+                        .map(
+                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                        )
+                        .join(" ")}
                     </span>
                   </div>
                 ))}
@@ -302,7 +343,8 @@ function AdminDetails() {
         <div className="flex items-start">
           <div className="ml-4">
             <p className="text-sm text-gray-500">
-              Are you sure you want to delete this admin? This action cannot be undone.
+              Are you sure you want to delete this admin? This action cannot be
+              undone.
             </p>
             <p className="text-sm text-gray-500">
               All data associated with this admin will be permanently removed.
