@@ -10,7 +10,8 @@ import {
   DateInput,
   Textarea,
   Checkbox,
-  labelStyles
+  labelStyles,
+  SelectInput
 } from './forms/FormElements.jsx';
 
 function EditOwner() {
@@ -29,6 +30,8 @@ function EditOwner() {
     dob: '',
     aadhar_number: '',
     address: '',
+    account_type: '',
+    is_active: 0,
     functionality_ids: []
   });
 
@@ -66,6 +69,7 @@ function EditOwner() {
 
   const fetchOwnerDetails = async () => {
     try {
+      setIsLoading(true);
       const token = getToken();
       if (!token) {
         throw new Error('No authentication token available');
@@ -74,18 +78,18 @@ function EditOwner() {
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/view_owner',
         {
-          user_id: adminData.user_id,
-          owner_id: parseInt(ownerId)
+          owner_id: Number(ownerId),
+          user_id: adminData.user_id
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
-          },
+            'Content-Type': 'application/json'
+          }
         }
       );
 
-      const funcIds = response.data.functionality_ids || [];
+      const funcIds = response.data.functionalities.map(f => f.functionality_id);
       setSelectedFunctionalities(funcIds);
 
       setFormData({
@@ -95,6 +99,8 @@ function EditOwner() {
         dob: response.data.dob,
         aadhar_number: response.data.aadhar_number,
         address: response.data.address,
+        account_type: response.data.account_type,
+        is_active: response.data.is_active,
         functionality_ids: funcIds
       });
       setIsLoading(false);
@@ -106,10 +112,10 @@ function EditOwner() {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: name === 'is_active' ? Number(value) : value
     }));
   };
 
@@ -135,8 +141,9 @@ function EditOwner() {
           aadhar_number: formData.aadhar_number,
           dob: formData.dob,
           email: formData.email,
-          account_type: 'test',
-          functionality_ids: formData.functionality_ids
+          account_type: formData.account_type,
+          functionality_ids: formData.functionality_ids,
+          is_active: Number(formData.is_active)
         },
         {
           headers: {
@@ -336,6 +343,20 @@ function EditOwner() {
                 </div>
               )}
             </div>
+
+            {/* Owner Status */}
+            <SelectInput
+              label="Owner Status"
+              name="is_active"
+              value={formData.is_active}
+              onChange={handleChange}
+              required
+              options={[
+                { value: 1, label: 'Active' },
+                { value: 0, label: 'Inactive' }
+              ]}
+              placeholder="Select Status"
+            />
 
             {/* Error Message */}
             {error && (
