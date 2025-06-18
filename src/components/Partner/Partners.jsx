@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
+import Modal from '../common/Modal';
 
 function Partners() {
   const navigate = useNavigate();
@@ -28,6 +29,14 @@ function Partners() {
     total: 0,
     active: 0,
     inactive: 0
+  });
+
+  // Add these states after other state declarations
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    action: null,
+    title: '',
+    message: ''
   });
 
   useEffect(() => {
@@ -141,6 +150,39 @@ function Partners() {
     });
   };
 
+  const getConfirmationDetails = (action) => {
+    switch(action) {
+      case 'active':
+        return {
+          title: 'Confirm Activation',
+          message: `Are you sure you want to activate ${selectedPartners.length} selected partner(s)?`
+        };
+      case 'inactive':
+        return {
+          title: 'Confirm Deactivation',
+          message: `Are you sure you want to deactivate ${selectedPartners.length} selected partner(s)?`
+        };
+      case 'delete':
+        return {
+          title: 'Confirm Deletion',
+          message: `Are you sure you want to delete ${selectedPartners.length} selected partner(s)? This action cannot be undone.`
+        };
+      default:
+        return { title: '', message: '' };
+    }
+  };
+
+  const showConfirmation = (action) => {
+    const { title, message } = getConfirmationDetails(action);
+    setConfirmModal({
+      isOpen: true,
+      action,
+      title,
+      message
+    });
+    setIsActionDropdownOpen(false);
+  };
+
   const handleBulkAction = async (action) => {
     try {
       const token = getToken();
@@ -168,6 +210,7 @@ function Partners() {
         setSelectedPartners([]);
         setSelectAll(false);
         setIsActionDropdownOpen(false);
+        setConfirmModal({ isOpen: false, action: null, title: '', message: '' });
         fetchPartners(); // Refresh the list
       }
     } catch (err) {
@@ -249,7 +292,8 @@ function Partners() {
           </button>
           <button
             onClick={() => {
-              handleBulkAction('delete', [partner.user_id]);
+              showConfirmation('delete');
+              setSelectedPartners([partner.user_id]);
             }}
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
             title="Delete Partner"
@@ -324,7 +368,7 @@ function Partners() {
                   <ul className="flex flex-col gap-1">
                     <li>
                       <button
-                        onClick={() => handleBulkAction('active')}
+                        onClick={() => showConfirmation('active')}
                         className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
                       >
                         Set Active
@@ -332,7 +376,7 @@ function Partners() {
                     </li>
                     <li>
                       <button
-                        onClick={() => handleBulkAction('inactive')}
+                        onClick={() => showConfirmation('inactive')}
                         className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
                       >
                         Set Inactive
@@ -340,7 +384,7 @@ function Partners() {
                     </li>
                     <li>
                       <button
-                        onClick={() => handleBulkAction('delete')}
+                        onClick={() => showConfirmation('delete')}
                         className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-error-600 hover:bg-error-50"
                       >
                         Delete Selected
@@ -452,6 +496,34 @@ function Partners() {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+        title={confirmModal.title}
+        type={confirmModal.action === 'delete' ? 'error' : 'warning'}
+        size="small"
+      >
+        <p className="mb-6">{confirmModal.message}</p>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => handleBulkAction(confirmModal.action)}
+            className={`px-4 py-2 text-sm font-medium text-white rounded-md transition ${
+              confirmModal.action === 'delete' 
+                ? 'bg-error-500 hover:bg-error-600' 
+                : 'bg-warning-500 hover:bg-warning-600'
+            }`}
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
