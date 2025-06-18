@@ -91,7 +91,7 @@ function CreateOutlet() {
       }
 
       const response = await axios.get(
-        `https://men4u.xyz/v2/admin/listview_owner/${adminData.user_id}`,
+        `https://men4u.xyz/v2/common/listview_owner/${adminData.user_id}`,
         {
           headers: {
             Authorization: token,
