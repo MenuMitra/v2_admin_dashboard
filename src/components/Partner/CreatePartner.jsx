@@ -6,7 +6,6 @@ import axios from 'axios';
 import DataTable from '../common/DataTable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
-import DatePickerInput from '../common/DatePickerInput';
 import {
   TextInput,
   DateInput,
@@ -169,8 +168,8 @@ function CreatePartner() {
           name="dob"
           value={formData.dob}
           onChange={handleChange}
-          placeholder="Select date of birth"
           required
+          placeholder="Select date of birth"
         />
 
         {/* Aadhar Number */}

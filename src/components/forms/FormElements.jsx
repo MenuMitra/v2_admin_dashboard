@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DatePickerInput from '../common/DatePickerInput';
 
 // Base input styles
 export const baseInputStyles = `
@@ -170,25 +171,25 @@ export const DateInput = React.forwardRef(({
   required,
   value,
   onChange,
+  placeholder = "Select date",
+  disabled = false,
+  className = "",
+  error = "",
   ...props
 }, ref) => {
   return (
-    <div>
-      {label && (
-        <label className={labelStyles}>
-          {required ? <RequiredLabel label={label} /> : label}
-        </label>
-      )}
-      <input
-        ref={ref}
-        type="date"
-        value={value}
-        onChange={onChange}
-        required={required}
-        className={baseInputStyles}
-        {...props}
-      />
-    </div>
+    <DatePickerInput
+      ref={ref}
+      label={required ? <RequiredLabel label={label} /> : label}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      required={required}
+      disabled={disabled}
+      className={className}
+      error={error}
+      {...props}
+    />
   );
 });
 
