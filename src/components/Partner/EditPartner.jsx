@@ -6,6 +6,7 @@ import axios from 'axios';
 import DataTable from '../common/DataTable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave } from '@fortawesome/free-solid-svg-icons';
+import DatePickerInput from '../common/DatePickerInput';
 
 function EditPartner() {
   const navigate = useNavigate();
@@ -218,15 +219,13 @@ function EditPartner() {
 
         {/* Date of Birth */}
         <div className="text-left">
-          <label className="block text-sm text-gray-700 mb-1">
-            Date of Birth
-          </label>
-          <input
-            type="date"
+          <DatePickerInput
+            label="Date of Birth"
             name="dob"
             value={formData.dob}
             onChange={handleChange}
-            className="w-full px-3 py-2 border rounded-md"
+            required
+            placeholder="Select date"
           />
         </div>
 
