@@ -41,9 +41,10 @@ const DatePickerInput = ({
             dateFormat: 'Y-m-d',
             static: true,
             disableMobile: true,
-            placeholder,
+            allowInput: true,
             disabled,
           }}
+          placeholder={placeholder}
           className={`
             dark:bg-dark-900 shadow-theme-xs 
             focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 
