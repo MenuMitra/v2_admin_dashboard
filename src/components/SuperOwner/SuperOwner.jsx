@@ -125,7 +125,7 @@ function SuperOwner() {
         <h2 className="text-2xl font-bold">Super Owners</h2>
         <button 
           onClick={() => navigate('/create-super-owner')}
-          className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-success-500 shadow-theme-xs hover:bg-success-600"
+          className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-full bg-success-500 shadow-theme-xs hover:bg-success-600"
         >
           <FontAwesomeIcon icon={faPlus} className="w-5 h-5" />
           <span>Create</span>
