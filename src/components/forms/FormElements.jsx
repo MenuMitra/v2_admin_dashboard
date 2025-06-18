@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import DatePickerInput from '../common/DatePickerInput';
+import TimePickerInput from '../common/TimePickerInput';
 
 // Base input styles
-export const baseInputStyles = `
+const baseInputStyles = `
   h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 
   text-sm text-gray-800 placeholder:text-gray-400 
   focus:ring-3 focus:outline-hidden focus:border-brand-300 focus:ring-brand-500/10
@@ -11,7 +12,7 @@ export const baseInputStyles = `
 `;
 
 // Label styles
-export const labelStyles = `
+const labelStyles = `
   mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400
 `;
 
@@ -24,7 +25,7 @@ const RequiredLabel = ({ label }) => (
 );
 
 // Text Input Component
-export const TextInput = React.forwardRef(({ 
+const TextInput = React.forwardRef(({ 
   label, 
   required,
   placeholder = '', 
@@ -55,7 +56,7 @@ export const TextInput = React.forwardRef(({
 });
 
 // Password Input Component
-export const PasswordInput = React.forwardRef(({
+const PasswordInput = React.forwardRef(({
   label,
   placeholder = 'Enter your password',
   value,
@@ -97,7 +98,7 @@ export const PasswordInput = React.forwardRef(({
 });
 
 // Select Input Component
-export const SelectInput = React.forwardRef(({
+const SelectInput = React.forwardRef(({
   label,
   options = [],
   value,
@@ -108,12 +109,38 @@ export const SelectInput = React.forwardRef(({
   return (
     <div>
       {label && <label className={labelStyles}>{label}</label>}
-      <div className="relative z-20 bg-transparent">
+      <div className="relative z-20">
         <select
           ref={ref}
           value={value}
           onChange={onChange}
-          className={`${baseInputStyles} appearance-none pr-11`}
+          className={`
+            ${baseInputStyles} 
+            !appearance-none
+            !select-none
+            !pr-11
+            !bg-transparent
+            border-gray-300
+            dark:border-gray-700
+            [appearance:none]
+            [-webkit-appearance:none]
+            [-moz-appearance:none]
+            [&::-ms-expand]{display:none}
+            [&::-webkit-inner-spin-button]{display:none}
+            [&::-webkit-calendar-picker-indicator]{display:none}
+            [&::-webkit-dropdown-button]{display:none}
+            [&::-webkit-select-arrow]{display:none}
+            [&::-moz-select-arrow]{display:none}
+            [&::-ms-select-arrow]{display:none}
+            [&::-o-select-arrow]{display:none}
+            [&::select-arrow]{display:none}
+          `}
+          style={{
+            WebkitAppearance: 'none',
+            MozAppearance: 'none',
+            appearance: 'none',
+            backgroundImage: 'none'
+          }}
           {...props}
         >
           <option value="" className="text-gray-700 dark:bg-gray-900 dark:text-gray-400">
@@ -129,9 +156,19 @@ export const SelectInput = React.forwardRef(({
             </option>
           ))}
         </select>
-        <span className="pointer-events-none absolute top-1/2 right-4 z-30 -translate-y-1/2 text-gray-500 dark:text-gray-400">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M4.79175 7.396L10.0001 12.6043L15.2084 7.396" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <span className="absolute top-1/2 right-4 z-[31] -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none select-none">
+          <svg 
+            className="fill-none stroke-current" 
+            width="16" 
+            height="16" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              d="M6 9L12 15L18 9" 
+              strokeWidth="2" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            />
           </svg>
         </span>
       </div>
@@ -140,7 +177,7 @@ export const SelectInput = React.forwardRef(({
 });
 
 // Checkbox Component
-export const Checkbox = React.forwardRef(({
+const Checkbox = React.forwardRef(({
   label,
   checked,
   onChange,
@@ -166,7 +203,7 @@ export const Checkbox = React.forwardRef(({
 });
 
 // Date Input Component
-export const DateInput = React.forwardRef(({
+const DateInput = React.forwardRef(({
   label,
   required,
   value,
@@ -254,7 +291,7 @@ export const DateInput = React.forwardRef(({
 });
 
 // Textarea Component
-export const Textarea = React.forwardRef(({
+const Textarea = React.forwardRef(({
   label,
   required,
   value,
@@ -283,7 +320,7 @@ export const Textarea = React.forwardRef(({
 });
 
 // Radio Button Component
-export const RadioButton = React.forwardRef(({
+const RadioButton = React.forwardRef(({
   label,
   checked,
   value,
@@ -313,7 +350,7 @@ export const RadioButton = React.forwardRef(({
 });
 
 // Toggle Switch Component
-export const ToggleSwitch = React.forwardRef(({
+const ToggleSwitch = React.forwardRef(({
   label,
   checked,
   onChange,
@@ -350,7 +387,7 @@ export const ToggleSwitch = React.forwardRef(({
 });
 
 // File Input Component
-export const FileInput = React.forwardRef(({
+const FileInput = React.forwardRef(({
   label,
   onChange,
   accept,
@@ -382,7 +419,7 @@ export const FileInput = React.forwardRef(({
 });
 
 // Input Group Component
-export const InputGroup = React.forwardRef(({
+const InputGroup = React.forwardRef(({
   label,
   prefix,
   suffix,
@@ -434,4 +471,25 @@ PasswordInput.displayName = 'PasswordInput';
 SelectInput.displayName = 'SelectInput';
 Checkbox.displayName = 'Checkbox';
 DateInput.displayName = 'DateInput';
-Textarea.displayName = 'Textarea'; 
+Textarea.displayName = 'Textarea';
+
+// Single consolidated export at the end
+export {
+  // Styles
+  baseInputStyles,
+  labelStyles,
+  RequiredLabel,
+  
+  // Components
+  TextInput,
+  PasswordInput,
+  SelectInput,
+  Checkbox,
+  DateInput,
+  Textarea,
+  RadioButton,
+  ToggleSwitch,
+  FileInput,
+  InputGroup,
+  TimePickerInput
+}; 

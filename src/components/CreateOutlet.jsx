@@ -10,6 +10,7 @@ import {
   SelectInput,
   Textarea,
   Checkbox,
+  TimePickerInput,
   labelStyles
 } from './forms/FormElements.jsx';
 
@@ -33,6 +34,7 @@ function CreateOutlet() {
     service_charges: '',
     gst: '',
     address: '',
+    outlet_mode: '',
     is_open: true,
     outlet_status: true,
     upi_id: '',
@@ -167,16 +169,6 @@ function CreateOutlet() {
         throw new Error('No authentication token available');
       }
 
-      // Updated formatDateTime function to match required format
-      const formatDateTime = (timeString) => {
-        if (!timeString) return '';
-        const [hours, minutes] = timeString.split(':');
-        const hour = parseInt(hours);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const formattedHour = hour % 12 || 12; // Convert 24h to 12h format
-        return `2024-01-01 ${formattedHour.toString().padStart(2, '0')}:${minutes}:00 ${ampm}`;
-      };
-
       const formDataToSend = new FormData();
       
       // Required fields from the form
@@ -186,6 +178,7 @@ function CreateOutlet() {
       formDataToSend.append('mobile', formData.mobile);
       formDataToSend.append('address', formData.address);
       formDataToSend.append('outlet_type', formData.outlet_type);
+      formDataToSend.append('outlet_mode', formData.outlet_mode);
       formDataToSend.append('veg_nonveg', formData.veg_nonveg);
       formDataToSend.append('service_charges', formData.service_charges || '0');
       formDataToSend.append('gst', formData.gst || '0');
@@ -199,12 +192,12 @@ function CreateOutlet() {
       if (formData.instagram) formDataToSend.append('instagram', formData.instagram);
       if (formData.website) formDataToSend.append('website', formData.website);
       
-      // Format and append times with AM/PM
+      // Time fields are already in the correct format
       if (formData.opening_time) {
-        formDataToSend.append('opening_time', formatDateTime(formData.opening_time));
+        formDataToSend.append('opening_time', formData.opening_time);
       }
       if (formData.closing_time) {
-        formDataToSend.append('closing_time', formatDateTime(formData.closing_time));
+        formDataToSend.append('closing_time', formData.closing_time);
       }
 
       // Append image if selected
@@ -285,7 +278,6 @@ function CreateOutlet() {
               Basic Information
             </h2>
 
-            {/* Owner Selection */}
             <div className="grid grid-cols-1 gap-6">
               <div className="relative">
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
@@ -334,15 +326,44 @@ function CreateOutlet() {
                           <div className="relative">
                             <input
                               type="text"
-                              className="w-full rounded-md border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
+                              className={`
+                                w-full rounded-md 
+                                border-gray-300 
+                                pl-9 pr-3 py-2 
+                                text-sm 
+                                focus:border-blue-500 
+                                focus:ring-blue-500
+                                appearance-none
+                                [-webkit-appearance:none]
+                                [-moz-appearance:none]
+                                [&::-ms-expand]{display:none}
+                                [&::-webkit-calendar-picker-indicator]{display:none}
+                                [&::-webkit-dropdown-button]{display:none}
+                                bg-none
+                              `}
+                              style={{
+                                WebkitAppearance: 'none',
+                                MozAppearance: 'none',
+                                appearance: 'none'
+                              }}
                               placeholder="Search owners..."
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
-                            onClick={() => setIsDropdownOpen(true)}
+                              onClick={() => setIsDropdownOpen(true)}
                             />
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                              <svg 
+                                className="h-4 w-4 text-gray-400" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round" 
+                                  strokeWidth="2" 
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                                />
                               </svg>
                             </div>
                           </div>
@@ -524,6 +545,19 @@ function CreateOutlet() {
                 required
                 rows={3}
               />
+
+              <SelectInput
+                label="Outlet Mode"
+                name="outlet_mode"
+                value={formData.outlet_mode}
+                onChange={handleInputChange}
+                required
+                options={[
+                  { value: 'offline', label: 'Offline' },
+                  { value: 'online', label: 'Online' }
+                ]}
+                placeholder="Select Outlet Mode"
+              />
             </div>
           </section>
 
@@ -555,20 +589,22 @@ function CreateOutlet() {
                 placeholder="Enter GST"
               />
 
-              <TextInput
+              <TimePickerInput
                 label="Opening Time"
                 name="opening_time"
-                type="time"
                 value={formData.opening_time}
                 onChange={handleInputChange}
+                required
+                placeholder="Select opening time"
               />
 
-              <TextInput
+              <TimePickerInput
                 label="Closing Time"
                 name="closing_time"
-                type="time"
                 value={formData.closing_time}
                 onChange={handleInputChange}
+                required
+                placeholder="Select closing time"
               />
 
               <TextInput
