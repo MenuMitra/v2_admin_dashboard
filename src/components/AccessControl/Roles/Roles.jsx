@@ -5,6 +5,7 @@ import { faChevronLeft, faSearch, faEye, faPlus, faPenToSquare, faTrash } from '
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
 import DataTable from '../../common/DataTable';
+import Breadcrumb from '../../Breadcrumb';
 
 function Roles() {
   const { getToken } = useAuth();
@@ -13,6 +14,13 @@ function Roles() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+
+  // Add this breadcrumb items configuration
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Access-control', path: '/dashboard' },
+    { label: 'Roles', path: '/roles' }
+  ];
 
   // Process roles data to group by role
   const processRolesData = (data) => {
@@ -83,21 +91,21 @@ function Roles() {
       sortable: true,
       render: (functionalities) => `${functionalities.length} assigned`
     },
-    {
-      field: 'actions',
-      header: 'ACTIONS',
-      sortable: false,
-      render: () => (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-            title="View Details"
-          >
-            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-          </button>
-        </div>
-      )
-    }
+    // {
+    //   field: 'actions',
+    //   header: 'Actions',
+    //   sortable: false,
+    //   render: () => (
+    //     <div className="flex items-center justify-center gap-2">
+    //       <button
+    //         className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+    //         title="View Details"
+    //       >
+    //         <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+    //       </button>
+    //     </div>
+    //   )
+    // }
   ];
 
   if (isLoading) {
@@ -110,16 +118,8 @@ function Roles() {
 
   return (
     <div className="p-6">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm mb-6">
-        <Link to="/dashboard" className="text-gray-500 hover:text-gray-700">Dashboard</Link>
-        <span className="text-gray-500">/</span>
-        <Link to="/access-control" className="text-gray-500 hover:text-gray-700">Access-control</Link>
-        <span className="text-gray-500">/</span>
-        <span className="text-gray-700">Roles</span>
-      </div>
-
-   
+      {/* Replace the manual breadcrumb with */}
+      <Breadcrumb items={breadcrumbItems} />
 
       {error && (
         <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">

@@ -5,6 +5,7 @@ import { faImage, faPen } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import DataTable from '../common/DataTable';
+import Breadcrumb from '../Breadcrumb';
 
 function TemplateDetails() {
   const navigate = useNavigate();
@@ -148,6 +149,8 @@ function TemplateDetails() {
 
   return (
     <div className="p-6">
+      <Breadcrumb items={breadcrumbItems} />
+      
       <DataTable
         title="Template Details"
         showBackButton={true}
