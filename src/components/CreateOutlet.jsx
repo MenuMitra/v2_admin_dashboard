@@ -269,7 +269,7 @@ function CreateOutlet() {
             <div className="grid grid-cols-1 gap-4 sm:gap-6">
               <div className="relative">
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                  Select Owner *
+                <span className="text-error-600">*</span> Select Owner
                 </label>
                 
                   <div className="border rounded-lg shadow-sm bg-white">
@@ -431,7 +431,7 @@ function CreateOutlet() {
               <div className="col-span-2 grid grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Outlet Name *
+                  <span className="text-error-600">*</span> Outlet Name
                   </label>
                   <input
                     type="text"
@@ -445,7 +445,7 @@ function CreateOutlet() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Mobile Number *
+                  <span className="text-error-600">*</span> Mobile Number
                   </label>
                   <input
                     type="tel"
@@ -472,7 +472,7 @@ function CreateOutlet() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    UPI ID *
+                  <span className="text-error-600">*</span> UPI ID
                   </label>
                   <input
                     type="text"
@@ -486,7 +486,7 @@ function CreateOutlet() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Outlet Type *
+                  <span className="text-error-600">*</span> Outlet Type
                   </label>
                   <select
                     name="outlet_type"
@@ -506,7 +506,7 @@ function CreateOutlet() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Food Type *
+                  <span className="text-error-600">*</span> Food Type
                   </label>
                   <select
                     name="veg_nonveg"
@@ -527,7 +527,7 @@ function CreateOutlet() {
 
               <div className="col-span-3">
                 <label className="block text-sm font-medium text-gray-700">
-                  Address *
+                <span className="text-error-600">*</span> Address
                 </label>
                 <textarea
                   name="address"
