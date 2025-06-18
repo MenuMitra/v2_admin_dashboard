@@ -279,156 +279,114 @@ function CreateOutlet() {
             <div className="grid grid-cols-1 gap-6">
               <div className="relative">
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                <span className="text-error-600">*</span> Select Owner
+                  <span className="text-error-600">*</span> Select Owner
                 </label>
                 
-                  <div className="border rounded-lg shadow-sm bg-white">
-                    {/* Selected Owner Display or Search Bar */}
-                  {formData.owner_id && !isDropdownOpen ? (
-                      // Selected Owner Display
-                      <div className="p-3 flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                        {/* Owner Avatar */}
-                          <div className="flex-shrink-0">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                              <span className="text-lg font-medium text-blue-600">
-                                {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name.charAt(0)}
-                              </span>
-                            </div>
+                <div className="relative">
+                  {/* Main Select Button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="w-full p-3 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  >
+                    {formData.owner_id ? (
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
                           </div>
-                        
-                        {/* Owner Details */}
-                          <div>
-                            <div className="font-medium text-sm text-gray-900">
-                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile}
-                            </div>
+                          <div className="text-sm text-gray-500">
+                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.email || 'No email'}
                           </div>
                         </div>
-                      
-                      {/* Change Button */}
-                        <button
-                          type="button"
-                        onClick={() => setIsDropdownOpen(true)}
-                          className="text-sm text-blue-600 hover:text-blue-700"
-                        >
-                          Change
-                        </button>
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
                       </div>
                     ) : (
-                      <>
-                      {/* Search Bar */}
-                        
-                          <div className="relative">
-                            <input
-                              type="text"
-                              className={`
-                                w-full rounded-md 
-                                border-gray-300 
-                                pl-9 pr-3 py-2 
-                                text-sm 
-                                focus:border-blue-500 
-                                focus:ring-blue-500
-                                appearance-none
-                                [-webkit-appearance:none]
-                                [-moz-appearance:none]
-                                [&::-ms-expand]{display:none}
-                                [&::-webkit-calendar-picker-indicator]{display:none}
-                                [&::-webkit-dropdown-button]{display:none}
-                                bg-none
-                              `}
-                              style={{
-                                WebkitAppearance: 'none',
-                                MozAppearance: 'none',
-                                appearance: 'none'
-                              }}
-                              placeholder="Search owners..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              onClick={() => setIsDropdownOpen(true)}
-                            />
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <svg 
-                                className="h-4 w-4 text-gray-400" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                              >
-                                <path 
-                                  strokeLinecap="round" 
-                                  strokeLinejoin="round" 
-                                  strokeWidth="2" 
-                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
-                                />
-                              </svg>
-                            </div>
-                          </div>
+                      <div className="text-gray-500">Select Owner</div>
+                    )}
+                  </button>
 
-                        {/* Owners List */}
-                      {isDropdownOpen && (
-                        <div className="max-h-[400px] overflow-y-auto">
+                  {/* Dropdown Panel */}
+                  {isDropdownOpen && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg">
+                      {/* Search Bar */}
+                      <div className="sticky top-0 p-2 border-b bg-white">
+                        <div className="relative">
+                          <input
+                            type="text"
+                            className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            placeholder="Search owners..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            autoFocus
+                          />
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            <svg 
+                              className="w-4 h-4" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth="2" 
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                              />
+                            </svg>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Owners List - Grid Layout */}
+                      <div className="max-h-[300px] overflow-y-auto p-2">
+                        <div className="grid grid-cols-1 gap-2">
                           {filteredOwners.length > 0 ? (
-                            filteredOwners.map((owner, index) => (
-                              <div
+                            filteredOwners.map((owner) => (
+                              <button
                                 key={owner.user_id}
+                                type="button"
                                 onClick={() => {
                                   setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
                                   setIsDropdownOpen(false);
                                   setSearchTerm('');
                                 }}
-                                className={`flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer transition-colors ${
-                                  formData.owner_id === owner.user_id ? 'bg-blue-50' : ''
-                                } ${index !== filteredOwners.length - 1 ? 'border-b border-gray-200' : ''}`}
+                                className={`
+                                  w-full px-4 py-2 text-left
+                                  rounded-lg transition-colors
+                                  ${formData.owner_id === owner.user_id 
+                                    ? 'bg-brand-50 border-brand-200 border-2' 
+                                    : 'border border-gray-200 hover:bg-gray-50'
+                                  }
+                                  flex items-center justify-between
+                                `}
                               >
-                                <div className="flex items-center space-x-3">
-                                  {/* Owner Avatar */}
-                                  <div className="flex-shrink-0">
-                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                      <span className="text-lg font-medium text-blue-600">
-                                        {owner.name.charAt(0)}
-                                      </span>
-                                    </div>
+                                <div>
+                                  <div className="font-medium text-gray-900">
+                                    {owner.name}
                                   </div>
-                                  
-                                  {/* Owner Details */}
-                                  <div>
-                                    <div className="font-medium text-sm text-gray-900">
-                                      {owner.name}
-                                    </div>
-                                    <div className="text-xs text-gray-500 flex items-center">
-                                      <span>{owner.mobile}</span>
-                                      {owner.account_type && (
-                                        <>
-                                          <span className="mx-1.5">•</span>
-                                          <span className={`capitalize px-1.5 py-0.5 rounded-full text-xs ${
-                                            owner.account_type === 'live' 
-                                              ? 'bg-green-100 text-green-700'
-                                              : 'bg-orange-100 text-orange-700'
-                                          }`}>
-                                            {owner.account_type}
-                                          </span>
-                                        </>
-                                      )}
-                                    </div>
-                                    {owner.email && (
-                                      <div className="text-xs text-gray-500 mt-0.5">
-                                        {owner.email}
-                                      </div>
-                                    )}
+                                  <div className="text-sm text-gray-500">
+                                    {owner.email || 'No email'}
                                   </div>
                                 </div>
-
-                                {/* Selection Indicator */}
                                 {formData.owner_id === owner.user_id && (
-                                  <div className="flex-shrink-0">
-                                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  </div>
+                                  <svg 
+                                    className="w-5 h-5 text-brand-500" 
+                                    fill="none" 
+                                    stroke="currentColor" 
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path 
+                                      strokeLinecap="round" 
+                                      strokeLinejoin="round" 
+                                      strokeWidth="2" 
+                                      d="M5 13l4 4L19 7" 
+                                    />
+                                  </svg>
                                 )}
-                              </div>
+                              </button>
                             ))
                           ) : (
                             <div className="p-4 text-center text-sm text-gray-500">
@@ -436,8 +394,8 @@ function CreateOutlet() {
                             </div>
                           )}
                         </div>
-                      )}
-                    </>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
