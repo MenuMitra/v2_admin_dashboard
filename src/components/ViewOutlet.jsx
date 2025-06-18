@@ -303,18 +303,18 @@ function ViewOutlet() {
                 <div className="flex items-center gap-3">
                   <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
                     <FontAwesomeIcon
-                      icon={faUtensils}
+                      icon={faStore}
                       className="h-6 w-6 text-brand-500 dark:text-brand-400"
                     />
                   </div>
                   <div>
                     <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.outlet_type 
-                        ? outletData.outlet_type.charAt(0).toUpperCase() + outletData.outlet_type.slice(1)
+                      {outletData?.outlet_mode 
+                        ? outletData.outlet_mode.charAt(0).toUpperCase() + outletData.outlet_mode.slice(1)
                         : '-'}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Outlet Type
+                      Outlet Mode
                     </p>
                   </div>
                 </div>
