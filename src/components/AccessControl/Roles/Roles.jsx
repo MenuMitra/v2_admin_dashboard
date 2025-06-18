@@ -18,7 +18,7 @@ function Roles() {
   // Add this breadcrumb items configuration
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Access-control', path: '/dashboard' },
+    { label: 'Access Control', path: '/dashboard' },
     { label: 'Roles', path: '/roles' }
   ];
 
