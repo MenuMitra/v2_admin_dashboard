@@ -30,11 +30,19 @@ const TimePickerInput = ({
 
   const formatTimeForAPI = (timeString) => {
     if (!timeString) return '';
+    
+    // Split the time into hours and minutes
     const [hours, minutes] = timeString.split(':');
     const hour = parseInt(hours);
+    
+    // Determine AM/PM
     const ampm = hour >= 12 ? 'PM' : 'AM';
-    const formattedHour = hour % 12 || 12;
-    return `2024-01-01 ${formattedHour.toString().padStart(2, '0')}:${minutes}:00 ${ampm}`;
+    
+    // Convert to 12-hour format
+    const formattedHour = (hour % 12) || 12;
+    
+    // Return only the time part, let the parent component handle the date
+    return `${formattedHour.toString().padStart(2, '0')}:${minutes} ${ampm}`;
   };
 
   const handleTimeChange = (e) => {
@@ -45,7 +53,7 @@ const TimePickerInput = ({
     const syntheticEvent = {
       target: {
         name,
-        value: formattedTime
+        value: formattedTime // This will now be in format "HH:MM AM/PM"
       }
     };
     onChange(syntheticEvent);

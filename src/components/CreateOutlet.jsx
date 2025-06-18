@@ -19,7 +19,6 @@ function CreateOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const [outletTypes, setOutletTypes] = useState({});
-  const [foodTypes, setFoodTypes] = useState({});
   const [allOwners, setAllOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -56,7 +55,6 @@ function CreateOutlet() {
 
   useEffect(() => {
     fetchOutletTypes();
-    fetchFoodTypes();
     fetchOwners();
   }, []);
 
@@ -81,30 +79,6 @@ function CreateOutlet() {
       }
     } catch (error) {
       console.error('Error fetching outlet types:', error);
-    }
-  };
-
-  const fetchFoodTypes = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      const response = await axios.get(
-        'https://men4u.xyz/v2/common/get_food_type_list',
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-
-      if (response.data.food_type_list) {
-        setFoodTypes(response.data.food_type_list);
-      }
-    } catch (error) {
-      console.error('Error fetching food types:', error);
     }
   };
 
@@ -171,7 +145,7 @@ function CreateOutlet() {
 
       const formDataToSend = new FormData();
       
-      // Required fields from the form
+      // Required fields with exact names
       formDataToSend.append('owner_id', formData.owner_id);
       formDataToSend.append('user_id', adminData.user_id.toString());
       formDataToSend.append('name', formData.name);
@@ -184,20 +158,41 @@ function CreateOutlet() {
       formDataToSend.append('gst', formData.gst || '0');
       formDataToSend.append('upi_id', formData.upi_id);
 
-      // Optional fields
-      if (formData.fssainumber) formDataToSend.append('fssainumber', formData.fssainumber);
-      if (formData.gstnumber) formDataToSend.append('gstnumber', formData.gstnumber);
-      if (formData.whatsapp) formDataToSend.append('whatsapp', formData.whatsapp);
-      if (formData.facebook) formDataToSend.append('facebook', formData.facebook);
-      if (formData.instagram) formDataToSend.append('instagram', formData.instagram);
-      if (formData.website) formDataToSend.append('website', formData.website);
-      
-      // Time fields are already in the correct format
-      if (formData.opening_time) {
-        formDataToSend.append('opening_time', formData.opening_time);
+      // Optional fields - only append if they have values
+      if (formData.fssainumber) {
+        formDataToSend.append('fssainumber', formData.fssainumber);
       }
+      if (formData.gstnumber) {
+        formDataToSend.append('gstnumber', formData.gstnumber);
+      }
+      if (formData.whatsapp) {
+        formDataToSend.append('whatsapp', formData.whatsapp);
+      }
+      if (formData.facebook) {
+        formDataToSend.append('facebook', formData.facebook);
+      }
+      if (formData.instagram) {
+        formDataToSend.append('instagram', formData.instagram);
+      }
+      if (formData.website) {
+        formDataToSend.append('website', formData.website);
+      }
+
+      // Fix the time formatting to match exactly "YYYY-MM-DD HH:MM:SS AM/PM"
+      if (formData.opening_time) {
+        // opening_time now comes as "HH:MM AM/PM"
+        const [time, period] = formData.opening_time.split(' ');
+        const [hours, minutes] = time.split(':');
+        const formattedOpeningTime = `2024-01-01 ${hours}:${minutes}:00 ${period}`;
+        formDataToSend.append('opening_time', formattedOpeningTime);
+      }
+
       if (formData.closing_time) {
-        formDataToSend.append('closing_time', formData.closing_time);
+        // closing_time now comes as "HH:MM AM/PM"
+        const [time, period] = formData.closing_time.split(' ');
+        const [hours, minutes] = time.split(':');
+        const formattedClosingTime = `2024-01-01 ${hours}:${minutes}:00 ${period}`;
+        formDataToSend.append('closing_time', formattedClosingTime);
       }
 
       // Append image if selected
@@ -210,13 +205,13 @@ function CreateOutlet() {
         formDataToSend,
         {
           headers: {
-            'Authorization': token,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         }
       );
 
-      if (response.data.detail === "Outlet created successfully") {
+      if (response.data.detail.includes("Outlet created successfully")) {
         navigate(-1);
       }
     } catch (error) {
@@ -528,10 +523,10 @@ function CreateOutlet() {
                   value={formData.veg_nonveg}
                   onChange={handleInputChange}
                   required
-                  options={Object.entries(foodTypes).map(([key, value]) => ({
-                    value: key,
-                    label: value.charAt(0).toUpperCase() + value.slice(1)
-                  }))}
+                  options={[
+                    { value: 'veg', label: 'Veg' },
+                    { value: 'nonveg', label: 'Non-Veg' }
+                  ]}
                   placeholder="Select Food Type"
                 />
               </div>
