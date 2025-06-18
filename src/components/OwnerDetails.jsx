@@ -101,7 +101,7 @@ function OwnerDetails() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+              className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover shadow-theme-xs"
             >
               <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
               <span className="hidden sm:inline">Back</span>
@@ -165,7 +165,7 @@ function OwnerDetails() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {/* Name */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -176,7 +176,7 @@ function OwnerDetails() {
               </div>
 
               {/* Email */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faEnvelope} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -187,7 +187,7 @@ function OwnerDetails() {
               </div>
 
               {/* Mobile */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faPhone} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -198,7 +198,7 @@ function OwnerDetails() {
               </div>
 
               {/* Date of Birth */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faBirthdayCake} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -209,7 +209,7 @@ function OwnerDetails() {
               </div>
 
               {/* Aadhar Number */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faIdCard} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -219,7 +219,7 @@ function OwnerDetails() {
                 </div>
               </div>
            
-            <div className="mt-3 flex items-center p-3 bg-gray-50 rounded-lg">
+            <div className="mt-3 flex items-center p-3 rounded-lg">
               <div className="w-8 h-8 flex items-center justify-center">
                 <FontAwesomeIcon icon={faLocationDot} className="w-5 h-5 text-gray-400" />
               </div>
@@ -238,7 +238,7 @@ function OwnerDetails() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {/* Role */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faUserTag} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -249,7 +249,7 @@ function OwnerDetails() {
               </div>
 
               {/* Account Status */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faUserCheck} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -268,7 +268,7 @@ function OwnerDetails() {
               </div>
 
               {/* Staff Status */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faUserTie} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -287,7 +287,7 @@ function OwnerDetails() {
               </div>
 
               {/* Created On */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faCalendarPlus} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -298,7 +298,7 @@ function OwnerDetails() {
               </div>
 
               {/* Updated On */}
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faCalendarCheck} className="w-5 h-5 text-gray-400" />
                 </div>
@@ -323,7 +323,7 @@ function OwnerDetails() {
             <button
               type="button"
               onClick={() => setShowDeleteModal(false)}
-              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
+              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
             >
               Cancel
             </button>
