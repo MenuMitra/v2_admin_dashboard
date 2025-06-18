@@ -5,7 +5,20 @@ import { useAdmin } from "../hooks/useAdmin";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack, faUser, faEnvelope, faPhone, faBirthdayCake, faIdCard, faLocationDot, faUserTag, faUserCheck, faUserTie, faCalendarPlus, faCalendarCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft as faBack,
+  faUser,
+  faEnvelope,
+  faPhone,
+  faBirthdayCake,
+  faIdCard,
+  faLocationDot,
+  faUserTag,
+  faUserCheck,
+  faUserTie,
+  faCalendarPlus,
+  faCalendarCheck,
+} from "@fortawesome/free-solid-svg-icons";
 import Modal from "./common/Modal";
 
 function OwnerDetails() {
@@ -167,67 +180,85 @@ function OwnerDetails() {
               {/* Name */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faUser}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Name</div>
                   <div className="font-medium">{ownerData.name}</div>
+                  <div className="text-sm text-gray-500">Name</div>
                 </div>
               </div>
 
               {/* Email */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faEnvelope} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faEnvelope}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Email</div>
                   <div className="font-medium">{ownerData.email}</div>
+                  <div className="text-sm text-gray-500">Email</div>
                 </div>
               </div>
 
               {/* Mobile */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faPhone} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faPhone}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Mobile</div>
                   <div className="font-medium">{ownerData.mobile}</div>
+                  <div className="text-sm text-gray-500">Mobile</div>
                 </div>
               </div>
 
               {/* Date of Birth */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faBirthdayCake} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faBirthdayCake}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Date of Birth</div>
                   <div className="font-medium">{ownerData.dob}</div>
+                  <div className="text-sm text-gray-500">Date of Birth</div>
                 </div>
               </div>
 
               {/* Aadhar Number */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faIdCard} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faIdCard}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Aadhar Number</div>
                   <div className="font-medium">{ownerData.aadhar_number}</div>
+                  <div className="text-sm text-gray-500">Aadhar Number</div>
                 </div>
               </div>
-           
-            <div className="mt-3 flex items-center p-3 rounded-lg">
-              <div className="w-8 h-8 flex items-center justify-center">
-                <FontAwesomeIcon icon={faLocationDot} className="w-5 h-5 text-gray-400" />
+
+              <div className="mt-3 flex items-center p-3 rounded-lg">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon
+                    icon={faLocationDot}
+                    className="w-5 h-5 text-gray-400"
+                  />
+                </div>
+                <div className="ml-3">
+                  <div className="font-medium">{ownerData.address}</div>
+                  <div className="text-sm text-gray-500">Address</div>
+                </div>
               </div>
-              <div className="ml-3">
-                <div className="text-sm text-gray-500">Address</div>
-                <div className="font-medium">{ownerData.address}</div>
-              </div>
-            </div>
             </div>
           </div>
 
@@ -240,29 +271,37 @@ function OwnerDetails() {
               {/* Role */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faUserTag} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faUserTag}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Role</div>
                   <div className="font-medium">{ownerData.role}</div>
+                  <div className="text-sm text-gray-500">Role</div>
                 </div>
               </div>
 
               {/* Account Status */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faUserCheck} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faUserCheck}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Account Status</div>
                   <div>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      ownerData.is_active === 1
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        ownerData.is_active === 1
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
                       {ownerData.is_active === 1 ? "Active" : "Inactive"}
                     </span>
+                    <div className="text-sm text-gray-500">Account Status</div>
                   </div>
                 </div>
               </div>
@@ -270,18 +309,23 @@ function OwnerDetails() {
               {/* Staff Status */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faUserTie} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faUserTie}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Staff Status</div>
                   <div>
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      ownerData.is_staff === 1
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        ownerData.is_staff === 1
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
                       {ownerData.is_staff === 1 ? "Yes" : "No"}
                     </span>
+                    <div className="text-sm text-gray-500">Staff Status</div>
                   </div>
                 </div>
               </div>
@@ -289,22 +333,28 @@ function OwnerDetails() {
               {/* Created On */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faCalendarPlus} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faCalendarPlus}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Created On</div>
                   <div className="font-medium">{ownerData.created_on}</div>
+                  <div className="text-sm text-gray-500">Created On</div>
                 </div>
               </div>
 
               {/* Updated On */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faCalendarCheck} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faCalendarCheck}
+                    className="w-5 h-5 text-gray-400"
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className="text-sm text-gray-500">Updated On</div>
                   <div className="font-medium">{ownerData.updated_on}</div>
+                  <div className="text-sm text-gray-500">Updated On</div>
                 </div>
               </div>
             </div>
