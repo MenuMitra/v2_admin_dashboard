@@ -4,7 +4,15 @@ import { useAdmin } from '../hooks/useAdmin';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft as faBack, faSave } from "@fortawesome/free-solid-svg-icons";
+import {
+  TextInput,
+  SelectInput,
+  Textarea,
+  Checkbox,
+  TimePickerInput,
+  labelStyles
+} from './forms/FormElements.jsx';
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -36,7 +44,8 @@ function EditOutlet() {
     google_review: '',
     email: '',
     opening_time: '',
-    closing_time: ''
+    closing_time: '',
+    outlet_mode: ''
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -108,7 +117,8 @@ function EditOutlet() {
           google_review: data.google_review || '',
           email: data.email || '',
           opening_time: data.opening_time ? data.opening_time.split(' ')[1] : '',
-          closing_time: data.closing_time ? data.closing_time.split(' ')[1] : ''
+          closing_time: data.closing_time ? data.closing_time.split(' ')[1] : '',
+          outlet_mode: data.outlet_mode || ''
         });
 
         // If there's an image URL, set it as preview
@@ -263,6 +273,7 @@ function EditOutlet() {
         instagram: formData.instagram || '',
         google_business_link: formData.google_business_link || '',
         google_review: formData.google_review || '',
+        outlet_mode: formData.outlet_mode,
         app_source: "admin_dashboard"
       };
 
@@ -288,43 +299,55 @@ function EditOutlet() {
   };
 
   return (
-    <div className="p-3 sm:p-4 md:p-6 max-w-6xl mx-auto">
-      <div className="rounded-lg md:rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="overflow-hidden pt-3 sm:pt-4 dark:border-gray-800">
-          <div className="flex items-center px-3 sm:px-4 md:px-6 mb-3 sm:mb-4">
-            <div className="flex items-center">
-              <button 
-                onClick={() => navigate(-1)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
-              >
-                <FontAwesomeIcon icon={faBack} className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
-                <span className="hidden sm:inline">Back</span>
-              </button>
-            </div>
+    <div className="p-4">
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
+            >
+              <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
+              <span>Back</span>
+            </button>
 
-            <div className="flex-1 text-center">
-              <h1 className="text-sm sm:text-base md:text-xl font-semibold text-gray-800 dark:text-white/90">
-                Edit Outlet
-              </h1>
-            </div>
+            <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              Edit Outlet
+            </h1>
 
-            <div className="w-8 sm:w-[42px] md:w-[70px]"></div>
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className={`
+                inline-flex items-center gap-2 px-4 py-2 
+                text-sm font-medium text-white rounded-full
+                bg-brand-500 hover:bg-brand-600 
+                transition shadow-sm
+                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+            >
+              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+              <span>Save</span>
+            </button>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-3 sm:px-4 md:px-6 pb-3 sm:pb-4 md:pb-6 space-y-4 sm:space-y-6 md:space-y-8">
-          <section className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
-            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+          {/* Basic Information Section */}
+          <section className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-lg font-medium mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Basic Information
             </h2>
             
-            <div className="grid grid-cols-1 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
+              {/* Owner Selection */}
               <div className="relative">
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                  Select Owner *
+                  <span className="text-error-600">*</span> Select Owner
                 </label>
                 
                 <div className="border rounded-lg shadow-sm bg-white">
@@ -333,7 +356,6 @@ function EditOutlet() {
                     // Selected Owner Display
                     <div className="p-3 flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        {/* Owner Avatar */}
                         <div className="flex-shrink-0">
                           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                             <span className="text-lg font-medium text-blue-600">
@@ -341,8 +363,6 @@ function EditOutlet() {
                             </span>
                           </div>
                         </div>
-                        
-                        {/* Owner Details */}
                         <div>
                           <div className="font-medium text-sm text-gray-900">
                             {allOwners.find(o => o.user_id === formData.owner_id)?.name}
@@ -352,8 +372,6 @@ function EditOutlet() {
                           </div>
                         </div>
                       </div>
-                      
-                      {/* Change Button */}
                       <button
                         type="button"
                         onClick={() => setIsDropdownOpen(true)}
@@ -471,145 +489,202 @@ function EditOutlet() {
                 </div>
               </div>
 
-              <div className="w-full">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 sm:p-4 text-center">
-                  {previewUrl ? (
-                    <img src={previewUrl} alt="Preview" className="mx-auto h-32 sm:h-40 object-contain" />
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <svg className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <p className="mt-2 text-xs sm:text-sm text-gray-500">Click to select image</p>
-                      <p className="text-xs text-gray-400">JPG, PNG, or GIF up to 5MB</p>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="outlet-image"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                    Outlet Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                    Mobile Number *
-                  </label>
-                  <input
-                    type="tel"
-                    name="mobile"
-                    value={formData.mobile}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                    UPI ID *
-                  </label>
-                  <input
-                    type="text"
-                    name="upi_id"
-                    value={formData.upi_id}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                    Outlet Type *
-                  </label>
-                  <select
-                    name="outlet_type"
-                    value={formData.outlet_type}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Select Outlet Type</option>
-                    {Object.entries(outletTypes).map(([key, value]) => (
-                      <option key={key} value={key}>
-                        {value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ')}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                    Food Type *
-                  </label>
-                  <select
-                    name="veg_nonveg"
-                    value={formData.veg_nonveg}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Select Food Type</option>
-                    {Object.entries(foodTypes).map(([key, value]) => (
-                      <option key={key} value={key}>
-                        {value.charAt(0).toUpperCase() + value.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Address *
+              {/* Image Selection */}
+              <div className="relative">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Outlet Image
                 </label>
-                <textarea
-                  name="address"
-                  value={formData.address}
+                <div className="border rounded-lg shadow-sm bg-white">
+                  <div className="p-3 flex items-center justify-between">
+                    {/* Image Preview */}
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                        {previewUrl ? (
+                          <img 
+                            src={previewUrl} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <svg 
+                              className="w-5 h-5 text-gray-400" 
+                              fill="none" 
+                              stroke="currentColor" 
+                              viewBox="0 0 24 24"
+                            >
+                              <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth="2" 
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                              />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm text-gray-900">
+                          {imageFile?.name || 'No image selected'}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          JPG, PNG, or GIF up to 5MB
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Upload Button */}
+                    <label 
+                      htmlFor="outlet-image"
+                      className="text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
+                    >
+                      {previewUrl ? 'Change' : 'Select'}
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      id="outlet-image"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                  Outlet Name *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
                   onChange={handleInputChange}
-                  rows={3}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
               </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                  Mobile Number *
+                </label>
+                <input
+                  type="tel"
+                  name="mobile"
+                  value={formData.mobile}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                  UPI ID *
+                </label>
+                <input
+                  type="text"
+                  name="upi_id"
+                  value={formData.upi_id}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                  Outlet Type *
+                </label>
+                <select
+                  name="outlet_type"
+                  value={formData.outlet_type}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select Outlet Type</option>
+                  {Object.entries(outletTypes).map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                  Food Type *
+                </label>
+                <select
+                  name="veg_nonveg"
+                  value={formData.veg_nonveg}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select Food Type</option>
+                  {Object.entries(foodTypes).map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {value.charAt(0).toUpperCase() + value.slice(1)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                Address *
+              </label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+                rows={3}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                required
+              />
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                Outlet Mode
+              </label>
+              <SelectInput
+                name="outlet_mode"
+                value={formData.outlet_mode}
+                onChange={handleInputChange}
+                required
+                options={[
+                  { value: 'offline', label: 'Offline' },
+                  { value: 'online', label: 'Online' }
+                ]}
+                placeholder="Select Outlet Mode"
+              />
             </div>
           </section>
 
-          <section className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
-            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Business Details Section */}
+          <section className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-lg font-medium mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               Business Details
@@ -696,9 +771,10 @@ function EditOutlet() {
             </div>
           </section>
 
-          <section className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
-            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Social Media Section */}
+          <section className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-lg font-medium mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
               </svg>
               Social Media & Web Presence
@@ -793,64 +869,31 @@ function EditOutlet() {
             </div>
           </section>
 
-          <section className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow">
-            <h2 className="text-base sm:text-lg font-medium mb-3 sm:mb-4 flex items-center">
-              <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Outlet Status Section */}
+          <section className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-lg font-medium mb-4 flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Outlet Status
             </h2>
 
-            <div className="space-y-3 sm:space-y-4">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="is_open"
-                  checked={formData.is_open}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label className="ml-2 block text-xs sm:text-sm text-gray-900">
-                  Outlet is currently open
-                </label>
-              </div>
+            <div className="space-y-4">
+              <Checkbox
+                label="Outlet is currently open"
+                name="is_open"
+                checked={formData.is_open}
+                onChange={handleInputChange}
+              />
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="outlet_status"
-                  checked={formData.outlet_status}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label className="ml-2 block text-xs sm:text-sm text-gray-900">
-                  Outlet is active
-                </label>
-              </div>
+              <Checkbox
+                label="Outlet is active"
+                name="outlet_status"
+                checked={formData.outlet_status}
+                onChange={handleInputChange}
+              />
             </div>
           </section>
-
-          <div className="flex justify-end gap-2 sm:gap-3 md:gap-4">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 md:px-4 sm:py-2 text-xs sm:text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 hover:bg-gray-50"
-            >
-              <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              <span>Cancel</span>
-            </button>
-            <button
-              type="submit"
-              className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 md:px-4 sm:py-2 text-xs sm:text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
-            >
-              <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Save</span>
-            </button>
-          </div>
         </form>
       </div>
     </div>
