@@ -112,9 +112,12 @@ function CreateAdmin() {
         }
       );
 
-      if (response.data.detail === 'Admin user created successfully with all UBAC functionalities') {
+      // Check for successful status code (200)
+      if (response.status === 201) {
         // Redirect to admins list
         navigate('/admins');
+      } else {
+        throw new Error('Failed to create admin');
       }
     } catch (err) {
       setApiError(err.response?.data?.detail || 'Failed to create admin');
