@@ -177,7 +177,7 @@ function CreateOutlet() {
       if (formData.website) {
         formDataToSend.append('website', formData.website);
       }
-
+      
       // Get current date in YYYY-MM-DD format
       const currentDate = new Date().toISOString().split('T')[0];
 
@@ -321,7 +321,7 @@ function CreateOutlet() {
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
                             autoFocus
-                          />
+                            />
                           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                             <svg 
                               className="w-4 h-4" 
@@ -337,7 +337,7 @@ function CreateOutlet() {
                               />
                               </svg>
                           </span>
-                        </div>
+                          </div>
                         </div>
 
                       {/* Owners List - Grid Layout */}
@@ -444,7 +444,7 @@ function CreateOutlet() {
                   placeholder="Enter Mobile Number"
                     required
                   pattern="[0-9]{10}"
-                />
+                  />
 
                 <TextInput
                   label="Email Address"
@@ -551,7 +551,7 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                 required
                 placeholder="Select opening time"
-              />
+                />
 
               <TimePickerInput
                 label="Closing Time"
@@ -560,7 +560,7 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                 required
                 placeholder="Select closing time"
-              />
+                />
 
               <TextInput
                 label="FSSAI Number"
