@@ -4,16 +4,21 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faPenToSquare, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
+import { useAdmin } from '../../hooks/useAdmin';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
+import Modal from '../common/Modal';
 
 function Admins() {
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const navigate = useNavigate();
   const [admins, setAdmins] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [adminToDelete, setAdminToDelete] = useState(null);
 
   // Format date helper function
   const formatDate = (dateString) => {
@@ -65,6 +70,41 @@ function Admins() {
       console.error('Error fetching admins:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAdmin = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.post(
+        'https://men4u.xyz/v2/admin/delete_admin',
+        {
+          admin_id: adminToDelete,
+          user_id: adminData.user_id
+        },
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.detail === "Admin deleted successfully") {
+        setShowDeleteModal(false);
+        setAdminToDelete(null);
+        // Refresh the admins list
+        await fetchAdmins();
+      } else {
+        throw new Error('Failed to delete admin');
+      }
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Failed to delete admin');
+      console.error('Error deleting admin:', err);
     }
   };
 
@@ -130,7 +170,10 @@ function Admins() {
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
           <button
-            onClick={() => handleDeleteAdmin(admin)}
+            onClick={() => {
+              setAdminToDelete(admin.user_id);
+              setShowDeleteModal(true);
+            }}
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
             title="Delete Admin"
           >
@@ -140,11 +183,6 @@ function Admins() {
       )
     }
   ];
-
-  const handleDeleteAdmin = (admin) => {
-    // Implement delete functionality here
-    console.log('Delete admin:', admin);
-  };
 
   if (isLoading) {
     return (
@@ -198,6 +236,50 @@ function Admins() {
         enableSearch={true}
         itemsPerPage={10}
       />
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setAdminToDelete(null);
+        }}
+        type="error"
+        title="Confirm Deletion"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setAdminToDelete(null);
+              }}
+              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteAdmin}
+              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+            >
+              Delete Admin
+            </button>
+          </>
+        }
+      >
+        <div className="flex items-start">
+          <div className="ml-4">
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete this admin? This action cannot be undone.
+            </p>
+            <p className="text-sm text-gray-500">
+              All data associated with this admin will be permanently removed.
+            </p>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useAdmin } from '../../hooks/useAdmin';
 import axios from 'axios';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,6 +12,7 @@ function AdminDetails() {
   const { adminId } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const [admin, setAdmin] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -77,8 +79,12 @@ function AdminDetails() {
         throw new Error('No authentication token available');
       }
 
-      await axios.delete(
-        `https://men4u.xyz/v2/admin/delete_admin/${adminId}`,
+      const response = await axios.post(
+        'https://men4u.xyz/v2/admin/delete_admin',
+        {
+          admin_id: parseInt(adminId),
+          user_id: adminData.user_id
+        },
         {
           headers: {
             Authorization: token,
@@ -87,7 +93,11 @@ function AdminDetails() {
         }
       );
 
-      navigate('/admins');
+      if (response.data.detail === "Admin deleted successfully") {
+        navigate('/admins');
+      } else {
+        throw new Error('Failed to delete admin');
+      }
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to delete admin');
       console.error('Error deleting admin:', err);
