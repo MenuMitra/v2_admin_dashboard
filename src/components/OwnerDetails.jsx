@@ -174,7 +174,6 @@ function OwnerDetails() {
         {/* Content Section */}
         <div className="px-6 py-4">
           {/* Personal Information Card */}
-          <div className="rounded-lg bg-white p-6 shadow-theme-xs mb-6">
             <h2 className="text-base font-medium mb-4 text-gray-800">
               Personal Information
             </h2>
@@ -216,7 +215,9 @@ function OwnerDetails() {
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{ownerData.mobile}</div>
+                  <div className="text-base font-medium">
+                    {ownerData.mobile}
+                  </div>
                   <div className="text-sm text-gray-500">Mobile</div>
                 </div>
               </div>
@@ -244,7 +245,9 @@ function OwnerDetails() {
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{ownerData.aadhar_number}</div>
+                  <div className="text-base font-medium">
+                    {ownerData.aadhar_number}
+                  </div>
                   <div className="text-sm text-gray-500">Aadhar Number</div>
                 </div>
               </div>
@@ -257,15 +260,17 @@ function OwnerDetails() {
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{ownerData.address}</div>
+                  <div className="text-base font-medium">
+                    {ownerData.address}
+                  </div>
                   <div className="text-sm text-gray-500">Address</div>
                 </div>
               </div>
             </div>
-          </div>
+          
 
           {/* Account Information Card */}
-          <div className="rounded-lg bg-white p-6 shadow-theme-xs">
+          
             <h2 className="text-base font-medium mb-4 text-gray-800">
               Account Information
             </h2>
@@ -293,7 +298,9 @@ function OwnerDetails() {
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{ownerData.account_type.toUpperCase()}</div>
+                  <div className="text-base font-medium">
+                    {ownerData.account_type.toUpperCase()}
+                  </div>
                   <div className="text-sm text-gray-500">Account Type</div>
                 </div>
               </div>
@@ -309,14 +316,22 @@ function OwnerDetails() {
                 <div className="ml-3">
                   <div className="mt-1 flex items-center gap-2">
                     <FontAwesomeIcon
-                      icon={ownerData.is_active === 1 ? faCircleCheck : faCircleXmark}
+                      icon={
+                        ownerData.is_active === 1
+                          ? faCircleCheck
+                          : faCircleXmark
+                      }
                       className={`w-5 h-5 ${
-                        ownerData.is_active === 1 ? "text-success-500" : "text-error-500"
+                        ownerData.is_active === 1
+                          ? "text-success-500"
+                          : "text-error-500"
                       }`}
                     />
                     <span
                       className={`text-base font-medium ${
-                        ownerData.is_active === 1 ? "text-success-700" : "text-error-700"
+                        ownerData.is_active === 1
+                          ? "text-success-700"
+                          : "text-error-700"
                       }`}
                     >
                       {ownerData.is_active === 1 ? "Active" : "Inactive"}
@@ -359,7 +374,9 @@ function OwnerDetails() {
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{ownerData.created_on}</div>
+                  <div className="text-base font-medium">
+                    {ownerData.created_on}
+                  </div>
                   <div className="text-sm text-gray-500">Created On</div>
                 </div>
               </div>
@@ -373,12 +390,14 @@ function OwnerDetails() {
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{ownerData.updated_on}</div>
+                  <div className="text-base font-medium">
+                    {ownerData.updated_on}
+                  </div>
                   <div className="text-sm text-gray-500">Updated On</div>
                 </div>
               </div>
             </div>
-          </div>
+          
         </div>
       </div>
 
