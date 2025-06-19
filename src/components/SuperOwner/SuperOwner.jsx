@@ -29,6 +29,12 @@ function SuperOwner() {
     fetchSuperOwners();
   }, []);
 
+  const normaliseData = (owners) =>
+    owners.map((owner) => ({
+      ...owner,
+      user_id: owner.super_owner_id,
+    }));
+
   const fetchSuperOwners = async () => {
     try {
       const token = getToken();
@@ -38,9 +44,7 @@ function SuperOwner() {
 
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/listview_super_owner',
-        {
-          app_source: 'admin_dashboard'
-        },
+        { app_source: 'admin_dashboard' },
         {
           headers: {
             Authorization: token,
@@ -50,7 +54,7 @@ function SuperOwner() {
       );
 
       if (response.data?.super_owners) {
-        setSuperOwners(response.data.super_owners);
+        setSuperOwners(normaliseData(response.data.super_owners));
       }
     } catch (error) {
       console.error('Error fetching super owners:', error);
