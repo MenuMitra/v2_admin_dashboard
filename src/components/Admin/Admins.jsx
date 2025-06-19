@@ -27,7 +27,7 @@ function Admins() {
     const month = months[date.getMonth()];
     const day = date.getDate().toString().padStart(2, '0');
     const year = date.getFullYear();
-    return `${month} ${day}, ${year}`;
+    return `${day} ${month} ${year}`;
   };
 
   // Add this breadcrumb items configuration
