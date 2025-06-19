@@ -3,8 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPenToSquare, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../Breadcrumb';
 
 function PartnerDetails() { 
@@ -94,7 +92,6 @@ function PartnerDetails() {
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
@@ -110,7 +107,6 @@ function PartnerDetails() {
                 onClick={() => navigate(`/edit-partner/${partnerId}`)}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
               >
-                <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit</span>
               </button>
             </div>
@@ -122,88 +118,138 @@ function PartnerDetails() {
           <>
             {/* Personal Information */}
             <div className="p-6">
-              <h2 className="text-lg font-medium mb-4">Personal Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
+                Personal Information
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
                 <div>
-                  <p className="text-sm text-gray-500">Name</p>
-                  <p className="font-medium">{partner.name}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.name}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Email Address</p>
-                  <p className="font-medium">{partner.email}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.email}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Email Address</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Mobile Number</p>
-                  <p className="font-medium">{partner.mobile}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.mobile}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Mobile Number</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Address</p>
-                  <p className="font-medium">{partner.address}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.address}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Date of Birth</p>
-                  <p className="font-medium">{partner.dob}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.dob}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Date of Birth</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Aadhar Number</p>
-                  <p className="font-medium">{partner.aadhar_number}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.aadhar_number}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Aadhar Number</p>
                 </div>
               </div>
             </div>
 
             {/* Account Information */}
             <div className="p-6 border-t">
-              <h2 className="text-lg font-medium mb-4">Account Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
+                Account Information
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
                 <div>
-                  <p className="text-sm text-gray-500">Role</p>
-                  <p className="font-medium">{partner.role}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.role}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Role</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Account Status</p>
-                  <p className="font-medium">{partner.account_status === 1 ? 'Active' : 'Inactive'}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.account_status === 1 ? 'Active' : 'Inactive'}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Account Status</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Active Status</p>
-                  <p className="font-medium">{partner.is_active === 1 ? 'Active' : 'Inactive'}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.is_active === 1 ? 'Active' : 'Inactive'}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Status</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Staff Status</p>
-                  <p className="font-medium">{partner.is_staff === 1 ? 'Yes' : 'No'}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.is_staff === 1 ? 'Yes' : 'No'}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Staff Status</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Superuser Status</p>
-                  <p className="font-medium">{partner.is_superuser === 1 ? 'Yes' : 'No'}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.is_superuser === 1 ? 'Yes' : 'No'}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Superuser Status</p>
                 </div>
               </div>
             </div>
 
             {/* Audit Information */}
             <div className="p-6 border-t">
-              <h2 className="text-lg font-medium mb-4">Audit Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
+                Audit Information
+              </h2>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
                 <div>
-                  <p className="text-sm text-gray-500">Created On</p>
-                  <p className="font-medium">{partner.created_on}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.created_on}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Created On</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Created By</p>
-                  <p className="font-medium">{partner.created_by}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.created_by}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Created By</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Updated On</p>
-                  <p className="font-medium">{partner.updated_on}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.updated_on}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Updated On</p>
                 </div>
+
                 <div>
-                  <p className="text-sm text-gray-500">Updated By</p>
-                  <p className="font-medium">{partner.updated_by}</p>
+                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    {partner.updated_by}
+                  </h4>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Updated By</p>
                 </div>
               </div>
             </div>
 
             {/* Functionalities */}
             <div className="p-6 border-t">
-              <h2 className="text-lg font-medium mb-4">Functionalities</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
+                Functionalities
+              </h2>
               <div className="flex flex-wrap gap-2">
                 {partner.functionalities.map(func => (
                   <span 
