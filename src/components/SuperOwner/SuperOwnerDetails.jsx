@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 import Breadcrumb from '../Breadcrumb';
+import Modal from '../common/Modal';
 
 function SuperOwnerDetails() {
   const location = useLocation();
@@ -81,6 +82,41 @@ function SuperOwnerDetails() {
     }
   };
 
+  // Add action buttons for Modal
+  const deleteModalButtons = (
+    <>
+      <button
+        onClick={() => setIsModalOpen(false)}
+        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+        disabled={isDeleting}
+      >
+        Cancel
+      </button>
+      <button
+        onClick={handleDelete}
+        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600 disabled:opacity-50"
+        disabled={isDeleting}
+      >
+        {isDeleting ? (
+          <>
+            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Deleting...</span>
+          </>
+        ) : (
+          <>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+            <span>Delete</span>
+          </>
+        )}
+      </button>
+    </>
+  );
+
   return (
     <div className="p-6">
       {/* Add Breadcrumb */}
@@ -150,71 +186,72 @@ function SuperOwnerDetails() {
           </div>
         </div>
 
-        {/* Existing content */}
+        {/* Content Section */}
         <div className="bg-white p-6">
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-500">Name</p>
-                  <p className="font-medium">{superOwnerData.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium">{superOwnerData.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Mobile</p>
-                  <p className="font-medium">{superOwnerData.mobile}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Aadhar Number</p>
-                  <p className="font-medium">{superOwnerData.aadhar_number}</p>
-                </div>
+          {/* Basic Information Section */}
+          <div className="mb-8">
+            <h3 className="text-sm font-semibold mb-4">Basic Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="p-4">
+                <p className="text-sm font-medium text-gray-800 mb-1">{superOwnerData.name}</p>
+                <p className="text-sm text-gray-500">Name</p>
               </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Status Information</h3>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-500">Account Status</p>
-                  <span className={`px-3 py-1 rounded-full text-xs ${
-                    superOwnerData.account_status 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {superOwnerData.account_status ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Created On</p>
-                  <p className="font-medium">{superOwnerData.created_on}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Last Updated</p>
-                  <p className="font-medium">{superOwnerData.updated_on}</p>
-                </div>
+              <div className="p-4">
+                <p className="text-sm font-medium text-gray-800 mb-1">{superOwnerData.email}</p>
+                <p className="text-sm text-gray-500">Email</p>
+              </div>
+              <div className="p-4">
+                <p className="text-sm font-medium text-gray-800 mb-1">{superOwnerData.mobile}</p>
+                <p className="text-sm text-gray-500">Mobile</p>
+              </div>
+              <div className="p-4">
+                <p className="text-sm font-medium text-gray-800 mb-1">{superOwnerData.aadhar_number}</p>
+                <p className="text-sm text-gray-500">Aadhar Number</p>
               </div>
             </div>
           </div>
 
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold mb-4">Assigned Outlets ({totalOutlets})</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Status Information Section */}
+          <div className="mb-8">
+            <h3 className="text-sm font-semibold mb-4">Status Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="p-4">
+                <span className={`inline-block px-3 py-1 rounded-full text-xs mb-1 ${
+                  superOwnerData.account_status 
+                    ? 'bg-success-100 text-success-600' 
+                    : 'bg-error-100 text-error-500'
+                }`}>
+                  {superOwnerData.account_status ? 'Active' : 'Inactive'}
+                </span>
+                <p className="text-sm text-gray-500">Account Status</p>
+              </div>
+              <div className="p-4">
+                <p className="text-sm font-medium text-gray-800 mb-1">{superOwnerData.created_on}</p>
+                <p className="text-sm text-gray-500">Created On</p>
+              </div>
+              <div className="p-4">
+                <p className="text-sm font-medium text-gray-800 mb-1">{superOwnerData.updated_on}</p>
+                <p className="text-sm text-gray-500">Last Updated</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Assigned Outlets Section */}
+          <div className="mb-8">
+            <h3 className="text-sm font-semibold mb-4">Assigned Outlets ({totalOutlets})</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {assignedOutlets.map((outlet) => (
-                <div key={outlet.outlet_id} className="border rounded-lg p-4">
-                  <h4 className="font-medium">{outlet.outlet_name}</h4>
-                  <p className="text-sm text-gray-500">{outlet.address}</p>
-                  <div className="mt-2 flex items-center gap-2">
+                <div key={outlet.outlet_id} className="p-4">
+                  <h4 className="text-sm font-medium mb-1">{outlet.outlet_name}</h4>
+                  <p className="text-sm text-gray-500 mb-2">{outlet.address}</p>
+                  <div className="flex items-center gap-2">
                     <span className={`px-2 py-1 rounded-full text-xs ${
-                      outlet.outlet_status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      outlet.outlet_status ? 'bg-success-100 text-success-600' : 'bg-error-100 text-error-500'
                     }`}>
                       {outlet.outlet_status ? 'Active' : 'Inactive'}
                     </span>
                     <span className={`px-2 py-1 rounded-full text-xs ${
-                      outlet.is_open ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      outlet.is_open ? 'bg-success-100 text-success-600' : 'bg-error-100 text-error-500'
                     }`}>
                       {outlet.is_open ? 'Open' : 'Closed'}
                     </span>
@@ -224,60 +261,34 @@ function SuperOwnerDetails() {
             </div>
           </div>
 
-          <div className="mt-8">
-            <h3 className="text-lg font-semibold mb-4">Assigned Functionalities ({totalFunctionalities})</h3>
-            <div className="flex flex-wrap gap-2">
+          {/* Assigned Functionalities Section */}
+          <div>
+            <h3 className="text-sm font-semibold mb-4">Assigned Functionalities ({totalFunctionalities})</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {assignedFunctionalities.map((func) => (
-                <span key={func.functionality_id} className="px-3 py-1 bg-gray-100 rounded-full text-sm">
-                  {func.functionality_name}
-                </span>
+                <div key={func.functionality_id} className="p-4">
+                  <p className="text-sm font-medium mb-1">{func.functionality_name}</p>
+                  <p className="text-sm text-gray-500">Functionality</p>
+                </div>
               ))}
             </div>
           </div>
         </div>
       </div>
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this super owner? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-600 transition rounded-lg border border-gray-300 hover:bg-gray-50"
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-error-500 hover:bg-error-600 disabled:opacity-50"
-                disabled={isDeleting}
-              >
-                {isDeleting ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Deleting...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                    Delete
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Replace custom modal with Modal component */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Confirm Delete"
+        type="error"
+        size="small"
+        actionButtons={deleteModalButtons}
+      >
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Are you sure you want to delete this super owner? This action cannot be undone.
+        </p>
+      </Modal>
     </div>
   );
 }
