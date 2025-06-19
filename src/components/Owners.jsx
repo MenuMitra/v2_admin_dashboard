@@ -37,6 +37,7 @@ function Owners() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedItems, setSelectedItems] = useState([]);
 
   useEffect(() => {
     if (adminData?.user_id) {
@@ -355,6 +356,41 @@ function Owners() {
     },
   ];
 
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        "https://men4u.xyz/v2/common/bulk_owner_action",
+        {
+          user_id: adminData.user_id,
+          action: action,
+          app_source: "admin_dashboard",
+          owner_ids: selectedIds
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Check if the request was successful (Status Code 200)
+      if (response.status === 200) {
+        // Clear the selection
+        setSelectedItems([]);
+        // Refresh the owners list
+        fetchOwners();
+      }
+    } catch (error) {
+      console.error("Error performing bulk action:", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -376,6 +412,12 @@ function Owners() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         darkMode={true}
+        
+        // Enable selection and bulk actions
+        enableSelection={true}
+        onBulkAction={handleBulkAction}
+        onSelectionChange={setSelectedItems}
+        selectedItems={selectedItems}
         
         // Header props
         title="Owners"
