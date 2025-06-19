@@ -408,12 +408,11 @@ const Sidebar = ({ sidebarToggle = false }) => {
           ${sidebarToggle ? 'justify-center' : 'justify-between'}
         `}
       >
-        <Link to="/">
           <div className="flex items-center gap-2">
             <img className="w-10" src={logo} alt="Logo" />
             <span className={`text-2xl font-bold ${sidebarToggle ? "lg:hidden" : ""}`}>Admin</span>
           </div>
-        </Link>
+
       </div>
 
       {/* Menu Items */}
