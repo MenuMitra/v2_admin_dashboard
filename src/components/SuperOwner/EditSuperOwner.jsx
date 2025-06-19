@@ -226,9 +226,10 @@ function EditSuperOwner() {
           <div className="space-y-6">
             <div className="bg-white rounded-lg">
               <form onSubmit={handleSubmit}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                {/* Basic Information Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                    <label className="block text-sm text-gray-500 mb-1">Name</label>
                     <input
                       type="text"
                       name="name"
@@ -240,7 +241,7 @@ function EditSuperOwner() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
+                    <label className="block text-sm text-gray-500 mb-1">Mobile</label>
                     <input
                       type="tel"
                       name="mobile"
@@ -253,7 +254,7 @@ function EditSuperOwner() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <label className="block text-sm text-gray-500 mb-1">Email</label>
                     <input
                       type="email"
                       name="email"
@@ -265,7 +266,7 @@ function EditSuperOwner() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
+                    <label className="block text-sm text-gray-500 mb-1">Aadhar Number</label>
                     <input
                       type="text"
                       name="aadhar_number"
@@ -280,13 +281,13 @@ function EditSuperOwner() {
 
                 {/* Outlets Grid */}
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-4">Select Outlets</h3>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
+                  <h3 className="text-sm font-semibold mb-4">Select Outlets</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                     {outlets.map((outlet) => (
                       <div
                         key={outlet.outlet_id}
                         onClick={() => handleOutletSelect(outlet.outlet_id)}
-                        className={`rounded-2xl border bg-white p-5 cursor-pointer transition-all ${
+                        className={`rounded-2xl border bg-white p-4 cursor-pointer transition-all ${
                           selectedOutlets.includes(outlet.outlet_id)
                             ? 'border-blue-500'
                             : 'border-gray-200 hover:border-blue-300'
@@ -295,13 +296,13 @@ function EditSuperOwner() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div>
-                              <h4 className="text-xl font-bold text-gray-800">{outlet.outlet_name}</h4>
+                              <h4 className="text-sm font-medium text-gray-800">{outlet.outlet_name}</h4>
                               <p className="text-sm text-gray-500 mt-1">{outlet.address}</p>
                             </div>
                           </div>
                           {selectedOutlets.includes(outlet.outlet_id) && (
                             <div className="text-blue-600">
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                               </svg>
                             </div>
