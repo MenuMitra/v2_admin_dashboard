@@ -448,6 +448,7 @@ function DataTable({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onBulkAction('active', selectedItems);
+                                setSelectedItems([]);
                                 setIsActionDropdownOpen(false);
                               }}
                               className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
@@ -460,6 +461,7 @@ function DataTable({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onBulkAction('inactive', selectedItems);
+                                setSelectedItems([]);
                                 setIsActionDropdownOpen(false);
                               }}
                               className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
@@ -472,6 +474,7 @@ function DataTable({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 onBulkAction('delete', selectedItems);
+                                setSelectedItems([]);
                                 setIsActionDropdownOpen(false);
                               }}
                               className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-error-600 hover:bg-error-50"

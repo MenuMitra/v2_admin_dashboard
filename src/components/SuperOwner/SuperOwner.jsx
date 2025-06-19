@@ -8,14 +8,18 @@ import {
   faEye,
   faPenToSquare,
   faTrash,
-  faUserShield
+  faUserShield,
+  faXmark,
+  faCheck
 } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../Breadcrumb';
 import DataTable from '../common/DataTable';
 import Modal from '../common/Modal';
+import { useAdmin } from '../../hooks/useAdmin';
 
 function SuperOwner() {
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const navigate = useNavigate();
   const [superOwners, setSuperOwners] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +28,12 @@ function SuperOwner() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    action: null,
+    title: '',
+    message: ''
+  });
 
   useEffect(() => {
     fetchSuperOwners();
@@ -164,6 +174,86 @@ function SuperOwner() {
     }
   };
 
+  const getConfirmationDetails = (action) => {
+    switch(action) {
+      case 'active':
+        return {
+          title: 'Confirm Activation',
+          message: `Are you sure you want to activate ${selectedItems.length} selected super owner(s)?`
+        };
+      case 'inactive':
+        return {
+          title: 'Confirm Deactivation',
+          message: `Are you sure you want to deactivate ${selectedItems.length} selected super owner(s)?`
+        };
+      case 'delete':
+        return {
+          title: 'Confirm Deletion',
+          message: `Are you sure you want to delete ${selectedItems.length} selected super owner(s)? This action cannot be undone.`
+        };
+      default:
+        return { title: '', message: '' };
+    }
+  };
+
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const { title, message } = getConfirmationDetails(action);
+      setConfirmModal({
+        isOpen: true,
+        action,
+        title,
+        message
+      });
+    } catch (error) {
+      console.error('Error in bulk action:', error);
+      setError('Failed to perform bulk action');
+    }
+  };
+
+  const executeBulkAction = async (action) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const validSuperOwnerIds = selectedItems.filter(id => id !== null && id !== undefined);
+
+      if (validSuperOwnerIds.length === 0) {
+        throw new Error('No valid super owner IDs selected');
+      }
+
+      const response = await axios.post(
+        'https://men4u.xyz/v2/common/bulk_super_owner_action',
+        {
+          user_id: adminData.user_id,
+          action: action,
+          app_source: "admin_dashboard",
+          super_owner_ids: validSuperOwnerIds
+        },
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        // Clear selections
+        setSelectedItems([]); // Clear local state
+        setConfirmModal({ isOpen: false, action: null, title: '', message: '' });
+        
+        // Refresh data
+        await fetchSuperOwners();
+      }
+    } catch (error) {
+      console.error('Error executing bulk action:', error);
+      setError(error.response?.data?.detail || `Failed to ${action} super owners`);
+    }
+  };
+
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/' },
     { label: 'Super Owners', path: '/super-owners' }
@@ -276,6 +366,7 @@ function SuperOwner() {
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
+        onBulkAction={handleBulkAction}
         
         title="Super Owners"
         counts={{
@@ -297,6 +388,36 @@ function SuperOwner() {
         }}
         error={error}
       />
+
+      <Modal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+        title={confirmModal.title}
+        type={confirmModal.action === 'delete' ? 'error' : 'warning'}
+        size="small"
+      >
+        <p className="mb-6">{confirmModal.message}</p>
+        <div className="flex justify-between items-center w-full gap-3">
+          <button
+            onClick={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
+          >
+            <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+            Cancel
+          </button>
+          <button
+            onClick={() => executeBulkAction(confirmModal.action)}
+            className={`px-4 py-2 text-sm font-medium text-white rounded-full transition ${
+              confirmModal.action === 'delete' 
+                ? 'bg-error-500 hover:bg-error-600' 
+                : 'bg-warning-500 hover:bg-warning-600'
+            }`}
+          >
+            <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
+            Confirm
+          </button>
+        </div>
+      </Modal>
 
       <Modal
         isOpen={showDeleteModal}
