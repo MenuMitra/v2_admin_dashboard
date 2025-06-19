@@ -436,7 +436,7 @@ function Partners() {
           inactive: partners.filter(p => p.is_active !== 1).length
         }}
         createButton={{
-          label: "Create Partner",
+          label: "Create",
           onClick: () => navigate('/create-partner'),
           className: "bg-success-500 hover:bg-success-600",
           position: "right",
