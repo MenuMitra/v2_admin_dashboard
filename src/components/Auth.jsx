@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Logo from "../assets/images/logo/logo.png";
@@ -14,6 +14,12 @@ function Auth() {
   const [isOtpScreen, setIsOtpScreen] = useState(false);
 
   const navigate = useNavigate();
+
+  const inputRef = useCallback((inputElement) => {
+    if (inputElement && isOtpSent) {
+      inputElement.focus();
+    }
+  }, [isOtpSent]);
 
   const handleOtpChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
@@ -117,6 +123,20 @@ function Auth() {
     setError(""); // Clear any errors
   };
 
+  // Add this new function to handle enter key for OTP verification
+  const handleOtpKeyPress = (e) => {
+    if (e.key === 'Enter' && !otp.some((digit) => digit === "") && !verifyLoading) {
+      handleVerifyOTP(e);
+    }
+  };
+
+  // Add this new function to handle enter key for login
+  const handleMobileKeyPress = (e) => {
+    if (e.key === 'Enter' && !loading && mobile.length === 10) {
+      handleLogin(e);
+    }
+  };
+
   return (
     <>
       <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
@@ -175,6 +195,7 @@ function Auth() {
                               /^\d{0,10}$/.test(e.target.value) &&
                               setMobile(e.target.value)
                             }
+                            onKeyPress={handleMobileKeyPress}
                             placeholder="Enter your mobile number"
                             className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                           />
@@ -219,10 +240,12 @@ function Auth() {
                               maxLength="1"
                               data-index={index}
                               value={otp[index]}
+                              ref={index === 0 ? inputRef : null}
                               onChange={(e) =>
                                 handleOtpChange(index, e.target.value)
                               }
                               onKeyDown={(e) => handleKeyDown(index, e)}
+                              onKeyPress={handleOtpKeyPress}
                               className="dark:bg-dark-900 otp-input h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-center text-xl font-semibold text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                             />
                           ))}
