@@ -18,7 +18,8 @@ function EditSuperOwner() {
     mobile: '',
     email: '',
     aadhar_number: '',
-    app_source: 'admin_dashboard'
+    app_source: 'admin_dashboard',
+    is_active: true
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -49,13 +50,14 @@ function EditSuperOwner() {
       );
 
       if (response.data?.super_owner) {
-        const { name, mobile, email, aadhar_number } = response.data.super_owner;
+        const { name, mobile, email, aadhar_number, is_active } = response.data.super_owner;
         setFormData(prev => ({
           ...prev,
           name,
           mobile,
           email,
           aadhar_number,
+          is_active: Boolean(is_active),
           super_owner_id: parseInt(superOwnerId)
         }));
       }
@@ -120,7 +122,7 @@ function EditSuperOwner() {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: name === 'is_active' ? value === 'true' : value
     }));
   };
 
@@ -276,6 +278,20 @@ function EditSuperOwner() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Status</label>
+                    <select
+                      name="is_active"
+                      value={formData.is_active}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value={true}>Active</option>
+                      <option value={false}>Inactive</option>
+                    </select>
                   </div>
                 </div>
 
