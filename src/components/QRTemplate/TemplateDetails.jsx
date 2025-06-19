@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage, faPen } from '@fortawesome/free-solid-svg-icons';
+import { faImage, faPen, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
-import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 
 function TemplateDetails() {
@@ -13,22 +12,19 @@ function TemplateDetails() {
   const { getToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [templateData, setTemplateData] = useState({
-    name: '',
-    qrPosition: 'centre',
-    filename: '',
-    createdOn: ''
-  });
+  const [templateData, setTemplateData] = useState(null);
 
   // Define breadcrumb items
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Dashboard', path: '/dashboard' },
     { label: 'QR Templates', path: '/qr-templates' },
     { label: 'View', path: '#' }
   ];
 
   useEffect(() => {
-    fetchTemplateDetails();
+    if (templateId) {
+      fetchTemplateDetails();
+    }
   }, [templateId]);
 
   const fetchTemplateDetails = async () => {
@@ -54,92 +50,78 @@ function TemplateDetails() {
         }
       );
 
-      setTemplateData({
-        name: response.data.name,
-        qrPosition: response.data.qr_overlay_position,
-        filename: response.data.image_name,
-        createdOn: response.data.created_on
-      });
+      console.log('API Response:', response.data);
+      setTemplateData(response.data);
 
     } catch (err) {
+      console.error('Error details:', err);
       setError(err.response?.data?.detail || 'Failed to fetch template details');
-      console.error('Error fetching template:', err);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Custom row render for template details
-  const renderTemplateDetails = () => (
-    <tr>
-      <td className="px-6 py-4" colSpan="100%">
-        <div className="grid grid-cols-2 gap-8">
-          {/* Left Column - Image */}
-          <div className="p-6">
+  const renderTemplateDetails = () => {
+    if (!templateData) return null;
+
+    return (
+      <div className="w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+          {/* Image Card */}
+          <div className="bg-white p-6 rounded-lg shadow-sm md:col-span-2">
             <div className="bg-gray-50 rounded-lg p-8 flex flex-col items-center justify-center">
               <FontAwesomeIcon icon={faImage} className="w-16 h-16 text-gray-300 mb-2" />
-              <div className="text-sm text-gray-400">Image not available</div>
-              <div className="text-xs text-gray-400 mt-1">{templateData.filename}</div>
+              <div className="text-sm text-gray-400">Template Image</div>
+              <div className="text-sm text-gray-400 mt-1">{templateData.image_name}</div>
             </div>
           </div>
 
-          {/* Right Column - Details */}
-          <div className="p-6">
-            <div className="space-y-6">
+          {/* Details Cards */}
+          <div className="bg-white p-6 rounded-lg shadow-sm md:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Template ID */}
+              <div>
+                <h3 className="text-sm text-gray-500 mb-1">Template ID</h3>
+                <p className="text-sm text-gray-900">{templateData.qr_code_template_id}</p>
+              </div>
+
               {/* Name */}
               <div>
                 <h3 className="text-sm text-gray-500 mb-1">Name</h3>
-                <p className="text-sm text-gray-900 dark:text-white/90">{templateData.name}</p>
+                <p className="text-sm text-gray-900">{templateData.name}</p>
               </div>
 
               {/* QR Code Position */}
               <div>
                 <h3 className="text-sm text-gray-500 mb-1">QR Code Position</h3>
-                <p className="text-sm text-gray-900 dark:text-white/90">{templateData.qrPosition}</p>
-              </div>
-
-              {/* Image Filename */}
-              <div>
-                <h3 className="text-sm text-gray-500 mb-1">Image Filename</h3>
-                <p className="text-sm text-gray-900 dark:text-white/90">{templateData.filename}</p>
+                <p className="text-sm text-gray-900">{templateData.qr_overlay_position}</p>
               </div>
 
               {/* Created On */}
               <div>
                 <h3 className="text-sm text-gray-500 mb-1">Created On</h3>
-                <p className="text-sm text-gray-900 dark:text-white/90">{templateData.createdOn}</p>
+                <p className="text-sm text-gray-900">{templateData.created_on}</p>
               </div>
 
-              {/* QR Position Preview */}
-              <div>
+              {/* QR Position Preview - Full Width */}
+              <div className="col-span-full">
                 <h3 className="text-sm text-gray-500 mb-2">QR Position Preview</h3>
-                <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
                   <div className="flex justify-center">
-                    <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="w-12 h-12 bg-brand-500 rounded flex items-center justify-center text-white text-sm">
+                      {templateData.qr_overlay_position}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </td>
-    </tr>
-  );
-
-  // Configure edit button
-  const editButton = {
-    show: true,
-    label: "Edit",
-    icon: faPen,
-    onClick: () => navigate(`/edit-template/${templateId}`),
-    className: "bg-brand-500 hover:bg-brand-600",
-    position: "right",
-    showIconOnly: false,
-    disabled: false,
-    tooltip: "Edit this template"
+      </div>
+    );
   };
 
-  if (isLoading && !templateData.name) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -151,24 +133,53 @@ function TemplateDetails() {
     <div className="p-6">
       <Breadcrumb items={breadcrumbItems} />
       
-      <DataTable
-        title="Template Details"
-        showBackButton={true}
-        onBackClick={() => navigate(-1)}
-        showCreateButton={true}
-        createButton={editButton}
-        showSearch={false}
-        showHeader={true}
-        showOutletSelect={false}
-        isLoading={isLoading}
-        error={error}
-        data={[templateData]} // Pass template data as single item array
-        columns={[{ field: 'details', header: '' }]} // Single column for the entire content
-        customRowRender={() => renderTemplateDetails()} // Custom render function for the content
-        enablePagination={false}
-        enableSort={false}
-        darkMode={true}
-      />
+      {/* DataTable-style Header */}
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="overflow-hidden pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
+          {/* Top Row - Back, Title, Edit */}
+          <div className="flex items-center px-6 mb-3">
+            {/* Left Side - Back Button */}
+            <div className="flex items-center gap-2 order-1">
+              <button 
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
+
+            {/* Center - Title */}
+            <div className="flex-1 text-center">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90">
+                Template Details
+              </h1>
+            </div>
+
+            {/* Right Side - Edit Button */}
+            <div className="flex items-center justify-end order-3">
+              <button
+                onClick={() => navigate(`/edit-template/${templateId}`)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 transition rounded-full shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faPen} className="w-4 h-4" />
+                <span className="hidden sm:inline">Edit</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="px-6 py-4">
+            {error ? (
+              <div className="p-4 text-sm text-red-500 bg-red-50 rounded-lg">
+                {error}
+              </div>
+            ) : (
+              renderTemplateDetails()
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
