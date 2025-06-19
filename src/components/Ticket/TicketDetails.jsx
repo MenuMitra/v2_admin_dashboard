@@ -5,7 +5,6 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
-import DataTable from '../common/DataTable';
 
 function TicketDetails() {
   const { ticketId } = useParams();
@@ -122,7 +121,7 @@ function TicketDetails() {
   const formatMessageDate = (dateString) => {
     try {
       // Handle format "DD-MM-YYYY HH:mm AM/PM"
-      const [datePart, timePart] = dateString.split(' ');
+      const [datePart] = dateString.split(' ');
       const [day, month, year] = datePart.split('-');
       
       const date = new Date(`${year}-${month}-${day}`);
@@ -138,37 +137,24 @@ function TicketDetails() {
       });
     } catch (error) {
       console.error('Date parsing error:', error);
-      return 'Invalid Date';
+      return dateString; // Return original string if parsing fails
     }
   };
 
   const formatMessageTime = (dateString) => {
     try {
       // Handle format "DD-MM-YYYY HH:mm AM/PM"
-      const [datePart, time, period] = dateString.split(' ');
-      
-      // If time and period exist, return them combined
-      if (time && period) {
-        return `${time} ${period}`;
-      }
-
-      // Fallback to original string if format doesn't match
-      return dateString;
+      const timePart = dateString.split(' ').slice(-2).join(' ');
+      return timePart; // Returns "HH:mm AM/PM"
     } catch (error) {
       console.error('Time parsing error:', error);
-      return 'Invalid Time';
+      return dateString;
     }
   };
 
   // For ticket creation date formatting
   const formatTicketDate = (dateString) => {
-    try {
-      // Handle format "DD MMM YYYY HH:mm AM/PM"
-      return dateString; // Already in desired format, just return as is
-    } catch (error) {
-      console.error('Ticket date parsing error:', error);
-      return 'Invalid Date';
-    }
+    return dateString; // Already in desired format "DD MMM YYYY HH:mm AM/PM"
   };
 
   const renderTicketContent = () => (
@@ -342,81 +328,86 @@ function TicketDetails() {
     </div>
   );
 
-  if (loading && !ticket) {
-    return (
-      <div className="flex justify-center items-center h-screen">Loading...</div>
-    );
-  }
-
-  if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
-  }
-
-  if (!ticket) {
-    return <div className="text-center">Ticket not found</div>;
-  }
-
   return (
     <div className="container mx-auto py-6 px-4">
-      <DataTable
-        title="Ticket Details"
-        showBackButton={true}
-        onBackClick={() => navigate(-1)}
-        showCreateButton={false}
-        createButton={{ show: false }}
-        showSearch={false}
-        showHeader={true}
-        showOutletSelect={false}
-        isLoading={loading}
-        error={error}
-        data={[ticket]}
-        columns={[{ field: 'content', header: '' }]}
-        customRowRender={() => renderTicketContent()}
-        enablePagination={false}
-        enableSort={false}
-        darkMode={true}
-      />
-
-      {/* Keep modal outside the DataTable */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Confirm Status Change</h2>
-            <p>Are you sure you want to mark this ticket as <span className="font-semibold text-green-600">resolved</span>?</p>
-            {statusError && (
-              <div className="text-red-500 mt-2">{statusError}</div>
-            )}
-            <div className="flex justify-end gap-2 mt-6">
-              <button
-                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
-                onClick={() => setShowModal(false)}
-                disabled={statusLoading}
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        {/* Header */}
+        <div className="overflow-hidden pt-4">
+          <div className="flex items-center px-6 mb-3">
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                Cancel
+                <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
               </button>
-              <button
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-                onClick={handleChangeStatus}
-                disabled={statusLoading}
-              >
-                {statusLoading ? (
-                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                  </svg>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Confirm
-                  </>
-                )}
-              </button>
+            </div>
+            <div className="flex-1 text-center text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90">
+              Ticket Details
             </div>
           </div>
         </div>
-      )}
+
+        {/* Loading State */}
+        {loading && !ticket && (
+          <div className="flex justify-center items-center h-screen">Loading...</div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-red-500 text-center">{error}</div>
+        )}
+
+        {/* No Ticket State */}
+        {!ticket && !loading && !error && (
+          <div className="text-center">Ticket not found</div>
+        )}
+
+        {/* Ticket Content */}
+        {ticket && renderTicketContent()}
+
+        {/* Status Change Modal */}
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+              <h2 className="text-lg font-semibold mb-4">Confirm Status Change</h2>
+              <p>Are you sure you want to mark this ticket as <span className="font-semibold text-green-600">resolved</span>?</p>
+              {statusError && (
+                <div className="text-red-500 mt-2">{statusError}</div>
+              )}
+              <div className="flex justify-end gap-2 mt-6">
+                <button
+                  className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
+                  onClick={() => setShowModal(false)}
+                  disabled={statusLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                  onClick={handleChangeStatus}
+                  disabled={statusLoading}
+                >
+                  {statusLoading ? (
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    </svg>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Confirm
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
