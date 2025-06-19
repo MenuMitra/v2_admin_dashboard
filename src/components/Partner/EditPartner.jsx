@@ -227,7 +227,7 @@ function EditPartner() {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <TextInput
                 label="Full Name"
                 name="name"
