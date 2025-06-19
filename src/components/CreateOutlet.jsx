@@ -292,10 +292,12 @@ function CreateOutlet() {
                   </label>
                   
                   <div className="relative">
-                    <button
-                      type="button"
+                    <div
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="w-full p-3 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      className="w-full p-3 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+                      role="combobox"
+                      aria-expanded={isDropdownOpen}
+                      aria-haspopup="listbox"
                     >
                       {formData.owner_id ? (
                         <div className="flex items-center justify-between">
@@ -303,9 +305,9 @@ function CreateOutlet() {
                             <div className="font-medium text-gray-900">
                               {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
                             </div>
-                            {/* <div className="text-sm text-gray-500">
-                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.email || 'No email'}
-                            </div> */}
+                            <div className="text-sm text-gray-500">
+                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile || 'No contact'}
+                            </div>
                           </div>
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -314,22 +316,24 @@ function CreateOutlet() {
                       ) : (
                         <div className="text-gray-500">Select Owner</div>
                       )}
-                    </button>
+                    </div>
 
                     {/* Dropdown Panel */}
                     {isDropdownOpen && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg">
+                      <div 
+                        className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
+                        style={{
+                          position: 'absolute',
+                          width: '100%',
+                          minWidth: '300px',
+                          zIndex: 9999,
+                          maxHeight: '350px',
+                          overflowY: 'auto'
+                        }}
+                      >
                         {/* Search Bar */}
                         <div className="sticky top-0 p-2 border-b bg-white">
-                            <div className="relative">
-                              <input
-                                type="text"
-                              className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                                placeholder="Search owners..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                              autoFocus
-                              />
+                          <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                               <svg 
                                 className="w-4 h-4" 
@@ -343,45 +347,56 @@ function CreateOutlet() {
                                   strokeWidth="2" 
                                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
                                 />
-                                </svg>
+                              </svg>
                             </span>
-                            </div>
+                            <input
+                              type="text"
+                              className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              placeholder="Search by name, mobile or email..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              autoFocus
+                            />
                           </div>
+                        </div>
 
-                        {/* Owners List - Grid Layout */}
-                        <div className="max-h-[300px] overflow-y-auto p-2">
-                          <div className="grid grid-cols-1 gap-2">
-                            {filteredOwners.length > 0 ? (
-                              filteredOwners.map((owner) => (
-                                <button
-                                  key={owner.user_id}
-                                  type="button"
-                                  onClick={() => {
-                                    setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
-                                    setIsDropdownOpen(false);
-                                    setSearchTerm('');
-                                  }}
-                                  className={`
-                                    w-full px-4 py-2 text-left
-                                    rounded-lg transition-colors
-                                    ${formData.owner_id === owner.user_id 
-                                      ? 'bg-brand-50 border-brand-200 border-2' 
-                                      : 'border border-gray-200 hover:bg-gray-50'
-                                    }
-                                    flex items-center justify-between
-                                  `}
-                                >
+                        {/* Owners List */}
+                        <div className="overflow-y-auto">
+                          {filteredOwners.length > 0 ? (
+                            filteredOwners.map((owner) => (
+                              <div
+                                key={owner.user_id}
+                                onClick={() => {
+                                  setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
+                                  setIsDropdownOpen(false);
+                                  setSearchTerm('');
+                                }}
+                                className={`
+                                  p-3 cursor-pointer hover:bg-gray-50
+                                  ${formData.owner_id === owner.user_id 
+                                    ? 'bg-brand-50 border-l-4 border-brand-500' 
+                                    : 'border-l-4 border-transparent'
+                                  }
+                                `}
+                              >
+                                <div className="flex items-center justify-between">
                                   <div>
                                     <div className="font-medium text-gray-900">
                                       {owner.name}
                                     </div>
                                     <div className="text-sm text-gray-500">
-                                      {owner.email || 'No email'}
+                                      <span>{owner.mobile}</span>
+                                      {owner.email && (
+                                        <>
+                                          <span className="mx-2">•</span>
+                                          <span>{owner.email}</span>
+                                        </>
+                                      )}
                                     </div>
                                   </div>
                                   {formData.owner_id === owner.user_id && (
                                     <svg 
-                                      className="w-5 h-5 text-brand-500" 
+                                      className="w-5 h-5 text-brand-500 flex-shrink-0" 
                                       fill="none" 
                                       stroke="currentColor" 
                                       viewBox="0 0 24 24"
@@ -392,16 +407,16 @@ function CreateOutlet() {
                                         strokeWidth="2" 
                                         d="M5 13l4 4L19 7" 
                                       />
-                                      </svg>
+                                    </svg>
                                   )}
-                                </button>
-                              ))
-                            ) : (
-                              <div className="p-4 text-center text-sm text-gray-500">
-                                {allOwners.length === 0 ? 'No owners available' : `No owners found matching "${searchTerm}"`}
+                                </div>
                               </div>
-                            )}
-                          </div>
+                            ))
+                          ) : (
+                            <div className="p-4 text-center text-sm text-gray-500">
+                              {allOwners.length === 0 ? 'No owners available' : `No owners found matching "${searchTerm}"`}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
