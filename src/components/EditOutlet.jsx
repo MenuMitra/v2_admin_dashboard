@@ -304,7 +304,8 @@ function EditOutlet() {
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
-            <button
+            {/* Back Button */}
+            <button 
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
             >
@@ -312,10 +313,12 @@ function EditOutlet() {
               <span>Back</span>
             </button>
 
+            {/* Title - Centered between buttons */}
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Edit Outlet
             </h1>
 
+            {/* Save Button */}
             <button
               onClick={handleSubmit}
               disabled={isLoading}
@@ -342,71 +345,80 @@ function EditOutlet() {
               </svg>
               Basic Information
             </h2>
-            
-            <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              {/* Owner Selection */}
-              <div className="relative">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                  <span className="text-error-600">*</span> Select Owner
-                </label>
-                
-                <div className="border rounded-lg shadow-sm bg-white">
-                  {/* Selected Owner Display or Search Bar */}
-                  {formData.owner_id && !isDropdownOpen ? (
-                    // Selected Owner Display
-                    <div className="p-3 flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                            <span className="text-lg font-medium text-blue-600">
-                              {allOwners.find(o => o.user_id === formData.owner_id)?.name.charAt(0)}
-                            </span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-medium text-sm text-gray-900">
-                            {allOwners.find(o => o.user_id === formData.owner_id)?.name}
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {allOwners.find(o => o.user_id === formData.owner_id)?.mobile}
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setIsDropdownOpen(true)}
-                        className="text-sm text-blue-600 hover:text-blue-700"
-                      >
-                        Change
-                      </button>
-                    </div>
-                  ) : (
-                    // Search and Dropdown
-                    <>
-                      {/* Search Bar */}
-                      <div className="p-2 border-b">
-                        <div className="relative">
-                          <input
-                            type="text"
-                            className="w-full rounded-md border-gray-300 pl-9 pr-3 py-2 text-sm focus:border-blue-500 focus:ring-blue-500"
-                            placeholder="Search owners..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            onClick={() => setIsDropdownOpen(true)}
-                          />
-                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
 
-                      {/* Owners List - Only show if dropdown is open */}
-                      {isDropdownOpen && (
-                        <div className="max-h-[400px] overflow-y-auto" style={{ maxHeight: filteredOwners.length > 10 ? '400px' : 'auto' }}>
+            {/* Basic Information Fields */}
+            <div className="grid grid-cols-1 gap-6">
+              {/* Select Owner and Image Upload in same grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                {/* Select Owner */}
+                <div className="relative">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <span className="text-error-600">*</span> Select Owner
+                  </label>
+                  
+                  <div className="relative">
+                    <div
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="w-full p-3 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+                      role="combobox"
+                      aria-expanded={isDropdownOpen}
+                      aria-haspopup="listbox"
+                    >
+                      {formData.owner_id ? (
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile || 'No contact'}
+                            </div>
+                          </div>
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <div className="text-gray-500">Select Owner</div>
+                      )}
+                    </div>
+
+                    {/* Dropdown Panel */}
+                    {isDropdownOpen && (
+                      <div 
+                        className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
+                        style={{
+                          position: 'absolute',
+                          width: '100%',
+                          minWidth: '300px',
+                          zIndex: 9999,
+                          maxHeight: '350px',
+                          overflowY: 'auto'
+                        }}
+                      >
+                        {/* Search Bar */}
+                        <div className="sticky top-0 p-2 border-b bg-white">
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                              </svg>
+                            </span>
+                            <input
+                              type="text"
+                              className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              placeholder="Search by name, mobile or email..."
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              autoFocus
+                            />
+                          </div>
+                        </div>
+
+                        {/* Owners List */}
+                        <div className="overflow-y-auto">
                           {filteredOwners.length > 0 ? (
-                            filteredOwners.map((owner, index) => (
+                            filteredOwners.map((owner) => (
                               <div
                                 key={owner.user_id}
                                 onClick={() => {
@@ -414,269 +426,153 @@ function EditOutlet() {
                                   setIsDropdownOpen(false);
                                   setSearchTerm('');
                                 }}
-                                className={`flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer transition-colors ${
-                                  formData.owner_id === owner.user_id ? 'bg-blue-50' : ''
-                                } ${index !== filteredOwners.length - 1 ? 'border-b border-gray-200' : ''}`}
+                                className={`
+                                  p-3 cursor-pointer hover:bg-gray-50
+                                  ${formData.owner_id === owner.user_id 
+                                    ? 'bg-brand-50 border-l-4 border-brand-500' 
+                                    : 'border-l-4 border-transparent'
+                                  }
+                                `}
                               >
-                                <div className="flex items-center space-x-3">
-                                  {/* Owner Avatar */}
-                                  <div className="flex-shrink-0">
-                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                      <span className="text-lg font-medium text-blue-600">
-                                        {owner.name.charAt(0)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  
-                                  {/* Owner Details */}
+                                <div className="flex items-center justify-between">
                                   <div>
-                                    <div className="font-medium text-sm text-gray-900">
+                                    <div className="font-medium text-gray-900">
                                       {owner.name}
                                     </div>
-                                    <div className="text-xs text-gray-500 flex items-center">
+                                    <div className="text-sm text-gray-500">
                                       <span>{owner.mobile}</span>
-                                      {owner.account_type && (
+                                      {owner.email && (
                                         <>
-                                          <span className="mx-1.5">•</span>
-                                          <span className={`capitalize px-1.5 py-0.5 rounded-full text-xs ${
-                                            owner.account_type === 'live' 
-                                              ? 'bg-green-100 text-green-700'
-                                              : 'bg-orange-100 text-orange-700'
-                                          }`}>
-                                            {owner.account_type}
-                                          </span>
+                                          <span className="mx-2">•</span>
+                                          <span>{owner.email}</span>
                                         </>
                                       )}
                                     </div>
-                                    {owner.email && (
-                                      <div className="text-xs text-gray-500 mt-0.5">
-                                        {owner.email}
-                                      </div>
-                                    )}
                                   </div>
-                                </div>
-
-                                {/* Selection Indicator */}
-                                {formData.owner_id === owner.user_id && (
-                                  <div className="flex-shrink-0">
-                                    <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  {formData.owner_id === owner.user_id && (
+                                    <svg className="w-5 h-5 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                     </svg>
-                                  </div>
-                                )}
+                                  )}
+                                </div>
                               </div>
                             ))
                           ) : (
                             <div className="p-4 text-center text-sm text-gray-500">
-                              {allOwners.length === 0 ? (
-                                'No owners available'
-                              ) : (
-                                `No owners found matching "${searchTerm}"`
-                              )}
+                              {allOwners.length === 0 ? 'No owners available' : `No owners found matching "${searchTerm}"`}
                             </div>
                           )}
                         </div>
-                      )}
-
-                      {/* Show count if more than 10 items and dropdown is open */}
-                      {isDropdownOpen && filteredOwners.length > 10 && (
-                        <div className="px-3 py-2 bg-gray-50 border-t text-xs text-gray-500">
-                          Showing {filteredOwners.length} owners
-                        </div>
-                      )}
-                    </>
-                  )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Image Selection */}
-              <div className="relative">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                  Outlet Image
-                </label>
-                <div className="border rounded-lg shadow-sm bg-white">
-                  <div className="p-3 flex items-center justify-between">
-                    {/* Image Preview */}
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                        {previewUrl ? (
-                          <img 
-                            src={previewUrl} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <svg 
-                              className="w-5 h-5 text-gray-400" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                            >
-                              <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth="2" 
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
-                              />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <div className="font-medium text-sm text-gray-900">
-                          {imageFile?.name || 'No image selected'}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          JPG, PNG, or GIF up to 5MB
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Upload Button */}
-                    <label 
-                      htmlFor="outlet-image"
-                      className="text-sm text-blue-600 hover:text-blue-700 cursor-pointer"
-                    >
-                      {previewUrl ? 'Change' : 'Select'}
-                    </label>
+                {/* Image Upload */}
+                <div className="relative">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Outlet Image
+                  </label>
+                  <div>
                     <input
                       type="file"
                       accept="image/*"
                       onChange={handleImageChange}
-                      className="hidden"
+                      className="focus:border-ring-brand-300 shadow-theme-xs focus:file:ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pr-3 file:pl-3.5 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
                       id="outlet-image"
                     />
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Outlet Name *
-                </label>
-                <input
-                  type="text"
+              {/* Rest of the form fields in their own grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                <TextInput
+                  label="Outlet Name"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Enter Outlet Name"
                   required
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Mobile Number *
-                </label>
-                <input
-                  type="tel"
+                <TextInput
+                  label="Mobile Number"
                   name="mobile"
+                  type="tel"
                   value={formData.mobile}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Enter Mobile Number"
                   required
+                  pattern="[0-9]{10}"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Email Address
-                </label>
-                <input
-                  type="email"
+                <TextInput
+                  label="Email Address"
                   name="email"
+                  type="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Enter Email Address"
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  UPI ID *
-                </label>
-                <input
-                  type="text"
+                <TextInput
+                  label="UPI ID"
                   name="upi_id"
                   value={formData.upi_id}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="Enter UPI ID"
                   required
                 />
-              </div>
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Outlet Type *
-                </label>
-                <select
+                <SelectInput
+                  label="Outlet Type"
                   name="outlet_type"
                   value={formData.outlet_type}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
-                >
-                  <option value="">Select Outlet Type</option>
-                  {Object.entries(outletTypes).map(([key, value]) => (
-                    <option key={key} value={key}>
-                      {value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ')}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  options={Object.entries(outletTypes).map(([key, value]) => ({
+                    value: key,
+                    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ')
+                  }))}
+                  placeholder="Select Outlet Type"
+                />
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Food Type *
-                </label>
-                <select
+                <SelectInput
+                  label="Food Type"
                   name="veg_nonveg"
                   value={formData.veg_nonveg}
                   onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   required
-                >
-                  <option value="">Select Food Type</option>
-                  {Object.entries(foodTypes).map(([key, value]) => (
-                    <option key={key} value={key}>
-                      {value.charAt(0).toUpperCase() + value.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                  options={[
+                    { value: 'veg', label: 'Veg' },
+                    { value: 'nonveg', label: 'Non-Veg' }
+                  ]}
+                  placeholder="Select Food Type"
+                />
 
-            <div className="sm:col-span-2">
-              <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                Address *
-              </label>
-              <textarea
+                <SelectInput
+                  label="Outlet Mode"
+                  name="outlet_mode"
+                  value={formData.outlet_mode}
+                  onChange={handleInputChange}
+                  required
+                  options={[
+                    { value: 'offline', label: 'Offline' },
+                    { value: 'online', label: 'Online' }
+                  ]}
+                  placeholder="Select Outlet Mode"
+                />
+              </div>
+
+              <Textarea
+                label="Address"
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
+                placeholder="Enter Address"
+                required
                 rows={3}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                required
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                Outlet Mode
-              </label>
-              <SelectInput
-                name="outlet_mode"
-                value={formData.outlet_mode}
-                onChange={handleInputChange}
-                required
-                options={[
-                  { value: 'offline', label: 'Offline' },
-                  { value: 'online', label: 'Online' }
-                ]}
-                placeholder="Select Outlet Mode"
               />
             </div>
           </section>
