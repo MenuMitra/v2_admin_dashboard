@@ -112,8 +112,13 @@ function CreateOutlet() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImageFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      if (file.type.startsWith('image/')) {
+        setImageFile(file);
+        setPreviewUrl(URL.createObjectURL(file));
+      } else {
+        // Optional: Add error notification for non-image files
+        alert('Please upload an image file (PNG, JPG, WebP, SVG)');
+      }
     }
   };
 
@@ -276,155 +281,160 @@ function CreateOutlet() {
               Basic Information
             </h2>
 
+            {/* Basic Information Fields */}
             <div className="grid grid-cols-1 gap-6">
-              <div className="relative">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                <span className="text-error-600">*</span> Select Owner
-                </label>
-                
+              {/* Select Owner and Image Upload in same grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                {/* Select Owner */}
                 <div className="relative">
-                  {/* Main Select Button */}
-                  <button
-                    type="button"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="w-full p-3 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                  >
-                    {formData.owner_id ? (
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.email || 'No email'}
-                          </div>
-                        </div>
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                      </div>
-                    ) : (
-                      <div className="text-gray-500">Select Owner</div>
-                    )}
-                  </button>
-
-                  {/* Dropdown Panel */}
-                  {isDropdownOpen && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg">
-                      {/* Search Bar */}
-                      <div className="sticky top-0 p-2 border-b bg-white">
-                          <div className="relative">
-                            <input
-                              type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                              placeholder="Search owners..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                            autoFocus
-                            />
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                            <svg 
-                              className="w-4 h-4" 
-                              fill="none" 
-                              stroke="currentColor" 
-                              viewBox="0 0 24 24"
-                            >
-                              <path 
-                                strokeLinecap="round" 
-                                strokeLinejoin="round" 
-                                strokeWidth="2" 
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
-                              />
-                              </svg>
-                          </span>
-                          </div>
-                        </div>
-
-                      {/* Owners List - Grid Layout */}
-                      <div className="max-h-[300px] overflow-y-auto p-2">
-                        <div className="grid grid-cols-1 gap-2">
-                          {filteredOwners.length > 0 ? (
-                            filteredOwners.map((owner) => (
-                              <button
-                                key={owner.user_id}
-                                type="button"
-                                onClick={() => {
-                                  setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
-                                  setIsDropdownOpen(false);
-                                  setSearchTerm('');
-                                }}
-                                className={`
-                                  w-full px-4 py-2 text-left
-                                  rounded-lg transition-colors
-                                  ${formData.owner_id === owner.user_id 
-                                    ? 'bg-brand-50 border-brand-200 border-2' 
-                                    : 'border border-gray-200 hover:bg-gray-50'
-                                  }
-                                  flex items-center justify-between
-                                `}
-                              >
-                                <div>
-                                  <div className="font-medium text-gray-900">
-                                    {owner.name}
-                                  </div>
-                                  <div className="text-sm text-gray-500">
-                                    {owner.email || 'No email'}
-                                  </div>
-                                </div>
-                                {formData.owner_id === owner.user_id && (
-                                  <svg 
-                                    className="w-5 h-5 text-brand-500" 
-                                    fill="none" 
-                                    stroke="currentColor" 
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path 
-                                      strokeLinecap="round" 
-                                      strokeLinejoin="round" 
-                                      strokeWidth="2" 
-                                      d="M5 13l4 4L19 7" 
-                                    />
-                                    </svg>
-                                )}
-                              </button>
-                            ))
-                          ) : (
-                            <div className="p-4 text-center text-sm text-gray-500">
-                              {allOwners.length === 0 ? 'No owners available' : `No owners found matching "${searchTerm}"`}
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <span className="text-error-600">*</span> Select Owner
+                  </label>
+                  
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="w-full p-3 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    >
+                      {formData.owner_id ? (
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
                             </div>
-                          )}
+                            {/* <div className="text-sm text-gray-500">
+                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.email || 'No email'}
+                            </div> */}
+                          </div>
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <div className="text-gray-500">Select Owner</div>
+                      )}
+                    </button>
+
+                    {/* Dropdown Panel */}
+                    {isDropdownOpen && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg">
+                        {/* Search Bar */}
+                        <div className="sticky top-0 p-2 border-b bg-white">
+                            <div className="relative">
+                              <input
+                                type="text"
+                              className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                placeholder="Search owners..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                              autoFocus
+                              />
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                              <svg 
+                                className="w-4 h-4" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round" 
+                                  strokeWidth="2" 
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
+                                />
+                                </svg>
+                            </span>
+                            </div>
+                          </div>
+
+                        {/* Owners List - Grid Layout */}
+                        <div className="max-h-[300px] overflow-y-auto p-2">
+                          <div className="grid grid-cols-1 gap-2">
+                            {filteredOwners.length > 0 ? (
+                              filteredOwners.map((owner) => (
+                                <button
+                                  key={owner.user_id}
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
+                                    setIsDropdownOpen(false);
+                                    setSearchTerm('');
+                                  }}
+                                  className={`
+                                    w-full px-4 py-2 text-left
+                                    rounded-lg transition-colors
+                                    ${formData.owner_id === owner.user_id 
+                                      ? 'bg-brand-50 border-brand-200 border-2' 
+                                      : 'border border-gray-200 hover:bg-gray-50'
+                                    }
+                                    flex items-center justify-between
+                                  `}
+                                >
+                                  <div>
+                                    <div className="font-medium text-gray-900">
+                                      {owner.name}
+                                    </div>
+                                    <div className="text-sm text-gray-500">
+                                      {owner.email || 'No email'}
+                                    </div>
+                                  </div>
+                                  {formData.owner_id === owner.user_id && (
+                                    <svg 
+                                      className="w-5 h-5 text-brand-500" 
+                                      fill="none" 
+                                      stroke="currentColor" 
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path 
+                                        strokeLinecap="round" 
+                                        strokeLinejoin="round" 
+                                        strokeWidth="2" 
+                                        d="M5 13l4 4L19 7" 
+                                      />
+                                      </svg>
+                                  )}
+                                </button>
+                              ))
+                            ) : (
+                              <div className="p-4 text-center text-sm text-gray-500">
+                                {allOwners.length === 0 ? 'No owners available' : `No owners found matching "${searchTerm}"`}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </div>
+
+                {/* Image Upload */}
+                <div className="relative">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Outlet Image
+                  </label>
+                  <div>
+                    {previewUrl && (
+                      <div className="mb-2 flex items-center gap-2">
+                        <img 
+                          src={previewUrl} 
+                          alt="Preview" 
+                          className="h-11 w-11 object-cover rounded-lg"
+                        />
+                      </div>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="focus:border-ring-brand-300 shadow-theme-xs focus:file:ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pr-3 file:pl-3.5 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
+                      id="outlet-image"
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Outlet Image */}
-              <div className="col-span-1">
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                  {previewUrl ? (
-                    <img src={previewUrl} alt="Preview" className="mx-auto max-h-40 object-contain" />
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <p className="mt-2 text-sm text-gray-500">Click to select image</p>
-                      <p className="text-xs text-gray-400">JPG, PNG, or GIF up to 5MB</p>
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="outlet-image"
-                  />
-                </div>
-              </div>
-
-              {/* Basic Information Fields */}
+              {/* Rest of the form fields in their own grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <TextInput
                   label="Outlet Name"
