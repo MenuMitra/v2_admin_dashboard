@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Breadcrumb from '../Breadcrumb';
 
 function CreateSuperOwner() {
   const { getToken, isAuthenticated } = useAuth();
@@ -117,129 +118,189 @@ function CreateSuperOwner() {
     }
   };
 
+  // Add breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'Super Owners', path: '/super-owners' },
+    { label: 'Create Super Owner' }
+  ];
+
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6">Create Super Owner</h2>
-      
-      {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{error}</div>}
-      {success && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{success}</div>}
+      {/* Add Breadcrumb */}
+      <Breadcrumb items={breadcrumbItems} />
 
-      <div className="space-y-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <form onSubmit={handleSubmit}>
-            <div className="flex gap-6 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
-                <input
-                  type="tel"
-                  name="mobile"
-                  value={formData.mobile}
-                  onChange={handleChange}
-                  pattern="[0-9]{10}"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
-                <input
-                  type="text"
-                  name="aadhar_number"
-                  value={formData.aadhar_number}
-                  onChange={handleChange}
-                  pattern="[0-9]{12}"
-                  className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+      {/* DataTable-style header */}
+      <div className="rounded-2xl border border-gray-200 bg-white">
+        <div className="overflow-hidden pt-4">
+          {/* Top Row - Back, Title, Actions */}
+          <div className="relative flex items-center px-6 mb-3">
+            {/* Left Side - Back Button */}
+            <div className="absolute left-6">
+              <button 
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                <span className="hidden sm:inline">Back</span>
+              </button>
             </div>
 
-            {/* Outlets Grid */}
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4">Select Outlets</h3>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-                {outlets.map((outlet) => (
-                  <div
-                    key={outlet.outlet_id}
-                    onClick={() => handleOutletSelect(outlet.outlet_id)}
-                    className={`rounded-2xl border bg-white p-5 cursor-pointer transition-all ${
-                      selectedOutlets.includes(outlet.outlet_id)
-                        ? 'border-blue-500'
-                        : 'border-gray-200 hover:border-blue-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div>
-                          <h4 className="text-xl font-bold text-gray-800">{outlet.outlet_name}</h4>
-                          <p className="text-sm text-gray-500 mt-1">{outlet.address}</p>
+            {/* Center - Title */}
+            <div className="flex-1 text-center">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                Create Super Owner
+              </h2>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="p-6">
+          {/* Error and Success Messages */}
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+              {success}
+            </div>
+          )}
+
+          {/* Form Section */}
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg">
+              <form onSubmit={handleSubmit}>
+                {/* Basic Information Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Mobile</label>
+                    <input
+                      type="tel"
+                      name="mobile"
+                      value={formData.mobile}
+                      onChange={handleChange}
+                      pattern="[0-9]{10}"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Aadhar Number</label>
+                    <input
+                      type="text"
+                      name="aadhar_number"
+                      value={formData.aadhar_number}
+                      onChange={handleChange}
+                      pattern="[0-9]{12}"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Outlets Grid */}
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold mb-4">Select Outlets</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {outlets.map((outlet) => (
+                      <div
+                        key={outlet.outlet_id}
+                        onClick={() => handleOutletSelect(outlet.outlet_id)}
+                        className={`rounded-2xl border bg-white p-4 cursor-pointer transition-all ${
+                          selectedOutlets.includes(outlet.outlet_id)
+                            ? 'border-blue-500'
+                            : 'border-gray-200 hover:border-blue-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-800">{outlet.outlet_name}</h4>
+                              <p className="text-sm text-gray-500 mt-1">{outlet.address}</p>
+                            </div>
+                          </div>
+                          {selectedOutlets.includes(outlet.outlet_id) && (
+                            <div className="text-blue-600">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
                         </div>
                       </div>
-                      {selectedOutlets.includes(outlet.outlet_id) && (
-                        <div className="text-blue-600">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                      )}
-                    </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            <button
-              type="submit"
-              disabled={loading || !isAuthenticated()}
-              className={`inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-lg shadow-theme-xs ${
-                loading || !isAuthenticated()
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-brand-500 hover:bg-brand-600'
-              }`}
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                  </svg>
-                  <span>Creating...</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                  </svg>
-                  <span>Create Super Owner</span>
-                </>
-              )}
-            </button>
-          </form>
+                {/* Modified Buttons Section */}
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/super-owners')}
+                    className="px-4 py-2 text-sm font-medium text-gray-600 transition rounded-full border border-gray-300 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || !isAuthenticated()}
+                    className={`inline-flex items-center gap-2 px-6 py-2 text-sm font-medium text-white transition rounded-full ${
+                      loading || !isAuthenticated()
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-success-500 hover:bg-success-600'
+                    }`}
+                  >
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                        </svg>
+                        <span>Creating...</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Create</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>
