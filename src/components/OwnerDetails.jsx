@@ -284,6 +284,20 @@ function OwnerDetails() {
                 </div>
               </div>
 
+              {/* Account Type */}
+              <div className="flex items-center p-3 rounded-lg">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon
+                    icon={faUserTag}
+                    className="w-5 h-5 text-gray-400"
+                  />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium">{ownerData.account_type}</div>
+                  <div className="text-sm text-gray-500">Account Type</div>
+                </div>
+              </div>
+
               {/* Account Status */}
               <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
