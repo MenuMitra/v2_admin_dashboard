@@ -95,7 +95,7 @@ function CreateTemplate() {
             {/* Left Column */}
             <div>
               <TextInput
-                label="Template Name"
+                label="Name"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}

@@ -104,7 +104,7 @@ function QRTemplates() {
 
   // Define columns for DataTable
   const columns = [
-    { field: 'name', header: 'Template Name', sortable: true },
+    { field: 'name', header: 'Name', sortable: true },
     { field: 'qr_overlay_position', header: 'Position', sortable: true },
 
     {
@@ -117,7 +117,6 @@ function QRTemplates() {
           className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 font-medium text-white hover:bg-brand-600"
         >
           <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-          <span className="hidden sm:inline">View</span>
         </button>
       )
     }
