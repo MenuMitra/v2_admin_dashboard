@@ -178,19 +178,94 @@ const Sidebar = ({ sidebarToggle = false }) => {
   );
 
   const MenuItem = ({ item }) => {
+    const location = useLocation();
+    
+    // Updated isRouteActive function to handle nested routes
+    const isRouteActive = (path) => {
+      // Get the base route (e.g., 'owners', 'partners', etc.)
+      const baseRoute = path.split('/')[1];
+      const currentPath = location.pathname;
+
+      // Define route patterns for each base route
+      const routePatterns = {
+        'owners': [
+          '/owners',
+          '/create-owner',
+          '/owner-details/',
+          '/edit-owner/'
+        ],
+        'partners': [
+          '/partners',
+          '/create-partner',
+          '/partner-details/',
+          '/edit-partner/'
+        ],
+        'outlets': [
+          '/outlets',
+          '/create-outlet',
+          '/view-outlet/',
+          '/edit-outlet/'
+        ],
+        'admins': [
+          '/admins',
+          '/create-admin',
+          '/admin-details/',
+          '/edit-admin/'
+        ],
+        'super-owners': [
+          '/super-owners',
+          '/create-super-owner',
+          '/super-owner-details/',
+          '/edit-super-owner/'
+        ],
+        'qr-templates': [
+          '/qr-templates',
+          '/create-template',
+          '/template-details/',
+          '/edit-template/'
+        ],
+        // Special case for Access Control section
+        'roles': [
+          '/roles',
+          '/add-role-assign-functionalities/'
+        ],
+        'functionalities': [
+          '/functionalities',
+          '/assign-functionality-role/'
+        ]
+      };
+
+      // Special case for Access Control section
+      if (item.title === "Access Control") {
+        return Object.keys(routePatterns)
+          .filter(key => ['roles', 'functionalities'].includes(key))
+          .some(key => 
+            routePatterns[key].some(pattern => currentPath.startsWith(pattern))
+          );
+      }
+
+      // For regular menu items
+      if (routePatterns[baseRoute]) {
+        return routePatterns[baseRoute].some(pattern => 
+          currentPath.startsWith(pattern)
+        );
+      }
+
+      // Fallback for simple routes (dashboard, profile, etc.)
+      return currentPath === path;
+    };
+
+    // Updated isActive logic
     const isActive = item.path 
-      ? location.pathname === item.path
-      : item.items?.some(subItem => location.pathname === subItem.path);
+      ? isRouteActive(item.path)
+      : item.items?.some(subItem => isRouteActive(subItem.path));
     
     const hasDropdown = !!item.items;
-
-    // For Access Control, we'll always show the submenu
     const isAccessControl = item.title === "Access Control";
 
     return (
       <li>
         {!isAccessControl ? (
-          // Regular menu items remain the same
           <Link
             to={item.path || "#"}
             className={`
@@ -291,7 +366,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
                     <FontAwesomeIcon
                       icon={item.icon}
                       className={`menu-item-icon ${
-                        isActive
+                        location.pathname === subItem.path
                           ? "menu-item-icon-active"
                           : "menu-item-icon-inactive"
                       }`}
