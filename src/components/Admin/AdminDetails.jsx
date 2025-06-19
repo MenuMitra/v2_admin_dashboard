@@ -31,7 +31,17 @@ function AdminDetails() {
 
   // Format date helper function
   const formatDate = (dateString) => {
+    if (!dateString) {
+      return '-'; // or any default value you prefer
+    }
+
     const date = new Date(dateString);
+    
+    // Check for invalid date
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
+
     const months = [
       "Jan",
       "Feb",
