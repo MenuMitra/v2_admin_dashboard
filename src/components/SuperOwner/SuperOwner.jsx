@@ -10,7 +10,9 @@ import {
   faTrash,
   faUserShield,
   faXmark,
-  faCheck
+  faCheck,
+  faCircleCheck,
+  faCircleXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../Breadcrumb';
 import DataTable from '../common/DataTable';
@@ -295,11 +297,19 @@ function SuperOwner() {
       sortable: true,
       headerClassName: "text-center",
       render: (value) => (
-        <div className="flex justify-center">
-          <span className={`inline-block px-3 py-1 rounded-full text-xs ${
-            value ? 'bg-success-100 text-success-600' : 'bg-error-100 text-error-500'
-          }`}>
-            {value ? 'Active' : 'Inactive'}
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value ? "text-success-500" : "text-error-500"
+            }`}
+          />
+          <span
+            className={`text-base font-medium ${
+              value ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {value ? "Active" : "Inactive"}
           </span>
         </div>
       ),
