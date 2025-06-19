@@ -5,6 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import Breadcrumb from '../Breadcrumb';
 
 function TicketDetails() {
   const { ticketId } = useParams();
@@ -156,6 +157,13 @@ function TicketDetails() {
   const formatTicketDate = (dateString) => {
     return dateString; // Already in desired format "DD MMM YYYY HH:mm AM/PM"
   };
+
+  // Add breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'Tickets', path: '/tickets' },
+    { label: `Ticket Details` }
+  ];
 
   const renderTicketContent = () => (
     <div className="px-6">
@@ -330,6 +338,9 @@ function TicketDetails() {
 
   return (
     <div className="container mx-auto py-6 px-4">
+      {/* Add Breadcrumb above the main content */}
+      <Breadcrumb items={breadcrumbItems} />
+
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {/* Header */}
         <div className="overflow-hidden pt-4">
