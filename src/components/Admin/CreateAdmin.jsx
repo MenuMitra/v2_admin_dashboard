@@ -75,8 +75,9 @@ function CreateAdmin() {
     if (!formData.password.trim()) {
       newErrors.password = 'Password is required';
       isValid = false;
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } 
+    else if (formData.password.length < 4) {
+      newErrors.password = 'Password must be at least 4 characters';
       isValid = false;
     }
 
