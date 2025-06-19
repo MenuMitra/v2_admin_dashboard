@@ -82,38 +82,38 @@ function Customer() {
   const columns = [
     {
       field: 'name',
-      header: 'NAME',
+      header: 'Name',
       sortable: true
     },
     {
       field: 'mobile',
-      header: 'MOBILE',
+      header: 'Mobile',
       sortable: true
     },
     {
       field: 'order_count',
-      header: 'ORDER COUNT',
+      header: 'Order Count',
       sortable: true,
       render: (value) => value ?? '-'
     },
-    {
-      field: 'actions',
-      header: 'ACTIONS',
-      sortable: false,
-      render: (_, customer) => (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => navigate(`/customer-details/${customer.user_id}`, { 
-              state: { customerData: customer }
-            })}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-            title="View Details"
-          >
-            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-          </button>
-        </div>
-      )
-    }
+    // {
+    //   field: 'actions',
+    //   header: 'Actions',
+    //   sortable: false,
+    //   render: (_, customer) => (
+    //     <div className="flex items-center justify-center gap-2">
+    //       <button
+    //         onClick={() => navigate(`/customer-details/${customer.user_id}`, { 
+    //           state: { customerData: customer }
+    //         })}
+    //         className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+    //         title="View Details"
+    //       >
+    //         <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+    //       </button>
+    //     </div>
+    //   )
+    // }
   ];
 
   if (loading && !customers.length) {
