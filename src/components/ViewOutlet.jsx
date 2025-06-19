@@ -195,6 +195,19 @@ function ViewOutlet() {
                 </span>
               </div>
             </div>
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
+                  <FontAwesomeIcon
+                    icon={faUtensils}
+                    className="w-6 h-6 text-gray-800 dark:text-white/90"
+                  />
+                </div>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Manage Menus
+                </span>
+              </div>
+            </div>
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
