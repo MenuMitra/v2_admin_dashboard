@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faPlus,
   faEye,
+  faPenToSquare,
+  faTrash,
   faUserShield
 } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../Breadcrumb';
@@ -19,6 +21,8 @@ function SuperOwner() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItems, setSelectedItems] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [ownerToDelete, setOwnerToDelete] = useState(null);
 
   useEffect(() => {
     fetchSuperOwners();
@@ -94,6 +98,42 @@ function SuperOwner() {
     }
   };
 
+  const handleEditOwner = (superOwnerId) => {
+    navigate(`/edit-super-owner/${superOwnerId}`);
+  };
+
+  const openDeleteModal = (superOwnerId) => {
+    setOwnerToDelete(superOwnerId);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteOwner = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      await axios.delete('https://men4u.xyz/v2/admin/delete_super_owner', {
+        data: {
+          super_owner_id: ownerToDelete,
+          app_source: 'admin_dashboard'
+        },
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      setShowDeleteModal(false);
+      setOwnerToDelete(null);
+      fetchSuperOwners(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting super owner:', error);
+      setError('Failed to delete super owner');
+    }
+  };
+
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/' },
     { label: 'Super Owners', path: '/super-owners' }
@@ -158,6 +198,20 @@ function SuperOwner() {
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
+          <button
+            onClick={() => handleEditOwner(owner.super_owner_id)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Super Owner"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => openDeleteModal(owner.super_owner_id)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Super Owner"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
         </div>
       ),
     },
@@ -213,6 +267,66 @@ function SuperOwner() {
         }}
         error={error}
       />
+
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div
+            className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+            onClick={() => {
+              setShowDeleteModal(false);
+              setOwnerToDelete(null);
+            }}
+          />
+
+          <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+            <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg dark:bg-gray-800">
+              <div className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <FontAwesomeIcon
+                      icon={faTrash}
+                      className="h-6 w-6 text-error-500"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                      Confirm Deletion
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Are you sure you want to delete this super owner? This action
+                        cannot be undone. All data associated with this super owner
+                        will be permanently removed.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setOwnerToDelete(null);
+                    }}
+                    className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeleteOwner}
+                    className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
+                  >
+                    Delete Super Owner
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
