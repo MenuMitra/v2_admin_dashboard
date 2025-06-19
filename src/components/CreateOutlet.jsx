@@ -213,7 +213,7 @@ function CreateOutlet() {
         formDataToSend,
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `${token}`,
             'Content-Type': 'multipart/form-data',
           },
         }
