@@ -87,7 +87,7 @@ function Owners() {
         throw new Error("No authentication token available");
       }
 
-      await axios.delete("https://men4u.xyz/v2/admin/delete_owner", {
+      await axios.delete("https://men4u.xyz/v2/common/delete_owner", {
         data: {
           owner_id: ownerToDelete,
           user_id: adminData.user_id,

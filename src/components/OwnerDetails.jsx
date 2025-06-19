@@ -74,7 +74,7 @@ function OwnerDetails() {
         throw new Error("No authentication token available");
       }
 
-      await axios.delete("https://men4u.xyz/v2/admin/delete_owner", {
+      await axios.delete("https://men4u.xyz/v2/common/delete_owner", {
         data: {
           owner_id: parseInt(ownerId),
           user_id: adminData.user_id,
@@ -299,7 +299,7 @@ function OwnerDetails() {
                 </div>
                 <div className="ml-3">
                   <div className="text-base font-medium">
-                    {ownerData.account_type.toUpperCase()}
+                    {ownerData.account_type?.toUpperCase()}
                   </div>
                   <div className="text-sm text-gray-500">Account Type</div>
                 </div>
@@ -389,7 +389,7 @@ function OwnerDetails() {
                 </div>
                 <div className="ml-3">
                   <div className="text-base font-medium">
-                    {ownerData.created_by.toUpperCase()}
+                    {ownerData.created_by?.toUpperCase()}
                   </div>
                   <div className="text-sm text-gray-500">Created By</div>
                 </div>
@@ -419,7 +419,7 @@ function OwnerDetails() {
                 </div>
                 <div className="ml-3">
                   <div className="text-base font-medium">
-                    {ownerData.updated_by.toUpperCase()}
+                    {ownerData.updated_by?.toUpperCase()}
                   </div>
                   <div className="text-sm text-gray-500">Updated By</div>
                 </div>
