@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faTrash, faPlus, faCheck, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPenToSquare, faTrash, faPlus, faCheck, faXmark, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
@@ -267,13 +267,21 @@ function Partners() {
       header: 'Status',
       sortable: true,
       render: (value) => (
-        <span className={`px-2 py-1 text-xs rounded-full ${
-          value === 1 
-            ? 'bg-green-100 text-green-800' 
-            : 'bg-red-100 text-red-800'
-        }`}>
-          {value === 1 ? 'Active' : 'Inactive'}
-        </span>
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value === 1 ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value === 1 ? "text-success-500" : "text-error-500"
+            }`}
+          />
+          <span
+            className={`text-base font-medium ${
+              value === 1 ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {value === 1 ? "Active" : "Inactive"}
+          </span>
+        </div>
       )
     },
     {
