@@ -172,7 +172,7 @@ function OwnerDetails() {
         {/* Content Section */}
         <div className="px-6 py-4">
           {/* Personal Information Card */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-theme-xs mb-6">
+          <div className="rounded-lg bg-white p-6 shadow-theme-xs mb-6">
             <h2 className="text-base font-medium mb-4 text-gray-800">
               Personal Information
             </h2>
@@ -263,7 +263,7 @@ function OwnerDetails() {
           </div>
 
           {/* Account Information Card */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-theme-xs">
+          <div className="rounded-lg bg-white p-6 shadow-theme-xs">
             <h2 className="text-base font-medium mb-4 text-gray-800">
               Account Information
             </h2>
@@ -307,7 +307,7 @@ function OwnerDetails() {
               </div>
 
               {/* Staff Status */}
-              <div className="flex items-center p-3 rounded-lg">
+              {/* <div className="flex items-center p-3 rounded-lg">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon
                     icon={faUserTie}
@@ -328,7 +328,7 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Staff Status</div>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Created On */}
               <div className="flex items-center p-3 rounded-lg">
