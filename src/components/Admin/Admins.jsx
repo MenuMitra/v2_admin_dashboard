@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faPenToSquare, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faPenToSquare, faTrash, faEye, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
@@ -136,11 +136,21 @@ function Admins() {
       header: 'Status',
       sortable: true,
       render: (value) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          value ? 'bg-success-100 text-success-800' : 'bg-error-100 text-error-800'
-        }`}>
-          {value ? 'Active' : 'Inactive'}
-        </span>
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value ? "text-success-500" : "text-error-500"
+            }`}
+          />
+          <span
+            className={`text-base font-medium ${
+              value ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {value ? "Active" : "Inactive"}
+          </span>
+        </div>
       )
     },
     {
