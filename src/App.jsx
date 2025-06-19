@@ -49,35 +49,56 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
+          {/* Outlet Routes */}
           <Route path="/outlets" element={<Outlets />} />
           <Route path="/create-outlet" element={<CreateOutlet />} />
           <Route path="/view-outlet/:outletId" element={<ViewOutlet />} />
           <Route path="/edit-outlet/:outletId" element={<EditOutlet />} />
+
+          {/* Owner Routes */}
           <Route path="/owners" element={<Owners />} />
           <Route path="/owner-details/:ownerId" element={<OwnerDetails />} />
           <Route path="/edit-owner/:ownerId" element={<EditOwner />} />
           <Route path="/create-owner" element={<CreateOwner />} />
+
+          {/* Partner Routes */}
           <Route path="/partners" element={<Partners />} />
           <Route path="/partner-details/:partnerId" element={<PartnerDetails />} />
           <Route path="/edit-partner/:partnerId" element={<EditPartner />} />
           <Route path="/create-partner" element={<CreatePartner />} />
+
+          {/* Functionalities Routes */}
           <Route path="/functionalities" element={<Functionalities />} />
+          <Route path="/add-role-assign-functionalities/:roleId" element={<AddRoleAssignFunctionalities />} />
+          <Route path="/assign-functionality-role/:functionalityId" element={<AssignFunctionlaityRole />} />
+
+          {/* Roles Routes */}
           <Route path="/roles" element={<Roles />} />
+
+          {/* QR Templates Routes */}
           <Route path="/qr-templates" element={<QRTemplates />} />
           <Route path="/create-template" element={<CreateTemplate />} />
           <Route path="/template-details/:templateId" element={<TemplateDetails />} />
           <Route path="/edit-template/:templateId" element={<EditTemplate />} />
+
+          {/* Tickets Routes */}
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/ticket-details/:ticketId" element={<TicketDetails />} />
+
+          {/* Search Routes */}
           <Route path="/search" element={<Search />} />
+
+          {/* Customer Routes */}
+
           <Route path="/customer" element={<Customer />} />
           <Route path="/customer-details/:customerId" element={<CustomerDetails />} />
+
+          {/* Super Owner Routes */}
           <Route path="/super-owners" element={<SuperOwner />} />
           <Route path="/create-super-owner" element={<CreateSuperOwner />} />
           <Route path="/super-owner-details/:superOwnerId" element={<SuperOwnerDetails />} />
           <Route path="/edit-super-owner/:superOwnerId" element={<EditSuperOwner />} />
-          <Route path="/add-role-assign-functionalities/:roleId" element={<AddRoleAssignFunctionalities />} />
-          <Route path="/assign-functionality-role/:functionalityId" element={<AssignFunctionlaityRole />} />
+          
 
           {/* Admin Routes */}
           <Route path="/create-admin" element={<CreateAdmin />} />
