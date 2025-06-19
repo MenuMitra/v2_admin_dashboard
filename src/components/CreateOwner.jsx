@@ -88,7 +88,7 @@ function CreateOwner() {
       };
 
       await axios.post(
-        'https://men4u.xyz/v2/admin/create_owner',
+        'https://men4u.xyz/v2/common/create_owner',
         payload,
         {
           headers: {
