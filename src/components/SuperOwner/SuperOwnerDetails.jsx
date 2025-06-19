@@ -4,6 +4,8 @@ import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 import Breadcrumb from '../Breadcrumb';
 import Modal from '../common/Modal';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
 function SuperOwnerDetails() {
   const location = useLocation();
@@ -216,13 +218,21 @@ function SuperOwnerDetails() {
             <h3 className="text-sm font-semibold mb-4">Status Information</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <div className="p-4">
-                <span className={`inline-block px-3 py-1 rounded-full text-xs mb-1 ${
-                  superOwnerData.account_status 
-                    ? 'bg-success-100 text-success-600' 
-                    : 'bg-error-100 text-error-500'
-                }`}>
-                  {superOwnerData.account_status ? 'Active' : 'Inactive'}
-                </span>
+                <div className="mt-1 flex items-center gap-2">
+                  <FontAwesomeIcon
+                    icon={superOwnerData.account_status ? faCircleCheck : faCircleXmark}
+                    className={`w-5 h-5 ${
+                      superOwnerData.account_status ? "text-success-500" : "text-error-500"
+                    }`}
+                  />
+                  <span
+                    className={`text-base font-medium ${
+                      superOwnerData.account_status ? "text-success-700" : "text-error-700"
+                    }`}
+                  >
+                    {superOwnerData.account_status ? "Active" : "Inactive"}
+                  </span>
+                </div>
                 <p className="text-sm text-gray-500">Account Status</p>
               </div>
               <div className="p-4">
