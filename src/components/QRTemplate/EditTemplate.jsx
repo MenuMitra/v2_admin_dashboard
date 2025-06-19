@@ -14,9 +14,10 @@ function EditTemplate() {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
-    qrPosition: 'centre',
+    qr_overlay_position: 'centre',
     image: null,
-    currentImageName: ''
+    image_name: '',
+    qr_code_template_id: null
   });
 
   // Fetch template details on component mount
@@ -47,17 +48,20 @@ function EditTemplate() {
         }
       );
 
-      // Update form data with fetched details
+      console.log('API Response:', response.data); // Debug log
+
+      // Update form data with fetched details - matching API response structure
       setFormData({
         name: response.data.name,
-        qrPosition: response.data.qr_overlay_position,
+        qr_overlay_position: response.data.qr_overlay_position,
         image: null,
-        currentImageName: response.data.image_name
+        image_name: response.data.image_name,
+        qr_code_template_id: response.data.qr_code_template_id
       });
 
     } catch (err) {
+      console.error('Error details:', err);
       setError(err.response?.data?.detail || 'Failed to fetch template details');
-      console.error('Error fetching template:', err);
     } finally {
       setIsLoading(false);
     }
@@ -85,13 +89,11 @@ function EditTemplate() {
         throw new Error('No authentication token available');
       }
 
-      // Create FormData instance
       const formDataToSend = new FormData();
       formDataToSend.append('name', formData.name);
-      formDataToSend.append('qr_overlay_position', formData.qrPosition);
+      formDataToSend.append('qr_overlay_position', formData.qr_overlay_position);
       formDataToSend.append('template_id', templateId);
       
-      // Only append image if a new one is selected
       if (formData.image) {
         formDataToSend.append('image_name', formData.image);
       }
@@ -107,7 +109,6 @@ function EditTemplate() {
         }
       );
 
-      // Navigate back to templates list on success
       navigate('/qr-templates');
 
     } catch (err) {
@@ -133,13 +134,10 @@ function EditTemplate() {
 
   // Custom row render for edit form
   const renderEditForm = () => (
-    <tr>
-      <td className="px-6 py-4" colSpan="100%">
-        <div className="max-w-5xl">
-          <div className="grid grid-cols-2 gap-8">
-            {/* Left Column */}
-            <div>
-              <div className="mb-6">
+    <div className="w-full p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+        {/* Template Name */}
+        <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   Template Name <span className="text-red-500">*</span>
                 </label>
@@ -152,55 +150,58 @@ function EditTemplate() {
                 />
               </div>
 
-              <div>
+        {/* QR Position */}
+        <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   QR Code Position <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-4">
+            {/* Centre Position Option */}
                   <div 
                     className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
-                      formData.qrPosition === 'centre' 
+                formData.qr_overlay_position === 'centre' 
                         ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                     }`}
-                    onClick={() => setFormData(prev => ({ ...prev, qrPosition: 'centre' }))}
+              onClick={() => setFormData(prev => ({ ...prev, qr_overlay_position: 'centre' }))}
                   >
                     <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
-                      formData.qrPosition === 'centre' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
+                formData.qr_overlay_position === 'centre' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
                     }`}>
                       <div className={`w-6 h-6 rounded ${
-                        formData.qrPosition === 'centre' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
+                  formData.qr_overlay_position === 'centre' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
                       }`}></div>
                     </div>
                     <span className={`text-sm ${
-                      formData.qrPosition === 'centre' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
+                formData.qr_overlay_position === 'centre' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
                     }`}>Centre</span>
                   </div>
+
+            {/* Top Position Option */}
                   <div 
                     className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
-                      formData.qrPosition === 'top' 
+                formData.qr_overlay_position === 'top' 
                         ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                     }`}
-                    onClick={() => setFormData(prev => ({ ...prev, qrPosition: 'top' }))}
+              onClick={() => setFormData(prev => ({ ...prev, qr_overlay_position: 'top' }))}
                   >
                     <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
-                      formData.qrPosition === 'top' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
+                formData.qr_overlay_position === 'top' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
                     }`}>
                       <div className={`w-6 h-6 rounded ${
-                        formData.qrPosition === 'top' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
+                  formData.qr_overlay_position === 'top' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
                       }`}></div>
                     </div>
                     <span className={`text-sm ${
-                      formData.qrPosition === 'top' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
+                formData.qr_overlay_position === 'top' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
                     }`}>Top</span>
-                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Column */}
-            <div>
+        {/* Image Upload */}
+        <div className="md:col-span-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Template Image
               </label>
@@ -225,7 +226,7 @@ function EditTemplate() {
                     ) : (
                       <>
                         <FontAwesomeIcon icon={faImage} className="w-12 h-12 text-gray-400 mb-4" />
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current image: {formData.currentImageName}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current image: {formData.image_name}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Drag and drop new image here</p>
                         <p className="text-xs text-gray-500 dark:text-gray-500 mb-4">or click to browse files</p>
                         <p className="text-xs text-gray-400">PNG, JPG, JPEG (max 5MB)</p>
@@ -237,7 +238,7 @@ function EditTemplate() {
             </div>
           </div>
 
-          {/* Buttons */}
+      {/* Action Buttons */}
           <div className="flex items-center justify-end gap-3 mt-8">
             <button 
               onClick={() => navigate('/qr-templates')}
@@ -264,8 +265,6 @@ function EditTemplate() {
             </button>
           </div>
         </div>
-      </td>
-    </tr>
   );
 
   if (isLoading && !formData.name) {
@@ -278,24 +277,159 @@ function EditTemplate() {
 
   return (
     <div className="p-6">
-      <DataTable
-        title="Edit Template"
-        showBackButton={true}
-        onBackClick={() => navigate(-1)}
-        showCreateButton={false}
-        createButton={{ show: false }}
-        showSearch={false}
-        showHeader={true}
-        showOutletSelect={false}
-        isLoading={isLoading}
-        error={error}
-        data={[formData]}
-        columns={[{ field: 'form', header: '' }]}
-        customRowRender={() => renderEditForm()}
-        enablePagination={false}
-        enableSort={false}
-        darkMode={true}
-      />
+      {/* Main Container */}
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="overflow-hidden pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
+          {/* Header Section */}
+          <div className="flex items-center px-6 mb-3">
+            {/* Left Side - Back Button */}
+            <div className="flex items-center gap-2 order-1">
+              <button 
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
+
+            {/* Center - Title */}
+            <div className="flex-1 text-center">
+              <h1 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90">
+                Edit Template
+              </h1>
+            </div>
+
+            {/* Right Side - Save Button */}
+            <div className="flex items-center justify-end order-3">
+              <button
+                onClick={handleSubmit}
+                disabled={isLoading || !formData.name}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 transition rounded-full shadow-theme-xs disabled:opacity-50"
+              >
+                <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+                <span className="hidden sm:inline">Save</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Content Section */}
+          <div className="px-6 py-4">
+            {error ? (
+              <div className="p-4 text-sm text-red-500 bg-red-50 rounded-lg">
+                {error}
+              </div>
+            ) : isLoading && !formData.name ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                {/* Template Name */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    Template Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g., Classic, Modern, Elegant"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  />
+                </div>
+
+                {/* QR Position */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    QR Code Position <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Centre Position Option */}
+                    <div 
+                      className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
+                        formData.qr_overlay_position === 'centre' 
+                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      }`}
+                      onClick={() => setFormData(prev => ({ ...prev, qr_overlay_position: 'centre' }))}
+                    >
+                      <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
+                        formData.qr_overlay_position === 'centre' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
+                      }`}>
+                        <div className={`w-6 h-6 rounded ${
+                          formData.qr_overlay_position === 'centre' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
+                        }`}></div>
+                      </div>
+                      <span className={`text-sm ${
+                        formData.qr_overlay_position === 'centre' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
+                      }`}>Centre</span>
+                    </div>
+
+                    {/* Top Position Option */}
+                    <div 
+                      className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
+                        formData.qr_overlay_position === 'top' 
+                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      }`}
+                      onClick={() => setFormData(prev => ({ ...prev, qr_overlay_position: 'top' }))}
+                    >
+                      <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
+                        formData.qr_overlay_position === 'top' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
+                      }`}>
+                        <div className={`w-6 h-6 rounded ${
+                          formData.qr_overlay_position === 'top' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
+                        }`}></div>
+                      </div>
+                      <span className={`text-sm ${
+                        formData.qr_overlay_position === 'top' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
+                      }`}>Top</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Image Upload */}
+                <div className="md:col-span-4">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    Template Image
+                  </label>
+                  <label className="block cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg p-8 hover:border-gray-400 transition-colors">
+                      <div className="flex flex-col items-center justify-center">
+                        {formData.image ? (
+                          <>
+                            <img 
+                              src={URL.createObjectURL(formData.image)} 
+                              alt="Preview" 
+                              className="w-32 h-32 object-cover mb-4"
+                            />
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{formData.image.name}</p>
+                          </>
+                        ) : (
+                          <>
+                            <FontAwesomeIcon icon={faImage} className="w-12 h-12 text-gray-400 mb-4" />
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Current image: {formData.image_name}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Drag and drop new image here</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mb-4">or click to browse files</p>
+                            <p className="text-xs text-gray-400">PNG, JPG, JPEG (max 5MB)</p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
