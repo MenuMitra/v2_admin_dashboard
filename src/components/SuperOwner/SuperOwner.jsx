@@ -29,12 +29,32 @@ function SuperOwner() {
     fetchSuperOwners();
   }, []);
 
+  // ---------------------------------------------------------------------------
+  // Data normalisation for the generic <DataTable/>
+  //
+  // • The reusable DataTable component identifies (and therefore selects /
+  //   toggles) each row by the value of a property named `user_id`.
+  //
+  // • The "listview_super_owner" API, however, returns the primary key for each
+  //   record as `super_owner_id`.
+  //
+  // • If we pass the raw API response directly to DataTable the `user_id`
+  //   field is missing, so every row appears to have the same identifier
+  //   (undefined).  When you tick any checkbox the table thinks you are
+  //   selecting the same row repeatedly and ends up toggling ALL rows at once.
+  //
+  // • To avoid changing the DataTable (or every other screen that already uses
+  //   it) we add a tiny mapping layer here: for every super-owner record we
+  //   copy its `super_owner_id` into a new `user_id` property.  The original
+  //   `super_owner_id` remains intact for view / edit / delete handlers.
+  // ---------------------------------------------------------------------------
   const normaliseData = (owners) =>
     owners.map((owner) => ({
       ...owner,
-      user_id: owner.super_owner_id,
+      user_id: owner.super_owner_id,   // Add user_id for DataTable selection
     }));
 
+  // Fetch super owners list from API
   const fetchSuperOwners = async () => {
     try {
       const token = getToken();
@@ -42,9 +62,12 @@ function SuperOwner() {
         throw new Error('No authentication token available');
       }
 
+      // Call the super owner list API
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/listview_super_owner',
-        { app_source: 'admin_dashboard' },
+        { 
+          app_source: 'admin_dashboard'  // Required by API
+        },
         {
           headers: {
             Authorization: token,
@@ -53,7 +76,9 @@ function SuperOwner() {
         }
       );
 
+      // Process response and update state
       if (response.data?.super_owners) {
+        // Normalize data to add user_id before setting state
         setSuperOwners(normaliseData(response.data.super_owners));
       }
     } catch (error) {
