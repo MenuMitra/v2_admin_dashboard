@@ -294,7 +294,7 @@ function CreateOutlet() {
                   <div className="relative">
                     <div
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="w-full p-3 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+                      className="w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
                       role="combobox"
                       aria-expanded={isDropdownOpen}
                       aria-haspopup="listbox"
@@ -304,9 +304,6 @@ function CreateOutlet() {
                           <div>
                             <div className="font-medium text-gray-900">
                               {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.mobile || 'No contact'}
                             </div>
                           </div>
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -335,19 +332,6 @@ function CreateOutlet() {
                         <div className="sticky top-0 p-2 border-b bg-white">
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                              <svg 
-                                className="w-4 h-4" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                              >
-                                <path 
-                                  strokeLinecap="round" 
-                                  strokeLinejoin="round" 
-                                  strokeWidth="2" 
-                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" 
-                                />
-                              </svg>
                             </span>
                             <input
                               type="text"
