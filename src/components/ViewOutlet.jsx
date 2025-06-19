@@ -181,134 +181,76 @@ function ViewOutlet() {
         {/* Main Content */}
         <div className="p-6">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-            <h2
-              className="text-xl font-semibold text-gray-800 dark:text-white/90"
-              x-text="pageName"
-            >
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Basic Information
             </h2>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-            {/* Waiters Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faStore}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
                   <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
                       {outletData?.name}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Outlet Name
+                      Outlet Name
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* Chefs Metric */}
-            {/* <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+            
+            <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUtensils}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
                   <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Email Address
-                    </p>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.chef_count}
-                    </h4>
-                  </div>
-                </div>
-              </div>
-            </div> */}
-
-            {/* Captains Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faPhone}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
                       {outletData?.mobile}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Mobile Number
+                      Mobile Number
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+            <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faLocationDot}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
                   <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
                       {outletData?.address}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Address
+                      Address
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+
+            <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faMessage}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
                   <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
                       {outletData?.whatsapp || '-'}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                    WhatsApp
+                      WhatsApp
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+
+            <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faStore}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
                   <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
                       {outletData?.outlet_mode 
                         ? outletData.outlet_mode.charAt(0).toUpperCase() + outletData.outlet_mode.slice(1)
                         : '-'}
@@ -321,502 +263,364 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
-            <h2
-              className="text-xl font-semibold text-gray-800 dark:text-white/90"
-              x-text="pageName"
-            >
-              Business Details
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-            {/* Waiters Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faBowlFood}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.veg_nonveg 
-                        ? outletData.veg_nonveg.charAt(0).toUpperCase() + outletData.veg_nonveg.slice(1)
-                        : '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Food Type
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faPercent}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.service_charges != null 
-                        ? `${outletData.service_charges}%` 
-                        : '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Service Charges
-                    </p>
+          {/* Business Details section with divider */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                Business Details
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.veg_nonveg 
+                          ? outletData.veg_nonveg.charAt(0).toUpperCase() + outletData.veg_nonveg.slice(1)
+                          : '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Food Type
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faPercent}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.gst != null 
-                        ? `${outletData.gst}%` 
-                        : '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    GST
-                    </p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.service_charges != null 
+                          ? `${outletData.service_charges}%` 
+                          : '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Service Charges
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faClock}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.opening_time || '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Opening Hours
-                    </p>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.gst != null 
+                          ? `${outletData.gst}%` 
+                          : '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        GST
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faClock}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.closing_time || '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Closing Hours
-                    </p>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.opening_time || '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Opening Hours
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faIdCard}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.fssainumber || '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    FSSAI Number
-                    </p>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.closing_time || '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Closing Hours
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faFileInvoice}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.gstnumber || '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    GST Number
-                    </p>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.fssainumber || '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        FSSAI Number
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faQrcode}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.gstnumber || '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        GST Number
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.upi_id || '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    UPI ID
-                    </p>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.upi_id || '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        UPI ID
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-
-
-          <div className="flex flex-wrap items-center justify-between gap-3 my-6">
-            <h2
-              className="text-xl font-semibold text-gray-800 dark:text-white/90"
-              x-text="pageName"
-            >
-              Manage Staff Details
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-            {/* Waiters Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUser}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.waiter_count ?? '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Waiters
-                    </p>
+          {/* Manage Staff Details section with divider */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                Manage Staff Details
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.waiter_count ?? '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Waiters
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Chefs Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUtensils}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.chef_count ?? '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Chefs
-                    </p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.chef_count ?? '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Chefs
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Captains Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUserGroup}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.captain_count ?? '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Captains
-                    </p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.captain_count ?? '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Captains
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUserGear}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.manager_count ?? '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Managers
-                    </p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.manager_count ?? '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Managers
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
-            <h2
-              className="text-xl font-semibold text-gray-800 dark:text-white/90"
-              x-text="pageName"
-            >
-              Manage Outlet Details
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-            {/* Waiters Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faBook}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.total_menu ?? '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Menus
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Chefs Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faListUl}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.total_category ?? '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Categories
-                    </p>
+          {/* Manage Outlet Details section with divider */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                Manage Outlet Details
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.total_menu ?? '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Menus
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Captains Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faTableCells}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.section_count ?? '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Sections
-                    </p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.total_category ?? '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Categories
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faReceipt}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.orders_count ?? '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Orders
-                    </p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.section_count ?? '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Sections
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faTable}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.orders_count ?? '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Orders
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.table_count ?? '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Tables
-                    </p>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.table_count ?? '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Tables
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-6 mt-6">
-            <h2
-              className="text-xl font-semibold text-gray-800 dark:text-white/90"
-              x-text="pageName"
-            >
-              Audit Information
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-            {/* Waiters Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faCalendarPlus}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.created_on || '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Created On
-                    </p>
+
+          {/* Audit Information section with divider */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                Audit Information
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.created_on || '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Created On
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Chefs Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUser}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.created_by || '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Created By
-                    </p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.created_by || '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Created By
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Captains Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faCalendarCheck}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.updated_on || '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Updated On
-                    </p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.updated_on || '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Updated On
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Managers Metric */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUserPen}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.updated_by 
-                        ? outletData.updated_by.charAt(0).toUpperCase() + outletData.updated_by.slice(1)
-                        : '-'}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Updated By
-                    </p>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.updated_by 
+                          ? outletData.updated_by.charAt(0).toUpperCase() + outletData.updated_by.slice(1)
+                          : '-'}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Updated By
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
