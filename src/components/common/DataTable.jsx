@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSort,
@@ -66,6 +66,15 @@ function DataTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+
+  /* ------------------------------------------------------------
+    Make sure we're on a valid page after every filter / data change
+    ------------------------------------------------------------ */
+  useEffect(() => {
+    // Go back to page-1 whenever the search term changes
+    // or the parent passes in a new data array.
+    setCurrentPage(1);
+  }, [searchTerm, data]);
 
   // Sorting Logic
   const handleSort = (field) => {
