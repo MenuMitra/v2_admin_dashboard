@@ -287,6 +287,25 @@ function DataTable({
     });
   };
 
+  // Add a utility function to handle status rendering
+  const renderStatus = (value) => (
+    <div className="flex items-center justify-center gap-2">
+      <FontAwesomeIcon
+        icon={value ? faCircleCheck : faCircleXmark}
+        className={`w-5 h-5 ${
+          value ? "text-success-500" : "text-error-500"
+        }`}
+      />
+      <span
+        className={`text-base font-medium ${
+          value ? "text-success-700" : "text-error-700"
+        }`}
+      >
+        {value ? "Active" : "Inactive"}
+      </span>
+    </div>
+  );
+
   return (
     <div className={`rounded-2xl border border-gray-200 bg-white ${darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""}`}>
       {/* Header Section */}
@@ -544,21 +563,7 @@ function DataTable({
                     {column.render ? (
                       column.render(item[column.field], item)
                     ) : column.field === 'is_active' ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <FontAwesomeIcon
-                          icon={item[column.field] ? faCircleCheck : faCircleXmark}
-                          className={`w-5 h-5 ${
-                            item[column.field] ? "text-success-500" : "text-error-500"
-                          }`}
-                        />
-                        <span
-                          className={`text-base font-medium ${
-                            item[column.field] ? "text-success-700" : "text-error-700"
-                          }`}
-                        >
-                          {item[column.field] ? "Active" : "Inactive"}
-                        </span>
-                      </div>
+                      renderStatus(item[column.field])
                     ) : (
                       <p className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
                         {item[column.field]}

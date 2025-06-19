@@ -135,23 +135,6 @@ function Admins() {
       field: 'is_active',
       header: 'Status',
       sortable: true,
-      render: (value) => (
-        <div className="flex items-center justify-center gap-2">
-          <FontAwesomeIcon
-            icon={value ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value ? "text-success-500" : "text-error-500"
-            }`}
-          />
-          <span
-            className={`text-base font-medium ${
-              value ? "text-success-700" : "text-error-700"
-            }`}
-          >
-            {value ? "Active" : "Inactive"}
-          </span>
-        </div>
-      )
     },
     {
       field: 'created_on',

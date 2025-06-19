@@ -18,6 +18,8 @@ import {
   faChevronLeft,
   faChevronRight,
   faSearch,
+  faCircleCheck,
+  faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from './Breadcrumb';
 import TablesViewHeader from './common/TablesViewHeader';
@@ -297,16 +299,22 @@ function Owners() {
       header: "Status",
       sortable: true,
       render: (value) => (
-        <span
-          className={`inline-block px-2 py-1 text-xs ${
-            value === 1
-              ? "bg-success-100 text-success-600"
-              : "bg-error-100 text-error-500"
-          }`}
-        >
-          {value === 1 ? "Active" : "Inactive"}
-        </span>
-      ),
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value === 1 ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value === 1 ? "text-success-500" : "text-error-500"
+            }`}
+          />
+          <span
+            className={`text-base font-medium ${
+              value === 1 ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {value === 1 ? "Active" : "Inactive"}
+          </span>
+        </div>
+      )
     },
     {
       field: "account_type",
