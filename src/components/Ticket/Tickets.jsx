@@ -141,7 +141,7 @@ function Tickets() {
       case 'closed':
         return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return '';
     }
   };
 
@@ -286,7 +286,7 @@ function Tickets() {
       sortable: true,
       render: (value) => (
         <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(value)}`}>
-          {value || 'Unknown'}
+          {value?.toUpperCase() || 'Unknown'}
         </span>
       )
     },
