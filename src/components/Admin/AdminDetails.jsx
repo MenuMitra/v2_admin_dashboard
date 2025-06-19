@@ -218,7 +218,7 @@ function AdminDetails() {
         {/* Existing content */}
         <div className="p-6">
           {/* Admin Details Card */}
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden dark:border-gray-800 dark:bg-gray-900">
+          <div className="bg-white rounded-2xl  overflow-hidden dark:border-gray-800 dark:bg-gray-900">
             {/* Basic Info Section */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
