@@ -57,10 +57,10 @@ const menuData = {
       icon: faUsers,
     },
     {
-      title: "Super Owners",
+      title: "Super Owners", 
       path: "/super-owners",
       id: "super-owners",
-      icon: faUsers,
+      icon: faUserShield,
     },
     {
       title: "Partners",
@@ -113,38 +113,7 @@ const menuData = {
       icon: faUser,
     },
   ],
-  //   Support: [
-  //     {
-  //       title: "Chat",
-  //       path: "/chat",
-  //       id: "chat",
-  //       icon: faComments,
-  //     },
-  //     {
-  //       title: "Email",
-  //       icon: faEnvelope,
-  //       items: [
-  //         { name: "Inbox", path: "/inbox", id: "inbox", pro: true },
-  //         {
-  //           name: "Details",
-  //           path: "/inbox-details",
-  //           id: "inboxDetails",
-  //           pro: true,
-  //         },
-  //       ],
-  //     },
-  //   ],
-  //   Others: [
-  //     {
-  //       title: "Charts",
-  //       icon: faChartPie,
-  //       items: [
-  //         { name: "Line Chart", path: "/line-chart", id: "lineChart", pro: true },
-  //         { name: "Bar Chart", path: "/bar-chart", id: "barChart", pro: true },
-  //         { name: "Pie Chart", path: "/pie-chart", id: "pieChart", pro: true },
-  //       ],
-  //     },
-  //   ],
+  
 };
 
 const Sidebar = ({ sidebarToggle = false }) => {
