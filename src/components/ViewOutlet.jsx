@@ -101,7 +101,7 @@ function ViewOutlet() {
     try {
       setLoading(true);
       const response = await axios.delete(
-        "https://men4u.xyz/v2/admin/delete_outlet",
+        "https://men4u.xyz/v2/common/delete_outlet",
         {
           headers: {
             Authorization: getToken(),
