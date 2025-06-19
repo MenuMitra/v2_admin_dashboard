@@ -425,51 +425,51 @@ function CreateOutlet() {
               </div>
 
               {/* Basic Information Fields */}
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <TextInput
                   label="Outlet Name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
                   placeholder="Enter Outlet Name"
-                    required
+                  required
                 />
 
                 <TextInput
                   label="Mobile Number"
                   name="mobile"
-                    type="tel"
-                    value={formData.mobile}
-                    onChange={handleInputChange}
+                  type="tel"
+                  value={formData.mobile}
+                  onChange={handleInputChange}
                   placeholder="Enter Mobile Number"
-                    required
+                  required
                   pattern="[0-9]{10}"
-                  />
+                />
 
                 <TextInput
                   label="Email Address"
                   name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter Email Address"
-                  />
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="Enter Email Address"
+                />
 
                 <TextInput
                   label="UPI ID"
-                    name="upi_id"
-                    value={formData.upi_id}
-                    onChange={handleInputChange}
+                  name="upi_id"
+                  value={formData.upi_id}
+                  onChange={handleInputChange}
                   placeholder="Enter UPI ID"
-                    required
+                  required
                 />
 
                 <SelectInput
                   label="Outlet Type"
-                    name="outlet_type"
-                    value={formData.outlet_type}
-                    onChange={handleInputChange}
-                    required
+                  name="outlet_type"
+                  value={formData.outlet_type}
+                  onChange={handleInputChange}
+                  required
                   options={Object.entries(outletTypes).map(([key, value]) => ({
                     value: key,
                     label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ')
@@ -479,8 +479,8 @@ function CreateOutlet() {
 
                 <SelectInput
                   label="Food Type"
-                    name="veg_nonveg"
-                    value={formData.veg_nonveg}
+                  name="veg_nonveg"
+                  value={formData.veg_nonveg}
                   onChange={handleInputChange}
                   required
                   options={[
@@ -488,6 +488,19 @@ function CreateOutlet() {
                     { value: 'nonveg', label: 'Non-Veg' }
                   ]}
                   placeholder="Select Food Type"
+                />
+
+                <SelectInput
+                  label="Outlet Mode"
+                  name="outlet_mode"
+                  value={formData.outlet_mode}
+                  onChange={handleInputChange}
+                  required
+                  options={[
+                    { value: 'offline', label: 'Offline' },
+                    { value: 'online', label: 'Online' }
+                  ]}
+                  placeholder="Select Outlet Mode"
                 />
               </div>
 
@@ -499,19 +512,6 @@ function CreateOutlet() {
                 placeholder="Enter Address"
                 required
                 rows={3}
-              />
-
-              <SelectInput
-                label="Outlet Mode"
-                name="outlet_mode"
-                value={formData.outlet_mode}
-                onChange={handleInputChange}
-                required
-                options={[
-                  { value: 'offline', label: 'Offline' },
-                  { value: 'online', label: 'Online' }
-                ]}
-                placeholder="Select Outlet Mode"
               />
             </div>
           </section>
@@ -525,58 +525,58 @@ function CreateOutlet() {
               Business Details
             </h2>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <TextInput
                 label="Service Charges (%)"
                 name="service_charges"
-                  type="number"
-                  value={formData.service_charges}
-                  onChange={handleInputChange}
-                  placeholder="Enter Service Charges"
-                />
+                type="number"
+                value={formData.service_charges}
+                onChange={handleInputChange}
+                placeholder="Enter Service Charges"
+              />
 
               <TextInput
                 label="GST (%)"
                 name="gst"
-                  type="number"
-                  value={formData.gst}
-                  onChange={handleInputChange}
-                  placeholder="Enter GST"
-                />
+                type="number"
+                value={formData.gst}
+                onChange={handleInputChange}
+                placeholder="Enter GST"
+              />
 
               <TimePickerInput
                 label="Opening Time"
-                  name="opening_time"
-                  value={formData.opening_time}
-                  onChange={handleInputChange}
+                name="opening_time"
+                value={formData.opening_time}
+                onChange={handleInputChange}
                 required
                 placeholder="Select opening time"
-                />
+              />
 
               <TimePickerInput
                 label="Closing Time"
-                  name="closing_time"
-                  value={formData.closing_time}
-                  onChange={handleInputChange}
+                name="closing_time"
+                value={formData.closing_time}
+                onChange={handleInputChange}
                 required
                 placeholder="Select closing time"
-                />
+              />
 
               <TextInput
                 label="FSSAI Number"
-                  name="fssainumber"
-                  value={formData.fssainumber}
-                  onChange={handleInputChange}
-                  placeholder="Enter FSSAI Number"
-                />
+                name="fssainumber"
+                value={formData.fssainumber}
+                onChange={handleInputChange}
+                placeholder="Enter FSSAI Number"
+              />
 
               <TextInput
                 label="GST Number"
-                  name="gstnumber"
-                  value={formData.gstnumber}
-                  onChange={handleInputChange}
-                  placeholder="Enter GST Number"
-                />
+                name="gstnumber"
+                value={formData.gstnumber}
+                onChange={handleInputChange}
+                placeholder="Enter GST Number"
+              />
             </div>
           </section>
 
@@ -589,62 +589,62 @@ function CreateOutlet() {
               Social Media
             </h2>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <TextInput
                 label="Website"
                 name="website"
-                  type="url"
-                  value={formData.website}
-                  onChange={handleInputChange}
-                  placeholder="https://example.com"
+                type="url"
+                value={formData.website}
+                onChange={handleInputChange}
+                placeholder="https://example.com"
               />
 
               <TextInput
                 label="WhatsApp Number"
                 name="whatsapp"
-                  type="tel"
-                  value={formData.whatsapp}
-                  onChange={handleInputChange}
-                  placeholder="Enter 10 digit mobile number"
-                  pattern="[0-9]{10}"
-                  maxLength={10}
+                type="tel"
+                value={formData.whatsapp}
+                onChange={handleInputChange}
+                placeholder="Enter 10 digit mobile number"
+                pattern="[0-9]{10}"
+                maxLength={10}
               />
 
               <TextInput
                 label="Facebook"
                 name="facebook"
-                  type="url"
-                  value={formData.facebook}
-                  onChange={handleInputChange}
-                  placeholder="https://facebook.com/yourpage"
+                type="url"
+                value={formData.facebook}
+                onChange={handleInputChange}
+                placeholder="https://facebook.com/yourpage"
               />
 
               <TextInput
                 label="Instagram"
                 name="instagram"
-                  type="url"
-                  value={formData.instagram}
-                  onChange={handleInputChange}
-                  placeholder="https://instagram.com/yourhandle"
+                type="url"
+                value={formData.instagram}
+                onChange={handleInputChange}
+                placeholder="https://instagram.com/yourhandle"
               />
 
               <TextInput
                 label="Google Business Link"
                 name="google_business_link"
-                  type="url"
-                  value={formData.google_business_link}
-                  onChange={handleInputChange}
-                  placeholder="https://business.google.com/yourpage"
+                type="url"
+                value={formData.google_business_link}
+                onChange={handleInputChange}
+                placeholder="https://business.google.com/yourpage"
               />
 
               <TextInput
                 label="Google Review Link"
                 name="google_review"
-                  type="url"
-                  value={formData.google_review}
-                  onChange={handleInputChange}
-                  placeholder="https://g.page/r/yourreviewpage"
-                />
+                type="url"
+                value={formData.google_review}
+                onChange={handleInputChange}
+                placeholder="https://g.page/r/yourreviewpage"
+              />
             </div>
           </section>
 
