@@ -187,7 +187,7 @@ function ViewOutlet() {
 
             {/* Categories Navigation Card */}
             <Link 
-              to={`/outlet/${outletId}/categories`}
+              to={`/categories/${outletId}`}
               className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
             >
               <div className="flex items-center justify-between">
@@ -212,7 +212,7 @@ function ViewOutlet() {
 
             {/* Menus Navigation Card */}
             <Link 
-              to={`/outlet/${outletId}/menus`}
+              to={`/menus/${outletId}`}
               className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
             >
               <div className="flex items-center justify-between">

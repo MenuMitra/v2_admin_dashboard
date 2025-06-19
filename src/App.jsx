@@ -37,6 +37,9 @@ import CreateAdmin from './components/Admin/CreateAdmin';
 import Admins from './components/Admin/Admins';
 import AdminDetails from './components/Admin/AdminDetails';
 import EditAdmin from './components/Admin/EditAdmin';
+import ManageCategories from './components/Outlets/Category/ManageCategories';
+import ManageMenus from './components/Outlets/Menu/ManageMenus';
+
 
 function App() {
   return (
@@ -47,13 +50,20 @@ function App() {
         
         {/* Protected routes with AppLayout */}
         <Route element={<PrivateRoute />}>
+
+          {/* Dashboard Routes */}
           <Route path="/dashboard" element={<Dashboard />} />
+
+          {/* Profile Routes */}
           <Route path="/profile" element={<Profile />} />
+
           {/* Outlet Routes */}
           <Route path="/outlets" element={<Outlets />} />
           <Route path="/create-outlet" element={<CreateOutlet />} />
           <Route path="/view-outlet/:outletId" element={<ViewOutlet />} />
           <Route path="/edit-outlet/:outletId" element={<EditOutlet />} />
+          <Route path="/categories/:outletId" element={<ManageCategories />} />
+          <Route path="/menus/:outletId" element={<ManageMenus />} />
 
           {/* Owner Routes */}
           <Route path="/owners" element={<Owners />} />
