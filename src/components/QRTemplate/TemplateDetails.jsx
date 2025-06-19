@@ -65,19 +65,21 @@ function TemplateDetails() {
     if (!templateData) return null;
 
     return (
-      <div className="w-full">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-          {/* Image Card */}
-          <div className="bg-white p-6 rounded-lg shadow-sm md:col-span-2">
+      <div className="w-full space-y-6">
+        {/* First Row - Image Card */}
+        <div className="grid grid-cols-1 gap-3">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="bg-gray-50 rounded-lg p-8 flex flex-col items-center justify-center">
               <FontAwesomeIcon icon={faImage} className="w-16 h-16 text-gray-300 mb-2" />
               <div className="text-sm text-gray-400">Template Image</div>
               <div className="text-sm text-gray-400 mt-1">{templateData.image_name}</div>
             </div>
           </div>
+        </div>
 
-          {/* Details Cards */}
-          <div className="bg-white p-6 rounded-lg shadow-sm md:col-span-2">
+        {/* Second Row - Details Cards */}
+        <div className="grid grid-cols-1 gap-3">
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Template ID */}
               <div>
