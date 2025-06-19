@@ -10,7 +10,9 @@ import {
   faUserGear,
   faStore,
   faEye,
-  faPenToSquare
+  faPenToSquare,
+  faCircleCheck,
+  faCircleXmark
 } from '@fortawesome/free-solid-svg-icons';
 import DataTable from './common/DataTable';
 
@@ -79,9 +81,21 @@ function Dashboard() {
       header: 'Status',
       sortable: true,
       render: (_, item) => (
-        <span className={`px-2 py-1 text-xs rounded-full`}>
-          {item.total_order_count > 0 ? 'Active' : 'Inactive'}
-        </span>
+        <div className="flex items-center gap-2">
+          <FontAwesomeIcon
+            icon={item.total_order_count > 0 ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              item.total_order_count > 0 ? "text-success-500" : "text-error-500"
+            }`}
+          />
+          <span
+            className={`text-sm font-medium ${
+              item.total_order_count > 0 ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {item.total_order_count > 0 ? "Active" : "Inactive"}
+          </span>
+        </div>
       )
     },
     {
