@@ -31,8 +31,9 @@ import {
   faMessage,
   faUsers,
   faChevronUp,
+  faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import Modal from "./common/Modal";
 
@@ -180,34 +181,59 @@ function ViewOutlet() {
 
         {/* Main Content */}
         <div className="p-6">
-          {/* Stats Cards */}
+          {/* Stats and Navigation Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+           
+
+            {/* Categories Navigation Card */}
+            <Link 
+              to={`/outlet/${outletId}/categories`}
+              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+            >
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
-                  <FontAwesomeIcon
-                    icon={faListUl}
-                    className="w-6 h-6 text-gray-800 dark:text-white/90"
-                  />
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                    <FontAwesomeIcon
+                      icon={faListUl}
+                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Manage
+                    </span>
+                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                      Categories
+                    </span>
+                  </div>
                 </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Manage Categories
-                </span>
               </div>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            </Link>
+
+            {/* Menus Navigation Card */}
+            <Link 
+              to={`/outlet/${outletId}/menus`}
+              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+            >
               <div className="flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800">
-                  <FontAwesomeIcon
-                    icon={faUtensils}
-                    className="w-6 h-6 text-gray-800 dark:text-white/90"
-                  />
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                    <FontAwesomeIcon
+                      icon={faUtensils}
+                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Manage
+                    </span>
+                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                      Menus
+                    </span>
+                  </div>
                 </div>
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  Manage Menus
-                </span>
               </div>
-            </div>
+            </Link>
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
