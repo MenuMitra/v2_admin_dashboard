@@ -4,6 +4,8 @@ import { useAdmin } from '../../hooks/useAdmin';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import Breadcrumb from '../Breadcrumb';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
 function PartnerDetails() { 
   const { partnerId } = useParams();
@@ -179,33 +181,59 @@ function PartnerDetails() {
                   <p className="text-sm text-gray-500 dark:text-gray-400">Role</p>
                 </div>
 
+                {/* Account Status */}
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {partner.account_status === 1 ? 'Active' : 'Inactive'}
-                  </h4>
+                  <div className="mt-1 flex items-center gap-2">
+                    <FontAwesomeIcon
+                      icon={partner.account_status === 1 ? faCircleCheck : faCircleXmark}
+                      className={`w-5 h-5 ${
+                        partner.account_status === 1 ? "text-success-500" : "text-error-500"
+                      }`}
+                    />
+                    <span
+                      className={`text-base font-medium ${
+                        partner.account_status === 1 ? "text-success-700" : "text-error-700"
+                      }`}
+                    >
+                      {partner.account_status === 1 ? "Active" : "Inactive"}
+                    </span>
+                  </div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Account Status</p>
                 </div>
 
+                {/* Active Status */}
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                    {partner.is_active === 1 ? 'Active' : 'Inactive'}
-                  </h4>
+                  <div className="mt-1 flex items-center gap-2">
+                    <FontAwesomeIcon
+                      icon={partner.is_active === 1 ? faCircleCheck : faCircleXmark}
+                      className={`w-5 h-5 ${
+                        partner.is_active === 1 ? "text-success-500" : "text-error-500"
+                      }`}
+                    />
+                    <span
+                      className={`text-base font-medium ${
+                        partner.is_active === 1 ? "text-success-700" : "text-error-700"
+                      }`}
+                    >
+                      {partner.is_active === 1 ? "Active" : "Inactive"}
+                    </span>
+                  </div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active Status</p>
                 </div>
 
-                <div>
+                {/* <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {partner.is_staff === 1 ? 'Yes' : 'No'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Staff Status</p>
-                </div>
+                </div> */}
 
-                <div>
+                {/* <div>
                   <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                     {partner.is_superuser === 1 ? 'Yes' : 'No'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Superuser Status</p>
-                </div>
+                </div> */}
               </div>
             </div>
 
