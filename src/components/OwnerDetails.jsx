@@ -380,6 +380,20 @@ function OwnerDetails() {
                   <div className="text-sm text-gray-500">Created On</div>
                 </div>
               </div>
+              <div className="flex items-center p-3 rounded-lg">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon
+                    icon={faCalendarPlus}
+                    className="w-5 h-5 text-gray-400"
+                  />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium">
+                    {ownerData.created_by.toUpperCase()}
+                  </div>
+                  <div className="text-sm text-gray-500">Created By</div>
+                </div>
+              </div>
 
               {/* Updated On */}
               <div className="flex items-center p-3 rounded-lg">
@@ -394,6 +408,20 @@ function OwnerDetails() {
                     {ownerData.updated_on}
                   </div>
                   <div className="text-sm text-gray-500">Updated On</div>
+                </div>
+              </div>
+              <div className="flex items-center p-3 rounded-lg">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon
+                    icon={faCalendarCheck}
+                    className="w-5 h-5 text-gray-400"
+                  />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium">
+                    {ownerData.updated_by.toUpperCase()}
+                  </div>
+                  <div className="text-sm text-gray-500">Updated By</div>
                 </div>
               </div>
             </div>
