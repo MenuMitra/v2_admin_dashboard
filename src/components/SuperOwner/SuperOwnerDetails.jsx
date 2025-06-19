@@ -6,11 +6,12 @@ import Breadcrumb from '../Breadcrumb';
 import Modal from '../common/Modal';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
-
+import { useAdmin } from '../../hooks/useAdmin';
 function SuperOwnerDetails() {
   const location = useLocation();
   const navigate = useNavigate();
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { 
@@ -66,7 +67,7 @@ function SuperOwnerDetails() {
             'Content-Type': 'application/json',
           },
           data: {
-            user_id: 1, // You might want to get this from adminData
+            user_id: adminData.user_id, // You might want to get this from adminData
             super_owner_id: superOwnerData.super_owner_id,
             app_source: 'admin_dashboard'
           }

@@ -159,7 +159,8 @@ function SuperOwner() {
       await axios.delete('https://men4u.xyz/v2/admin/delete_super_owner', {
         data: {
           super_owner_id: ownerToDelete,
-          app_source: 'admin_dashboard'
+          app_source: 'admin_dashboard',
+          user_id: adminData?.user_id
         },
         headers: {
           Authorization: token,
