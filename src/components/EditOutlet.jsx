@@ -253,7 +253,7 @@ function EditOutlet() {
       const apiData = {
         outlet_id: parseInt(outletId),
         user_id: parseInt(adminData.user_id),
-        curr_owner_id: parseInt(formData.user_id), // Current owner ID
+        // curr_owner_id: parseInt(formData.user_id), // Current owner ID
         new_owner_id: parseInt(formData.owner_id), // New selected owner ID
         name: formData.name,
         outlet_type: formData.outlet_type,
