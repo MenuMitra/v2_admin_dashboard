@@ -414,15 +414,6 @@ function CreateOutlet() {
                     Outlet Image
                   </label>
                   <div>
-                    {previewUrl && (
-                      <div className="mb-2 flex items-center gap-2">
-                        <img 
-                          src={previewUrl} 
-                          alt="Preview" 
-                          className="h-11 w-11 object-cover rounded-lg"
-                        />
-                      </div>
-                    )}
                     <input
                       type="file"
                       accept="image/*"
