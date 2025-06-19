@@ -171,21 +171,6 @@ function SuperOwnerDetails() {
               </div>
             </div>
           </div>
-
-          {/* Stats Row */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center justify-between px-6 mb-4">
-            <div className="flex items-center gap-4 sm:gap-6 text-sm overflow-x-auto whitespace-nowrap pb-2 sm:pb-0">
-              <span className="font-medium text-gray-800">
-                Total: {counts.total}
-              </span>
-              <span className="text-success-600">
-                Active: {counts.active}
-              </span>
-              <span className="text-error-500">
-                Inactive: {counts.inactive}
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Content Section */}
