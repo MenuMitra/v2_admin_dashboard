@@ -66,7 +66,7 @@ function AdminDetails() {
     hours = hours % 12;
     hours = hours ? hours : 12; // convert 0 to 12
     
-    return `${day} ${month} ${year} at ${hours}:${minutes} ${ampm}`;
+    return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
   };
 
   useEffect(() => {
