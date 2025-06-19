@@ -63,6 +63,12 @@ const menuData = {
       icon: faUsers,
     },
     {
+      title: "Partners",
+      path: "/partners",
+      id: "partners",
+      icon: faHandshake,
+    },
+    {
       title: "Outlets",
       path: "/outlets",
       id: "outlets",
@@ -81,12 +87,6 @@ const menuData = {
         { name: "Roles", path: "/roles", icon: faUserShield },
         { name: "Functionalities", path: "/functionalities",  icon: faList },
       ],
-    },
-    {
-      title: "Partners",
-      path: "/partners",
-      id: "partners",
-      icon: faHandshake,
     },
     {
       title: "Search",
