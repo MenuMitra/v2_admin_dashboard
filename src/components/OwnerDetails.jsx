@@ -293,7 +293,7 @@ function OwnerDetails() {
                   />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{ownerData.account_type}</div>
+                  <div className="text-base font-medium">{ownerData.account_type.toUpperCase()}</div>
                   <div className="text-sm text-gray-500">Account Type</div>
                 </div>
               </div>
