@@ -326,7 +326,7 @@ function EditOwner() {
               </div>
 
               {/* Selected Functionalities Tags */}
-              {selectedFunctionalities.length > 0 && (
+              {/* {selectedFunctionalities.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {selectedFunctionalities.map(id => {
                     const func = functionalities.find(f => f.functionality_id === id);
@@ -355,7 +355,7 @@ function EditOwner() {
                     );
                   })}
                 </div>
-              )}
+              )} */}
             </div>
 
             {/* Error Message */}
