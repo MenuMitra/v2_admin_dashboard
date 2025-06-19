@@ -209,7 +209,7 @@ function CreateOutlet() {
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/create_outlet',
+        'https://men4u.xyz/v2/common/create_outlet',
         formDataToSend,
         {
           headers: {
