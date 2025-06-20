@@ -116,7 +116,7 @@ function OwnerDetails() {
   }
 
   return (
-    <div className="p-6">
+    <>
       <Breadcrumb items={breadcrumbItems} />
       
       <div className="rounded-2xl border border-gray-200 bg-white">
@@ -478,7 +478,7 @@ function OwnerDetails() {
           </div>
         </Modal>
       </div>
-    </div>
+    </>
   );
 }
 

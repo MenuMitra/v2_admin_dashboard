@@ -180,7 +180,7 @@ function EditOwner() {
   }
 
   return (
-    <div className="p-6">
+    <>
       <Breadcrumb items={breadcrumbItems} />
       
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -390,7 +390,7 @@ function EditOwner() {
           </form>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

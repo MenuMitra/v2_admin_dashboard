@@ -123,7 +123,7 @@ function CreateOwner() {
   }
 
   return (
-    <div className="p-6">
+    <>
       {/* Add Breadcrumb here */}
       <Breadcrumb items={breadcrumbItems} />
 
@@ -306,7 +306,7 @@ function CreateOwner() {
           </form>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

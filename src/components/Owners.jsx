@@ -408,7 +408,7 @@ function Owners() {
   }
 
   return (
-    <div className="p-6">
+    <>
       <Breadcrumb items={breadcrumbItems} />
       <DataTable
         data={owners}
@@ -507,7 +507,7 @@ function Owners() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
 
