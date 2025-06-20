@@ -13,6 +13,7 @@ import {
   TimePickerInput,
   labelStyles
 } from './forms/FormElements.jsx';
+import Breadcrumb from './Breadcrumb';
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -206,6 +207,13 @@ function EditOutlet() {
     owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Add breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'Outlets', path: '/outlets' },
+    { label: 'Edit Outlet' }
+  ];
+
   // Show loading state while fetching data
   if (isLoading) {
     return (
@@ -299,7 +307,10 @@ function EditOutlet() {
   };
 
   return (
-    <div className="p-4">
+    <>
+      {/* Add Breadcrumb */}
+      <Breadcrumb items={breadcrumbItems} />
+
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
@@ -784,7 +795,7 @@ function EditOutlet() {
           </section>
         </form>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -760,7 +760,7 @@ function Outlets() {
   };
 
   return (
-    <div className="p-6">
+    <>
       <Breadcrumb items={breadcrumbItems} />
       
       <DataTable
@@ -883,7 +883,7 @@ function Outlets() {
           </div>
         </>
       )}
-    </div>
+    </>
   );
 }
 
