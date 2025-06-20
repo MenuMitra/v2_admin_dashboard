@@ -105,7 +105,7 @@ function CategoryDetails() {
           {/* Right Side - Action Buttons */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => navigate(`/outlets/${outletId}/categories/${menuCategoryId}/edit`)}
+              onClick={() => navigate(`/edit-category/${outletId}/${menuCategoryId}`)}
               className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
