@@ -39,6 +39,9 @@ function Partners() {
     message: ''
   });
 
+  // Add status filter state
+  const [statusFilter, setStatusFilter] = useState('all');
+
   useEffect(() => {
     if (adminData?.user_id) {
       fetchPartners();
@@ -425,15 +428,19 @@ function Partners() {
       )} */}
 
       <DataTable
-        data={partners}
+        data={partners.filter(partner => {
+          if (statusFilter === 'all') return true;
+          const isActive = partner.is_active === 1;
+          return statusFilter === 'active' ? isActive : !isActive;
+        })}
         columns={columns}
         title="Partners"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         counts={{
           total: partners.length,
-          active: partners.filter(p => p.is_active === 1).length,
-          inactive: partners.filter(p => p.is_active !== 1).length
+          active: partners.filter(partner => partner.is_active === 1).length,
+          inactive: partners.filter(partner => partner.is_active === 0).length
         }}
         createButton={{
           label: "Create",
@@ -456,6 +463,11 @@ function Partners() {
           setSelectedPartners(selectedIds.filter(id => id !== null));
         }}
         onBulkAction={handleBulkAction}
+        enableStatusFilter={true}
+        statusFilter={statusFilter}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+        }}
       />
 
       {/* Add the Modal JSX at the bottom of your return statement, before the closing div */}
