@@ -566,6 +566,42 @@ function EditOutlet() {
                   ]}
                   placeholder="Select Outlet Mode"
                 />
+
+                <SelectInput
+                  label="Status"
+                  name="outlet_status"
+                  value={formData.outlet_status ? "1" : "0"}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      outlet_status: e.target.value === "1"
+                    }));
+                  }}
+                  required
+                  options={[
+                    { value: "1", label: "Active" },
+                    { value: "0", label: "Inactive" }
+                  ]}
+                  placeholder="Select Status"
+                />
+
+                <SelectInput
+                  label="Open/Close"
+                  name="is_open"
+                  value={formData.is_open ? "1" : "0"}
+                  onChange={(e) => {
+                    setFormData(prev => ({
+                      ...prev,
+                      is_open: e.target.value === "1"
+                    }));
+                  }}
+                  required
+                  options={[
+                    { value: "1", label: "Open" },
+                    { value: "0", label: "Closed" }
+                  ]}
+                  placeholder="Select Open/Close Status"
+                />
               </div>
 
               <Textarea
