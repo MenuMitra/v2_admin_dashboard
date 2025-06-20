@@ -416,13 +416,13 @@ const Sidebar = ({ sidebarToggle = false }) => {
       >
           <div className="flex items-center gap-2">
             <img className="w-10" src={logo} alt="Logo" />
-            <span className={`text-2xl font-bold ${sidebarToggle ? "lg:hidden" : ""}`}>Admin</span>
+            <span className={`text-2xl font-bold text-gray-900 dark:text-white ${sidebarToggle ? "lg:hidden" : ""}`}>Admin</span>
           </div>
 
       </div>
 
       {/* Menu Items */}
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-5">
+      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-5 dark:text-white">
         <nav>
           {Object.entries(menuData).map(([groupName, items], idx) => (
             <MenuGroup key={idx} title={groupName} items={items} />
