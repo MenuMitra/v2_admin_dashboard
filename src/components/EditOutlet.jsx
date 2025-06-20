@@ -767,32 +767,6 @@ function EditOutlet() {
               </div>
             </div>
           </section>
-
-          {/* Outlet Status Section */}
-          <section className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Outlet Status
-            </h2>
-
-            <div className="space-y-4">
-              <Checkbox
-                label="Outlet is currently open"
-                name="is_open"
-                checked={formData.is_open}
-                onChange={handleInputChange}
-              />
-
-              <Checkbox
-                label="Outlet is active"
-                name="outlet_status"
-                checked={formData.outlet_status}
-                onChange={handleInputChange}
-              />
-            </div>
-          </section>
         </form>
       </div>
     </>
