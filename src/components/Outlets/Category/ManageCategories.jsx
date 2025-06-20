@@ -24,81 +24,52 @@ function ManageCategories() {
   const [categoryLoading, setCategoryLoading] = useState(false);
   const [categoryError, setCategoryError] = useState(null);
 
-  // Add mock data
-  const mockCategoryData = [
-    {
-      menu_cat_id: 1,
-      outlet_id: 1,
-      category_name: "Starters",
-      image: null,
-      menu_count: 25,
-      is_active: 1,
-      total_active_categories: 285,
-      total_inactive_categories: 5
-    },
-    {
-      menu_cat_id: 2,
-      outlet_id: 1,
-      category_name: "Main Course",
-      image: null,
-      menu_count: 45,
-      is_active: 1,
-      total_active_categories: 285,
-      total_inactive_categories: 5
-    },
-    {
-      menu_cat_id: 3,
-      outlet_id: 1,
-      category_name: "Rice",
-      image: null,
-      menu_count: 335,
-      is_active: 1,
-      total_active_categories: 285,
-      total_inactive_categories: 5
-    },
-    {
-      menu_cat_id: 4,
-      outlet_id: 1,
-      category_name: "Desserts",
-      image: null,
-      menu_count: 15,
-      is_active: 1,
-      total_active_categories: 285,
-      total_inactive_categories: 5
-    },
-    {
-      menu_cat_id: 5,
-      outlet_id: 1,
-      category_name: "Beverages",
-      image: null,
-      menu_count: 20,
-      is_active: 0,
-      total_active_categories: 285,
-      total_inactive_categories: 5
-    },
-    {
-      menu_cat_id: 6,
-      outlet_id: 1,
-      category_name: "North Indian",
-      image: null,
-      menu_count: 0,
-      is_active: 0,
-      total_active_categories: 285,
-      total_inactive_categories: 5
-    }
-  ];
-
-  // Comment out or remove the fetchCategoryDetails function and useEffect
-  // Instead, set the mock data directly
   useEffect(() => {
-    setCategoryData(mockCategoryData);
-  }, []);
+    const fetchCategoryDetails = async () => {
+      setCategoryLoading(true);
+      setCategoryError(null);
+      try {
+        const token = getToken();
+        const response = await axios.post(
+          "https://men4u.xyz/v2/common/menu_category_list",
+          {
+            outlet_id: Number(outletId),
+            user_id: adminData?.user_id,
+            app_source: "admin_dashboard",
+          },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (response.data.data?.menucat_details) {
+          const filtered = response.data.data.menucat_details.filter(
+            cat => cat.menu_cat_id && cat.category_name && cat.category_name !== 'all'
+          );
+          setCategoryData(filtered);
+        } else {
+          setCategoryData([]);
+          setCategoryError(response.data.msg || "Failed to fetch category details");
+        }
+      } catch (err) {
+        setCategoryError(err.response?.data?.message || "Failed to fetch category details");
+      } finally {
+        setCategoryLoading(false);
+      }
+    };
+
+    if (adminData?.user_id && outletId) {
+      fetchCategoryDetails();
+    }
+  }, [adminData?.user_id, outletId]);
 
   // Calculate counts for the DataTable header
   const counts = {
-    total: mockCategoryData.length,
-    active: mockCategoryData.filter(cat => cat.is_active === 1).length,
-    inactive: mockCategoryData.filter(cat => cat.is_active === 0).length
+    total: categoryData.length,
+    active: categoryData.filter(cat => cat.is_active === 1).length,
+    inactive: categoryData.filter(cat => cat.is_active === 0).length,
   };
 
   // Add breadcrumb items
@@ -167,7 +138,7 @@ function MenuCategoryTable({ data, counts }) {
           <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
             {row.image ? (
               <img
-                src={`https://men4u.xyz${row.image}`}
+                src={row.image}
                 alt={value}
                 className="h-full w-full object-cover"
               />
@@ -200,6 +171,11 @@ function MenuCategoryTable({ data, counts }) {
       field: 'is_active',
       header: 'Status',
       sortable: true,
+      render: (value) => (
+        <span className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-sm font-medium ${value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+          {value ? 'Active' : 'Inactive'}
+        </span>
+      ),
     },
     {
       field: 'actions',
