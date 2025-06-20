@@ -151,16 +151,7 @@ function MenuDetails() {
 
           {/* Grid Layout */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-            {/* Menu ID */}
-            <div className="flex items-center p-3 rounded-lg bg-gray-50">
-              <div className="w-8 h-8 flex items-center justify-center">
-                <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
-              </div>
-              <div className="ml-3">
-                <div className="text-base font-medium">#{menu.menu_id}</div>
-                <div className="text-sm text-gray-500">Menu ID</div>
-              </div>
-            </div>
+            
 
             {/* Add Food Type after Menu ID */}
             <div className="flex items-center p-3 rounded-lg bg-gray-50">
