@@ -104,23 +104,6 @@ const Search = () => {
     { label: 'Search' }
   ];
 
-  // Define options for search type dropdown
-  const searchTypeOptions = [
-    { value: 'name', label: 'Search by Name' },
-    { value: 'mobile', label: 'Search by Mobile' },
-    { value: 'outlet_name', label: 'Search by Outlet' }
-  ];
-
-  // Define options for role dropdown
-  const roleOptions = [
-    { value: '', label: 'All Roles' },
-    { value: 'Owner', label: 'Owner' },
-    { value: 'Customer', label: 'Customer' },
-    { value: 'Waiter', label: 'Waiter' },
-    { value: 'Chef', label: 'Chef' },
-    { value: 'Outlet', label: 'Outlet' }
-  ];
-
   return (
     <>
       {/* Breadcrumb */}
@@ -163,11 +146,13 @@ const Search = () => {
                   className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">All Roles</option>
-                  <option value="Owner">Owner</option>
-                  <option value="Customer">Customer</option>
-                  <option value="Waiter">Waiter</option>
-                  <option value="Chef">Chef</option>
-                  <option value="Outlet">Outlet</option>
+                  <option value="super_owner">Super Owner</option>
+                  <option value="owner">Owner</option>
+                  <option value="captain">Captain</option>
+                  <option value="manager">Manager</option>
+                  <option value="customer">Customer</option>
+                  <option value="waiter">Waiter</option>
+                  <option value="chef">Chef</option>
                 </select>
               </div>
               <div>
@@ -238,23 +223,6 @@ const Search = () => {
       </div>
     </>
   );
-};
-
-const getTypeIcon = (type) => {
-  switch (type?.toLowerCase()) {
-    case 'owner':
-      return '👑';
-    case 'waiter':
-      return '👨‍🍳';
-    case 'customer':
-      return '👤';
-    case 'outlet':
-      return '🏪';
-    case 'chef':
-      return '🍳';
-    default:
-      return '❓';
-  }
 };
 
 export default Search;
