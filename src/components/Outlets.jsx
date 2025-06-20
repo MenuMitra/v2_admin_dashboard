@@ -305,6 +305,7 @@ function Outlets() {
     title: '',
     message: ''
   });
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Transform outlet data to match UI structure
   const transformOutletData = (outlets) => {
@@ -715,9 +716,17 @@ function Outlets() {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-      
+      {error && (
+        <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
+          {error}
+        </div>
+      )}
       <DataTable
-        data={filteredData}
+        data={filteredData.filter(outlet => {
+          if (statusFilter === 'all') return true;
+          const isActive = outlet.outletStatus === 1;
+          return statusFilter === 'active' ? isActive : !isActive;
+        })}
         columns={columns}
         title="Outlets"
         counts={{
@@ -748,6 +757,12 @@ function Outlets() {
           setSelectedOutlets(selectedIds.filter(id => id !== null));
         }}
         onBulkAction={handleBulkAction}
+        enableStatusFilter={true}
+        statusFilter={statusFilter}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+          setCurrentPage(1); // Reset to first page when filter changes
+        }}
       />
 
       {/* Add Modal component for confirmations */}
