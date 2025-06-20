@@ -3,10 +3,17 @@ import { useAdmin } from '../hooks/useAdmin';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+import Breadcrumb from './Breadcrumb';
 
 function Profile() {
   const { adminData } = useAdmin();
   const navigate = useNavigate();
+
+  // Add breadcrumb items configuration
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'Profile' }
+  ];
 
   // Early return if no admin data
   if (!adminData) {
@@ -19,6 +26,11 @@ function Profile() {
 
   return (
     <>
+      {/* Add Breadcrumb component */}
+      <div className="mb-6">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+
       {/* DataTable-style header */}
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
