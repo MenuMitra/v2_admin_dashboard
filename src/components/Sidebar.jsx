@@ -173,7 +173,13 @@ const Sidebar = ({ sidebarToggle = false }) => {
           '/outlets',
           '/create-outlet',
           '/view-outlet/',
-          '/edit-outlet/'
+          '/edit-outlet/',
+          '/menus/',
+          '/menu-details/',
+          '/edit-menu/',
+          '/categories/',
+          '/category-details/',
+          '/edit-category/',
         ],
         'admins': [
           '/admins',
