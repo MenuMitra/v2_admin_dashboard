@@ -38,7 +38,7 @@ function Dashboard() {
   const columns = [
     {
       field: 'outlet_name',
-      header: 'Outlet Name',
+      header: 'Name',
       sortable: true
     },
     {
@@ -73,7 +73,7 @@ function Dashboard() {
     },
     {
       field: 'total_menu',
-      header: 'Menu Items',
+      header: 'Menus',
       sortable: true
     },
     {
