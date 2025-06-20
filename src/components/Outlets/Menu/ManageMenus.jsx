@@ -9,7 +9,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
   faPenToSquare,
-  faTrash
+  faTrash,
+  faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from '../../common/Modal';
 
@@ -219,9 +220,14 @@ function ManageMenus() {
           noDataMessage="No menus found."
           createButton={{
             show: true,
-            label: "Add Menu",
+            label: (
+              <>
+                <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />
+                Create
+              </>
+            ),
             position: "right",
-            className: "bg-brand-500 hover:bg-brand-600",
+            className: "bg-success-500 hover:bg-success-600",
             onClick: handleCreateMenu,
           }}
         />
