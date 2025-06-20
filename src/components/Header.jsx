@@ -22,7 +22,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 // Import your logo images
-import ownerImage from "../assets/images/user/owner.jpg";
 import logo from "../assets/images/logo/logo.png";
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
@@ -201,8 +200,11 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
               className="flex items-center text-gray-700 dark:text-gray-400"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <span className="mr-3 h-11 w-11 overflow-hidden rounded-full">
-                <img src={ownerImage} alt={adminData.name} />
+              <span className="mr-3 h-11 w-11 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <FontAwesomeIcon 
+                  icon={faUser} 
+                  className="text-gray-600 dark:text-gray-400 text-xl"
+                />
               </span>
               <span className="text-theme-sm mr-1 block font-medium">
                 {adminData.name}
