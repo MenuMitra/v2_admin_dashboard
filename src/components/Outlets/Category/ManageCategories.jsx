@@ -11,7 +11,8 @@ import {
   faUtensils,
   faEye,
   faPenToSquare,
-  faTrash
+  faTrash,
+  faArrowLeft
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from '../../Breadcrumb';
 import DataTable from "../../common/DataTable";
@@ -305,6 +306,9 @@ function MenuCategoryTable({ data, counts, onDelete, noDataMessage, onCreateCate
       enablePagination={true}
       searchPlaceholder="Search categories..."
       darkMode={false}
+      showBackButton={true}
+      onBackClick={() => navigate(-1)}
+      backButtonLabel="Back"
       createButton={{
         show: true,
         label: "Add Category",

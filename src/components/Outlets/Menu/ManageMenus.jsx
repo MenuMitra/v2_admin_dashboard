@@ -203,35 +203,31 @@ function ManageMenus() {
       <div className="mb-6">
         <Breadcrumb items={breadcrumbItems} />
       </div>
-      <h2 className="text-xl font-semibold mb-4">Menu List</h2>
-      {loading ? (
-        <div className="py-8 text-center">Loading...</div>
-      ) : error ? (
-        <div className="py-8 text-center text-error-500">{error}</div>
-      ) : (
-        <DataTable
-          data={menuData}
-          columns={allColumns}
-          title="Menus"
-          enableSort={true}
-          enableSearch={true}
-          enablePagination={true}
-          searchPlaceholder="Search menus..."
-          noDataMessage="No menus found."
-          createButton={{
-            show: true,
-            label: (
-              <>
-                <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />
-                Create
-              </>
-            ),
-            position: "right",
-            className: "bg-success-500 hover:bg-success-600",
-            onClick: handleCreateMenu,
-          }}
-        />
-      )}
+      <DataTable
+        data={menuData}
+        columns={allColumns}
+        title="Menu List"
+        enableSort={true}
+        enableSearch={true}
+        enablePagination={true}
+        searchPlaceholder="Search menus..."
+        noDataMessage="No menus found."
+        showBackButton={true}
+        onBackClick={() => navigate(-1)}
+        backButtonLabel="Back"
+        createButton={{
+          show: true,
+          label: (
+            <>
+              <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />
+              Create
+            </>
+          ),
+          position: "right",
+          className: "bg-success-500 hover:bg-success-600",
+          onClick: handleCreateMenu,
+        }}
+      />
 
       {/* Delete Confirmation Modal */}
       <Modal
