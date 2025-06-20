@@ -7,6 +7,9 @@ import {
   TextInput,
   FileInput,
 } from '../../forms/FormElements';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSave, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+import Breadcrumb from '../../Breadcrumb';
 
 function EditCategory() {
   const { outletId, menuCategoryId } = useParams();
@@ -20,6 +23,9 @@ function EditCategory() {
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
+
+  // Ref for form submission from Save button
+  const formRef = React.useRef();
 
   // Fetch current category details for editing
   useEffect(() => {
@@ -110,38 +116,93 @@ function EditCategory() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-4 sm:p-6 bg-white rounded-lg shadow mt-4">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4 text-center">Edit Category</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <TextInput
-          label="Category Name"
-          required
-          value={categoryName}
-          onChange={e => setCategoryName(e.target.value)}
-          placeholder="Enter category name"
-        />
-        <FileInput
-          label="Category Image"
-          accept="image/*"
-          onChange={handleImageChange}
-        />
-        {imagePreview && (
-          <img
-            src={imagePreview}
-            alt="Preview"
-            className="w-24 h-24 object-cover rounded-lg border mx-auto"
-          />
-        )}
-        {error && <div className="text-error-500 text-center">{error}</div>}
-        {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
-        >
-          {loading ? 'Updating...' : 'Update Category'}
-        </button>
-      </form>
+    <div className="p-4">
+      {/* Breadcrumb */}
+      <Breadcrumb
+        items={[
+          { label: 'Dashboard', path: '/' },
+          { label: 'Outlets', path: '/outlets' },
+          { label: 'Categories', path: `/outlets/${outletId}/categories` },
+          { label: 'Edit Category' }
+        ]}
+      />
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between">
+            {/* Back Button */}
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
+              type="button"
+            >
+              <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
+              <span>Back</span>
+            </button>
+
+            {/* Title */}
+            <h2 className="text-lg font-semibold text-gray-800 text-center">
+              Edit Category
+            </h2>
+
+            {/* Save Button */}
+            <button
+              onClick={() => formRef.current?.requestSubmit()}
+              disabled={loading}
+              className={`
+                inline-flex items-center gap-2 px-4 py-2 
+                text-sm font-medium text-white rounded-full
+                bg-success-500 hover:bg-success-600 
+                transition shadow-sm
+                ${loading ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+              type="button"
+            >
+              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+              <span>Save</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Form Content */}
+        <div className="p-6">
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4"
+          >
+            <TextInput
+              label="Category Name"
+              required
+              value={categoryName}
+              onChange={e => setCategoryName(e.target.value)}
+              placeholder="Enter category name"
+            />
+            <FileInput
+              label="Category Image"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+            {imagePreview && (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                className="w-24 h-24 object-cover rounded-lg border mx-auto"
+              />
+            )}
+            {error && <div className="text-error-500 text-center">{error}</div>}
+            {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
+              style={{ display: 'none' }} // Hide the default submit button, use Save in header
+            >
+              {loading ? 'Updating...' : 'Update Category'}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
