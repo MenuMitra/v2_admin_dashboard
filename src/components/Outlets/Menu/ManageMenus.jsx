@@ -105,11 +105,6 @@ function ManageMenus() {
       render: (value) => value ? value : '-',
     },
     {
-      field: 'rating',
-      header: 'Rating',
-      sortable: true,
-    },
-    {
       field: 'is_active',
       header: 'Status',
       sortable: true,
@@ -167,8 +162,8 @@ function ManageMenus() {
 
   // Place the actions column at the end
   const allColumns = [
-    ...columns.slice(0, 7), // your 7 columns (removed image column)
-    columns[7] // actions column
+    ...columns.slice(0, 6), // your 6 columns (removed rating column)
+    columns[6] // actions column
   ];
 
   return (
