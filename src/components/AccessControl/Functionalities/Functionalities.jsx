@@ -192,9 +192,12 @@ function Functionalities() {
       render: (_, functionality) => (
         <div className="flex items-center justify-center gap-2">
           <button
-            onClick={() => navigate(`/assign-functionality-role/${functionality.functionality_id}`)}
+            onClick={() => {
+              setEditingFunctionality(functionality);
+              setShowEditModal(true);
+            }}
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-            title="Assign Roles"
+            title="Edit Functionality"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
@@ -341,64 +344,68 @@ function Functionalities() {
             setError(null);
           }}
           title="Edit Functionality"
+          type="default"
           size="small"
         >
-          <div className="text-left">
-            {error && (
-              <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
-                {error}
-              </div>
-            )}
-
+          <div className="w-full">
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
-                Functionality Name <span className="text-red-500">*</span>
+              <label 
+                htmlFor="functionalityName" 
+                className="block text-sm font-medium text-left text-gray-700 mb-2"
+              >
+                Functionality Name <span className="text-error-500">*</span>
               </label>
               <input
                 type="text"
+                id="functionalityName"
                 value={editingFunctionality?.functionality_name || ''}
                 onChange={(e) => setEditingFunctionality(prev => ({
                   ...prev,
                   functionality_name: e.target.value
                 }))}
-                placeholder="e.g., manage_orders"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-success-500 focus:border-success-500 text-gray-900"
+                placeholder="Enter functionality name"
               />
               <p className="mt-1 text-xs text-gray-500">
                 Use underscores instead of spaces (e.g., manage_orders, view_reports)
               </p>
             </div>
-          </div>
 
-          <div className="flex items-center justify-end gap-3">
-            <button
-              onClick={() => {
-                setShowEditModal(false);
-                setEditingFunctionality(null);
-                setError(null);
-              }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              disabled={isEditing}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleEditFunctionality}
-              disabled={isEditing || !editingFunctionality?.functionality_name.trim()}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50"
-            >
-              {isEditing ? (
-                <>
-                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>Updating...</span>
-                </>
-              ) : (
-                'Update Functionality'
-              )}
-            </button>
+            <div className="flex justify-end items-center gap-3">
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingFunctionality(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditFunctionality}
+                disabled={!editingFunctionality?.functionality_name.trim() || isEditing}
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
+                  ${!editingFunctionality?.functionality_name.trim() || isEditing
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-success-500 hover:bg-success-600'
+                  }`}
+              >
+                {isEditing ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>Updating...</span>
+                  </>
+                ) : (
+                  <>
+                    <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+                    <span>Update</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </Modal>
       )}
