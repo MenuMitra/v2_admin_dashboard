@@ -174,7 +174,7 @@ function CreateAdmin() {
               >
                 <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
                 <span className="hidden sm:inline">
-                  {isSubmitting ? 'Creating...' : 'Create Admin'}
+                  {isSubmitting ? 'Creating...' : 'Create'}
                 </span>
               </button>
             </div>
@@ -251,16 +251,6 @@ function CreateAdmin() {
               </div>
             </div>
 
-            {/* Cancel button */}
-            <div className="flex items-center justify-end pt-4 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={() => navigate('/admins')}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-            </div>
           </form>
         </div>
       </div>
