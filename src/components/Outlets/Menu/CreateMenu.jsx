@@ -24,7 +24,7 @@ function CreateMenu() {
 
   // Form state
   const [name, setName] = useState('');
-  const [menuCatId, setMenuCatId] = useState('20'); // hardcoded for now
+  const [menuCatId, setMenuCatId] = useState('');
   const [foodType, setFoodType] = useState('veg');
   const [description, setDescription] = useState('');
   const [spicyIndex, setSpicyIndex] = useState('');
@@ -43,7 +43,7 @@ function CreateMenu() {
   // Ref for form submission from Save button
   const formRef = React.useRef();
 
-  // Update useEffect to handle new response format
+  // Update useEffect to remove default category selection
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -67,11 +67,6 @@ function CreateMenu() {
           cat => cat.menu_cat_id !== null
         );
         setCategories(validCategories);
-        
-        // Set default category if available
-        if (validCategories.length > 0) {
-          setMenuCatId(validCategories[0].menu_cat_id.toString());
-        }
       } catch (err) {
         setError('Failed to load menu categories');
       }
@@ -80,7 +75,7 @@ function CreateMenu() {
     if (outletId && adminData?.user_id) {
       fetchCategories();
     }
-  }, [outletId, adminData?.user_id, getToken]);
+  }, [outletId, adminData?.user_id]);
 
   // Portion handlers
   const handlePortionChange = (idx, field, value) => {
