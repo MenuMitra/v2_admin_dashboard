@@ -10,7 +10,9 @@ import {
   faEye,
   faPenToSquare,
   faTrash,
-  faPlus
+  faPlus,
+  faCircleCheck,
+  faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from '../../common/Modal';
 
@@ -24,6 +26,7 @@ function ManageMenus() {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   // Breadcrumb items
   const breadcrumbItems = [
@@ -107,6 +110,38 @@ function ManageMenus() {
     }
   };
 
+  // Add bulk action handler
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const token = getToken();
+      const response = await axios.post(
+        'https://men4u.xyz/v2/common/bulk_menu_action',
+        {
+          user_id: adminData?.user_id,
+          outlet_id: Number(outletId),
+          action: action,
+          app_source: "admin_dashboard",
+          menu_ids: selectedIds
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // If successful, clear selection and refresh data
+      if (response.status === 200) {
+        setSelectedItems([]);
+        // Refresh the menu list
+        fetchMenus();
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to perform bulk action');
+    }
+  };
+
   // Define columns for DataTable
   const columns = [
     {
@@ -140,9 +175,21 @@ function ManageMenus() {
       header: 'Status',
       sortable: true,
       render: (value) => (
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-          {value ? 'Active' : 'Inactive'}
-        </span>
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value === 1 ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value === 1 ? "text-success-500" : "text-error-500"
+            }`}
+          />
+          <span
+            className={`text-base font-medium ${
+              value === 1 ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {value === 1 ? "Active" : "Inactive"}
+          </span>
+        </div>
       ),
     },
     {
@@ -191,11 +238,8 @@ function ManageMenus() {
     },
   ];
 
-  // Place the actions column at the end
-  const allColumns = [
-    ...columns.slice(0, 6), // your 6 columns (removed rating column)
-    columns[6] // actions column
-  ];
+  // Remove the separate selection column definition and let DataTable handle it internally
+  const allColumns = [...columns];
 
   return (
     <div>
@@ -215,6 +259,10 @@ function ManageMenus() {
         showBackButton={true}
         onBackClick={() => navigate(-1)}
         backButtonLabel="Back"
+        enableSelection={true}
+        onBulkAction={handleBulkAction}
+        onSelectionChange={setSelectedItems}
+        selectedItems={selectedItems}
         createButton={{
           show: true,
           label: (
