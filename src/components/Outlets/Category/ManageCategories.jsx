@@ -130,10 +130,6 @@ function ManageCategories() {
           <div className="col-span-full text-center py-8 text-error-500">
             {categoryError}
           </div>
-        ) : categoryData.length === 0 ? (
-          <div className="col-span-full text-center py-8 text-gray-500">
-            No categories found. Create your first category to get started.
-          </div>
         ) : (
           <div className="col-span-full">
             <MenuCategoryTable 
@@ -144,6 +140,7 @@ function ManageCategories() {
                 setShowDeleteModal(true);
                 setDeleteError('');
               }}
+              noDataMessage="No categories found. Create your first category to get started."
             />
           </div>
         )}
@@ -198,7 +195,7 @@ function ManageCategories() {
   );
 }
 
-function MenuCategoryTable({ data, counts, onDelete }) {
+function MenuCategoryTable({ data, counts, onDelete, noDataMessage }) {
   const navigate = useNavigate();
 
   const handleView = (row) => {
@@ -310,6 +307,7 @@ function MenuCategoryTable({ data, counts, onDelete }) {
         position: "right",
         className: "bg-brand-500 hover:bg-brand-600",
       }}
+      noDataMessage={noDataMessage}
     />
   );
 }
