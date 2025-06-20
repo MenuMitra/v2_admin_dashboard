@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft as faBack, faSearch } from "@fortawesome/free-solid-svg-icons";
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import { SelectInput, TextInput } from '../forms/FormElements';
@@ -181,10 +181,11 @@ const Search = () => {
               <div className="self-end">
                 <button 
                   type="submit" 
-                  className="px-6 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:bg-purple-300"
+                  className="px-6 py-2 bg-brand-500 text-white rounded-full hover:bg-brand-600 disabled:bg-brand-300"
                   disabled={loading || !searchInput.trim()}
                 >
                   {loading ? 'Searching...' : 'Search'}
+                  <FontAwesomeIcon icon={faSearch} className="w-4 h-4 ml-2" />
                 </button>
               </div>
             </form>
