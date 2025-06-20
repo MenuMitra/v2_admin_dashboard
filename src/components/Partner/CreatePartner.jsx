@@ -13,6 +13,7 @@ import {
   Checkbox,
   labelStyles
 } from '../forms/FormElements.jsx';
+import Breadcrumb from '../Breadcrumb';
 
 function CreatePartner() {
   const navigate = useNavigate();
@@ -120,6 +121,13 @@ function CreatePartner() {
     }
   };
 
+  // Add breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'Partners', path: '/partners' },
+    { label: 'Create Partner' }
+  ];
+
   if (isLoading && !formData.name) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -129,7 +137,10 @@ function CreatePartner() {
   }
 
   return (
-    <div className="p-4">
+    <>
+      {/* Add Breadcrumb */}
+      <Breadcrumb items={breadcrumbItems} />
+
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
@@ -307,7 +318,7 @@ function CreatePartner() {
           </form>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

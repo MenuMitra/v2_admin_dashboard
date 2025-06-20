@@ -79,7 +79,7 @@ function PartnerDetails() {
   ];
 
   return (
-    <div className="p-6">
+    <>
       {/* Replace manual breadcrumb with Breadcrumb component */}
       <Breadcrumb items={breadcrumbItems} />
 
@@ -292,7 +292,7 @@ function PartnerDetails() {
           </>
         )}
       </div>
-    </div>
+    </>
   );
 }
 

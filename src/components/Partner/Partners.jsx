@@ -334,7 +334,7 @@ function Partners() {
   }
 
   return (
-    <div className="p-6">
+    <>
       {/* Replace the manual breadcrumb with */}
       <Breadcrumb items={breadcrumbItems} />
 
@@ -557,7 +557,7 @@ function Partners() {
           </button>
         </div>
       </Modal>
-    </div>
+    </>
   );
 }
 
