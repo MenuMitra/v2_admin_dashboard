@@ -18,6 +18,7 @@ function CategoryDetails() {
       setLoading(true);
       setError(null);
       try {
+        const token = getToken();
         const response = await axios.post(
           'https://men4u.xyz/v2/common/menu_category_view',
           {
@@ -28,7 +29,7 @@ function CategoryDetails() {
           },
           {
             headers: {
-              Authorization: getToken(),
+              Authorization: token,
               'Content-Type': 'application/json',
             },
           }
@@ -44,7 +45,7 @@ function CategoryDetails() {
     if (adminData?.user_id && menuCategoryId && outletId) {
       fetchCategoryDetails();
     }
-  }, [adminData?.user_id, menuCategoryId, outletId, getToken]);
+  }, [adminData?.user_id, menuCategoryId, outletId]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-error-500">{error}</div>;
