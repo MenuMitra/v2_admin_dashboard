@@ -162,7 +162,7 @@ function AdminDetails() {
   }
 
   return (
-    <div className="p-6">
+    <>
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="rounded-2xl border border-gray-200 bg-white">
@@ -371,7 +371,7 @@ function AdminDetails() {
           </div>
         </div>
       </Modal>
-    </div>
+    </>
   );
 }
 

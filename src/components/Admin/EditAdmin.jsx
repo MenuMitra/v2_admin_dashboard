@@ -184,7 +184,7 @@ function EditAdmin() {
   }
 
   return (
-    <div className="p-4">
+    <>
       <Breadcrumb items={breadcrumbItems} />
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] mt-4">
         {/* Header */}
@@ -290,7 +290,7 @@ function EditAdmin() {
           </form>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -131,7 +131,7 @@ function CreateAdmin() {
   };
 
   return (
-    <div className="p-6">
+    <>
       {/* Add Breadcrumb here */}
       <Breadcrumb items={breadcrumbItems} />
 
@@ -257,7 +257,7 @@ function CreateAdmin() {
           </form>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

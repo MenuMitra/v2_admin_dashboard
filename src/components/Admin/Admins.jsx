@@ -190,7 +190,7 @@ function Admins() {
   const inactivesCount = admins.filter(admin => !admin.is_active).length;
 
   return (
-    <div className="p-6">
+    <>
       <Breadcrumb items={breadcrumbItems} />
 
       {error && (
@@ -273,7 +273,7 @@ function Admins() {
           </div>
         </div>
       </Modal>
-    </div>
+    </>
   );
 }
 
