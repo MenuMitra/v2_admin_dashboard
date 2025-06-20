@@ -229,7 +229,7 @@ function Functionalities() {
   }
 
   return (
-    <div className="p-6">
+    <>
       {/* Replace the manual breadcrumb with */}
       <Breadcrumb items={breadcrumbItems} />
 
@@ -465,7 +465,7 @@ function Functionalities() {
           </div>
         </Modal>
       )}
-    </div>
+    </>
   );
 }
 
