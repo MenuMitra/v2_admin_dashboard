@@ -271,26 +271,11 @@ function MenuCategoryTable({
   const columns = [
     {
       field: 'category_name',
-      header: 'Category Name',
+      header: 'Name',
       sortable: true,
       render: (value, row) => (
         <div className="flex items-center justify-center gap-3">
-          <div className="relative h-10 w-10 overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800">
-            {row.image ? (
-              <img
-                src={row.image}
-                alt={value}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center">
-                <FontAwesomeIcon
-                  icon={faUtensils}
-                  className="w-4 h-4 text-gray-400"
-                />
-              </div>
-            )}
-          </div>
+          
           <span className="font-medium text-gray-800 dark:text-white/90">
             {value}
           </span>
@@ -302,7 +287,7 @@ function MenuCategoryTable({
       header: 'Menu Items',
       sortable: true,
       render: (value) => (
-        <span className="inline-flex items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-800 dark:bg-gray-800 dark:text-white/90">
+        <span className="inline-flex items-center justify-center rounded-full  px-2.5 py-0.5 text-sm font-medium text-gray-800 dark:bg-gray-800 dark:text-white/90">
           {value}
         </span>
       ),
