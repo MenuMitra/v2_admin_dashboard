@@ -16,6 +16,7 @@ import {
 import Breadcrumb from '../../Breadcrumb';
 import DataTable from "../../common/DataTable";
 import Modal from '../../common/Modal';
+import CreateCategory from './CreateCategory';
 
 function ManageCategories() {
   const { getToken } = useAuth();
@@ -113,6 +114,8 @@ function ManageCategories() {
     { label: 'Categories' }
   ];
 
+  const navigate = useNavigate();
+
   return (
     <>
       {/* Breadcrumb */}
@@ -141,6 +144,7 @@ function ManageCategories() {
                 setDeleteError('');
               }}
               noDataMessage="No categories found. Create your first category to get started."
+              onCreateCategory={() => navigate(`/create-category/${outletId}`)}
             />
           </div>
         )}
@@ -195,7 +199,7 @@ function ManageCategories() {
   );
 }
 
-function MenuCategoryTable({ data, counts, onDelete, noDataMessage }) {
+function MenuCategoryTable({ data, counts, onDelete, noDataMessage, onCreateCategory }) {
   const navigate = useNavigate();
 
   const handleView = (row) => {
@@ -306,6 +310,7 @@ function MenuCategoryTable({ data, counts, onDelete, noDataMessage }) {
         label: "Add Category",
         position: "right",
         className: "bg-brand-500 hover:bg-brand-600",
+        onClick: onCreateCategory,
       }}
       noDataMessage={noDataMessage}
     />

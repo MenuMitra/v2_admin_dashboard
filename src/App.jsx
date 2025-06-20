@@ -43,6 +43,7 @@ import CategoryDetails from './components/Outlets/Category/CategoryDetails';
 import EditCategory from './components/Outlets/Category/EditCategory';
 import MenuDetails from './components/Outlets/Menu/MenuDetails';
 import EditMenu from './components/Outlets/Menu/EditMenu';
+import CreateCategory from './components/Outlets/Category/CreateCategory';
 
 
 function App() {
@@ -68,6 +69,7 @@ function App() {
           <Route path="/edit-outlet/:outletId" element={<EditOutlet />} />
           <Route path="/categories/:outletId" element={<ManageCategories />} />
           <Route path="/category-details/:outletId/:menuCategoryId" element={<CategoryDetails />} />
+          <Route path="/create-category/:outletId/" element={<CreateCategory />} />
           <Route path="/edit-category/:outletId/:menuCategoryId" element={<EditCategory />} />
           <Route path="/menus/:outletId" element={<ManageMenus />} />
           <Route path="/menu-details/:menuId" element={<MenuDetails />} />
