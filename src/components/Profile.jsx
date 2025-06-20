@@ -18,7 +18,7 @@ function Profile() {
   }
 
   return (
-    <div className="p-6">
+    <>
       {/* DataTable-style header */}
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
@@ -63,7 +63,7 @@ function Profile() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
