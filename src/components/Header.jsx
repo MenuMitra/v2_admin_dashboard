@@ -26,7 +26,10 @@ import logo from "../assets/images/logo/logo.png";
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [menuToggle, setMenuToggle] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    return savedDarkMode ? JSON.parse(savedDarkMode) : false;
+  });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifying, setNotifying] = useState(true);
@@ -103,6 +106,18 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
     };
   }, []); // Empty dependency array since we don't use any dependencies
 
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark', 'bg-gray-900');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark', 'bg-gray-900');
+    }
+  }, [darkMode]);
+
   const handleSidebarToggle = () => {
     setSidebarToggle(prevState => {
       console.log('Current sidebar state:', prevState);
@@ -110,6 +125,10 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       console.log('New sidebar state:', newState);
       return newState;
     });
+  };
+
+  const handleDarkModeToggle = () => {
+    setDarkMode(prevMode => !prevMode);
   };
 
   // Early return if no admin data
@@ -188,7 +207,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
             {/* Dark Mode Toggle */}
             <button
               className="hover:text-dark-900 relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-              onClick={() => setDarkMode(!darkMode)}
+              onClick={handleDarkModeToggle}
             >
               <FontAwesomeIcon icon={darkMode ? faSun : faMoon} />
             </button>

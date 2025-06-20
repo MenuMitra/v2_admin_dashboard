@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Auth from './components/Auth';
 import PrivateRoute from './components/PrivateRoute';
@@ -48,6 +48,15 @@ import CreateMenu from './components/Outlets/Menu/CreateMenu';
 
 
 function App() {
+  useEffect(() => {
+    // Check for initial dark mode preference when app loads
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode && JSON.parse(savedDarkMode)) {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark', 'bg-gray-900');
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
