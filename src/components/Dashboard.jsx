@@ -256,7 +256,7 @@ function Dashboard() {
         <DataTable 
           data={data.outlet_data || []}
           columns={columns}
-          title="All Outlets"
+          // title="All Outlets"
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           searchPlaceholder="Search outlets..."
