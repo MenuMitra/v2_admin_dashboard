@@ -20,6 +20,16 @@ function Admins() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState(null);
 
+  // Replace single number with array of protected mobile numbers
+  const PROTECTED_MOBILES = [
+    '8806431723',
+    '9767637798',
+    '8600704616'
+    // Add more numbers here as needed
+    // '1234567890',
+    // '9876543210',
+  ];
+
   // Format date helper function
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -146,34 +156,45 @@ function Admins() {
       field: 'actions',
       header: 'Actions',
       sortable: false,
-      render: (_, admin) => (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => navigate(`/admin-details/${admin.user_id}`)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-            title="View Details"
-          >
-            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => navigate(`/edit-admin/${admin.user_id}`)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-            title="Edit Admin"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => {
-              setAdminToDelete(admin.user_id);
-              setShowDeleteModal(true);
-            }}
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-            title="Delete Admin"
-          >
-            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-          </button>
-        </div>
-      )
+      render: (_, admin) => {
+        // Check if the admin's mobile number is in the protected list
+        if (PROTECTED_MOBILES.includes(admin.mobile)) {
+          return (
+            <div className="flex items-center justify-center">
+              <span className="text-sm text-gray-500 italic">Protected Admin</span>
+            </div>
+          );
+        }
+
+        return (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => navigate(`/admin-details/${admin.user_id}`)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+              title="View Details"
+            >
+              <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => navigate(`/edit-admin/${admin.user_id}`)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+              title="Edit Admin"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                setAdminToDelete(admin.user_id);
+                setShowDeleteModal(true);
+              }}
+              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+              title="Delete Admin"
+            >
+              <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+            </button>
+          </div>
+        );
+      }
     }
   ];
 
