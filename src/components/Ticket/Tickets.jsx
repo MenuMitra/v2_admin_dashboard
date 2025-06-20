@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
+import { useAdmin } from '../../hooks/useAdmin';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,6 +25,7 @@ import DataTable from '../common/DataTable';
 
 function Tickets() {
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const [searchInput, setSearchInput] = useState('');
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -51,7 +53,7 @@ function Tickets() {
       const response = await axios.post(
         'https://men4u.xyz/v2/common/listview_outlet',
         {
-          user_id: 1,
+          user_id: adminData?.user_id,
           app_source: "admin_dashboard"
         },
         {

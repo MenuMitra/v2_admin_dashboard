@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useAdmin } from '../../hooks/useAdmin';
 import axios from 'axios';
 import DataTable from '../common/DataTable';
 
@@ -8,6 +9,7 @@ function CustomerDetails() {
   const { customerId } = useParams(); // Get customerId from URL params
   const navigate = useNavigate();
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [customerData, setCustomerData] = useState(null);
@@ -33,7 +35,7 @@ function CustomerDetails() {
       const response = await axios.post(
         'https://men4u.xyz/v2/common/listview_outlet',
         {
-          user_id: 1,
+          user_id: adminData?.user_id,
           app_source: "admin_dashboard"
         },
         {

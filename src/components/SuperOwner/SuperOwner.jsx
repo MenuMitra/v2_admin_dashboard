@@ -111,7 +111,7 @@ function SuperOwner() {
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/view_super_owner',
         {
-          user_id: 1,
+          user_id: adminData?.user_id,
           super_owner_id: superOwnerId,
           app_source: 'admin_dashboard'
         },

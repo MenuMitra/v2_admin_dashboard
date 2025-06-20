@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
+import { useAdmin } from '../../hooks/useAdmin';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faPlus } from '@fortawesome/free-solid-svg-icons';
 import DataTable from '../common/DataTable';
+import Breadcrumb from '../Breadcrumb';
 
 function Customer() {
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [customers, setCustomers] = useState([]);
@@ -36,7 +39,7 @@ function Customer() {
       const response = await axios.post(
         'https://men4u.xyz/v2/common/listview_outlet',
         {
-          user_id: 1,
+          user_id: adminData?.user_id,
           app_source: "admin_dashboard"
         },
         {
@@ -125,13 +128,14 @@ function Customer() {
   }
 
   return (
-    <div className="p-6">
+    <>
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm mb-6">
-        <Link to="/dashboard" className="text-gray-500 hover:text-gray-700">Dashboard</Link>
-        <span className="text-gray-500">/</span>
-        <span className="text-gray-700">Customers</span>
-      </div>
+      <Breadcrumb 
+        items={[
+          { label: 'Dashboard', path: '/dashboard' },
+          { label: 'Customers' }
+        ]} 
+      />
 
       {/* Outlet Dropdown */}
       <div className="mb-6">
@@ -177,7 +181,7 @@ function Customer() {
         showBackButton={true}
         backButtonLabel="Back"
       />
-    </div>
+    </>
   );
 }
 
