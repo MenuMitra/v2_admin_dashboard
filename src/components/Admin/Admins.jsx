@@ -19,6 +19,7 @@ function Admins() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Replace single number with array of protected mobile numbers
   const PROTECTED_MOBILES = [
@@ -221,15 +222,19 @@ function Admins() {
       )}
 
       <DataTable
-        data={admins}
+        data={admins.filter(admin => {
+          if (statusFilter === 'all') return true;
+          const isActive = admin.is_active === true || admin.is_active === 1;
+          return statusFilter === 'active' ? isActive : !isActive;
+        })}
         columns={columns}
         title="Admins"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         counts={{
           total: admins.length,
-          active: activesCount,
-          inactive: inactivesCount
+          active: admins.filter(admin => admin.is_active === true || admin.is_active === 1).length,
+          inactive: admins.filter(admin => admin.is_active === false || admin.is_active === 0).length
         }}
         createButton={{
           show: true,
@@ -248,6 +253,11 @@ function Admins() {
         enableSort={true}
         enablePagination={true}
         enableSearch={true}
+        enableStatusFilter={true}
+        statusFilter={statusFilter}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+        }}
         itemsPerPage={10}
       />
 
