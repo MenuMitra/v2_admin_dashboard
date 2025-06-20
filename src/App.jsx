@@ -63,7 +63,11 @@ function App() {
           <Route path="/view-outlet/:outletId" element={<ViewOutlet />} />
           <Route path="/edit-outlet/:outletId" element={<EditOutlet />} />
           <Route path="/categories/:outletId" element={<ManageCategories />} />
+          <Route path="/category-details/:categoryId" element={<CategoryDetails />} />
+          <Route path="/edit-category/:categoryId" element={<EditCategory />} />
           <Route path="/menus/:outletId" element={<ManageMenus />} />
+          <Route path="/menu-details/:menuId" element={<MenuDetails />} />
+          <Route path="/edit-menu/:menuId" element={<EditMenu />} />
 
           {/* Owner Routes */}
           <Route path="/owners" element={<Owners />} />
