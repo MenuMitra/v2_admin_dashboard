@@ -79,20 +79,8 @@ function ManageMenus() {
   // Define columns for DataTable
   const columns = [
     {
-      field: 'image',
-      header: 'Image',
-      sortable: false,
-      render: (value, row) => (
-        value ? (
-          <img src={value} alt={row.name} className="h-10 w-10 object-cover rounded" />
-        ) : (
-          <span className="text-gray-400">No Image</span>
-        )
-      ),
-    },
-    {
       field: 'name',
-      header: 'Menu Name',
+      header: 'Name',
       sortable: true,
     },
     {
@@ -179,8 +167,8 @@ function ManageMenus() {
 
   // Place the actions column at the end
   const allColumns = [
-    ...columns.slice(0, 8), // your 8 columns
-    columns[8] // actions column
+    ...columns.slice(0, 7), // your 7 columns (removed image column)
+    columns[7] // actions column
   ];
 
   return (
