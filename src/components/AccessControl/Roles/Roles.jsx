@@ -163,7 +163,7 @@ function Roles() {
   }
 
   return (
-    <div className="p-6">
+    <>
       {/* Replace the manual breadcrumb with */}
       <Breadcrumb items={breadcrumbItems} />
 
@@ -186,10 +186,10 @@ function Roles() {
         }}
         createButton={{
           show: true,
-          label: "Create Role",
+          label: "Create",
           icon: faPlus,
           onClick: () => setIsModalOpen(true),
-          className: "bg-brand-500 hover:bg-brand-600",
+          className: "bg-success-500 hover:bg-success-600",
           position: "right",
           showIconOnly: false,
           disabled: false,
@@ -253,7 +253,7 @@ function Roles() {
           </div>
         </div>
       </Modal>
-    </div>
+    </>
   );
 }
 
