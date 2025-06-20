@@ -123,7 +123,7 @@ function QRTemplates() {
   ];
 
   return (
-    <div className="container mx-auto flex-grow py-6 px-4">
+    <div className="container mx-auto flex-grow ">
       {/* Add Breadcrumb */}
       <Breadcrumb items={breadcrumbItems} />
 

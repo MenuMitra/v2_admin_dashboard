@@ -276,7 +276,7 @@ function EditTemplate() {
   }
 
   return (
-    <div className="p-6">
+    <>
       {/* Main Container */}
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="overflow-hidden pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -430,7 +430,7 @@ function EditTemplate() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

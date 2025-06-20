@@ -132,7 +132,7 @@ function TemplateDetails() {
   }
 
   return (
-    <div className="p-6">
+    <>
       <Breadcrumb items={breadcrumbItems} />
       
       {/* DataTable-style Header */}
@@ -182,7 +182,7 @@ function TemplateDetails() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
