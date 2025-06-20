@@ -132,6 +132,9 @@ function CreateAdmin() {
 
   return (
     <div className="p-6">
+      {/* Add Breadcrumb here */}
+      <Breadcrumb items={breadcrumbItems} />
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         {/* Header Section */}
         <div className="overflow-hidden pt-4">
@@ -140,7 +143,7 @@ function CreateAdmin() {
             {/* Left Side - Back Button */}
             <div className="flex items-center gap-2">
               <button 
-                onClick={() => navigate('/admins')}
+                onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
                 <svg
