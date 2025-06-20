@@ -74,7 +74,7 @@ function MenuDetails() {
           app_source: 'admin_dashboard'
         },
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `${token}`,
           'Content-Type': 'application/json',
         },
       });
