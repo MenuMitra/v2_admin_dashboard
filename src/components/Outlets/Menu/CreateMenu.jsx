@@ -46,6 +46,9 @@ function CreateMenu() {
   // Add state for food types
   const [foodTypes, setFoodTypes] = useState([]);
 
+  // Add state for spicy index options
+  const [spicyIndexOptions, setSpicyIndexOptions] = useState([]);
+
   // Update useEffect to remove default category selection
   useEffect(() => {
     const fetchCategories = async () => {
@@ -107,6 +110,35 @@ function CreateMenu() {
     };
 
     fetchFoodTypes();
+  }, []); // Empty dependency array as this only needs to run once
+
+  // Add new useEffect for fetching spicy index list
+  useEffect(() => {
+    const fetchSpicyIndexList = async () => {
+      try {
+        const token = getToken();
+        const response = await axios.get(
+          'https://men4u.xyz/v2/common/get_spicy_index_list',
+          {
+            headers: {
+              Authorization: token
+            }
+          }
+        );
+        
+        // Convert the spicy_index_list object to array of options
+        const indexOptions = Object.entries(response.data.spicy_index_list).map(([value, label]) => ({
+          value,
+          label: `Level ${label}` // Adding "Level" prefix for better readability
+        }));
+        
+        setSpicyIndexOptions(indexOptions);
+      } catch (err) {
+        setError('Failed to load spicy index options');
+      }
+    };
+
+    fetchSpicyIndexList();
   }, []); // Empty dependency array as this only needs to run once
 
   // Portion handlers
@@ -262,14 +294,11 @@ function CreateMenu() {
                 onChange={e => setFoodType(e.target.value)}
                 options={foodTypes}
               />
-              <TextInput
+              <SelectInput
                 label="Spicy Index"
                 value={spicyIndex}
                 onChange={e => setSpicyIndex(e.target.value)}
-                placeholder="e.g. 1, 2, 3"
-                type="number"
-                min="0"
-                max="5"
+                options={spicyIndexOptions}
               />
               <TextInput
                 label="Offer (%)"
