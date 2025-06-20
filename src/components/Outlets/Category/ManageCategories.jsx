@@ -32,6 +32,13 @@ function ManageCategories() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [categoryToDelete, setCategoryToDelete] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  const normaliseData = (categories) =>
+    categories.map((category) => ({
+      ...category,
+      user_id: category.menu_cat_id,
+    }));
 
   const handleDeleteCategory = async () => {
     if (!categoryToDelete) return;
@@ -84,7 +91,7 @@ function ManageCategories() {
         const filtered = response.data.data.menucat_details.filter(
           cat => cat.menu_cat_id && cat.category_name && cat.category_name !== 'all'
         );
-        setCategoryData(filtered);
+        setCategoryData(normaliseData(filtered));
       } else {
         setCategoryData([]);
         setCategoryError(response.data.msg || "Failed to fetch category details");
@@ -93,6 +100,39 @@ function ManageCategories() {
       setCategoryError(err.response?.data?.message || "Failed to fetch category details");
     } finally {
       setCategoryLoading(false);
+    }
+  };
+
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const token = getToken();
+      const selectedCategoryIds = categoryData
+        .filter(cat => selectedIds.includes(cat.user_id))
+        .map(cat => cat.menu_cat_id);
+
+      const response = await axios.post(
+        'https://men4u.xyz/v2/common/bulk_category_action',
+        {
+          user_id: adminData?.user_id,
+          outlet_id: Number(outletId),
+          action: action,
+          app_source: "admin_dashboard",
+          menu_cat_ids: selectedCategoryIds
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        setSelectedItems([]);
+        await fetchCategoryDetails();
+      }
+    } catch (err) {
+      setCategoryError(err.response?.data?.message || 'Failed to perform bulk action');
     }
   };
 
@@ -148,6 +188,9 @@ function ManageCategories() {
               }}
               noDataMessage="No categories found. Create your first category to get started."
               onCreateCategory={() => navigate(`/create-category/${outletId}`)}
+              onBulkAction={handleBulkAction}
+              selectedItems={selectedItems}
+              onSelectionChange={setSelectedItems}
             />
           </div>
         )}
@@ -202,7 +245,16 @@ function ManageCategories() {
   );
 }
 
-function MenuCategoryTable({ data, counts, onDelete, noDataMessage, onCreateCategory }) {
+function MenuCategoryTable({ 
+  data, 
+  counts, 
+  onDelete, 
+  noDataMessage, 
+  onCreateCategory,
+  onBulkAction,
+  selectedItems,
+  onSelectionChange 
+}) {
   const navigate = useNavigate();
 
   const handleView = (row) => {
@@ -323,6 +375,10 @@ function MenuCategoryTable({ data, counts, onDelete, noDataMessage, onCreateCate
       showBackButton={true}
       onBackClick={() => navigate(-1)}
       backButtonLabel="Back"
+      enableSelection={true}
+      onBulkAction={onBulkAction}
+      onSelectionChange={onSelectionChange}
+      selectedItems={selectedItems}
       createButton={{
         show: true,
         label: "Add Category",
