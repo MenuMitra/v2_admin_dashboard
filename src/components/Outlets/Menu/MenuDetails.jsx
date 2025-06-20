@@ -141,28 +141,38 @@ function MenuDetails() {
 
         {/* Main Content */}
         <div className="px-6 pb-6">
+          {/* Basic Info Section */}
           <div className="mb-6">
             <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2 flex items-center gap-2">
               <FontAwesomeIcon icon={faUtensils} className="w-6 h-6 text-brand-500" />
               {menu.name}
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${menu.food_type === 'veg' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                {menu.food_type?.toUpperCase()}
-              </span>
             </h2>
-            <p className="text-gray-600">{menu.description}</p>
           </div>
 
+          {/* Grid Layout */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-            {/* Images */}
-            <div className="flex flex-col items-center p-3 rounded-lg bg-gray-50">
-              {menu.images && menu.images.length > 0 ? (
-                <img src={menu.images[0].image} alt={menu.name} className="mb-2 w-24 h-24 object-cover rounded-lg border" />
-              ) : (
-                <div className="mb-2 w-24 h-24 flex items-center justify-center rounded-lg bg-gray-200">
-                  <FontAwesomeIcon icon={faUtensils} className="w-8 h-8 text-gray-400" />
+            {/* Menu ID */}
+            <div className="flex items-center p-3 rounded-lg bg-gray-50">
+              <div className="w-8 h-8 flex items-center justify-center">
+                <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
+              </div>
+              <div className="ml-3">
+                <div className="text-base font-medium">#{menu.menu_id}</div>
+                <div className="text-sm text-gray-500">Menu ID</div>
+              </div>
+            </div>
+
+            {/* Add Food Type after Menu ID */}
+            <div className="flex items-center p-3 rounded-lg bg-gray-50">
+              <div className="w-8 h-8 flex items-center justify-center">
+                <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
+              </div>
+              <div className="ml-3">
+                <div className={`text-base font-medium ${menu.food_type === 'veg' ? 'text-green-700' : 'text-red-700'}`}>
+                  {menu.food_type?.toUpperCase()}
                 </div>
-              )}
-              <div className="text-base font-medium text-gray-800">Menu Image</div>
+                <div className="text-sm text-gray-500">Food Type</div>
+              </div>
             </div>
 
             {/* Category */}
@@ -198,6 +208,28 @@ function MenuDetails() {
               </div>
             </div>
 
+            {/* Description */}
+            <div className="flex items-start p-3 rounded-lg bg-gray-50 sm:col-span-2">
+              <div className="w-8 h-8 flex items-center justify-center">
+                <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+              </div>
+              <div className="ml-3">
+                <div className="text-base font-medium break-words">{menu.description}</div>
+                <div className="text-sm text-gray-500">Description</div>
+              </div>
+            </div>
+
+            {/* Ingredients */}
+            <div className="flex items-start p-3 rounded-lg bg-gray-50 sm:col-span-2">
+              <div className="w-8 h-8 flex items-center justify-center">
+                <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+              </div>
+              <div className="ml-3">
+                <div className="text-base font-medium break-words">{menu.ingredients}</div>
+                <div className="text-sm text-gray-500">Ingredients</div>
+              </div>
+            </div>
+
             {/* Status */}
             <div className="flex items-center p-3 rounded-lg bg-gray-50">
               <div className="w-8 h-8 flex items-center justify-center">
@@ -214,44 +246,35 @@ function MenuDetails() {
               </div>
             </div>
 
-            {/* Created On */}
-            <div className="flex items-center p-3 rounded-lg bg-gray-50">
-              <div className="w-8 h-8 flex items-center justify-center">
-                <FontAwesomeIcon icon={faCalendarPlus} className="w-5 h-5 text-gray-400" />
-              </div>
-              <div className="ml-3">
-                <div className="text-base font-medium">{menu.created_on}</div>
-                <div className="text-sm text-gray-500">Created On</div>
-              </div>
-            </div>
-
-            {/* Created By */}
+            {/* Created Info */}
             <div className="flex items-center p-3 rounded-lg bg-gray-50">
               <div className="w-8 h-8 flex items-center justify-center">
                 <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
               </div>
               <div className="ml-3">
                 <div className="text-base font-medium">{menu.created_by}</div>
-                <div className="text-sm text-gray-500">Created By</div>
+                <div className="text-sm text-gray-500">{menu.created_on}</div>
               </div>
             </div>
 
-            {/* Updated On */}
-            <div className="flex items-center p-3 rounded-lg bg-gray-50">
-              <div className="w-8 h-8 flex items-center justify-center">
-                <FontAwesomeIcon icon={faCalendarCheck} className="w-5 h-5 text-gray-400" />
+            {/* Updated Info (if exists) */}
+            {menu.updated_by && (
+              <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium">{menu.updated_by}</div>
+                  <div className="text-sm text-gray-500">{menu.updated_on}</div>
+                </div>
               </div>
-              <div className="ml-3">
-                <div className="text-base font-medium">{menu.updated_on || '-'}</div>
-                <div className="text-sm text-gray-500">Updated On</div>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Portions Section */}
           <div className="mt-6">
             <h3 className="text-lg font-semibold mb-3">Portions</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {menu.portions.map((portion, idx) => (
                 <div key={idx} className="p-3 rounded-lg bg-gray-50">
                   <div className="text-base font-medium text-gray-800">{portion.portion_name}</div>
@@ -263,16 +286,6 @@ function MenuDetails() {
               ))}
             </div>
           </div>
-
-          {/* Ingredients Section */}
-          {menu.ingredients && (
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-3">Ingredients</h3>
-              <div className="p-3 rounded-lg bg-gray-50">
-                <p className="text-gray-700">{menu.ingredients}</p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
