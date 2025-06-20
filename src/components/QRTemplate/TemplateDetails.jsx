@@ -81,11 +81,6 @@ function TemplateDetails() {
         <div className="grid grid-cols-1 gap-3">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Template ID */}
-              <div>
-                <h3 className="text-sm text-gray-500 mb-1">Template ID</h3>
-                <p className="text-sm text-gray-900">{templateData.qr_code_template_id}</p>
-              </div>
 
               {/* Name */}
               <div>
