@@ -163,18 +163,7 @@ function Functionalities() {
 
   // Define columns for DataTable
   const columns = [
-    {
-      field: 'index',
-      header: 'Sr',
-      sortable: true,
-      render: (value, item, index) => {
-        // Ensure index is a number and add 1, fallback to array index if needed
-        const displayIndex = typeof index === 'number' ? 
-          index + 1 : 
-          functionalities.indexOf(item) + 1;
-        return displayIndex;
-      }
-    },
+
     {
       field: 'functionality_name',
       header: 'Functionality Name',
