@@ -121,7 +121,7 @@ function MenuCategoryTable({ data, counts }) {
     navigate(`/category-details/${row.outlet_id}/${row.menu_cat_id}`);
   };
   const handleEdit = (row) => {
-    navigate(`/edit-category/${row.menu_cat_id}`);
+    navigate(`/edit-category/${row.outlet_id}/${row.menu_cat_id}`);
   };
   const handleDelete = (row) => {
     console.log("Delete", row);
