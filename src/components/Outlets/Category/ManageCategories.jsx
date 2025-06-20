@@ -15,6 +15,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from '../../Breadcrumb';
 import DataTable from "../../common/DataTable";
+import Modal from '../../common/Modal';
 
 function ManageCategories() {
   const { getToken } = useAuth();
@@ -23,46 +24,79 @@ function ManageCategories() {
   const [categoryData, setCategoryData] = useState([]);
   const [categoryLoading, setCategoryLoading] = useState(false);
   const [categoryError, setCategoryError] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
+
+  const handleDeleteCategory = async () => {
+    if (!categoryToDelete) return;
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      const token = getToken();
+      await axios.delete('https://men4u.xyz/v2/common/menu_category_delete', {
+        data: {
+          menu_cat_id: categoryToDelete.menu_cat_id,
+          outlet_id: categoryToDelete.outlet_id,
+          user_id: adminData?.user_id,
+          app_source: "admin_dashboard"
+        },
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      });
+      setShowDeleteModal(false);
+      setCategoryToDelete(null);
+      fetchCategoryDetails();
+    } catch (err) {
+      setDeleteError(err.response?.data?.detail || "Failed to delete category");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const fetchCategoryDetails = async () => {
+    setCategoryLoading(true);
+    setCategoryError(null);
+    try {
+      const token = getToken();
+      const response = await axios.post(
+        "https://men4u.xyz/v2/common/menu_category_list",
+        {
+          outlet_id: Number(outletId),
+          user_id: adminData?.user_id,
+          app_source: "admin_dashboard",
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.data.data?.menucat_details) {
+        const filtered = response.data.data.menucat_details.filter(
+          cat => cat.menu_cat_id && cat.category_name && cat.category_name !== 'all'
+        );
+        setCategoryData(filtered);
+      } else {
+        setCategoryData([]);
+        setCategoryError(response.data.msg || "Failed to fetch category details");
+      }
+    } catch (err) {
+      setCategoryError(err.response?.data?.message || "Failed to fetch category details");
+    } finally {
+      setCategoryLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCategoryDetails = async () => {
-      setCategoryLoading(true);
-      setCategoryError(null);
-      try {
-        const token = getToken();
-        const response = await axios.post(
-          "https://men4u.xyz/v2/common/menu_category_list",
-          {
-            outlet_id: Number(outletId),
-            user_id: adminData?.user_id,
-            app_source: "admin_dashboard",
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data.data?.menucat_details) {
-          const filtered = response.data.data.menucat_details.filter(
-            cat => cat.menu_cat_id && cat.category_name && cat.category_name !== 'all'
-          );
-          setCategoryData(filtered);
-        } else {
-          setCategoryData([]);
-          setCategoryError(response.data.msg || "Failed to fetch category details");
-        }
-      } catch (err) {
-        setCategoryError(err.response?.data?.message || "Failed to fetch category details");
-      } finally {
-        setCategoryLoading(false);
-      }
-    };
-
     if (adminData?.user_id && outletId) {
       fetchCategoryDetails();
     }
+    // eslint-disable-next-line
   }, [adminData?.user_id, outletId]);
 
   // Calculate counts for the DataTable header
@@ -86,7 +120,6 @@ function ManageCategories() {
         <Breadcrumb items={breadcrumbItems} />
       </div>
 
-
       {/* Categories Grid */}
       <div className="grid grid-cols-1">
         {categoryLoading ? (
@@ -106,15 +139,66 @@ function ManageCategories() {
             <MenuCategoryTable 
               data={{ menucat_details: categoryData }} 
               counts={counts}
+              onDelete={row => {
+                setCategoryToDelete(row);
+                setShowDeleteModal(true);
+                setDeleteError('');
+              }}
             />
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setCategoryToDelete(null);
+        }}
+        type="error"
+        title="Confirm Deletion"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setCategoryToDelete(null);
+              }}
+              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover hover:text-gray-800 sm:w-auto"
+              disabled={deleting}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteCategory}
+              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+              disabled={deleting}
+            >
+              {deleting ? "Deleting..." : "Delete Category"}
+            </button>
+          </>
+        }
+      >
+        <div className="flex items-start">
+          <div className="ml-4">
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete this category? This action cannot be undone.
+            </p>
+            {deleteError && (
+              <p className="text-sm text-error-500 mt-2">{deleteError}</p>
+            )}
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }
 
-function MenuCategoryTable({ data, counts }) {
+function MenuCategoryTable({ data, counts, onDelete }) {
   const navigate = useNavigate();
 
   const handleView = (row) => {
@@ -124,7 +208,7 @@ function MenuCategoryTable({ data, counts }) {
     navigate(`/edit-category/${row.outlet_id}/${row.menu_cat_id}`);
   };
   const handleDelete = (row) => {
-    console.log("Delete", row);
+    if (onDelete) onDelete(row);
   };
 
   // Define columns for the DataTable
