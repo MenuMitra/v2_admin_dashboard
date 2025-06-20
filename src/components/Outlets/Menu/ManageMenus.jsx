@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
 import DataTable from '../../common/DataTable';
 import Breadcrumb from '../../Breadcrumb';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEye,
+  faPenToSquare,
+  faTrash
+} from "@fortawesome/free-solid-svg-icons";
 
 function ManageMenus() {
   const { outletId } = useParams();
@@ -13,6 +19,7 @@ function ManageMenus() {
   const [menuData, setMenuData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   // Breadcrumb items
   const breadcrumbItems = [
@@ -54,6 +61,18 @@ function ManageMenus() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminData?.user_id, outletId]);
+
+  // Action handlers
+  const handleView = (row) => {
+    navigate(`/menu-details/${row.outlet_id}/${row.menu_id}`);
+  };
+  const handleEdit = (row) => {
+    navigate(`/edit-menu/${row.outlet_id}/${row.menu_id}`);
+  };
+  const handleDelete = (row) => {
+    // You can implement a modal confirmation here, for now just alert
+    alert(`Delete menu: ${row.name}`);
+  };
 
   // Define columns for DataTable
   const columns = [
@@ -124,6 +143,42 @@ function ManageMenus() {
         </div>
       ),
     },
+    {
+      field: 'actions',
+      header: 'Actions',
+      sortable: false,
+      render: (value, row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+            onClick={() => handleView(row)}
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Menu"
+            onClick={() => handleEdit(row)}
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Menu"
+            onClick={() => handleDelete(row)}
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  // Place the actions column at the end
+  const allColumns = [
+    ...columns.slice(0, 8), // your 8 columns
+    columns[8] // actions column
   ];
 
   return (
@@ -140,7 +195,7 @@ function ManageMenus() {
       ) : (
         <DataTable
           data={menuData}
-          columns={columns}
+          columns={allColumns}
           title="Menus"
           enableSort={true}
           enableSearch={true}
