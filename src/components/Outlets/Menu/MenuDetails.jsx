@@ -66,20 +66,22 @@ function MenuDetails() {
   const handleDeleteMenu = async () => {
     try {
       const token = getToken();
-      await axios.delete('https://men4u.xyz/v2/common/delete_menu', {
+      await axios.delete('https://men4u.xyz/v2/common/menu_delete', {
         data: {
           menu_id: Number(menuId),
           outlet_id: Number(outletId),
           user_id: adminData?.user_id,
+          app_source: 'admin_dashboard'
         },
         headers: {
-          Authorization: token,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
       navigate(-1);
-    } catch (error) {
-      setError(error.response?.data?.message || 'Failed to delete menu');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete menu');
+      setShowDeleteModal(false);
     }
   };
 
@@ -309,7 +311,7 @@ function MenuDetails() {
         <div className="flex items-start">
           <div className="ml-4">
             <p className="text-sm text-gray-500">
-              Are you sure you want to delete this menu? This action cannot be undone.
+              Are you sure you want to delete {menu.name}? This action cannot be undone.
             </p>
             <p className="text-sm text-gray-500">
               All data associated with this menu will be permanently removed.

@@ -11,6 +11,7 @@ import {
   faPenToSquare,
   faTrash
 } from "@fortawesome/free-solid-svg-icons";
+import Modal from '../../common/Modal';
 
 function ManageMenus() {
   const { outletId } = useParams();
@@ -20,6 +21,8 @@ function ManageMenus() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedMenu, setSelectedMenu] = useState(null);
 
   // Breadcrumb items
   const breadcrumbItems = [
@@ -70,10 +73,37 @@ function ManageMenus() {
     navigate(`/edit-menu/${row.outlet_id}/${row.menu_id}`);
   };
   const handleDelete = (row) => {
-    alert(`Delete menu: ${row.name}`);
+    setSelectedMenu(row);
+    setShowDeleteModal(true);
   };
   const handleCreateMenu = () => {
     navigate(`/create-menu/${outletId}`);
+  };
+
+  // Add handleDeleteConfirm function
+  const handleDeleteConfirm = async () => {
+    try {
+      const token = getToken();
+      await axios.delete('https://men4u.xyz/v2/common/menu_delete', {
+        data: {
+          outlet_id: Number(outletId),
+          user_id: adminData?.user_id,
+          menu_id: selectedMenu.menu_id,
+          app_source: 'admin_dashboard'
+        },
+        headers: {
+          Authorization: `${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      // Refresh the menu list
+      setMenuData(prevData => prevData.filter(menu => menu.menu_id !== selectedMenu.menu_id));
+      setShowDeleteModal(false);
+      setSelectedMenu(null);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete menu');
+    }
   };
 
   // Define columns for DataTable
@@ -196,6 +226,50 @@ function ManageMenus() {
           }}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setSelectedMenu(null);
+        }}
+        type="error"
+        title="Confirm Deletion"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setSelectedMenu(null);
+              }}
+              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover hover:text-gray-800 sm:w-auto"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteConfirm}
+              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+            >
+              Delete Menu
+            </button>
+          </>
+        }
+      >
+        <div className="flex items-start">
+          <div className="ml-4">
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete {selectedMenu?.name}? This action cannot be undone.
+            </p>
+            <p className="text-sm text-gray-500">
+              All data associated with this menu will be permanently removed.
+            </p>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
