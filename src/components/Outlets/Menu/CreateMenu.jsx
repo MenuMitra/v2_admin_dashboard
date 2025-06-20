@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
@@ -18,6 +18,9 @@ function CreateMenu() {
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const navigate = useNavigate();
+
+  // Add state for menu categories
+  const [categories, setCategories] = useState([]);
 
   // Form state
   const [name, setName] = useState('');
@@ -40,12 +43,44 @@ function CreateMenu() {
   // Ref for form submission from Save button
   const formRef = React.useRef();
 
-  // Hardcoded category options for now
-  const categoryOptions = [
-    { value: '20', label: 'Rice' },
-    { value: '21', label: 'Snacks' },
-    { value: '22', label: 'South Indian' }
-  ];
+  // Update useEffect to handle new response format
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const token = getToken();
+        const response = await axios.post(
+          'https://men4u.xyz/v2/common/menu_category_list',
+          {
+            outlet_id: outletId,
+            user_id: adminData?.user_id,
+            app_source: 'admin_dashboard'
+          },
+          {
+            headers: {
+              Authorization: token
+            }
+          }
+        );
+        
+        // Get categories from the new response format
+        const validCategories = response.data.data.menucat_details.filter(
+          cat => cat.menu_cat_id !== null
+        );
+        setCategories(validCategories);
+        
+        // Set default category if available
+        if (validCategories.length > 0) {
+          setMenuCatId(validCategories[0].menu_cat_id.toString());
+        }
+      } catch (err) {
+        setError('Failed to load menu categories');
+      }
+    };
+
+    if (outletId && adminData?.user_id) {
+      fetchCategories();
+    }
+  }, [outletId, adminData?.user_id, getToken]);
 
   // Portion handlers
   const handlePortionChange = (idx, field, value) => {
@@ -188,7 +223,10 @@ function CreateMenu() {
                 required
                 value={menuCatId}
                 onChange={e => setMenuCatId(e.target.value)}
-                options={categoryOptions}
+                options={categories.map(cat => ({
+                  value: cat.menu_cat_id.toString(),
+                  label: cat.category_name
+                }))}
               />
               <SelectInput
                 label="Food Type"
