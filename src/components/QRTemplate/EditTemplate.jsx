@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faImage, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft as faBack, faImage, faSave } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import DataTable from '../common/DataTable';
+import Breadcrumb from '../Breadcrumb';
 
 function EditTemplate() {
   const navigate = useNavigate();
@@ -19,6 +20,13 @@ function EditTemplate() {
     image_name: '',
     qr_code_template_id: null
   });
+
+  // Add breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'QR Templates', path: '/qr-templates' },
+    { label: 'Edit Template' }
+  ];
 
   // Fetch template details on component mount
   useEffect(() => {
@@ -277,6 +285,11 @@ function EditTemplate() {
 
   return (
     <>
+      {/* Breadcrumb */}
+      <div className="mb-6">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+
       {/* Main Container */}
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="overflow-hidden pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -288,7 +301,7 @@ function EditTemplate() {
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+                <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
