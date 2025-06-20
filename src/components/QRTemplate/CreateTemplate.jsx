@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft as faBack, faSave } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import { TextInput, FileInput } from '../forms/FormElements';
+import Breadcrumb from '../Breadcrumb';
 
 function CreateTemplate() {
   const navigate = useNavigate();
@@ -16,6 +17,13 @@ function CreateTemplate() {
     qrPosition: 'centre',
     image: null
   });
+
+  // Add breadcrumb items
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'QR Templates', path: '/qr-templates' },
+    { label: 'Create Template' }
+  ];
 
   // Handle file input change
   const handleFileChange = (event) => {
@@ -73,138 +81,139 @@ function CreateTemplate() {
   }
 
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700"
-          >
-            <FontAwesomeIcon icon={faChevronLeft} className="h-4 w-4" />
-            <span>Back</span>
-          </button>
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Create Template</h1>
-        </div>
+    <>
+      {/* Breadcrumb */}
+      <div className="mb-6">
+        <Breadcrumb items={breadcrumbItems} />
       </div>
 
-      {/* Form Content */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="max-w-5xl">
-          <div className="grid grid-cols-2 gap-8">
-            {/* Left Column */}
-            <div>
-              <TextInput
-                label="Name"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                placeholder="e.g., Classic, Modern, Elegant"
-              />
+      {/* Main Card */}
+      <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between">
+            {/* Back Button */}
+            <button 
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
+            >
+              <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
+              <span>Back</span>
+            </button>
 
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                  QR Code Position <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <div 
-                    className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
-                      formData.qrPosition === 'centre' 
-                        ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                    }`}
-                    onClick={() => setFormData(prev => ({ ...prev, qrPosition: 'centre' }))}
-                  >
-                    <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
-                      formData.qrPosition === 'centre' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
-                    }`}>
-                      <div className={`w-6 h-6 rounded ${
-                        formData.qrPosition === 'centre' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
-                      }`}></div>
+            {/* Title - Centered between buttons */}
+            <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              Create Template
+            </h1>
+
+            {/* Save Button */}
+            <button
+              onClick={handleSubmit}
+              disabled={isLoading || !formData.name || !formData.image}
+              className={`
+                inline-flex items-center gap-2 px-4 py-2 
+                text-sm font-medium text-white rounded-full
+                bg-success-500 hover:bg-success-600 
+                transition shadow-sm
+                ${isLoading || !formData.name || !formData.image ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+            >
+              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+              <span>{isLoading ? 'Creating...' : 'Create'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Form Content */}
+        <div className="p-6">
+          <div className="max-w-5xl">
+            <div className="grid grid-cols-2 gap-8">
+              {/* Left Column */}
+              <div>
+                <TextInput
+                  label="Name"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="e.g., Classic, Modern, Elegant"
+                />
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                    QR Code Position <span className="text-red-500">*</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div 
+                      className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
+                        formData.qrPosition === 'centre' 
+                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      }`}
+                      onClick={() => setFormData(prev => ({ ...prev, qrPosition: 'centre' }))}
+                    >
+                      <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
+                        formData.qrPosition === 'centre' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
+                      }`}>
+                        <div className={`w-6 h-6 rounded ${
+                          formData.qrPosition === 'centre' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
+                        }`}></div>
+                      </div>
+                      <span className={`text-sm ${
+                        formData.qrPosition === 'centre' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
+                      }`}>Centre</span>
                     </div>
-                    <span className={`text-sm ${
-                      formData.qrPosition === 'centre' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
-                    }`}>Centre</span>
-                  </div>
-                  <div 
-                    className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
-                      formData.qrPosition === 'top' 
-                        ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                    }`}
-                    onClick={() => setFormData(prev => ({ ...prev, qrPosition: 'top' }))}
-                  >
-                    <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
-                      formData.qrPosition === 'top' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
-                    }`}>
-                      <div className={`w-6 h-6 rounded ${
-                        formData.qrPosition === 'top' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
-                      }`}></div>
+                    <div 
+                      className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
+                        formData.qrPosition === 'top' 
+                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      }`}
+                      onClick={() => setFormData(prev => ({ ...prev, qrPosition: 'top' }))}
+                    >
+                      <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
+                        formData.qrPosition === 'top' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
+                      }`}>
+                        <div className={`w-6 h-6 rounded ${
+                          formData.qrPosition === 'top' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
+                        }`}></div>
+                      </div>
+                      <span className={`text-sm ${
+                        formData.qrPosition === 'top' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
+                      }`}>Top</span>
                     </div>
-                    <span className={`text-sm ${
-                      formData.qrPosition === 'top' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
-                    }`}>Top</span>
                   </div>
                 </div>
               </div>
+
+              {/* Right Column */}
+              <div>
+                <FileInput
+                  label="Template Image"
+                  required
+                  accept="image/png,image/jpeg,image/jpg"
+                  onChange={handleFileChange}
+                />
+                {formData.image && (
+                  <div className="mt-4 flex flex-col items-center">
+                    <img 
+                      src={URL.createObjectURL(formData.image)} 
+                      alt="Preview" 
+                      className="w-32 h-32 object-cover mb-4 rounded-lg"
+                    />
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{formData.image.name}</p>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Right Column */}
-            <div>
-              <FileInput
-                label="Template Image"
-                required
-                accept="image/png,image/jpeg,image/jpg"
-                onChange={handleFileChange}
-              />
-              {formData.image && (
-                <div className="mt-4 flex flex-col items-center">
-                  <img 
-                    src={URL.createObjectURL(formData.image)} 
-                    alt="Preview" 
-                    className="w-32 h-32 object-cover mb-4 rounded-lg"
-                  />
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{formData.image.name}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mt-4 text-error-500 text-sm">{error}</div>
-          )}
-
-          {/* Buttons */}
-          <div className="flex items-center justify-end gap-3 mt-8">
-            <button 
-              onClick={() => navigate('/qr-templates')}
-              className="px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full hover:bg-gray-50 dark:hover:bg-gray-700"
-              disabled={isLoading}
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={handleSubmit}
-              disabled={isLoading || !formData.name || !formData.image}
-              className="inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50"
-            >
-              {isLoading ? (
-                <>
-                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>Creating...</span>
-                </>
-              ) : (
-                'Create'
-              )}
-            </button>
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 text-error-500 text-sm">{error}</div>
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
