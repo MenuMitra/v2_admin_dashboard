@@ -11,6 +11,7 @@ import {
   faCalendarPlus,
   faCalendarCheck,
   faUser,
+  faChevronLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../../common/Modal';
 
@@ -94,7 +95,7 @@ function CategoryDetails() {
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover shadow-theme-xs"
             >
-              <FontAwesomeIcon icon={faUtensils} className="w-4 h-4" />
+              <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
               <span className="hidden sm:inline">Back</span>
             </button>
           </div>
