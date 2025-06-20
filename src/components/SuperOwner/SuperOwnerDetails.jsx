@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 import Breadcrumb from '../Breadcrumb';
@@ -204,9 +204,15 @@ function SuperOwnerDetails() {
             <h3 className="text-sm font-semibold mb-2">Assigned Outlets ({totalOutlets})</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {assignedOutlets.map((outlet) => (
-                <div key={outlet.outlet_id} className="p-4">
-                  <h4 className="text-sm font-medium mb-1">{outlet.outlet_name}</h4>
-                </div>
+                <Link
+                  key={outlet.outlet_id}
+                  to={`/view-outlet/${outlet.outlet_id}`}
+                  className="p-4 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors duration-200 cursor-pointer"
+                >
+                  <h4 className="text-sm font-medium mb-1 text-gray-800 hover:text-brand-600">
+                    {outlet.outlet_name}
+                  </h4>
+                </Link>
               ))}
             </div>
           </div>

@@ -144,7 +144,7 @@ function ViewOutlet() {
             {/* Left Side - Back Button */}
             <div>
               <button
-                onClick={() => navigate("/outlets")}
+                onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
                 <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
