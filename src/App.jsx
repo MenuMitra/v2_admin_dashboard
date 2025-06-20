@@ -44,6 +44,7 @@ import EditCategory from './components/Outlets/Category/EditCategory';
 import MenuDetails from './components/Outlets/Menu/MenuDetails';
 import EditMenu from './components/Outlets/Menu/EditMenu';
 import CreateCategory from './components/Outlets/Category/CreateCategory';
+import CreateMenu from './components/Outlets/Menu/CreateMenu';
 
 
 function App() {
@@ -72,8 +73,9 @@ function App() {
           <Route path="/create-category/:outletId/" element={<CreateCategory />} />
           <Route path="/edit-category/:outletId/:menuCategoryId" element={<EditCategory />} />
           <Route path="/menus/:outletId" element={<ManageMenus />} />
-          <Route path="/menu-details/:menuId" element={<MenuDetails />} />
-          <Route path="/edit-menu/:menuId" element={<EditMenu />} />
+          <Route path="/menu-details/:outletId/:menuId" element={<MenuDetails />} />
+          <Route path="/create-menu/:outletId" element={<CreateMenu />} />
+          <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} />
 
           {/* Owner Routes */}
           <Route path="/owners" element={<Owners />} />

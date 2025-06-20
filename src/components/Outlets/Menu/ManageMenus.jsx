@@ -62,7 +62,7 @@ function ManageMenus() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminData?.user_id, outletId]);
 
-  // Action handlers
+  // Action handlers with correct dynamic routes
   const handleView = (row) => {
     navigate(`/menu-details/${row.outlet_id}/${row.menu_id}`);
   };
@@ -70,8 +70,10 @@ function ManageMenus() {
     navigate(`/edit-menu/${row.outlet_id}/${row.menu_id}`);
   };
   const handleDelete = (row) => {
-    // You can implement a modal confirmation here, for now just alert
     alert(`Delete menu: ${row.name}`);
+  };
+  const handleCreateMenu = () => {
+    navigate(`/create-menu/${outletId}`);
   };
 
   // Define columns for DataTable
@@ -202,6 +204,13 @@ function ManageMenus() {
           enablePagination={true}
           searchPlaceholder="Search menus..."
           noDataMessage="No menus found."
+          createButton={{
+            show: true,
+            label: "Add Menu",
+            position: "right",
+            className: "bg-brand-500 hover:bg-brand-600",
+            onClick: handleCreateMenu,
+          }}
         />
       )}
     </div>
