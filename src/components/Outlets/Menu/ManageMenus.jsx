@@ -35,34 +35,45 @@ function ManageMenus() {
     { label: 'Menus' }
   ];
 
-  useEffect(() => {
-    const fetchMenus = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const token = getToken();
-        const response = await axios.post(
-          'https://men4u.xyz/v2/common/menu_list',
-          {
-            outlet_id: outletId,
-            user_id: adminData?.user_id,
-            app_source: 'admin_dashboard',
-          },
-          {
-            headers: {
-              Authorization: token,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        setMenuData(response.data.detail || []);
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch menu list');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Add this normalization function near the top of ManageMenus component
+  const normaliseData = (menus) =>
+    menus.map((menu) => ({
+      ...menu,
+      user_id: menu.menu_id,   // Add user_id for DataTable selection
+    }));
 
+  // Move fetchMenus outside of useEffect
+  const fetchMenus = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const token = getToken();
+      const response = await axios.post(
+        'https://men4u.xyz/v2/common/menu_list',
+        {
+          outlet_id: outletId,
+          user_id: adminData?.user_id,
+          app_source: 'admin_dashboard',
+        },
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      // Normalize data before setting state
+      const menuList = response.data.detail || [];
+      setMenuData(normaliseData(menuList));
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch menu list');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update useEffect to use the moved fetchMenus function
+  useEffect(() => {
     if (adminData?.user_id && outletId) {
       fetchMenus();
     }
@@ -101,19 +112,22 @@ function ManageMenus() {
         },
       });
 
-      // Refresh the menu list
-      setMenuData(prevData => prevData.filter(menu => menu.menu_id !== selectedMenu.menu_id));
       setShowDeleteModal(false);
       setSelectedMenu(null);
+      await fetchMenus(); // Immediately fetch updated data
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete menu');
     }
   };
 
-  // Add bulk action handler
+  // Update the handleBulkAction function to use the normalized IDs
   const handleBulkAction = async (action, selectedIds) => {
     try {
       const token = getToken();
+      const selectedMenuIds = menuData
+        .filter(menu => selectedIds.includes(menu.user_id))
+        .map(menu => menu.menu_id);
+
       const response = await axios.post(
         'https://men4u.xyz/v2/common/bulk_menu_action',
         {
@@ -121,7 +135,7 @@ function ManageMenus() {
           outlet_id: Number(outletId),
           action: action,
           app_source: "admin_dashboard",
-          menu_ids: selectedIds
+          menu_ids: selectedMenuIds
         },
         {
           headers: {
@@ -131,11 +145,9 @@ function ManageMenus() {
         }
       );
 
-      // If successful, clear selection and refresh data
       if (response.status === 200) {
-        setSelectedItems([]);
-        // Refresh the menu list
-        fetchMenus();
+        setSelectedItems([]); // Clear selections
+        await fetchMenus(); // Immediately fetch updated data
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to perform bulk action');
