@@ -30,7 +30,6 @@ function CreateMenu() {
   const [spicyIndex, setSpicyIndex] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [offer, setOffer] = useState('');
-  const [rating, setRating] = useState('');
   const [portionData, setPortionData] = useState([
     { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
   ]);
@@ -48,6 +47,15 @@ function CreateMenu() {
 
   // Add state for spicy index options
   const [spicyIndexOptions, setSpicyIndexOptions] = useState([]);
+
+  // Add unit type options
+  const unitTypeOptions = [
+    { value: 'gm', label: 'Gram (gm)' },
+    { value: 'kg', label: 'Kilogram (kg)' },
+    { value: 'ml', label: 'Milliliter (ml)' },
+    { value: 'ltr', label: 'Liter (ltr)' },
+    { value: 'pcs', label: 'Pieces (pcs)' }
+  ];
 
   // Update useEffect to remove default category selection
   useEffect(() => {
@@ -169,25 +177,46 @@ function CreateMenu() {
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate required fields
+    if (!name || !menuCatId || !foodType || !portionData[0].portion_name || !portionData[0].price) {
+      setError('Please fill in all required fields');
+      return;
+    }
+
     setLoading(true);
     setError('');
     setSuccessMsg('');
+
     try {
       const token = getToken();
       const formData = new FormData();
+
+      // Append all fields with correct types
       formData.append('outlet_id', outletId);
       formData.append('menu_cat_id', menuCatId);
       formData.append('user_id', adminData?.user_id);
-      formData.append('name', name);
+      formData.append('name', name.trim());
       formData.append('food_type', foodType);
-      formData.append('description', description);
+      formData.append('description', description.trim());
       formData.append('spicy_index', spicyIndex);
-      formData.append('ingredients', ingredients);
-      formData.append('offer', offer);
-      formData.append('rating', rating);
+      formData.append('ingredients', ingredients.trim());
+      formData.append('offer', offer || '0'); // Default to 0 if empty
       formData.append('app_source', 'admin_dashboard');
-      formData.append('portion_data', JSON.stringify(portionData));
-      images.forEach((img, idx) => {
+
+      // Ensure portion data has correct structure
+      const validPortionData = portionData.map((portion, index) => ({
+        portion_name: portion.portion_name.trim(),
+        price: parseInt(portion.price, 10),
+        unit_value: portion.unit_value.trim(),
+        unit_type: portion.unit_type.trim(),
+        flag: index === 0 ? 1 : 0 // First portion gets flag 1, others 0
+      }));
+
+      formData.append('portion_data', JSON.stringify(validPortionData));
+
+      // Append images if any
+      images.forEach((img) => {
         formData.append('images', img);
       });
 
@@ -201,6 +230,7 @@ function CreateMenu() {
           },
         }
       );
+
       setSuccessMsg(response.data.detail || 'Menu created successfully');
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
@@ -310,16 +340,6 @@ function CreateMenu() {
                 max="100"
               />
               <TextInput
-                label="Rating"
-                value={rating}
-                onChange={e => setRating(e.target.value)}
-                placeholder="e.g. 4.5"
-                type="number"
-                min="0"
-                max="5"
-                step="0.1"
-              />
-              <TextInput
                 label="Ingredients"
                 value={ingredients}
                 onChange={e => setIngredients(e.target.value)}
@@ -340,49 +360,61 @@ function CreateMenu() {
                 Portions
               </label>
               {portionData.map((portion, idx) => (
-                <div key={idx} className="flex gap-2 mb-2 items-center">
-                  <TextInput
-                    placeholder="Portion Name"
-                    value={portion.portion_name}
-                    onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
-                    className="w-32"
-                  />
-                  <TextInput
-                    placeholder="Price"
-                    type="number"
-                    value={portion.price}
-                    onChange={e => handlePortionChange(idx, 'price', e.target.value)}
-                    className="w-24"
-                  />
-                  <TextInput
-                    placeholder="Unit Value"
-                    value={portion.unit_value}
-                    onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
-                    className="w-24"
-                  />
-                  <TextInput
-                    placeholder="Unit Type"
-                    value={portion.unit_type}
-                    onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
-                    className="w-20"
-                  />
-                  <button
-                    type="button"
-                    className="text-error-500 hover:text-error-700"
-                    onClick={() => removePortion(idx)}
-                    disabled={portionData.length === 1}
-                  >
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
+                <div key={idx} className="mb-4 flex items-start gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1">
+                    <TextInput
+                      placeholder="Portion Name"
+                      value={portion.portion_name}
+                      onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
+                      required={idx === 0}
+                      label={idx === 0 ? "Portion Name" : ""}
+                    />
+                    <TextInput
+                      placeholder="Price"
+                      type="number"
+                      value={portion.price}
+                      onChange={e => handlePortionChange(idx, 'price', e.target.value)}
+                      required={idx === 0}
+                      min="0"
+                      label={idx === 0 ? "Price" : ""}
+                    />
+                    <TextInput
+                      placeholder="Unit Value"
+                      type="number"
+                      value={portion.unit_value}
+                      onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
+                      required={idx === 0}
+                      min="0"
+                      label={idx === 0 ? "Unit Value" : ""}
+                    />
+                    <SelectInput
+                      value={portion.unit_type}
+                      onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
+                      options={unitTypeOptions}
+                      placeholder="Select Unit"
+                      required={idx === 0}
+                      label={idx === 0 ? "Unit Type" : ""}
+                    />
+                  </div>
+                  <div className={`pt-${idx === 0 ? '8' : '2'}`}>
+                    <button
+                      type="button"
+                      className="text-error-500 hover:text-error-700 p-2 rounded-full hover:bg-error-50"
+                      onClick={() => removePortion(idx)}
+                      disabled={portionData.length === 1}
+                    >
+                      <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
               <button
                 type="button"
-                className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-full mt-2"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-full mt-2 shadow-sm"
                 onClick={addPortion}
               >
-                <FontAwesomeIcon icon={faPlus} />
-                Add Portion
+                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                <span>Add Portion</span>
               </button>
             </div>
             {/* Images */}
