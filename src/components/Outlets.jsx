@@ -517,7 +517,7 @@ function Outlets() {
   const columns = [
     {
       field: "name",
-      header: "Outlet Name",
+      header: "Name",
       sortable: true,
       render: (value, row) => (
         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -527,7 +527,7 @@ function Outlets() {
     },
     {
       field: "code",
-      header: "Outlet Code",
+      header: "Code",
       sortable: true,
       render: (value) => (
         <p className="text-gray-500 text-theme-sm dark:text-gray-400">
