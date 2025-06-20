@@ -216,39 +216,36 @@ function Roles() {
         size="small"
       >
         <div className="w-full">
-          <div className="mb-4">
-            <label htmlFor="roleName" className="block text-sm font-medium text-gray-700 mb-2">
-              Role Name
+          <div className="mb-6">
+            <label 
+              htmlFor="roleName" 
+              className="block text-sm font-medium text-left text-gray-700 mb-2"
+            >
+              Role Name <span className="text-error-500">*</span>
             </label>
             <input
               type="text"
               id="roleName"
               value={newRoleName}
               onChange={(e) => setNewRoleName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-success-500 focus:border-success-500 text-gray-900"
               placeholder="Enter role name"
             />
           </div>
-          <div className="flex justify-end gap-3">
-            <button
-              onClick={() => {
-                setIsModalOpen(false);
-                setNewRoleName('');
-              }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Cancel
-            </button>
+
+          <div className="flex justify-end items-center gap-3">
+            
             <button
               onClick={handleCreateRole}
               disabled={!newRoleName.trim() || isSubmitting}
-              className={`px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg ${
-                !newRoleName.trim() || isSubmitting
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:bg-blue-700'
-              }`}
+              className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
+                ${!newRoleName.trim() || isSubmitting
+                  ? 'bg-success-500 cursor-not-allowed'
+                  : 'bg-success-600 hover:bg-success-600'
+                }`}
             >
-              {isSubmitting ? 'Creating...' : 'Create Role'}
+              <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+              {isSubmitting ? 'Creating...' : 'Create'}
             </button>
           </div>
         </div>
