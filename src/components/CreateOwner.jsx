@@ -12,6 +12,7 @@ import {
   Checkbox,
   labelStyles
 } from './forms/FormElements.jsx';
+import Breadcrumb from './Breadcrumb';
 
 function CreateOwner() {
   const navigate = useNavigate();
@@ -30,6 +31,13 @@ function CreateOwner() {
     address: '',
     functionality_ids: []
   });
+
+  // Add Breadcrumb configuration
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Owners', path: '/owners' },
+    { label: 'Create Owner', path: '/create-owner' }
+  ];
 
   useEffect(() => {
     fetchFunctionalities();
@@ -115,7 +123,10 @@ function CreateOwner() {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-6">
+      {/* Add Breadcrumb here */}
+      <Breadcrumb items={breadcrumbItems} />
+
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
