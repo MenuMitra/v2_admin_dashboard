@@ -5,7 +5,12 @@ import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
+import { 
+  faCircleCheck, 
+  faCircleXmark,
+  faChevronLeft as faBack,
+  faPenToSquare
+} from "@fortawesome/free-solid-svg-icons";
 
 function PartnerDetails() { 
   const { partnerId } = useParams();
@@ -94,6 +99,7 @@ function PartnerDetails() {
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
+                <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
@@ -109,6 +115,7 @@ function PartnerDetails() {
                 onClick={() => navigate(`/edit-partner/${partnerId}`)}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
               >
+                <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit</span>
               </button>
             </div>
