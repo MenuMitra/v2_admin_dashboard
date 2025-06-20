@@ -25,7 +25,7 @@ function CreateMenu() {
   // Form state
   const [name, setName] = useState('');
   const [menuCatId, setMenuCatId] = useState('');
-  const [foodType, setFoodType] = useState('veg');
+  const [foodType, setFoodType] = useState('');
   const [description, setDescription] = useState('');
   const [spicyIndex, setSpicyIndex] = useState('');
   const [ingredients, setIngredients] = useState('');
@@ -42,6 +42,9 @@ function CreateMenu() {
 
   // Ref for form submission from Save button
   const formRef = React.useRef();
+
+  // Add state for food types
+  const [foodTypes, setFoodTypes] = useState([]);
 
   // Update useEffect to remove default category selection
   useEffect(() => {
@@ -76,6 +79,35 @@ function CreateMenu() {
       fetchCategories();
     }
   }, [outletId, adminData?.user_id]);
+
+  // Add new useEffect for fetching food types
+  useEffect(() => {
+    const fetchFoodTypes = async () => {
+      try {
+        const token = getToken();
+        const response = await axios.get(
+          'https://men4u.xyz/v2/common/get_food_type_list',
+          {
+            headers: {
+              Authorization: token
+            }
+          }
+        );
+        
+        // Convert the food_type_list object to array of options
+        const types = Object.entries(response.data.food_type_list).map(([value, label]) => ({
+          value,
+          label: label.charAt(0).toUpperCase() + label.slice(1) // Capitalize first letter
+        }));
+        
+        setFoodTypes(types);
+      } catch (err) {
+        setError('Failed to load food types');
+      }
+    };
+
+    fetchFoodTypes();
+  }, []); // Empty dependency array as this only needs to run once
 
   // Portion handlers
   const handlePortionChange = (idx, field, value) => {
@@ -228,10 +260,7 @@ function CreateMenu() {
                 required
                 value={foodType}
                 onChange={e => setFoodType(e.target.value)}
-                options={[
-                  { value: 'veg', label: 'Veg' },
-                  { value: 'nonveg', label: 'Non-Veg' }
-                ]}
+                options={foodTypes}
               />
               <TextInput
                 label="Spicy Index"
