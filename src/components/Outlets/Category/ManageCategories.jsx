@@ -12,7 +12,9 @@ import {
   faEye,
   faPenToSquare,
   faTrash,
-  faArrowLeft
+  faArrowLeft,
+  faCircleCheck,
+  faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from '../../Breadcrumb';
 import DataTable from "../../common/DataTable";
@@ -258,9 +260,21 @@ function MenuCategoryTable({ data, counts, onDelete, noDataMessage, onCreateCate
       header: 'Status',
       sortable: true,
       render: (value) => (
-        <span className={`inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-sm font-medium ${value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-          {value ? 'Active' : 'Inactive'}
-        </span>
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value === 1 ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value === 1 ? "text-success-500" : "text-error-500"
+            }`}
+          />
+          <span
+            className={`text-base font-medium ${
+              value === 1 ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {value === 1 ? "Active" : "Inactive"}
+          </span>
+        </div>
       ),
     },
     {
