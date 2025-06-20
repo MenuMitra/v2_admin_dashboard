@@ -29,53 +29,6 @@ import Breadcrumb from './Breadcrumb';
 import DataTable from './common/DataTable';
 import Modal from './common/Modal';
 
-const transactionsData = [
-  {
-    id: 1,
-    name: "Bought PYPL",
-    image: brand08,
-    date: "Nov 23, 01:00 PM",
-    price: "$2,567.88",
-    category: "Finance",
-    status: "success",
-  },
-  {
-    id: 2,
-    name: "Bought AAPL",
-    image: brand07,
-    date: "Nov 22, 09:00 PM",
-    price: "$2,567.88",
-    category: "Technology",
-    status: "pending",
-  },
-  {
-    id: 3,
-    name: "Sell KKST",
-    image: brand15,
-    date: "Oct 12, 03:54 PM",
-    price: "$6,754.99",
-    category: "Finance",
-    status: "success",
-  },
-  {
-    id: 4,
-    name: "Bought FB",
-    image: brand02,
-    date: "Sep 09, 02:00 AM",
-    price: "$1,445.41",
-    category: "Social media",
-    status: "success",
-  },
-  {
-    id: 5,
-    name: "Sell AMZN",
-    image: brand10,
-    date: "Feb 35, 08:00 PM",
-    price: "$5,698.55",
-    category: "E-commerce",
-    status: "failed",
-  },
-];
 
 const SearchIcon = () => (
   <svg
@@ -829,60 +782,50 @@ function Outlets() {
       </Modal>
 
       {/* Delete Modal - Keep existing implementation */}
-      {showDeleteModal && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 backdrop-blur-sm"
-            onClick={() => setShowDeleteModal(false)}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setOutletToDelete(null);
+        }}
+        title="Confirm Deletion"
+        type="error"
+        size="small"
+        customIcon={
+          <FontAwesomeIcon
+            icon={faTrash}
+            className="h-6 w-6 text-error-500"
           />
-
-          {/* Modal Container */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* Modal Content */}
-            <div className="relative w-[400px] rounded-lg bg-white shadow-xl mx-4">
-              <div className="p-6">
-                {/* Header with Warning Icon */}
-                <div className="flex flex-col items-center text-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-error-100 mb-4">
-                    <svg className="h-6 w-6 text-error-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                    </svg>
-                  </div>
-
-                  {/* Content */}
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      Confirm Deletion
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Are you sure you want to delete outlet "{outletToDelete?.name}"? This action cannot be undone. All data associated with this outlet will be permanently removed.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Buttons */}
-                <div className="mt-6 flex justify-center gap-3">
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none min-w-[100px]"
-                    onClick={() => setShowDeleteModal(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    className="px-4 py-2 text-sm font-medium text-white bg-error-500 rounded-md hover:bg-error-700 focus:outline-none min-w-[100px]"
-                    onClick={handleDeleteOutlet}
-                  >
-                    Delete Outlet
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+        }
+        actionButtons={
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setOutletToDelete(null);
+              }}
+              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteOutlet}
+              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
+            >
+              Delete Outlet
+            </button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Are you sure you want to delete outlet "{outletToDelete?.name}"? This action
+          cannot be undone. 
+          <br/>
+          All data associated with this outlet will be permanently removed.
+        </p>
+      </Modal>
     </>
   );
 }
