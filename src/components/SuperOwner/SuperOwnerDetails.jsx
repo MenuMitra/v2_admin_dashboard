@@ -199,8 +199,34 @@ function SuperOwnerDetails() {
             </div>
           </div>
 
+          {/* Assigned Outlets Section */}
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold mb-2">Assigned Outlets ({totalOutlets})</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {assignedOutlets.map((outlet) => (
+                <div key={outlet.outlet_id} className="p-4">
+                  <h4 className="text-sm font-medium mb-1">{outlet.outlet_name}</h4>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Assigned Functionalities Section */}
+          <div>
+            <h3 className="text-sm font-semibold mb-4">Assigned Functionalities ({totalFunctionalities})</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {assignedFunctionalities.map((func) => (
+                <div key={func.functionality_id} className="p-4">
+                  <p className="text-sm font-medium mb-1">{func.functionality_name}</p>
+                  <p className="text-sm text-gray-500">Functionality</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+
           {/* Status Information Section */}
-          <div className="mb-8">
+          <div className="mt-8">
             <h3 className="text-sm font-semibold mb-4">Status Information</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <div className="p-4">
@@ -229,44 +255,6 @@ function SuperOwnerDetails() {
                 <p className="text-sm font-medium text-gray-800 mb-1">{superOwnerData.updated_on}</p>
                 <p className="text-sm text-gray-500">Last Updated</p>
               </div>
-            </div>
-          </div>
-
-          {/* Assigned Outlets Section */}
-          <div className="mb-8">
-            <h3 className="text-sm font-semibold mb-4">Assigned Outlets ({totalOutlets})</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {assignedOutlets.map((outlet) => (
-                <div key={outlet.outlet_id} className="p-4">
-                  <h4 className="text-sm font-medium mb-1">{outlet.outlet_name}</h4>
-                  <p className="text-sm text-gray-500 mb-2">{outlet.address}</p>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      outlet.outlet_status ? 'bg-success-100 text-success-600' : 'bg-error-100 text-error-500'
-                    }`}>
-                      {outlet.outlet_status ? 'Active' : 'Inactive'}
-                    </span>
-                    <span className={`px-2 py-1 rounded-full text-xs ${
-                      outlet.is_open ? 'bg-success-100 text-success-600' : 'bg-error-100 text-error-500'
-                    }`}>
-                      {outlet.is_open ? 'Open' : 'Closed'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Assigned Functionalities Section */}
-          <div>
-            <h3 className="text-sm font-semibold mb-4">Assigned Functionalities ({totalFunctionalities})</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {assignedFunctionalities.map((func) => (
-                <div key={func.functionality_id} className="p-4">
-                  <p className="text-sm font-medium mb-1">{func.functionality_name}</p>
-                  <p className="text-sm text-gray-500">Functionality</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
