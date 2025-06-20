@@ -60,6 +60,9 @@ function DataTable({
   enableSelection = false,
   onSelectionChange = () => {},
   onBulkAction = () => {},
+  enableStatusFilter = true,
+  onStatusFilterChange = () => {},
+  statusFilter = 'all',
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -119,6 +122,15 @@ function DataTable({
   // Data Processing
   const getSortedAndFilteredData = () => {
     let processedData = [...data];
+
+    // Apply status filter if enabled
+    if (enableStatusFilter && statusFilter !== 'all') {
+      processedData = processedData.filter((item) => {
+        if (statusFilter === 'active') return item.is_active === true;
+        if (statusFilter === 'inactive') return item.is_active === false;
+        return true;
+      });
+    }
 
     // Apply search if enabled
     if (enableSearch && searchTerm) {
@@ -404,6 +416,21 @@ function DataTable({
                       </span>
                     )}
                   </div>
+                </div>
+              )}
+
+              {/* Add Status Filter Dropdown */}
+              {enableStatusFilter && (
+                <div className="relative">
+                  <select
+                    className="w-32 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 dark:text-gray-400 dark:border-gray-800 dark:bg-white/[0.03]"
+                    value={statusFilter}
+                    onChange={(e) => onStatusFilterChange(e.target.value)}
+                  >
+                    <option value="all">All</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
                 </div>
               )}
 
