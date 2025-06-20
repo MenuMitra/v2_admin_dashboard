@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft as faBack, faSearch, faEye } from "@fortawesome/free-solid-svg-icons";
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import { SelectInput, TextInput } from '../forms/FormElements';
@@ -114,12 +114,12 @@ const Search = () => {
 
   // Define columns for DataTable
   const columns = [
-    { field: 'name', header: 'NAME', sortable: true },
-    { field: 'mobile', header: 'MOBILE', sortable: true },
-    { field: 'email', header: 'EMAIL', sortable: true },
+    { field: 'name', header: 'Name', sortable: true },
+    { field: 'mobile', header: 'Mobile', sortable: true },
+    { field: 'email', header: 'Email', sortable: true },
     { 
       field: 'role', 
-      header: 'ROLE', 
+      header: 'Role', 
       sortable: true,
       render: (value) => (
         <span className="flex items-center gap-1">
@@ -129,7 +129,7 @@ const Search = () => {
     },
     { 
       field: 'outlets', 
-      header: 'OUTLETS', 
+      header: 'Outlets', 
       sortable: true,
       render: (outlets) => (
         Array.isArray(outlets) ? 
@@ -139,14 +139,16 @@ const Search = () => {
     },
     {
       field: 'action',
-      header: 'ACTION',
+      header: 'Action',
       sortable: false,
       render: () => (
-        <button className="bg-blue-400 text-white p-1 rounded hover:bg-blue-500">
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-          </svg>
-        </button>
+        <button 
+            // onClick={}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Outlet"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
       )
     }
   ];
