@@ -166,11 +166,15 @@ function Functionalities() {
 
     {
       field: 'functionality_name',
-      header: 'Functionality Name',
+      header: 'Name',
       sortable: true,
       render: (value) => (
-        <span className="font-medium text-gray-900 capitalize">
-          {value.replace(/_/g, ' ')}
+        <span className="font-medium text-gray-900">
+          {value
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ')
+          }
         </span>
       )
     },
