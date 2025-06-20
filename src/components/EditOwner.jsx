@@ -13,6 +13,7 @@ import {
   labelStyles,
   SelectInput
 } from './forms/FormElements.jsx';
+import Breadcrumb from './Breadcrumb';
 
 function EditOwner() {
   const { getToken } = useAuth();
@@ -34,6 +35,12 @@ function EditOwner() {
     is_active: 0,
     functionality_ids: []
   });
+
+  const breadcrumbItems = [
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Owners", path: "/owners" },
+    { label: "Edit Owner", path: `/edit-owner/${ownerId}` },
+  ];
 
   useEffect(() => {
     if (adminData?.user_id && ownerId) {
@@ -173,7 +180,9 @@ function EditOwner() {
   }
 
   return (
-    <div className="p-4">
+    <div className="p-6">
+      <Breadcrumb items={breadcrumbItems} />
+      
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
