@@ -27,6 +27,7 @@ function DataTable({
   darkMode = false,
 
   title = "",
+  dashboardTitle = "",
   counts = {
     total: 0,
     active: 0,
@@ -369,6 +370,12 @@ function DataTable({
                   Inactive: {counts.inactive}
                 </span>
               </div>
+            )}
+
+            {dashboardTitle && (
+              <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
+                {dashboardTitle}
+              </span>
             )}
 
             {/* Outlet Selection and Controls */}
