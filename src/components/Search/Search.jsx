@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
+import { SelectInput, TextInput } from '../forms/FormElements';
 
 const Search = () => {
   const { getToken } = useAuth();
@@ -103,6 +104,23 @@ const Search = () => {
     { label: 'Search' }
   ];
 
+  // Define options for search type dropdown
+  const searchTypeOptions = [
+    { value: 'name', label: 'Search by Name' },
+    { value: 'mobile', label: 'Search by Mobile' },
+    { value: 'outlet_name', label: 'Search by Outlet' }
+  ];
+
+  // Define options for role dropdown
+  const roleOptions = [
+    { value: '', label: 'All Roles' },
+    { value: 'Owner', label: 'Owner' },
+    { value: 'Customer', label: 'Customer' },
+    { value: 'Waiter', label: 'Waiter' },
+    { value: 'Chef', label: 'Chef' },
+    { value: 'Outlet', label: 'Outlet' }
+  ];
+
   return (
     <>
       {/* Breadcrumb */}
@@ -135,45 +153,55 @@ const Search = () => {
             <div className="flex items-center gap-2"></div>
           </div>
 
-          {/* Search Controls - Keeping Original */}
+          {/* Search Controls */}
           <div className="px-6 py-4">
             <form onSubmit={handleSearch} className="flex gap-4 mb-8 justify-center">
-              <select 
-                className="px-4 py-2 border rounded-md"
-                value={searchType}
-                onChange={(e) => setSearchType(e.target.value)}
-              >
-                <option value="name">Search by Name</option>
-                <option value="mobile">Search by Mobile</option>
-                <option value="outlet_name">Search by Outlet</option>
-              </select>
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder={`Search by ${searchType}...`}
-                className="px-4 py-2 border rounded-md"
-                required
-              />
-              <select 
-                className="px-4 py-2 border rounded-md min-w-[120px]"
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-              >
-                <option>All Roles</option>
-                <option>Owner</option>
-                <option>Customer</option>
-                <option>Waiter</option>
-                <option>Chef</option>
-                <option>Outlet</option>
-              </select>
-              <button 
-                type="submit" 
-                className="px-6 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:bg-purple-300"
-                disabled={loading || !searchInput.trim()}
-              >
-                {loading ? 'Searching...' : 'Search'}
-              </button>
+            <div>
+                <select
+                  value={selectedRole}
+                  onChange={(e) => setSelectedRole(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">All Roles</option>
+                  <option value="Owner">Owner</option>
+                  <option value="Customer">Customer</option>
+                  <option value="Waiter">Waiter</option>
+                  <option value="Chef">Chef</option>
+                  <option value="Outlet">Outlet</option>
+                </select>
+              </div>
+              <div>
+                <select
+                  value={searchType}
+                  onChange={(e) => setSearchType(e.target.value)}
+                  className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="name">Outlet Name</option>
+                  <option value="mobile">Outlet Mobile</option>
+                  <option value="outlet_name">Outlet Code</option>
+                </select>
+              </div>
+
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  placeholder={`Search by ${searchType}...`}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div className="self-end">
+                <button 
+                  type="submit" 
+                  className="px-6 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:bg-purple-300"
+                  disabled={loading || !searchInput.trim()}
+                >
+                  {loading ? 'Searching...' : 'Search'}
+                </button>
+              </div>
             </form>
 
             {/* Error Message */}
