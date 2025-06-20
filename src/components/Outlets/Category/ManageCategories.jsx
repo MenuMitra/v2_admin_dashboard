@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
 import { useAdmin } from '../../../hooks/useAdmin';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faListUl,
   faChevronRight,
   faPlus,
-  faUtensils
+  faUtensils,
+  faEye,
+  faPenToSquare,
+  faTrash
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from '../../Breadcrumb';
 import DataTable from "../../common/DataTable";
@@ -141,6 +144,18 @@ function ManageCategories() {
 }
 
 function MenuCategoryTable({ data, counts }) {
+  const navigate = useNavigate();
+
+  const handleView = (row) => {
+    navigate(`/category-details/${row.outlet_id}/${row.menu_cat_id}`);
+  };
+  const handleEdit = (row) => {
+    navigate(`/edit-category/${row.menu_cat_id}`);
+  };
+  const handleDelete = (row) => {
+    console.log("Delete", row);
+  };
+
   // Define columns for the DataTable
   const columns = [
     {
@@ -185,6 +200,36 @@ function MenuCategoryTable({ data, counts }) {
       field: 'is_active',
       header: 'Status',
       sortable: true,
+    },
+    {
+      field: 'actions',
+      header: 'Actions',
+      sortable: false,
+      render: (value, row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+            onClick={() => handleView(row)}
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Category"
+            onClick={() => handleEdit(row)}
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Category"
+            onClick={() => handleDelete(row)}
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
+        </div>
+      ),
     },
   ];
 
