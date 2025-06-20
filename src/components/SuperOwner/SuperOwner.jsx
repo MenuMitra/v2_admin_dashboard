@@ -36,6 +36,7 @@ function SuperOwner() {
     title: '',
     message: ''
   });
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     fetchSuperOwners();
@@ -364,7 +365,11 @@ function SuperOwner() {
     <>
       <Breadcrumb items={breadcrumbItems} />
       <DataTable
-        data={superOwners}
+        data={superOwners.filter(owner => {
+          if (statusFilter === 'all') return true;
+          const isActive = owner.is_active === true;
+          return statusFilter === 'active' ? isActive : !isActive;
+        })}
         columns={columns}
         itemsPerPage={10}
         enableSort={true}
@@ -382,8 +387,8 @@ function SuperOwner() {
         title="Super Owners"
         counts={{
           total: getTotalCount(),
-          active: getActiveCount(),
-          inactive: getInactiveCount()
+          active: superOwners.filter(owner => owner.is_active === true).length,
+          inactive: superOwners.filter(owner => owner.is_active === false).length
         }}
         showBackButton={true}
         showSearch={true}
@@ -398,6 +403,11 @@ function SuperOwner() {
           position: "right"
         }}
         error={error}
+        enableStatusFilter={true}
+        statusFilter={statusFilter}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+        }}
       />
 
       <Modal
