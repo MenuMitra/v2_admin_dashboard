@@ -179,7 +179,7 @@ function EditSuperOwner() {
   ];
 
   return (
-    <div className="p-6">
+    <>
       {/* Add Breadcrumb */}
       <Breadcrumb items={breadcrumbItems} />
 
@@ -370,7 +370,7 @@ function EditSuperOwner() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

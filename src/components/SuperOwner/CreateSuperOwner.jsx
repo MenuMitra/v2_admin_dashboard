@@ -126,7 +126,7 @@ function CreateSuperOwner() {
   ];
 
   return (
-    <div className="p-6">
+    <>
       {/* Add Breadcrumb */}
       <Breadcrumb items={breadcrumbItems} />
 
@@ -303,7 +303,7 @@ function CreateSuperOwner() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

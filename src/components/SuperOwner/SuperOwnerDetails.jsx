@@ -121,7 +121,7 @@ function SuperOwnerDetails() {
   );
 
   return (
-    <div className="p-6">
+    <>
       {/* Add Breadcrumb */}
       <Breadcrumb items={breadcrumbItems} />
 
@@ -285,7 +285,7 @@ function SuperOwnerDetails() {
           Are you sure you want to delete this super owner? This action cannot be undone.
         </p>
       </Modal>
-    </div>
+    </>
   );
 }
 

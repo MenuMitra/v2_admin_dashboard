@@ -361,7 +361,7 @@ function SuperOwner() {
   }
 
   return (
-    <div className="p-6">
+    <>
       <Breadcrumb items={breadcrumbItems} />
       <DataTable
         data={superOwners}
@@ -474,7 +474,7 @@ function SuperOwner() {
           will be permanently removed.
         </p>
       </Modal>
-    </div>
+    </>
   );
 }
 
