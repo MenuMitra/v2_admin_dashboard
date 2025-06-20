@@ -123,12 +123,13 @@ function DataTable({
   const getSortedAndFilteredData = () => {
     let processedData = [...data];
 
-    // Apply status filter if enabled
+    // Modify status filter to handle both boolean and numeric values
     if (enableStatusFilter && statusFilter !== 'all') {
       processedData = processedData.filter((item) => {
-        if (statusFilter === 'active') return item.is_active === true;
-        if (statusFilter === 'inactive') return item.is_active === false;
-        return true;
+        const isActiveValue = item.is_active;
+        // Handle both boolean and numeric values
+        const isActive = isActiveValue === true || isActiveValue === 1;
+        return statusFilter === 'active' ? isActive : !isActive;
       });
     }
 

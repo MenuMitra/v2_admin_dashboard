@@ -40,6 +40,7 @@ function Owners() {
   const [itemsPerPage] = useState(10);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
     if (adminData?.user_id) {
@@ -445,6 +446,14 @@ function Owners() {
           onClick: () => navigate("/create-owner"),
           className: "bg-success-500 hover:bg-success-600",
           position: "right"
+        }}
+        
+        // Add status filter props
+        enableStatusFilter={true}
+        statusFilter={statusFilter}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+          setCurrentPage(1);
         }}
       />
 
