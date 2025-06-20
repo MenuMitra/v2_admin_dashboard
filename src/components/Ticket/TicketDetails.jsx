@@ -337,7 +337,7 @@ function TicketDetails() {
   );
 
   return (
-    <div className="container mx-auto py-6 px-4">
+    <div className="container mx-auto">
       {/* Add Breadcrumb above the main content */}
       <Breadcrumb items={breadcrumbItems} />
 

@@ -22,6 +22,7 @@ import {
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
 import DataTable from '../common/DataTable';
+import Breadcrumb from '../Breadcrumb';
 
 function Tickets() {
   const { getToken } = useAuth();
@@ -321,8 +322,17 @@ function Tickets() {
     }
   };
 
+  // Add breadcrumb items configuration
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'Tickets' }
+  ];
+
   return (
-    <div className="container mx-auto flex-grow py-6 px-4">
+    <div className="container mx-auto flex-grows">
+      {/* Add Breadcrumb component */}
+      <Breadcrumb items={breadcrumbItems} />
+
       <DataTable
         data={filteredTickets}
         columns={columns}
