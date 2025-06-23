@@ -176,12 +176,12 @@ function ManageMenus() {
         </span>
       ),
     },
-    {
-      field: 'spicy_index',
-      header: 'Spicy',
-      sortable: true,
-      render: (value) => value ? value : '-',
-    },
+    // {
+    //   field: 'spicy_index',
+    //   header: 'Spicy',
+    //   sortable: true,
+    //   render: (value) => value ? value : '-',
+    // },
     {
       field: 'is_active',
       header: 'Status',
@@ -194,30 +194,23 @@ function ManageMenus() {
               value === 1 ? "text-success-500" : "text-error-500"
             }`}
           />
-          <span
-            className={`text-base font-medium ${
-              value === 1 ? "text-success-700" : "text-error-700"
-            }`}
-          >
-            {value === 1 ? "Active" : "Inactive"}
-          </span>
         </div>
       ),
     },
-    {
-      field: 'portions',
-      header: 'Portions',
-      sortable: false,
-      render: (value) => (
-        <div className="flex flex-col gap-1">
-          {value?.map((portion, idx) => (
-            <span key={idx} className="text-xs">
-              {portion.portion_name}: ₹{portion.price} ({portion.unit_value}{portion.unit_type})
-            </span>
-          ))}
-        </div>
-      ),
-    },
+    // {
+    //   field: 'portions',
+    //   header: 'Portions',
+    //   sortable: false,
+    //   render: (value) => (
+    //     <div className="flex flex-col gap-1">
+    //       {value?.map((portion, idx) => (
+    //         <span key={idx} className="text-xs">
+    //           {portion.portion_name}: ₹{portion.price} ({portion.unit_value}{portion.unit_type})
+    //         </span>
+    //       ))}
+    //     </div>
+    //   ),
+    // },
     {
       field: 'actions',
       header: 'Actions',
