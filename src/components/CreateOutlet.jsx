@@ -47,7 +47,8 @@ function CreateOutlet() {
     email: '',
     opening_time: '',
     closing_time: '',
-    owner_id: ''
+    owner_id: '',
+    image: null
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -109,8 +110,10 @@ function CreateOutlet() {
   };
 
   const handleImagesChange = (images) => {
-    const image = Array.isArray(images) ? images[0] : null;
-    formDataToSend.append('image', image);
+    setFormData(prev => ({
+      ...prev,
+      image: Array.isArray(images) ? images[0] : null
+    }));
   };
 
   const handleInputChange = (e) => {
@@ -179,7 +182,6 @@ function CreateOutlet() {
 
       // Fix the time formatting to match exactly "YYYY-MM-DD HH:MM:SS AM/PM"
       if (formData.opening_time) {
-        // opening_time comes as "HH:MM AM/PM"
         const [timeStr, period] = formData.opening_time.split(' ');
         const [hours, minutes] = timeStr.split(':');
         const formattedOpeningTime = `${currentDate} ${hours}:${minutes}:00 ${period}`;
@@ -187,15 +189,16 @@ function CreateOutlet() {
       }
 
       if (formData.closing_time) {
-        // closing_time comes as "HH:MM AM/PM"
         const [timeStr, period] = formData.closing_time.split(' ');
         const [hours, minutes] = timeStr.split(':');
         const formattedClosingTime = `${currentDate} ${hours}:${minutes}:00 ${period}`;
         formDataToSend.append('closing_time', formattedClosingTime);
       }
 
-      // Append image if selected
-      handleImagesChange(null);
+      // Only append image if it exists
+      if (formData.image) {
+        formDataToSend.append('image', formData.image);
+      }
 
       const response = await axios.post(
         'https://men4u.xyz/v2/common/create_outlet',
