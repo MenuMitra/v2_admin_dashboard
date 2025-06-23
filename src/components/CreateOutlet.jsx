@@ -602,6 +602,8 @@ function CreateOutlet() {
                   name="outlet_type"
                   value={formData.outlet_type}
                   onChange={handleInputChange}
+                  onFocus={() => handleFocus('outlet_type')}
+                  error={validationStates.outlet_type && !formData.outlet_type}
                   required
                   options={Object.entries(outletTypes).map(([key, value]) => ({
                     value: key,

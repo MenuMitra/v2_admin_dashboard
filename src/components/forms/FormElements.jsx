@@ -139,23 +139,30 @@ const SelectInput = React.forwardRef(({
   value,
   onChange,
   placeholder = 'Select Option',
+  required,
+  error,
+  onFocus,
   ...props
 }, ref) => {
   return (
     <div>
-      {label && <label className={labelStyles}>{label}</label>}
+      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+        {required && <span className="text-error-600">*</span>} {label}
+      </label>
       <div className="relative z-20">
         <select
           ref={ref}
           value={value}
           onChange={onChange}
+          onFocus={onFocus}
           className={`
-            ${baseInputStyles} 
+            w-full px-3 py-2 border rounded-lg shadow-sm
+            focus:outline-none focus:ring-2 focus:ring-brand-500
             !appearance-none
             !select-none
             !pr-11
             !bg-transparent
-            border-gray-300
+            ${error ? 'border-error-500' : 'border-gray-300'}
             dark:border-gray-700
             [appearance:none]
             [-webkit-appearance:none]
@@ -207,6 +214,11 @@ const SelectInput = React.forwardRef(({
           </svg>
         </span>
       </div>
+      {error && (
+        <p className="text-error-500 text-sm mt-1">
+          Please select an outlet type
+        </p>
+      )}
     </div>
   );
 });
