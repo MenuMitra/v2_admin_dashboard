@@ -247,6 +247,13 @@ function CreateOutlet() {
     return name && name.length >= 3 && name.length <= 50;
   };
 
+  // Add this function to handle focus
+  const handleFocus = () => {
+    if (showValidation) {
+      setShowValidation(false);
+    }
+  };
+
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
@@ -447,9 +454,11 @@ function CreateOutlet() {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
+                    onFocus={handleFocus}
                     placeholder="Enter Outlet Name"
                     required
                     className={`
+                      focus:border-brand-500 focus:ring-brand-500
                       ${showValidation && !isNameValid(formData.name) ? 'border-error-500' : 'border-gray-300'}
                     `}
                   />

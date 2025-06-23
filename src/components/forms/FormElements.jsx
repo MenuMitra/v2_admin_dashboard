@@ -39,6 +39,7 @@ const TextInput = React.forwardRef(({
   onValidation = () => {},
   isSubmitAttempted = false,
   className = '',
+  onFocus,
   ...props 
 }, ref) => {
   const [error, setError] = useState('');
@@ -68,6 +69,7 @@ const TextInput = React.forwardRef(({
         placeholder={placeholder}
         value={value}
         onChange={handleChange}
+        onFocus={onFocus}
         required={required}
         className={`
           w-full px-3 py-2 border rounded-lg shadow-sm
