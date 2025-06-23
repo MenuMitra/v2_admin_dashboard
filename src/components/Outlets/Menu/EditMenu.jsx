@@ -464,6 +464,8 @@ function EditMenu() {
               existingImages={menuImages}
               onImagesChange={handleImagesChange}
               className="mb-4"
+              label="Menu Images"
+              required={false}
             />
 
             {error && <div className="text-error-500 text-center">{error}</div>}
