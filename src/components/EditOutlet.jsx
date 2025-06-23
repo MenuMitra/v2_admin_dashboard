@@ -656,31 +656,23 @@ function EditOutlet() {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Opening Time
-                </label>
-                <input
-                  type="time"
-                  name="opening_time"
-                  value={formData.opening_time}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
+              <TimePickerInput
+                label="Opening Time"
+                name="opening_time"
+                value={formData.opening_time}
+                onChange={handleInputChange}
+                required
+                placeholder="Select opening time"
+              />
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Closing Time
-                </label>
-                <input
-                  type="time"
-                  name="closing_time"
-                  value={formData.closing_time}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
+              <TimePickerInput
+                label="Closing Time"
+                name="closing_time"
+                value={formData.closing_time}
+                onChange={handleInputChange}
+                required
+                placeholder="Select closing time"
+              />
 
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700">
