@@ -1,0 +1,32 @@
+// Common validation patterns
+export const validationPatterns = {
+  email: {
+    pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+    message: 'Invalid email address'
+  },
+  mobile: {
+    pattern: /^[0-9]{10}$/,
+    message: 'Mobile number must be 10 digits'
+  },
+  aadhar: {
+    pattern: /^[0-9]{12}$/,
+    message: 'Aadhar number must be 12 digits'
+  },
+  name: {
+    pattern: /^[A-Za-z\s]{2,50}$/,
+    message: 'Name must be 2-50 characters long and contain only letters and spaces'
+  },
+  // Add more patterns as needed
+};
+
+// Validation helper function
+export const validateInput = (value, validationType) => {
+  if (!validationType || !validationPatterns[validationType]) return { isValid: true };
+  
+  const { pattern, message } = validationPatterns[validationType];
+  const isValid = pattern.test(value);
+  return {
+    isValid,
+    message: isValid ? '' : message
+  };
+}; 

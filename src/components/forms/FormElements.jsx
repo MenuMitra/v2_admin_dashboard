@@ -3,6 +3,7 @@ import DatePickerInput from '../common/DatePickerInput';
 import TimePickerInput from '../common/TimePickerInput';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { validateInput } from '../../utils/validationPatterns';
 
 // Base input styles
 const baseInputStyles = `
@@ -34,8 +35,27 @@ const TextInput = React.forwardRef(({
   type = 'text',
   value,
   onChange,
+  validationType = null,
+  onValidation = () => {},
+  isSubmitAttempted = false,
   ...props 
 }, ref) => {
+  const [error, setError] = useState('');
+  
+  const showError = (required && isSubmitAttempted && !value) || error;
+
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    
+    if (validationType) {
+      const { isValid, message } = validateInput(newValue, validationType);
+      setError(message);
+      onValidation(isValid);
+    }
+    
+    onChange?.(e);
+  };
+
   return (
     <div>
       {label && (
@@ -48,11 +68,21 @@ const TextInput = React.forwardRef(({
         type={type}
         placeholder={placeholder}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         required={required}
-        className={baseInputStyles}
+        className={`${baseInputStyles} ${showError ? 'border-error-500 focus:border-error-500' : ''}`}
         {...props}
       />
+      {error && (
+        <p className="mt-1 text-sm text-error-500">
+          {error}
+        </p>
+      )}
+      {required && isSubmitAttempted && !value && (
+        <p className="mt-1 text-sm text-error-500">
+          This field is required
+        </p>
+      )}
     </div>
   );
 });

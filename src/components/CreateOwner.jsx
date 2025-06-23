@@ -32,6 +32,13 @@ function CreateOwner() {
     address: '',
     functionality_ids: []
   });
+  const [validationStates, setValidationStates] = useState({
+    name: true,
+    email: true,
+    mobile: true,
+    aadhar_number: true
+  });
+  const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
   // Add Breadcrumb configuration
   const breadcrumbItems = [
@@ -75,8 +82,24 @@ function CreateOwner() {
     }));
   };
 
+  const handleValidation = (field) => (isValid) => {
+    setValidationStates(prev => ({
+      ...prev,
+      [field]: isValid
+    }));
+  };
+
+  const isFormValid = () => {
+    return Object.values(validationStates).every(state => state);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitAttempted(true);
+    if (!isFormValid()) {
+      toastController.error('Please fix validation errors before submitting');
+      return;
+    }
     setIsLoading(true);
     setError(null);
 
@@ -185,6 +208,9 @@ function CreateOwner() {
                 onChange={handleChange}
                 placeholder="Enter full name"
                 required
+                validationType="name"
+                onValidation={handleValidation('name')}
+                isSubmitAttempted={isSubmitAttempted}
               />
 
               <TextInput
@@ -195,7 +221,9 @@ function CreateOwner() {
                 onChange={handleChange}
                 placeholder="Enter mobile number"
                 required
-                pattern="[0-9]{10}"
+                validationType="mobile"
+                onValidation={handleValidation('mobile')}
+                isSubmitAttempted={isSubmitAttempted}
               />
 
               <TextInput
@@ -205,7 +233,8 @@ function CreateOwner() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
-                
+                validationType="email"
+                onValidation={handleValidation('email')}
               />
 
               <DateInput
@@ -224,8 +253,9 @@ function CreateOwner() {
                 onChange={handleChange}
                 placeholder="Enter 12-digit Aadhar number"
                 required
-                pattern="[0-9]{12}"
-                maxLength="12"
+                validationType="aadhar"
+                onValidation={handleValidation('aadhar_number')}
+                isSubmitAttempted={isSubmitAttempted}
               />
             </div>
 
