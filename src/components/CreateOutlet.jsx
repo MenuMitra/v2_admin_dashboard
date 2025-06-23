@@ -60,7 +60,8 @@ function CreateOutlet() {
     upi: false,
     outlet_type: false,
     food_type: false,
-    outlet_mode: false
+    outlet_mode: false,
+    address: false
   });
 
   const breadcrumbItems = [
@@ -184,10 +185,13 @@ function CreateOutlet() {
     return mobileRegex.test(mobile);
   };
 
+  const isAddressValid = (address) => {
+    return address && address.length >= 3 && address.length <= 50;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Set all validations to true on submit
     setValidationStates({
       owner: !formData.owner_id,
       name: !isNameValid(formData.name),
@@ -195,17 +199,18 @@ function CreateOutlet() {
       upi: !isUpiValid(formData.upi_id),
       outlet_type: !formData.outlet_type,
       food_type: !formData.veg_nonveg,
-      outlet_mode: !formData.outlet_mode
+      outlet_mode: !formData.outlet_mode,
+      address: !isAddressValid(formData.address)
     });
 
-    // Check all validations
     if (!formData.owner_id || 
         !isNameValid(formData.name) || 
         !isMobileValid(formData.mobile) ||
         !isUpiValid(formData.upi_id) ||
         !formData.outlet_type ||
         !formData.veg_nonveg ||
-        !formData.outlet_mode) {
+        !formData.outlet_mode ||
+        !isAddressValid(formData.address)) {
       return;
     }
     
@@ -311,6 +316,16 @@ function CreateOutlet() {
     }));
   };
 
+  // Add handler for owner dropdown click
+  const handleOwnerClick = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+    // Clear owner validation when clicked
+    setValidationStates(prev => ({
+      ...prev,
+      owner: false
+    }));
+  };
+
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
@@ -373,7 +388,7 @@ function CreateOutlet() {
                   
                   <div className="relative">
                     <div
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      onClick={handleOwnerClick}
                       className={`
                         w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
                         focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer
@@ -622,15 +637,28 @@ function CreateOutlet() {
                 />
               </div>
 
-              <Textarea
-                label="Address"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-                placeholder="Enter Address"
-                required
-                rows={3}
-              />
+              <div className="relative">
+                <TextInput
+                  label="Address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  onFocus={() => handleFocus('address')}
+                  placeholder="Enter Address"
+                  required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.address ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {validationStates.address && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {!formData.address ? 'Address is required' : 
+                     formData.address.length < 3 ? 'Address must be at least 3 characters' : 
+                     'Address must not exceed 50 characters'}
+                  </p>
+                )}
+              </div>
             </div>
           </section>
 
@@ -793,13 +821,6 @@ function CreateOutlet() {
           </section> */}
         </form>
       </div>
-
-      {/* Add error message when validation fails */}
-      {validationStates.owner && (
-        <p className="mt-1 text-sm text-error-500">
-          Please select an owner
-        </p>
-      )}
     </>
   );
 }
