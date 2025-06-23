@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import brand02 from "../assets/images/brand/brand-02.svg";
-import brand07 from "../assets/images/brand/brand-07.svg";
-import brand08 from "../assets/images/brand/brand-08.svg";
-import brand10 from "../assets/images/brand/brand-10.svg";
-import brand15 from "../assets/images/brand/brand-15.svg";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
@@ -318,7 +315,7 @@ function Outlets() {
       status: getOutletStatus(outlet.outlet_status, outlet.is_open),
       isOpen: outlet.is_open,
       outletStatus: outlet.outlet_status,
-      image: brand02,
+      image: [{}],
       accountType: outlet.account_type,
     }));
   };
@@ -340,7 +337,6 @@ function Outlets() {
         "https://men4u.xyz/v2/common/listview_outlet",
         {
             user_id: adminData?.user_id,
-        //   user_id: 2, //HARDCODE
           app_source: "admin_dashboard",
         },
         {
@@ -524,6 +520,16 @@ function Outlets() {
         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
           {value}
         </p>
+      )
+    },
+    {
+      field: "owner",
+      header: "Owner",
+      sortable: true,
+      render: (value, row) => (
+        <Link to={`/owner/${row?.owner_id}`} className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+          {row?.owner || "-"} 
+        </Link>
       )
     },
     {
