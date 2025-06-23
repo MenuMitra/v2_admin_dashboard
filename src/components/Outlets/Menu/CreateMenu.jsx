@@ -12,6 +12,7 @@ import {
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import ImageUploader from '../../common/ImageUploader';
 
 function CreateMenu() {
   const { outletId } = useParams();
@@ -34,7 +35,6 @@ function CreateMenu() {
     { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
   ]);
   const [images, setImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
@@ -167,11 +167,9 @@ function CreateMenu() {
     setPortionData(prev => prev.filter((_, i) => i !== idx));
   };
 
-  // Image handlers
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 5);
-    setImages(files);
-    setImagePreviews(files.map(file => URL.createObjectURL(file)));
+  // Replace the old handleImageChange with new handler for ImageUploader
+  const handleImagesChange = (newImages) => {
+    setImages(newImages);
   };
 
   // Form submit
@@ -418,24 +416,13 @@ function CreateMenu() {
               </button>
             </div>
             {/* Images */}
-            <FileInput
-              label="Menu Images (up to 5)"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
+            <ImageUploader
+              maxImages={5}
+              outputFormat="formData"
+              existingImages={[]} // Empty array for create form
+              onImagesChange={handleImagesChange}
+              className="mb-4"
             />
-            {imagePreviews.length > 0 && (
-              <div className="flex gap-2 mt-2">
-                {imagePreviews.map((src, idx) => (
-                  <img
-                    key={idx}
-                    src={src}
-                    alt={`Preview ${idx + 1}`}
-                    className="w-20 h-20 object-cover rounded border"
-                  />
-                ))}
-              </div>
-            )}
             {error && <div className="text-error-500 text-center">{error}</div>}
             {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
             <button
