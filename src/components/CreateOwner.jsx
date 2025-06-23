@@ -5,6 +5,7 @@ import { useAdmin } from '../hooks/useAdmin';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+import { toastController } from '../utils/toastController';
 import {
   TextInput,
   DateInput,
@@ -60,8 +61,9 @@ function CreateOwner() {
       );
       setFunctionalities(response.data);
     } catch (err) {
-      console.error('Error fetching functionalities:', err);
-      setError('Failed to load functionalities');
+      const errorMsg = err.response?.data?.detail || 'Failed to load functionalities';
+      setError(errorMsg);
+      toastController.error(errorMsg);
     }
   };
 
@@ -95,20 +97,28 @@ function CreateOwner() {
         functionality_ids: formData.functionality_ids
       };
 
-      await axios.post(
-        'https://men4u.xyz/v2/common/create_owner',
-        payload,
+      await toastController.promise(
+        axios.post(
+          'https://men4u.xyz/v2/common/create_owner',
+          payload,
+          {
+            headers: {
+              Authorization: token,
+              'Content-Type': 'application/json',
+            },
+          }
+        ),
         {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json',
-          },
+          loading: 'Creating owner...',
+          success: 'Owner created successfully!',
+          error: (err) => err.response?.data?.detail || 'Failed to create owner'
         }
       );
+      
       navigate(-1);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create owner');
-      console.error('Error creating owner:', err);
+      const errorMsg = err.response?.data?.detail || 'Failed to create owner';
+      setError(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -195,7 +205,7 @@ function CreateOwner() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
-                required
+                
               />
 
               <DateInput
@@ -298,11 +308,11 @@ function CreateOwner() {
             </div>
 
             {/* Error Message */}
-            {error && (
+            {/* {error && (
               <div className="text-error-500 text-sm mt-2">
                 {error}
               </div>
-            )}
+            )} */}
           </form>
         </div>
       </div>
