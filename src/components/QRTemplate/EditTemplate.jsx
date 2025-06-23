@@ -163,50 +163,15 @@ function EditTemplate() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                   QR Code Position <span className="text-red-500">*</span>
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-            {/* Centre Position Option */}
-                  <div 
-                    className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
-                formData.qr_overlay_position === 'centre' 
-                        ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                    }`}
-              onClick={() => setFormData(prev => ({ ...prev, qr_overlay_position: 'centre' }))}
-                  >
-                    <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
-                formData.qr_overlay_position === 'centre' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
-                    }`}>
-                      <div className={`w-6 h-6 rounded ${
-                  formData.qr_overlay_position === 'centre' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
-                      }`}></div>
-                    </div>
-                    <span className={`text-sm ${
-                formData.qr_overlay_position === 'centre' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
-                    }`}>Centre</span>
-                  </div>
-
-            {/* Top Position Option */}
-                  <div 
-                    className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
-                formData.qr_overlay_position === 'top' 
-                        ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
-                        : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                    }`}
-              onClick={() => setFormData(prev => ({ ...prev, qr_overlay_position: 'top' }))}
-                  >
-                    <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
-                formData.qr_overlay_position === 'top' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
-                    }`}>
-                      <div className={`w-6 h-6 rounded ${
-                  formData.qr_overlay_position === 'top' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
-                      }`}></div>
-                    </div>
-                    <span className={`text-sm ${
-                formData.qr_overlay_position === 'top' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
-                    }`}>Top</span>
-                </div>
+                <select
+                  value={formData.qr_overlay_position}
+                  onChange={(e) => setFormData(prev => ({ ...prev, qr_overlay_position: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                >
+                  <option value="centre">Centre</option>
+                  <option value="top">Top</option>
+                </select>
               </div>
-            </div>
 
         {/* Image Upload */}
         <div className="md:col-span-4">
@@ -357,49 +322,14 @@ function EditTemplate() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                     QR Code Position <span className="text-red-500">*</span>
                   </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    {/* Centre Position Option */}
-                    <div 
-                      className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
-                        formData.qr_overlay_position === 'centre' 
-                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                      }`}
-                      onClick={() => setFormData(prev => ({ ...prev, qr_overlay_position: 'centre' }))}
-                    >
-                      <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
-                        formData.qr_overlay_position === 'centre' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
-                      }`}>
-                        <div className={`w-6 h-6 rounded ${
-                          formData.qr_overlay_position === 'centre' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}></div>
-                      </div>
-                      <span className={`text-sm ${
-                        formData.qr_overlay_position === 'centre' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
-                      }`}>Centre</span>
-                    </div>
-
-                    {/* Top Position Option */}
-                    <div 
-                      className={`p-4 border-2 rounded-lg cursor-pointer flex flex-col items-center justify-center transition-all ${
-                        formData.qr_overlay_position === 'top' 
-                          ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/20 shadow-sm' 
-                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                      }`}
-                      onClick={() => setFormData(prev => ({ ...prev, qr_overlay_position: 'top' }))}
-                    >
-                      <div className={`w-12 h-12 border-2 border-dashed rounded-lg flex items-center justify-center mb-2 ${
-                        formData.qr_overlay_position === 'top' ? 'border-brand-500' : 'border-gray-300 dark:border-gray-700'
-                      }`}>
-                        <div className={`w-6 h-6 rounded ${
-                          formData.qr_overlay_position === 'top' ? 'bg-brand-200 dark:bg-brand-700' : 'bg-gray-200 dark:bg-gray-700'
-                        }`}></div>
-                      </div>
-                      <span className={`text-sm ${
-                        formData.qr_overlay_position === 'top' ? 'text-brand-600 dark:text-brand-400 font-medium' : 'text-gray-600 dark:text-gray-400'
-                      }`}>Top</span>
-                    </div>
-                  </div>
+                  <select
+                    value={formData.qr_overlay_position}
+                    onChange={(e) => setFormData(prev => ({ ...prev, qr_overlay_position: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+                  >
+                    <option value="centre">Centre</option>
+                    <option value="top">Top</option>
+                  </select>
                 </div>
 
                 {/* Image Upload */}
