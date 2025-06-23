@@ -20,6 +20,7 @@ import {
   faCheck,
   faCircleCheck,
   faCircleXmark,
+  faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import Breadcrumb from './Breadcrumb';
@@ -563,9 +564,16 @@ function Outlets() {
       header: "Account Type",
       sortable: true,
       render: (value) => (
-        <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-          {value?.toUpperCase()}
-        </p>
+        <>
+          <FontAwesomeIcon 
+            icon={value?.toLowerCase() === 'live' ? faCircleCheck : faTriangleExclamation} 
+            className={`w-4 h-4 ${
+              value?.toLowerCase() === 'live' 
+                ? 'text-success-500' 
+                : 'text-warning-500'
+            }`}
+          />
+        </>
       )
     },
     {
