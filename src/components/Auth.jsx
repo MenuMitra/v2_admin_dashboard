@@ -201,10 +201,14 @@ function Auth() {
                           />
                         </div>
                         <div>
-                          <button
+                        <button
                             type="submit"
-                            disabled={loading}
-                            className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-70"
+                            disabled={loading || mobile.length !== 10}
+                            className={`flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg shadow-theme-xs ${
+                              loading || mobile.length !== 10
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-brand-500 hover:bg-brand-600"
+                            } disabled:opacity-70`}
                           >
                             {loading ? "Sending OTP..." : "Get OTP"}
                           </button>
@@ -252,12 +256,16 @@ function Auth() {
                         </div>
                       </div>
                       <div>
-                        <button
+                      <button
                           onClick={handleVerifyOTP}
                           disabled={
                             verifyLoading || otp.some((digit) => digit === "")
                           }
-                          className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-70"
+                          className={`flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg shadow-theme-xs ${
+                            verifyLoading || otp.some((digit) => digit === "")
+                              ? "bg-gray-400 cursor-not-allowed"
+                              : "bg-brand-500 hover:bg-brand-600"
+                          } disabled:opacity-70`}
                         >
                           {verifyLoading ? "Verifying..." : "Verify OTP"}
                         </button>
