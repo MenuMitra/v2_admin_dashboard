@@ -13,6 +13,7 @@ import {
   TimePickerInput,
   labelStyles
 } from './forms/FormElements.jsx';
+import ImageUploader from './common/ImageUploader';
 
 function CreateOutlet() {
   const navigate = useNavigate();
@@ -49,8 +50,6 @@ function CreateOutlet() {
     owner_id: ''
   });
 
-  const [imageFile, setImageFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
@@ -109,17 +108,9 @@ function CreateOutlet() {
     }
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (file.type.startsWith('image/')) {
-        setImageFile(file);
-        setPreviewUrl(URL.createObjectURL(file));
-      } else {
-        // Optional: Add error notification for non-image files
-        alert('Please upload an image file (PNG, JPG, WebP, SVG)');
-      }
-    }
+  const handleImagesChange = (images) => {
+    const image = Array.isArray(images) ? images[0] : null;
+    formDataToSend.append('image', image);
   };
 
   const handleInputChange = (e) => {
@@ -204,9 +195,7 @@ function CreateOutlet() {
       }
 
       // Append image if selected
-      if (imageFile) {
-        formDataToSend.append('image', imageFile);
-      }
+      handleImagesChange(null);
 
       const response = await axios.post(
         'https://men4u.xyz/v2/common/create_outlet',
@@ -409,18 +398,13 @@ function CreateOutlet() {
 
                 {/* Image Upload */}
                 <div className="relative">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    Outlet Image
-                  </label>
-                  <div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="focus:border-ring-brand-300 shadow-theme-xs focus:file:ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pr-3 file:pl-3.5 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
-                      id="outlet-image"
-                    />
-                  </div>
+                  <ImageUploader
+                    maxImages={1}
+                    outputFormat="formData"
+                    onImagesChange={handleImagesChange}
+                    label="Outlet Image"
+                    className="w-full"
+                  />
                 </div>
               </div>
 
