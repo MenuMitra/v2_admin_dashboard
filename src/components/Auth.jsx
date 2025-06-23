@@ -12,6 +12,7 @@ function Auth() {
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpScreen, setIsOtpScreen] = useState(false);
+  const [mobileError, setMobileError] = useState("");
 
   const navigate = useNavigate();
 
@@ -191,14 +192,25 @@ function Auth() {
                           <input
                             type="number"
                             value={mobile}
-                            onChange={(e) =>
-                              /^\d{0,10}$/.test(e.target.value) &&
-                              setMobile(e.target.value)
-                            }
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              if (/^\d{0,10}$/.test(value)) {
+                                if (value.length > 0 && "12345".includes(value[0])) {
+                                  setMobileError("Mobile number must start with 6-9");
+                                  setMobile("");
+                                } else {
+                                  setMobileError("");
+                                  setMobile(value);
+                                }
+                              }
+                            }}
                             onKeyPress={handleMobileKeyPress}
                             placeholder="Enter your mobile number"
                             className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                           />
+                          {mobileError && (
+                            <p className="mt-1 text-sm text-error-500">{mobileError}</p>
+                          )}
                         </div>
                         <div>
                         <button
