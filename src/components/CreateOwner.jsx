@@ -213,7 +213,7 @@ function CreateOwner() {
                 name="dob"
                 value={formData.dob}
                 onChange={handleChange}
-                required
+                // required
                 placeholder="Select date of birth"
               />
 
@@ -237,13 +237,13 @@ function CreateOwner() {
               onChange={handleChange}
               placeholder="Enter complete address"
               rows={3}
-              required
+              // required
             />
 
             {/* Functionalities */}
             <div>
               <label className={labelStyles}>
-                <span className="text-error-600 text-red-500 mr-1">*</span>
+                {/* <span className="text-error-600 text-red-500 mr-1">*</span> */}
                 Functionalities
               </label>
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
