@@ -1,7 +1,7 @@
 // src/components/common/ImageUploader.jsx
 import React, { useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faImage, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const ImageUploader = ({
   maxImages = 5,
@@ -134,21 +134,24 @@ const ImageUploader = ({
               key={index} 
               className="relative group flex-shrink-0 bg-gray-50 rounded-md"
               style={{
-                width: '100px',  // Set a fixed width
-                aspectRatio: '1/1', // Force 1:1 aspect ratio
+                width: '100px',
+                aspectRatio: '1/1',
               }}
             >
               <img
                 src={preview}
                 alt={`Preview ${index + 1}`}
                 className="w-full h-full object-contain p-1"
-                style={{ aspectRatio: '1/1' }} // Ensure image also maintains 1:1
+                style={{ aspectRatio: '1/1' }}
               />
               <button
                 onClick={() => handleRemoveImage(index)}
-                className="absolute top-1 right-1 p-1 rounded-full bg-error-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center rounded-full bg-white border border-gray-200 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-50"
               >
-                <FontAwesomeIcon icon={faTrash} className="w-2.5 h-2.5" />
+                <FontAwesomeIcon 
+                  icon={faTimes} 
+                  className="w-3 h-3 text-error-500" 
+                />
               </button>
             </div>
           ))}
