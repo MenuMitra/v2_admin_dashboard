@@ -64,49 +64,12 @@ const Search = () => {
     }
   }, [searchType, selectedRole, getToken]);
 
-  // Create a debounce utility function using useMemo to maintain reference
-  const debounce = useMemo(() => {
-    return (func, delay) => {
-      let timeoutId;
-      return (...args) => {
-        // Clear previous timeout if exists
-        if (timeoutId) {
-          clearTimeout(timeoutId);
-        }
-        // Set new timeout
-        timeoutId = setTimeout(() => {
-          func.apply(null, args);
-        }, delay);
-      };
-    };
+  // Simplify handleInputChange to just update state
+  const handleInputChange = useCallback((e) => {
+    setSearchInput(e.target.value);
   }, []);
 
-  // Create debounced search function
-  const debouncedSearch = useMemo(() => 
-    debounce((value) => {
-      if (value.trim()) {
-        performSearch(value);
-      }
-    }, 800) // Increased to 800ms for better UX
-  , [performSearch]);
-
-  // Handle input change with debounced search
-  const handleInputChange = useCallback((e) => {
-    const value = e.target.value;
-    setSearchInput(value);
-    
-    // Clear previous results if input is empty
-    if (!value.trim()) {
-      setSearchResults([]);
-      setTotalResults(0);
-      return;
-    }
-    
-    // Trigger debounced search
-    debouncedSearch(value);
-  }, [debouncedSearch]);
-
-  // Modified form submit handler to prevent default and use current searchInput
+  // Modified form submit handler to handle search
   const handleSearch = (e) => {
     e.preventDefault();
     performSearch(searchInput);
@@ -236,7 +199,6 @@ const Search = () => {
                     onChange={handleInputChange}
                     placeholder={`Search by ${searchType}...`}
                     className="w-full h-10 sm:h-auto px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
                   />
                 </div>
 
@@ -278,11 +240,11 @@ const Search = () => {
                     inactive: searchResults.filter(r => r.is_active === 0).length
                   }}
                 />
-              ) : (
+              ) : loading ? (
                 <div className="text-center text-gray-500 text-sm sm:text-base mt-6 sm:mt-8">
-                  {loading ? 'Searching...' : (searchInput ? 'No results found' : 'Enter a search term to begin')}
+                  Searching...
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
