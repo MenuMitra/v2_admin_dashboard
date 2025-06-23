@@ -561,7 +561,7 @@ function Outlets() {
     },
     {
       field: "accountType",
-      header: "Account Type",
+      header: "Acc. Type",
       sortable: true,
       render: (value) => (
         <>
