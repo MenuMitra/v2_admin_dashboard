@@ -6,6 +6,9 @@ import { useAuth } from '../../hooks/useAuth';
 import {
   faEye,
   faPlus,
+  faPenToSquare,
+  faTrash,
+  faExclamationTriangle
 } from '@fortawesome/free-solid-svg-icons';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
@@ -18,6 +21,8 @@ function QRTemplates() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredTemplates, setFilteredTemplates] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState(null);
 
   // Stats counts
   const counts = {
@@ -102,22 +107,65 @@ function QRTemplates() {
     navigate(-1);
   };
 
+  const handleDeleteTemplate = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      await axios.delete(`https://men4u.xyz/v2/admin/delete_qr_templates/${templateToDelete}`, {
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      setShowDeleteModal(false);
+      setTemplateToDelete(null);
+      fetchTemplates(); // Refresh the list
+    } catch (err) {
+      console.error('Error deleting template:', err);
+    }
+  };
+
+  const openDeleteModal = (templateId) => {
+    setTemplateToDelete(templateId);
+    setShowDeleteModal(true);
+  };
+
   // Define columns for DataTable
   const columns = [
     { field: 'name', header: 'Name', sortable: true },
     { field: 'qr_overlay_position', header: 'Position', sortable: true },
-
     {
       field: 'action',
       header: 'Action',
       sortable: false,
       render: (_, template) => (
-        <button 
-          onClick={() => navigate(`/template-details/${template.qr_code_template_id}`)}
-          className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-brand-500 px-4 py-2 font-medium text-white hover:bg-brand-600"
-        >
-          <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-        </button>
+        <div className="flex items-center justify-center gap-2">
+          <button 
+            onClick={() => navigate(`/template-details/${template.qr_code_template_id}`)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => navigate(`/edit-template/${template.qr_code_template_id}`)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Template"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => openDeleteModal(template.qr_code_template_id)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Template"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
+        </div>
       )
     }
   ];
@@ -152,6 +200,66 @@ function QRTemplates() {
         }
         darkMode={true}
       />
+
+      {/* Delete Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div
+            className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+            onClick={() => {
+              setShowDeleteModal(false);
+              setTemplateToDelete(null);
+            }}
+          />
+
+          <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
+            <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg dark:bg-gray-800">
+              <div className="p-6">
+                <div className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <FontAwesomeIcon
+                      icon={faExclamationTriangle}
+                      className="h-6 w-6 text-error-500"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                      Confirm Deletion
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Are you sure you want to delete this template? This action
+                        cannot be undone. All data associated with this template
+                        will be permanently removed.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setTemplateToDelete(null);
+                    }}
+                    className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDeleteTemplate}
+                    className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
+                  >
+                    Delete Template
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
