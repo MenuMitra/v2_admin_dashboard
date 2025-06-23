@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Logo from "../assets/images/logo/logo.png";
 import grid01 from "../assets/images/shape/grid-01.svg";
-import toast, { Toaster } from 'react-hot-toast';
+import { toastController } from "../utils/toastController";
 
 function Auth() {
   const [mobile, setMobile] = useState("");
@@ -60,21 +60,21 @@ function Auth() {
     setError("");
 
     try {
-      const response = await axios.post(
-        "https://men4u.xyz/v2/admin/admin_login",
+      const response = await toastController.promise(
+        axios.post("https://men4u.xyz/v2/admin/admin_login", { mobile }),
         {
-          mobile: mobile,
+          loading: 'Sending OTP...',
+          success: 'OTP sent successfully!',
+          error: 'Failed to send OTP'
         }
       );
 
       if (response.data.detail === "OTP sent successfully") {
         setIsOtpSent(true);
-        toast.success('OTP sent successfully!');
       }
     } catch (err) {
       const errorMsg = err.response?.data?.detail || "Something went wrong";
       setError(errorMsg);
-      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -88,16 +88,19 @@ function Auth() {
     const otpString = otp.join("");
 
     try {
-      const response = await axios.post(
-        "https://men4u.xyz/v2/admin/admin_verify_otp",
-        {
-          mobile: mobile,
+      const response = await toastController.promise(
+        axios.post("https://men4u.xyz/v2/admin/admin_verify_otp", {
+          mobile,
           otp: parseInt(otpString),
+        }),
+        {
+          loading: 'Verifying OTP...',
+          success: 'Login successful!',
+          error: 'Failed to verify OTP'
         }
       );
 
       if (response.data.detail === "Login successful") {
-        // Store auth related data
         const authData = {
           access_token: response.data.access_token,
           token_type: response.data.token_type,
@@ -105,7 +108,6 @@ function Auth() {
         };
         localStorage.setItem("auth", JSON.stringify(authData));
 
-        // Store admin related data
         const adminData = {
           user_id: response.data.user_id,
           name: response.data.name,
@@ -114,13 +116,11 @@ function Auth() {
           role: response.data.role,
         };
         localStorage.setItem("adminData", JSON.stringify(adminData));
-        toast.success('Login successful!');
         navigate("/dashboard");
       }
     } catch (err) {
       const errorMsg = err.response?.data?.detail || "Failed to verify OTP";
       setError(errorMsg);
-      toast.error(errorMsg);
     } finally {
       setVerifyLoading(false);
     }
@@ -153,7 +153,6 @@ function Auth() {
 
   return (
     <>
-      <Toaster position="top-right" />
       <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
         <div className="relative flex flex-col justify-center w-full h-screen dark:bg-gray-900 sm:p-0 lg:flex-row">
           {/* <!-- Form --> */}

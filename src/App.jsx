@@ -45,6 +45,7 @@ import MenuDetails from './components/Outlets/Menu/MenuDetails';
 import EditMenu from './components/Outlets/Menu/EditMenu';
 import CreateCategory from './components/Outlets/Category/CreateCategory';
 import CreateMenu from './components/Outlets/Menu/CreateMenu';
+import { ToastProvider } from './components/common/ToastProvider';
 
 
 function App() {
@@ -58,89 +59,91 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/" element={<Auth />} />
-        
-        {/* Protected routes with AppLayout */}
-        <Route element={<PrivateRoute />}>
-
-          {/* Dashboard Routes */}
-          <Route path="/dashboard" element={<Dashboard />} />
-
-          {/* Profile Routes */}
-          <Route path="/profile" element={<Profile />} />
-
-          {/* Outlet Routes */}
-          <Route path="/outlets" element={<Outlets />} />
-          <Route path="/create-outlet" element={<CreateOutlet />} />
-          <Route path="/view-outlet/:outletId" element={<ViewOutlet />} />
-          <Route path="/edit-outlet/:outletId" element={<EditOutlet />} />
-          <Route path="/categories/:outletId" element={<ManageCategories />} />
-          <Route path="/category-details/:outletId/:menuCategoryId" element={<CategoryDetails />} />
-          <Route path="/create-category/:outletId/" element={<CreateCategory />} />
-          <Route path="/edit-category/:outletId/:menuCategoryId" element={<EditCategory />} />
-          <Route path="/menus/:outletId" element={<ManageMenus />} />
-          <Route path="/menu-details/:outletId/:menuId" element={<MenuDetails />} />
-          <Route path="/create-menu/:outletId" element={<CreateMenu />} />
-          <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} />
-
-          {/* Owner Routes */}
-          <Route path="/owners" element={<Owners />} />
-          <Route path="/owner-details/:ownerId" element={<OwnerDetails />} />
-          <Route path="/edit-owner/:ownerId" element={<EditOwner />} />
-          <Route path="/create-owner" element={<CreateOwner />} />
-
-          {/* Partner Routes */}
-          <Route path="/partners" element={<Partners />} />
-          <Route path="/partner-details/:partnerId" element={<PartnerDetails />} />
-          <Route path="/edit-partner/:partnerId" element={<EditPartner />} />
-          <Route path="/create-partner" element={<CreatePartner />} />
-
-          {/* Functionalities Routes */}
-          <Route path="/functionalities" element={<Functionalities />} />
-          <Route path="/add-role-assign-functionalities/:roleId" element={<AddRoleAssignFunctionalities />} />
-          <Route path="/assign-functionality-role/:functionalityId" element={<AssignFunctionlaityRole />} />
-
-          {/* Roles Routes */}
-          <Route path="/roles" element={<Roles />} />
-
-          {/* QR Templates Routes */}
-          <Route path="/qr-templates" element={<QRTemplates />} />
-          <Route path="/create-template" element={<CreateTemplate />} />
-          <Route path="/template-details/:templateId" element={<TemplateDetails />} />
-          <Route path="/edit-template/:templateId" element={<EditTemplate />} />
-
-          {/* Tickets Routes */}
-          <Route path="/tickets" element={<Tickets />} />
-          <Route path="/ticket-details/:ticketId" element={<TicketDetails />} />
-
-          {/* Search Routes */}
-          <Route path="/search" element={<Search />} />
-
-          {/* Customer Routes */}
-
-          <Route path="/customer" element={<Customer />} />
-          <Route path="/customer-details/:customerId" element={<CustomerDetails />} />
-
-          {/* Super Owner Routes */}
-          <Route path="/super-owners" element={<SuperOwner />} />
-          <Route path="/create-super-owner" element={<CreateSuperOwner />} />
-          <Route path="/super-owner-details/:superOwnerId" element={<SuperOwnerDetails />} />
-          <Route path="/edit-super-owner/:superOwnerId" element={<EditSuperOwner />} />
+    <ToastProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/" element={<Auth />} />
           
+          {/* Protected routes with AppLayout */}
+          <Route element={<PrivateRoute />}>
 
-          {/* Admin Routes */}
-          <Route path="/create-admin" element={<CreateAdmin />} />
-          <Route path="/admins" element={<Admins />} />
-          <Route path="/admin-details/:adminId" element={<AdminDetails />} />
-          <Route path="/edit-admin/:adminId" element={<EditAdmin />} />
-          
-          {/* Add other protected routes here */}
-        </Route>
-      </Routes>
-    </BrowserRouter>
+            {/* Dashboard Routes */}
+            <Route path="/dashboard" element={<Dashboard />} />
+
+            {/* Profile Routes */}
+            <Route path="/profile" element={<Profile />} />
+
+            {/* Outlet Routes */}
+            <Route path="/outlets" element={<Outlets />} />
+            <Route path="/create-outlet" element={<CreateOutlet />} />
+            <Route path="/view-outlet/:outletId" element={<ViewOutlet />} />
+            <Route path="/edit-outlet/:outletId" element={<EditOutlet />} />
+            <Route path="/categories/:outletId" element={<ManageCategories />} />
+            <Route path="/category-details/:outletId/:menuCategoryId" element={<CategoryDetails />} />
+            <Route path="/create-category/:outletId/" element={<CreateCategory />} />
+            <Route path="/edit-category/:outletId/:menuCategoryId" element={<EditCategory />} />
+            <Route path="/menus/:outletId" element={<ManageMenus />} />
+            <Route path="/menu-details/:outletId/:menuId" element={<MenuDetails />} />
+            <Route path="/create-menu/:outletId" element={<CreateMenu />} />
+            <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} />
+
+            {/* Owner Routes */}
+            <Route path="/owners" element={<Owners />} />
+            <Route path="/owner-details/:ownerId" element={<OwnerDetails />} />
+            <Route path="/edit-owner/:ownerId" element={<EditOwner />} />
+            <Route path="/create-owner" element={<CreateOwner />} />
+
+            {/* Partner Routes */}
+            <Route path="/partners" element={<Partners />} />
+            <Route path="/partner-details/:partnerId" element={<PartnerDetails />} />
+            <Route path="/edit-partner/:partnerId" element={<EditPartner />} />
+            <Route path="/create-partner" element={<CreatePartner />} />
+
+            {/* Functionalities Routes */}
+            <Route path="/functionalities" element={<Functionalities />} />
+            <Route path="/add-role-assign-functionalities/:roleId" element={<AddRoleAssignFunctionalities />} />
+            <Route path="/assign-functionality-role/:functionalityId" element={<AssignFunctionlaityRole />} />
+
+            {/* Roles Routes */}
+            <Route path="/roles" element={<Roles />} />
+
+            {/* QR Templates Routes */}
+            <Route path="/qr-templates" element={<QRTemplates />} />
+            <Route path="/create-template" element={<CreateTemplate />} />
+            <Route path="/template-details/:templateId" element={<TemplateDetails />} />
+            <Route path="/edit-template/:templateId" element={<EditTemplate />} />
+
+            {/* Tickets Routes */}
+            <Route path="/tickets" element={<Tickets />} />
+            <Route path="/ticket-details/:ticketId" element={<TicketDetails />} />
+
+            {/* Search Routes */}
+            <Route path="/search" element={<Search />} />
+
+            {/* Customer Routes */}
+
+            <Route path="/customer" element={<Customer />} />
+            <Route path="/customer-details/:customerId" element={<CustomerDetails />} />
+
+            {/* Super Owner Routes */}
+            <Route path="/super-owners" element={<SuperOwner />} />
+            <Route path="/create-super-owner" element={<CreateSuperOwner />} />
+            <Route path="/super-owner-details/:superOwnerId" element={<SuperOwnerDetails />} />
+            <Route path="/edit-super-owner/:superOwnerId" element={<EditSuperOwner />} />
+            
+
+            {/* Admin Routes */}
+            <Route path="/create-admin" element={<CreateAdmin />} />
+            <Route path="/admins" element={<Admins />} />
+            <Route path="/admin-details/:adminId" element={<AdminDetails />} />
+            <Route path="/edit-admin/:adminId" element={<EditAdmin />} />
+            
+            {/* Add other protected routes here */}
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ToastProvider>
   );
 }
 
