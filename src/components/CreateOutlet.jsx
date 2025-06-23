@@ -14,6 +14,7 @@ import {
   labelStyles
 } from './forms/FormElements.jsx';
 import ImageUploader from './common/ImageUploader';
+import Breadcrumb from './Breadcrumb';
 
 function CreateOutlet() {
   const navigate = useNavigate();
@@ -52,6 +53,12 @@ function CreateOutlet() {
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const breadcrumbItems = [
+    { label: 'Dashboard', path: '/' },
+    { label: 'Outlets', path: '/outlets' },
+    { label: 'Create Outlet' }
+  ];
 
   useEffect(() => {
     fetchOutletTypes();
@@ -226,7 +233,9 @@ function CreateOutlet() {
   );
 
   return (
-    <div className="p-4">
+    <>
+      <Breadcrumb items={breadcrumbItems} />
+      
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
@@ -662,7 +671,7 @@ function CreateOutlet() {
           </section> */}
         </form>
       </div>
-    </div>
+    </>
   );
 }
 
