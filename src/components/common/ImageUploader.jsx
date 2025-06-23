@@ -143,19 +143,19 @@ const ImageUploader = ({
           </div>
         ) : (
           <>
-            <FontAwesomeIcon 
-              icon={faImage} 
-              className="w-12 h-12 text-gray-400 mb-4" 
-            />
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+        <FontAwesomeIcon 
+          icon={faImage} 
+          className="w-12 h-12 text-gray-400 mb-4" 
+        />
+        <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
               {maxImages === 1 ? 'Click to upload or drag and drop' : 'Drag and drop images here'}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
               {maxImages === 1 ? 'Upload a single image' : 'or click to browse files'}
-            </p>
-            <p className="text-xs text-gray-400">
+        </p>
+        <p className="text-xs text-gray-400">
               PNG, JPG, WebP {maxImages === 1 ? '' : `(max ${maxImages} images)`}
-            </p>
+        </p>
           </>
         )}
       </div>

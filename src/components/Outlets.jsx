@@ -527,9 +527,15 @@ function Outlets() {
       header: "Owner",
       sortable: true,
       render: (value, row) => (
-        <Link to={`/owner/${row?.owner_id}`} className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-          {row?.owner || "-"} 
-        </Link>
+        row?.owner_id ? (
+          <Link to={`/owner/${row.owner_id}`} className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            {row?.owner || "-"}
+          </Link>
+        ) : (
+          <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+            {row?.owner || "-"}
+          </p>
+        )
       )
     },
     {

@@ -488,7 +488,7 @@ function EditOutlet() {
                     existingImages={previewUrl ? [previewUrl] : []}
                     label="Outlet Image"
                     className="w-full"
-                  />
+                    />
                 </div>
               </div>
 
@@ -658,21 +658,21 @@ function EditOutlet() {
 
               <TimePickerInput
                 label="Opening Time"
-                name="opening_time"
-                value={formData.opening_time}
-                onChange={handleInputChange}
+                  name="opening_time"
+                  value={formData.opening_time}
+                  onChange={handleInputChange}
                 required
                 placeholder="Select opening time"
-              />
+                />
 
               <TimePickerInput
                 label="Closing Time"
-                name="closing_time"
-                value={formData.closing_time}
-                onChange={handleInputChange}
+                  name="closing_time"
+                  value={formData.closing_time}
+                  onChange={handleInputChange}
                 required
                 placeholder="Select closing time"
-              />
+                />
 
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700">
