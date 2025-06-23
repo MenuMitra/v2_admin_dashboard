@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Logo from "../assets/images/logo/logo.png";
 import grid01 from "../assets/images/shape/grid-01.svg";
+import toast, { Toaster } from 'react-hot-toast';
 
 function Auth() {
   const [mobile, setMobile] = useState("");
@@ -68,10 +69,12 @@ function Auth() {
 
       if (response.data.detail === "OTP sent successfully") {
         setIsOtpSent(true);
-        console.log("OTP sent successfully");
+        toast.success('OTP sent successfully!');
       }
     } catch (err) {
-      setError(err.response?.data?.detail || "Something went wrong");
+      const errorMsg = err.response?.data?.detail || "Something went wrong";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -111,10 +114,13 @@ function Auth() {
           role: response.data.role,
         };
         localStorage.setItem("adminData", JSON.stringify(adminData));
+        toast.success('Login successful!');
         navigate("/dashboard");
       }
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to verify OTP");
+      const errorMsg = err.response?.data?.detail || "Failed to verify OTP";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setVerifyLoading(false);
     }
@@ -147,6 +153,7 @@ function Auth() {
 
   return (
     <>
+      <Toaster position="top-right" />
       <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
         <div className="relative flex flex-col justify-center w-full h-screen dark:bg-gray-900 sm:p-0 lg:flex-row">
           {/* <!-- Form --> */}
