@@ -16,11 +16,14 @@ function Auth() {
 
   const navigate = useNavigate();
 
-  const inputRef = useCallback((inputElement) => {
-    if (inputElement && isOtpSent) {
-      inputElement.focus();
-    }
-  }, [isOtpSent]);
+  const inputRef = useCallback(
+    (inputElement) => {
+      if (inputElement && isOtpSent) {
+        inputElement.focus();
+      }
+    },
+    [isOtpSent]
+  );
 
   const handleOtpChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
@@ -126,14 +129,18 @@ function Auth() {
 
   // Add this new function to handle enter key for OTP verification
   const handleOtpKeyPress = (e) => {
-    if (e.key === 'Enter' && !otp.some((digit) => digit === "") && !verifyLoading) {
+    if (
+      e.key === "Enter" &&
+      !otp.some((digit) => digit === "") &&
+      !verifyLoading
+    ) {
       handleVerifyOTP(e);
     }
   };
 
   // Add this new function to handle enter key for login
   const handleMobileKeyPress = (e) => {
-    if (e.key === 'Enter' && !loading && mobile.length === 10) {
+    if (e.key === "Enter" && !loading && mobile.length === 10) {
       handleLogin(e);
     }
   };
@@ -195,8 +202,13 @@ function Auth() {
                             onChange={(e) => {
                               const value = e.target.value;
                               if (/^\d{0,10}$/.test(value)) {
-                                if (value.length > 0 && "12345".includes(value[0])) {
-                                  setMobileError("Mobile number must start with 6-9");
+                                if (
+                                  value.length > 0 &&
+                                  "12345".includes(value[0])
+                                ) {
+                                  setMobileError(
+                                    "Mobile number must start with 6-9"
+                                  );
                                   setMobile("");
                                 } else {
                                   setMobileError("");
@@ -209,11 +221,13 @@ function Auth() {
                             className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                           />
                           {mobileError && (
-                            <p className="mt-1 text-sm text-error-500">{mobileError}</p>
+                            <p className="mt-1 text-sm text-error-500">
+                              {mobileError}
+                            </p>
                           )}
                         </div>
                         <div>
-                        <button
+                          <button
                             type="submit"
                             disabled={loading || mobile.length !== 10}
                             className={`flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg shadow-theme-xs ${
@@ -268,7 +282,7 @@ function Auth() {
                         </div>
                       </div>
                       <div>
-                      <button
+                        <button
                           onClick={handleVerifyOTP}
                           disabled={
                             verifyLoading || otp.some((digit) => digit === "")
@@ -283,6 +297,11 @@ function Auth() {
                         </button>
                       </div>
                     </div>
+                    {error && (
+                      <div className="mt-4 text-sm text-error-500">
+                        The OTP you entered is incorrect. Please try again.
+                      </div>
+                    )}
                     <div className="mt-5">
                       <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
                         Didn't get the code?
@@ -296,10 +315,6 @@ function Auth() {
                     </div>
                   </div>
                 </div>
-              )}
-
-              {error && (
-                <div className="mt-4 text-sm text-error-500">{error}</div>
               )}
             </div>
           </div>
@@ -318,7 +333,9 @@ function Auth() {
                 <a href="index.html" className="block mb-4">
                   <img src={Logo} alt="Logo" />
                 </a>
-                <h2 className="text-2xl font-semibold mb-2 text-white">Admin Dashboard</h2>
+                <h2 className="text-2xl font-semibold mb-2 text-white">
+                  Admin Dashboard
+                </h2>
               </div>
             </div>
           </div>
