@@ -299,13 +299,6 @@ function Owners() {
               value === 1 ? "text-success-500" : "text-error-500"
             }`}
           />
-          <span
-            className={`text-base font-medium ${
-              value === 1 ? "text-success-700" : "text-error-700"
-            }`}
-          >
-            {value === 1 ? "Active" : "Inactive"}
-          </span>
         </div>
       )
     },
