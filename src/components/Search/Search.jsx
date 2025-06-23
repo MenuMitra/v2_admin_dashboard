@@ -183,9 +183,9 @@ const Search = () => {
                     onChange={(e) => setSearchType(e.target.value)}
                     className="w-full h-10 sm:h-auto px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="name">Outlet Name</option>
-                    <option value="mobile">Outlet Mobile</option>
-                    <option value="outlet_name">Outlet Code</option>
+                    <option value="name">Name</option>
+                    <option value="mobile">Mobile</option>
+                    <option value="outlet_code">Outlet Code</option>
                   </select>
                 </div>
               </div>
