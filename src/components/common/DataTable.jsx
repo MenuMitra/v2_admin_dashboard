@@ -319,13 +319,13 @@ function DataTable({
           value ? "text-success-500" : "text-error-500"
         }`}
       />
-      <span
+      {/* <span
         className={`text-base font-medium ${
           value ? "text-success-700" : "text-error-700"
         }`}
       >
         {value ? "Active" : "Inactive"}
-      </span>
+      </span> */}
     </div>
   );
 
