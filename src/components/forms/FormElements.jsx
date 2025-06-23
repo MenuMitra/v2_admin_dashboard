@@ -38,6 +38,7 @@ const TextInput = React.forwardRef(({
   validationType = null,
   onValidation = () => {},
   isSubmitAttempted = false,
+  className = '',
   ...props 
 }, ref) => {
   const [error, setError] = useState('');
@@ -57,12 +58,10 @@ const TextInput = React.forwardRef(({
   };
 
   return (
-    <div>
-      {label && (
-        <label className={labelStyles}>
-          {required ? <RequiredLabel label={label} /> : label}
-        </label>
-      )}
+    <div className="relative">
+      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+        {required && <span className="text-error-600">*</span>} {label}
+      </label>
       <input
         ref={ref}
         type={type}
@@ -70,7 +69,13 @@ const TextInput = React.forwardRef(({
         value={value}
         onChange={handleChange}
         required={required}
-        className={`${baseInputStyles} ${showError ? 'border-error-500 focus:border-error-500' : ''}`}
+        className={`
+          w-full px-3 py-2 border rounded-lg shadow-sm
+          focus:outline-none focus:ring-2 focus:ring-brand-500
+          disabled:bg-gray-100 disabled:cursor-not-allowed
+          ${className}
+          ${showError ? 'border-error-500 focus:border-error-500' : ''}
+        `}
         {...props}
       />
       {error && (

@@ -53,6 +53,7 @@ function CreateOutlet() {
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showValidation, setShowValidation] = useState(false);
 
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/' },
@@ -143,6 +144,15 @@ function CreateOutlet() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Set validation to true when form is submitted
+    setShowValidation(true);
+    
+    // Check if owner is not selected or name validation fails
+    if (!formData.owner_id || !formData.name || formData.name.length < 3 || formData.name.length > 50) {
+      return; // Stop form submission if validation fails
+    }
+    
     try {
       const token = getToken();
       if (!token) {
@@ -232,6 +242,11 @@ function CreateOutlet() {
     owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Optional: Add a helper function to check name validation
+  const isNameValid = (name) => {
+    return name && name.length >= 3 && name.length <= 50;
+  };
+
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
@@ -295,7 +310,11 @@ function CreateOutlet() {
                   <div className="relative">
                     <div
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+                      className={`
+                        w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
+                        focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer
+                        ${showValidation && !formData.owner_id ? 'border-error-500' : 'border-gray-300'}
+                      `}
                       role="combobox"
                       aria-expanded={isDropdownOpen}
                       aria-haspopup="listbox"
@@ -422,14 +441,26 @@ function CreateOutlet() {
 
               {/* Rest of the form fields in their own grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                <TextInput
-                  label="Outlet Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter Outlet Name"
-                  required
-                />
+                <div className="relative">
+                  <TextInput
+                    label="Outlet Name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter Outlet Name"
+                    required
+                    className={`
+                      ${showValidation && !isNameValid(formData.name) ? 'border-error-500' : 'border-gray-300'}
+                    `}
+                  />
+                  {showValidation && !isNameValid(formData.name) && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {!formData.name ? 'Outlet name is required' : 
+                       formData.name.length < 3 ? 'Outlet name must be at least 3 characters' : 
+                       'Outlet name must not exceed 50 characters'}
+                    </p>
+                  )}
+                </div>
 
                 <TextInput
                   label="Mobile Number"
@@ -671,6 +702,13 @@ function CreateOutlet() {
           </section> */}
         </form>
       </div>
+
+      {/* Add error message when validation fails */}
+      {showValidation && !formData.owner_id && (
+        <p className="mt-1 text-sm text-error-500">
+          Please select an owner
+        </p>
+      )}
     </>
   );
 }
