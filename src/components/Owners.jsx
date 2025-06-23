@@ -280,21 +280,13 @@ function Owners() {
         </p>
       ),
     },
-    {
-      field: "email",
-      header: "Email",
-      sortable: true,
-    },
+    
     {
       field: "mobile",
       header: "Mobile",
       sortable: true,
     },
-    {
-      field: "address",
-      header: "Address",
-      sortable: false,
-    },
+  
     {
       field: "is_active",
       header: "Status",
