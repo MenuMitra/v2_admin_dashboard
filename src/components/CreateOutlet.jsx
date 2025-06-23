@@ -617,6 +617,8 @@ function CreateOutlet() {
                   name="veg_nonveg"
                   value={formData.veg_nonveg}
                   onChange={handleInputChange}
+                  onFocus={() => handleFocus('food_type')}
+                  error={validationStates.food_type && !formData.veg_nonveg}
                   required
                   options={[
                     { value: 'veg', label: 'Veg' },
@@ -630,6 +632,8 @@ function CreateOutlet() {
                   name="outlet_mode"
                   value={formData.outlet_mode}
                   onChange={handleInputChange}
+                  onFocus={() => handleFocus('outlet_mode')}
+                  error={validationStates.outlet_mode && !formData.outlet_mode}
                   required
                   options={[
                     { value: 'offline', label: 'Offline' },
