@@ -53,7 +53,15 @@ function CreateOutlet() {
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [showValidation, setShowValidation] = useState(false);
+  const [validationStates, setValidationStates] = useState({
+    owner: false,
+    name: false,
+    mobile: false,
+    upi: false,
+    outlet_type: false,
+    food_type: false,
+    outlet_mode: false
+  });
 
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/' },
@@ -127,13 +135,32 @@ function CreateOutlet() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    if (name === 'whatsapp') {
-      // Only allow numbers and limit to 10 digits
+    if (name === 'mobile') {
+      // Only allow numbers
       const numbersOnly = value.replace(/[^0-9]/g, '');
-      setFormData(prev => ({
-        ...prev,
-        [name]: numbersOnly.slice(0, 10)
-      }));
+      const firstDigit = numbersOnly.charAt(0);
+      
+      // If starts with 1-5, clear the field and show validation
+      if (firstDigit && ['1','2','3','4','5'].includes(firstDigit)) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: '' // Clear the field
+        }));
+        setValidationStates(prev => ({
+          ...prev,
+          mobile: true
+        }));
+      } else {
+        // For valid numbers (6-9) or empty field
+        setFormData(prev => ({
+          ...prev,
+          [name]: numbersOnly.slice(0, 10)
+        }));
+        setValidationStates(prev => ({
+          ...prev,
+          mobile: false
+        }));
+      }
     } else {
       setFormData(prev => ({
         ...prev,
@@ -148,17 +175,37 @@ function CreateOutlet() {
     return upi && upiRegex.test(upi);
   };
 
+  const isMobileValid = (mobile) => {
+    const mobileRegex = /^[6-9]\d{9}$/;
+    const startsWithInvalidNumber = /^[1-5]/;
+    
+    if (!mobile) return false;
+    if (startsWithInvalidNumber.test(mobile)) return false;
+    return mobileRegex.test(mobile);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    setShowValidation(true);
-    
-    // Add UPI validation to the checks
+    // Set all validations to true on submit
+    setValidationStates({
+      owner: !formData.owner_id,
+      name: !isNameValid(formData.name),
+      mobile: !isMobileValid(formData.mobile),
+      upi: !isUpiValid(formData.upi_id),
+      outlet_type: !formData.outlet_type,
+      food_type: !formData.veg_nonveg,
+      outlet_mode: !formData.outlet_mode
+    });
+
+    // Check all validations
     if (!formData.owner_id || 
-        !formData.name || 
-        formData.name.length < 3 || 
-        formData.name.length > 50 ||
-        !isUpiValid(formData.upi_id)) {
+        !isNameValid(formData.name) || 
+        !isMobileValid(formData.mobile) ||
+        !isUpiValid(formData.upi_id) ||
+        !formData.outlet_type ||
+        !formData.veg_nonveg ||
+        !formData.outlet_mode) {
       return;
     }
     
@@ -257,10 +304,11 @@ function CreateOutlet() {
   };
 
   // Add this function to handle focus
-  const handleFocus = () => {
-    if (showValidation) {
-      setShowValidation(false);
-    }
+  const handleFocus = (fieldName) => {
+    setValidationStates(prev => ({
+      ...prev,
+      [fieldName]: false
+    }));
   };
 
   return (
@@ -329,7 +377,7 @@ function CreateOutlet() {
                       className={`
                         w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
                         focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer
-                        ${showValidation && !formData.owner_id ? 'border-error-500' : 'border-gray-300'}
+                        ${validationStates.owner ? 'border-error-500' : 'border-gray-300'}
                       `}
                       role="combobox"
                       aria-expanded={isDropdownOpen}
@@ -463,15 +511,15 @@ function CreateOutlet() {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    onFocus={handleFocus}
+                    onFocus={() => handleFocus('name')}
                     placeholder="Enter Outlet Name"
                     required
                     className={`
                       focus:border-brand-500 focus:ring-brand-500
-                      ${showValidation && !isNameValid(formData.name) ? 'border-error-500' : 'border-gray-300'}
+                      ${validationStates.name ? 'border-error-500' : 'border-gray-300'}
                     `}
                   />
-                  {showValidation && !isNameValid(formData.name) && (
+                  {validationStates.name && (
                     <p className="text-error-500 text-sm mt-1">
                       {!formData.name ? 'Outlet name is required' : 
                        formData.name.length < 3 ? 'Outlet name must be at least 3 characters' : 
@@ -480,16 +528,28 @@ function CreateOutlet() {
                   )}
                 </div>
 
-                <TextInput
-                  label="Mobile Number"
-                  name="mobile"
-                  type="tel"
-                  value={formData.mobile}
-                  onChange={handleInputChange}
-                  placeholder="Enter Mobile Number"
-                  required
-                  pattern="[0-9]{10}"
-                />
+                <div className="relative">
+                  <TextInput
+                    label="Mobile Number"
+                    name="mobile"
+                    type="tel"
+                    value={formData.mobile}
+                    onChange={handleInputChange}
+                    onFocus={() => handleFocus('mobile')}
+                    placeholder="Enter Mobile Number"
+                    required
+                    maxLength={10}
+                    className={`
+                      focus:border-brand-500 focus:ring-brand-500
+                      ${validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                    `}
+                  />
+                  {validationStates.mobile && (
+                    <p className="text-error-500 text-sm mt-1">
+                      Mobile number must start with 6, 7, 8, or 9
+                    </p>
+                  )}
+                </div>
 
                 <TextInput
                   label="Email Address"
@@ -506,15 +566,15 @@ function CreateOutlet() {
                     name="upi_id"
                     value={formData.upi_id}
                     onChange={handleInputChange}
-                    onFocus={handleFocus}
+                    onFocus={() => handleFocus('upi')}
                     placeholder="username@bankname"
                     required
                     className={`
                       focus:border-brand-500 focus:ring-brand-500
-                      ${showValidation && !isUpiValid(formData.upi_id) ? 'border-error-500' : 'border-gray-300'}
+                      ${validationStates.upi ? 'border-error-500' : 'border-gray-300'}
                     `}
                   />
-                  {showValidation && !isUpiValid(formData.upi_id) && (
+                  {validationStates.upi && (
                     <p className="text-error-500 text-sm mt-1">
                       {!formData.upi_id ? 'UPI ID is required' : 
                        'Please enter a valid UPI ID (e.g., username@bankname)'}
@@ -735,7 +795,7 @@ function CreateOutlet() {
       </div>
 
       {/* Add error message when validation fails */}
-      {showValidation && !formData.owner_id && (
+      {validationStates.owner && (
         <p className="mt-1 text-sm text-error-500">
           Please select an owner
         </p>
