@@ -144,17 +144,6 @@ function CategoryDetails() {
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-            {/* Image */}
-            <div className="flex flex-col items-center p-3 rounded-lg bg-gray-50">
-              {category.image ? (
-                <img src={category.image} alt={category.name} className="mb-2 w-24 h-24 object-cover rounded-lg border" />
-              ) : (
-                <div className="mb-2 w-24 h-24 flex items-center justify-center rounded-lg bg-gray-200">
-                  <FontAwesomeIcon icon={faUtensils} className="w-8 h-8 text-gray-400" />
-                </div>
-              )}
-              <div className="text-base font-medium text-gray-800">Category Image</div>
-            </div>
             {/* Status */}
             <div className="flex items-center p-3 rounded-lg bg-gray-50">
               <div className="w-8 h-8 flex items-center justify-center">

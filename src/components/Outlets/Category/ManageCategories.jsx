@@ -366,10 +366,11 @@ function MenuCategoryTable({
       selectedItems={selectedItems}
       createButton={{
         show: true,
-        label: "Add Category",
+        label: "Create",
         position: "right",
-        className: "bg-brand-500 hover:bg-brand-600",
+        className: "bg-success-500 hover:bg-success-600",
         onClick: onCreateCategory,
+        icon: faPlus,
       }}
       noDataMessage={noDataMessage}
     />

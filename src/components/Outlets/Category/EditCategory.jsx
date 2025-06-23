@@ -178,18 +178,6 @@ function EditCategory() {
               onChange={e => setCategoryName(e.target.value)}
               placeholder="Enter category name"
             />
-            <FileInput
-              label="Category Image"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-            {imagePreview && (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="w-24 h-24 object-cover rounded-lg border mx-auto"
-              />
-            )}
             {error && <div className="text-error-500 text-center">{error}</div>}
             {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
             <button
