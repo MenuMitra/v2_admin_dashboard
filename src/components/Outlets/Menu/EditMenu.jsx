@@ -253,9 +253,20 @@ function EditMenu() {
 
       formData.append('portion_data', JSON.stringify(validPortionData));
 
-      // Append images if any
-      menuImages.forEach((image) => {
-        formData.append('images', image);
+      // Temporarily skip image handling
+      // menuImages.forEach((image) => {
+      //   formData.append('images', image);
+      // });
+
+      // Add console logs to help debug
+      console.log('Sending update request with data:', {
+        menu_id: menuId,
+        outlet_id: outletId,
+        menu_cat_id: menuCatId,
+        user_id: adminData?.user_id,
+        name: name.trim(),
+        food_type: foodType,
+        portion_data: validPortionData
       });
 
       // Make PUT request to update menu
@@ -273,6 +284,7 @@ function EditMenu() {
       setSuccessMsg(response.data.detail || 'Menu updated successfully');
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
+      console.error('Update error:', err); // Add detailed error logging
       setError(
         err.response?.data?.message ||
         err.response?.data?.detail ||
