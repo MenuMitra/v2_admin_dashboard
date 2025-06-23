@@ -63,6 +63,11 @@ function DataTable({
   enableStatusFilter = true,
   onStatusFilterChange = () => {},
   statusFilter = 'all',
+  bulkActionOptions = [
+    { key: 'active', label: 'Set Active', className: 'text-gray-700 hover:bg-gray-100' },
+    { key: 'inactive', label: 'Set Inactive', className: 'text-gray-700 hover:bg-gray-100' },
+    { key: 'delete', label: 'Delete Selected', className: 'text-error-600 hover:bg-error-50' }
+  ],
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -508,45 +513,21 @@ function DataTable({
                     {isActionDropdownOpen && (
                       <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
                         <ul className="flex flex-col gap-1">
-                          <li>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onBulkAction('active', selectedItems);
-                                setSelectedItems([]);
-                                setIsActionDropdownOpen(false);
-                              }}
-                              className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                              Set Active
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onBulkAction('inactive', selectedItems);
-                                setSelectedItems([]);
-                                setIsActionDropdownOpen(false);
-                              }}
-                              className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                            >
-                              Set Inactive
-                            </button>
-                          </li>
-                          <li>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onBulkAction('delete', selectedItems);
-                                setSelectedItems([]);
-                                setIsActionDropdownOpen(false);
-                              }}
-                              className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-error-600 hover:bg-error-50"
-                            >
-                              Delete Selected
-                            </button>
-                          </li>
+                          {bulkActionOptions.map((option) => (
+                            <li key={option.key}>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onBulkAction(option.key, selectedItems);
+                                  setSelectedItems([]);
+                                  setIsActionDropdownOpen(false);
+                                }}
+                                className={`w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium ${option.className}`}
+                              >
+                                {option.label}
+                              </button>
+                            </li>
+                          ))}
                         </ul>
                       </div>
                     )}

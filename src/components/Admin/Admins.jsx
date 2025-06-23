@@ -20,6 +20,7 @@ function Admins() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedAdmins, setSelectedAdmins] = useState([]);
 
   // Replace single number with array of protected mobile numbers
   const PROTECTED_MOBILES = [
@@ -117,6 +118,54 @@ function Admins() {
       setError(err.response?.data?.detail || 'Failed to delete admin');
       console.error('Error deleting admin:', err);
     }
+  };
+
+  // Modify handleBulkAction to remove delete case
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const endpoint = 'https://men4u.xyz/v2/admin/update_admin_status';
+      const payload = {
+        admin_ids: selectedIds,
+        is_active: action === 'active',
+        user_id: adminData.user_id
+      };
+
+      const response = await axios.post(
+        endpoint,
+        payload,
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.status === 'success') {
+        await fetchAdmins();
+        setSelectedAdmins([]);
+      } else {
+        throw new Error(`Failed to ${action} admins`);
+      }
+    } catch (err) {
+      setError(err.response?.data?.detail || `Failed to ${action} admins`);
+      console.error(`Error performing bulk ${action}:`, err);
+    }
+  };
+
+  // Add selection change handler
+  const handleSelectionChange = (selectedIds) => {
+    // Filter out protected admins from selection
+    const filteredSelection = selectedIds.filter(id => {
+      const admin = admins.find(a => a.user_id === id);
+      return admin && !PROTECTED_MOBILES.includes(admin.mobile);
+    });
+    setSelectedAdmins(filteredSelection);
   };
 
   // Define columns for DataTable
@@ -259,6 +308,21 @@ function Admins() {
           setStatusFilter(value);
         }}
         itemsPerPage={10}
+        enableSelection={true}
+        onSelectionChange={handleSelectionChange}
+        onBulkAction={handleBulkAction}
+        bulkActionOptions={[
+          { 
+            key: 'active', 
+            label: 'Set Active', 
+            className: 'text-success-600 hover:bg-success-50' 
+          },
+          { 
+            key: 'inactive', 
+            label: 'Set Inactive', 
+            className: 'text-warning-600 hover:bg-warning-50' 
+          }
+        ]}
       />
 
       {/* Delete Confirmation Modal */}
