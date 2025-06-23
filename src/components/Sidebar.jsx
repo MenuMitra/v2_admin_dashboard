@@ -39,7 +39,7 @@ const menuData = {
     //   ]
     // },
     {
-      title: "Dashboard",
+      title: "Home",
       path: "/dashboard",
       id: "dashboard",
       icon: faGrip,
