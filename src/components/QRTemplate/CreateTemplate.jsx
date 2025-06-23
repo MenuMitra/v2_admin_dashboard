@@ -4,8 +4,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft as faBack, faSave } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
-import { TextInput, FileInput } from '../forms/FormElements';
+import { TextInput } from '../forms/FormElements';
 import Breadcrumb from '../Breadcrumb';
+import ImageUploader from '../common/ImageUploader';
 
 function CreateTemplate() {
   const navigate = useNavigate();
@@ -25,15 +26,12 @@ function CreateTemplate() {
     { label: 'Create Template' }
   ];
 
-  // Handle file input change
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setFormData(prev => ({
-        ...prev,
-        image: file
-      }));
-    }
+  // Handle images change
+  const handleImagesChange = (newImages) => {
+    setFormData(prev => ({
+      ...prev,
+      image: newImages[0]
+    }));
   };
 
   // Handle form submission
@@ -187,22 +185,15 @@ function CreateTemplate() {
 
               {/* Right Column */}
               <div>
-                <FileInput
+                <ImageUploader
+                  maxImages={1}
+                  outputFormat="formData"
+                  existingImages={formData.image ? [URL.createObjectURL(formData.image)] : []}
+                  onImagesChange={handleImagesChange}
+                  className="mb-4"
                   label="Template Image"
-                  required
-                  accept="image/png,image/jpeg,image/jpg"
-                  onChange={handleFileChange}
+                  required={true}
                 />
-                {formData.image && (
-                  <div className="mt-4 flex flex-col items-center">
-                    <img 
-                      src={URL.createObjectURL(formData.image)} 
-                      alt="Preview" 
-                      className="w-32 h-32 object-cover mb-4 rounded-lg"
-                    />
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{formData.image.name}</p>
-                  </div>
-                )}
               </div>
             </div>
 

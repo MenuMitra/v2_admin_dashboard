@@ -8,7 +8,9 @@ const ImageUploader = ({
   outputFormat = 'formData', // 'formData' or 'base64'
   existingImages = [],
   onImagesChange,
-  className = ''
+  className = '',
+  label = '',
+  required = false
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const [images, setImages] = useState([]);
@@ -86,6 +88,13 @@ const ImageUploader = ({
 
   return (
     <div className={className}>
+      {/* Label */}
+      {label && (
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+
       {/* Drag & Drop Area */}
       <div
         className={`

@@ -419,9 +419,11 @@ function CreateMenu() {
             <ImageUploader
               maxImages={5}
               outputFormat="formData"
-              existingImages={[]} // Empty array for create form
+              existingImages={[]}
               onImagesChange={handleImagesChange}
               className="mb-4"
+              label="Menu Images"
+              required={false}
             />
             {error && <div className="text-error-500 text-center">{error}</div>}
             {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
