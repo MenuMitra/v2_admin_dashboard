@@ -142,15 +142,24 @@ function CreateOutlet() {
     }
   };
 
+  const isUpiValid = (upi) => {
+    // UPI ID format: username@bankname or phonenumber@bankname
+    const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/;
+    return upi && upiRegex.test(upi);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Set validation to true when form is submitted
     setShowValidation(true);
     
-    // Check if owner is not selected or name validation fails
-    if (!formData.owner_id || !formData.name || formData.name.length < 3 || formData.name.length > 50) {
-      return; // Stop form submission if validation fails
+    // Add UPI validation to the checks
+    if (!formData.owner_id || 
+        !formData.name || 
+        formData.name.length < 3 || 
+        formData.name.length > 50 ||
+        !isUpiValid(formData.upi_id)) {
+      return;
     }
     
     try {
@@ -491,14 +500,27 @@ function CreateOutlet() {
                   placeholder="Enter Email Address"
                 />
 
-                <TextInput
-                  label="UPI ID"
-                  name="upi_id"
-                  value={formData.upi_id}
-                  onChange={handleInputChange}
-                  placeholder="Enter UPI ID"
-                  required
-                />
+                <div className="relative">
+                  <TextInput
+                    label="UPI ID"
+                    name="upi_id"
+                    value={formData.upi_id}
+                    onChange={handleInputChange}
+                    onFocus={handleFocus}
+                    placeholder="username@bankname"
+                    required
+                    className={`
+                      focus:border-brand-500 focus:ring-brand-500
+                      ${showValidation && !isUpiValid(formData.upi_id) ? 'border-error-500' : 'border-gray-300'}
+                    `}
+                  />
+                  {showValidation && !isUpiValid(formData.upi_id) && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {!formData.upi_id ? 'UPI ID is required' : 
+                       'Please enter a valid UPI ID (e.g., username@bankname)'}
+                    </p>
+                  )}
+                </div>
 
                 <SelectInput
                   label="Outlet Type"
