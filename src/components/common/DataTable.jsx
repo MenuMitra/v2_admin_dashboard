@@ -45,7 +45,7 @@ function DataTable({
     disabled: false,
     tooltip: "",
   },
-  searchPlaceholder = "Search...",
+  searchPlaceholder = "Search",
   showBackButton = true,
   showCreateButton = true,
   showSearch = true,

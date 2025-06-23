@@ -437,7 +437,7 @@ function Owners() {
         }}
         showBackButton={true}
         showSearch={true}
-        searchPlaceholder="Search..."
+        searchPlaceholder="Search"
         onBackClick={() => navigate("/dashboard")}
         createButton={{
           show: true,

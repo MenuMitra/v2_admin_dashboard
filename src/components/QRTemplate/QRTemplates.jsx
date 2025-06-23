@@ -138,7 +138,7 @@ function QRTemplates() {
         showSearch={templates.length > 0}
         searchTerm={searchTerm}
         onSearchChange={handleSearch}
-        searchPlaceholder="Search by template name or position..."
+        searchPlaceholder="Search"
         enableSort={true}
         enablePagination={filteredTemplates.length > 10}
         showOutletSelect={false}

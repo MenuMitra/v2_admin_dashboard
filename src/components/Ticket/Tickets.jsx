@@ -343,7 +343,7 @@ function Tickets() {
         showSearch={selectedOutlet && tickets.length > 0}
         searchTerm={searchInput}
         onSearchChange={handleSearch}
-        searchPlaceholder="Search by ticket number, title, or user..."
+        searchPlaceholder="Search"
         enableSort={true}
         enablePagination={true}
         showOutletSelect={true}

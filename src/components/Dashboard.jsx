@@ -260,7 +260,7 @@ function Dashboard() {
           // title="All Outlets"
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          searchPlaceholder="Search outlets..."
+          searchPlaceholder="Search"
           counts={{
             total: data.outlet_data?.length || 0,
             active: data.outlet_data?.filter(outlet => outlet.total_order_count > 0).length || 0,

@@ -266,7 +266,7 @@ function ManageMenus() {
         enableSort={true}
         enableSearch={true}
         enablePagination={true}
-        searchPlaceholder="Search menus..."
+        searchPlaceholder="Search"
         noDataMessage="No menus found."
         showBackButton={true}
         onBackClick={() => navigate(-1)}

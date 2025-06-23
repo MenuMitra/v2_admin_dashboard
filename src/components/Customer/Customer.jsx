@@ -172,7 +172,7 @@ function Customer() {
         createButton={{
           show: false
         }}
-        searchPlaceholder="Search customers..."
+        searchPlaceholder="Search"
         enableSort={true}
         enablePagination={true}
         enableSearch={true}

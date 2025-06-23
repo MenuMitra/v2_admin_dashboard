@@ -746,7 +746,7 @@ function Outlets() {
         }}
         onBackClick={() => navigate(-1)}
         showBackButton={true}
-        searchPlaceholder="Search outlets..."
+        searchPlaceholder="Search"
         darkMode={false}
         enableSort={true}
         enablePagination={true}

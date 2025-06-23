@@ -18,7 +18,7 @@ function TablesViewHeader({
   onBackClick = () => {},
   onCreateClick = () => {},
   createButtonLabel = "Create Restaurant",
-  searchPlaceholder = "Search...",
+  searchPlaceholder = "Search",
   showBackButton = true,
   showCreateButton = true,
   showSearch = true,

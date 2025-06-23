@@ -197,7 +197,7 @@ function Roles() {
         }}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
-        searchPlaceholder="Search roles..."
+        searchPlaceholder="Search"
         enableSort={true}
         enablePagination={false}
         enableSearch={true}

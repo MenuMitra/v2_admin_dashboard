@@ -392,8 +392,8 @@ function SuperOwner() {
         }}
         showBackButton={true}
         showSearch={true}
-        searchPlaceholder="Search super owners..."
-        onBackClick={() => navigate("/")}
+        searchPlaceholder="Search"
+        onBackClick={() => navigate(-1)}
         createButton={{
           show: true,
           label: "Create",

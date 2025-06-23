@@ -355,7 +355,7 @@ function MenuCategoryTable({
       enableSort={true}
       enableSearch={true}
       enablePagination={true}
-      searchPlaceholder="Search categories..."
+      searchPlaceholder="Search"
       darkMode={false}
       showBackButton={true}
       onBackClick={() => navigate(-1)}

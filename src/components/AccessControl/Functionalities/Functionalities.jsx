@@ -254,7 +254,7 @@ function Functionalities() {
           icon: faPlus,
           showIconOnly: false
         }}
-        searchPlaceholder="Search functionalities..."
+        searchPlaceholder="Search"
         enableSort={true}
         enablePagination={true}
         enableSearch={true}

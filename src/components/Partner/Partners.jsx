@@ -450,7 +450,7 @@ function Partners() {
           icon: faPlus,
           showIconOnly: false
         }}
-        searchPlaceholder="Search partners..."
+        searchPlaceholder="Search"
         enableSort={true}
         enablePagination={true}
         enableSearch={true}

@@ -249,7 +249,7 @@ function Admins() {
         }}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
-        searchPlaceholder="Search admins..."
+        searchPlaceholder="Search"
         enableSort={true}
         enablePagination={true}
         enableSearch={true}
