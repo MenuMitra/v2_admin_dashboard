@@ -24,6 +24,7 @@ import {
 import Breadcrumb from './Breadcrumb';
 import TablesViewHeader from './common/TablesViewHeader';
 import DataTable from './common/DataTable';
+import Modal from './common/Modal';
 
 function Owners() {
   const { getToken } = useAuth();
@@ -385,6 +386,29 @@ function Owners() {
     }
   };
 
+  // Add delete modal buttons
+  const deleteModalButtons = (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          setShowDeleteModal(false);
+          setOwnerToDelete(null);
+        }}
+        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        onClick={handleDeleteOwner}
+        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
+      >
+        Delete Owner
+      </button>
+    </>
+  );
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -442,65 +466,29 @@ function Owners() {
         }}
       />
 
-      {/* Delete Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div
-            className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-            onClick={() => {
-              setShowDeleteModal(false);
-              setOwnerToDelete(null);
-            }}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setOwnerToDelete(null);
+        }}
+        title="Confirm Deletion"
+        type="error"
+        size="small"
+        actionButtons={deleteModalButtons}
+      >
+        <div className="flex flex-col items-center space-y-4">
+          <FontAwesomeIcon
+            icon={faExclamationTriangle}
+            className="h-8 w-8 text-error-500"
           />
-
-          <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
-            <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg dark:bg-gray-800">
-              <div className="p-6">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0">
-                    <FontAwesomeIcon
-                      icon={faExclamationTriangle}
-                      className="h-6 w-6 text-error-500"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                      Confirm Deletion
-                    </h3>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Are you sure you want to delete this owner? This action
-                        cannot be undone. All data associated with this owner
-                        will be permanently removed.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowDeleteModal(false);
-                      setOwnerToDelete(null);
-                    }}
-                    className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleDeleteOwner}
-                    className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
-                  >
-                    Delete Owner
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
+            Are you sure you want to delete this owner? <br/>
+            This action cannot be undone. All data associated with this owner
+            will be permanently removed.
+          </p>
         </div>
-      )}
+      </Modal>
     </>
   );
 }
