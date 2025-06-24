@@ -22,6 +22,9 @@ function EditAdmin() {
     email: '',
     is_active: 1
   });
+  const [validationStates, setValidationStates] = useState({
+    is_active: false
+  });
   const [errors, setErrors] = useState({
     name: '',
     mobile: '',
@@ -125,6 +128,13 @@ function EditAdmin() {
     }
   };
 
+  const handleFocus = (fieldName) => {
+    setValidationStates(prev => ({
+      ...prev,
+      [fieldName]: false
+    }));
+  };
+
   const validateForm = () => {
     const newErrors = {};
     let isValid = true;
@@ -154,8 +164,16 @@ function EditAdmin() {
       isValid = false;
     }
 
+    // Set regular errors
     setErrors(newErrors);
-    return isValid;
+
+    // Set validation states for status - exactly like CreateOutlet.jsx
+    setValidationStates(prev => ({
+      ...prev,
+      is_active: !formData.is_active
+    }));
+
+    return isValid && formData.is_active !== undefined && formData.is_active !== '';
   };
 
   const handleSubmit = async (e) => {
@@ -327,10 +345,25 @@ function EditAdmin() {
                   name="is_active"
                   value={formData.is_active}
                   onChange={handleChange}
-                  options={statusOptions}
+                  onFocus={() => handleFocus('is_active')}
+                  error={validationStates.is_active && !formData.is_active}
                   required
-                  
+                  options={statusOptions}
+                  placeholder="Select Status"
+                  className={`
+                    w-full px-3 py-2 
+                    rounded-lg shadow-sm
+                    transition duration-150 ease-in-out
+                    focus:outline-none focus:ring-2 focus:ring-brand-500
+                    ${validationStates.is_active ? 'border-error-500' : 'border-gray-300'}
+                    dark:border-gray-700
+                  `}
                 />
+                {validationStates.is_active && (
+                  <p className="text-error-500 text-sm mt-1">
+                    Please select a status
+                  </p>
+                )}
               </div>
             </div>
           </form>
