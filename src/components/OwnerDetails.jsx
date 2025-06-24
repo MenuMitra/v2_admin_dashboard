@@ -20,6 +20,8 @@ import {
   faCalendarCheck,
   faCircleCheck,
   faCircleXmark,
+  faStore,
+  faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "./common/Modal";
 import Breadcrumb from "./Breadcrumb";
@@ -437,6 +439,68 @@ function OwnerDetails() {
                 </div>
               </div>
             
+
+            {/* Add new Outlets section */}
+            {ownerData?.outlets && ownerData.outlets.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-base font-medium mb-4 text-gray-800">
+                  Associated Outlets
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {ownerData.outlets.map((outlet) => (
+                    <div
+                      key={outlet.outlet_id}
+                      onClick={() => navigate(`/view-outlet/${outlet.outlet_id}`)}
+                      className="group flex items-center p-4 rounded-xl border border-gray-200 
+                        hover:border-brand-500 hover:shadow-md transition-all duration-200 cursor-pointer"
+                    >
+                      <div className="w-10 h-10 flex items-center justify-center rounded-lg 
+                        bg-gray-100 group-hover:bg-brand-50"
+                      >
+                        <FontAwesomeIcon
+                          icon={faStore}
+                          className="w-5 h-5 text-gray-600 group-hover:text-brand-500"
+                        />
+                      </div>
+                      <div className="ml-4 flex-1">
+                        <div className="text-base font-medium text-gray-900 group-hover:text-brand-600 
+                          flex items-center justify-between"
+                        >
+                          {outlet.name}
+                          <FontAwesomeIcon
+                            icon={faChevronRight}
+                            className="w-4 h-4 text-gray-400 group-hover:text-brand-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Add new Functionalities section */}
+            {ownerData?.functionalities && ownerData.functionalities.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-base font-medium mb-4 text-gray-800">
+                  Access Functionalities
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {ownerData.functionalities.map((func) => (
+                    <div
+                      key={func.functionality_id}
+                      className="inline-flex items-center px-3 py-1.5 rounded-full text-sm
+                        bg-gray-100 text-gray-700 border border-gray-200"
+                    >
+                      {func.functionality_name.split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(' ')}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
 
