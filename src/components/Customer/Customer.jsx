@@ -81,6 +81,8 @@ function Customer() {
           },
         }
       );
+
+      // Update to use the new response format
       setCustomers(response.data.customers || []);
       setOutletName(response.data.outlet_name || '');
     } catch (err) {
@@ -90,7 +92,7 @@ function Customer() {
     }
   };
 
-  // Define columns for DataTable
+  // Update columns to include new fields
   const columns = [
     {
       field: 'name',
@@ -102,30 +104,29 @@ function Customer() {
       header: 'Mobile',
       sortable: true
     },
-    {
-      field: 'order_count',
-      header: 'Order Count',
-      sortable: true,
-      render: (value) => value ?? '-'
-    },
     // {
-    //   field: 'actions',
-    //   header: 'Actions',
-    //   sortable: false,
-    //   render: (_, customer) => (
-    //     <div className="flex items-center justify-center gap-2">
-    //       <button
-    //         onClick={() => navigate(`/customer-details/${customer.user_id}`, { 
-    //           state: { customerData: customer }
-    //         })}
-    //         className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-    //         title="View Details"
-    //       >
-    //         <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-    //       </button>
-    //     </div>
-    //   )
-    // }
+    //   field: 'total_orders_in_outlet',
+    //   header: 'Orders in Outlet',
+    //   sortable: true,
+    //   render: (value) => value ?? '0'
+    // },
+    {
+      field: 'total_orders_all_outlets',
+      header: 'Total Orders',
+      sortable: true,
+      render: (value) => value ?? '0'
+    },
+    {
+      field: 'created_on',
+      header: 'Joined Date',
+      sortable: true
+    },
+    {
+      field: 'last_login',
+      header: 'Last Login',
+      sortable: true,
+      render: (value) => value || '-'
+    }
   ];
 
   if (loading && !customers.length) {
@@ -159,9 +160,9 @@ function Customer() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         counts={{
-          total: customers.length,
-          active: customers.filter(c => c.is_active === 1).length,
-          inactive: customers.filter(c => c.is_active !== 1).length
+          total: customers.length, // or use response.data.total_customers if you want to store it
+          active: customers.filter(c => c.is_active === true).length,  // Updated to handle boolean
+          inactive: customers.filter(c => c.is_active !== true).length // Updated to handle boolean
         }}
         createButton={{
           show: false
