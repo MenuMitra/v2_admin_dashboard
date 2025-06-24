@@ -34,15 +34,46 @@ function CreateAdmin() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
-    setErrors(prev => ({
-      ...prev,
-      [name]: ''
-    }));
+    
+    if (name === 'mobile') {
+      // Only allow numbers
+      const numbersOnly = value.replace(/[^0-9]/g, '');
+      const firstDigit = numbersOnly.charAt(0);
+      
+      // If starts with 1-5, clear the field
+      if (firstDigit && ['1','2','3','4','5'].includes(firstDigit)) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: '' // Clear the field
+        }));
+        setErrors(prev => ({
+          ...prev,
+          mobile: 'Mobile number must start with 6, 7, 8, or 9'
+        }));
+      } else {
+        // For valid numbers (6-9) or empty field
+        setFormData(prev => ({
+          ...prev,
+          [name]: numbersOnly.slice(0, 10)
+        }));
+        setErrors(prev => ({
+          ...prev,
+          mobile: ''
+        }));
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+      // Clear error when user starts typing
+      if (name in errors) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
+    }
   };
 
   const validateForm = () => {
@@ -56,11 +87,12 @@ function CreateAdmin() {
     }
 
     // Mobile validation
+    const mobileRegex = /^[6-9]\d{9}$/;
     if (!formData.mobile.trim()) {
       newErrors.mobile = 'Mobile number is required';
       isValid = false;
-    } else if (!/^\d{10}$/.test(formData.mobile)) {
-      newErrors.mobile = 'Mobile number must be 10 digits';
+    } else if (!mobileRegex.test(formData.mobile)) {
+      newErrors.mobile = 'Mobile number must start with 6, 7, 8, or 9 and be 10 digits';
       isValid = false;
     }
 
@@ -77,8 +109,7 @@ function CreateAdmin() {
     if (!formData.password.trim()) {
       newErrors.password = 'Password is required';
       isValid = false;
-    } 
-    else if (formData.password.length < 4) {
+    } else if (formData.password.length < 4) {
       newErrors.password = 'Password must be at least 4 characters';
       isValid = false;
     }
@@ -203,9 +234,13 @@ function CreateAdmin() {
                   onChange={handleChange}
                   placeholder="Enter admin name"
                   required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${errors.name ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                  <p className="text-error-500 text-sm mt-1">{errors.name}</p>
                 )}
               </div>
 
@@ -216,11 +251,14 @@ function CreateAdmin() {
                   value={formData.mobile}
                   onChange={handleChange}
                   placeholder="Enter 10 digit mobile number"
-                  pattern="[0-9]{10}"
                   required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${errors.mobile ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
                 {errors.mobile && (
-                  <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
+                  <p className="text-error-500 text-sm mt-1">{errors.mobile}</p>
                 )}
               </div>
 
@@ -233,23 +271,32 @@ function CreateAdmin() {
                   onChange={handleChange}
                   placeholder="Enter email address"
                   required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${errors.email ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                  <p className="text-error-500 text-sm mt-1">{errors.email}</p>
                 )}
               </div>
 
               <div>
-                <PasswordInput
+                <TextInput
                   label="Password"
                   name="password"
+                  type="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter password"
                   required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${errors.password ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
                 {errors.password && (
-                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                  <p className="text-error-500 text-sm mt-1">{errors.password}</p>
                 )}
               </div>
             </div>
