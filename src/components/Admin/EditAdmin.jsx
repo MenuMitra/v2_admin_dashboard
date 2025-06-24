@@ -83,16 +83,45 @@ function EditAdmin() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'is_active' ? parseInt(value) : value
-    }));
-    // Clear error when user starts typing
-    if (name in errors) {
-      setErrors(prev => ({
+    
+    if (name === 'mobile') {
+      // Only allow numbers
+      const numbersOnly = value.replace(/[^0-9]/g, '');
+      const firstDigit = numbersOnly.charAt(0);
+      
+      // If starts with 1-5, clear the field
+      if (firstDigit && ['1','2','3','4','5'].includes(firstDigit)) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: '' // Clear the field
+        }));
+        setErrors(prev => ({
+          ...prev,
+          mobile: 'Mobile number must start with 6, 7, 8, or 9'
+        }));
+      } else {
+        // For valid numbers (6-9) or empty field
+        setFormData(prev => ({
+          ...prev,
+          [name]: numbersOnly.slice(0, 10)
+        }));
+        setErrors(prev => ({
+          ...prev,
+          mobile: ''
+        }));
+      }
+    } else {
+      setFormData(prev => ({
         ...prev,
-        [name]: ''
+        [name]: name === 'is_active' ? parseInt(value) : value
       }));
+      // Clear error when user starts typing
+      if (name in errors) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+      }
     }
   };
 
@@ -107,11 +136,12 @@ function EditAdmin() {
     }
 
     // Mobile validation
+    const mobileRegex = /^[6-9]\d{9}$/;
     if (!formData.mobile.trim()) {
       newErrors.mobile = 'Mobile number is required';
       isValid = false;
-    } else if (!/^\d{10}$/.test(formData.mobile)) {
-      newErrors.mobile = 'Mobile number must be 10 digits';
+    } else if (!mobileRegex.test(formData.mobile)) {
+      newErrors.mobile = 'Mobile number must start with 6, 7, 8, or 9 and be 10 digits';
       isValid = false;
     }
 
@@ -240,9 +270,15 @@ function EditAdmin() {
                   onChange={handleChange}
                   placeholder="Enter admin name"
                   required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${errors.name ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                  <p className="text-error-500 text-sm mt-1">
+                    {errors.name}
+                  </p>
                 )}
               </div>
 
@@ -253,11 +289,16 @@ function EditAdmin() {
                   value={formData.mobile}
                   onChange={handleChange}
                   placeholder="Enter 10 digit mobile number"
-                  pattern="[0-9]{10}"
                   required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${errors.mobile ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
                 {errors.mobile && (
-                  <p className="mt-1 text-sm text-red-500">{errors.mobile}</p>
+                  <p className="text-error-500 text-sm mt-1">
+                    {errors.mobile}
+                  </p>
                 )}
               </div>
 
@@ -270,9 +311,13 @@ function EditAdmin() {
                   onChange={handleChange}
                   placeholder="Enter email address"
                   required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${errors.email   ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
                 {errors.email && (
-                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                  <p className="text-error-500 text-sm mt-1">{errors.email}</p>
                 )}
               </div>
 
@@ -284,6 +329,7 @@ function EditAdmin() {
                   onChange={handleChange}
                   options={statusOptions}
                   required
+                  
                 />
               </div>
             </div>
