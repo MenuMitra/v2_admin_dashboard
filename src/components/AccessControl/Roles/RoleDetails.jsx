@@ -77,22 +77,6 @@ function RoleDetails() {
     navigate(-1);
   };
 
-  const OutletSelector = () => (
-    <div className="mb-6">
-      <select
-        value={selectedOutlet || ''}
-        onChange={(e) => setSelectedOutlet(e.target.value || null)}
-        className="w-full sm:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-      >
-        <option value="">All Outlets</option>
-        {customerData?.customer_details?.outlets?.map(outlet => (
-          <option key={outlet.outlet_id} value={outlet.outlet_id}>
-            {outlet.outlet_name}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
 
   if (loading) {
     return (
@@ -124,7 +108,6 @@ function RoleDetails() {
 
       {customerData && (
         <>
-          <OutletSelector />
 
           {/* Customer Details Card */}
           <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
