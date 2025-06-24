@@ -1,7 +1,7 @@
 /*!********************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].use[2]!./src/css/style.css (layer base) ***!
   \********************************************************************************************************************************************************/
-  @import url('https://fonts.googleapis.com/css2?family=Lato:wght@100;300;400;700;900&display=swap') layer(base);
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;300;400;500;600;700;900&display=swap') layer(base);
 /*!***************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].use[2]!./node_modules/jsvectormap/dist/jsvectormap.min.css ***!
   \***************************************************************************************************************************************************************************/
@@ -96,7 +96,7 @@ svg{-ms-touch-action:none;touch-action:none}image,text,.jvm-zoomin,.jvm-zoomout{
     --default-mono-font-variation-settings: var(
       --font-mono--font-variation-settings
     );
-    --font-lato: Lato, sans-serif;  /* replace --font-outfit */
+    --font-poppins: Poppins, sans-serif;  /* replace --font-lato */
     --breakpoint-2xl: 1536px;
     --text-title-2xl: 72px;
     --text-title-2xl--line-height: 90px;
@@ -5743,7 +5743,7 @@ svg{-ms-touch-action:none;touch-action:none}image,text,.jvm-zoomin,.jvm-zoomout{
     position: relative;
     z-index: var(--z-index-1);
     background-color: var(--color-gray-50);
-    font-family: var(--font-lato);  /* replace var(--font-outfit) */
+    font-family: var(--font-poppins);  /* replace var(--font-lato) */
     --tw-font-weight: var(--font-weight-normal);
     font-weight: var(--font-weight-normal);
   }
