@@ -265,11 +265,11 @@ function EditOutlet() {
         throw new Error('No authentication token available');
       }
 
-      // Prepare API data with updated owner_ids field
+      // Prepare API data with new_owner_ids as array
       const apiData = {
         outlet_id: parseInt(outletId),
         user_id: parseInt(adminData.user_id),
-        owner_ids: formData.owner_ids.join(','),
+        new_owner_ids: formData.owner_ids, // Changed from owner_ids to new_owner_ids
         name: formData.name,
         outlet_type: formData.outlet_type,
         fssainumber: formData.fssainumber,
