@@ -46,6 +46,7 @@ import EditMenu from './components/Outlets/Menu/EditMenu';
 import CreateCategory from './components/Outlets/Category/CreateCategory';
 import CreateMenu from './components/Outlets/Menu/CreateMenu';
 import { ToastProvider } from './components/common/ToastProvider';
+import RoleDetails from './components/AccessControl/Roles/RoleDetails';
 
 
 function App() {
@@ -107,6 +108,7 @@ function App() {
 
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />
+            <Route path="/role-details/:userId" element={<RoleDetails />} />
 
             {/* QR Templates Routes */}
             <Route path="/qr-templates" element={<QRTemplates />} />

@@ -6,6 +6,7 @@ import { faChevronLeft as faBack, faSearch, faEye } from "@fortawesome/free-soli
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import { SelectInput, TextInput } from '../forms/FormElements';
+import { useNavigate } from 'react-router-dom';
 
 const Search = () => {
   const { getToken } = useAuth();
@@ -16,6 +17,7 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchType, setSearchType] = useState('name');
+  const navigate = useNavigate();
 
   const handleBack = useCallback(() => {
     window.history.back();
@@ -75,6 +77,11 @@ const Search = () => {
     performSearch(searchInput);
   };
 
+  // Add handler for view button click
+  const handleViewDetails = (userId) => {
+    navigate(`/role-details/${userId}`);
+  };
+
   // Define columns for DataTable
   const columns = [
     { field: 'name', header: 'Name', sortable: true },
@@ -104,14 +111,14 @@ const Search = () => {
       field: 'action',
       header: 'Action',
       sortable: false,
-      render: () => (
+      render: (_, row) => (
         <button 
-            // onClick={}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-            title="View Outlet"
-          >
-            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-          </button>
+          onClick={() => handleViewDetails(row.user_id)}
+          className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+          title="View Details"
+        >
+          <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+        </button>
       )
     }
   ];
