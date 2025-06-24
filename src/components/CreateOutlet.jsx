@@ -17,6 +17,16 @@ import ImageUploader from './common/ImageUploader';
 import Breadcrumb from './Breadcrumb';
 import { toastController } from '../utils/toastController';
 
+// Add this helper function at the top of your file, outside the component
+const convertImageToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
 function CreateOutlet() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
@@ -148,11 +158,25 @@ function CreateOutlet() {
     }
   };
 
-  const handleImagesChange = (images) => {
-    setFormData(prev => ({
-      ...prev,
-      image: Array.isArray(images) ? images[0] : null
-    }));
+  // Update handleImagesChange to handle base64 conversion
+  const handleImagesChange = async (images) => {
+    if (Array.isArray(images) && images[0]) {
+      try {
+        const base64String = await convertImageToBase64(images[0]);
+        setFormData(prev => ({
+          ...prev,
+          image: base64String // Store base64 string instead of File object
+        }));
+      } catch (error) {
+        console.error('Error converting image to base64:', error);
+        toastController.error('Error processing image');
+      }
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        image: null
+      }));
+    }
   };
 
   const handleInputChange = (e) => {
@@ -224,9 +248,11 @@ function CreateOutlet() {
     return address && address.length >= 3 && address.length <= 50;
   };
 
+  // Update handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validation checks remain the same
     setValidationStates({
       owner: formData.owner_id.length === 0,
       name: !isNameValid(formData.name),
@@ -259,72 +285,68 @@ function CreateOutlet() {
         throw new Error('No authentication token available');
       }
 
-      const formDataToSend = new FormData();
-      
-      // Required fields with exact names
-      formDataToSend.append('owner_ids', formData.owner_id.join(','));
-      formDataToSend.append('user_id', adminData.user_id.toString());
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('mobile', formData.mobile);
-      formDataToSend.append('address', formData.address);
-      formDataToSend.append('outlet_type', formData.outlet_type);
-      formDataToSend.append('outlet_mode', formData.outlet_mode);
-      formDataToSend.append('veg_nonveg', formData.veg_nonveg);
-      formDataToSend.append('service_charges', formData.service_charges || '0');
-      formDataToSend.append('gst', formData.gst || '0');
-      formDataToSend.append('upi_id', formData.upi_id);
-
-      // Optional fields - only append if they have values
-      if (formData.fssainumber) {
-        formDataToSend.append('fssainumber', formData.fssainumber);
-      }
-      if (formData.gstnumber) {
-        formDataToSend.append('gstnumber', formData.gstnumber);
-      }
-      if (formData.whatsapp) {
-        formDataToSend.append('whatsapp', formData.whatsapp);
-      }
-      if (formData.facebook) {
-        formDataToSend.append('facebook', formData.facebook);
-      }
-      if (formData.instagram) {
-        formDataToSend.append('instagram', formData.instagram);
-      }
-      if (formData.website) {
-        formDataToSend.append('website', formData.website);
-      }
-      
       // Get current date in YYYY-MM-DD format
       const currentDate = new Date().toISOString().split('T')[0];
 
-      // Fix the time formatting to match exactly "YYYY-MM-DD HH:MM:SS AM/PM"
+      // Prepare the JSON payload
+      const payload = {
+        owner_ids: formData.owner_id, // Already an array of numbers
+        user_id: adminData.user_id,
+        name: formData.name,
+        mobile: formData.mobile,
+        address: formData.address,
+        outlet_type: formData.outlet_type,
+        outlet_mode: formData.outlet_mode,
+        veg_nonveg: formData.veg_nonveg,
+        service_charges: formData.service_charges,
+        gst: formData.gst,
+        upi_id: formData.upi_id,
+      };
+
+      // Add optional fields only if they have values
+      if (formData.image) {
+        payload.image_base64 = formData.image;
+      }
+      if (formData.fssainumber) {
+        payload.fssainumber = formData.fssainumber;
+      }
+      if (formData.gstnumber) {
+        payload.gstnumber = formData.gstnumber;
+      }
+      if (formData.whatsapp) {
+        payload.whatsapp = formData.whatsapp;
+      }
+      if (formData.facebook) {
+        payload.facebook = formData.facebook;
+      }
+      if (formData.instagram) {
+        payload.instagram = formData.instagram;
+      }
+      if (formData.website) {
+        payload.website = formData.website;
+      }
+
+      // Format opening and closing times
       if (formData.opening_time) {
         const [timeStr, period] = formData.opening_time.split(' ');
         const [hours, minutes] = timeStr.split(':');
-        const formattedOpeningTime = `${currentDate} ${hours}:${minutes}:00 ${period}`;
-        formDataToSend.append('opening_time', formattedOpeningTime);
+        payload.opening_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
       }
 
       if (formData.closing_time) {
         const [timeStr, period] = formData.closing_time.split(' ');
         const [hours, minutes] = timeStr.split(':');
-        const formattedClosingTime = `${currentDate} ${hours}:${minutes}:00 ${period}`;
-        formDataToSend.append('closing_time', formattedClosingTime);
-      }
-
-      // Only append image if it exists
-      if (formData.image) {
-        formDataToSend.append('image', formData.image);
+        payload.closing_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
       }
 
       const response = await toastController.promise(
         axios.post(
           'https://men4u.xyz/v2/common/create_outlet',
-          formDataToSend,
+          payload,
           {
             headers: {
-              'Authorization': `${token}`,
-              'Content-Type': 'multipart/form-data',
+              'Authorization': token,
+              'Content-Type': 'application/json',
             },
           }
         ),
