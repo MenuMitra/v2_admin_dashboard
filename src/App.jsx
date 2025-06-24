@@ -47,7 +47,10 @@ import CreateCategory from './components/Outlets/Category/CreateCategory';
 import CreateMenu from './components/Outlets/Menu/CreateMenu';
 import { ToastProvider } from './components/common/ToastProvider';
 import RoleDetails from './components/AccessControl/Roles/RoleDetails';
-
+import CaptainDetails from './components/AccessControl/Roles/CaptainDetails';
+import ManagerDetails from './components/AccessControl/Roles/ManagerDetails';
+import WaiterDetails from './components/AccessControl/Roles/WaiterDetails'
+import ChefDetails from './components/AccessControl/Roles/ChefDetails'
 
 function App() {
   useEffect(() => {
@@ -109,6 +112,11 @@ function App() {
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />
             <Route path="/role-details/:userId" element={<RoleDetails />} />
+            <Route path="/captain-details/:userId" element={<CaptainDetails />} />
+            <Route path="/manager-details/:userId" element={<ManagerDetails />} />
+            <Route path="/waiter-details/:userId" element={<WaiterDetails />} />
+            <Route path="/chef-details/:userId" element={<ChefDetails />} />
+
 
             {/* QR Templates Routes */}
             <Route path="/qr-templates" element={<QRTemplates />} />
