@@ -165,18 +165,20 @@ function RoleDetails() {
                 </div>
 
                 {/* Email */}
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                    <p className="text-base sm:text-lg font-medium text-gray-800 truncate">
-                      {customerData.customer_details.email || "Not provided"}
-                    </p>
-                    <FontAwesomeIcon
-                      icon={faEnvelope}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500 ml-2 flex-shrink-0"
-                    />
+                {customerData.customer_details.email && customerData.customer_details.email !== "null" && (
+                  <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                    <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                      <p className="text-base sm:text-lg font-medium text-gray-800 truncate">
+                        {customerData.customer_details.email}
+                      </p>
+                      <FontAwesomeIcon
+                        icon={faEnvelope}
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500 ml-2 flex-shrink-0"
+                      />
+                    </div>
+                    <span className="text-xs sm:text-sm text-gray-500">Email</span>
                   </div>
-                  <span className="text-xs sm:text-sm text-gray-500">Email</span>
-                </div>
+                )}
 
                 {/* Created On */}
                 <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
@@ -215,61 +217,86 @@ function RoleDetails() {
             </div>
 
             {/* Order Statistics Card */}
-            <div className="p-6 border-t">
-              <h2 className="text-2xl font-bold mb-6 text-gray-800">
-                Order Statistics
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                <StatCard
-                  icon={faShoppingCart}
-                  label="Total Orders"
-                  value={customerData.order_statistics.total_orders}
-                  className="col-span-1"
-                />
-                <StatCard
-                  icon={faCreditCard}
-                  label="Paid Orders"
-                  value={customerData.order_statistics.paid_orders}
-                  className="col-span-1"
-                />
-                <StatCard
-                  icon={faBan}
-                  label="Cancelled"
-                  value={customerData.order_statistics.cancelled_orders}
-                  className="col-span-1"
-                />
-                <StatCard
-                  icon={faKitchenSet}
-                  label="Cooking"
-                  value={customerData.order_statistics.cooking_orders}
-                  className="col-span-1"
-                />
-                <StatCard
-                  icon={faClipboardList}
-                  label="Placed"
-                  value={customerData.order_statistics.placed_orders}
-                  className="col-span-1"
-                />
-                <StatCard
-                  icon={faCheck}
-                  label="Served"
-                  value={customerData.order_statistics.served_orders}
-                  className="col-span-1"
-                />
-                <StatCard
-                  icon={faMoneyBill}
-                  label="Total Spent"
-                  value={`₹${customerData.order_statistics.total_spent}`}
-                  className="col-span-1"
-                />
-                <StatCard
-                  icon={faChartLine}
-                  label="Avg. Order Value"
-                  value={`₹${customerData.order_statistics.average_order_value}`}
-                  className="col-span-1"
-                />
+            {(customerData.order_statistics.total_orders > 0 ||
+              customerData.order_statistics.paid_orders > 0 ||
+              customerData.order_statistics.cancelled_orders > 0 ||
+              customerData.order_statistics.cooking_orders > 0 ||
+              customerData.order_statistics.placed_orders > 0 ||
+              customerData.order_statistics.served_orders > 0 ||
+              customerData.order_statistics.total_spent > 0 ||
+              customerData.order_statistics.average_order_value > 0) && (
+              <div className="p-6 border-t">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                  Order Statistics
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {customerData.order_statistics.total_orders > 0 && (
+                    <StatCard
+                      icon={faShoppingCart}
+                      label="Total Orders"
+                      value={customerData.order_statistics.total_orders}
+                      className="col-span-1"
+                    />
+                  )}
+                  {customerData.order_statistics.paid_orders > 0 && (
+                    <StatCard
+                      icon={faCreditCard}
+                      label="Paid Orders"
+                      value={customerData.order_statistics.paid_orders}
+                      className="col-span-1"
+                    />
+                  )}
+                  {customerData.order_statistics.cancelled_orders > 0 && (
+                    <StatCard
+                      icon={faBan}
+                      label="Cancelled"
+                      value={customerData.order_statistics.cancelled_orders}
+                      className="col-span-1"
+                    />
+                  )}
+                  {customerData.order_statistics.cooking_orders > 0 && (
+                    <StatCard
+                      icon={faKitchenSet}
+                      label="Cooking"
+                      value={customerData.order_statistics.cooking_orders}
+                      className="col-span-1"
+                    />
+                  )}
+                  {customerData.order_statistics.placed_orders > 0 && (
+                    <StatCard
+                      icon={faClipboardList}
+                      label="Placed"
+                      value={customerData.order_statistics.placed_orders}
+                      className="col-span-1"
+                    />
+                  )}
+                  {customerData.order_statistics.served_orders > 0 && (
+                    <StatCard
+                      icon={faCheck}
+                      label="Served"
+                      value={customerData.order_statistics.served_orders}
+                      className="col-span-1"
+                    />
+                  )}
+                  {customerData.order_statistics.total_spent > 0 && (
+                    <StatCard
+                      icon={faMoneyBill}
+                      label="Total Spent"
+                      value={`₹${customerData.order_statistics.total_spent}`}
+                      className="col-span-1"
+                    />
+                  )}
+                  {customerData.order_statistics.average_order_value > 0 && (
+                    <StatCard
+                      icon={faChartLine}
+                      label="Avg. Order Value"
+                      value={`₹${customerData.order_statistics.average_order_value}`}
+                      className="col-span-1"
+                    />
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </div>
