@@ -23,11 +23,13 @@ function Customer() {
   // Fetch outlets on mount
   useEffect(() => {
     fetchOutlets();
+    // Fetch customers immediately without waiting for outlet selection
+    fetchCustomers();
   }, []);
 
   // Fetch customers when selectedOutlet changes
   useEffect(() => {
-    if (selectedOutlet) {
+    if (selectedOutlet) { // Only fetch if an outlet is actually selected
       fetchCustomers(selectedOutlet);
     }
   }, [selectedOutlet]);
@@ -49,9 +51,6 @@ function Customer() {
         }
       );
       setOutlets(response.data.data || []);
-      if (response.data.data?.length > 0) {
-        setSelectedOutlet(response.data.data[0].outlet_id);
-      }
     } catch (err) {
       setError(err.response?.data?.msg || 'Failed to fetch outlets');
     } finally {
@@ -59,13 +58,23 @@ function Customer() {
     }
   };
 
-  const fetchCustomers = async (outlet_id) => {
+  const fetchCustomers = async (outlet_id = null) => {
     setLoading(true);
     setError(null);
     try {
+      const requestData = {
+        user_id: adminData?.user_id,
+        app_source: "admin_dashboard"
+      };
+
+      // Only add outlet_id if it's explicitly provided and not empty
+      if (outlet_id && outlet_id !== '') {
+        requestData.outlet_id = outlet_id;
+      }
+
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/customer_listview',
-        { outlet_id },
+        requestData,
         {
           headers: {
             Authorization: getToken(),
@@ -144,6 +153,7 @@ function Customer() {
           value={selectedOutlet}
           onChange={e => setSelectedOutlet(e.target.value)}
         >
+          <option value="">All Outlets</option>
           {outlets.map((outlet) => (
             <option key={outlet.outlet_id} value={outlet.outlet_id}>
               {outlet.outlet_name} ({outlet.outlet_code})
