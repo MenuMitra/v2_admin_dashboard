@@ -86,13 +86,13 @@ const Search = () => {
   const columns = [
     { field: 'name', header: 'Name', sortable: true },
     { field: 'mobile', header: 'Mobile', sortable: true },
-    { field: 'email', header: 'Email', sortable: true },
+    // { field: 'email', header: 'Email', sortable: true },
     { 
       field: 'role', 
       header: 'Role', 
       sortable: true,
       render: (value) => (
-        <span className="flex items-center gap-1">
+        <span className="flex items-center justify-center gap-1">
           {value || '-'}
         </span>
       )

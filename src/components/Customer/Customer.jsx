@@ -93,7 +93,7 @@ function Customer() {
     }
   };
 
-  // Update columns to include new fields
+  // Update columns to include the view action
   const columns = [
     {
       field: 'name',
@@ -127,6 +127,21 @@ function Customer() {
       header: 'Last Login',
       sortable: true,
       render: (value) => value || '-'
+    },
+    // Add new action column
+    {
+      field: 'action',
+      header: 'Action',
+      sortable: false,
+      render: (_, row) => (
+        <button 
+          onClick={() => navigate(`/role-details/${row.user_id}`)}
+          className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+          title="View Details"
+        >
+          <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+        </button>
+      )
     }
   ];
 
