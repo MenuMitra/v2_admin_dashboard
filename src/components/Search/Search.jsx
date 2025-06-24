@@ -136,15 +136,26 @@ const Search = () => {
       field: 'action',
       header: 'Action',
       sortable: false,
-      render: (_, row) => (
-        <button 
-          onClick={() => handleViewDetails(row.user_id, row.role)}
-          className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-          title="View Details"
-        >
-          <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-        </button>
-      )
+      render: (_, row) => {
+        // Array of staff roles where view button should be hidden
+        const staffRoles = ['captain', 'manager', 'waiter', 'chef'];
+        
+        // If the role is in staffRoles array, don't render the button
+        if (staffRoles.includes(row.role?.toLowerCase())) {
+          return null;
+        }
+
+        // Otherwise render the view button
+        return (
+          <button 
+            onClick={() => handleViewDetails(row.user_id, row.role)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+        );
+      }
     }
   ];
 
