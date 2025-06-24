@@ -41,9 +41,10 @@ function Tickets() {
   const [itemsPerPage] = useState(10);
   const navigate = useNavigate();
 
-  // Fetch outlets on component mount
+  // Modify useEffect to fetch tickets on component mount
   useEffect(() => {
     fetchOutlets();
+    fetchTickets(); // Call fetchTickets without outletId
   }, []);
 
   const fetchOutlets = async () => {
@@ -77,18 +78,25 @@ function Tickets() {
     }
   };
 
-  const fetchTickets = async (outletId) => {
-    if (!outletId) return;
-    
+  // Modify fetchTickets to make outlet_id optional
+  const fetchTickets = async (outletId = null) => {
     setLoading(true);
     setError(null);
 
     try {
+      const requestBody = {
+        user_id: adminData?.user_id,
+        app_source: "admin_dashboard"
+      };
+
+      // Only add outlet_id if it exists
+      if (outletId) {
+        requestBody.outlet_id = outletId;
+      }
+
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/ticket_list',
-        {
-          outlet_id: outletId
-        },
+        requestBody,
         {
           headers: {
             Authorization: getToken(),
@@ -311,15 +319,10 @@ function Tickets() {
     }
   ];
 
-  // Modify the outlet change handler to fetch tickets automatically
+  // Modify handleOutletChange to handle null/empty outlet selection
   const handleOutletChange = (outletId) => {
     setSelectedOutlet(outletId);
-    if (outletId) {
-      fetchTickets(outletId); // Pass the outletId directly to fetchTickets
-    } else {
-      setTickets([]);
-      setFilteredTickets([]);
-    }
+    fetchTickets(outletId); // This will work with both null and valid outletId
   };
 
   // Add breadcrumb items configuration
