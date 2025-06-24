@@ -53,8 +53,9 @@ function DataTable({
   showHeader = true,
   showOutletSelect = false,
   outlets = [],
-  selectedOutlet = null,
+  selectedOutlet = '',
   onOutletChange = () => {},
+  outletSelectPosition = 'controls',
   onShowData = () => {},
   isLoading = false,
   enableSelection = false,
@@ -334,6 +335,36 @@ function DataTable({
     </div>
   );
 
+  // Update the renderOutletSelect function
+  const renderOutletSelect = () => {
+    if (!showOutletSelect) return null;
+    
+    return (
+      <div className="relative flex-1 sm:flex-initial">
+        <select
+          className={`w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
+            isLoading ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
+          value={selectedOutlet}
+          onChange={(e) => onOutletChange(e.target.value)}
+          disabled={isLoading}
+        >
+          <option value="">All Outlets</option>
+          {outlets.map((outlet) => (
+            <option key={outlet.outlet_id} value={outlet.outlet_id}>
+              {outlet.outlet_name} ({outlet.outlet_code})
+            </option>
+          ))}
+        </select>
+        {isLoading && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2">
+            <FontAwesomeIcon icon={faSpinner} className="h-4 w-4 animate-spin text-gray-400" />
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={`rounded-2xl border border-gray-200 bg-white ${darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""}`}>
       {/* Header Section */}
@@ -396,34 +427,10 @@ function DataTable({
               </span>
             )}
 
-            {/* Outlet Selection and Controls */}
+            {/* Controls Section */}
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-              {showOutletSelect && (
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <select
-                      className={`w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 ${
-                        isLoading ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                      value={selectedOutlet || ''}
-                      onChange={(e) => onOutletChange(e.target.value)}
-                      disabled={isLoading}
-                    >
-                      <option value="">Select an outlet</option>
-                      {outlets.map((outlet) => (
-                        <option key={outlet.outlet_id} value={outlet.outlet_id}>
-                          {outlet.outlet_name} ({outlet.outlet_code})
-                        </option>
-                      ))}
-                    </select>
-                    {isLoading && (
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <FontAwesomeIcon icon={faSpinner} className="h-4 w-4 animate-spin text-gray-400" />
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
+              {/* Place outlet selection first in controls */}
+              {showOutletSelect && renderOutletSelect()}
 
               {/* Add Status Filter Dropdown */}
               {enableStatusFilter && (

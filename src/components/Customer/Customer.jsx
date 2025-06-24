@@ -146,22 +146,6 @@ function Customer() {
         ]} 
       />
 
-      {/* Outlet Dropdown */}
-      <div className="mb-6">
-        <select
-          className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
-          value={selectedOutlet}
-          onChange={e => setSelectedOutlet(e.target.value)}
-        >
-          <option value="">All Outlets</option>
-          {outlets.map((outlet) => (
-            <option key={outlet.outlet_id} value={outlet.outlet_id}>
-              {outlet.outlet_name} ({outlet.outlet_code})
-            </option>
-          ))}
-        </select>
-      </div>
-
       {error && (
         <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
           {error}
@@ -190,6 +174,12 @@ function Customer() {
         onBackClick={() => navigate(-1)}
         showBackButton={true}
         backButtonLabel="Back"
+        // Enable outlet selection in DataTable
+        showOutletSelect={true}
+        outlets={outlets}
+        selectedOutlet={selectedOutlet}
+        onOutletChange={setSelectedOutlet}
+        isLoading={loading}
       />
     </>
   );
