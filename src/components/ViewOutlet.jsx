@@ -241,6 +241,38 @@ function ViewOutlet() {
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+            {/* Outlet Owners */}
+            <div className="col-span-full">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      Outlet Owners
+                    </h4>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {outletData?.owners?.map((owner, index) => (
+                        <div
+                          key={owner.owner_id}
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm
+                            ${owner.is_primary 
+                              ? 'bg-brand-100 text-brand-700 border border-brand-200'
+                              : 'bg-gray-100 text-gray-700 border border-gray-200'
+                            }`}
+                        >
+                          <span>{owner.owner_name}</span>
+                          {owner.is_primary && (
+                            <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-brand-500 text-white rounded-full">
+                              Primary
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
