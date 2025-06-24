@@ -170,11 +170,7 @@ function Functionalities() {
       sortable: true,
       render: (value) => (
         <span className="font-medium text-gray-900">
-          {value
-            .split('_')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ')
-          }
+          {value}
         </span>
       )
     },
