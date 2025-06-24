@@ -25,7 +25,7 @@ function EditOutlet() {
   const [formData, setFormData] = useState({
     outlet_id: '',
     user_id: '',
-    owner_id: '',
+    owner_ids: [],
     name: '',
     outlet_type: '',
     fssainumber: '',
@@ -97,12 +97,12 @@ function EditOutlet() {
         // Update form data with fetched data
         setFormData({
           outlet_id: outletId,
-          user_id: data.owner_id,
-          owner_id: data.owner_id,
+          user_id: adminData?.user_id,
+          owner_ids: data.owners.map(owner => owner.owner_id),
           name: data.name,
           outlet_type: data.outlet_type,
-          fssainumber: data.fssainumber,
-          gstnumber: data.gstnumber,
+          fssainumber: data.fssainumber === 'None' ? '' : data.fssainumber,
+          gstnumber: data.gstnumber || '',
           mobile: data.mobile,
           veg_nonveg: data.veg_nonveg,
           service_charges: data.service_charges,
@@ -265,12 +265,11 @@ function EditOutlet() {
         throw new Error('No authentication token available');
       }
 
-      // Prepare API data with updated owner_id fields
+      // Prepare API data with updated owner_ids field
       const apiData = {
         outlet_id: parseInt(outletId),
         user_id: parseInt(adminData.user_id),
-        // curr_owner_id: parseInt(formData.user_id), // Current owner ID
-        new_owner_id: parseInt(formData.owner_id), // New selected owner ID
+        owner_ids: formData.owner_ids.join(','),
         name: formData.name,
         outlet_type: formData.outlet_type,
         fssainumber: formData.fssainumber,
@@ -372,7 +371,7 @@ function EditOutlet() {
                 {/* Select Owner */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    <span className="text-error-600">*</span> Select Owner
+                    <span className="text-error-600">*</span> Select Owner(s)
                   </label>
                   
                   <div className="relative">
@@ -383,11 +382,11 @@ function EditOutlet() {
                       aria-expanded={isDropdownOpen}
                       aria-haspopup="listbox"
                     >
-                      {formData.owner_id ? (
+                      {formData.owner_ids.length > 0 ? (
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="font-medium text-gray-900">
-                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
+                              {formData.owner_ids.length} Owner(s) Selected
                             </div>
                           </div>
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -395,84 +394,107 @@ function EditOutlet() {
                           </svg>
                         </div>
                       ) : (
-                        <div className="text-gray-500">Select Owner</div>
+                        <div className="text-gray-500">Select Owner(s)</div>
                       )}
                     </div>
+
+                    {/* Selected Owners Display */}
+                    {formData.owner_ids.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {formData.owner_ids.map(id => {
+                          const owner = allOwners.find(o => o.user_id === id);
+                          return owner ? (
+                            <div 
+                              key={owner.user_id}
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-sm"
+                            >
+                              <span>{owner.name}</span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    owner_ids: prev.owner_ids.filter(ownerId => ownerId !== id)
+                                  }));
+                                }}
+                                className="ml-1 text-brand-500 hover:text-brand-700"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
 
                     {/* Dropdown Panel */}
                     {isDropdownOpen && (
                       <div 
-                        className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
+                        className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
                         style={{
-                          position: 'absolute',
                           width: '100%',
                           minWidth: '300px',
-                          zIndex: 9999,
                           maxHeight: '350px',
                           overflowY: 'auto'
                         }}
                       >
                         {/* Search Bar */}
                         <div className="sticky top-0 p-2 border-b bg-white">
-                          <div className="relative">
-                            <input
-                              type="text"
-                              className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                              placeholder="Search by name, mobile or email..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              autoFocus
-                            />
-                          </div>
+                          <input
+                            type="text"
+                            className="w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            placeholder="Search by name, mobile or email..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            autoFocus
+                          />
                         </div>
 
                         {/* Owners List */}
                         <div className="overflow-y-auto">
-                          {filteredOwners.length > 0 ? (
-                            filteredOwners.map((owner) => (
-                              <div
-                                key={owner.user_id}
-                                onClick={() => {
-                                  setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
-                                  setIsDropdownOpen(false);
-                                  setSearchTerm('');
-                                }}
-                                className={`
-                                  p-3 cursor-pointer hover:bg-gray-50
-                                  ${formData.owner_id === owner.user_id 
-                                    ? 'bg-brand-50 border-l-4 border-brand-500' 
-                                    : 'border-l-4 border-transparent'
-                                  }
-                                `}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div>
-                                    <div className="font-medium text-gray-900">
-                                      {owner.name}
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                      <span>{owner.mobile}</span>
-                                      {owner.email && (
-                                        <>
-                                          <span className="mx-2">•</span>
-                                          <span>{owner.email}</span>
-                                        </>
-                                      )}
-                                    </div>
+                          {filteredOwners.map((owner) => (
+                            <div
+                              key={owner.user_id}
+                              className={`
+                                p-3 cursor-pointer hover:bg-gray-50
+                                ${formData.owner_ids.includes(owner.user_id)
+                                  ? 'bg-brand-50 border-l-4 border-brand-500' 
+                                  : 'border-l-4 border-transparent'
+                                }
+                              `}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="checkbox"
+                                  checked={formData.owner_ids.includes(owner.user_id)}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      owner_ids: e.target.checked
+                                        ? [...prev.owner_ids, owner.user_id]
+                                        : prev.owner_ids.filter(id => id !== owner.user_id)
+                                    }));
+                                  }}
+                                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                                />
+                                <div>
+                                  <div className="font-medium text-gray-900">
+                                    {owner.name}
                                   </div>
-                                  {formData.owner_id === owner.user_id && (
-                                    <svg className="w-5 h-5 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  )}
+                                  <div className="text-sm text-gray-500">
+                                    <span>{owner.mobile}</span>
+                                    {owner.email && (
+                                      <>
+                                        <span className="mx-2">•</span>
+                                        <span>{owner.email}</span>
+                                      </>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
-                            ))
-                          ) : (
-                            <div className="p-4 text-center text-sm text-gray-500">
-                              {allOwners.length === 0 ? 'No owners available' : `No owners found matching "${searchTerm}"`}
                             </div>
-                          )}
+                          ))}
                         </div>
                       </div>
                     )}
