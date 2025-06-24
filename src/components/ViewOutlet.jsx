@@ -266,13 +266,9 @@ function ViewOutlet() {
                           <span>{owner.owner_name}</span>
                           {owner.is_primary && (
                             <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-brand-500 text-white rounded-full">
-                              Primary
+                              P
                             </span>
                           )}
-                          <FontAwesomeIcon 
-                            icon={faChevronRight} 
-                            className="w-3 h-3 ml-1 opacity-60" 
-                          />
                         </div>
                       ))}
                     </div>
