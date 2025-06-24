@@ -17,7 +17,8 @@ import {
 function DataTable({
   data,
   columns,
-  itemsPerPage = 10,
+  itemsPerPage = 50,
+  itemsPerPageOptions = [50, 100, 200],
   enableSort = true,
   enablePagination = true,
   enableSearch = true,
@@ -69,6 +70,7 @@ function DataTable({
     { key: 'inactive', label: 'Set Inactive', className: 'text-gray-700 hover:bg-gray-100' },
     { key: 'delete', label: 'Delete Selected', className: 'text-error-600 hover:bg-error-50' }
   ],
+  onItemsPerPageChange = () => {},
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -610,14 +612,39 @@ function DataTable({
       </div>
 
       {/* Pagination Section */}
-      {enablePagination && processedData.length > 10 && (
+      {enablePagination && processedData.length > 0 && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-800">
-          <div className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
-            Showing {indexOfFirstItem + 1} to{" "}
-            {Math.min(indexOfLastItem, processedData.length)} of{" "}
-            {processedData.length} entries
+          <div className="flex items-center gap-4">
+            {/* Records per page dropdown */}
+            <div className="flex items-center gap-2">
+              <span className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
+                Show
+              </span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => onItemsPerPageChange(e.target.value)}
+                className="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
+              >
+                {itemsPerPageOptions.map(option => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+              <span className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
+                entries
+              </span>
+            </div>
+
+            {/* Showing entries text */}
+            <div className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
+              Showing {indexOfFirstItem + 1} to{" "}
+              {Math.min(indexOfLastItem, processedData.length)} of{" "}
+              {processedData.length} entries
+            </div>
           </div>
 
+          {/* Pagination buttons */}
           <div className="flex items-center justify-between gap-2 sm:justify-normal">
             <button
               onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
@@ -638,9 +665,7 @@ function DataTable({
             </ul>
 
             <button
-              onClick={() =>
-                currentPage < totalPages && handlePageChange(currentPage + 1)
-              }
+              onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
                 darkMode ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200" : ""

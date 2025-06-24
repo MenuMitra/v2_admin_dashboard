@@ -38,7 +38,7 @@ function Owners() {
   const [sortOrder, setSortOrder] = useState("asc");
   const [sortCount, setSortCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -423,9 +423,14 @@ function Owners() {
       <DataTable
         data={owners}
         columns={columns}
-        itemsPerPage={10}
-        enableSort={true}
         enablePagination={true}
+        itemsPerPage={itemsPerPage}
+        itemsPerPageOptions={[50, 100, 200]}
+        onItemsPerPageChange={(value) => {
+          setItemsPerPage(Number(value));
+          setCurrentPage(1);
+        }}
+        enableSort={true}
         enableSearch={true}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}

@@ -19,6 +19,7 @@ function Customer() {
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlet, setSelectedOutlet] = useState('');
   const [outletName, setOutletName] = useState('');
+  const [itemsPerPage, setItemsPerPage] = useState(50);
 
   // Fetch outlets on mount
   useEffect(() => {
@@ -171,7 +172,9 @@ function Customer() {
         enableSort={true}
         enablePagination={true}
         enableSearch={true}
-        itemsPerPage={10}
+        itemsPerPage={itemsPerPage}
+        itemsPerPageOptions={[50, 100, 200]}
+        onItemsPerPageChange={(value) => setItemsPerPage(Number(value))}
         onBackClick={() => navigate(-1)}
         showBackButton={true}
         backButtonLabel="Back"
