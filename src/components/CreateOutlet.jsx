@@ -305,7 +305,7 @@ function CreateOutlet() {
 
       // Add optional fields only if they have values
       if (formData.image) {
-        payload.image_base64 = formData.image;
+        payload.image = formData.image;
       }
       if (formData.fssainumber) {
         payload.fssainumber = formData.fssainumber;
