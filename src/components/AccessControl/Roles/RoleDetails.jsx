@@ -22,6 +22,7 @@ import {
   faChartLine,
   faSpinner,
   faArrowLeft,
+  faChevronLeft as faBack,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from '../../Breadcrumb';
 
@@ -81,7 +82,7 @@ function RoleDetails() {
   // Add breadcrumb items configuration
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/' },
-    { label: 'Search', path: '/search' },   
+    { label: 'Customer', path: '/customer' },   
     { label: 'Customer Details' } // Current page, no path needed
   ];
 
@@ -115,7 +116,7 @@ function RoleDetails() {
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4" />
+                 <FontAwesomeIcon icon={faBack} className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
