@@ -134,7 +134,7 @@ function RoleDetails() {
           <>
             {/* Customer Details Card */}
             <div className="p-6">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 {/* Name */}
                 <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
                   <div className="flex items-center justify-between mb-1.5 sm:mb-2">
@@ -218,7 +218,7 @@ function RoleDetails() {
               <h2 className="text-2xl font-bold mb-6 text-gray-800">
                 Order Statistics
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <StatCard
                   icon={faShoppingCart}
                   label="Total Orders"
