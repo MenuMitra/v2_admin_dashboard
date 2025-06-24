@@ -129,6 +129,10 @@ function ViewOutlet() {
     }
   };
 
+  const handleOwnerClick = (ownerId) => {
+    navigate(`/owner-details/${ownerId}`);
+  };
+
   return (
     <>
       {/* Breadcrumb - Moved outside the card */}
@@ -250,11 +254,14 @@ function ViewOutlet() {
                       {outletData?.owners?.map((owner, index) => (
                         <div
                           key={owner.owner_id}
-                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm
+                          onClick={() => handleOwnerClick(owner.owner_id)}
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm cursor-pointer
                             ${owner.is_primary 
-                              ? 'bg-brand-100 text-brand-700 border border-brand-200'
-                              : 'bg-gray-100 text-gray-700 border border-gray-200'
-                            }`}
+                              ? 'bg-brand-100 text-brand-700 border border-brand-200 hover:bg-brand-200'
+                              : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
+                            }
+                            transition-all duration-200
+                          `}
                         >
                           <span>{owner.owner_name}</span>
                           {owner.is_primary && (
@@ -262,6 +269,10 @@ function ViewOutlet() {
                               Primary
                             </span>
                           )}
+                          <FontAwesomeIcon 
+                            icon={faChevronRight} 
+                            className="w-3 h-3 ml-1 opacity-60" 
+                          />
                         </div>
                       ))}
                     </div>
