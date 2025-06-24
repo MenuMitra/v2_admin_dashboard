@@ -87,10 +87,16 @@ const Search = () => {
         navigate(`/owner-details/${userId}`);
         break;
       case 'captain':
+        navigate(`/captain-details/${userId}`);
+        break;
       case 'manager':
+        navigate(`/manager-details/${userId}`);
+        break;
       case 'waiter':
+        navigate(`/waiter-details/${userId}`);
+        break;
       case 'chef':
-        navigate(`/staff-details/${userId}`);
+        navigate(`/chef-details/${userId}`);
         break;
       case 'super_owner':
         navigate(`/super-owner-details/${userId}`);
