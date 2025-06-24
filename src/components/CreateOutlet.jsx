@@ -15,6 +15,7 @@ import {
 } from './forms/FormElements.jsx';
 import ImageUploader from './common/ImageUploader';
 import Breadcrumb from './Breadcrumb';
+import { toastController } from '../utils/toastController';
 
 function CreateOutlet() {
   const navigate = useNavigate();
@@ -284,14 +285,21 @@ function CreateOutlet() {
         formDataToSend.append('image', formData.image);
       }
 
-      const response = await axios.post(
-        'https://men4u.xyz/v2/common/create_outlet',
-        formDataToSend,
+      const response = await toastController.promise(
+        axios.post(
+          'https://men4u.xyz/v2/common/create_outlet',
+          formDataToSend,
+          {
+            headers: {
+              'Authorization': `${token}`,
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        ),
         {
-          headers: {
-            'Authorization': `${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
+          loading: 'Creating outlet...',
+          success: 'Outlet created successfully!',
+          error: 'Failed to create outlet'
         }
       );
 
@@ -300,6 +308,7 @@ function CreateOutlet() {
       }
     } catch (error) {
       console.error('Error creating outlet:', error);
+      toastController.error(error.response?.data?.detail || 'An unexpected error occurred');
     }
   };
 
