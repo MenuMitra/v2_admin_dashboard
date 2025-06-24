@@ -447,9 +447,43 @@ function CreateOutlet() {
 
             {/* Basic Information Fields */}
             <div className="grid grid-cols-1 gap-6">
+            <div className="relative">
+                  <ImageUploader
+                    maxImages={1}
+                    outputFormat="formData"
+                    onImagesChange={handleImagesChange}
+                    label="Outlet Image"
+                    className="w-full"
+                  />
+                </div>
               {/* Select Owner and Image Upload in same grid */}
+        
+
+              {/* Rest of the form fields in their own grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {/* Select Owner */}
+                <div className="relative">
+                
+                  <TextInput
+                    label="Outlet Name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    onFocus={() => handleFocus('name')}
+                    placeholder="Enter Outlet Name"
+                    required
+                    className={`
+                      focus:border-brand-500 focus:ring-brand-500
+                      ${validationStates.name ? 'border-error-500' : 'border-gray-300'}
+                    `}
+                  />
+                  {validationStates.name && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {!formData.name ? 'Outlet name is required' : 
+                       formData.name.length < 3 ? 'Outlet name must be at least 3 characters' : 
+                       'Outlet name must not exceed 50 characters'}
+                    </p>
+                  )}
+                </div>
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     <span className="text-error-600">*</span> Select Owner(s)
@@ -600,43 +634,6 @@ function CreateOutlet() {
                       </div>
                     )}
                   </div>
-                </div>
-
-                {/* Image Upload */}
-                <div className="relative">
-                  <ImageUploader
-                    maxImages={1}
-                    outputFormat="formData"
-                    onImagesChange={handleImagesChange}
-                    label="Outlet Image"
-                    className="w-full"
-                  />
-                </div>
-              </div>
-
-              {/* Rest of the form fields in their own grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                <div className="relative">
-                  <TextInput
-                    label="Outlet Name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    onFocus={() => handleFocus('name')}
-                    placeholder="Enter Outlet Name"
-                    required
-                    className={`
-                      focus:border-brand-500 focus:ring-brand-500
-                      ${validationStates.name ? 'border-error-500' : 'border-gray-300'}
-                    `}
-                  />
-                  {validationStates.name && (
-                    <p className="text-error-500 text-sm mt-1">
-                      {!formData.name ? 'Outlet name is required' : 
-                       formData.name.length < 3 ? 'Outlet name must be at least 3 characters' : 
-                       'Outlet name must not exceed 50 characters'}
-                    </p>
-                  )}
                 </div>
 
                 <div className="relative">
