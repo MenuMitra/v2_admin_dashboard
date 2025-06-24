@@ -77,9 +77,28 @@ const Search = () => {
     performSearch(searchInput);
   };
 
-  // Add handler for view button click
-  const handleViewDetails = (userId) => {
-    navigate(`/role-details/${userId}`);
+  // Add handler for view button click with role-based navigation
+  const handleViewDetails = (userId, role) => {
+    switch (role?.toLowerCase()) {
+      case 'customer':
+        navigate(`/role-details/${userId}`);
+        break;
+      case 'owner':
+        navigate(`/owner-details/${userId}`);
+        break;
+      case 'captain':
+      case 'manager':
+      case 'waiter':
+      case 'chef':
+        navigate(`/staff-details/${userId}`);
+        break;
+      case 'super_owner':
+        navigate(`/super-owner-details/${userId}`);
+        break;
+      default:
+        // Fallback to role-details if role is unknown
+        navigate(`/role-details/${userId}`);
+    }
   };
 
   // Define columns for DataTable
@@ -113,7 +132,7 @@ const Search = () => {
       sortable: false,
       render: (_, row) => (
         <button 
-          onClick={() => handleViewDetails(row.user_id)}
+          onClick={() => handleViewDetails(row.user_id, row.role)}
           className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
           title="View Details"
         >
