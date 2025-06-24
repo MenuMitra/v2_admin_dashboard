@@ -733,7 +733,7 @@ function CreateOutlet() {
                 name="opening_time"
                 value={formData.opening_time}
                 onChange={handleInputChange}
-                required
+                // required
                 placeholder="Select opening time"
               />
 
@@ -742,7 +742,7 @@ function CreateOutlet() {
                 name="closing_time"
                 value={formData.closing_time}
                 onChange={handleInputChange}
-                required
+                // required
                 placeholder="Select closing time"
               />
 
