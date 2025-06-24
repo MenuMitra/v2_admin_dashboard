@@ -142,6 +142,7 @@ const SelectInput = React.forwardRef(({
   required,
   error,
   onFocus,
+  errorMessage,
   ...props
 }, ref) => {
   return (
@@ -216,7 +217,7 @@ const SelectInput = React.forwardRef(({
       </div>
       {error && (
         <p className="text-error-500 text-sm mt-1">
-          Please select an outlet type
+          {errorMessage || `Please select a ${label.toLowerCase()}`}
         </p>
       )}
     </div>

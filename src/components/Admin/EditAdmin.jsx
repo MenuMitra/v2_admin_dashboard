@@ -113,10 +113,27 @@ function EditAdmin() {
           mobile: ''
         }));
       }
+    } else if (name === 'is_active') {
+      // Handle status changes
+      if (value === '') {
+        setValidationStates(prev => ({
+          ...prev,
+          is_active: true
+        }));
+      } else {
+        setValidationStates(prev => ({
+          ...prev,
+          is_active: false
+        }));
+      }
+      setFormData(prev => ({
+        ...prev,
+        [name]: value === '' ? '' : parseInt(value)
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: name === 'is_active' ? parseInt(value) : value
+        [name]: value
       }));
       // Clear error when user starts typing
       if (name in errors) {
@@ -164,16 +181,17 @@ function EditAdmin() {
       isValid = false;
     }
 
-    // Set regular errors
+    // Status validation - Check if status is empty or undefined
+    if (formData.is_active === undefined || formData.is_active === '') {
+      setValidationStates(prev => ({
+        ...prev,
+        is_active: true
+      }));
+      isValid = false;
+    }
+
     setErrors(newErrors);
-
-    // Set validation states for status - exactly like CreateOutlet.jsx
-    setValidationStates(prev => ({
-      ...prev,
-      is_active: !formData.is_active
-    }));
-
-    return isValid && formData.is_active !== undefined && formData.is_active !== '';
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
@@ -346,24 +364,12 @@ function EditAdmin() {
                   value={formData.is_active}
                   onChange={handleChange}
                   onFocus={() => handleFocus('is_active')}
-                  error={validationStates.is_active && !formData.is_active}
+                  error={validationStates.is_active}
+                  errorMessage="Please select a status"
                   required
                   options={statusOptions}
                   placeholder="Select Status"
-                  className={`
-                    w-full px-3 py-2 
-                    rounded-lg shadow-sm
-                    transition duration-150 ease-in-out
-                    focus:outline-none focus:ring-2 focus:ring-brand-500
-                    ${validationStates.is_active ? 'border-error-500' : 'border-gray-300'}
-                    dark:border-gray-700
-                  `}
                 />
-                {validationStates.is_active && (
-                  <p className="text-error-500 text-sm mt-1">
-                    Please select a status
-                  </p>
-                )}
               </div>
             </div>
           </form>
