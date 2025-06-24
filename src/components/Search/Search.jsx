@@ -147,13 +147,15 @@ const Search = () => {
 
         // Otherwise render the view button
         return (
-          <button 
-            onClick={() => handleViewDetails(row.user_id, row.role)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-            title="View Details"
-          >
-            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-          </button>
+          <div className="flex justify-center">
+            <button 
+              onClick={() => handleViewDetails(row.user_id, row.role)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+              title="View Details"
+            >
+              <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+            </button>
+          </div>
         );
       }
     }
