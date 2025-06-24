@@ -61,7 +61,9 @@ function CreateOutlet() {
     outlet_type: false,
     food_type: false,
     outlet_mode: false,
-    address: false
+    address: false,
+    service_charges: false,
+    gst: false,
   });
 
   const breadcrumbItems = [
@@ -200,7 +202,9 @@ function CreateOutlet() {
       outlet_type: !formData.outlet_type,
       food_type: !formData.veg_nonveg,
       outlet_mode: !formData.outlet_mode,
-      address: !isAddressValid(formData.address)
+      address: !isAddressValid(formData.address),
+      service_charges: !formData.service_charges,
+      gst: !formData.gst,
     });
 
     if (!formData.owner_id || 
@@ -210,7 +214,9 @@ function CreateOutlet() {
         !formData.outlet_type ||
         !formData.veg_nonveg ||
         !formData.outlet_mode ||
-        !isAddressValid(formData.address)) {
+        !isAddressValid(formData.address) ||
+        !formData.service_charges ||
+        !formData.gst) {
       return;
     }
     
@@ -678,23 +684,49 @@ function CreateOutlet() {
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <TextInput
-                label="Service Charges (%)"
-                name="service_charges"
-                type="number"
-                value={formData.service_charges}
-                onChange={handleInputChange}
-                placeholder="Enter Service Charges"
-              />
+              <div className="relative">
+                <TextInput
+                  label="Service Charges (%)"
+                  name="service_charges"
+                  type="number"
+                  value={formData.service_charges}
+                  onChange={handleInputChange}
+                  onFocus={() => handleFocus('service_charges')}
+                  placeholder="Enter Service Charges"
+                  required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.service_charges ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {validationStates.service_charges && (
+                  <p className="text-error-500 text-sm mt-1">
+                    Service Charges is required
+                  </p>
+                )}
+              </div>
 
-              <TextInput
-                label="GST (%)"
-                name="gst"
-                type="number"
-                value={formData.gst}
-                onChange={handleInputChange}
-                placeholder="Enter GST"
-              />
+              <div className="relative">
+                <TextInput
+                  label="GST (%)"
+                  name="gst"
+                  type="number"
+                  value={formData.gst}
+                  onChange={handleInputChange}
+                  onFocus={() => handleFocus('gst')}
+                  placeholder="Enter GST"
+                  required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.gst ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {validationStates.gst && (
+                  <p className="text-error-500 text-sm mt-1">
+                    GST is required
+                  </p>
+                )}
+              </div>
 
               <TimePickerInput
                 label="Opening Time"
