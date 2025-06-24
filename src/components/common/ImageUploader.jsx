@@ -154,7 +154,7 @@ const ImageUploader = ({
               {maxImages === 1 ? 'Upload a single image' : 'or click to browse files'}
         </p>
         <p className="text-xs text-gray-400">
-              PNG, JPG, WebP {maxImages === 1 ? '' : `(max ${maxImages} images)`}
+              PNG, JPG {maxImages === 1 ? '' : `(max ${maxImages} images)`}
         </p>
           </>
         )}
