@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import axios from 'axios';
@@ -49,7 +49,7 @@ function CreateOutlet() {
     email: '',
     opening_time: '',
     closing_time: '',
-    owner_id: '',
+    owner_id: [],
     image: null
   });
 
@@ -68,6 +68,8 @@ function CreateOutlet() {
     fssainumber: false
   });
 
+  const dropdownRef = useRef(null);
+
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/' },
     { label: 'Outlets', path: '/outlets' },
@@ -78,6 +80,22 @@ function CreateOutlet() {
     fetchOutletTypes();
     fetchOwners();
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const fetchOutletTypes = async () => {
     try {
@@ -210,7 +228,7 @@ function CreateOutlet() {
     e.preventDefault();
     
     setValidationStates({
-      owner: !formData.owner_id,
+      owner: formData.owner_id.length === 0,
       name: !isNameValid(formData.name),
       mobile: !isMobileValid(formData.mobile),
       upi: !isUpiValid(formData.upi_id),
@@ -222,7 +240,7 @@ function CreateOutlet() {
       gst: !formData.gst,
     });
 
-    if (!formData.owner_id || 
+    if (formData.owner_id.length === 0 || 
         !isNameValid(formData.name) || 
         !isMobileValid(formData.mobile) ||
         !isUpiValid(formData.upi_id) ||
@@ -244,7 +262,7 @@ function CreateOutlet() {
       const formDataToSend = new FormData();
       
       // Required fields with exact names
-      formDataToSend.append('owner_id', formData.owner_id);
+      formDataToSend.append('owner_ids', formData.owner_id.join(','));
       formDataToSend.append('user_id', adminData.user_id.toString());
       formDataToSend.append('name', formData.name);
       formDataToSend.append('mobile', formData.mobile);
@@ -412,10 +430,10 @@ function CreateOutlet() {
                 {/* Select Owner */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    <span className="text-error-600">*</span> Select Owner
+                    <span className="text-error-600">*</span> Select Owner(s)
                   </label>
                   
-                  <div className="relative">
+                  <div className="relative" ref={dropdownRef}>
                     <div
                       onClick={handleOwnerClick}
                       className={`
@@ -427,11 +445,11 @@ function CreateOutlet() {
                       aria-expanded={isDropdownOpen}
                       aria-haspopup="listbox"
                     >
-                      {formData.owner_id ? (
+                      {formData.owner_id.length > 0 ? (
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="font-medium text-gray-900">
-                              {allOwners.find(o => o.user_id === parseInt(formData.owner_id))?.name}
+                              {formData.owner_id.length} Owner(s) Selected
                             </div>
                           </div>
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -439,7 +457,7 @@ function CreateOutlet() {
                           </svg>
                         </div>
                       ) : (
-                        <div className="text-gray-500">Select Owner</div>
+                        <div className="text-gray-500">Select Owner(s)</div>
                       )}
                     </div>
 
@@ -456,6 +474,37 @@ function CreateOutlet() {
                           overflowY: 'auto'
                         }}
                       >
+                        {/* Selected Owners Display */}
+                        {formData.owner_id.length > 0 && (
+                          <div className="p-2 border-b bg-gray-50">
+                            <div className="flex flex-wrap gap-2">
+                              {formData.owner_id.map(id => {
+                                const owner = allOwners.find(o => o.user_id === id);
+                                return owner ? (
+                                  <div 
+                                    key={owner.user_id}
+                                    className="inline-flex items-center gap-1 px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-sm"
+                                  >
+                                    <span>{owner.name}</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setFormData(prev => ({
+                                          ...prev,
+                                          owner_id: prev.owner_id.filter(ownerId => ownerId !== id)
+                                        }));
+                                      }}
+                                      className="ml-1 text-brand-500 hover:text-brand-700"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ) : null;
+                              })}
+                            </div>
+                          </div>
+                        )}
+
                         {/* Search Bar */}
                         <div className="sticky top-0 p-2 border-b bg-white">
                           <div className="relative">
@@ -478,49 +527,45 @@ function CreateOutlet() {
                             filteredOwners.map((owner) => (
                               <div
                                 key={owner.user_id}
-                                onClick={() => {
-                                  setFormData(prev => ({ ...prev, owner_id: owner.user_id }));
-                                  setIsDropdownOpen(false);
-                                  setSearchTerm('');
-                                }}
                                 className={`
                                   p-3 cursor-pointer hover:bg-gray-50
-                                  ${formData.owner_id === owner.user_id 
+                                  ${formData.owner_id.includes(owner.user_id)
                                     ? 'bg-brand-50 border-l-4 border-brand-500' 
                                     : 'border-l-4 border-transparent'
                                   }
                                 `}
                               >
                                 <div className="flex items-center justify-between">
-                                  <div>
-                                    <div className="font-medium text-gray-900">
-                                      {owner.name}
-                                    </div>
-                                    <div className="text-sm text-gray-500">
-                                      <span>{owner.mobile}</span>
-                                      {owner.email && (
-                                        <>
-                                          <span className="mx-2">•</span>
-                                          <span>{owner.email}</span>
-                                        </>
-                                      )}
+                                  <div className="flex items-center gap-3">
+                                    <input
+                                      type="checkbox"
+                                      checked={formData.owner_id.includes(owner.user_id)}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        setFormData(prev => ({
+                                          ...prev,
+                                          owner_id: e.target.checked 
+                                            ? [...prev.owner_id, owner.user_id]
+                                            : prev.owner_id.filter(id => id !== owner.user_id)
+                                        }));
+                                      }}
+                                      className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                                    />
+                                    <div>
+                                      <div className="font-medium text-gray-900">
+                                        {owner.name}
+                                      </div>
+                                      <div className="text-sm text-gray-500">
+                                        <span>{owner.mobile}</span>
+                                        {owner.email && (
+                                          <>
+                                            <span className="mx-2">•</span>
+                                            <span>{owner.email}</span>
+                                          </>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
-                                  {formData.owner_id === owner.user_id && (
-                                    <svg 
-                                      className="w-5 h-5 text-brand-500 flex-shrink-0" 
-                                      fill="none" 
-                                      stroke="currentColor" 
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path 
-                                        strokeLinecap="round" 
-                                        strokeLinejoin="round" 
-                                        strokeWidth="2" 
-                                        d="M5 13l4 4L19 7" 
-                                      />
-                                    </svg>
-                                  )}
                                 </div>
                               </div>
                             ))
