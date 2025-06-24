@@ -65,6 +65,7 @@ function CreateOutlet() {
     address: false,
     service_charges: false,
     gst: false,
+    fssainumber: false
   });
 
   const breadcrumbItems = [
@@ -165,6 +166,19 @@ function CreateOutlet() {
           mobile: false
         }));
       }
+    } else if (name === 'fssainumber') {
+      // Only allow numbers and limit to 14 characters
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 14);
+      setFormData(prev => ({
+        ...prev,
+        [name]: numbersOnly
+      }));
+      
+      // Validate FSSAI number length
+      setValidationStates(prev => ({
+        ...prev,
+        fssainumber: numbersOnly.length > 0 && numbersOnly.length !== 14
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
