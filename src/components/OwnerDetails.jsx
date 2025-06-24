@@ -354,30 +354,6 @@ function OwnerDetails() {
                   </div>
                 </div>
 
-                {/* Staff Status */}
-                {/* <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faUserTie}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div>
-                      <span
-                        className={`px-2 py-1 text-sm rounded-full ${
-                          ownerData.is_staff === 1
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {ownerData.is_staff === 1 ? "Yes" : "No"}
-                      </span>
-                      <div className="text-sm text-gray-500">Staff Status</div>
-                    </div>
-                  </div>
-                </div> */}
-
                 {/* Created On */}
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -388,7 +364,7 @@ function OwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {ownerData.created_on}
+                      {ownerData.created_on || "-"}
                     </div>
                     <div className="text-sm text-gray-500">Created On</div>
                   </div>
@@ -402,7 +378,7 @@ function OwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {ownerData.created_by?.toUpperCase()}
+                      {ownerData.created_by?.toUpperCase() || "-"}
                     </div>
                     <div className="text-sm text-gray-500">Created By</div>
                   </div>
