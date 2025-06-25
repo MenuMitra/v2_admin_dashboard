@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
@@ -30,6 +30,24 @@ function EditChef() {
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const fetchFunctionalities = async () => {
     try {
@@ -229,7 +247,7 @@ function EditChef() {
                 <span className="text-error-600">*</span> Select Functionalities
               </label>
               
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <div
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
@@ -252,8 +270,6 @@ function EditChef() {
                     <div className="text-gray-500">Select Functionalities</div>
                   )}
                 </div>
-
-              
 
                 {/* Dropdown Panel */}
                 {isDropdownOpen && (
