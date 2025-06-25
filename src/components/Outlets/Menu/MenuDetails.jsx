@@ -92,118 +92,170 @@ function MenuDetails() {
 
   return (
     <div className="p-4">
-      {/* Header with Back button and actions */}
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 rounded-full border border-gray-300 bg-white hover:bg-gray-50"
-        >
-          <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
-          Back
-        </button>
-        <h1 className="text-xl font-semibold text-gray-800">Menu Details</h1>
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate(`/edit-menu/${outletId}/${menuId}`)}
-            className="px-4 py-2 text-sm font-medium text-white rounded-full bg-brand-500 hover:bg-brand-600"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="px-4 py-2 text-sm font-medium text-white rounded-full bg-error-500 hover:bg-error-600"
-          >
-            Delete
-          </button>
-        </div>
-      </div>
-
-      {/* Menu Content */}
       <div className="rounded-2xl border border-gray-200 bg-white">
-        {/* Menu Image and Basic Info */}
-        <div className="p-6">
-          {menu.images?.[0] && (
-            <img
-              src={menu.images[0].image}
-              alt={menu.name}
-              style={{
-                width: '300px',
-                height: '300px',
-                objectFit: 'contain',
-                marginBottom: '24px',
-                display: 'block',
-                marginLeft: 'auto',
-                marginRight: 'auto'
-              }}
-            />
-          )}
-          
-          {/* Menu Title and Tags */}
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2 mb-4">
-              <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
-              {menu.name}
-            </h2>
-            
-            <div className="flex flex-wrap items-center gap-3">
-              <span className={`px-2 py-1 text-sm font-medium ${
-                menu.food_type === 'veg' ? 'text-green-700' : 'text-red-700'
-              }`}>
-                {menu.food_type?.toUpperCase()}
-              </span>
-              <span className="text-gray-500">{menu.category_name}</span>
-              {menu.spicy_index && (
-                <span className="text-error-500">Spicy Level {menu.spicy_index}</span>
-              )}
-              {menu.offer > 0 && (
-                <span className="text-success-500">{menu.offer}% OFF</span>
-              )}
+        {/* Header Section */}
+        <div className="overflow-hidden pt-4">
+          <div className="flex items-center px-6 mb-3">
+            {/* Left Side - Back Button */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
+            {/* Center - Title */}
+            <div className="flex-1 text-center text-base sm:text-lg font-semibold text-gray-800">
+              Menu Details
+            </div>
+            {/* Right Side - Action Buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate(`/edit-menu/${outletId}/${menuId}`)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                <span className="hidden sm:inline">Edit</span>
+              </button>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span className="hidden sm:inline">Delete</span>
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Description */}
-        <div className="px-6 py-4 border-t border-gray-200">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Description</h3>
-          <p className="text-gray-700">{menu.description}</p>
-        </div>
+          {/* Content Section */}
+          <div className="px-6 pb-6">
+            {/* Image Section */}
+            {menu.images?.[0] && (
+              <div className="mb-6 flex justify-center">
+                <img
+                  src={menu.images[0].image}
+                  alt={menu.name}
+                  style={{
+                    width: '300px',
+                    height: '300px',
+                    objectFit: 'contain',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    padding: '8px'
+                  }}
+                />
+              </div>
+            )}
 
-        {/* Ingredients */}
-        <div className="px-6 py-4 border-t border-gray-200">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Ingredients</h3>
-          <p className="text-gray-700">{menu.ingredients}</p>
-        </div>
-
-        {/* Portions */}
-        <div className="px-6 py-4 border-t border-gray-200">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Portions</h3>
-          <div className="bg-gray-50 rounded-lg p-3">
-            {menu.portions.map((portion, idx) => (
-              <div key={idx} className="flex items-center justify-between py-2">
-                <div className="font-medium text-gray-800">{portion.portion_name}</div>
-                <div>
-                  <span className="text-brand-500 font-medium mr-4">₹{portion.price}</span>
-                  <span className="text-sm text-gray-500">
-                    {portion.unit_value} {portion.unit_type}
-                  </span>
+            {/* Menu Information Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {/* Food Type */}
+              <div className="flex items-center p-3">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
+                </div>
+                <div className="ml-3">
+                  <div className={`text-base font-medium ${menu.food_type === 'veg' ? 'text-green-700' : 'text-red-700'}`}>
+                    {menu.food_type?.toUpperCase()}
+                  </div>
+                  <div className="text-sm text-gray-500">Food Type</div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Status and Meta Info */}
-        <div className="px-6 py-4 border-t border-gray-200">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2">
-              <FontAwesomeIcon 
-                icon={menu.is_active ? faCircleCheck : faCircleXmark} 
-                className={menu.is_active ? 'text-success-500' : 'text-error-500'} 
-              />
-              <span>{menu.is_active ? 'Active' : 'Inactive'}</span>
+              {/* Category */}
+              <div className="flex items-center p-3 ">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium">{menu.category_name}</div>
+                  <div className="text-sm text-gray-500">Category</div>
+                </div>
+              </div>
+
+              {/* Spicy Index */}
+              <div className="flex items-center p-3 ">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faFire} className="w-5 h-5 text-error-500" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium">Level {menu.spicy_index}</div>
+                  <div className="text-sm text-gray-500">Spicy Index</div>
+                </div>
+              </div>
+
+              {/* Offer */}
+              <div className="flex items-center p-3 ">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faPercent} className="w-5 h-5 text-success-500" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium">{menu.offer}%</div>
+                  <div className="text-sm text-gray-500">Offer</div>
+                </div>
+              </div>
+
+              {/* Description - Spans 2 columns */}
+              <div className="flex items-start p-3 sm:col-span-2">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium break-words">{menu.description}</div>
+                  <div className="text-sm text-gray-500">Description</div>
+                </div>
+              </div>
+
+              {/* Ingredients - Spans 2 columns */}
+              <div className="flex items-start p-3  sm:col-span-2">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium break-words">{menu.ingredients}</div>
+                  <div className="text-sm text-gray-500">Ingredients</div>
+                </div>
+              </div>
             </div>
-            <div className="text-gray-500">
-              Created by {menu.created_by} on {menu.created_on}
+
+            {/* Portions Section */}
+            <div className="mt-6">
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Portions</h3>
+              <div className="bg-gray-50 rounded-lg p-3">
+                {menu.portions.map((portion, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-2">
+                    <div className="font-medium text-gray-800">{portion.portion_name}</div>
+                    <div>
+                      <span className="text-brand-500 font-medium mr-4">₹{portion.price}</span>
+                      <span className="text-sm text-gray-500">
+                        {portion.unit_value} {portion.unit_type}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Status and Meta Info */}
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <FontAwesomeIcon 
+                    icon={menu.is_active ? faCircleCheck : faCircleXmark} 
+                    className={menu.is_active ? 'text-success-500' : 'text-error-500'} 
+                  />
+                  <span>{menu.is_active ? 'Active' : 'Inactive'}</span>
+                </div>
+                <div className="text-gray-500">
+                  Created by {menu.created_by} on {menu.created_on}
+                </div>
+              </div>
             </div>
           </div>
         </div>
