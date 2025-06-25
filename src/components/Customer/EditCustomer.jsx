@@ -175,6 +175,8 @@ function EditCustomer() {
               onChange={handleInputChange}
               required
               placeholder="Enter customer name"
+              disabled
+              className="bg-gray-50 cursor-not-allowed"
             />
 
             <TextInput
@@ -185,6 +187,8 @@ function EditCustomer() {
               required
               placeholder="Enter mobile number"
               validationType="phone"
+              disabled
+              className="bg-gray-50 cursor-not-allowed"
             />
 
             <TextInput
@@ -194,6 +198,8 @@ function EditCustomer() {
               onChange={handleInputChange}
               placeholder="Enter email address"
               validationType="email"
+              disabled
+              className="bg-gray-50 cursor-not-allowed"
             />
 
             <TextInput
@@ -202,6 +208,8 @@ function EditCustomer() {
               value={formData.address}
               onChange={handleInputChange}
               placeholder="Enter address"
+              disabled
+              className="bg-gray-50 cursor-not-allowed"
             />
 
             <SelectInput
@@ -209,7 +217,9 @@ function EditCustomer() {
               name="role"
               value={formData.role}
               onChange={handleInputChange}
-              options={[{ value: "customer", label: "Customer" }]}
+              options={[
+                { value: "customer", label: "Customer" }
+              ]}
               disabled
             />
 
