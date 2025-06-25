@@ -160,62 +160,105 @@ function CustomerDetails() {
           </p>
           <p className="text-sm text-gray-500">Account Status</p>
         </div>
+
+
+        {/* Address - Only show if not null */}
+        {customerData?.customer_details?.address && (
+          <div>
+            <p className="text-base font-medium text-gray-800">
+              {customerData.customer_details.address}
+            </p>
+            <p className="text-sm text-gray-500">Address</p>
+          </div>
+        )}
       </div>
     </div>
   );
 
   const renderOrderStatistics = () => {
-    // Check if all statistics are 0 or 0.0
-    const hasNoActivity = 
-      customerData?.order_statistics?.total_orders === 0 &&
-      customerData?.order_statistics?.paid_orders === 0 &&
-      customerData?.order_statistics?.cancelled_orders === 0 &&
-      customerData?.order_statistics?.cooking_orders === 0 &&
-      customerData?.order_statistics?.placed_orders === 0 &&
-      customerData?.order_statistics?.served_orders === 0 &&
-      customerData?.order_statistics?.total_spent === 0.0 &&
-      customerData?.order_statistics?.average_order_value === 0.0;
-
-    // If all values are 0, don't render the section
-    if (hasNoActivity) {
-      return null;
-    }
-
     return (
       <div className="p-6 border-t">
         <h2 className="text-xl font-medium mb-6 text-gray-800">Order Statistics</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
           {/* Total Orders */}
-          <div>
-            <p className="text-base font-medium text-gray-800">
-              {customerData?.order_statistics?.total_orders}
-            </p>
-            <span className="text-sm text-gray-500">Total Orders</span>
-          </div>
+          {customerData?.order_statistics?.total_orders > 0 && (
+            <div>
+              <p className="text-base font-medium text-gray-800">
+                {customerData.order_statistics.total_orders}
+              </p>
+              <span className="text-sm text-gray-500">Total Orders</span>
+            </div>
+          )}
 
           {/* Paid Orders */}
-          <div>
-            <p className="text-base font-medium text-gray-800">
-              {customerData?.order_statistics?.paid_orders}
-            </p>
-            <span className="text-sm text-gray-500">Paid Orders</span>
-          </div>
+          {customerData?.order_statistics?.paid_orders > 0 && (
+            <div>
+              <p className="text-base font-medium text-gray-800">
+                {customerData.order_statistics.paid_orders}
+              </p>
+              <span className="text-sm text-gray-500">Paid Orders</span>
+            </div>
+          )}
+
+          {/* Cancelled Orders */}
+          {customerData?.order_statistics?.cancelled_orders > 0 && (
+            <div>
+              <p className="text-base font-medium text-gray-800">
+                {customerData.order_statistics.cancelled_orders}
+              </p>
+              <span className="text-sm text-gray-500">Cancelled Orders</span>
+            </div>
+          )}
+
+          {/* Cooking Orders */}
+          {customerData?.order_statistics?.cooking_orders > 0 && (
+            <div>
+              <p className="text-base font-medium text-gray-800">
+                {customerData.order_statistics.cooking_orders}
+              </p>
+              <span className="text-sm text-gray-500">Cooking Orders</span>
+            </div>
+          )}
+
+          {/* Placed Orders */}
+          {customerData?.order_statistics?.placed_orders > 0 && (
+            <div>
+              <p className="text-base font-medium text-gray-800">
+                {customerData.order_statistics.placed_orders}
+              </p>
+              <span className="text-sm text-gray-500">Placed Orders</span>
+            </div>
+          )}
+
+          {/* Served Orders */}
+          {customerData?.order_statistics?.served_orders > 0 && (
+            <div>
+              <p className="text-base font-medium text-gray-800">
+                {customerData.order_statistics.served_orders}
+              </p>
+              <span className="text-sm text-gray-500">Served Orders</span>
+            </div>
+          )}
 
           {/* Total Spent */}
-          <div>
-            <p className="text-base font-medium text-gray-800">
-              ₹{customerData?.order_statistics?.total_spent}
-            </p>
-            <span className="text-sm text-gray-500">Total Spent</span>
-          </div>
+          {customerData?.order_statistics?.total_spent > 0 && (
+            <div>
+              <p className="text-base font-medium text-gray-800">
+                ₹{customerData.order_statistics.total_spent}
+              </p>
+              <span className="text-sm text-gray-500">Total Spent</span>
+            </div>
+          )}
 
           {/* Average Order Value */}
-          <div>
-            <p className="text-base font-medium text-gray-800">
-              ₹{customerData?.order_statistics?.average_order_value}
-            </p>
-            <span className="text-sm text-gray-500">Avg. Order Value</span>
-          </div>
+          {customerData?.order_statistics?.average_order_value > 0 && (
+            <div>
+              <p className="text-base font-medium text-gray-800">
+                ₹{customerData.order_statistics.average_order_value}
+              </p>
+              <span className="text-sm text-gray-500">Avg. Order Value</span>
+            </div>
+          )}
         </div>
       </div>
     );
