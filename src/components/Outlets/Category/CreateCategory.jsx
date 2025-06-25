@@ -3,13 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
-import {
-  TextInput,
-  FileInput,
-} from '../../forms/FormElements';
+import { TextInput } from '../../forms/FormElements';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../../Breadcrumb';
+import { toastController } from '../../../utils/toastController';
 
 function CreateCategory() {
   const { outletId } = useParams();
@@ -18,55 +16,39 @@ function CreateCategory() {
   const navigate = useNavigate();
 
   const [categoryName, setCategoryName] = useState('');
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
 
   // Ref for form submission from Save button
   const formRef = React.useRef();
-
-  // Handle file input
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
 
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setSuccessMsg('');
+    
     try {
-      const token = getToken();
-      const formData = new FormData();
-      formData.append('outlet_id', outletId);
-      formData.append('category_name', categoryName);
-      formData.append('user_id', adminData?.user_id);
-      formData.append('app_source', 'admin_dashboard');
-      if (image) {
-        formData.append('image', image);
-      }
-
       const response = await axios.post(
         'https://men4u.xyz/v2/common/menu_category_create',
-        formData,
+        {
+          outlet_id: outletId,
+          category_name: categoryName,
+          user_id: adminData?.user_id,
+          app_source: 'admin_dashboard'
+        },
         {
           headers: {
-            Authorization: token,
-            'Content-Type': 'multipart/form-data',
+            Authorization: getToken(),
+            'Content-Type': 'application/json',
           },
         }
       );
-      setSuccessMsg(response.data.detail || 'Menu Category created successfully');
+      
+      toastController.success(response.data.detail || 'Success');
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      setError(
+      toastController.error(
         err.response?.data?.message ||
         err.response?.data?.detail ||
         'Failed to create category'
@@ -139,12 +121,11 @@ function CreateCategory() {
               onChange={e => setCategoryName(e.target.value)}
               placeholder="Enter category name"
             />
-            {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
             <button
               type="submit"
               disabled={loading}
               className="w-full py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
-              style={{ display: 'none' }} // Hide the default submit button, use Save in header
+              style={{ display: 'none' }}
             >
               {loading ? 'Creating...' : 'Create Category'}
             </button>
