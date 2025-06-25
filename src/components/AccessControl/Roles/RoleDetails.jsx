@@ -141,44 +141,41 @@ function RoleDetails() {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                 {/* Name */}
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-500">Name</p>
                   <p className="text-base sm:text-lg font-medium text-gray-800">
                     {customerData.customer_details.name}
                   </p>
+                  <p className="text-xs sm:text-sm text-gray-500">Name</p>
                 </div>
 
                 {/* Mobile */}
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-500">Mobile</p>
                   <p className="text-base sm:text-lg font-medium text-gray-800">
                     {customerData.customer_details.mobile}
                   </p>
+                  <p className="text-xs sm:text-sm text-gray-500">Mobile</p>
                 </div>
 
                 {/* Email */}
                 {customerData.customer_details.email &&
                   customerData.customer_details.email !== "null" && (
                     <div>
-                      <p className="text-xs sm:text-sm text-gray-500">Email</p>
                       <p className="text-base sm:text-lg font-medium text-gray-800 truncate">
                         {customerData.customer_details.email}
                       </p>
+                      <p className="text-xs sm:text-sm text-gray-500">Email</p>
                     </div>
                   )}
 
                 {/* Created On */}
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-500">Created On</p>
                   <p className="text-base sm:text-lg font-medium text-gray-800">
                     {customerData.customer_details.created_on}
                   </p>
+                  <p className="text-xs sm:text-sm text-gray-500">Created On</p>
                 </div>
 
                 {/* Account Status */}
                 <div>
-                  <p className="text-xs sm:text-sm text-gray-500">
-                    Account Status
-                  </p>
                   <p
                     className={`text-base sm:text-lg font-medium ${
                       customerData.customer_details.account_status
@@ -189,6 +186,9 @@ function RoleDetails() {
                     {customerData.customer_details.account_status
                       ? "Active"
                       : "Inactive"}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    Account Status
                   </p>
                 </div>
               </div>
