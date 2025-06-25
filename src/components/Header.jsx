@@ -38,19 +38,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
 
-  const notifications = [
-    {
-      id: 1,
-      user: {
-        name: "Terry Franci",
-        image: "user-02.jpg",
-        online: true,
-      },
-      project: "Project - Nganter App",
-      time: "5 min ago",
-    },
-    // Add more notifications as needed
-  ];
+
 
   const handleLogout = async () => {
     try {
@@ -127,9 +115,6 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
     });
   };
 
-  const handleDarkModeToggle = () => {
-    setDarkMode(prevMode => !prevMode);
-  };
 
   // Early return if no admin data
   if (!adminData) {
@@ -172,29 +157,6 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
             <FontAwesomeIcon icon={faEllipsisH} className="fill-current" />
           </button>
 
-          {/* Search Bar */}
-          {/* <div className="hidden lg:block">
-            <form>
-              <div className="relative">
-                <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2">
-                  <FontAwesomeIcon 
-                    icon={faMagnifyingGlass} 
-                    className="fill-gray-500 dark:fill-gray-400" 
-                  />
-                </span>
-                <input 
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Search or type command..."
-                  className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pr-14 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden xl:w-[430px] dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
-                />
-                <button className="absolute top-1/2 right-2.5 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                  <span>⌘</span>
-                  <span>K</span>
-                </button>
-              </div>
-            </form>
-          </div> */}
         </div>
 
         {/* Right Side Menu */}
@@ -203,15 +165,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
             menuToggle ? "flex" : "hidden"
           } shadow-theme-md w-full items-center justify-between gap-4 px-5 py-4 lg:flex lg:justify-end lg:px-0 lg:shadow-none`}
         >
-            {/* Dark Mode Toggle */}
-          {/* <div className="2xsm:gap-3 flex items-center gap-2">
-            <button
-              className="hover:text-dark-900 relative flex h-11 w-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-              onClick={handleDarkModeToggle}
-            >
-              <FontAwesomeIcon icon={darkMode ? faSun : faMoon} />
-            </button>
-          </div> */}
+  
 
           {/* User Profile */}
           <div className="relative">
