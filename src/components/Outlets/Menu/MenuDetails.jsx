@@ -246,7 +246,7 @@ function MenuDetails() {
             <div className="mt-6 pt-4 border-t border-gray-200">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 {/* Status */}
-                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                <div className="flex items-center p-3">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon 
                       icon={menu.is_active ? faCircleCheck : faCircleXmark} 
@@ -260,7 +260,7 @@ function MenuDetails() {
                 </div>
 
                 {/* Created By */}
-                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                <div className="flex items-center p-3">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
                   </div>
@@ -271,7 +271,7 @@ function MenuDetails() {
                 </div>
 
                 {/* Created On */}
-                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                <div className="flex items-center p-3">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon icon={faCalendarPlus} className="w-5 h-5 text-gray-400" />
                   </div>
