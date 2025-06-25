@@ -34,11 +34,15 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifying, setNotifying] = useState(true);
   const { adminData, clearAdmin } = useAdmin();
-  const { getToken, logout } = useAuth();
+  const { getToken, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
 
-
+  useEffect(() => {
+    if (!isAuthenticated()) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleLogout = async () => {
     try {
@@ -115,12 +119,6 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
     });
   };
 
-
-  // Early return if no admin data
-  if (!adminData) {
-    return null;
-  }
-
   return (
     <header className="sticky top-0 z-99999 flex w-full border-gray-200 bg-white lg:border-b dark:border-gray-800 dark:bg-gray-900">
       <div className="flex grow flex-col items-center justify-between lg:flex-row lg:px-6">
@@ -159,71 +157,71 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
         </div>
 
-        {/* Right Side Menu */}
-        <div
-          className={`${
-            menuToggle ? "flex" : "hidden"
-          } shadow-theme-md w-full items-center justify-between gap-4 px-5 py-4 lg:flex lg:justify-end lg:px-0 lg:shadow-none`}
-        >
-  
-
-          {/* User Profile */}
-          <div className="relative">
-            <button
-              className="flex items-center text-gray-700 dark:text-gray-400"
-              onClick={() => setDropdownOpen(!dropdownOpen)}
-            >
-              <span className="mr-3 h-11 w-11 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                <FontAwesomeIcon 
-                  icon={faUser} 
-                  className="text-gray-600 dark:text-gray-400 text-xl"
+        {/* Right Side Menu - Only show if adminData exists */}
+        {adminData && (
+          <div
+            className={`${
+              menuToggle ? "flex" : "hidden"
+            } shadow-theme-md w-full items-center justify-between gap-4 px-5 py-4 lg:flex lg:justify-end lg:px-0 lg:shadow-none`}
+          >
+            {/* User Profile */}
+            <div className="relative">
+              <button
+                className="flex items-center text-gray-700 dark:text-gray-400"
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                <span className="mr-3 h-11 w-11 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                  <FontAwesomeIcon 
+                    icon={faUser} 
+                    className="text-gray-600 dark:text-gray-400 text-xl"
+                  />
+                </span>
+                <span className="text-theme-sm mr-1 block font-medium">
+                  {adminData.name}
+                </span>
+                <FontAwesomeIcon
+                  icon={faChevronDown}
+                  className={`stroke-gray-500 dark:stroke-gray-400 ${
+                    dropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
-              </span>
-              <span className="text-theme-sm mr-1 block font-medium">
-                {adminData.name}
-              </span>
-              <FontAwesomeIcon
-                icon={faChevronDown}
-                className={`stroke-gray-500 dark:stroke-gray-400 ${
-                  dropdownOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+              </button>
 
-            {/* User Dropdown */}
-            {dropdownOpen && (
-              <div className="shadow-theme-lg dark:bg-gray-dark absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800">
-                <div className="mb-2 p-2">
-                  <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
-                    {adminData.name}
-                  </h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {adminData.email}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                    {adminData.role}
-                  </p>
+              {/* User Dropdown */}
+              {dropdownOpen && (
+                <div className="shadow-theme-lg dark:bg-gray-dark absolute right-0 mt-[17px] flex w-[260px] flex-col rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-800">
+                  <div className="mb-2 p-2">
+                    <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
+                      {adminData.name}
+                    </h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {adminData.email}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {adminData.role}
+                    </p>
+                  </div>
+                  <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
+                  <Link
+                    to="/profile"
+                    className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <FontAwesomeIcon icon={faUser} className="w-4 h-4" />
+                    View Profile
+                  </Link>
+                  <button
+                    className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-error-600 hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-950"
+                    onClick={handleLogout}
+                  >
+                    <FontAwesomeIcon icon={faSignOutAlt} className="w-4 h-4" />
+                    Sign Out
+                  </button>
                 </div>
-                <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
-                <Link
-                  to="/profile"
-                  className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                  onClick={() => setDropdownOpen(false)}
-                >
-                  <FontAwesomeIcon icon={faUser} className="w-4 h-4" />
-                  View Profile
-                </Link>
-                <button
-                  className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-error-600 hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-950"
-                  onClick={handleLogout}
-                >
-                  <FontAwesomeIcon icon={faSignOutAlt} className="w-4 h-4" />
-                  Sign Out
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </header>
   );
