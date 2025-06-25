@@ -29,7 +29,10 @@ function CustomerDetails() {
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    customerId: null
+  });
 
   useEffect(() => {
     if (customerId) {
@@ -60,10 +63,18 @@ function CustomerDetails() {
     }
   };
 
-  const handleDeleteCustomer = async () => {
+  const handleDeleteCustomer = () => {
+    setDeleteModal({
+      isOpen: true,
+      customerId: customerId
+    });
+  };
+
+  const confirmDelete = async () => {
+    setLoading(true);
     try {
       await axios.delete(
-        "https://men4u.xyz/v2/admin/customer_delete",
+        'https://men4u.xyz/v2/admin/customer_delete',
         {
           headers: {
             Authorization: getToken(),
@@ -75,11 +86,15 @@ function CustomerDetails() {
           }
         }
       );
+      
       toastController.success("Customer deleted successfully");
+      setDeleteModal({ isOpen: false, customerId: null });
       navigate(-1);
     } catch (error) {
       toastController.error(error.response?.data?.msg || "Failed to delete customer");
-      setShowDeleteModal(false);
+      setDeleteModal({ isOpen: false, customerId: null });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -251,7 +266,7 @@ function CustomerDetails() {
                 <span className="hidden sm:inline">Edit</span>
               </button>
               <button
-                onClick={() => setShowDeleteModal(true)}
+                onClick={handleDeleteCustomer}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -270,40 +285,29 @@ function CustomerDetails() {
 
       {/* Delete Confirmation Modal */}
       <Modal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, customerId: null })}
+        title="Delete Customer"
         type="error"
-        title="Confirm Deletion"
         size="small"
         actionButtons={
           <>
             <button
-              type="button"
-              onClick={() => setShowDeleteModal(false)}
-              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 sm:w-auto"
+              onClick={() => setDeleteModal({ isOpen: false, customerId: null })}
+              className="flex h-11 items-center justify-center rounded-lg border border-gray-200 bg-white px-6 text-sm font-medium text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
             >
               Cancel
             </button>
             <button
-              type="button"
-              onClick={handleDeleteCustomer}
-              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+              onClick={confirmDelete}
+              className="flex h-11 items-center justify-center rounded-lg bg-error-500 px-6 text-sm font-medium text-white transition hover:bg-error-600"
             >
-              Delete Customer
+              Delete
             </button>
           </>
         }
       >
-        <div className="flex items-start">
-          <div className="ml-4">
-            <p className="text-sm text-gray-500">
-              Are you sure you want to delete this customer? This action cannot be undone.
-            </p>
-            <p className="text-sm text-gray-500">
-              All data associated with this customer will be permanently removed.
-            </p>
-          </div>
-        </div>
+        <p>Are you sure you want to delete this customer? This action cannot be undone.</p>
       </Modal>
     </div>
   );
