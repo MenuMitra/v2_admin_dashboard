@@ -47,6 +47,7 @@ import CaptainDetails from './components/AccessControl/Roles/CaptainDetails';
 import ManagerDetails from './components/AccessControl/Roles/ManagerDetails';
 import WaiterDetails from './components/AccessControl/Roles/WaiterDetails'
 import ChefDetails from './components/AccessControl/Roles/ChefDetails'
+import EditCustomer from './components/Customer/EditCustomer';
 
 function App() {
 
@@ -116,6 +117,7 @@ function App() {
 
             <Route path="/customer" element={<Customer />} />
             <Route path="/customer-details/:customerId" element={<CustomerDetails />} />
+            <Route path="/edit-customer/:customerId" element={<EditCustomer />} />
 
             {/* Super Owner Routes */}
             <Route path="/super-owners" element={<SuperOwner />} />
