@@ -247,10 +247,10 @@ function Customer() {
         showBackButton={true}
         backButtonLabel="Back"
         // Enable outlet selection in DataTable
-        showOutletSelect={true}
-        outlets={outlets}
-        selectedOutlet={selectedOutlet}
-        onOutletChange={setSelectedOutlet}
+        // showOutletSelect={true}
+        // outlets={outlets}
+        // selectedOutlet={selectedOutlet}
+        // onOutletChange={setSelectedOutlet}
         isLoading={loading}
       />
 
