@@ -18,10 +18,6 @@ import EditPartner from './components/Partner/EditPartner';
 import CreatePartner from './components/Partner/CreatePartner';
 import Functionalities from './components/AccessControl/Functionalities/Functionalities';
 import Roles from './components/AccessControl/Roles/Roles';
-import QRTemplates from './components/QRTemplate/QRTemplates';
-import CreateTemplate from './components/QRTemplate/CreateTemplate';
-import TemplateDetails from './components/QRTemplate/TemplateDetails';
-import EditTemplate from './components/QRTemplate/EditTemplate';
 import Tickets from './components/Ticket/Tickets';
 import TicketDetails from './components/Ticket/TicketDetails';
 import Search from './components/Search/Search';
@@ -108,13 +104,6 @@ function App() {
             <Route path="/manager-details/:userId" element={<ManagerDetails />} />
             <Route path="/waiter-details/:userId" element={<WaiterDetails />} />
             <Route path="/chef-details/:userId" element={<ChefDetails />} />
-
-
-            {/* QR Templates Routes */}
-            <Route path="/qr-templates" element={<QRTemplates />} />
-            <Route path="/create-template" element={<CreateTemplate />} />
-            <Route path="/template-details/:templateId" element={<TemplateDetails />} />
-            <Route path="/edit-template/:templateId" element={<EditTemplate />} />
 
             {/* Tickets Routes */}
             <Route path="/tickets" element={<Tickets />} />

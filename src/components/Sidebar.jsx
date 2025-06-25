@@ -75,12 +75,6 @@ const menuData = {
       icon: faStore,
     },
     {
-      title: "QR Templates",
-      path: "/qr-templates",
-      id: "qr-templates",
-      icon: faQrcode,
-    },
-    {
       title: "Access Control",
       icon: faLock,
       items: [
