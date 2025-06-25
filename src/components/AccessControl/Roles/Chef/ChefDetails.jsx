@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth";
-import { useAdmin } from "../../../hooks/useAdmin";
+import { useAuth } from "../../../../hooks/useAuth";
+import { useAdmin } from "../../../../hooks/useAdmin";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faChevronLeft as faBack,
-  faSpinner
+  faSpinner,
+  faPen as faEdit,
+  faTrash as faDelete
 } from "@fortawesome/free-solid-svg-icons";
-import Breadcrumb from "../../Breadcrumb";
+import Breadcrumb from "../../../Breadcrumb";
 
 function ChefDetails() {
   const { outletId, userId } = useParams();
@@ -18,6 +20,7 @@ function ChefDetails() {
   const [loading, setLoading] = useState(true);
   const [chefData, setChefData] = useState(null);
   const [error, setError] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     fetchChefDetails();
@@ -43,6 +46,31 @@ function ChefDetails() {
       setChefData(response.data.detail);
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to fetch chef details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await axios.post(
+        "https://men4u.xyz/v2/admin/chef_delete",
+        {
+          update_user_id: adminData?.user_id,
+          user_id: Number(userId),
+          outlet_id: Number(outletId),
+          app_source: "admin_dashboard"
+        },
+        {
+          headers: {
+            Authorization: getToken(),
+          },
+        }
+      );
+      navigate(-1);
+    } catch (err) {
+      setError(err.response?.data?.msg || "Failed to delete chef");
     } finally {
       setLoading(false);
     }
@@ -155,19 +183,58 @@ function ChefDetails() {
         {/* Header Section */}
         <div className="overflow-hidden pt-4">
           <div className="flex items-center px-6 mb-3">
-            <div className="flex items-center gap-2 order-1">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                <FontAwesomeIcon icon={faBack} className="w-3 h-3 sm:w-4 sm:h-4" />
+                <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
-            <div className="flex-1 text-center text-lg sm:text-xl font-semibold text-gray-800">
+            <div className="flex-1 text-center text-base sm:text-lg font-semibold text-gray-800">
               Chef Details
             </div>
-            <div className="w-20"></div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => navigate(`/edit-chef/${outletId}/${userId}`)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                  />
+                </svg>
+                <span className="hidden sm:inline">Edit</span>
+              </button>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                <span className="hidden sm:inline">Edit</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -183,6 +250,33 @@ function ChefDetails() {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Delete Chef</h3>
+            <p className="text-gray-500 mb-6">Are you sure you want to delete this chef? This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleDelete();
+                  setShowDeleteModal(false);
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-error-600 rounded-lg hover:bg-error-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

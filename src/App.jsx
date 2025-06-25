@@ -46,8 +46,9 @@ import RoleDetails from './components/AccessControl/Roles/RoleDetails';
 import CaptainDetails from './components/AccessControl/Roles/CaptainDetails';
 import ManagerDetails from './components/AccessControl/Roles/ManagerDetails';
 import WaiterDetails from './components/AccessControl/Roles/WaiterDetails'
-import ChefDetails from './components/AccessControl/Roles/ChefDetails'
 import EditCustomer from './components/Customer/EditCustomer';
+import ChefDetails from './components/AccessControl/Roles/Chef/ChefDetails';
+import EditChef from './components/AccessControl/Roles/Chef/EditChef';
 
 function App() {
 
@@ -104,7 +105,10 @@ function App() {
             <Route path="/captain-details/:userId" element={<CaptainDetails />} />
             <Route path="/manager-details/:userId" element={<ManagerDetails />} />
             <Route path="/waiter-details/:userId" element={<WaiterDetails />} />
-            <Route path="/chef-details/:outletId/:userId" element={<ChefDetails />} />
+            
+            {/* Chef Routes*/}
+                  <Route path="/chef-details/:outletId/:userId" element={<ChefDetails />} />
+                  <Route path="/edit-chef/:outletId/:userId" element={<EditChef />} />
 
             {/* Tickets Routes */}
             <Route path="/tickets" element={<Tickets />} />
