@@ -4,9 +4,10 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
+import Modal from '../common/Modal';
 
 function Customer() {
   const { getToken } = useAuth();
@@ -20,6 +21,12 @@ function Customer() {
   const [selectedOutlet, setSelectedOutlet] = useState('');
   const [outletName, setOutletName] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(50);
+
+  // Add new state for modal
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    customerId: null
+  });
 
   // Fetch outlets on mount
   useEffect(() => {
@@ -93,6 +100,43 @@ function Customer() {
     }
   };
 
+  const handleDeleteCustomer = async (customer_id) => {
+    // Open delete confirmation modal
+    setDeleteModal({
+      isOpen: true,
+      customerId: customer_id
+    });
+  };
+
+  const confirmDelete = async () => {
+    const customer_id = deleteModal.customerId;
+    setLoading(true);
+    setError(null);
+    try {
+      await axios.delete(
+        'https://men4u.xyz/v2/admin/customer_delete',
+        {
+          headers: {
+            Authorization: getToken(),
+          },
+          data: {  // For DELETE requests, the body data goes in the 'data' property
+            user_id: adminData?.user_id,
+            customer_id: customer_id,
+            app_source: "admin_dashboard"
+          }
+        }
+      );
+      
+      // Close modal and refresh the customer list
+      setDeleteModal({ isOpen: false, customerId: null });
+      fetchCustomers(selectedOutlet);
+    } catch (err) {
+      setError(err.response?.data?.msg || 'Failed to delete customer');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Update columns to include the view action
   const columns = [
     {
@@ -134,13 +178,22 @@ function Customer() {
       header: 'Action',
       sortable: false,
       render: (_, row) => (
-        <button 
-          onClick={() => navigate(`/role-details/${row.user_id}`)}
-          className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-          title="View Details"
-        >
-          <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => navigate(`/role-details/${row.user_id}`)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => handleDeleteCustomer(row.user_id)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Customer"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
+        </div>
       )
     }
   ];
@@ -200,6 +253,33 @@ function Customer() {
         onOutletChange={setSelectedOutlet}
         isLoading={loading}
       />
+
+      {/* Add Delete Confirmation Modal */}
+      <Modal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, customerId: null })}
+        title="Delete Customer"
+        type="error"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              onClick={() => setDeleteModal({ isOpen: false, customerId: null })}
+              className="flex h-11 items-center justify-center rounded-lg border border-gray-200 bg-white px-6 text-sm font-medium text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDelete}
+              className="flex h-11 items-center justify-center rounded-lg bg-error-500 px-6 text-sm font-medium text-white transition hover:bg-error-600"
+            >
+              Delete
+            </button>
+          </>
+        }
+      >
+        <p>Are you sure you want to delete this customer? This action cannot be undone.</p>
+      </Modal>
     </>
   );
 }

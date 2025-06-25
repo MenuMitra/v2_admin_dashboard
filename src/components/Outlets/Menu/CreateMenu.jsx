@@ -167,11 +167,6 @@ function CreateMenu() {
     setPortionData(prev => prev.filter((_, i) => i !== idx));
   };
 
-  // Replace the old handleImageChange with new handler for ImageUploader
-  const handleImagesChange = (newImages) => {
-    setImages(newImages);
-  };
-
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -188,43 +183,36 @@ function CreateMenu() {
 
     try {
       const token = getToken();
-      const formData = new FormData();
 
-      // Append all fields with correct types
-      formData.append('outlet_id', outletId);
-      formData.append('menu_cat_id', menuCatId);
-      formData.append('user_id', adminData?.user_id);
-      formData.append('name', name.trim());
-      formData.append('food_type', foodType);
-      formData.append('description', description.trim());
-      formData.append('spicy_index', spicyIndex);
-      formData.append('ingredients', ingredients.trim());
-      formData.append('offer', offer || '0'); // Default to 0 if empty
-      formData.append('app_source', 'admin_dashboard');
-
-      // Ensure portion data has correct structure
-      const validPortionData = portionData.map((portion, index) => ({
-        portion_name: portion.portion_name.trim(),
-        price: parseInt(portion.price, 10),
-        unit_value: portion.unit_value.trim(),
-        unit_type: portion.unit_type.trim(),
-        flag: index === 0 ? 1 : 0 // First portion gets flag 1, others 0
-      }));
-
-      formData.append('portion_data', JSON.stringify(validPortionData));
-
-      // Append images if any
-      images.forEach((img) => {
-        formData.append('images', img);
-      });
+      // Construct the JSON payload
+      const payload = {
+        outlet_id: outletId,
+        menu_cat_id: menuCatId,
+        user_id: adminData?.user_id,
+        name: name.trim(),
+        food_type: foodType,
+        description: description.trim(),
+        spicy_index: spicyIndex,
+        ingredients: ingredients.trim(),
+        offer: offer || '0',
+        app_source: 'admin_dashboard',
+        portion_data: portionData.map((portion, index) => ({
+          portion_name: portion.portion_name.trim(),
+          price: parseInt(portion.price, 10),
+          unit_value: portion.unit_value.trim(),
+          unit_type: portion.unit_type.trim(),
+          flag: index === 0 ? 1 : 0
+        })),
+        images: images // This will now directly receive base64 strings from ImageUploader
+      };
 
       const response = await axios.post(
         'https://men4u.xyz/v2/common/menu_create',
-        formData,
+        payload,
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -418,9 +406,8 @@ function CreateMenu() {
             {/* Images */}
             <ImageUploader
               maxImages={5}
-              outputFormat="formData"
               existingImages={[]}
-              onImagesChange={handleImagesChange}
+              onImagesChange={setImages}
               className="mb-4"
               label="Menu Images"
               required={false}

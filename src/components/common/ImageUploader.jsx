@@ -5,7 +5,6 @@ import { faImage, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const ImageUploader = ({
   maxImages = 5,
-  outputFormat = 'formData', // 'formData' or 'base64'
   existingImages = [],
   onImagesChange,
   className = '',
@@ -13,8 +12,8 @@ const ImageUploader = ({
   required = false
 }) => {
   const [dragActive, setDragActive] = useState(false);
-  const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState(existingImages);
+  const [images, setImages] = useState(existingImages);
 
   // Convert file to base64
   const fileToBase64 = (file) => {
@@ -36,21 +35,14 @@ const ImageUploader = ({
     if (validFiles.length === 0) return;
 
     try {
-      if (outputFormat === 'base64') {
-        const base64Array = await Promise.all(
-          validFiles.map(file => fileToBase64(file))
-        );
-        setImages(prev => maxImages === 1 ? base64Array : [...prev, ...base64Array]);
-        setPreviews(prev => maxImages === 1 ? base64Array : [...prev, ...base64Array]);
-        onImagesChange(maxImages === 1 ? base64Array : [...images, ...base64Array]);
-      } else {
-        setImages(prev => maxImages === 1 ? validFiles : [...prev, ...validFiles]);
-        setPreviews(prev => {
-          const newPreviews = validFiles.map(file => URL.createObjectURL(file));
-          return maxImages === 1 ? newPreviews : [...prev, ...newPreviews];
-        });
-        onImagesChange(maxImages === 1 ? validFiles : [...images, ...validFiles]);
-      }
+      const base64Array = await Promise.all(
+        validFiles.map(file => fileToBase64(file))
+      );
+      
+      const newImages = maxImages === 1 ? base64Array : [...images, ...base64Array];
+      setImages(newImages);
+      setPreviews(newImages);
+      onImagesChange(newImages); // This will now always send base64 strings
     } catch (error) {
       console.error('Error processing images:', error);
     }
