@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { useAdmin } from '../hooks/useAdmin';
-import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
-import { toastController } from '../utils/toastController';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import { useAdmin } from "../hooks/useAdmin";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPlus,
+  faChevronLeft as faBack,
+} from "@fortawesome/free-solid-svg-icons";
+import { toastController } from "../utils/toastController";
 import {
   TextInput,
   DateInput,
   Textarea,
   Checkbox,
-  labelStyles
-} from './forms/FormElements.jsx';
-import Breadcrumb from './Breadcrumb';
+  labelStyles,
+} from "./forms/FormElements.jsx";
+import Breadcrumb from "./Breadcrumb";
 
 function CreateOwner() {
   const navigate = useNavigate();
@@ -24,27 +27,27 @@ function CreateOwner() {
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [formData, setFormData] = useState({
-    name: '',
-    mobile: '',
-    email: '',
-    dob: '',
-    aadhar_number: '',
-    address: '',
-    functionality_ids: []
+    name: "",
+    mobile: "",
+    email: "",
+    dob: "",
+    aadhar_number: "",
+    address: "",
+    functionality_ids: [],
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
     email: true,
     mobile: true,
-    aadhar_number: true
+    aadhar_number: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
   // Add Breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Owners', path: '/owners' },
-    { label: 'Create Owner', path: '/create-owner' }
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Owners", path: "/owners" },
+    { label: "Create Owner", path: "/create-owner" },
   ];
 
   useEffect(() => {
@@ -55,11 +58,11 @@ function CreateOwner() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/admin/get_ubac_functionalities',
+        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
         {
           headers: {
             Authorization: token,
@@ -68,7 +71,8 @@ function CreateOwner() {
       );
       setFunctionalities(response.data);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || 'Failed to load functionalities';
+      const errorMsg =
+        err.response?.data?.detail || "Failed to load functionalities";
       setError(errorMsg);
       toastController.error(errorMsg);
     }
@@ -76,28 +80,28 @@ function CreateOwner() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleValidation = (field) => (isValid) => {
-    setValidationStates(prev => ({
+    setValidationStates((prev) => ({
       ...prev,
-      [field]: isValid
+      [field]: isValid,
     }));
   };
 
   const isFormValid = () => {
-    return Object.values(validationStates).every(state => state);
+    return Object.values(validationStates).every((state) => state);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitAttempted(true);
     if (!isFormValid()) {
-      toastController.error('Please fix validation errors before submitting');
+      toastController.error("Please fix validation errors before submitting");
       return;
     }
     setIsLoading(true);
@@ -106,7 +110,7 @@ function CreateOwner() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const payload = {
@@ -117,30 +121,27 @@ function CreateOwner() {
         address: formData.address,
         aadhar_number: formData.aadhar_number,
         dob: formData.dob,
-        functionality_ids: formData.functionality_ids
+        functionality_ids: formData.functionality_ids,
       };
 
       await toastController.promise(
-        axios.post(
-          'https://men4u.xyz/v2/common/create_owner',
-          payload,
-          {
-            headers: {
-              Authorization: token,
-              'Content-Type': 'application/json',
-            },
-          }
-        ),
+        axios.post("https://men4u.xyz/v2/common/create_owner", payload, {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }),
         {
-          loading: 'Creating owner...',
-          success: 'Owner created successfully!',
-          error: (err) => err.response?.data?.detail || 'Failed to create owner'
+          loading: "Creating owner...",
+          success: "Owner created successfully!",
+          error: (err) =>
+            err.response?.data?.detail || "Failed to create owner",
         }
       );
-      
+
       navigate(-1);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || 'Failed to create owner';
+      const errorMsg = err.response?.data?.detail || "Failed to create owner";
       setError(errorMsg);
     } finally {
       setIsLoading(false);
@@ -187,7 +188,7 @@ function CreateOwner() {
                 text-sm font-medium text-white rounded-full
                 bg-success-500 hover:bg-success-600 
                 transition shadow-sm
-                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -209,7 +210,7 @@ function CreateOwner() {
                 placeholder="Enter full name"
                 required
                 validationType="name"
-                onValidation={handleValidation('name')}
+                onValidation={handleValidation("name")}
                 isSubmitAttempted={isSubmitAttempted}
               />
 
@@ -222,7 +223,7 @@ function CreateOwner() {
                 placeholder="Enter mobile number"
                 required
                 validationType="mobile"
-                onValidation={handleValidation('mobile')}
+                onValidation={handleValidation("mobile")}
                 isSubmitAttempted={isSubmitAttempted}
               />
 
@@ -234,7 +235,7 @@ function CreateOwner() {
                 onChange={handleChange}
                 placeholder="Enter email address"
                 validationType="email"
-                onValidation={handleValidation('email')}
+                onValidation={handleValidation("email")}
               />
 
               <DateInput
@@ -254,7 +255,7 @@ function CreateOwner() {
                 placeholder="Enter 12-digit Aadhar number"
                 required
                 validationType="aadhar"
-                onValidation={handleValidation('aadhar_number')}
+                onValidation={handleValidation("aadhar_number")}
                 isSubmitAttempted={isSubmitAttempted}
               />
             </div>
@@ -279,23 +280,30 @@ function CreateOwner() {
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
                 <div className="flex flex-wrap gap-4">
                   {functionalities.map((func) => (
-                    <div key={func.functionality_id} className="min-w-[200px] flex-1">
+                    <div
+                      key={func.functionality_id}
+                      className="min-w-[200px] flex-1"
+                    >
                       <Checkbox
                         label={func.functionality_name}
                         value={func.functionality_id}
-                        checked={selectedFunctionalities.includes(func.functionality_id)}
+                        checked={selectedFunctionalities.includes(
+                          func.functionality_id
+                        )}
                         onChange={(e) => {
                           const value = Number(e.target.value);
-                          setSelectedFunctionalities(prev =>
+                          setSelectedFunctionalities((prev) =>
                             e.target.checked
                               ? [...prev, value]
-                              : prev.filter(id => id !== value)
+                              : prev.filter((id) => id !== value)
                           );
-                          setFormData(prev => ({
+                          setFormData((prev) => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
-                              : prev.functionality_ids.filter(id => id !== value)
+                              : prev.functionality_ids.filter(
+                                  (id) => id !== value
+                                ),
                           }));
                         }}
                       />

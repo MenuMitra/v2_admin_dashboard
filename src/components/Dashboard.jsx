@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { useNavigate, Link } from "react-router-dom";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
   faUserTie,
   faUserGroup,
   faUsers,
@@ -12,9 +12,9 @@ import {
   faEye,
   faPenToSquare,
   faCircleCheck,
-  faCircleXmark
-} from '@fortawesome/free-solid-svg-icons';
-import DataTable from './common/DataTable';
+  faCircleXmark,
+} from "@fortawesome/free-solid-svg-icons";
+import DataTable from "./common/DataTable";
 
 function Dashboard() {
   const { getToken, isAuthenticated, logout } = useAuth();
@@ -27,58 +27,58 @@ function Dashboard() {
       owner_count: 0,
       outlet_count: 0,
       partner_count: 0,
-      guest_count: 0
-    }
+      guest_count: 0,
+    },
   });
 
   // Add search state
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Define columns for the DataTable
   const columns = [
     {
-      field: 'outlet_name',
-      header: 'Name',
-      sortable: true
+      field: "outlet_name",
+      header: "Name",
+      sortable: true,
     },
     {
-      field: 'total_order_count',
-      header: 'Orders',
-      sortable: true
+      field: "total_order_count",
+      header: "Orders",
+      sortable: true,
     },
     {
-      field: 'total_cooking_count',
-      header: 'Cooking',
-      sortable: true
+      field: "total_cooking_count",
+      header: "Cooking",
+      sortable: true,
     },
     {
-      field: 'total_placed_count',
-      header: 'Placed',
-      sortable: true
+      field: "total_placed_count",
+      header: "Placed",
+      sortable: true,
     },
     {
-      field: 'total_paid_count',
-      header: 'Paid',
-      sortable: true
+      field: "total_paid_count",
+      header: "Paid",
+      sortable: true,
     },
     {
-      field: 'total_cancel_count',
-      header: 'Cancelled',
-      sortable: true
+      field: "total_cancel_count",
+      header: "Cancelled",
+      sortable: true,
     },
     {
-      field: 'total_category',
-      header: 'Categories',
-      sortable: true
+      field: "total_category",
+      header: "Categories",
+      sortable: true,
     },
     {
-      field: 'total_menu',
-      header: 'Menus',
-      sortable: true
+      field: "total_menu",
+      header: "Menus",
+      sortable: true,
     },
     {
-      field: 'status',
-      header: 'Status',
+      field: "status",
+      header: "Status",
       sortable: true,
       render: (_, item) => (
         <div className="flex items-center gap-2">
@@ -96,36 +96,36 @@ function Dashboard() {
             {item.total_order_count > 0 ? "Active" : "Inactive"}
           </span>
         </div>
-      )
+      ),
     },
     {
-      field: 'account_type',
-      header: 'Account Type',
+      field: "account_type",
+      header: "Account Type",
       sortable: true,
       render: (value) => (
-        <span className={`px-2 py-1 text-xs ${
-          value === "live"
-            ? "text-error-600"
-            : "text-success-600"
-        }`}>
+        <span
+          className={`px-2 py-1 text-xs ${
+            value === "live" ? "text-error-600" : "text-success-600"
+          }`}
+        >
           {value?.toUpperCase()}
         </span>
-      )
+      ),
     },
     {
-      field: 'actions',
-      header: 'Actions',
+      field: "actions",
+      header: "Actions",
       sortable: false,
       render: (_, item) => (
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => handleViewClick(item)}
             className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
             title="View Outlet"
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
-          <button 
+          <button
             onClick={() => handleEditClick(item)}
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
             title="Edit Outlet"
@@ -133,39 +133,49 @@ function Dashboard() {
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
+
+  const [statusFilter, setStatusFilter] = useState("all"); // "all", "active", "inactive"
+  const outlets = data.outlet_data || [];
+
+  const filteredOutlets = outlets.filter((outlet) => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "active") return outlet.is_active === 1;
+    if (statusFilter === "inactive") return outlet.is_active === 0;
+    return true;
+  });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         const token = getToken();
         if (!token) {
-          throw new Error('No authentication token available');
+          throw new Error("No authentication token available");
         }
 
-        const response = await fetch('https://men4u.xyz/v2/admin/admin_home', {
-          method: 'GET',
+        const response = await fetch("https://men4u.xyz/v2/admin/admin_home", {
+          method: "GET",
           headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
-          }
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
         });
 
         if (response.status === 401) {
-          navigate('/');
+          navigate("/");
           logout();
         }
 
         if (!response.ok) {
-          throw new Error('Failed to fetch dashboard data');
+          throw new Error("Failed to fetch dashboard data");
         }
 
         const jsonData = await response.json();
         setData(jsonData);
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error("Error fetching dashboard data:", error);
       }
     };
 
@@ -186,65 +196,97 @@ function Dashboard() {
     <div className="p-0">
       {/* Stats Section */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-        <Link to="/owners" className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg">
+        <Link
+          to="/owners"
+          className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                <FontAwesomeIcon icon={faUserTie} className="h-6 w-6 text-brand-500 dark:text-brand-400" />
+                <FontAwesomeIcon
+                  icon={faUserTie}
+                  className="h-6 w-6 text-brand-500 dark:text-brand-400"
+                />
               </div>
               <div>
                 <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                   {data.counts?.owner_count || 0}
                 </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Restaurant Owners</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Restaurant Owners
+                </p>
               </div>
             </div>
           </div>
         </Link>
 
-        <Link to="/partners" className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg">
+        <Link
+          to="/partners"
+          className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                <FontAwesomeIcon icon={faUserGroup} className="h-6 w-6 text-brand-500 dark:text-brand-400" />
+                <FontAwesomeIcon
+                  icon={faUserGroup}
+                  className="h-6 w-6 text-brand-500 dark:text-brand-400"
+                />
               </div>
               <div>
                 <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                   {data.counts?.partner_count || 0}
                 </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Partners</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Partners
+                </p>
               </div>
             </div>
           </div>
         </Link>
 
-        <Link to="/outlets" className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg">
+        <Link
+          to="/outlets"
+          className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                <FontAwesomeIcon icon={faStore} className="h-6 w-6 text-brand-500 dark:text-brand-400" />
+                <FontAwesomeIcon
+                  icon={faStore}
+                  className="h-6 w-6 text-brand-500 dark:text-brand-400"
+                />
               </div>
               <div>
                 <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                   {data.counts?.outlet_count || 0}
                 </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Total Outlets</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Total Outlets
+                </p>
               </div>
             </div>
           </div>
         </Link>
 
-        <Link to="/customer" className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg">
+        <Link
+          to="/customer"
+          className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                <FontAwesomeIcon icon={faUsers} className="h-6 w-6 text-brand-500 dark:text-brand-400" />
+                <FontAwesomeIcon
+                  icon={faUsers}
+                  className="h-6 w-6 text-brand-500 dark:text-brand-400"
+                />
               </div>
               <div>
                 <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
                   {data.counts?.customer_count || 0}
                 </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Customers</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Customers
+                </p>
               </div>
             </div>
           </div>
@@ -253,8 +295,8 @@ function Dashboard() {
 
       {/* Replace Table Section with DataTable */}
       <div className="mt-6">
-        <DataTable 
-          data={data.outlet_data || []}
+        <DataTable
+          data={filteredOutlets}
           columns={columns}
           dashboardTitle="All Outlets"
           // title="All Outlets"
@@ -262,13 +304,13 @@ function Dashboard() {
           onSearchChange={setSearchTerm}
           searchPlaceholder="Search"
           counts={{
-            total: data.outlet_data?.length || 0,
-            active: data.outlet_data?.filter(outlet => outlet.total_order_count > 0).length || 0,
-            inactive: data.outlet_data?.filter(outlet => outlet.total_order_count === 0).length || 0
+            total: outlets.length,
+            active: outlets.filter((outlet) => outlet.is_active === 1).length,
+            inactive: outlets.filter((outlet) => outlet.is_active === 0).length,
           }}
           showBackButton={false}
           createButton={{
-            show: false
+            show: false,
           }}
           enableSort={true}
           enablePagination={true}

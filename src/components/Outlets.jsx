@@ -4,12 +4,12 @@ import brand02 from "../assets/images/brand/brand-02.svg";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
-  faEye, 
-  faPenToSquare, 
-  faTrash, 
-  faChevronLeft, 
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEye,
+  faPenToSquare,
+  faTrash,
+  faChevronLeft,
   faChevronRight,
   faPlus,
   faSearch,
@@ -21,12 +21,11 @@ import {
   faCircleCheck,
   faCircleXmark,
   faTriangleExclamation,
-} from '@fortawesome/free-solid-svg-icons';
-import { useNavigate } from 'react-router-dom';
-import Breadcrumb from './Breadcrumb';
-import DataTable from './common/DataTable';
-import Modal from './common/Modal';
-
+} from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
+import Breadcrumb from "./Breadcrumb";
+import DataTable from "./common/DataTable";
+import Modal from "./common/Modal";
 
 const SearchIcon = () => (
   <svg
@@ -83,7 +82,12 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-const TableRow = ({ outlet, handleViewOutlet, handleEditOutlet, onDeleteClick }) => {
+const TableRow = ({
+  outlet,
+  handleViewOutlet,
+  handleEditOutlet,
+  onDeleteClick,
+}) => {
   const [showDropdown, setShowDropdown] = useState(false);
   console.log(outlet);
   console.log(handleViewOutlet);
@@ -118,36 +122,41 @@ const TableRow = ({ outlet, handleViewOutlet, handleEditOutlet, onDeleteClick })
       <td className="px-5 py-3 whitespace-nowrap sm:px-6">
         <div className="flex items-center justify-center">
           <p className="text-theme-sm text-gray-700 dark:text-gray-400">
-            {outlet.accountType.charAt(0).toUpperCase() + outlet.accountType.slice(1)}
+            {outlet.accountType.charAt(0).toUpperCase() +
+              outlet.accountType.slice(1)}
           </p>
         </div>
       </td>
       <td className="px-5 py-3 whitespace-nowrap sm:px-6">
         <div className="flex items-center justify-center">
-          <p className={`text-theme-sm rounded-full px-2 py-0.5 font-medium ${
-            outlet.isOpen === 1 
-              ? 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500'
-              : 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500'
-          }`}>
-            {outlet.isOpen === 1 ? 'Open' : 'Close'}
+          <p
+            className={`text-theme-sm rounded-full px-2 py-0.5 font-medium ${
+              outlet.isOpen === 1
+                ? "bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500"
+                : "bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500"
+            }`}
+          >
+            {outlet.isOpen === 1 ? "Open" : "Close"}
           </p>
         </div>
       </td>
       <td className="px-5 py-3 whitespace-nowrap sm:px-6">
         <div className="flex items-center justify-center">
-          <p className={`text-theme-sm rounded-full px-2 py-0.5 font-medium ${
-            outlet.outletStatus === 1 
-              ? 'bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500'
-              : 'bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500'
-          }`}>
-            {outlet.outletStatus === 1 ? 'Active' : 'Inactive'}
+          <p
+            className={`text-theme-sm rounded-full px-2 py-0.5 font-medium ${
+              outlet.outletStatus === 1
+                ? "bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500"
+                : "bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500"
+            }`}
+          >
+            {outlet.outletStatus === 1 ? "Active" : "Inactive"}
           </p>
         </div>
       </td>
       <td className="px-5 py-3 whitespace-nowrap sm:px-6">
         <div className="flex items-center justify-center gap-2">
           {/* View Button - Blue */}
-          <button 
+          <button
             className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
             title="View Details"
             onClick={() => handleViewOutlet(outlet.id)}
@@ -156,7 +165,7 @@ const TableRow = ({ outlet, handleViewOutlet, handleEditOutlet, onDeleteClick })
           </button>
 
           {/* Edit Button - Yellow/Warning */}
-          <button 
+          <button
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
             title="Edit Outlet"
             onClick={() => handleEditOutlet(outlet.id)}
@@ -165,7 +174,7 @@ const TableRow = ({ outlet, handleViewOutlet, handleEditOutlet, onDeleteClick })
           </button>
 
           {/* Delete Button - Red */}
-          <button 
+          <button
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
             title="Delete Outlet"
             onClick={() => onDeleteClick(outlet)}
@@ -178,7 +187,13 @@ const TableRow = ({ outlet, handleViewOutlet, handleEditOutlet, onDeleteClick })
   );
 };
 
-const Pagination = ({ currentPage, totalPages, onPageChange, totalEntries, itemsPerPage }) => {
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalEntries,
+  itemsPerPage,
+}) => {
   const renderPaginationNumbers = () => {
     const pages = [];
     const maxVisiblePages = 7; // Show max 7 page numbers
@@ -238,7 +253,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalEntries, items
   };
 
   // Calculate the range of entries being shown
-  const startEntry = ((currentPage - 1) * itemsPerPage) + 1;
+  const startEntry = (currentPage - 1) * itemsPerPage + 1;
   const endEntry = Math.min(currentPage * itemsPerPage, totalEntries);
 
   return (
@@ -267,7 +282,9 @@ const Pagination = ({ currentPage, totalPages, onPageChange, totalEntries, items
         </ul>
 
         <button
-          onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
+          onClick={() =>
+            currentPage < totalPages && onPageChange(currentPage + 1)
+          }
           disabled={currentPage === totalPages}
           className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 ${
             currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
@@ -300,10 +317,10 @@ function Outlets() {
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     action: null,
-    title: '',
-    message: ''
+    title: "",
+    message: "",
   });
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // Transform outlet data to match UI structure
   const transformOutletData = (outlets) => {
@@ -337,7 +354,7 @@ function Outlets() {
       const response = await axios.post(
         "https://men4u.xyz/v2/common/listview_outlet",
         {
-            user_id: adminData?.user_id,
+          user_id: adminData?.user_id,
           app_source: "admin_dashboard",
         },
         {
@@ -451,8 +468,8 @@ function Outlets() {
   };
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Outlets' }
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets" },
   ];
 
   const handleSort = (field) => {
@@ -477,12 +494,20 @@ function Outlets() {
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
-      return <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 w-4 h-4" />;
+      return (
+        <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 w-4 h-4" />
+      );
     }
     return sortOrder === "asc" ? (
-      <FontAwesomeIcon icon={faSortUp} className="ml-1 text-brand-500 w-4 h-4" />
+      <FontAwesomeIcon
+        icon={faSortUp}
+        className="ml-1 text-brand-500 w-4 h-4"
+      />
     ) : (
-      <FontAwesomeIcon icon={faSortDown} className="ml-1 text-brand-500 w-4 h-4" />
+      <FontAwesomeIcon
+        icon={faSortDown}
+        className="ml-1 text-brand-500 w-4 h-4"
+      />
     );
   };
 
@@ -521,23 +546,25 @@ function Outlets() {
         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
           {value}
         </p>
-      )
+      ),
     },
     {
       field: "owner",
       header: "Owner",
       sortable: true,
-      render: (value, row) => (
+      render: (value, row) =>
         row?.owner_id ? (
-          <Link to={`/owner/${row.owner_id}`} className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+          <Link
+            to={`/owner/${row.owner_id}`}
+            className="font-medium text-gray-800 text-theme-sm dark:text-white/90"
+          >
             {row?.owner || "-"}
           </Link>
         ) : (
           <p className="text-gray-500 text-theme-sm dark:text-gray-400">
             {row?.owner || "-"}
           </p>
-        )
-      )
+        ),
     },
     {
       field: "code",
@@ -547,7 +574,7 @@ function Outlets() {
         <p className="text-gray-500 text-theme-sm dark:text-gray-400">
           {value}
         </p>
-      )
+      ),
     },
     {
       field: "mobile",
@@ -557,7 +584,7 @@ function Outlets() {
         <p className="text-gray-500 text-theme-sm dark:text-gray-400">
           {value}
         </p>
-      )
+      ),
     },
     {
       field: "accountType",
@@ -565,30 +592,36 @@ function Outlets() {
       sortable: true,
       render: (value) => (
         <>
-          <FontAwesomeIcon 
-            icon={value?.toLowerCase() === 'live' ? faCircleCheck : faTriangleExclamation} 
+          <FontAwesomeIcon
+            icon={
+              value?.toLowerCase() === "live"
+                ? faCircleCheck
+                : faTriangleExclamation
+            }
             className={`w-4 h-4 ${
-              value?.toLowerCase() === 'live' 
-                ? 'text-success-500' 
-                : 'text-warning-500'
+              value?.toLowerCase() === "live"
+                ? "text-success-500"
+                : "text-warning-500"
             }`}
           />
         </>
-      )
+      ),
     },
     {
       field: "isOpen",
       header: "Open/Close",
       sortable: true,
       render: (value) => (
-        <span className={`inline-block px-2 py-1 text-xs ${
-          value === 1
-            ? "bg-success-100 text-success-600"
-            : "bg-error-100 text-error-500"
-        }`}>
+        <span
+          className={`inline-block px-2 py-1 text-xs ${
+            value === 1
+              ? "bg-success-100 text-success-600"
+              : "bg-error-100 text-error-500"
+          }`}
+        >
           {value === 1 ? "Open" : "Closed"}
         </span>
-      )
+      ),
     },
     {
       field: "outletStatus",
@@ -610,7 +643,7 @@ function Outlets() {
             {value === 1 ? "Active" : "Inactive"}
           </span> */}
         </div>
-      )
+      ),
     },
     {
       field: "actions",
@@ -639,8 +672,8 @@ function Outlets() {
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   // Add this function to handle bulk actions
@@ -652,37 +685,37 @@ function Outlets() {
         isOpen: true,
         action,
         title,
-        message
+        message,
       });
-      
+
       // Store selected IDs for use after confirmation
-      setSelectedOutlets(selectedIds.filter(id => id !== null));
+      setSelectedOutlets(selectedIds.filter((id) => id !== null));
     } catch (err) {
       setError(err.response?.data?.detail || `Failed to ${action} outlets`);
-      console.error('Error performing bulk action:', err);
+      console.error("Error performing bulk action:", err);
     }
   };
 
   // Add this function to get confirmation details
   const getConfirmationDetails = (action) => {
-    switch(action) {
-      case 'active':
+    switch (action) {
+      case "active":
         return {
-          title: 'Confirm Activation',
-          message: `Are you sure you want to activate ${selectedOutlets.length} selected outlet(s)?`
+          title: "Confirm Activation",
+          message: `Are you sure you want to activate ${selectedOutlets.length} selected outlet(s)?`,
         };
-      case 'inactive':
+      case "inactive":
         return {
-          title: 'Confirm Deactivation',
-          message: `Are you sure you want to deactivate ${selectedOutlets.length} selected outlet(s)?`
+          title: "Confirm Deactivation",
+          message: `Are you sure you want to deactivate ${selectedOutlets.length} selected outlet(s)?`,
         };
-      case 'delete':
+      case "delete":
         return {
-          title: 'Confirm Deletion',
-          message: `Are you sure you want to delete ${selectedOutlets.length} selected outlet(s)? This action cannot be undone.`
+          title: "Confirm Deletion",
+          message: `Are you sure you want to delete ${selectedOutlets.length} selected outlet(s)? This action cannot be undone.`,
         };
       default:
-        return { title: '', message: '' };
+        return { title: "", message: "" };
     }
   };
 
@@ -691,36 +724,43 @@ function Outlets() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
-      const validOutletIds = selectedOutlets.filter(id => id !== null && id !== undefined);
+      const validOutletIds = selectedOutlets.filter(
+        (id) => id !== null && id !== undefined
+      );
 
       if (validOutletIds.length === 0) {
-        throw new Error('No valid outlet IDs selected');
+        throw new Error("No valid outlet IDs selected");
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/bulk_outlet_action',
+        "https://men4u.xyz/v2/common/bulk_outlet_action",
         {
           user_id: adminData.user_id,
           action: action,
           app_source: "admin_dashboard",
-          outlet_ids: validOutletIds
+          outlet_ids: validOutletIds,
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (response && response.status === 200) {
         // Reset all selection states
         setSelectedOutlets([]);
-        setConfirmModal({ isOpen: false, action: null, title: '', message: '' });
-        
+        setConfirmModal({
+          isOpen: false,
+          action: null,
+          title: "",
+          message: "",
+        });
+
         // Refresh the data
         await fetchOutlets();
 
@@ -729,7 +769,7 @@ function Outlets() {
       }
     } catch (err) {
       setError(err.response?.data?.detail || `Failed to ${action} outlets`);
-      console.error('Error performing bulk action:', err);
+      console.error("Error performing bulk action:", err);
     }
   };
 
@@ -742,17 +782,19 @@ function Outlets() {
         </div>
       )}
       <DataTable
-        data={filteredData.filter(outlet => {
-          if (statusFilter === 'all') return true;
+        data={filteredData.filter((outlet) => {
+          if (statusFilter === "all") return true;
           const isActive = outlet.outletStatus === 1;
-          return statusFilter === 'active' ? isActive : !isActive;
+          return statusFilter === "active" ? isActive : !isActive;
         })}
         columns={columns}
         title="Outlets"
         counts={{
           total: filteredData.length,
-          active: filteredData.filter(outlet => outlet.outletStatus === 1).length,
-          inactive: filteredData.filter(outlet => outlet.outletStatus === 0).length
+          active: filteredData.filter((outlet) => outlet.outletStatus === 1)
+            .length,
+          inactive: filteredData.filter((outlet) => outlet.outletStatus === 0)
+            .length,
         }}
         searchTerm={searchQuery}
         onSearchChange={setSearchQuery}
@@ -760,9 +802,9 @@ function Outlets() {
           show: true,
           label: "Create",
           icon: faPlus,
-          onClick: () => navigate('/create-outlet'),
+          onClick: () => navigate("/create-outlet"),
           className: "bg-success-500 hover:bg-success-600",
-          position: "right"
+          position: "right",
         }}
         onBackClick={() => navigate(-1)}
         showBackButton={true}
@@ -774,7 +816,7 @@ function Outlets() {
         enableSelection={true}
         selectedItems={selectedOutlets}
         onSelectionChange={(selectedIds) => {
-          setSelectedOutlets(selectedIds.filter(id => id !== null));
+          setSelectedOutlets(selectedIds.filter((id) => id !== null));
         }}
         onBulkAction={handleBulkAction}
         enableStatusFilter={true}
@@ -788,15 +830,29 @@ function Outlets() {
       {/* Add Modal component for confirmations */}
       <Modal
         isOpen={confirmModal.isOpen}
-        onClose={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+        onClose={() =>
+          setConfirmModal({
+            isOpen: false,
+            action: null,
+            title: "",
+            message: "",
+          })
+        }
         title={confirmModal.title}
-        type={confirmModal.action === 'delete' ? 'error' : 'warning'}
+        type={confirmModal.action === "delete" ? "error" : "warning"}
         size="small"
       >
         <p className="mb-6">{confirmModal.message}</p>
         <div className="flex justify-between items-center w-full gap-3">
           <button
-            onClick={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+            onClick={() =>
+              setConfirmModal({
+                isOpen: false,
+                action: null,
+                title: "",
+                message: "",
+              })
+            }
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
           >
             <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
@@ -805,9 +861,9 @@ function Outlets() {
           <button
             onClick={() => executeBulkAction(confirmModal.action)}
             className={`px-4 py-2 text-sm font-medium text-white rounded-full transition ${
-              confirmModal.action === 'delete' 
-                ? 'bg-error-500 hover:bg-error-600' 
-                : 'bg-warning-500 hover:bg-warning-600'
+              confirmModal.action === "delete"
+                ? "bg-error-500 hover:bg-error-600"
+                : "bg-warning-500 hover:bg-warning-600"
             }`}
           >
             <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
@@ -827,10 +883,7 @@ function Outlets() {
         type="error"
         size="small"
         customIcon={
-          <FontAwesomeIcon
-            icon={faTrash}
-            className="h-6 w-6 text-error-500"
-          />
+          <FontAwesomeIcon icon={faTrash} className="h-6 w-6 text-error-500" />
         }
         actionButtons={
           <>
@@ -855,9 +908,9 @@ function Outlets() {
         }
       >
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Are you sure you want to delete outlet "{outletToDelete?.name}"? This action
-          cannot be undone. 
-          <br/>
+          Are you sure you want to delete outlet "{outletToDelete?.name}"? This
+          action cannot be undone.
+          <br />
           All data associated with this outlet will be permanently removed.
         </p>
       </Modal>

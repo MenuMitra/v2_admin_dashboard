@@ -1,13 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faPenToSquare, faTrash, faEye, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
-import { useAuth } from '../../hooks/useAuth';
-import { useAdmin } from '../../hooks/useAdmin';
-import DataTable from '../common/DataTable';
-import Breadcrumb from '../Breadcrumb';
-import Modal from '../common/Modal';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPlus,
+  faPenToSquare,
+  faTrash,
+  faEye,
+  faCircleCheck,
+  faCircleXmark,
+} from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
+import DataTable from "../common/DataTable";
+import Breadcrumb from "../Breadcrumb";
+import Modal from "../common/Modal";
 
 function Admins() {
   const { getToken } = useAuth();
@@ -16,17 +23,17 @@ function Admins() {
   const [admins, setAdmins] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedAdmins, setSelectedAdmins] = useState([]);
 
   // Replace single number with array of protected mobile numbers
   const PROTECTED_MOBILES = [
-    '8806431723',
-    '9767637798',
-    '8600704616'
+    "8806431723",
+    "9767637798",
+    "8600704616",
     // Add more numbers here as needed
     // '1234567890',
     // '9876543210',
@@ -35,17 +42,30 @@ function Admins() {
   // Format date helper function
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const month = months[date.getMonth()];
-    const day = date.getDate().toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, "0");
     const year = date.getFullYear();
     return `${day} ${month} ${year}`;
   };
 
   // Add this breadcrumb items configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Admins', path: '/admins' }
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Admins", path: "/admins" },
   ];
 
   useEffect(() => {
@@ -56,30 +76,30 @@ function Admins() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/admin/list_admins',
+        "https://men4u.xyz/v2/admin/list_admins",
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
-      if (response.data.status === 'success') {
+      if (response.data.status === "success") {
         setAdmins(response.data.data);
       } else {
-        throw new Error('Failed to fetch admins');
+        throw new Error("Failed to fetch admins");
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to fetch admins');
-      console.error('Error fetching admins:', err);
+      setError(err.response?.data?.detail || "Failed to fetch admins");
+      console.error("Error fetching admins:", err);
     } finally {
       setIsLoading(false);
     }
@@ -89,20 +109,20 @@ function Admins() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/delete_admin',
+        "https://men4u.xyz/v2/admin/delete_admin",
         {
           admin_id: adminToDelete,
-          user_id: adminData.user_id
+          user_id: adminData.user_id,
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -112,11 +132,11 @@ function Admins() {
         // Refresh the admins list
         await fetchAdmins();
       } else {
-        throw new Error('Failed to delete admin');
+        throw new Error("Failed to delete admin");
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to delete admin');
-      console.error('Error deleting admin:', err);
+      setError(err.response?.data?.detail || "Failed to delete admin");
+      console.error("Error deleting admin:", err);
     }
   };
 
@@ -125,28 +145,24 @@ function Admins() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
-      const endpoint = 'https://men4u.xyz/v2/admin/update_admin_status';
+      const endpoint = "https://men4u.xyz/v2/admin/update_admin_status";
       const payload = {
         admin_ids: selectedIds,
-        is_active: action === 'active',
-        user_id: adminData.user_id
+        is_active: action === "active",
+        user_id: adminData.user_id,
       };
 
-      const response = await axios.post(
-        endpoint,
-        payload,
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const response = await axios.post(endpoint, payload, {
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      });
 
-      if (response.data.status === 'success') {
+      if (response.data.status === "success") {
         await fetchAdmins();
         setSelectedAdmins([]);
       } else {
@@ -161,8 +177,8 @@ function Admins() {
   // Add selection change handler
   const handleSelectionChange = (selectedIds) => {
     // Filter out protected admins from selection
-    const filteredSelection = selectedIds.filter(id => {
-      const admin = admins.find(a => a.user_id === id);
+    const filteredSelection = selectedIds.filter((id) => {
+      const admin = admins.find((a) => a.user_id === id);
       return admin && !PROTECTED_MOBILES.includes(admin.mobile);
     });
     setSelectedAdmins(filteredSelection);
@@ -171,47 +187,41 @@ function Admins() {
   // Define columns for DataTable
   const columns = [
     {
-      field: 'name',
-      header: 'Name',
+      field: "name",
+      header: "Name",
       sortable: true,
       render: (value) => (
-        <span className="font-medium text-gray-900">
-          {value}
-        </span>
-      )
+        <span className="font-medium text-gray-900">{value}</span>
+      ),
     },
     {
-      field: 'email',
-      header: 'Email',
+      field: "email",
+      header: "Email",
       sortable: true,
-      render: (value) => value || '-'
+      render: (value) => value || "-",
     },
     {
-      field: 'mobile',
-      header: 'Mobile',
-      sortable: true
-    },
-    {
-      field: 'is_active',
-      header: 'Status',
+      field: "mobile",
+      header: "Mobile",
       sortable: true,
     },
     {
-      field: 'created_on',
-      header: 'Created On',
+      field: "is_active",
+      header: "Status",
       sortable: true,
-      render: (value) => formatDate(value)
     },
     {
-      field: 'actions',
-      header: 'Actions',
+      field: "actions",
+      header: "Actions",
       sortable: false,
       render: (_, admin) => {
         // Check if the admin's mobile number is in the protected list
         if (PROTECTED_MOBILES.includes(admin.mobile)) {
           return (
             <div className="flex items-center justify-center">
-              <span className="text-sm text-gray-500 italic">Protected Admin</span>
+              <span className="text-sm text-gray-500 italic">
+                Protected Admin
+              </span>
             </div>
           );
         }
@@ -244,8 +254,8 @@ function Admins() {
             </button>
           </div>
         );
-      }
-    }
+      },
+    },
   ];
 
   if (isLoading) {
@@ -257,8 +267,8 @@ function Admins() {
   }
 
   // Calculate counts
-  const activesCount = admins.filter(admin => admin.is_active).length;
-  const inactivesCount = admins.filter(admin => !admin.is_active).length;
+  const activesCount = admins.filter((admin) => admin.is_active).length;
+  const inactivesCount = admins.filter((admin) => !admin.is_active).length;
 
   return (
     <>
@@ -271,10 +281,10 @@ function Admins() {
       )}
 
       <DataTable
-        data={admins.filter(admin => {
-          if (statusFilter === 'all') return true;
+        data={admins.filter((admin) => {
+          if (statusFilter === "all") return true;
           const isActive = admin.is_active === true || admin.is_active === 1;
-          return statusFilter === 'active' ? isActive : !isActive;
+          return statusFilter === "active" ? isActive : !isActive;
         })}
         columns={columns}
         title="Admins"
@@ -282,19 +292,23 @@ function Admins() {
         onSearchChange={setSearchTerm}
         counts={{
           total: admins.length,
-          active: admins.filter(admin => admin.is_active === true || admin.is_active === 1).length,
-          inactive: admins.filter(admin => admin.is_active === false || admin.is_active === 0).length
+          active: admins.filter(
+            (admin) => admin.is_active === true || admin.is_active === 1
+          ).length,
+          inactive: admins.filter(
+            (admin) => admin.is_active === false || admin.is_active === 0
+          ).length,
         }}
         createButton={{
           show: true,
           label: "Create",
           icon: faPlus,
-          onClick: () => navigate('/create-admin'),
+          onClick: () => navigate("/create-admin"),
           className: "bg-success-500 hover:bg-success-600",
           position: "right",
           showIconOnly: false,
           disabled: false,
-          tooltip: "Create a new admin"
+          tooltip: "Create a new admin",
         }}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
@@ -312,16 +326,16 @@ function Admins() {
         onSelectionChange={handleSelectionChange}
         onBulkAction={handleBulkAction}
         bulkActionOptions={[
-          { 
-            key: 'active', 
-            label: 'Set Active', 
-            className: 'text-success-600 hover:bg-success-50' 
+          {
+            key: "active",
+            label: "Set Active",
+            className: "text-success-600 hover:bg-success-50",
           },
-          { 
-            key: 'inactive', 
-            label: 'Set Inactive', 
-            className: 'text-warning-600 hover:bg-warning-50' 
-          }
+          {
+            key: "inactive",
+            label: "Set Inactive",
+            className: "text-warning-600 hover:bg-warning-50",
+          },
         ]}
       />
 
@@ -360,7 +374,8 @@ function Admins() {
         <div className="flex items-start">
           <div className="ml-4">
             <p className="text-sm text-gray-500">
-              Are you sure you want to delete this admin? This action cannot be undone.
+              Are you sure you want to delete this admin? This action cannot be
+              undone.
             </p>
             <p className="text-sm text-gray-500">
               All data associated with this admin will be permanently removed.

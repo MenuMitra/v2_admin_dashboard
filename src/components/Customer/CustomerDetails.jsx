@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { useAdmin } from '../../hooks/useAdmin';
-import axios from 'axios';
-import DataTable from '../common/DataTable';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
+import axios from "axios";
+import DataTable from "../common/DataTable";
 
 function CustomerDetails() {
   const { customerId } = useParams(); // Get customerId from URL params
@@ -14,7 +14,7 @@ function CustomerDetails() {
   const [error, setError] = useState(null);
   const [customerData, setCustomerData] = useState(null);
   const [outlets, setOutlets] = useState([]);
-  const [selectedOutlet, setSelectedOutlet] = useState('');
+  const [selectedOutlet, setSelectedOutlet] = useState("");
 
   // Fetch outlets on mount
   useEffect(() => {
@@ -33,10 +33,10 @@ function CustomerDetails() {
     setError(null);
     try {
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/listview_outlet',
+        "https://men4u.xyz/v2/common/listview_outlet",
         {
           user_id: adminData?.user_id,
-          app_source: "admin_dashboard"
+          app_source: "admin_dashboard",
         },
         {
           headers: {
@@ -49,7 +49,7 @@ function CustomerDetails() {
         setSelectedOutlet(response.data.data[0].outlet_id);
       }
     } catch (err) {
-      setError(err.response?.data?.msg || 'Failed to fetch outlets');
+      setError(err.response?.data?.msg || "Failed to fetch outlets");
       setLoading(false);
     }
   };
@@ -60,9 +60,9 @@ function CustomerDetails() {
     try {
       // First API call to get customer details
       const customerResponse = await axios.post(
-        'https://men4u.xyz/v2/admin/view_customer',
+        "https://men4u.xyz/v2/admin/view_customer",
         {
-          user_id: Number(customerId)  // Using customerId from URL params
+          user_id: Number(customerId), // Using customerId from URL params
         },
         {
           headers: {
@@ -73,9 +73,9 @@ function CustomerDetails() {
 
       // Second API call to get customer's outlet specific data
       const outletCustomerResponse = await axios.post(
-        'https://men4u.xyz/v2/admin/customer_listview',
-        { 
-          outlet_id: selectedOutlet
+        "https://men4u.xyz/v2/admin/customer_listview",
+        {
+          outlet_id: selectedOutlet,
         },
         {
           headers: {
@@ -86,18 +86,17 @@ function CustomerDetails() {
 
       // Find the customer in outlet data to get outlet-specific information
       const outletCustomerData = outletCustomerResponse.data.customers?.find(
-        c => c.user_id === Number(customerId)
+        (c) => c.user_id === Number(customerId)
       );
 
       // Combine both API responses
       setCustomerData({
         ...customerResponse.data,
         ...outletCustomerData,
-        outlet_name: outletCustomerResponse.data.outlet_name
+        outlet_name: outletCustomerResponse.data.outlet_name,
       });
-
     } catch (err) {
-      setError(err.response?.data?.msg || 'Failed to fetch customer details');
+      setError(err.response?.data?.msg || "Failed to fetch customer details");
     } finally {
       setLoading(false);
     }
@@ -108,11 +107,13 @@ function CustomerDetails() {
     <div className="space-y-6">
       {/* Outlet Selector */}
       <div className="mb-6">
-        <label className="text-sm text-gray-500 block mb-2">Select Outlet</label>
+        <label className="text-sm text-gray-500 block mb-2">
+          Select Outlet
+        </label>
         <select
           className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-500"
           value={selectedOutlet}
-          onChange={e => setSelectedOutlet(e.target.value)}
+          onChange={(e) => setSelectedOutlet(e.target.value)}
         >
           {outlets.map((outlet) => (
             <option key={outlet.outlet_id} value={outlet.outlet_id}>
@@ -123,33 +124,38 @@ function CustomerDetails() {
       </div>
 
       {/* Customer Information */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-white rounded-lg shadow">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="text-sm text-gray-500 block mb-1">Name</label>
-          <p className="font-medium">{customerData?.name || 'N/A'}</p>
+          <p className="font-medium">{customerData?.name || "N/A"}</p>
         </div>
         <div>
           <label className="text-sm text-gray-500 block mb-1">Mobile</label>
-          <p className="font-medium">{customerData?.mobile || 'N/A'}</p>
+          <p className="font-medium">{customerData?.mobile || "N/A"}</p>
         </div>
         <div>
           <label className="text-sm text-gray-500 block mb-1">User ID</label>
-          <p className="font-medium">{customerData?.user_id || 'N/A'}</p>
+          <p className="font-medium">{customerData?.user_id || "N/A"}</p>
         </div>
         <div>
-          <label className="text-sm text-gray-500 block mb-1">Order Count</label>
-          <p className="font-medium">{customerData?.order_count || '0'}</p>
+          <label className="text-sm text-gray-500 block mb-1">
+            Order Count
+          </label>
+          <p className="font-medium">{customerData?.order_count || "0"}</p>
         </div>
         <div>
-          <label className="text-sm text-gray-500 block mb-1">Current Outlet</label>
-          <p className="font-medium">{customerData?.outlet_name || 'N/A'}</p>
+          <label className="text-sm text-gray-500 block mb-1">
+            Current Outlet
+          </label>
+          <p className="font-medium">{customerData?.outlet_name || "N/A"}</p>
         </div>
         {/* Order History Section (if available) */}
         {customerData?.order_count > 0 && (
           <div className="col-span-2 mt-4">
             <h3 className="text-lg font-semibold mb-3">Order History</h3>
             <div className="text-sm text-gray-500">
-              This customer has placed {customerData.order_count} orders in {customerData.outlet_name}.
+              This customer has placed {customerData.order_count} orders in{" "}
+              {customerData.outlet_name}.
             </div>
           </div>
         )}
@@ -189,7 +195,7 @@ function CustomerDetails() {
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
       <DataTable
-        title={`Customer Details - ${customerData?.name || ''}`}
+        title={`Customer Details - ${customerData?.name || ""}`}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
         createButton={{ show: false }}

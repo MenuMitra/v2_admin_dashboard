@@ -17,8 +17,8 @@ import {
 function DataTable({
   data,
   columns,
-  itemsPerPage = 50,
-  itemsPerPageOptions = [50, 100, 200],
+  itemsPerPage = 10,
+  itemsPerPageOptions = [10, 20, 30, 40, 50],
   enableSort = true,
   enablePagination = true,
   enableSearch = true,
@@ -32,7 +32,7 @@ function DataTable({
   counts = {
     total: 0,
     active: 0,
-    inactive: 0
+    inactive: 0,
   },
   onBackClick = () => {},
   createButton = {
@@ -54,9 +54,9 @@ function DataTable({
   showHeader = true,
   showOutletSelect = false,
   outlets = [],
-  selectedOutlet = '',
+  selectedOutlet = "",
   onOutletChange = () => {},
-  outletSelectPosition = 'controls',
+  outletSelectPosition = "controls",
   onShowData = () => {},
   isLoading = false,
   enableSelection = false,
@@ -64,11 +64,23 @@ function DataTable({
   onBulkAction = () => {},
   enableStatusFilter = true,
   onStatusFilterChange = () => {},
-  statusFilter = 'all',
+  statusFilter = "all",
   bulkActionOptions = [
-    { key: 'active', label: 'Set Active', className: 'text-gray-700 hover:bg-gray-100' },
-    { key: 'inactive', label: 'Set Inactive', className: 'text-gray-700 hover:bg-gray-100' },
-    { key: 'delete', label: 'Delete Selected', className: 'text-error-600 hover:bg-error-50' }
+    {
+      key: "active",
+      label: "Set Active",
+      className: "text-gray-700 hover:bg-gray-100",
+    },
+    {
+      key: "inactive",
+      label: "Set Inactive",
+      className: "text-gray-700 hover:bg-gray-100",
+    },
+    {
+      key: "delete",
+      label: "Delete Selected",
+      className: "text-error-600 hover:bg-error-50",
+    },
   ],
   onItemsPerPageChange = () => {},
 }) {
@@ -114,16 +126,22 @@ function DataTable({
   // Sort Icon Renderer
   const renderSortIcon = (field) => {
     if (!enableSort) return null;
-    
+
     if (sortField !== field) {
       return (
         <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 w-4 h-4" />
       );
     }
     return sortOrder === "asc" ? (
-      <FontAwesomeIcon icon={faSortUp} className="ml-1 text-brand-500 w-4 h-4" />
+      <FontAwesomeIcon
+        icon={faSortUp}
+        className="ml-1 text-brand-500 w-4 h-4"
+      />
     ) : (
-      <FontAwesomeIcon icon={faSortDown} className="ml-1 text-brand-500 w-4 h-4" />
+      <FontAwesomeIcon
+        icon={faSortDown}
+        className="ml-1 text-brand-500 w-4 h-4"
+      />
     );
   };
 
@@ -132,12 +150,12 @@ function DataTable({
     let processedData = [...data];
 
     // Modify status filter to handle both boolean and numeric values
-    if (enableStatusFilter && statusFilter !== 'all') {
+    if (enableStatusFilter && statusFilter !== "all") {
       processedData = processedData.filter((item) => {
         const isActiveValue = item.is_active;
         // Handle both boolean and numeric values
         const isActive = isActiveValue === true || isActiveValue === 1;
-        return statusFilter === 'active' ? isActive : !isActive;
+        return statusFilter === "active" ? isActive : !isActive;
       });
     }
 
@@ -228,7 +246,11 @@ function DataTable({
     if (startPage > 1) {
       pages.unshift(
         <li key="start-ellipsis">
-          <span className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 ${darkMode ? "dark:text-gray-400" : ""}`}>
+          <span
+            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 ${
+              darkMode ? "dark:text-gray-400" : ""
+            }`}
+          >
             ...
           </span>
         </li>
@@ -237,7 +259,11 @@ function DataTable({
     if (endPage < totalPages) {
       pages.push(
         <li key="end-ellipsis">
-          <span className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 ${darkMode ? "dark:text-gray-400" : ""}`}>
+          <span
+            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 ${
+              darkMode ? "dark:text-gray-400" : ""
+            }`}
+          >
             ...
           </span>
         </li>
@@ -260,7 +286,7 @@ function DataTable({
       disabled: createButton.disabled,
       tooltip: createButton.tooltip,
     },
-    ...createButton
+    ...createButton,
   };
 
   const renderCreateButton = () => {
@@ -272,25 +298,20 @@ function DataTable({
       text-sm font-medium text-white 
       transition rounded-full 
       shadow-theme-xs
-      ${mergedCreateButton.disabled ? 'opacity-50 cursor-not-allowed' : ''}
+      ${mergedCreateButton.disabled ? "opacity-50 cursor-not-allowed" : ""}
       ${mergedCreateButton.className}
     `;
 
     return (
-      <button 
+      <button
         onClick={mergedCreateButton.onClick}
         disabled={mergedCreateButton.disabled}
         className={buttonClasses}
         title={mergedCreateButton.tooltip}
       >
-        <FontAwesomeIcon 
-          icon={mergedCreateButton.icon} 
-          className="w-4 h-4" 
-        />
+        <FontAwesomeIcon icon={mergedCreateButton.icon} className="w-4 h-4" />
         {!mergedCreateButton.showIconOnly && (
-          <span className="hidden sm:inline">
-            {mergedCreateButton.label}
-          </span>
+          <span className="hidden sm:inline">{mergedCreateButton.label}</span>
         )}
       </button>
     );
@@ -299,7 +320,7 @@ function DataTable({
   // Add selection handling functions
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      const allIds = currentItems.map(item => item.user_id);
+      const allIds = currentItems.map((item) => item.user_id);
       setSelectedItems(allIds);
       onSelectionChange(allIds);
     } else {
@@ -309,9 +330,9 @@ function DataTable({
   };
 
   const handleSelectItem = (id) => {
-    setSelectedItems(prev => {
-      const newSelection = prev.includes(id) 
-        ? prev.filter(itemId => itemId !== id)
+    setSelectedItems((prev) => {
+      const newSelection = prev.includes(id)
+        ? prev.filter((itemId) => itemId !== id)
         : [...prev, id];
       onSelectionChange(newSelection);
       return newSelection;
@@ -323,9 +344,7 @@ function DataTable({
     <div className="flex items-center justify-center gap-2">
       <FontAwesomeIcon
         icon={value ? faCircleCheck : faCircleXmark}
-        className={`w-5 h-5 ${
-          value ? "text-success-500" : "text-error-500"
-        }`}
+        className={`w-5 h-5 ${value ? "text-success-500" : "text-error-500"}`}
       />
       {/* <span
         className={`text-base font-medium ${
@@ -340,12 +359,12 @@ function DataTable({
   // Update the renderOutletSelect function
   const renderOutletSelect = () => {
     if (!showOutletSelect) return null;
-    
+
     return (
       <div className="relative flex-1 sm:flex-initial">
         <select
           className={`w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
-            isLoading ? 'opacity-50 cursor-not-allowed' : ''
+            isLoading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           value={selectedOutlet}
           onChange={(e) => onOutletChange(e.target.value)}
@@ -360,7 +379,10 @@ function DataTable({
         </select>
         {isLoading && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2">
-            <FontAwesomeIcon icon={faSpinner} className="h-4 w-4 animate-spin text-gray-400" />
+            <FontAwesomeIcon
+              icon={faSpinner}
+              className="h-4 w-4 animate-spin text-gray-400"
+            />
           </span>
         )}
       </div>
@@ -368,18 +390,24 @@ function DataTable({
   };
 
   return (
-    <div className={`rounded-2xl border border-gray-200 bg-white ${darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""}`}>
+    <div
+      className={`rounded-2xl border border-gray-200 bg-white ${
+        darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""
+      }`}
+    >
       {/* Header Section */}
       {showHeader && (
         <div className="overflow-hidden pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
           {/* Top Row - Back, Title, Create */}
           <div className="flex items-center px-6 mb-3">
             {/* Left Side */}
-            <div className={`flex items-center gap-2 ${
-              mergedCreateButton.position === 'left' ? 'order-2' : 'order-1'
-            }`}>
+            <div
+              className={`flex items-center gap-2 ${
+                mergedCreateButton.position === "left" ? "order-2" : "order-1"
+              }`}
+            >
               {showBackButton && (
-                <button 
+                <button
                   onClick={onBackClick}
                   className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
                 >
@@ -387,22 +415,28 @@ function DataTable({
                   <span className="hidden sm:inline">{backButtonLabel}</span>
                 </button>
               )}
-              {mergedCreateButton.position === 'left' && renderCreateButton()}
+              {mergedCreateButton.position === "left" && renderCreateButton()}
             </div>
 
             {/* Center - Title */}
-            <div className={`text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90 ${
-              mergedCreateButton.position === 'center' ? 'flex items-center gap-4' : 'flex-1 text-center'
-            }`}>
+            <div
+              className={`text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90 ${
+                mergedCreateButton.position === "center"
+                  ? "flex items-center gap-4"
+                  : "flex-1 text-center"
+              }`}
+            >
               {title}
-              {mergedCreateButton.position === 'center' && renderCreateButton()}
+              {mergedCreateButton.position === "center" && renderCreateButton()}
             </div>
 
             {/* Right Side */}
-            <div className={`flex items-center justify-end ${
-              mergedCreateButton.position === 'right' ? 'order-3' : 'order-2'
-            }`}>
-              {mergedCreateButton.position === 'right' && renderCreateButton()}
+            <div
+              className={`flex items-center justify-end ${
+                mergedCreateButton.position === "right" ? "order-3" : "order-2"
+              }`}
+            >
+              {mergedCreateButton.position === "right" && renderCreateButton()}
             </div>
           </div>
 
@@ -453,9 +487,12 @@ function DataTable({
               {showSearch && (
                 <div className="relative w-full sm:w-auto">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                    <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+                    <FontAwesomeIcon
+                      icon={faMagnifyingGlass}
+                      className="w-4 h-4"
+                    />
                   </span>
-                  <input 
+                  <input
                     placeholder={searchPlaceholder}
                     className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 shadow-theme-xs"
                     type="text"
@@ -473,7 +510,11 @@ function DataTable({
       <div className="max-w-full overflow-x-auto custom-scrollbar">
         <table className="w-full">
           <thead>
-            <tr className={`border-t border-gray-100 ${darkMode ? "dark:border-gray-800" : ""}`}>
+            <tr
+              className={`border-t border-gray-100 ${
+                darkMode ? "dark:border-gray-800" : ""
+              }`}
+            >
               {/* Checkbox column */}
               {enableSelection && (
                 <th className="px-2 py-3 text-center">
@@ -496,12 +537,16 @@ function DataTable({
                         e.stopPropagation();
                         setIsActionDropdownOpen(!isActionDropdownOpen);
                       }}
-                      onBlur={() => setTimeout(() => setIsActionDropdownOpen(false), 200)}
+                      onBlur={() =>
+                        setTimeout(() => setIsActionDropdownOpen(false), 200)
+                      }
                       className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 px-5 "
                     >
                       Actions
                       <svg
-                        className={`stroke-current duration-200 ease-in-out ${isActionDropdownOpen ? 'rotate-180' : ''}`}
+                        className={`stroke-current duration-200 ease-in-out ${
+                          isActionDropdownOpen ? "rotate-180" : ""
+                        }`}
                         width="16"
                         height="16"
                         viewBox="0 0 20 20"
@@ -548,7 +593,9 @@ function DataTable({
               {columns.map((column) => (
                 <th
                   key={column.field}
-                  className={`${column.field === 'selection' ? 'px-2' : 'px-6'} py-3 text-center ${
+                  className={`${
+                    column.field === "selection" ? "px-2" : "px-6"
+                  } py-3 text-center ${
                     enableSort && column.sortable
                       ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                       : ""
@@ -558,7 +605,11 @@ function DataTable({
                   }
                 >
                   <div className="flex items-center justify-center">
-                    <p className={`font-semibold text-gray-700 text-theme-xs ${darkMode ? "dark:text-white/90" : ""}`}>
+                    <p
+                      className={`font-semibold text-gray-700 text-theme-xs ${
+                        darkMode ? "dark:text-white/90" : ""
+                      }`}
+                    >
                       {column.header}
                     </p>
                     {column.sortable && renderSortIcon(column.field)}
@@ -569,7 +620,12 @@ function DataTable({
           </thead>
           <tbody>
             {currentItems.map((item, index) => (
-              <tr key={index} className={`border-t border-gray-100 ${darkMode ? "dark:border-gray-800" : ""}`}>
+              <tr
+                key={index}
+                className={`border-t border-gray-100 ${
+                  darkMode ? "dark:border-gray-800" : ""
+                }`}
+              >
                 {/* Checkbox cell */}
                 {enableSelection && (
                   <td className="px-2 py-3.5 text-center">
@@ -590,16 +646,22 @@ function DataTable({
 
                 {/* Regular cells */}
                 {columns.map((column) => (
-                  <td 
-                    key={column.field} 
-                    className={`${column.field === 'selection' ? 'px-2' : 'px-6'} py-3.5 text-center`}
+                  <td
+                    key={column.field}
+                    className={`${
+                      column.field === "selection" ? "px-2" : "px-6"
+                    } py-3.5 text-center`}
                   >
                     {column.render ? (
                       column.render(item[column.field], item)
-                    ) : column.field === 'is_active' ? (
+                    ) : column.field === "is_active" ? (
                       renderStatus(item[column.field])
                     ) : (
-                      <p className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
+                      <p
+                        className={`text-gray-500 text-theme-sm ${
+                          darkMode ? "dark:text-gray-400" : ""
+                        }`}
+                      >
                         {item[column.field]}
                       </p>
                     )}
@@ -617,7 +679,11 @@ function DataTable({
           <div className="flex items-center gap-4">
             {/* Records per page dropdown */}
             <div className="flex items-center gap-2">
-              <span className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
+              <span
+                className={`text-gray-500 text-theme-sm ${
+                  darkMode ? "dark:text-gray-400" : ""
+                }`}
+              >
                 Show
               </span>
               <select
@@ -625,19 +691,27 @@ function DataTable({
                 onChange={(e) => onItemsPerPageChange(e.target.value)}
                 className="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
               >
-                {itemsPerPageOptions.map(option => (
+                {itemsPerPageOptions.map((option) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
                 ))}
               </select>
-              <span className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
+              <span
+                className={`text-gray-500 text-theme-sm ${
+                  darkMode ? "dark:text-gray-400" : ""
+                }`}
+              >
                 entries
               </span>
             </div>
 
             {/* Showing entries text */}
-            <div className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""}`}>
+            <div
+              className={`text-gray-500 text-theme-sm ${
+                darkMode ? "dark:text-gray-400" : ""
+              }`}
+            >
               Showing {indexOfFirstItem + 1} to{" "}
               {Math.min(indexOfLastItem, processedData.length)} of{" "}
               {processedData.length} entries
@@ -647,16 +721,24 @@ function DataTable({
           {/* Pagination buttons */}
           <div className="flex items-center justify-between gap-2 sm:justify-normal">
             <button
-              onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
+              onClick={() =>
+                currentPage > 1 && handlePageChange(currentPage - 1)
+              }
               disabled={currentPage === 1}
               className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
-                darkMode ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200" : ""
+                darkMode
+                  ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                  : ""
               } ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
             </button>
 
-            <span className={`block text-sm font-medium text-gray-700 ${darkMode ? "dark:text-gray-400" : ""} sm:hidden`}>
+            <span
+              className={`block text-sm font-medium text-gray-700 ${
+                darkMode ? "dark:text-gray-400" : ""
+              } sm:hidden`}
+            >
               Page {currentPage} of {totalPages}
             </span>
 
@@ -665,11 +747,19 @@ function DataTable({
             </ul>
 
             <button
-              onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
+              onClick={() =>
+                currentPage < totalPages && handlePageChange(currentPage + 1)
+              }
               disabled={currentPage === totalPages}
               className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
-                darkMode ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200" : ""
-              } ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
+                darkMode
+                  ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                  : ""
+              } ${
+                currentPage === totalPages
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
             >
               <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
             </button>
@@ -680,4 +770,4 @@ function DataTable({
   );
 }
 
-export default DataTable; 
+export default DataTable;

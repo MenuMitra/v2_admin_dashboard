@@ -24,7 +24,7 @@ import {
   faArrowLeft,
   faChevronLeft as faBack,
 } from "@fortawesome/free-solid-svg-icons";
-import Breadcrumb from '../../Breadcrumb';
+import Breadcrumb from "../../Breadcrumb";
 
 function RoleDetails() {
   const { userId } = useParams();
@@ -81,9 +81,9 @@ function RoleDetails() {
 
   // Add breadcrumb items configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
-    { label: 'Customer', path: '/customer' },   
-    { label: 'Customer Details' } // Current page, no path needed
+    { label: "Dashboard", path: "/" },
+    { label: "Customer", path: "/customer" },
+    { label: "Customer Details" }, // Current page, no path needed
   ];
 
   if (loading) {
@@ -112,11 +112,14 @@ function RoleDetails() {
           <div className="flex items-center px-6 mb-3">
             {/* Left Side - Back Button */}
             <div className="flex items-center gap-2 order-1">
-              <button 
+              <button
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                 <FontAwesomeIcon icon={faBack} className="w-3 h-3 sm:w-4 sm:h-4" />
+                <FontAwesomeIcon
+                  icon={faBack}
+                  className="w-3 h-3 sm:w-4 sm:h-4"
+                />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
@@ -135,83 +138,58 @@ function RoleDetails() {
           <>
             {/* Customer Details Card */}
             <div className="p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                 {/* Name */}
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                    <p className="text-base sm:text-lg font-medium text-gray-800">
-                      {customerData.customer_details.name}
-                    </p>
-                    <FontAwesomeIcon
-                      icon={faUser}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500"
-                    />
-                  </div>
-                  <span className="text-xs sm:text-sm text-gray-500">Name</span>
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-500">Name</p>
+                  <p className="text-base sm:text-lg font-medium text-gray-800">
+                    {customerData.customer_details.name}
+                  </p>
                 </div>
 
                 {/* Mobile */}
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                    <p className="text-base sm:text-lg font-medium text-gray-800">
-                      {customerData.customer_details.mobile}
-                    </p>
-                    <FontAwesomeIcon
-                      icon={faPhone}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500"
-                    />
-                  </div>
-                  <span className="text-xs sm:text-sm text-gray-500">Mobile</span>
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-500">Mobile</p>
+                  <p className="text-base sm:text-lg font-medium text-gray-800">
+                    {customerData.customer_details.mobile}
+                  </p>
                 </div>
 
                 {/* Email */}
-                {customerData.customer_details.email && customerData.customer_details.email !== "null" && (
-                  <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                    <div className="flex items-center justify-between mb-1.5 sm:mb-2">
+                {customerData.customer_details.email &&
+                  customerData.customer_details.email !== "null" && (
+                    <div>
+                      <p className="text-xs sm:text-sm text-gray-500">Email</p>
                       <p className="text-base sm:text-lg font-medium text-gray-800 truncate">
                         {customerData.customer_details.email}
                       </p>
-                      <FontAwesomeIcon
-                        icon={faEnvelope}
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500 ml-2 flex-shrink-0"
-                      />
                     </div>
-                    <span className="text-xs sm:text-sm text-gray-500">Email</span>
-                  </div>
-                )}
+                  )}
 
                 {/* Created On */}
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                    <p className="text-base sm:text-lg font-medium text-gray-800">
-                      {customerData.customer_details.created_on}
-                    </p>
-                    <FontAwesomeIcon
-                      icon={faCalendarDays}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500"
-                    />
-                  </div>
-                  <span className="text-xs sm:text-sm text-gray-500">Created On</span>
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-500">Created On</p>
+                  <p className="text-base sm:text-lg font-medium text-gray-800">
+                    {customerData.customer_details.created_on}
+                  </p>
                 </div>
 
                 {/* Account Status */}
-                <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-                  <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                    <p className={`text-base sm:text-lg font-medium ${
+                <div>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    Account Status
+                  </p>
+                  <p
+                    className={`text-base sm:text-lg font-medium ${
                       customerData.customer_details.account_status
                         ? "text-green-600"
                         : "text-red-600"
-                    }`}>
-                      {customerData.customer_details.account_status
-                        ? "Active"
-                        : "Inactive"}
-                    </p>
-                    <FontAwesomeIcon
-                      icon={faCircleCheck}
-                      className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500"
-                    />
-                  </div>
-                  <span className="text-xs sm:text-sm text-gray-500">Account Status</span>
+                    }`}
+                  >
+                    {customerData.customer_details.account_status
+                      ? "Active"
+                      : "Inactive"}
+                  </p>
                 </div>
               </div>
             </div>
