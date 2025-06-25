@@ -138,7 +138,7 @@ const Search = () => {
       sortable: false,
       render: (_, row) => {
         // Array of staff roles where view button should be hidden
-        const staffRoles = ['captain', 'manager', 'waiter', 'chef'];
+        const staffRoles = [];
         
         // If the role is in staffRoles array, don't render the button
         if (staffRoles.includes(row.role?.toLowerCase())) {
