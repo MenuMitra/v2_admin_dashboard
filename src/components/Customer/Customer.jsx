@@ -30,7 +30,7 @@ function Customer() {
 
   // Fetch outlets on mount
   useEffect(() => {
-    fetchOutlets();
+    // fetchOutlets();
     // Fetch customers immediately without waiting for outlet selection
     fetchCustomers();
   }, []);
@@ -161,11 +161,11 @@ function Customer() {
       sortable: true,
       render: (value) => value ?? '0'
     },
-    {
-      field: 'created_on',
-      header: 'Joined Date',
-      sortable: true
-    },
+    // {
+    //   field: 'created_on',
+    //   header: 'Joined Date',
+    //   sortable: true
+    // },
     {
       field: 'last_login',
       header: 'Last Login',
