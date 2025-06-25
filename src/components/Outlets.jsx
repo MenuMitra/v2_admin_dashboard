@@ -335,6 +335,7 @@ function Outlets() {
       outletStatus: outlet.outlet_status,
       image: [{}],
       accountType: outlet.account_type,
+      ownerName: outlet.owner_name,
     }));
   };
 
@@ -552,19 +553,27 @@ function Outlets() {
       field: "owner",
       header: "Owner",
       sortable: true,
-      render: (value, row) =>
-        row?.owner_id ? (
-          <Link
-            to={`/owner/${row.owner_id}`}
-            className="font-medium text-gray-800 text-theme-sm dark:text-white/90"
-          >
-            {row?.owner || "-"}
-          </Link>
-        ) : (
-          <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-            {row?.owner || "-"}
-          </p>
-        ),
+      render: (value, row) => (
+        <div className="flex items-center gap-2">
+          {row?.owner_id ? (
+            <Link
+              to={`/owner/${row.owner_id}`}
+              className="font-medium text-gray-800 text-theme-sm dark:text-white/90"
+            >
+              {row?.ownerName || "-"}
+            </Link>
+          ) : (
+            <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+              {row?.ownerName || "-"}
+            </p>
+          )}
+          {row?.ownerName && (
+            <span className="inline-flex items-center justify-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-sm font-medium text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
+              P
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       field: "code",
