@@ -137,7 +137,6 @@ function Customer() {
     }
   };
 
-  // Update columns to include the view action
   const columns = [
     {
       field: 'name',
@@ -149,30 +148,24 @@ function Customer() {
       header: 'Mobile',
       sortable: true
     },
-    // {
-    //   field: 'total_orders_in_outlet',
-    //   header: 'Orders in Outlet',
-    //   sortable: true,
-    //   render: (value) => value ?? '0'
-    // },
     {
       field: 'total_orders_all_outlets',
       header: 'Total Orders',
       sortable: true,
       render: (value) => value ?? '0'
     },
-    // {
-    //   field: 'created_on',
-    //   header: 'Joined Date',
-    //   sortable: true
-    // },
     {
       field: 'last_login',
       header: 'Last Login',
       sortable: true,
       render: (value) => value || '-'
     },
-    // Add new action column
+    // Add status column
+    {
+      field: 'is_active',
+      header: 'Status',
+      sortable: true
+    },
     {
       field: 'action',
       header: 'Action',
@@ -198,6 +191,7 @@ function Customer() {
     }
   ];
 
+  // Update columns to include the view action
   if (loading && !customers.length) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -246,11 +240,10 @@ function Customer() {
         onBackClick={() => navigate(-1)}
         showBackButton={true}
         backButtonLabel="Back"
-        // Enable outlet selection in DataTable
-        // showOutletSelect={true}
-        // outlets={outlets}
-        // selectedOutlet={selectedOutlet}
-        // onOutletChange={setSelectedOutlet}
+        enableStatusFilter={true}
+        onStatusFilterChange={(status) => {
+          setSearchTerm('');
+        }}
         isLoading={loading}
       />
 
