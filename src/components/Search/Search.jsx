@@ -81,7 +81,7 @@ const Search = () => {
   const handleViewDetails = (userId, role) => {
     switch (role?.toLowerCase()) {
       case 'customer':
-        navigate(`/role-details/${userId}`);
+        navigate(`/edit-customer/${userId}`);
         break;
       case 'owner':
         navigate(`/owner-details/${userId}`);
