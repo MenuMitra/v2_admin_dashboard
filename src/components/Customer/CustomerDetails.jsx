@@ -149,56 +149,74 @@ function CustomerDetails() {
     </div>
   );
 
-  const renderOrderStatistics = () => (
-    <div className="p-6 border-t">
-      <h2 className="text-xl font-medium mb-6 text-gray-800">Order Statistics</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-        {/* Total Orders */}
-        <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-base font-medium text-gray-800">
-              {customerData?.order_statistics?.total_orders}
-            </p>
-            <FontAwesomeIcon icon={faShoppingCart} className="w-4 h-4 text-brand-500" />
-          </div>
-          <span className="text-sm text-gray-500">Total Orders</span>
-        </div>
+  const renderOrderStatistics = () => {
+    // Check if all statistics are 0 or 0.0
+    const hasNoActivity = 
+      customerData?.order_statistics?.total_orders === 0 &&
+      customerData?.order_statistics?.paid_orders === 0 &&
+      customerData?.order_statistics?.cancelled_orders === 0 &&
+      customerData?.order_statistics?.cooking_orders === 0 &&
+      customerData?.order_statistics?.placed_orders === 0 &&
+      customerData?.order_statistics?.served_orders === 0 &&
+      customerData?.order_statistics?.total_spent === 0.0 &&
+      customerData?.order_statistics?.average_order_value === 0.0;
 
-        {/* Paid Orders */}
-        <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-base font-medium text-gray-800">
-              {customerData?.order_statistics?.paid_orders}
-            </p>
-            <FontAwesomeIcon icon={faCreditCard} className="w-4 h-4 text-brand-500" />
-          </div>
-          <span className="text-sm text-gray-500">Paid Orders</span>
-        </div>
+    // If all values are 0, don't render the section
+    if (hasNoActivity) {
+      return null;
+    }
 
-        {/* Total Spent */}
-        <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-base font-medium text-gray-800">
-              ₹{customerData?.order_statistics?.total_spent}
-            </p>
-            <FontAwesomeIcon icon={faMoneyBill} className="w-4 h-4 text-brand-500" />
+    return (
+      <div className="p-6 border-t">
+        <h2 className="text-xl font-medium mb-6 text-gray-800">Order Statistics</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+          {/* Total Orders */}
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-base font-medium text-gray-800">
+                {customerData?.order_statistics?.total_orders}
+              </p>
+              <FontAwesomeIcon icon={faShoppingCart} className="w-4 h-4 text-brand-500" />
+            </div>
+            <span className="text-sm text-gray-500">Total Orders</span>
           </div>
-          <span className="text-sm text-gray-500">Total Spent</span>
-        </div>
 
-        {/* Average Order Value */}
-        <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-base font-medium text-gray-800">
-              ₹{customerData?.order_statistics?.average_order_value}
-            </p>
-            <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 text-brand-500" />
+          {/* Paid Orders */}
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-base font-medium text-gray-800">
+                {customerData?.order_statistics?.paid_orders}
+              </p>
+              <FontAwesomeIcon icon={faCreditCard} className="w-4 h-4 text-brand-500" />
+            </div>
+            <span className="text-sm text-gray-500">Paid Orders</span>
           </div>
-          <span className="text-sm text-gray-500">Avg. Order Value</span>
+
+          {/* Total Spent */}
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-base font-medium text-gray-800">
+                ₹{customerData?.order_statistics?.total_spent}
+              </p>
+              <FontAwesomeIcon icon={faMoneyBill} className="w-4 h-4 text-brand-500" />
+            </div>
+            <span className="text-sm text-gray-500">Total Spent</span>
+          </div>
+
+          {/* Average Order Value */}
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-base font-medium text-gray-800">
+                ₹{customerData?.order_statistics?.average_order_value}
+              </p>
+              <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 text-brand-500" />
+            </div>
+            <span className="text-sm text-gray-500">Avg. Order Value</span>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   if (loading) {
     return (
