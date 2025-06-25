@@ -213,7 +213,7 @@ function Dashboard() {
                   {data.counts?.owner_count || 0}
                 </h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Restaurant Owners
+                  Total Owners
                 </p>
               </div>
             </div>
@@ -237,7 +237,7 @@ function Dashboard() {
                   {data.counts?.partner_count || 0}
                 </h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Partners
+                  Total Partners
                 </p>
               </div>
             </div>
@@ -285,7 +285,7 @@ function Dashboard() {
                   {data.counts?.customer_count || 0}
                 </h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Customers
+                  Total Customers
                 </p>
               </div>
             </div>
