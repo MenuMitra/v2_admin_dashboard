@@ -237,12 +237,12 @@ function RoleDetails() {
                 <div>
                   <p
                     className={`text-base sm:text-lg font-medium ${
-                      customerData.customer_details.account_status
+                      customerData.customer_details.is_active
                         ? "text-green-600"
                         : "text-red-600"
                     }`}
                   >
-                    {customerData.customer_details.account_status
+                    {customerData.customer_details.is_active
                       ? "Active"
                       : "Inactive"}
                   </p>
