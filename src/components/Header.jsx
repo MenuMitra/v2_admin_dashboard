@@ -26,10 +26,6 @@ import logo from "../assets/images/logo/logo.png";
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [menuToggle, setMenuToggle] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    return savedDarkMode ? JSON.parse(savedDarkMode) : false;
-  });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifying, setNotifying] = useState(true);
@@ -98,17 +94,6 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
     };
   }, []); // Empty dependency array since we don't use any dependencies
 
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      document.body.classList.add('dark', 'bg-gray-900');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.body.classList.remove('dark', 'bg-gray-900');
-    }
-  }, [darkMode]);
 
   const handleSidebarToggle = () => {
     setSidebarToggle(prevState => {

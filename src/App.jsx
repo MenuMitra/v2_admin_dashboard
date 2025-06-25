@@ -53,14 +53,6 @@ import WaiterDetails from './components/AccessControl/Roles/WaiterDetails'
 import ChefDetails from './components/AccessControl/Roles/ChefDetails'
 
 function App() {
-  useEffect(() => {
-    // Check for initial dark mode preference when app loads
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode && JSON.parse(savedDarkMode)) {
-      document.documentElement.classList.add('dark');
-      document.body.classList.add('dark', 'bg-gray-900');
-    }
-  }, []);
 
   return (
     <ToastProvider>
