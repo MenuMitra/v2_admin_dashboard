@@ -3,13 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
-import {
-  TextInput,
-  FileInput,
-} from '../../forms/FormElements';
+import { TextInput } from '../../forms/FormElements';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../../Breadcrumb';
+import { toastController } from '../../../utils/toastController';
 
 function EditCategory() {
   const { outletId, menuCategoryId } = useParams();
@@ -18,24 +16,17 @@ function EditCategory() {
   const navigate = useNavigate();
 
   const [categoryName, setCategoryName] = useState('');
-  const [image, setImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [error, setError] = useState('');
 
   // Ref for form submission from Save button
   const formRef = React.useRef();
 
   // Fetch current category details for editing
   useEffect(() => {
-    // Only fetch if we haven't already set a name (i.e., user hasn't started typing)
     if (!categoryName && adminData?.user_id && menuCategoryId && outletId) {
       const fetchCategory = async () => {
         setLoading(true);
-        setError('');
         try {
-          const token = getToken();
           const response = await axios.post(
             'https://men4u.xyz/v2/common/menu_category_view',
             {
@@ -46,66 +37,50 @@ function EditCategory() {
             },
             {
               headers: {
-                Authorization: token,
+                Authorization: getToken(),
                 'Content-Type': 'application/json',
               },
             }
           );
           setCategoryName(response.data.data.name || '');
-          setImagePreview(response.data.data.image || '');
         } catch (err) {
-          setError('Failed to fetch category details');
+          toastController.error('Failed to fetch category details');
         } finally {
           setLoading(false);
         }
       };
       fetchCategory();
     }
-    // eslint-disable-next-line
-  }, [adminData?.user_id, menuCategoryId, outletId]);
-
-  // Handle file input
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    setImage(file);
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
+  }, [adminData?.user_id, menuCategoryId, outletId, categoryName, getToken]);
 
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-    setSuccessMsg('');
-    try {
-      const token = getToken();
-      const formData = new FormData();
-      formData.append('outlet_id', outletId);
-      formData.append('menu_cat_id', menuCategoryId);
-      formData.append('user_id', adminData?.user_id);
-      formData.append('category_name', categoryName);
-      formData.append('app_source', 'admin_dashboard');
-      formData.append('remove_image_flag', 'True');
-      if (image) {
-        formData.append('image', image);
-      }
 
+    try {
       const response = await axios.patch(
-        'https://men4u.xyz/v2/common/menu_category_update?remove_image_flag=True',
-        formData,
+        'https://men4u.xyz/v2/common/menu_category_update',
+        {
+          outlet_id: Number(outletId),
+          menu_cat_id: Number(menuCategoryId),
+          user_id: adminData?.user_id,
+          category_name: categoryName,
+          app_source: 'admin_dashboard',
+          remove_image_flag: true // Keep this if needed by the API
+        },
         {
           headers: {
-            Authorization: token,
-            'Content-Type': 'multipart/form-data',
+            Authorization: getToken(),
+            'Content-Type': 'application/json',
           },
         }
       );
-      setSuccessMsg(response.data.detail || 'Menu Category updated successfully');
+      
+      toastController.success(response.data.detail || 'Menu Category updated successfully');
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      setError(
+      toastController.error(
         err.response?.data?.message ||
         err.response?.data?.detail ||
         'Failed to update category'
@@ -117,7 +92,6 @@ function EditCategory() {
 
   return (
     <div className="p-4">
-      {/* Breadcrumb */}
       <Breadcrumb
         items={[
           { label: 'Dashboard', path: '/' },
@@ -127,10 +101,8 @@ function EditCategory() {
         ]}
       />
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
-            {/* Back Button */}
             <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
@@ -140,12 +112,10 @@ function EditCategory() {
               <span>Back</span>
             </button>
 
-            {/* Title */}
             <h2 className="text-lg font-semibold text-gray-800 text-center">
               Edit Category
             </h2>
 
-            {/* Save Button */}
             <button
               onClick={() => formRef.current?.requestSubmit()}
               disabled={loading}
@@ -164,7 +134,6 @@ function EditCategory() {
           </div>
         </div>
 
-        {/* Form Content */}
         <div className="p-6">
           <form
             ref={formRef}
@@ -178,13 +147,11 @@ function EditCategory() {
               onChange={e => setCategoryName(e.target.value)}
               placeholder="Enter category name"
             />
-            {error && <div className="text-error-500 text-center">{error}</div>}
-            {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
             <button
               type="submit"
               disabled={loading}
               className="w-full py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
-              style={{ display: 'none' }} // Hide the default submit button, use Save in header
+              style={{ display: 'none' }}
             >
               {loading ? 'Updating...' : 'Update Category'}
             </button>
