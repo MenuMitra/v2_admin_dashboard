@@ -94,56 +94,56 @@ function CustomerDetails() {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {/* Name */}
         <div>
-          <p className="text-base sm:text-lg font-medium text-gray-800">
+          <p className="text-base font-medium text-gray-800">
             {customerData?.customer_details?.name}
           </p>
-          <p className="text-xs sm:text-sm text-gray-500">Name</p>
+          <p className="text-sm text-gray-500">Name</p>
         </div>
 
         {/* Mobile */}
         <div>
-          <p className="text-base sm:text-lg font-medium text-gray-800">
+          <p className="text-base font-medium text-gray-800">
             {customerData?.customer_details?.mobile}
           </p>
-          <p className="text-xs sm:text-sm text-gray-500">Mobile</p>
+          <p className="text-sm text-gray-500">Mobile</p>
         </div>
 
         {/* Email */}
         {customerData?.customer_details?.email && customerData.customer_details.email !== "null" && (
           <div>
-            <p className="text-base sm:text-lg font-medium text-gray-800 truncate">
+            <p className="text-base font-medium text-gray-800 truncate">
               {customerData.customer_details.email}
             </p>
-            <p className="text-xs sm:text-sm text-gray-500">Email</p>
+            <p className="text-sm text-gray-500">Email</p>
           </div>
         )}
 
         {/* Created On */}
         <div>
-          <p className="text-base sm:text-lg font-medium text-gray-800">
+          <p className="text-base font-medium text-gray-800">
             {customerData?.customer_details?.created_on}
           </p>
-          <p className="text-xs sm:text-sm text-gray-500">Created On</p>
+          <p className="text-sm text-gray-500">Created On</p>
         </div>
 
         {/* Last Login */}
         {customerData?.customer_details?.last_login && (
           <div>
-            <p className="text-base sm:text-lg font-medium text-gray-800">
+            <p className="text-base font-medium text-gray-800">
               {customerData.customer_details.last_login}
             </p>
-            <p className="text-xs sm:text-sm text-gray-500">Last Login</p>
+            <p className="text-sm text-gray-500">Last Login</p>
           </div>
         )}
 
         {/* Account Status */}
         <div>
-          <p className={`text-base sm:text-lg font-medium ${
+          <p className={`text-base font-medium ${
             customerData?.customer_details?.is_active ? "text-green-600" : "text-red-600"
           }`}>
             {customerData?.customer_details?.is_active ? "Active" : "Inactive"}
           </p>
-          <p className="text-xs sm:text-sm text-gray-500">Account Status</p>
+          <p className="text-sm text-gray-500">Account Status</p>
         </div>
       </div>
     </div>
@@ -151,50 +151,50 @@ function CustomerDetails() {
 
   const renderOrderStatistics = () => (
     <div className="p-6 border-t">
-      <h2 className="text-2xl font-medium mb-6 text-gray-800">Order Statistics</h2>
+      <h2 className="text-xl font-medium mb-6 text-gray-800">Order Statistics</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
         {/* Total Orders */}
         <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-base font-medium text-gray-800">
               {customerData?.order_statistics?.total_orders}
             </p>
-            <FontAwesomeIcon icon={faShoppingCart} className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500" />
+            <FontAwesomeIcon icon={faShoppingCart} className="w-4 h-4 text-brand-500" />
           </div>
-          <span className="text-xs sm:text-sm text-gray-500 line-clamp-1">Total Orders</span>
+          <span className="text-sm text-gray-500">Total Orders</span>
         </div>
 
         {/* Paid Orders */}
         <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-base font-medium text-gray-800">
               {customerData?.order_statistics?.paid_orders}
             </p>
-            <FontAwesomeIcon icon={faCreditCard} className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500" />
+            <FontAwesomeIcon icon={faCreditCard} className="w-4 h-4 text-brand-500" />
           </div>
-          <span className="text-xs sm:text-sm text-gray-500 line-clamp-1">Paid Orders</span>
+          <span className="text-sm text-gray-500">Paid Orders</span>
         </div>
 
         {/* Total Spent */}
         <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-base font-medium text-gray-800">
               ₹{customerData?.order_statistics?.total_spent}
             </p>
-            <FontAwesomeIcon icon={faMoneyBill} className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500" />
+            <FontAwesomeIcon icon={faMoneyBill} className="w-4 h-4 text-brand-500" />
           </div>
-          <span className="text-xs sm:text-sm text-gray-500 line-clamp-1">Total Spent</span>
+          <span className="text-sm text-gray-500">Total Spent</span>
         </div>
 
         {/* Average Order Value */}
         <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-          <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-base font-medium text-gray-800">
               ₹{customerData?.order_statistics?.average_order_value}
             </p>
-            <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 sm:w-5 sm:h-5 text-brand-500" />
+            <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 text-brand-500" />
           </div>
-          <span className="text-xs sm:text-sm text-gray-500 line-clamp-1">Avg. Order Value</span>
+          <span className="text-sm text-gray-500">Avg. Order Value</span>
         </div>
       </div>
     </div>
