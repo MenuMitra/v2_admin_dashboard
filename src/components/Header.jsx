@@ -1,19 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import Sidebar from "./Sidebar";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBars,
   faXmark,
   faEllipsisH,
-  faMagnifyingGlass,
-  faMoon,
-  faSun,
-  faBell,
   faChevronDown,
   faUser,
-  faCog,
-  faCircleInfo,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAdmin } from "../hooks/useAdmin";
@@ -27,8 +20,6 @@ import logo from "../assets/images/logo/logo.png";
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [menuToggle, setMenuToggle] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [notificationOpen, setNotificationOpen] = useState(false);
-  const [notifying, setNotifying] = useState(true);
   const { adminData, clearAdmin } = useAdmin();
   const { getToken, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
