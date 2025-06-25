@@ -155,6 +155,23 @@ function MenuDetails() {
 
             {/* Menu Information Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {/* Menu Name */}
+              <div className="flex items-center p-3">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium">{menu.name}</div>
+                  <div className="text-sm text-gray-500">Menu Name</div>
+                  {menu.is_special && (
+                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium text-yellow-800 bg-yellow-100 rounded-full">
+                      <FontAwesomeIcon icon={faStar} className="w-3 h-3 mr-1" />
+                      Special
+                    </span>
+                  )}
+                </div>
+              </div>
+
               {/* Food Type */}
               <div className="flex items-center p-3">
                 <div className="w-8 h-8 flex items-center justify-center">
@@ -285,6 +302,32 @@ function MenuDetails() {
                     <div className="text-sm text-gray-500">Created On</div>
                   </div>
                 </div>
+
+                {/* Updated By - Show only if exists */}
+                {menu.updated_by && (
+                  <div className="flex items-center p-3">
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <div className="ml-3">
+                      <div className="text-base font-medium">{menu.updated_by}</div>
+                      <div className="text-sm text-gray-500">Updated By</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Updated On - Show only if exists */}
+                {menu.updated_on && (
+                  <div className="flex items-center p-3">
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      <FontAwesomeIcon icon={faCalendarCheck} className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <div className="ml-3">
+                      <div className="text-base font-medium">{menu.updated_on}</div>
+                      <div className="text-sm text-gray-500">Updated On</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
