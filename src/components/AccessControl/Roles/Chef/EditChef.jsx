@@ -4,7 +4,7 @@ import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack, faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft as faBack, faSpinner, faSave } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import { TextInput, DateInput, SelectInput } from "../../../forms/FormElements";
 
@@ -111,7 +111,7 @@ function EditChef() {
     setError(null);
 
     try {
-      await axios.post(
+      await axios.patch(
         "https://men4u.xyz/v2/common/chef_update",
         {
           update_user_id: adminData?.user_id,
@@ -167,22 +167,38 @@ function EditChef() {
       <Breadcrumb items={breadcrumbItems} />
       
       <div className="rounded-2xl border border-gray-200 bg-white">
-        {/* Header Section */}
-        <div className="overflow-hidden pt-4">
-          <div className="flex items-center px-6 mb-3">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate(-1)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
-              >
-                <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
-                <span className="hidden sm:inline">Back</span>
-              </button>
-            </div>
-            <div className="flex-1 text-center text-base sm:text-lg font-semibold text-gray-800">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            {/* Back Button */}
+            <button
+              onClick={() => navigate(-1)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
+            >
+              <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
+              <span>Back</span>
+            </button>
+
+            {/* Title - Centered between buttons */}
+            <h1 className="text-xl font-semibold text-gray-800">
               Edit Chef
-            </div>
-            <div className="w-20"></div>
+            </h1>
+
+            {/* Save Button */}
+            <button
+              onClick={handleSubmit}
+              disabled={submitting}
+              className={`
+                inline-flex items-center gap-2 px-4 py-2 
+                text-sm font-medium text-white rounded-full
+                bg-success-500 hover:bg-success-600 
+                transition shadow-sm
+                ${submitting ? 'opacity-50 cursor-not-allowed' : ''}
+              `}
+            >
+              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+              <span>{submitting ? 'Saving...' : 'Save'}</span>
+            </button>
           </div>
         </div>
 
@@ -343,27 +359,6 @@ function EditChef() {
                 )}
               </div>
             </div>
-          </div>
-
-          <div className="mt-6 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 disabled:opacity-50"
-            >
-              {submitting ? (
-                <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin" />
-              ) : (
-                "Save Changes"
-              )}
-            </button>
           </div>
         </form>
       </div>
