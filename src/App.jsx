@@ -104,7 +104,7 @@ function App() {
             <Route path="/captain-details/:userId" element={<CaptainDetails />} />
             <Route path="/manager-details/:userId" element={<ManagerDetails />} />
             <Route path="/waiter-details/:userId" element={<WaiterDetails />} />
-            <Route path="/chef-details/:userId" element={<ChefDetails />} />
+            <Route path="/chef-details/:outletId/:userId" element={<ChefDetails />} />
 
             {/* Tickets Routes */}
             <Route path="/tickets" element={<Tickets />} />

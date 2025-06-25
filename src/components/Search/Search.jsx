@@ -7,6 +7,7 @@ import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import { SelectInput, TextInput } from '../forms/FormElements';
 import { useNavigate } from 'react-router-dom';
+import { toastController } from '../../utils/toastController';
 
 const Search = () => {
   const { getToken } = useAuth();
@@ -78,8 +79,15 @@ const Search = () => {
   };
 
   // Add handler for view button click with role-based navigation
-  const handleViewDetails = (userId, role) => {
+  const handleViewDetails = (userId, role, outlet) => {
     switch (role?.toLowerCase()) {
+      case 'chef':
+        if (outlet?.outlet_id) {
+          navigate(`/chef-details/${outlet.outlet_id}/${userId}`);
+        } else {
+          toastController.error("No outlet found for this chef");
+        }
+        break;
       case 'customer':
         navigate(`/edit-customer/${userId}`);
         break;
@@ -94,9 +102,6 @@ const Search = () => {
         break;
       case 'waiter':
         navigate(`/waiter-details/${userId}`);
-        break;
-      case 'chef':
-        navigate(`/chef-details/${userId}`);
         break;
       case 'super_owner':
         navigate(`/super-owner-details/${userId}`);
@@ -123,13 +128,11 @@ const Search = () => {
       )
     },
     { 
-      field: 'outlets', 
-      header: 'Outlets', 
+      field: 'outlet',
+      header: 'Outlet', 
       sortable: true,
-      render: (outlets) => (
-        Array.isArray(outlets) ? 
-          (outlets.map(outlet => outlet.outlet_name).join(', ') || '-') 
-          : '-'
+      render: (outlet) => (
+        outlet?.outlet_name || '-'
       )
     },
     {
@@ -149,7 +152,7 @@ const Search = () => {
         return (
           <div className="flex justify-center">
             <button 
-              onClick={() => handleViewDetails(row.user_id, row.role)}
+              onClick={() => handleViewDetails(row.user_id, row.role, row.outlet)}
               className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
               title="View Details"
             >
