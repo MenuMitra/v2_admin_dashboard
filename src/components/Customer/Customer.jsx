@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPlus, faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import Modal from '../common/Modal';
@@ -178,6 +178,13 @@ function Customer() {
             title="View Details"
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => navigate(`/edit-customer/${row.user_id}`)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Customer"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
           <button 
             onClick={() => handleDeleteCustomer(row.user_id)}
