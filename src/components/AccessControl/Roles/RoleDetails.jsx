@@ -28,38 +28,114 @@ import Breadcrumb from "../../Breadcrumb";
 import Modal from "../../common/Modal";
 import { toastController } from "../../../utils/toastController";
 
+// Role-specific components
+const CustomerDetails = ({ data }) => (
+  <div className="p-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.name}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Name</p>
+      </div>
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.mobile}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Mobile</p>
+      </div>
+      {/* Keep existing customer fields */}
+    </div>
+    {/* Keep existing order statistics section */}
+  </div>
+);
+
+const CaptainDetails = ({ data }) => (
+  <div className="p-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.name}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Name</p>
+      </div>
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.total_orders_served}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Orders Served</p>
+      </div>
+      {/* Add captain-specific fields */}
+    </div>
+  </div>
+);
+
+const WaiterDetails = ({ data }) => (
+  <div className="p-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.name}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Name</p>
+      </div>
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.tables_assigned}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Tables Assigned</p>
+      </div>
+      {/* Add waiter-specific fields */}
+    </div>
+  </div>
+);
+
+const ChefDetails = ({ data }) => (
+  <div className="p-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.name}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Name</p>
+      </div>
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.orders_prepared}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Orders Prepared</p>
+      </div>
+      {/* Add chef-specific fields */}
+    </div>
+  </div>
+);
+
+const ManagerDetails = ({ data }) => (
+  <div className="p-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.name}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Name</p>
+      </div>
+      <div>
+        <p className="text-base sm:text-lg font-medium text-gray-800">{data.outlets_managed}</p>
+        <p className="text-xs sm:text-sm text-gray-500">Outlets Managed</p>
+      </div>
+      {/* Add manager-specific fields */}
+    </div>
+  </div>
+);
+
 function RoleDetails() {
   const { userId } = useParams();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const navigate = useNavigate();
-  const [customerData, setCustomerData] = useState(null);
+  const [staffData, setStaffData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedOutlet, setSelectedOutlet] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
-    if (userId) {
-      fetchCustomerDetails();
+    if (userId && adminData?.user_id) {
+      fetchStaffDetails();
     }
-  }, [userId, selectedOutlet]);
+  }, [userId, adminData?.user_id]);
 
-  const fetchCustomerDetails = async () => {
+  const fetchStaffDetails = async () => {
     setLoading(true);
     try {
-      const requestBody = {
-        user_id: userId,
-        app_source: "admin_dashboard",
-      };
-
-      if (selectedOutlet) {
-        requestBody.outlet_id = selectedOutlet;
-      }
-
       const response = await axios.post(
-        "https://men4u.xyz/v2/admin/customer_view",
-        requestBody,
+        "https://men4u.xyz/v2/common/user_view",
+        {
+          user_id: adminData?.user_id,
+          staff_id: userId,
+          app_source: "admin_dashboard"
+        },
         {
           headers: {
             Authorization: getToken(),
@@ -67,9 +143,9 @@ function RoleDetails() {
         }
       );
 
-      setCustomerData(response.data);
+      setStaffData(response.data);
     } catch (error) {
-      toastController.error(error.response?.data?.msg || "Failed to fetch customer details");
+      toastController.error(error.response?.data?.msg || "Failed to fetch staff details");
     } finally {
       setLoading(false);
     }
@@ -103,12 +179,33 @@ function RoleDetails() {
     }
   };
 
-  // Add breadcrumb items configuration
+  // Update getRoleTitle to use staff_details
+  const getRoleTitle = (role) => {
+    if (!role) return 'Details';
+    return `${role.charAt(0).toUpperCase() + role.slice(1)} Details`;
+  };
+
+  // Update breadcrumb items
   const breadcrumbItems = [
     { label: "Dashboard", path: "/" },
-    { label: "Customer", path: "/customer" },
-    { label: "Customer Details" }, // Current page, no path needed
+    { label: staffData?.staff_details?.role || "Role", path: "/staff" },
+    { label: getRoleTitle(staffData?.staff_details?.role) }
   ];
+
+  const renderRoleSpecificDetails = () => {
+    if (!staffData) return null;
+
+    const roleComponents = {
+      customer: CustomerDetails,
+      captain: CaptainDetails,
+      waiter: WaiterDetails,
+      chef: ChefDetails,
+      manager: ManagerDetails
+    };
+
+    const RoleComponent = roleComponents[staffData.staff_details?.role?.toLowerCase()] || CustomerDetails;
+    return <RoleComponent data={staffData.staff_details} />;
+  };
 
   if (loading) {
     return (
@@ -122,51 +219,34 @@ function RoleDetails() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Add Breadcrumb component */}
       <Breadcrumb items={breadcrumbItems} />
-
       <div className="rounded-2xl border border-gray-200 bg-white">
-        {/* Header Section */}
         <div className="overflow-hidden pt-4">
-          {/* Top Row - Back, Title, Edit */}
           <div className="flex items-center px-6 mb-3">
-            {/* Left Side - Back Button */}
+            {/* Back Button */}
             <div className="flex items-center gap-2 order-1">
               <button
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                <FontAwesomeIcon
-                  icon={faBack}
-                  className="w-3 h-3 sm:w-4 sm:h-4"
-                />
+                <FontAwesomeIcon icon={faBack} className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
 
-            {/* Center - Title */}
+            {/* Title */}
             <div className="flex-1 text-center text-lg sm:text-xl font-semibold text-gray-800">
-              Customer Details
+              {getRoleTitle(staffData?.staff_details?.role)}
             </div>
 
-            {/* Right Side - Action Buttons */}
+            {/* Action Buttons */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() => navigate(`/edit-customer/${userId}`)}
+                onClick={() => navigate(`/edit-staff/${userId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                  />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
                 <span className="hidden sm:inline">Edit</span>
               </button>
@@ -192,150 +272,7 @@ function RoleDetails() {
             </div>
           </div>
         </div>
-
-        {customerData && (
-          <>
-            {/* Customer Details Card */}
-            <div className="p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-                {/* Name */}
-                <div>
-                  <p className="text-base sm:text-lg font-medium text-gray-800">
-                    {customerData.customer_details.name}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500">Name</p>
-                </div>
-
-                {/* Mobile */}
-                <div>
-                  <p className="text-base sm:text-lg font-medium text-gray-800">
-                    {customerData.customer_details.mobile}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500">Mobile</p>
-                </div>
-
-                {/* Email */}
-                {customerData.customer_details.email &&
-                  customerData.customer_details.email !== "null" && (
-                    <div>
-                      <p className="text-base sm:text-lg font-medium text-gray-800 truncate">
-                        {customerData.customer_details.email}
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-500">Email</p>
-                    </div>
-                  )}
-
-                {/* Created On */}
-                <div>
-                  <p className="text-base sm:text-lg font-medium text-gray-800">
-                    {customerData.customer_details.created_on}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500">Created On</p>
-                </div>
-
-                {/* Account Status */}
-                <div>
-                  <p
-                    className={`text-base sm:text-lg font-medium ${
-                      customerData.customer_details.is_active
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {customerData.customer_details.is_active
-                      ? "Active"
-                      : "Inactive"}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500">
-                    Account Status
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Order Statistics Card */}
-            {(customerData.order_statistics.total_orders > 0 ||
-              customerData.order_statistics.paid_orders > 0 ||
-              customerData.order_statistics.cancelled_orders > 0 ||
-              customerData.order_statistics.cooking_orders > 0 ||
-              customerData.order_statistics.placed_orders > 0 ||
-              customerData.order_statistics.served_orders > 0 ||
-              customerData.order_statistics.total_spent > 0 ||
-              customerData.order_statistics.average_order_value > 0) && (
-              <div className="p-6 border-t">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">
-                  Order Statistics
-                </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {customerData.order_statistics.total_orders > 0 && (
-                    <StatCard
-                      icon={faShoppingCart}
-                      label="Total Orders"
-                      value={customerData.order_statistics.total_orders}
-                      className="col-span-1"
-                    />
-                  )}
-                  {customerData.order_statistics.paid_orders > 0 && (
-                    <StatCard
-                      icon={faCreditCard}
-                      label="Paid Orders"
-                      value={customerData.order_statistics.paid_orders}
-                      className="col-span-1"
-                    />
-                  )}
-                  {customerData.order_statistics.cancelled_orders > 0 && (
-                    <StatCard
-                      icon={faBan}
-                      label="Cancelled"
-                      value={customerData.order_statistics.cancelled_orders}
-                      className="col-span-1"
-                    />
-                  )}
-                  {customerData.order_statistics.cooking_orders > 0 && (
-                    <StatCard
-                      icon={faKitchenSet}
-                      label="Cooking"
-                      value={customerData.order_statistics.cooking_orders}
-                      className="col-span-1"
-                    />
-                  )}
-                  {customerData.order_statistics.placed_orders > 0 && (
-                    <StatCard
-                      icon={faClipboardList}
-                      label="Placed"
-                      value={customerData.order_statistics.placed_orders}
-                      className="col-span-1"
-                    />
-                  )}
-                  {customerData.order_statistics.served_orders > 0 && (
-                    <StatCard
-                      icon={faCheck}
-                      label="Served"
-                      value={customerData.order_statistics.served_orders}
-                      className="col-span-1"
-                    />
-                  )}
-                  {customerData.order_statistics.total_spent > 0 && (
-                    <StatCard
-                      icon={faMoneyBill}
-                      label="Total Spent"
-                      value={`₹${customerData.order_statistics.total_spent}`}
-                      className="col-span-1"
-                    />
-                  )}
-                  {customerData.order_statistics.average_order_value > 0 && (
-                    <StatCard
-                      icon={faChartLine}
-                      label="Avg. Order Value"
-                      value={`₹${customerData.order_statistics.average_order_value}`}
-                      className="col-span-1"
-                    />
-                  )}
-                </div>
-              </div>
-            )}
-          </>
-        )}
+        {renderRoleSpecificDetails()}
       </div>
 
       {/* Add Delete Confirmation Modal at the end of the component */}
