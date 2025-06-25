@@ -287,7 +287,18 @@ function Owners() {
       header: "Mobile",
       sortable: true,
     },
-  
+    {
+      field: "outlet_count",
+      header: "Outlets",
+      sortable: true,
+      render: (value) => (
+        <div className="text-center">
+          <span className="px-2 py-1 text-sm font-medium text-gray-800 dark:text-white/90">
+            {value || 0}
+          </span>
+        </div>
+      ),
+    },
     {
       field: "is_active",
       header: "Status",
