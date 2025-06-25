@@ -227,7 +227,7 @@ function MenuDetails() {
             {/* Portions Section */}
             <div className="mt-6">
               <h3 className="text-sm font-medium text-gray-500 mb-2">Portions</h3>
-              <div className="bg-gray-50 rounded-lg p-3">
+              <div className="p-3">
                 {menu.portions.map((portion, idx) => (
                   <div key={idx} className="flex items-center justify-between py-2">
                     <div className="font-medium text-gray-800">{portion.portion_name}</div>
@@ -244,16 +244,41 @@ function MenuDetails() {
 
             {/* Status and Meta Info */}
             <div className="mt-6 pt-4 border-t border-gray-200">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <FontAwesomeIcon 
-                    icon={menu.is_active ? faCircleCheck : faCircleXmark} 
-                    className={menu.is_active ? 'text-success-500' : 'text-error-500'} 
-                  />
-                  <span>{menu.is_active ? 'Active' : 'Inactive'}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                {/* Status */}
+                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon 
+                      icon={menu.is_active ? faCircleCheck : faCircleXmark} 
+                      className={menu.is_active ? 'text-success-500' : 'text-error-500'} 
+                    />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">{menu.is_active ? 'Active' : 'Inactive'}</div>
+                    <div className="text-sm text-gray-500">Status</div>
+                  </div>
                 </div>
-                <div className="text-gray-500">
-                  Created by {menu.created_by} on {menu.created_on}
+
+                {/* Created By */}
+                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">{menu.created_by}</div>
+                    <div className="text-sm text-gray-500">Created By</div>
+                  </div>
+                </div>
+
+                {/* Created On */}
+                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faCalendarPlus} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">{menu.created_on}</div>
+                    <div className="text-sm text-gray-500">Created On</div>
+                  </div>
                 </div>
               </div>
             </div>
