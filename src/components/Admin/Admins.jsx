@@ -218,10 +218,14 @@ function Admins() {
         // Check if the admin's mobile number is in the protected list
         if (PROTECTED_MOBILES.includes(admin.mobile)) {
           return (
-            <div className="flex items-center justify-center">
-              <span className="text-sm text-gray-500 italic">
-                Protected Admin
-              </span>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => navigate(`/admin-details/${admin.user_id}`)}
+                className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+                title="View Details"
+              >
+                <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+              </button>
             </div>
           );
         }
