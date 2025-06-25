@@ -14,7 +14,8 @@ import {
   faChevronLeft,
   faFire,
   faPercent,
-  faList
+  faList,
+  faStar
 } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../../common/Modal';
 
@@ -151,11 +152,33 @@ function MenuDetails() {
             </h2>
           </div>
 
+          {/* Images Section - New Addition */}
+          {menu.images && menu.images.length > 0 && (
+            <div className="mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                {menu.images.map((img, index) => (
+                  <div 
+                    key={img.image_id} 
+                    className="relative aspect-square rounded-lg overflow-hidden bg-gray-100"
+                  >
+                    <img
+                      src={img.image}
+                      alt={`${menu.name} - Image ${index + 1}`}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = 'path/to/fallback/image.jpg'; // Add a fallback image path
+                        e.target.onerror = null;
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Grid Layout */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-            
-
-            {/* Add Food Type after Menu ID */}
+            {/* Food Type */}
             <div className="flex items-center p-3 rounded-lg bg-gray-50">
               <div className="w-8 h-8 flex items-center justify-center">
                 <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
@@ -165,6 +188,22 @@ function MenuDetails() {
                   {menu.food_type?.toUpperCase()}
                 </div>
                 <div className="text-sm text-gray-500">Food Type</div>
+              </div>
+            </div>
+
+            {/* Special Badge - New Addition */}
+            <div className="flex items-center p-3 rounded-lg bg-gray-50">
+              <div className="w-8 h-8 flex items-center justify-center">
+                <FontAwesomeIcon 
+                  icon={faStar} 
+                  className={`w-5 h-5 ${menu.is_special ? 'text-yellow-500' : 'text-gray-400'}`} 
+                />
+              </div>
+              <div className="ml-3">
+                <div className={`text-base font-medium ${menu.is_special ? 'text-yellow-700' : 'text-gray-700'}`}>
+                  {menu.is_special ? 'Special Item' : 'Regular Item'}
+                </div>
+                <div className="text-sm text-gray-500">Menu Type</div>
               </div>
             </div>
 
