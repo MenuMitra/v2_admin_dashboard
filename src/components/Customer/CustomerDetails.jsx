@@ -60,9 +60,10 @@ function CustomerDetails() {
     try {
       // First API call to get customer details
       const customerResponse = await axios.post(
-        "https://men4u.xyz/v2/admin/view_customer",
+        "https://men4u.xyz/v2/admin/customer_view",
         {
           user_id: Number(customerId), // Using customerId from URL params
+          app_source: "admin_dashboard",
         },
         {
           headers: {

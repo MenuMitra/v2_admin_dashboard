@@ -173,7 +173,7 @@ function Customer() {
       render: (_, row) => (
         <div className="flex gap-2">
           <button 
-            onClick={() => navigate(`/role-details/${row.user_id}`)}
+            onClick={() => navigate(`/customer-details/${row.user_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
             title="View Details"
           >
