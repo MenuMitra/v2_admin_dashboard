@@ -72,18 +72,14 @@ function EditCustomer() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.put(
-        "https://men4u.xyz/v2/admin/customer_update",
+      await axios.patch(
+        "https://men4u.xyz/v2/common/update_active_status",
         {
           user_id: adminData?.user_id,
-          customer_id: customerId,
-          app_source: "admin_dashboard",
-          name: formData.name,
-          mobile: formData.mobile,
-          email: formData.email || null,
-          role: formData.role,
-          address: formData.address || null,
+          type: "customer",
+          id: Number(customerId),
           is_active: formData.is_active ? 1 : 0,
+          app_source: "admin_dashboard"
         },
         {
           headers: {
@@ -91,11 +87,11 @@ function EditCustomer() {
           },
         }
       );
-      toastController.success("Customer updated successfully");
+      toastController.success("Customer status updated successfully");
       navigate(-1);
     } catch (error) {
       toastController.error(
-        error.response?.data?.msg || "Failed to update customer"
+        error.response?.data?.msg || "Failed to update customer status"
       );
     } finally {
       setLoading(false);
