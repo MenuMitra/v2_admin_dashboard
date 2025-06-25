@@ -227,15 +227,20 @@ function MenuDetails() {
             {/* Portions Section */}
             <div className="mt-6">
               <h3 className="text-sm font-medium text-gray-500 mb-2">Portions</h3>
-              <div className="p-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 {menu.portions.map((portion, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-2">
-                    <div className="font-medium text-gray-800">{portion.portion_name}</div>
-                    <div>
-                      <span className="text-brand-500 font-medium mr-4">₹{portion.price}</span>
-                      <span className="text-sm text-gray-500">
-                        {portion.unit_value} {portion.unit_type}
-                      </span>
+                  <div key={idx} className="flex items-center p-3">
+                    <div className="w-8 h-8 flex items-center justify-center">
+                      <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <div className="ml-3">
+                      <div className="text-base font-medium">{portion.portion_name}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-brand-500 font-medium">₹{portion.price}</span>
+                        <span className="text-sm text-gray-500">
+                          {portion.unit_value} {portion.unit_type}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 ))}
