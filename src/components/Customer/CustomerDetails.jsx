@@ -169,48 +169,36 @@ function CustomerDetails() {
     return (
       <div className="p-6 border-t">
         <h2 className="text-xl font-medium mb-6 text-gray-800">Order Statistics</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
           {/* Total Orders */}
-          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="text-base font-medium text-gray-800">
-                {customerData?.order_statistics?.total_orders}
-              </p>
-              <FontAwesomeIcon icon={faShoppingCart} className="w-4 h-4 text-brand-500" />
-            </div>
+          <div>
+            <p className="text-base font-medium text-gray-800">
+              {customerData?.order_statistics?.total_orders}
+            </p>
             <span className="text-sm text-gray-500">Total Orders</span>
           </div>
 
           {/* Paid Orders */}
-          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="text-base font-medium text-gray-800">
-                {customerData?.order_statistics?.paid_orders}
-              </p>
-              <FontAwesomeIcon icon={faCreditCard} className="w-4 h-4 text-brand-500" />
-            </div>
+          <div>
+            <p className="text-base font-medium text-gray-800">
+              {customerData?.order_statistics?.paid_orders}
+            </p>
             <span className="text-sm text-gray-500">Paid Orders</span>
           </div>
 
           {/* Total Spent */}
-          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="text-base font-medium text-gray-800">
-                ₹{customerData?.order_statistics?.total_spent}
-              </p>
-              <FontAwesomeIcon icon={faMoneyBill} className="w-4 h-4 text-brand-500" />
-            </div>
+          <div>
+            <p className="text-base font-medium text-gray-800">
+              ₹{customerData?.order_statistics?.total_spent}
+            </p>
             <span className="text-sm text-gray-500">Total Spent</span>
           </div>
 
           {/* Average Order Value */}
-          <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="text-base font-medium text-gray-800">
-                ₹{customerData?.order_statistics?.average_order_value}
-              </p>
-              <FontAwesomeIcon icon={faChartLine} className="w-4 h-4 text-brand-500" />
-            </div>
+          <div>
+            <p className="text-base font-medium text-gray-800">
+              ₹{customerData?.order_statistics?.average_order_value}
+            </p>
             <span className="text-sm text-gray-500">Avg. Order Value</span>
           </div>
         </div>
