@@ -416,8 +416,8 @@ const Sidebar = ({ sidebarToggle = false }) => {
       {/* Sidebar Header */}
       <div
         className={`
-          hidden lg:flex items-center gap-2 pt-8 pb-7 px-5
-          ${sidebarToggle ? 'justify-center' : 'justify-between'}
+          hidden lg:flex items-center justify-center gap-2 pt-8 pb-7 px-5
+          ${sidebarToggle ? 'justify-center' : 'justify-center'}
         `}
       >
         <div className="flex items-center gap-2">
