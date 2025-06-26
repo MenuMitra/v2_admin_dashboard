@@ -238,6 +238,33 @@ function ViewOutlet() {
                 </div>
               </div>
             </Link>
+
+            {/* Managers Navigation Card */}
+            <Link 
+              to={`/managers/${outletId}`}
+              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                    <FontAwesomeIcon
+                      icon={faUserGear}
+                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Manage
+                    </span>
+                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                      Managers
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">

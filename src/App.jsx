@@ -52,6 +52,8 @@ import EditManager from './components/AccessControl/Roles/Manager/EditManager';
 import EditWaiter from './components/AccessControl/Roles/Waiter/EditWaiter';
 import EditCaptain from './components/AccessControl/Roles/Captain/EditCaptain';
 import CaptainDetails from './components/AccessControl/Roles/Captain/CaptainDetails';
+import CreateManager from './components/AccessControl/Roles/Manager/CreateManager';
+import Managers from './components/AccessControl/Roles/Manager/Managers';
 
 function App() {
 
@@ -111,6 +113,8 @@ function App() {
                   <Route path="/edit-chef/:outletId/:userId" element={<EditChef />} />
 
                   {/* Manager Routes*/}
+                  <Route path="/managers/:outletId" element={<Managers />} />
+                  <Route path="/create-manager/:outletId" element={<CreateManager />} />
                   <Route path="/manager-details/:outletId/:userId" element={<ManagerDetails />} />
                   <Route path="/edit-manager/:outletId/:userId" element={<EditManager />} />
 
