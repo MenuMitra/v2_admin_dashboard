@@ -32,6 +32,7 @@ import {
   faUsers,
   faChevronUp,
   faChevronRight,
+  faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -46,6 +47,8 @@ function ViewOutlet() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const fetchOutletDetails = async () => {
     try {
@@ -133,6 +136,12 @@ function ViewOutlet() {
     navigate(`/owner-details/${ownerId}`);
   };
 
+  const handleBulkUpload = () => {
+    console.log("Selected file:", selectedFile);
+    setShowBulkUploadModal(false);
+    setSelectedFile(null);
+  };
+
   return (
     <>
       {/* Breadcrumb - Moved outside the card */}
@@ -189,6 +198,13 @@ function ViewOutlet() {
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Menu Management
             </h2>
+            <button
+              onClick={() => setShowBulkUploadModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+            >
+              <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
+              <span>Bulk Upload</span>
+            </button>
           </div>
           {/* Stats and Navigation Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
@@ -870,6 +886,59 @@ function ViewOutlet() {
           Are you sure you want to delete this outlet? This action cannot be
           undone.
         </p>
+      </Modal>
+
+      {/* Bulk Upload Modal */}
+      <Modal
+        isOpen={showBulkUploadModal}
+        onClose={() => {
+          setShowBulkUploadModal(false);
+          setSelectedFile(null);
+        }}
+        title="Bulk Upload"
+        type="default"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              onClick={() => {
+                setShowBulkUploadModal(false);
+                setSelectedFile(null);
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-gray-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleBulkUpload}
+              disabled={!selectedFile}
+              className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition ${
+                selectedFile
+                  ? "bg-brand-500 hover:bg-brand-600"
+                  : "bg-gray-300 cursor-not-allowed"
+              }`}
+            >
+              Upload
+            </button>
+          </>
+        }
+      >
+        <div className="p-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              Upload file
+            </label>
+            <input
+              type="file"
+              onChange={(e) => setSelectedFile(e.target.files[0])}
+              className="focus:border-ring-brand-300 shadow-theme-xs focus:file:ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pr-3 file:pl-3.5 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
+            />
+          </div>
+          <div className="mt-4 text-sm text-gray-500">
+            <p>Supported file types: .csv</p>
+            <p>Maximum file size: 5MB</p>
+          </div>
+        </div>
       </Modal>
     </>
   );
