@@ -19,35 +19,11 @@ function Roles() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  // Add this breadcrumb items configuration
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Access Control', path: '/dashboard' },
     { label: 'Roles', path: '/roles' }
   ];
-
-  // Process roles data to group by role
-  const processRolesData = (data) => {
-    const roleMap = data.reduce((acc, item) => {
-      if (!acc[item.role_name]) {
-        acc[item.role_name] = {
-          role_id: item.role_id,
-          role_name: item.role_name,
-          functionalities: [],
-        };
-      }
-      acc[item.role_name].functionalities.push({
-        id: item.functionality_id,
-        name: item.functionality_name
-      });
-      return acc;
-    }, {});
-    return Object.values(roleMap);
-  };
-
-  useEffect(() => {
-    fetchRoles();
-  }, []);
 
   const fetchRoles = async () => {
     try {
@@ -60,7 +36,7 @@ function Roles() {
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/admin/get_ubac_role_functionality_mappings',
+        'https://men4u.xyz/v2/common/list_roles',
         {
           headers: {
             Authorization: token,
@@ -69,8 +45,8 @@ function Roles() {
         }
       );
 
-      const processedRoles = processRolesData(response.data);
-      setRoles(processedRoles);
+      // Since the API returns an array directly, we can use it as is
+      setRoles(response.data);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to fetch roles');
       console.error('Error fetching roles:', err);
@@ -78,6 +54,10 @@ function Roles() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
 
   const handleCreateRole = async () => {
     try {
@@ -98,8 +78,7 @@ function Roles() {
         }
       );
 
-      // Refresh the roles list
-      await fetchRoles();
+      await fetchRoles(); // Refresh the roles list
       setIsModalOpen(false);
       setNewRoleName('');
     } catch (err) {
@@ -116,23 +95,22 @@ function Roles() {
       field: 'role_name',
       header: 'Role',
       sortable: true,
+      headerClassName: "text-center",
       render: (value) => (
-        <span className="font-medium text-gray-900 capitalize">{value}</span>
+        <div className="flex items-center justify-center">
+          <span className="font-medium text-gray-900 capitalize">
+            {value}
+          </span>
+        </div>
       )
-    },
-    {
-      field: 'functionalities',
-      header: 'Functionalities',
-      sortable: true,
-      render: (functionalities) => `${functionalities.length} assigned`
     },
     {
       field: 'actions',
       header: 'Actions',
       sortable: false,
+      headerClassName: "text-center",
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
-          {/* Updated to use roleId in the URL */}
           <button
             onClick={() => navigate(`/add-role-assign-functionalities/${row.role_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-success-500 hover:bg-success-600 rounded-lg shadow-theme-xs transition"
@@ -141,7 +119,6 @@ function Roles() {
             <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
           </button>
           
-          {/* Update Button */}
           <button
             onClick={() => navigate(`/edit-role/${row.role_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
@@ -164,7 +141,6 @@ function Roles() {
 
   return (
     <>
-      {/* Replace the manual breadcrumb with */}
       <Breadcrumb items={breadcrumbItems} />
 
       {error && (
@@ -197,9 +173,9 @@ function Roles() {
         }}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
-        searchPlaceholder="Search"
+        searchPlaceholder="Search roles"
         enableSort={true}
-        enablePagination={false}
+        enablePagination={true}
         enableSearch={true}
         itemsPerPage={10}
       />
@@ -234,7 +210,6 @@ function Roles() {
           </div>
 
           <div className="flex justify-end items-center gap-3">
-            
             <button
               onClick={handleCreateRole}
               disabled={!newRoleName.trim() || isSubmitting}
