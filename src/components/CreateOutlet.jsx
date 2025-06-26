@@ -73,8 +73,6 @@ function CreateOutlet() {
     food_type: false,
     outlet_mode: false,
     address: false,
-    service_charges: false,
-    gst: false,
     fssainumber: false
   });
 
@@ -252,18 +250,15 @@ function CreateOutlet() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation checks remain the same
     setValidationStates({
-      owner: formData.owner_id.length === 0,
-      name: !isNameValid(formData.name),
-      mobile: !isMobileValid(formData.mobile),
-      upi: !isUpiValid(formData.upi_id),
-      outlet_type: !formData.outlet_type,
-      food_type: !formData.veg_nonveg,
-      outlet_mode: !formData.outlet_mode,
-      address: !isAddressValid(formData.address),
-      service_charges: !formData.service_charges,
-      gst: !formData.gst,
+        owner: formData.owner_id.length === 0,
+        name: !isNameValid(formData.name),
+        mobile: !isMobileValid(formData.mobile),
+        upi: !isUpiValid(formData.upi_id),
+        outlet_type: !formData.outlet_type,
+        food_type: !formData.veg_nonveg,
+        outlet_mode: !formData.outlet_mode,
+        address: !isAddressValid(formData.address),
     });
 
     if (formData.owner_id.length === 0 || 
@@ -273,10 +268,8 @@ function CreateOutlet() {
         !formData.outlet_type ||
         !formData.veg_nonveg ||
         !formData.outlet_mode ||
-        !isAddressValid(formData.address) ||
-        !formData.service_charges ||
-        !formData.gst) {
-      return;
+        !isAddressValid(formData.address)) {
+        return;
     }
     
     try {
@@ -298,8 +291,6 @@ function CreateOutlet() {
         outlet_type: formData.outlet_type,
         outlet_mode: formData.outlet_mode,
         veg_nonveg: formData.veg_nonveg,
-        service_charges: formData.service_charges,
-        gst: formData.gst,
         upi_id: formData.upi_id,
       };
 
@@ -780,17 +771,8 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                   onFocus={() => handleFocus('service_charges')}
                   placeholder="Enter Service Charges"
-                  required
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.service_charges ? 'border-error-500' : 'border-gray-300'}
-                  `}
+                  className="focus:border-brand-500 focus:ring-brand-500 border-gray-300"
                 />
-                {validationStates.service_charges && (
-                  <p className="text-error-500 text-sm mt-1">
-                    Service Charges is required
-                  </p>
-                )}
               </div>
 
               <div className="relative">
@@ -802,17 +784,8 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                   onFocus={() => handleFocus('gst')}
                   placeholder="Enter GST"
-                  required
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.gst ? 'border-error-500' : 'border-gray-300'}
-                  `}
+                  className="focus:border-brand-500 focus:ring-brand-500 border-gray-300"
                 />
-                {validationStates.gst && (
-                  <p className="text-error-500 text-sm mt-1">
-                    GST is required
-                  </p>
-                )}
               </div>
 
               <TimePickerInput
@@ -820,7 +793,6 @@ function CreateOutlet() {
                 name="opening_time"
                 value={formData.opening_time}
                 onChange={handleInputChange}
-                // required
                 placeholder="Select opening time"
               />
 
@@ -829,7 +801,6 @@ function CreateOutlet() {
                 name="closing_time"
                 value={formData.closing_time}
                 onChange={handleInputChange}
-                // required
                 placeholder="Select closing time"
               />
 
