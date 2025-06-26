@@ -335,7 +335,9 @@ function Outlets() {
       outletStatus: outlet.outlet_status,
       image: [{}],
       accountType: outlet.account_type,
-      ownerName: outlet.owner_name,
+      ownerCount: outlet.owner_count,
+
+
     }));
   };
 
@@ -560,17 +562,12 @@ function Outlets() {
               to={`/owner/${row.owner_id}`}
               className="font-medium text-gray-800 text-theme-sm dark:text-white/90"
             >
-              {row?.ownerName || "-"}
+              {row?.ownerCount || "-"}
             </Link>
           ) : (
             <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-              {row?.ownerName || "-"}
+              {row?.ownerCount || "-"}
             </p>
-          )}
-          {row?.ownerName && (
-            <span className="inline-flex items-center justify-center gap-1 rounded-full bg-brand-50 px-2.5 py-0.5 text-sm font-medium text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
-              P
-            </span>
           )}
         </div>
       ),
