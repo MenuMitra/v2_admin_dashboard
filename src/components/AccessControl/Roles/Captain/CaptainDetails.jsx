@@ -11,6 +11,8 @@ import {
   faTrash as faDelete
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
+import Modal from "../../../common/Modal";
+import { toastController } from "../../../../utils/toastController";
 
 function CaptainDetails() {
   const { outletId, userId } = useParams();
@@ -52,26 +54,28 @@ function CaptainDetails() {
   };
 
   const handleDelete = async () => {
-    setLoading(true);
     try {
-      await axios.post(
-        "https://men4u.xyz/v2/admin/captain_delete",
-        {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      await axios.delete("https://men4u.xyz/v2/common/captain_delete", {
+        data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
-          outlet_id: Number(outletId)
+          outlet_id: Number(outletId),
+          app_source: "admin_dashboard"
         },
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-        }
-      );
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json"
+        },
+      });
+      toastController.success("Captain deleted successfully");
       navigate(-1);
     } catch (err) {
-      setError(err.response?.data?.msg || "Failed to delete captain");
-    } finally {
-      setLoading(false);
+      toastController.error(err.response?.data?.msg || "Failed to delete captain");
     }
   };
 
@@ -251,31 +255,45 @@ function CaptainDetails() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Delete Captain</h3>
-            <p className="text-gray-500 mb-6">Are you sure you want to delete this captain? This action cannot be undone.</p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  handleDelete();
-                  setShowDeleteModal(false);
-                }}
-                className="px-4 py-2 text-sm font-medium text-white bg-error-600 rounded-lg hover:bg-error-700"
-              >
-                Delete
-              </button>
-            </div>
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        type="error"
+        title="Confirm Deletion"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowDeleteModal(false)}
+              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                handleDelete();
+                setShowDeleteModal(false);
+              }}
+              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+            >
+              Delete Captain
+            </button>
+          </>
+        }
+      >
+        <div className="flex items-start">
+          <div className="ml-4">
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete this captain? This action cannot be undone.
+            </p>
+            <p className="text-sm text-gray-500">
+              All data associated with this captain will be permanently removed.
+            </p>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }
