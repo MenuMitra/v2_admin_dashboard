@@ -73,7 +73,7 @@ function WaiterDetails() {
         },
       });
       toastController.success("Waiter deleted successfully");
-      navigate(-1);
+      navigate(`/view-outlet/${outletId}`);
     } catch (err) {
       toastController.error(err.response?.data?.msg || "Failed to delete waiter");
     }
