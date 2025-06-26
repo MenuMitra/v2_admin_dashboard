@@ -75,12 +75,16 @@ const menuData = {
       icon: faStore,
     },
     {
-      title: "Access Control",
-      icon: faLock,
-      items: [
-        { name: "Roles", path: "/roles", icon: faUserShield },
-        { name: "Functionalities", path: "/functionalities",  icon: faList },
-      ],
+      title: "Roles",
+      path: "/roles",
+      id: "roles",
+      icon: faUserShield,
+    },
+    {
+      title: "Functionalities",
+      path: "/functionalities",
+      id: "functionalities",
+      icon: faList,
     },
     {
       title: "Search",
@@ -261,24 +265,32 @@ const Sidebar = ({ sidebarToggle = false }) => {
             )}
           </Link>
         ) : (
-          // Access Control section is always expanded
           <>
-            <div className="menu-item group">
+            <Link
+              to={item.path}
+              className={`
+                flex items-center gap-3 rounded-md px-4 py-2.5
+                hover:bg-gray-100 dark:hover:bg-gray-800
+                ${isActive ? 'bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-brand-400' : ''}
+                transition-all duration-300
+              `}
+            >
               <FontAwesomeIcon
                 icon={item.icon}
-                className={`menu-item-icon ${
-                  isActive ? "menu-item-icon-active" : "menu-item-icon-inactive"
-                }`}
+                className={`w-5 h-5 ${isActive ? 'text-brand-600 dark:text-brand-400' : ''}`}
               />
-
-              <span
-                className={`menu-item-text ${sidebarToggle ? "lg:hidden" : ""}`}
-              >
+              <span className={`whitespace-nowrap ${sidebarToggle ? 'lg:hidden' : ''}`}>
                 {item.title}
               </span>
-            </div>
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                className={`ml-auto transition-transform duration-300 ${
+                  isActive ? 'rotate-180' : ''
+                } ${sidebarToggle ? 'lg:hidden' : ''}`}
+              />
+            </Link>
 
-            <div className="block">
+            <div className={`block ${isActive ? '' : 'hidden'}`}>
               <ul
                 className={`menu-dropdown mt-2 flex flex-col gap-1 pl-9 ${
                   sidebarToggle ? "lg:hidden" : "flex"
