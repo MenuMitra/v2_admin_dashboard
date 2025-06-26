@@ -43,15 +43,15 @@ import CreateCategory from './components/Outlets/Category/CreateCategory';
 import CreateMenu from './components/Outlets/Menu/CreateMenu';
 import { ToastProvider } from './components/common/ToastProvider';
 import RoleDetails from './components/AccessControl/Roles/RoleDetails';
-import CaptainDetails from './components/AccessControl/Roles/CaptainDetails';
-import ManagerDetails from './components/AccessControl/Roles/ManagerDetails';
-import WaiterDetails from './components/AccessControl/Roles/WaiterDetails'
+import ManagerDetails from './components/AccessControl/Roles/Manager/ManagerDetails';
+import WaiterDetails from './components/AccessControl/Roles/Waiter/WaiterDetails';
 import EditCustomer from './components/Customer/EditCustomer';
 import ChefDetails from './components/AccessControl/Roles/Chef/ChefDetails';
 import EditChef from './components/AccessControl/Roles/Chef/EditChef';
 import EditManager from './components/AccessControl/Roles/Manager/EditManager';
 import EditWaiter from './components/AccessControl/Roles/Waiter/EditWaiter';
 import EditCaptain from './components/AccessControl/Roles/Captain/EditCaptain';
+import CaptainDetails from './components/AccessControl/Roles/Captain/CaptainDetails';
 
 function App() {
 
