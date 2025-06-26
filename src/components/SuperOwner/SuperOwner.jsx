@@ -280,6 +280,19 @@ function SuperOwner() {
       ),
     },
     {
+      field: "outlet_ids",
+      header: "Outlets",
+      sortable: true,
+      headerClassName: "text-center",
+      render: (value) => (
+        <div className="flex items-center justify-center">
+          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            {Array.isArray(value) ? value.length : 0}
+          </span>
+        </div>
+      ),
+    },
+    {
       field: "email",
       header: "Email",
       sortable: true,
