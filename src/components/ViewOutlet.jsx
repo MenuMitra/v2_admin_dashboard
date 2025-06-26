@@ -250,10 +250,15 @@ function ViewOutlet() {
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {/* Manager Card */}
-              <Link
+              <a
+                href="#"
+                class="block max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700"
+              >
+               {/* Manager Card */}
+              
+              <button type="button" class="text-white bg-brand-500 hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-brand-600 dark:hover:bg-brand-700 dark:focus:ring-brand-800"><Link
                 to={`/managers/${outletId}`}
-                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+                
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -264,16 +269,16 @@ function ViewOutlet() {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        Staff
-                      </span>
                       <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
                         Managers
                       </span>
                     </div>
                   </div>
                 </div>
-              </Link>
+              </Link></button>
+              </a>
+
+              
 
               {/* Chef Card */}
               <Link
