@@ -941,10 +941,9 @@ function ViewOutlet() {
                 setShowBulkUploadModal(false);
                 setSelectedFile(null);
               }}
-              className="inline-flex items-center gap-2 rounded-full bg-gray-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-600" 
+              className="inline-flex items-center gap-2 rounded-full border border-gray-300  text-black px-6 py-3 text-sm font-semibold transition hover:bg-gray-600" 
             >
-              <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
-              Back
+              Cancel
             </button>
             <button
               onClick={handleBulkUpload}
@@ -961,7 +960,7 @@ function ViewOutlet() {
           </div>
         }
       >
-        <div className="p-4">
+        <div className="pl-0">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 text-left">
               Upload file
