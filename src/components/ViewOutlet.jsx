@@ -950,8 +950,8 @@ function ViewOutlet() {
               disabled={!selectedFile}
               className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition ${
                 selectedFile
-                  ? "bg-brand-500 hover:bg-brand-600"
-                  : "bg-gray-300 cursor-not-allowed"
+                  ? "bg-success-500 hover:bg-success-600"
+                  : "bg-success-500 opacity-50 cursor-not-allowed"
               }`}
             >
               <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
