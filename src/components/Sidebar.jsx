@@ -410,7 +410,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
       >
           <div className="flex items-center gap-2">
             <img className="w-10" src={logo} alt="Logo" />
-            <span className={`text-2xl font-bold text-gray-900 dark:text-white ${sidebarToggle ? "lg:hidden" : ""}`}>Admin</span>
+            <span className={`text-2xl font-semibold text-gray-900 dark:text-white ${sidebarToggle ? "lg:hidden" : ""}`}>ADMIN</span>
           </div>
 
       </div>
