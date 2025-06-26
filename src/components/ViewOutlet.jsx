@@ -931,19 +931,20 @@ function ViewOutlet() {
           setShowBulkUploadModal(false);
           setSelectedFile(null);
         }}
-        title="Bulk Upload Menu Items"
+        title="Bulk Upload"
         type="default"
         size="small"
         actionButtons={
-          <>
+          <div className="flex items-center justify-between w-full">
             <button
               onClick={() => {
                 setShowBulkUploadModal(false);
                 setSelectedFile(null);
               }}
-              className="inline-flex items-center gap-2 rounded-full bg-gray-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-600"
+              className="inline-flex items-center gap-2 rounded-full bg-gray-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-600" 
             >
-              Cancel
+              <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+              Back
             </button>
             <button
               onClick={handleBulkUpload}
@@ -957,7 +958,7 @@ function ViewOutlet() {
               <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
               Upload
             </button>
-          </>
+          </div>
         }
       >
         <div className="p-4">
