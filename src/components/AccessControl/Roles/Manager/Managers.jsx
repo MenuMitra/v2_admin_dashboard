@@ -71,10 +71,11 @@ function Managers() {
 
   const handleDeleteManager = async () => {
     try {
-      await axios.delete("https://men4u.xyz/v2/common/delete_manager", {
+      await axios.delete("https://men4u.xyz/v2/common/manager_delete", {
         data: {
-          user_id: managerToDelete,
+          update_user_id: adminData.user_id,
           outlet_id: outletId,
+          user_id: managerToDelete.toString(),
         },
         headers: {
           Authorization: getToken(),
