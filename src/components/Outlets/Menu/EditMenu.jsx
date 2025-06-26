@@ -227,20 +227,6 @@ function EditMenu() {
 
     try {
       const token = getToken();
-      const formData = new FormData();
-
-      // Append all required fields
-      formData.append('menu_id', menuId);
-      formData.append('outlet_id', outletId);
-      formData.append('menu_cat_id', menuCatId);
-      formData.append('user_id', adminData?.user_id);
-      formData.append('name', name.trim());
-      formData.append('food_type', foodType);
-      formData.append('description', description.trim());
-      formData.append('spicy_index', spicyIndex);
-      formData.append('ingredients', ingredients.trim());
-      formData.append('offer', offer || '0');
-      formData.append('app_source', 'admin_dashboard');
 
       // Format portion data
       const validPortionData = portionData.map((portion, index) => ({
@@ -251,32 +237,33 @@ function EditMenu() {
         flag: index === 0 ? 1 : 0
       }));
 
-      formData.append('portion_data', JSON.stringify(validPortionData));
-
-      // Temporarily skip image handling
-      // menuImages.forEach((image) => {
-      //   formData.append('images', image);
-      // });
-
-      // Add console logs to help debug
-      console.log('Sending update request with data:', {
-        menu_id: menuId,
-        outlet_id: outletId,
-        menu_cat_id: menuCatId,
+      // Create JSON payload instead of FormData
+      const jsonPayload = {
+        menu_id: Number(menuId),
+        outlet_id: Number(outletId),
+        menu_cat_id: Number(menuCatId),
         user_id: adminData?.user_id,
         name: name.trim(),
         food_type: foodType,
+        description: description.trim(),
+        spicy_index: spicyIndex ? spicyIndex.toString() : null,
+        ingredients: ingredients.trim(),
+        offer: offer ? Number(offer) : 0,
+        app_source: 'admin_dashboard',
         portion_data: validPortionData
-      });
+      };
 
-      // Make PUT request to update menu
+      // Add console logs to help debug
+      console.log('Sending update request with data:', jsonPayload);
+
+      // Make PUT request to update menu with JSON
       const response = await axios.put(
         'https://men4u.xyz/v2/common/menu_update',
-        formData,
+        jsonPayload,
         {
           headers: {
             Authorization: `${token}`,
-            'Content-Type': 'multipart/form-data',
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -284,7 +271,7 @@ function EditMenu() {
       setSuccessMsg(response.data.detail || 'Menu updated successfully');
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      console.error('Update error:', err); // Add detailed error logging
+      console.error('Update error:', err);
       setError(
         err.response?.data?.message ||
         err.response?.data?.detail ||
