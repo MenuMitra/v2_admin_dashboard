@@ -95,10 +95,18 @@ const Search = () => {
         navigate(`/owner-details/${userId}`);
         break;
       case 'captain':
-        navigate(`/captain-details/${userId}`);
+        if (outlet?.outlet_id) {
+          navigate(`/captain-details/${outlet?.outlet_id}/${userId}`);
+        } else {
+          toastController.error("No outlet found for this captain");
+        }
         break;
       case 'manager':
-        navigate(`/manager-details/${outlet?.outlet_id}/${userId}`);
+        if (outlet?.outlet_id) {
+          navigate(`/manager-details/${outlet?.outlet_id}/${userId}`);
+        } else {
+          toastController.error("No outlet found for this manager");
+        }
         break;
       case 'waiter':
         navigate(`/waiter-details/${userId}`);
