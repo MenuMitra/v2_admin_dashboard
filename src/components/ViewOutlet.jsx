@@ -264,6 +264,81 @@ function ViewOutlet() {
               </div>
             </Link>
 
+            {/* Captain Navigation Card */}
+            <Link 
+              to={`/captains/${outletId}`}
+              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                    <FontAwesomeIcon
+                      icon={faUserPen}
+                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Manage
+                    </span>
+                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                      Captains
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Waiter Navigation Card */}
+            <Link 
+              to={`/waiters/${outletId}`}
+              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                    <FontAwesomeIcon
+                      icon={faUsers}
+                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Manage
+                    </span>
+                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                      Waiters
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
+            {/* Chef Navigation Card */}
+            <Link 
+              to={`/chefs/${outletId}`}
+              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                    <FontAwesomeIcon
+                      icon={faUtensils}
+                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      Manage
+                    </span>
+                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                      Chefs
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
             
           </div>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
