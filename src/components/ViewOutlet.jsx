@@ -187,9 +187,7 @@ function ViewOutlet() {
         <div className="p-6">
           {/* Stats and Navigation Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-           
-
-            {/* Categories Navigation Card */}
+            {/* Categories and Menus Cards */}
             <Link 
               to={`/categories/${outletId}`}
               className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
@@ -214,7 +212,6 @@ function ViewOutlet() {
               </div>
             </Link>
 
-            {/* Menus Navigation Card */}
             <Link 
               to={`/menus/${outletId}`}
               className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
@@ -238,147 +235,155 @@ function ViewOutlet() {
                 </div>
               </div>
             </Link>
-
-            {/* Managers Navigation Card */}
-            <Link 
-              to={`/managers/${outletId}`}
-              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                    <FontAwesomeIcon
-                      icon={faUserGear}
-                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Manage
-                    </span>
-                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                      Managers
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Captain Navigation Card */}
-            <Link 
-              to={`/captains/${outletId}`}
-              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                    <FontAwesomeIcon
-                      icon={faUserPen}
-                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Manage
-                    </span>
-                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                      Captains
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Waiter Navigation Card */}
-            <Link 
-              to={`/waiters/${outletId}`}
-              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                    <FontAwesomeIcon
-                      icon={faUsers}
-                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Manage
-                    </span>
-                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                      Waiters
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            {/* Chef Navigation Card */}
-            <Link 
-              to={`/chefs/${outletId}`}
-              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                    <FontAwesomeIcon
-                      icon={faUtensils}
-                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Manage
-                    </span>
-                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                      Chefs
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-            Outlet Owners
-            </h2>
-          </div>
-          
-            {/* Outlet Owners */}
-            <div className="col-span-full">
-              <div className="flex items-center justify-between pb-5">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {outletData?.owners?.map((owner, index) => (
-                        <div
-                          key={owner.owner_id}
-                          onClick={() => handleOwnerClick(owner.owner_id)}
-                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm cursor-pointer
-                            ${owner.is_primary 
-                              ? 'bg-brand-100 text-brand-700 border border-brand-200 hover:bg-brand-200'
-                              : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
-                            }
-                            transition-all duration-200
-                          `}
-                        >
-                          <span>{owner.owner_name}</span>
-                          {owner.is_primary && (
-                            <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-brand-500 text-white rounded-full">
-                              P
-                            </span>
-                          )}
-                        </div>
-                      ))}
+
+          {/* Staff Management Section */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                Staff Management
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+              {/* Manager Card */}
+              <Link 
+                to={`/managers/${outletId}`}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                      <FontAwesomeIcon
+                        icon={faUserGear}
+                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                      />
                     </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Staff
+                      </span>
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                        Managers
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Chef Card */}
+              <Link 
+                to={`/chefs/${outletId}`}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                      <FontAwesomeIcon
+                        icon={faBowlFood}
+                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Staff
+                      </span>
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                        Chefs
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Captain Card */}
+              <Link 
+                to={`/captains/${outletId}`}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                      <FontAwesomeIcon
+                        icon={faUserPen}
+                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Staff
+                      </span>
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                        Captains
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Waiter Card */}
+              <Link 
+                to={`/waiters/${outletId}`}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                      <FontAwesomeIcon
+                        icon={faUsers}
+                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Staff
+                      </span>
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                        Waiters
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </div>
+
+          {/* Outlet Owners Section */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                Outlet Owners
+              </h2>
+            </div>
+            <div className="flex items-center justify-between pb-5">
+              <div className="flex items-center gap-3">
+                <div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {outletData?.owners?.map((owner, index) => (
+                      <div
+                        key={owner.owner_id}
+                        onClick={() => handleOwnerClick(owner.owner_id)}
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm cursor-pointer
+                          ${owner.is_primary 
+                            ? 'bg-brand-100 text-brand-700 border border-brand-200 hover:bg-brand-200'
+                            : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
+                          }
+                          transition-all duration-200
+                        `}
+                      >
+                        <span>{owner.owner_name}</span>
+                        {owner.is_primary && (
+                          <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-brand-500 text-white rounded-full">
+                            P
+                          </span>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
             </div>
-            
+          </div>
+
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6 flex flex-wrap items-center justify-between gap-3 mb-6">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Basic Information
