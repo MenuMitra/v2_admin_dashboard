@@ -5,7 +5,9 @@
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: 'https://men4u.xyz',
+  BASE_URL: import.meta.env.VITE_IS_DEV === 'true' 
+    ? 'https://men4u.xyz' 
+    : 'https://menusmitra.xyz',
   VERSION: 'v2',
   ENDPOINTS: {
     ADMIN: {
