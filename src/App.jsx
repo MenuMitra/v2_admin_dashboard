@@ -102,13 +102,22 @@ function App() {
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />
             <Route path="/role-details/:userId" element={<RoleDetails />} />
-            <Route path="/captain-details/:userId" element={<CaptainDetails />} />
-            <Route path="/manager-details/:userId" element={<ManagerDetails />} />
-            <Route path="/waiter-details/:userId" element={<WaiterDetails />} />
             
-            {/* Chef Routes*/}
+                  {/* Chef Routes*/}
                   <Route path="/chef-details/:outletId/:userId" element={<ChefDetails />} />
                   <Route path="/edit-chef/:outletId/:userId" element={<EditChef />} />
+
+                  {/* Manager Routes*/}
+                  <Route path="/manager-details/:outletId/:userId" element={<ManagerDetails />} />
+                  <Route path="/edit-manager/:outletId/:userId" element={<EditManager />} />
+
+                  {/* Captain Routes*/}
+                  <Route path="/captain-details/:outletId/:userId" element={<CaptainDetails />} />
+                  <Route path="/edit-captain/:outletId/:userId" element={<EditCaptain />} />
+
+                  {/* Waiter Routes*/}
+                  <Route path="/waiter-details/:outletId/:userId" element={<WaiterDetails />} />
+                  <Route path="/edit-waiter/:outletId/:userId" element={<EditWaiter />} />
 
             {/* Tickets Routes */}
             <Route path="/tickets" element={<Tickets />} />
