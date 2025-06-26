@@ -11,6 +11,7 @@ import {
   faTrash as faDelete
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
+import { toastController } from "../../../../utils/toastController";
 
 function ChefDetails() {
   const { outletId, userId } = useParams();
@@ -52,27 +53,28 @@ function ChefDetails() {
   };
 
   const handleDelete = async () => {
-    setLoading(true);
     try {
-      await axios.post(
-        "https://men4u.xyz/v2/admin/chef_delete",
-        {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      await axios.delete("https://men4u.xyz/v2/common/chef_delete", {
+        data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
           app_source: "admin_dashboard"
         },
-        {
-          headers: {
-            Authorization: getToken(),
-          },
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json"
         }
-      );
+      });
+      toastController.success("Chef deleted successfully");
       navigate(-1);
     } catch (err) {
-      setError(err.response?.data?.msg || "Failed to delete chef");
-    } finally {
-      setLoading(false);
+      toastController.error(err.response?.data?.msg || "Failed to delete chef");
     }
   };
 
