@@ -18,6 +18,7 @@ function EditChef() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [availableFunctionalities, setAvailableFunctionalities] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     mobile: "",
@@ -49,6 +50,23 @@ function EditChef() {
     };
   }, [isDropdownOpen]);
 
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get(
+        "https://men4u.xyz/v2/common/list_roles",
+        {
+          headers: {
+            Authorization: getToken(),
+          },
+        }
+      );
+      setRoles(response.data);
+    } catch (err) {
+      console.error("Failed to fetch roles:", err);
+      setError("Failed to load roles");
+    }
+  };
+
   const fetchFunctionalities = async () => {
     try {
       const response = await axios.get(
@@ -67,7 +85,7 @@ function EditChef() {
   };
 
   useEffect(() => {
-    Promise.all([fetchChefDetails(), fetchFunctionalities()]).finally(() => {
+    Promise.all([fetchChefDetails(), fetchFunctionalities(), fetchRoles()]).finally(() => {
       setLoading(false);
     });
   }, [outletId, userId]);
@@ -256,6 +274,19 @@ function EditChef() {
               value={formData.dob}
               onChange={handleInputChange}
               required
+            />
+
+            <SelectInput
+              label="Role"
+              name="role"
+              value={formData.role}
+              onChange={handleInputChange}
+              required
+              options={roles.map(role => ({
+                value: role.role_name,
+                label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
+              }))}
+              placeholder="Select Role"
             />
 
             <div className="relative">
