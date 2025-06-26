@@ -416,15 +416,14 @@ const Sidebar = ({ sidebarToggle = false }) => {
       {/* Sidebar Header */}
       <div
         className={`
-          flex items-center gap-2 pt-8 pb-7 px-5
+          hidden lg:flex items-center gap-2 pt-8 pb-7 px-5
           ${sidebarToggle ? 'justify-center' : 'justify-between'}
         `}
       >
-          <div className="flex items-center gap-2">
-            <img className="w-10" src={logo} alt="Logo" />
-            <span className={`text-2xl font-semibold text-gray-900 dark:text-white ${sidebarToggle ? "lg:hidden" : ""}`}>ADMIN</span>
-          </div>
-
+        <div className="flex items-center gap-2">
+          <img className="w-10" src={logo} alt="Logo" />
+          <span className={`text-2xl font-semibold text-gray-900 dark:text-white ${sidebarToggle ? "lg:hidden" : ""}`}>ADMIN</span>
+        </div>
       </div>
 
       {/* Menu Items */}
