@@ -144,6 +144,20 @@ function ViewOutlet() {
     setSelectedFile(null);
   };
 
+  const handleDownloadTemplate = () => {
+    const templateUrl = '/downloads/bulk_template.csv';
+    
+    // Create a temporary link element
+    const link = document.createElement('a');
+    link.href = templateUrl;
+    link.download = 'bulk_template.csv'; // Name for the downloaded file
+    
+    // Append to document, click and remove
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <>
       {/* Breadcrumb - Moved outside the card */}
@@ -948,10 +962,7 @@ function ViewOutlet() {
           </div>
           <div className="mt-4 flex items-center justify-between">
             <button
-              onClick={() => {
-                // Add download template logic here
-                console.log("Download template");
-              }}
+              onClick={handleDownloadTemplate}
               className="inline-flex items-center gap-2 text-sm font-medium text-brand-500 hover:text-brand-600"
             >
               <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
