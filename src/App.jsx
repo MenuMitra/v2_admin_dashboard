@@ -49,6 +49,9 @@ import WaiterDetails from './components/AccessControl/Roles/WaiterDetails'
 import EditCustomer from './components/Customer/EditCustomer';
 import ChefDetails from './components/AccessControl/Roles/Chef/ChefDetails';
 import EditChef from './components/AccessControl/Roles/Chef/EditChef';
+import EditManager from './components/AccessControl/Roles/Manager/EditManager';
+import EditWaiter from './components/AccessControl/Roles/Waiter/EditWaiter';
+import EditCaptain from './components/AccessControl/Roles/Captain/EditCaptain';
 
 function App() {
 

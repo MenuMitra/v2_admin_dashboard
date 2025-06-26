@@ -83,7 +83,7 @@ const Search = () => {
     switch (role?.toLowerCase()) {
       case 'chef':
         if (outlet?.outlet_id) {
-          navigate(`/chef-details/${outlet.outlet_id}/${userId}`);
+          navigate(`/chef-details/${outlet?.outlet_id}/${userId}`);
         } else {
           toastController.error("No outlet found for this chef");
         }
@@ -98,7 +98,7 @@ const Search = () => {
         navigate(`/captain-details/${userId}`);
         break;
       case 'manager':
-        navigate(`/manager-details/${userId}`);
+        navigate(`/manager-details/${outlet?.outlet_id}/${userId}`);
         break;
       case 'waiter':
         navigate(`/waiter-details/${userId}`);
