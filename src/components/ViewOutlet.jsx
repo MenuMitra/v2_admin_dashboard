@@ -33,6 +33,8 @@ import {
   faChevronUp,
   faChevronRight,
   faUpload,
+  faInfoCircle,
+  faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -895,7 +897,7 @@ function ViewOutlet() {
           setShowBulkUploadModal(false);
           setSelectedFile(null);
         }}
-        title="Bulk Upload"
+        title="Bulk Upload Menu Items"
         type="default"
         size="small"
         actionButtons={
@@ -918,6 +920,7 @@ function ViewOutlet() {
                   : "bg-gray-300 cursor-not-allowed"
               }`}
             >
+              <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
               Upload
             </button>
           </>
@@ -925,18 +928,38 @@ function ViewOutlet() {
       >
         <div className="p-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400 text-left">
               Upload file
             </label>
             <input
               type="file"
+              accept=".csv"
               onChange={(e) => setSelectedFile(e.target.files[0])}
               className="focus:border-ring-brand-300 shadow-theme-xs focus:file:ring-brand-300 h-11 w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent text-sm text-gray-500 transition-colors file:mr-5 file:border-collapse file:cursor-pointer file:rounded-l-lg file:border-0 file:border-r file:border-solid file:border-gray-200 file:bg-gray-50 file:py-3 file:pr-3 file:pl-3.5 file:text-sm file:text-gray-700 placeholder:text-gray-400 hover:file:bg-gray-100 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400 dark:text-white/90 dark:file:border-gray-800 dark:file:bg-white/[0.03] dark:file:text-gray-400 dark:placeholder:text-gray-400"
             />
           </div>
-          <div className="mt-4 text-sm text-gray-500">
-            <p>Supported file types: .csv</p>
-            <p>Maximum file size: 5MB</p>
+          <div className="mt-4">
+            <div className="flex items-center gap-2 rounded-lg border border-warning-200 bg-warning-50 p-4 text-sm text-warning-800 dark:border-warning-700 dark:bg-warning-900/50 dark:text-warning-500">
+              <FontAwesomeIcon icon={faInfoCircle} className="h-5 w-5" />
+              <p>
+                Please ensure your CSV file follows the template format. Any deviation may result in upload failure.
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 flex items-center justify-between">
+            <button
+              onClick={() => {
+                // Add download template logic here
+                console.log("Download template");
+              }}
+              className="inline-flex items-center gap-2 text-sm font-medium text-brand-500 hover:text-brand-600"
+            >
+              <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
+              Download Template
+            </button>
+            <span className="text-sm text-gray-500">
+              {selectedFile ? `Selected: ${selectedFile.name}` : "No file selected"}
+            </span>
           </div>
         </div>
       </Modal>
