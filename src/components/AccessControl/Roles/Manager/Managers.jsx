@@ -62,11 +62,11 @@ function Managers() {
   };
 
   const handleViewManager = (user_id) => {
-    navigate(`/manager-details/${user_id}`);
+    navigate(`/manager-details/${outletId}/${user_id}`);
   };
 
   const handleEditManager = (user_id) => {
-    navigate(`/edit-manager/${user_id}`);
+    navigate(`/edit-manager/${outletId}/${user_id}`);
   };
 
   const handleDeleteManager = async () => {
@@ -214,7 +214,7 @@ function Managers() {
         onBackClick={() => navigate(-1)}
         createButton={{
           show: true,
-          label: "Add Manager",
+          label: "Create",
           icon: faPlus,
           onClick: () => navigate(`/create-manager/${outletId}`),
           className: "bg-success-500 hover:bg-success-600",
