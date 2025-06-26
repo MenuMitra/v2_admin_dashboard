@@ -336,8 +336,6 @@ function Outlets() {
       image: [{}],
       accountType: outlet.account_type,
       ownerCount: outlet.owner_count,
-
-
     }));
   };
 
@@ -556,19 +554,10 @@ function Outlets() {
       header: "Owner",
       sortable: true,
       render: (value, row) => (
-        <div className="flex items-center gap-2">
-          {row?.owner_id ? (
-            <Link
-              to={`/owner/${row.owner_id}`}
-              className="font-medium text-gray-800 text-theme-sm dark:text-white/90"
-            >
-              {row?.ownerCount || "-"}
-            </Link>
-          ) : (
-            <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-              {row?.ownerCount || "-"}
-            </p>
-          )}
+        <div className="flex items-center justify-center gap-2">
+          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            {row?.ownerCount || "-"}
+          </span>
         </div>
       ),
     },
