@@ -109,7 +109,11 @@ const Search = () => {
         }
         break;
       case 'waiter':
-        navigate(`/waiter-details/${userId}`);
+        if (outlet?.outlet_id) {
+          navigate(`/waiter-details/${outlet?.outlet_id}/${userId}`);
+        } else {
+          toastController.error("No outlet found for this waiter");
+        }
         break;
       case 'super_owner':
         navigate(`/super-owner-details/${userId}`);
