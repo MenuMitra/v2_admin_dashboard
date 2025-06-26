@@ -35,6 +35,7 @@ import {
   faUpload,
   faInfoCircle,
   faDownload,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -51,6 +52,7 @@ function ViewOutlet() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const fetchOutletDetails = async () => {
     try {
@@ -144,18 +146,36 @@ function ViewOutlet() {
     setSelectedFile(null);
   };
 
-  const handleDownloadTemplate = () => {
-    const templateUrl = '/downloads/bulk_template.csv';
-    
-    // Create a temporary link element
-    const link = document.createElement('a');
-    link.href = templateUrl;
-    link.download = 'bulk_template.csv'; // Name for the downloaded file
-    
-    // Append to document, click and remove
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownloadTemplate = async () => {
+    setIsDownloading(true);
+    try {
+      const templateUrl = '/downloads/bulk_template.csv';
+      
+      // Fetch the file first to check if it exists
+      const response = await fetch(templateUrl);
+      
+      if (!response.ok) {
+        throw new Error('Template file not found');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'bulk_template.csv';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      // You can add a toast notification here if you have one
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -963,10 +983,18 @@ function ViewOutlet() {
           <div className="mt-4 flex items-center justify-between">
             <button
               onClick={handleDownloadTemplate}
-              className="inline-flex items-center gap-2 text-sm font-medium text-brand-500 hover:text-brand-600"
+              disabled={isDownloading}
+              className={`inline-flex items-center gap-2 text-sm font-medium ${
+                isDownloading 
+                  ? 'text-gray-400 cursor-not-allowed' 
+                  : 'text-brand-500 hover:text-brand-600'
+              }`}
             >
-              <FontAwesomeIcon icon={faDownload} className="h-4 w-4" />
-              Download Template
+              <FontAwesomeIcon 
+                icon={isDownloading ? faSpinner : faDownload} 
+                className={`h-4 w-4 ${isDownloading ? 'animate-spin' : ''}`} 
+              />
+              {isDownloading ? 'Downloading...' : 'Download Template'}
             </button>
             <span className="text-sm text-gray-500">
               {selectedFile ? `Selected: ${selectedFile.name}` : "No file selected"}
