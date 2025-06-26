@@ -136,10 +136,10 @@ function Captains() {
       sortable: true,
       render: (value) => (
         <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-          value ? 'bg-success-50 text-success-700' : 'bg-error-50 text-error-700'
+          value ? 'text-success-700' : 'text-error-700'
         }`}>
           <FontAwesomeIcon icon={value ? faCircleCheck : faCircleXmark} className="w-3.5 h-3.5" />
-          {value ? 'Active' : 'Inactive'}
+          {/* {value ? 'Active' : 'Inactive'} */}
         </div>
       ),
     },
