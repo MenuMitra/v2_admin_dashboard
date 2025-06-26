@@ -185,10 +185,15 @@ function ViewOutlet() {
 
         {/* Main Content */}
         <div className="p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              Menu Management
+            </h2>
+          </div>
           {/* Stats and Navigation Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
             {/* Categories and Menus Cards */}
-            <Link 
+            <Link
               to={`/categories/${outletId}`}
               className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
             >
@@ -212,7 +217,7 @@ function ViewOutlet() {
               </div>
             </Link>
 
-            <Link 
+            <Link
               to={`/menus/${outletId}`}
               className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
             >
@@ -246,7 +251,7 @@ function ViewOutlet() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {/* Manager Card */}
-              <Link 
+              <Link
                 to={`/managers/${outletId}`}
                 className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
               >
@@ -271,7 +276,7 @@ function ViewOutlet() {
               </Link>
 
               {/* Chef Card */}
-              <Link 
+              <Link
                 to={`/chefs/${outletId}`}
                 className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
               >
@@ -296,7 +301,7 @@ function ViewOutlet() {
               </Link>
 
               {/* Captain Card */}
-              <Link 
+              <Link
                 to={`/captains/${outletId}`}
                 className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
               >
@@ -321,7 +326,7 @@ function ViewOutlet() {
               </Link>
 
               {/* Waiter Card */}
-              <Link 
+              <Link
                 to={`/waiters/${outletId}`}
                 className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
               >
@@ -363,9 +368,10 @@ function ViewOutlet() {
                         key={owner.owner_id}
                         onClick={() => handleOwnerClick(owner.owner_id)}
                         className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm cursor-pointer
-                          ${owner.is_primary 
-                            ? 'bg-brand-100 text-brand-700 border border-brand-200 hover:bg-brand-200'
-                            : 'bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200'
+                          ${
+                            owner.is_primary
+                              ? "bg-brand-100 text-brand-700 border border-brand-200 hover:bg-brand-200"
+                              : "bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
                           }
                           transition-all duration-200
                         `}
@@ -390,7 +396,6 @@ function ViewOutlet() {
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-
             <div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
