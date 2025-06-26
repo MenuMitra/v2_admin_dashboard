@@ -125,11 +125,11 @@ function Waiters() {
       header: "Email",
       sortable: true,
     },
-    {
-      field: "dob",
-      header: "Date of Birth",
-      sortable: true,
-    },
+    // {
+    //   field: "dob",
+    //   header: "DOB",
+    //   sortable: true,
+    // },
     {
       field: "actions",
       header: "Actions",
