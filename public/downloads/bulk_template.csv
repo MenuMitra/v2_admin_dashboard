@@ -1,0 +1,11 @@
+Category,Menu,Price,Food Type,Ingredients,Description,Spicy Index
+Breakfast,Masala Dosa,60,Veg,"Rice batter, potatoes, spices","Crispy rice crepe with spiced potato filling",2
+South Indian,Mysore Masala Dosa,80,Veg,"Rice batter, red chutney","Spicy variant of dosa",3
+North Indian,Chole Bhature,90,Veg,"Chickpeas, deep fried bread","Punjabi specialty",3
+Street Food,Pani Puri,40,Veg,"Crispy puris, spiced water","Popular street snack",2
+Main Course,Paneer Butter Masala,160,Veg,"Cottage cheese, tomato gravy","Rich and creamy curry",2
+Rice,Jeera Rice,100,Veg,"Basmati rice, cumin","Cumin flavored rice",1
+Breads,Butter Naan,40,Veg,"Refined flour, butter","Tandoor-baked flatbread",0
+Desserts,Gulab Jamun,60,Veg,"Milk solids, sugar syrup","Sweet dumplings in syrup",0
+Beverages,Lassi,40,Veg,"Yogurt, sugar","Yogurt-based drink",0
+Beverages,Filter Coffee,30,Veg,"Coffee, milk","South Indian coffee",0
