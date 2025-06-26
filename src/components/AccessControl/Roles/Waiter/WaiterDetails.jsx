@@ -99,60 +99,60 @@ function WaiterDetails() {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
           <p className="text-gray-900">{waiterData?.name || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
           <p className="text-gray-900">{waiterData?.mobile || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <p className="text-gray-900">{waiterData?.email || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
           <p className="text-gray-900">{waiterData?.aadhar_number || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
           <p className="text-gray-900">{waiterData?.dob || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
           <p className="text-gray-900">{waiterData?.address || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <p className={`text-gray-900 ${waiterData?.is_active === 1 ? 'text-success-600' : 'text-error-600'}`}>
             {waiterData?.is_active === 1 ? 'Active' : 'Inactive'}
           </p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
           <p className="text-gray-900">{waiterData?.created_by || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Created On</label>
           <p className="text-gray-900">{waiterData?.created_on || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Created On</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Updated By</label>
           <p className="text-gray-900">{waiterData?.updated_by || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Updated By</label>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Updated On</label>
           <p className="text-gray-900">{waiterData?.updated_on || '-'}</p>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Updated On</label>
         </div>
       </div>
     );
