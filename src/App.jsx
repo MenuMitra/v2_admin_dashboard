@@ -54,6 +54,12 @@ import EditCaptain from './components/AccessControl/Roles/Captain/EditCaptain';
 import CaptainDetails from './components/AccessControl/Roles/Captain/CaptainDetails';
 import CreateManager from './components/AccessControl/Roles/Manager/CreateManager';
 import Managers from './components/AccessControl/Roles/Manager/Managers';
+import Chefs from './components/AccessControl/Roles/Chef/Chefs';
+import CreateChef from './components/AccessControl/Roles/Chef/CreateChef';
+import Captains from './components/AccessControl/Roles/Captain/Captains';
+import CreateCaptain from './components/AccessControl/Roles/Captain/CreateCaptain';
+import Waiters from './components/AccessControl/Roles/Waiter/Waiters';
+import CreateWaiter from './components/AccessControl/Roles/Waiter/CreateWaiter';
 
 function App() {
 
@@ -109,6 +115,8 @@ function App() {
             <Route path="/role-details/:userId" element={<RoleDetails />} />
             
                   {/* Chef Routes*/}
+                  <Route path="/chefs/:outletId" element={<Chefs />} />
+                  <Route path="/create-chef/:outletId" element={<CreateChef />} />
                   <Route path="/chef-details/:outletId/:userId" element={<ChefDetails />} />
                   <Route path="/edit-chef/:outletId/:userId" element={<EditChef />} />
 
@@ -119,10 +127,14 @@ function App() {
                   <Route path="/edit-manager/:outletId/:userId" element={<EditManager />} />
 
                   {/* Captain Routes*/}
+                  <Route path="/captains/:outletId" element={<Captains />} />
+                  <Route path="/create-captain/:outletId" element={<CreateCaptain />} />
                   <Route path="/captain-details/:outletId/:userId" element={<CaptainDetails />} />
                   <Route path="/edit-captain/:outletId/:userId" element={<EditCaptain />} />
 
                   {/* Waiter Routes*/}
+                  <Route path="/waiters/:outletId" element={<Waiters />} />
+                  <Route path="/create-waiter/:outletId" element={<CreateWaiter />} />
                   <Route path="/waiter-details/:outletId/:userId" element={<WaiterDetails />} />
                   <Route path="/edit-waiter/:outletId/:userId" element={<EditWaiter />} />
 
