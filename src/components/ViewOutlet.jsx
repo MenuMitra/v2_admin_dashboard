@@ -245,11 +245,11 @@ function ViewOutlet() {
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 inline-flex items-center">
                 {outletData?.name || "View Outlet"}
                 <a
-                  href="https://www.google.com"
+                  href={`https://testing-menumitra-customer-v2.netlify.app/o${outletData?.outlet_code}/`}
                   target="_blank"
                   rel="noopener noreferrer"
                   title="View in Customer App"
-                  className="inline-flex items-center justify-center ml-2 w-6 h-6 text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+                  className="inline-flex items-center justify-center ml-2 w-6 h-6 text-gray-700 transition rounded-full  hover:bg-gray-300"
                 >
                   <svg
                     style={{ width: "0.68em", height: "0.68em" }}
