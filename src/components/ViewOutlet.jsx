@@ -140,10 +140,49 @@ function ViewOutlet() {
     navigate(`/owner-details/${ownerId}`);
   };
 
-  const handleBulkUpload = () => {
-    console.log("Selected file:", selectedFile);
-    setShowBulkUploadModal(false);
-    setSelectedFile(null);
+  const handleBulkUpload = async () => {
+    try {
+      if (!selectedFile) {
+        return;
+      }
+
+      setLoading(true);
+
+      // Create form data
+      const formData = new FormData();
+      formData.append('outlet_id', outletId);
+      formData.append('user_id', adminData?.user_id);
+      formData.append('app_source', 'admin_dashboard');
+      formData.append('file', selectedFile);
+
+      const response = await axios.post(
+        'https://men4u.xyz/v2/common/bulk_upload_file',
+        formData,
+        {
+          headers: {
+            Authorization: getToken(),
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (response.data.message === "Menu data uploaded successfully") {
+        // Close modal and show success message
+        setShowBulkUploadModal(false);
+        setSelectedFile(null);
+        
+        // You can add a toast notification here if you have one
+        console.log('Upload successful:', response.data);
+        
+        // Refresh outlet details to show updated counts
+        fetchOutletDetails();
+      }
+    } catch (err) {
+      console.error('Error uploading file:', err);
+      // You can add error handling/toast notification here
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDownloadTemplate = async () => {
@@ -941,21 +980,25 @@ function ViewOutlet() {
                 setShowBulkUploadModal(false);
                 setSelectedFile(null);
               }}
-              className="inline-flex items-center gap-2 rounded-full border border-gray-300  text-black px-6 py-3 text-sm font-semibold transition hover:bg-gray-600" 
+              className="inline-flex items-center gap-2 rounded-full border border-gray-300 text-black px-6 py-3 text-sm font-semibold transition hover:bg-gray-600"
+              disabled={loading}
             >
               Cancel
             </button>
             <button
               onClick={handleBulkUpload}
-              disabled={!selectedFile}
+              disabled={!selectedFile || loading}
               className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition ${
-                selectedFile
+                selectedFile && !loading
                   ? "bg-success-500 hover:bg-success-600"
                   : "bg-success-500 opacity-50 cursor-not-allowed"
               }`}
             >
-              <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
-              Upload
+              <FontAwesomeIcon 
+                icon={loading ? faSpinner : faUpload} 
+                className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} 
+              />
+              {loading ? 'Uploading...' : 'Upload'}
             </button>
           </div>
         }
