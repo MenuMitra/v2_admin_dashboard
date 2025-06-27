@@ -21,6 +21,7 @@
     "react-dom": "^19.1.0",
     "react-flatpickr": "^4.0.10",
     "react-hot-toast": "^2.5.2",
+    "react-photo-view": "^1.2.7",
     "react-router-dom": "^7.6.2"
   },
   "devDependencies": {
