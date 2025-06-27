@@ -12,7 +12,7 @@ function CreateAdmin() {
   const { getToken } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState(null);
-  const [formData, setFormData] = useState({
+  const [adminData, setAdminData] = useState({
     name: "",
     mobile: "",
     email: "",
@@ -34,7 +34,7 @@ function CreateAdmin() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setAdminData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -61,7 +61,7 @@ function CreateAdmin() {
 
       // If starts with 1-5, clear the field
       if (firstDigit && ["1", "2", "3", "4", "5"].includes(firstDigit)) {
-        setFormData((prev) => ({
+        setAdminData((prev) => ({
           ...prev,
           [name]: "", // Clear the field
         }));
@@ -71,7 +71,7 @@ function CreateAdmin() {
         }));
       } else {
         // For valid numbers (6-9) or empty field
-        setFormData((prev) => ({
+        setAdminData((prev) => ({
           ...prev,
           [name]: numbersOnly.slice(0, 10),
         }));
@@ -97,10 +97,10 @@ function CreateAdmin() {
 
     // Name validation
     const nameRegex = /^[A-Za-z\s]+$/;
-    if (!formData.name.trim()) {
+    if (!adminData.name.trim()) {
       newErrors.name = "Name is required";
       isValid = false;
-    } else if (!nameRegex.test(formData.name)) {
+    } else if (!nameRegex.test(adminData.name)) {
       newErrors.name =
         "Name should only contain alphabets and spaces. Numbers and symbols are not allowed.";
       isValid = false;
@@ -109,32 +109,32 @@ function CreateAdmin() {
     // Mobile validation
     const mobileRegex = /^[6-9]\d{9}$/;
     const numericMobileRegex = /^\d+$/;
-    if (!formData.mobile.trim()) {
+    if (!adminData.mobile.trim()) {
       newErrors.mobile = "Mobile number is required";
       isValid = false;
-    } else if (!numericMobileRegex.test(formData.mobile)) {
+    } else if (!numericMobileRegex.test(adminData.mobile)) {
       newErrors.mobile = "Mobile number should only contain digits";
       isValid = false;
-    } else if (!mobileRegex.test(formData.mobile)) {
+    } else if (!mobileRegex.test(adminData.mobile)) {
       newErrors.mobile =
         "Mobile number must start with 6, 7, 8, or 9 and be 10 digits";
       isValid = false;
     }
 
     // Email validation
-    if (!formData.email.trim()) {
+    if (!adminData.email.trim()) {
       newErrors.email = "Email is required";
       isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(adminData.email)) {
       newErrors.email = "Invalid email format";
       isValid = false;
     }
 
     // Password validation
-    if (!formData.password.trim()) {
+    if (!adminData.password.trim()) {
       newErrors.password = "Password is required";
       isValid = false;
-    } else if (formData.password.length < 4) {
+    } else if (adminData.password.length < 4) {
       newErrors.password = "Password must be at least 4 characters";
       isValid = false;
     }
@@ -162,7 +162,7 @@ function CreateAdmin() {
 
       const response = await axios.post(
         "https://men4u.xyz/v2/admin/create_admin",
-        formData,
+        adminData,
         {
           headers: {
             Authorization: token,
@@ -257,7 +257,7 @@ function CreateAdmin() {
                 <TextInput
                   label="Name"
                   name="name"
-                  value={formData.name}
+                  value={adminData.name}
                   onChange={handleChange}
                   placeholder="Enter admin name"
                   required
@@ -275,7 +275,7 @@ function CreateAdmin() {
                 <TextInput
                   label="Mobile Number"
                   name="mobile"
-                  value={formData.mobile}
+                  value={adminData.mobile}
                   onChange={handleChange}
                   placeholder="Enter 10 digit mobile number"
                   required
@@ -294,7 +294,7 @@ function CreateAdmin() {
                   label="Email"
                   name="email"
                   type="email"
-                  value={formData.email}
+                  value={adminData.email}
                   onChange={handleChange}
                   placeholder="Enter email address"
                   required
@@ -313,7 +313,7 @@ function CreateAdmin() {
                   label="Password"
                   name="password"
                   type="password"
-                  value={formData.password}
+                  value={adminData.password}
                   onChange={handleChange}
                   placeholder="Enter password"
                   required
