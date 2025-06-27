@@ -244,21 +244,28 @@ function ViewOutlet() {
             <div className="flex-1 text-center">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 inline-flex items-center">
                 {outletData?.name || "View Outlet"}
-                <svg
-                  className="ml-2 mt-0"
-                  style={{ width: "0.68em", height: "0.68em" }}
-                  viewBox="0 0 10 10"
-                  xmlns="http://www.w3.org/2000/svg"
-                  aria-hidden="true"
+                <a
+                  href="https://www.google.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="View in Customer App"
+                  className="inline-flex items-center justify-center ml-2 w-6 h-6 text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
                 >
-                  <path
-                    d="M1.004 9.166 9.337.833m0 0v8.333m0-8.333H1.004"
-                    stroke="currentColor"
-                    strokeWidth="1.25"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                  <svg
+                    style={{ width: "0.68em", height: "0.68em" }}
+                    viewBox="0 0 10 10"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M1.004 9.166 9.337.833m0 0v8.333m0-8.333H1.004"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </a>
               </h2>
             </div>
 
