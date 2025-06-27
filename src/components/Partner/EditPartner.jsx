@@ -24,9 +24,8 @@ function EditPartner() {
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [partnerDetails, setPartnerDetails] = useState({
     name: '',
     email: '',
     mobile: '',
@@ -96,7 +95,7 @@ function EditPartner() {
       const funcIds = response.data.functionalities.map(f => f.functionality_id);
       setSelectedFunctionalities(funcIds);
 
-      setFormData({
+      setPartnerDetails({
         name: response.data.name,
         email: response.data.email,
         mobile: response.data.mobile,
@@ -116,7 +115,7 @@ function EditPartner() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setPartnerDetails(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
@@ -133,7 +132,7 @@ function EditPartner() {
         throw new Error('No authentication token available');
       }
 
-      const date = new Date(formData.dob);
+      const date = new Date(partnerDetails.dob);
       const formattedDate = date.toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
@@ -143,14 +142,14 @@ function EditPartner() {
       const requestData = {
         update_user_id: adminData?.user_id,
         user_id: Number(partnerId),
-        name: formData.name,
-        mobile: formData.mobile,
-        email: formData.email,
+        name: partnerDetails.name,
+        mobile: partnerDetails.mobile,
+        email: partnerDetails.email,
         dob: formattedDate,
-        aadhar_number: formData.aadhar_number,
-        address: formData.address,
+        aadhar_number: partnerDetails.aadhar_number,
+        address: partnerDetails.address,
         functionality_ids: selectedFunctionalities,
-        is_active: Number(formData.is_active)
+        is_active: Number(partnerDetails.is_active)
       };
 
       console.log('Updating partner with data:', requestData);
@@ -242,7 +241,7 @@ function EditPartner() {
               <TextInput
                 label="Full Name"
                 name="name"
-                value={formData.name}
+                value={partnerDetails.name}
                 onChange={handleChange}
                 placeholder="Enter full name"
                 required
@@ -252,7 +251,7 @@ function EditPartner() {
                 label="Mobile Number"
                 name="mobile"
                 type="tel"
-                value={formData.mobile}
+                value={partnerDetails.mobile}
                 onChange={handleChange}
                 placeholder="Enter mobile number"
                 required
@@ -262,7 +261,7 @@ function EditPartner() {
                 label="Email Address"
                 name="email"
                 type="email"
-                value={formData.email}
+                value={partnerDetails.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
                 required
@@ -271,7 +270,7 @@ function EditPartner() {
               <DateInput
                 label="Date of Birth"
                 name="dob"
-                value={formData.dob}
+                value={partnerDetails.dob}
                 onChange={handleChange}
                 required
                 placeholder="Select date of birth"
@@ -280,7 +279,7 @@ function EditPartner() {
               <TextInput
                 label="Aadhar Number"
                 name="aadhar_number"
-                value={formData.aadhar_number}
+                value={partnerDetails.aadhar_number}
                 onChange={handleChange}
                 placeholder="Enter 12-digit Aadhar number"
                 required
@@ -291,7 +290,7 @@ function EditPartner() {
               <SelectInput
                 label="Partner Status"
                 name="is_active"
-                value={formData.is_active}
+                value={partnerDetails.is_active}
                 onChange={handleChange}
                 required
                 options={[
@@ -306,7 +305,7 @@ function EditPartner() {
             <Textarea
               label="Address"
               name="address"
-              value={formData.address}
+              value={partnerDetails.address}
               onChange={handleChange}
               placeholder="Enter complete address"
               rows={3}
@@ -334,7 +333,7 @@ function EditPartner() {
                               ? [...prev, value]
                               : prev.filter(id => id !== value)
                           );
-                          setFormData(prev => ({
+                          setPartnerDetails(prev => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
@@ -363,7 +362,7 @@ function EditPartner() {
                           className="ml-1 inline-flex items-center justify-center"
                           onClick={() => {
                             setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
-                            setFormData(prev => ({
+                            setPartnerDetails(prev => ({
                               ...prev,
                               functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
                             }));
