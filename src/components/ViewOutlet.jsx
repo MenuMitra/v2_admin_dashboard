@@ -349,7 +349,7 @@ function ViewOutlet() {
                 Staff Management
               </h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               
                {/* Manager Card */}
               
@@ -391,9 +391,6 @@ function ViewOutlet() {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        Staff
-                      </span>
                       <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
                         Chefs
                       </span>
@@ -416,9 +413,6 @@ function ViewOutlet() {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        Staff
-                      </span>
                       <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
                         Captains
                       </span>
@@ -441,9 +435,6 @@ function ViewOutlet() {
                       />
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        Staff
-                      </span>
                       <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
                         Waiters
                       </span>
