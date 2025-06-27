@@ -4,6 +4,9 @@ import { useAdmin } from "../../hooks/useAdmin";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Breadcrumb from "../Breadcrumb";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+
 
 function CreateSuperOwner() {
   const { getToken, isAuthenticated } = useAuth();
@@ -187,19 +190,7 @@ function CreateSuperOwner() {
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                  />
-                </svg>
+                  <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
