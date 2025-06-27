@@ -19,7 +19,7 @@ function EditChef() {
   const [error, setError] = useState(null);
   const [availableFunctionalities, setAvailableFunctionalities] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [formData, setFormData] = useState({
+  const [chefData, setChefData] = useState({
     name: "",
     mobile: "",
     email: "",
@@ -107,16 +107,16 @@ function EditChef() {
         }
       );
       
-      const chefData = response.data.detail;
-      setFormData({
-        name: chefData.name || "",
-        mobile: chefData.mobile || "",
-        email: chefData.email || "",
-        address: chefData.address || "",
-        aadhar_number: chefData.aadhar_number || "",
-        dob: chefData.dob || "",
-        functionality_ids: chefData.functionalities?.map(f => f.functionality_id) || [],
-        role: chefData.role || "chef"
+      const data = response.data.detail;
+      setChefData({
+        name: data.name || "",
+        mobile: data.mobile || "",
+        email: data.email || "",
+        address: data.address || "",
+        aadhar_number: data.aadhar_number || "",
+        dob: data.dob || "",
+        functionality_ids: data.functionalities?.map(f => f.functionality_id) || [],
+        role: data.role || "chef"
       });
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to fetch chef details");
@@ -135,7 +135,7 @@ function EditChef() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          ...formData,
+          ...chefData,
           app_source: "admin_dashboard"
         },
         {
@@ -153,7 +153,7 @@ function EditChef() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setChefData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -230,7 +230,7 @@ function EditChef() {
             <TextInput
               label="Name"
               name="name"
-              value={formData.name}
+              value={chefData.name}
               onChange={handleInputChange}
               required
             />
@@ -238,7 +238,7 @@ function EditChef() {
             <TextInput
               label="Mobile"
               name="mobile"
-              value={formData.mobile}
+              value={chefData.mobile}
               onChange={handleInputChange}
               required
               pattern="[0-9]{10}"
@@ -248,21 +248,21 @@ function EditChef() {
               label="Email"
               name="email"
               type="email"
-              value={formData.email}
+              value={chefData.email}
               onChange={handleInputChange}
             />
 
             <TextInput
               label="Address"
               name="address"
-              value={formData.address}
+              value={chefData.address}
               onChange={handleInputChange}
             />
 
             <TextInput
               label="Aadhar Number"
               name="aadhar_number"
-              value={formData.aadhar_number}
+              value={chefData.aadhar_number}
               onChange={handleInputChange}
               pattern="[0-9]{12}"
               required
@@ -271,7 +271,7 @@ function EditChef() {
             <DateInput
               label="Date of Birth"
               name="dob"
-              value={formData.dob}
+              value={chefData.dob}
               onChange={handleInputChange}
               required
             />
@@ -279,7 +279,7 @@ function EditChef() {
             <SelectInput
               label="Role"
               name="role"
-              value={formData.role}
+              value={chefData.role}
               onChange={handleInputChange}
               required
               options={roles.map(role => ({
@@ -302,11 +302,11 @@ function EditChef() {
                   aria-expanded={isDropdownOpen}
                   aria-haspopup="listbox"
                 >
-                  {formData.functionality_ids.length > 0 ? (
+                  {chefData.functionality_ids.length > 0 ? (
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-gray-900">
-                          {formData.functionality_ids.length} Functionality(s) Selected
+                          {chefData.functionality_ids.length} Functionality(s) Selected
                         </div>
                       </div>
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -348,17 +348,17 @@ function EditChef() {
                           key={func.functionality_id}
                           className={`
                             p-3 cursor-pointer hover:bg-gray-50
-                            ${formData.functionality_ids.includes(func.functionality_id)
+                            ${chefData.functionality_ids.includes(func.functionality_id)
                               ? 'bg-brand-50 border-l-4 border-brand-500' 
                               : 'border-l-4 border-transparent'
                             }
                           `}
                           onClick={() => {
-                            const newIds = formData.functionality_ids.includes(func.functionality_id)
-                              ? formData.functionality_ids.filter(id => id !== func.functionality_id)
-                              : [...formData.functionality_ids, func.functionality_id];
+                            const newIds = chefData.functionality_ids.includes(func.functionality_id)
+                              ? chefData.functionality_ids.filter(id => id !== func.functionality_id)
+                              : [...chefData.functionality_ids, func.functionality_id];
                             
-                            setFormData(prev => ({
+                            setChefData(prev => ({
                               ...prev,
                               functionality_ids: newIds
                             }));
@@ -367,10 +367,10 @@ function EditChef() {
                           <div className="flex items-center gap-3">
                             <input
                               type="checkbox"
-                              checked={formData.functionality_ids.includes(func.functionality_id)}
+                              checked={chefData.functionality_ids.includes(func.functionality_id)}
                               onChange={(e) => {
                                 e.stopPropagation();
-                                setFormData(prev => ({
+                                setChefData(prev => ({
                                   ...prev,
                                   functionality_ids: e.target.checked
                                     ? [...prev.functionality_ids, func.functionality_id]
