@@ -16,7 +16,7 @@ function EditAdmin() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState(null);
-  const [formData, setFormData] = useState({
+  const [adminDetails, setAdminDetails] = useState({
     name: '',
     mobile: '',
     email: '',
@@ -69,8 +69,7 @@ function EditAdmin() {
         }
       );
 
-      // Set form data with numeric is_active value
-      setFormData({
+      setAdminDetails({
         name: response.data.name,
         mobile: response.data.mobile,
         email: response.data.email,
@@ -94,7 +93,7 @@ function EditAdmin() {
       
       // If starts with 1-5, clear the field
       if (firstDigit && ['1','2','3','4','5'].includes(firstDigit)) {
-        setFormData(prev => ({
+        setAdminDetails(prev => ({
           ...prev,
           [name]: '' // Clear the field
         }));
@@ -104,7 +103,7 @@ function EditAdmin() {
         }));
       } else {
         // For valid numbers (6-9) or empty field
-        setFormData(prev => ({
+        setAdminDetails(prev => ({
           ...prev,
           [name]: numbersOnly.slice(0, 10)
         }));
@@ -126,12 +125,12 @@ function EditAdmin() {
           is_active: false
         }));
       }
-      setFormData(prev => ({
+      setAdminDetails(prev => ({
         ...prev,
         [name]: value === '' ? '' : parseInt(value)
       }));
     } else {
-      setFormData(prev => ({
+      setAdminDetails(prev => ({
         ...prev,
         [name]: value
       }));
@@ -157,32 +156,32 @@ function EditAdmin() {
     let isValid = true;
     
     // Name validation
-    if (!formData.name.trim()) {
+    if (!adminDetails.name.trim()) {
       newErrors.name = 'Name is required';
       isValid = false;
     }
 
     // Mobile validation
     const mobileRegex = /^[6-9]\d{9}$/;
-    if (!formData.mobile.trim()) {
+    if (!adminDetails.mobile.trim()) {
       newErrors.mobile = 'Mobile number is required';
       isValid = false;
-    } else if (!mobileRegex.test(formData.mobile)) {
+    } else if (!mobileRegex.test(adminDetails.mobile)) {
       newErrors.mobile = 'Mobile number must start with 6, 7, 8, or 9 and be 10 digits';
       isValid = false;
     }
 
     // Email validation
-    if (!formData.email.trim()) {
+    if (!adminDetails.email.trim()) {
       newErrors.email = 'Email is required';
       isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/\S+@\S+\.\S+/.test(adminDetails.email)) {
       newErrors.email = 'Invalid email format';
       isValid = false;
     }
 
     // Status validation - Check if status is empty or undefined
-    if (formData.is_active === undefined || formData.is_active === '') {
+    if (adminDetails.is_active === undefined || adminDetails.is_active === '') {
       setValidationStates(prev => ({
         ...prev,
         is_active: true
@@ -215,10 +214,10 @@ function EditAdmin() {
         {
           user_id: adminData.user_id,
           admin_id: parseInt(adminId),
-          name: formData.name,
-          email: formData.email,
-          mobile: formData.mobile,
-          is_active: formData.is_active
+          name: adminDetails.name,
+          email: adminDetails.email,
+          mobile: adminDetails.mobile,
+          is_active: adminDetails.is_active
         },
         {
           headers: {
@@ -302,7 +301,7 @@ function EditAdmin() {
                 <TextInput
                   label="Name"
                   name="name"
-                  value={formData.name}
+                  value={adminDetails.name}
                   onChange={handleChange}
                   placeholder="Enter admin name"
                   required
@@ -322,7 +321,7 @@ function EditAdmin() {
                 <TextInput
                   label="Mobile Number"
                   name="mobile"
-                  value={formData.mobile}
+                  value={adminDetails.mobile}
                   onChange={handleChange}
                   placeholder="Enter 10 digit mobile number"
                   required
@@ -343,7 +342,7 @@ function EditAdmin() {
                   label="Email"
                   name="email"
                   type="email"
-                  value={formData.email}
+                  value={adminDetails.email}
                   onChange={handleChange}
                   placeholder="Enter email address"
                   required
@@ -361,7 +360,7 @@ function EditAdmin() {
                 <SelectInput
                   label="Status"
                   name="is_active"
-                  value={formData.is_active}
+                  value={adminDetails.is_active}
                   onChange={handleChange}
                   onFocus={() => handleFocus('is_active')}
                   error={validationStates.is_active}
