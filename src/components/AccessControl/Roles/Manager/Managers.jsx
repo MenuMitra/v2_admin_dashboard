@@ -16,6 +16,7 @@ import {
 import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
 import Modal from '../../../common/Modal';
+import { toastController } from "../../../../utils/toastController";
 
 function Managers() {
   const { getToken } = useAuth();
@@ -174,23 +175,45 @@ function Managers() {
   const getActiveCount = () => managers.filter((manager) => manager.is_active).length;
   const getInactiveCount = () => managers.filter((manager) => !manager.is_active).length;
 
-  // Add new handler for bulk actions
+  // Update the handleBulkAction function
   const handleBulkAction = async (action, selectedIds) => {
     try {
-      const response = await axios.post(
-        "https://men4u.xyz/v2/common/bulk_manager_action",
-        {
-          user_id: adminData.user_id,
-          action: action, // 'active', 'inactive', or 'delete'
-          app_source: "admin_dashboard",
-          manager_ids: selectedIds
+      const actionMessages = {
+        active: {
+          loading: "Activating selected managers...",
+          success: "Successfully activated selected managers",
+          error: "Failed to activate managers"
         },
-        {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
-          },
+        inactive: {
+          loading: "Deactivating selected managers...",
+          success: "Successfully deactivated selected managers",
+          error: "Failed to deactivate managers"
+        },
+        delete: {
+          loading: "Deleting selected managers...",
+          success: "Successfully deleted selected managers",
+          error: "Failed to delete managers"
         }
+      };
+
+      // Show loading toast while action is processing
+      const response = await toastController.promise(
+        axios.post(
+          "https://men4u.xyz/v2/common/bulk_manager_action",
+          {
+            user_id: adminData.user_id,
+            action: action,
+            app_source: "admin_dashboard",
+            manager_ids: selectedIds
+          },
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        actionMessages[action]
       );
 
       // Refresh the managers list after bulk action
@@ -199,12 +222,15 @@ function Managers() {
       // Clear selected items
       setSelectedItems([]);
       
-      // You might want to show a success message here
-      console.log(response.data.detail);
+      // Show success message from API response
+      toastController.success(response.data.detail);
       
     } catch (error) {
-      console.error("Error performing bulk action:", error);
-      // You might want to show an error message here
+      // Show error message
+      toastController.error(
+        error.response?.data?.detail || 
+        `Failed to perform ${action} action on selected managers`
+      );
     }
   };
 
