@@ -12,6 +12,7 @@ import {
   faSpinner,
   faCircleCheck,
   faCircleXmark,
+  faGear,
 } from "@fortawesome/free-solid-svg-icons";
 
 function DataTable({
@@ -78,7 +79,7 @@ function DataTable({
     },
     {
       key: "delete",
-      label: "Delete Selected",
+      label: "Delete",
       className: "text-error-600 hover:bg-error-50",
     },
   ],
@@ -540,10 +541,10 @@ function DataTable({
                       onBlur={() =>
                         setTimeout(() => setIsActionDropdownOpen(false), 200)
                       }
-                      className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 px-5 "
+                      className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 "
                     >
-                      Actions
-                      <svg
+                      {/* Actions */}
+                      {/* <svg
                         className={`stroke-current duration-200 ease-in-out ${
                           isActionDropdownOpen ? "rotate-180" : ""
                         }`}
@@ -560,7 +561,8 @@ function DataTable({
                           strokeLinecap="round"
                           strokeLinejoin="round"
                         />
-                      </svg>
+                      </svg> */}
+                      <FontAwesomeIcon icon={faGear} />
                     </button>
 
                     {/* Dropdown Menu */}
