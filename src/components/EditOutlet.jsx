@@ -22,7 +22,7 @@ function EditOutlet() {
   const navigate = useNavigate();
   const { outletId } = useParams();
   
-  const [formData, setFormData] = useState({
+  const [outletData, setOutletData] = useState({
     outlet_id: '',
     user_id: '',
     owner_ids: [],
@@ -47,11 +47,10 @@ function EditOutlet() {
     email: '',
     opening_time: '',
     closing_time: '',
-    outlet_mode: ''
+    outlet_mode: '',
+    image: null
   });
 
-  const [imageFile, setImageFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [outletTypes, setOutletTypes] = useState({});
   const [foodTypes, setFoodTypes] = useState({});
@@ -95,7 +94,7 @@ function EditOutlet() {
         const data = response.data.data;
         
         // Update form data with fetched data
-        setFormData({
+        setOutletData({
           outlet_id: outletId,
           user_id: adminData?.user_id,
           owner_ids: data.owners.map(owner => owner.owner_id),
@@ -120,13 +119,9 @@ function EditOutlet() {
           email: data.email || '',
           opening_time: data.opening_time ? data.opening_time.split(' ')[1] : '',
           closing_time: data.closing_time ? data.closing_time.split(' ')[1] : '',
-          outlet_mode: data.outlet_mode || ''
+          outlet_mode: data.outlet_mode || '',
+          image: data.image
         });
-
-        // If there's an image URL, set it as preview
-        if (data.image) {
-          setPreviewUrl(data.image);
-        }
 
         setIsLoading(false);
       }
@@ -225,17 +220,16 @@ function EditOutlet() {
   }
 
   const handleImagesChange = (images) => {
-    const image = Array.isArray(images) ? images[0] : null;
-    if (image) {
-      setImageFile(image);
-      if (typeof image === 'string') {
-        setPreviewUrl(image);
-      } else {
-        setPreviewUrl(URL.createObjectURL(image));
-      }
+    if (Array.isArray(images) && images[0]) {
+      setOutletData(prev => ({
+        ...prev,
+        image: images[0]
+      }));
     } else {
-      setImageFile(null);
-      setPreviewUrl(null);
+      setOutletData(prev => ({
+        ...prev,
+        image: null
+      }));
     }
   };
 
@@ -245,12 +239,12 @@ function EditOutlet() {
     if (name === 'whatsapp') {
       // Only allow numbers and limit to 10 digits
       const numbersOnly = value.replace(/[^0-9]/g, '');
-      setFormData(prev => ({
+      setOutletData(prev => ({
         ...prev,
         [name]: numbersOnly.slice(0, 10)
       }));
     } else {
-      setFormData(prev => ({
+      setOutletData(prev => ({
         ...prev,
         [name]: type === 'checkbox' ? checked : value
       }));
@@ -269,26 +263,27 @@ function EditOutlet() {
       const apiData = {
         outlet_id: parseInt(outletId),
         user_id: parseInt(adminData.user_id),
-        new_owner_ids: formData.owner_ids, // Changed from owner_ids to new_owner_ids
-        name: formData.name,
-        outlet_type: formData.outlet_type,
-        fssainumber: formData.fssainumber,
-        gstnumber: formData.gstnumber,
-        mobile: formData.mobile,
-        veg_nonveg: formData.veg_nonveg,
-        service_charges: formData.service_charges.toString(),
-        gst: formData.gst.toString(),
-        address: formData.address,
-        is_open: formData.is_open ? 1 : 0,
-        outlet_status: formData.outlet_status ? 1 : 0,
-        upi_id: formData.upi_id,
-        website: formData.website || '',
-        whatsapp: formData.whatsapp || '',
-        facebook: formData.facebook || '',
-        instagram: formData.instagram || '',
-        google_business_link: formData.google_business_link || '',
-        google_review: formData.google_review || '',
-        outlet_mode: formData.outlet_mode,
+        new_owner_ids: outletData.owner_ids, // Changed from owner_ids to new_owner_ids
+        name: outletData.name,
+        outlet_type: outletData.outlet_type,
+        fssainumber: outletData.fssainumber,
+        gstnumber: outletData.gstnumber,
+        mobile: outletData.mobile,
+        veg_nonveg: outletData.veg_nonveg,
+        service_charges: outletData.service_charges.toString(),
+        gst: outletData.gst.toString(),
+        address: outletData.address,
+        is_open: outletData.is_open ? 1 : 0,
+        outlet_status: outletData.outlet_status ? 1 : 0,
+        upi_id: outletData.upi_id,
+        website: outletData.website || '',
+        whatsapp: outletData.whatsapp || '',
+        facebook: outletData.facebook || '',
+        instagram: outletData.instagram || '',
+        google_business_link: outletData.google_business_link || '',
+        google_review: outletData.google_review || '',
+        outlet_mode: outletData.outlet_mode,
+        image: outletData.image || '',
         app_source: "admin_dashboard"
       };
 
@@ -382,11 +377,11 @@ function EditOutlet() {
                       aria-expanded={isDropdownOpen}
                       aria-haspopup="listbox"
                     >
-                      {formData.owner_ids.length > 0 ? (
+                      {outletData.owner_ids.length > 0 ? (
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="font-medium text-gray-900">
-                              {formData.owner_ids.length} Owner(s) Selected
+                              {outletData.owner_ids.length} Owner(s) Selected
                             </div>
                           </div>
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -399,9 +394,9 @@ function EditOutlet() {
                     </div>
 
                     {/* Selected Owners Display */}
-                    {formData.owner_ids.length > 0 && (
+                    {outletData.owner_ids.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {formData.owner_ids.map(id => {
+                        {outletData.owner_ids.map(id => {
                           const owner = allOwners.find(o => o.user_id === id);
                           return owner ? (
                             <div 
@@ -412,7 +407,7 @@ function EditOutlet() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setFormData(prev => ({
+                                  setOutletData(prev => ({
                                     ...prev,
                                     owner_ids: prev.owner_ids.filter(ownerId => ownerId !== id)
                                   }));
@@ -457,7 +452,7 @@ function EditOutlet() {
                               key={owner.user_id}
                               className={`
                                 p-3 cursor-pointer hover:bg-gray-50
-                                ${formData.owner_ids.includes(owner.user_id)
+                                ${outletData.owner_ids.includes(owner.user_id)
                                   ? 'bg-brand-50 border-l-4 border-brand-500' 
                                   : 'border-l-4 border-transparent'
                                 }
@@ -466,10 +461,10 @@ function EditOutlet() {
                               <div className="flex items-center gap-3">
                                 <input
                                   type="checkbox"
-                                  checked={formData.owner_ids.includes(owner.user_id)}
+                                  checked={outletData.owner_ids.includes(owner.user_id)}
                                   onChange={(e) => {
                                     e.stopPropagation();
-                                    setFormData(prev => ({
+                                    setOutletData(prev => ({
                                       ...prev,
                                       owner_ids: e.target.checked
                                         ? [...prev.owner_ids, owner.user_id]
@@ -505,12 +500,11 @@ function EditOutlet() {
                 <div className="relative">
                   <ImageUploader
                     maxImages={1}
-                    outputFormat="formData"
                     onImagesChange={handleImagesChange}
-                    existingImages={previewUrl ? [previewUrl] : []}
+                    existingImages={outletData.image ? [outletData.image] : []}
                     label="Outlet Image"
                     className="w-full"
-                    />
+                  />
                 </div>
               </div>
 
@@ -519,7 +513,7 @@ function EditOutlet() {
                 <TextInput
                   label="Outlet Name"
                   name="name"
-                  value={formData.name}
+                  value={outletData.name}
                   onChange={handleInputChange}
                   placeholder="Enter Outlet Name"
                   required
@@ -529,7 +523,7 @@ function EditOutlet() {
                   label="Mobile Number"
                   name="mobile"
                   type="tel"
-                  value={formData.mobile}
+                  value={outletData.mobile}
                   onChange={handleInputChange}
                   placeholder="Enter Mobile Number"
                   required
@@ -540,7 +534,7 @@ function EditOutlet() {
                   label="Email Address"
                   name="email"
                   type="email"
-                  value={formData.email}
+                  value={outletData.email}
                   onChange={handleInputChange}
                   placeholder="Enter Email Address"
                 />
@@ -548,7 +542,7 @@ function EditOutlet() {
                 <TextInput
                   label="UPI ID"
                   name="upi_id"
-                  value={formData.upi_id}
+                  value={outletData.upi_id}
                   onChange={handleInputChange}
                   placeholder="Enter UPI ID"
                   required
@@ -557,7 +551,7 @@ function EditOutlet() {
                 <SelectInput
                   label="Outlet Type"
                   name="outlet_type"
-                  value={formData.outlet_type}
+                  value={outletData.outlet_type}
                   onChange={handleInputChange}
                   required
                   options={Object.entries(outletTypes).map(([key, value]) => ({
@@ -570,7 +564,7 @@ function EditOutlet() {
                 <SelectInput
                   label="Food Type"
                   name="veg_nonveg"
-                  value={formData.veg_nonveg}
+                  value={outletData.veg_nonveg}
                   onChange={handleInputChange}
                   required
                   options={[
@@ -583,7 +577,7 @@ function EditOutlet() {
                 <SelectInput
                   label="Outlet Mode"
                   name="outlet_mode"
-                  value={formData.outlet_mode}
+                  value={outletData.outlet_mode}
                   onChange={handleInputChange}
                   required
                   options={[
@@ -596,9 +590,9 @@ function EditOutlet() {
                 <SelectInput
                   label="Status"
                   name="outlet_status"
-                  value={formData.outlet_status ? "1" : "0"}
+                  value={outletData.outlet_status ? "1" : "0"}
                   onChange={(e) => {
-                    setFormData(prev => ({
+                    setOutletData(prev => ({
                       ...prev,
                       outlet_status: e.target.value === "1"
                     }));
@@ -614,9 +608,9 @@ function EditOutlet() {
                 <SelectInput
                   label="Open/Close"
                   name="is_open"
-                  value={formData.is_open ? "1" : "0"}
+                  value={outletData.is_open ? "1" : "0"}
                   onChange={(e) => {
-                    setFormData(prev => ({
+                    setOutletData(prev => ({
                       ...prev,
                       is_open: e.target.value === "1"
                     }));
@@ -633,7 +627,7 @@ function EditOutlet() {
               <Textarea
                 label="Address"
                 name="address"
-                value={formData.address}
+                value={outletData.address}
                 onChange={handleInputChange}
                 placeholder="Enter Address"
                 required
@@ -659,7 +653,7 @@ function EditOutlet() {
                 <input
                   type="number"
                   name="service_charges"
-                  value={formData.service_charges}
+                  value={outletData.service_charges}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
@@ -672,7 +666,7 @@ function EditOutlet() {
                 <input
                   type="number"
                   name="gst"
-                  value={formData.gst}
+                  value={outletData.gst}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
@@ -681,7 +675,7 @@ function EditOutlet() {
               <TimePickerInput
                 label="Opening Time"
                   name="opening_time"
-                  value={formData.opening_time}
+                  value={outletData.opening_time}
                   onChange={handleInputChange}
                 required
                 placeholder="Select opening time"
@@ -690,7 +684,7 @@ function EditOutlet() {
               <TimePickerInput
                 label="Closing Time"
                   name="closing_time"
-                  value={formData.closing_time}
+                  value={outletData.closing_time}
                   onChange={handleInputChange}
                 required
                 placeholder="Select closing time"
@@ -703,7 +697,7 @@ function EditOutlet() {
                 <input
                   type="text"
                   name="fssainumber"
-                  value={formData.fssainumber}
+                  value={outletData.fssainumber}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
@@ -716,7 +710,7 @@ function EditOutlet() {
                 <input
                   type="text"
                   name="gstnumber"
-                  value={formData.gstnumber}
+                  value={outletData.gstnumber}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
@@ -741,7 +735,7 @@ function EditOutlet() {
                 <input
                   type="url"
                   name="website"
-                  value={formData.website}
+                  value={outletData.website}
                   onChange={handleInputChange}
                   placeholder="https://example.com"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -755,7 +749,7 @@ function EditOutlet() {
                 <input
                   type="tel"
                   name="whatsapp"
-                  value={formData.whatsapp}
+                  value={outletData.whatsapp}
                   onChange={handleInputChange}
                   placeholder="Enter 10 digit mobile number"
                   pattern="[0-9]{10}"
@@ -771,7 +765,7 @@ function EditOutlet() {
                 <input
                   type="url"
                   name="facebook"
-                  value={formData.facebook}
+                  value={outletData.facebook}
                   onChange={handleInputChange}
                   placeholder="https://facebook.com/yourpage"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -785,7 +779,7 @@ function EditOutlet() {
                 <input
                   type="url"
                   name="instagram"
-                  value={formData.instagram}
+                  value={outletData.instagram}
                   onChange={handleInputChange}
                   placeholder="https://instagram.com/yourhandle"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -799,7 +793,7 @@ function EditOutlet() {
                 <input
                   type="url"
                   name="google_business_link"
-                  value={formData.google_business_link}
+                  value={outletData.google_business_link}
                   onChange={handleInputChange}
                   placeholder="https://business.google.com/yourpage"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -813,7 +807,7 @@ function EditOutlet() {
                 <input
                   type="url"
                   name="google_review"
-                  value={formData.google_review}
+                  value={outletData.google_review}
                   onChange={handleInputChange}
                   placeholder="https://g.page/r/yourreviewpage"
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
