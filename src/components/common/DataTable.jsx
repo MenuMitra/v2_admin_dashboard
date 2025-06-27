@@ -68,17 +68,17 @@ function DataTable({
   bulkActionOptions = [
     {
       key: "active",
-      label: "Set Active",
+      label: "Active",
       className: "text-gray-700 hover:bg-gray-100",
     },
     {
       key: "inactive",
-      label: "Set Inactive",
+      label: "Inactive",
       className: "text-gray-700 hover:bg-gray-100",
     },
     {
       key: "delete",
-      label: "Delete Selected",
+      label: "Delete",
       className: "text-error-600 hover:bg-error-50",
     },
   ],

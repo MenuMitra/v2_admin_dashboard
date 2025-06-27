@@ -16,6 +16,7 @@ import {
 import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
 import Modal from '../../../common/Modal';
+import { toastController } from "../../../../utils/toastController";
 
 function Waiters() {
   const { getToken } = useAuth();
@@ -125,11 +126,21 @@ function Waiters() {
       header: "Email",
       sortable: true,
     },
-    // {
-    //   field: "dob",
-    //   header: "DOB",
-    //   sortable: true,
-    // },
+    {
+      field: "is_active",
+      header: "Status",
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value ? "text-success-500" : "text-error-500"
+            }`}
+          />
+        </div>
+      )
+    },
     {
       field: "actions",
       header: "Actions",
@@ -166,6 +177,59 @@ function Waiters() {
   const getActiveCount = () => waiters.filter((waiter) => waiter.is_active).length;
   const getInactiveCount = () => waiters.filter((waiter) => !waiter.is_active).length;
 
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const actionMessages = {
+        active: {
+          loading: "Activating selected waiters...",
+          success: "Successfully activated selected waiters",
+          error: "Failed to activate waiters"
+        },
+        inactive: {
+          loading: "Deactivating selected waiters...",
+          success: "Successfully deactivated selected waiters",
+          error: "Failed to deactivate waiters"
+        },
+        delete: {
+          loading: "Deleting selected waiters...",
+          success: "Successfully deleted selected waiters",
+          error: "Failed to delete waiters"
+        }
+      };
+
+      const response = await toastController.promise(
+        axios.post(
+          "https://men4u.xyz/v2/common/bulk_waiter_action",
+          {
+            user_id: adminData.user_id,
+            action: action,
+            app_source: "admin_dashboard",
+            waiter_ids: selectedIds
+          },
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        actionMessages[action]
+      );
+
+      fetchWaiters();
+      
+      setSelectedItems([]);
+      
+      toastController.success(response.data.detail);
+      
+    } catch (error) {
+      toastController.error(
+        error.response?.data?.detail || 
+        `Failed to perform ${action} action on selected waiters`
+      );
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -192,6 +256,7 @@ function Waiters() {
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
+        onBulkAction={handleBulkAction}
         
         title="Waiters"
         counts={{
