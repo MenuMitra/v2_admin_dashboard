@@ -17,7 +17,7 @@ import {
   faDownload,
   faSpinner,
   faLink,
-  faBowlFood 
+  faBowlFood,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -132,18 +132,18 @@ function ViewOutlet() {
 
       // Create form data
       const formData = new FormData();
-      formData.append('outlet_id', outletId);
-      formData.append('user_id', adminData?.user_id);
-      formData.append('app_source', 'admin_dashboard');
-      formData.append('file', selectedFile);
+      formData.append("outlet_id", outletId);
+      formData.append("user_id", adminData?.user_id);
+      formData.append("app_source", "admin_dashboard");
+      formData.append("file", selectedFile);
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/bulk_upload_file',
+        "https://men4u.xyz/v2/common/bulk_upload_file",
         formData,
         {
           headers: {
             Authorization: getToken(),
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -152,15 +152,15 @@ function ViewOutlet() {
         // Close modal and show success message
         setShowBulkUploadModal(false);
         setSelectedFile(null);
-        
+
         // You can add a toast notification here if you have one
-        console.log('Upload successful:', response.data);
-        
+        console.log("Upload successful:", response.data);
+
         // Refresh outlet details to show updated counts
         fetchOutletDetails();
       }
     } catch (err) {
-      console.error('Error uploading file:', err);
+      console.error("Error uploading file:", err);
       // You can add error handling/toast notification here
     } finally {
       setLoading(false);
@@ -170,29 +170,29 @@ function ViewOutlet() {
   const handleDownloadTemplate = async () => {
     setIsDownloading(true);
     try {
-      const templateUrl = '/downloads/bulk_template.csv';
-      
+      const templateUrl = "/downloads/bulk_template.csv";
+
       // Fetch the file first to check if it exists
       const response = await fetch(templateUrl);
-      
+
       if (!response.ok) {
-        throw new Error('Template file not found');
+        throw new Error("Template file not found");
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'bulk_template.csv';
-      
+      link.download = "bulk_template.csv";
+
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       // Cleanup
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error downloading template:', error);
+      console.error("Error downloading template:", error);
       // You can add a toast notification here if you have one
     } finally {
       setIsDownloading(false);
@@ -264,12 +264,12 @@ function ViewOutlet() {
           {outletData?.image && (
             <div className="mb-6">
               <div className="relative w-full max-w-md mx-auto overflow-hidden rounded-2xl shadow-lg">
-                <img 
-                  src={outletData.image} 
-                  alt={`${outletData.name || 'Outlet'}`}
+                <img
+                  src={outletData.image}
+                  alt={`${outletData.name || "Outlet"}`}
                   className="w-full h-auto object-cover"
                   onError={(e) => {
-                    e.target.style.display = 'none'; // Hide image on error
+                    e.target.style.display = "none"; // Hide image on error
                   }}
                 />
               </div>
@@ -350,48 +350,39 @@ function ViewOutlet() {
               </h2>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              
-               {/* Manager Card */}
-              
-              <button type="button" className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"><Link
-                to={`/managers/${outletId}`}
-                
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                      <FontAwesomeIcon
-                        icon={faUserGear}
-                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                        Managers
-                      </span>
+              {/* Manager Card */}
+              <button type="button" className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
+                <Link to={`/managers/${outletId}`}>
+                  <div className="flex items-center justify-center sm:justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                        <FontAwesomeIcon
+                          icon={faUserGear}
+                          className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
+                        />
+                      </div>
+                      <div className="flex flex-col w-full sm:w-auto">
+                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
+                          Managers
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link></button>
-            
-
-              
+                </Link>
+              </button>
 
               {/* Chef Card */}
-              <Link
-                to={`/chefs/${outletId}`}
-                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-              >
-                <div className="flex items-center justify-between">
+              <Link to={`/chefs/${outletId}`} className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
+                <div className="flex items-center justify-center sm:justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
                       <FontAwesomeIcon
                         icon={faBowlFood}
                         className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
                       />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                    <div className="flex flex-col w-full sm:w-auto">
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
                         Chefs
                       </span>
                     </div>
@@ -400,20 +391,17 @@ function ViewOutlet() {
               </Link>
 
               {/* Captain Card */}
-              <Link
-                to={`/captains/${outletId}`}
-                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-              >
-                <div className="flex items-center justify-between">
+              <Link to={`/captains/${outletId}`} className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
+                <div className="flex items-center justify-center sm:justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
                       <FontAwesomeIcon
                         icon={faUserPen}
                         className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
                       />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                    <div className="flex flex-col w-full sm:w-auto">
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
                         Captains
                       </span>
                     </div>
@@ -422,20 +410,17 @@ function ViewOutlet() {
               </Link>
 
               {/* Waiter Card */}
-              <Link
-                to={`/waiters/${outletId}`}
-                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-              >
-                <div className="flex items-center justify-between">
+              <Link to={`/waiters/${outletId}`} className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
+                <div className="flex items-center justify-center sm:justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
+                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
                       <FontAwesomeIcon
                         icon={faUsers}
                         className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
                       />
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                    <div className="flex flex-col w-full sm:w-auto">
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
                         Waiters
                       </span>
                     </div>
@@ -994,11 +979,11 @@ function ViewOutlet() {
                   : "bg-success-500 opacity-50 cursor-not-allowed"
               }`}
             >
-              <FontAwesomeIcon 
-                icon={loading ? faSpinner : faUpload} 
-                className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} 
+              <FontAwesomeIcon
+                icon={loading ? faSpinner : faUpload}
+                className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
               />
-              {loading ? 'Uploading...' : 'Upload'}
+              {loading ? "Uploading..." : "Upload"}
             </button>
           </div>
         }
@@ -1019,7 +1004,8 @@ function ViewOutlet() {
             <div className="flex items-center gap-2 rounded-lg border border-warning-200 bg-warning-50 p-4 text-sm text-warning-800 dark:border-warning-700 dark:bg-warning-900/50 dark:text-warning-500">
               <FontAwesomeIcon icon={faInfoCircle} className="h-5 w-5" />
               <p>
-                Please ensure your CSV file follows the template format. Any deviation may result in upload failure.
+                Please ensure your CSV file follows the template format. Any
+                deviation may result in upload failure.
               </p>
             </div>
           </div>
@@ -1028,19 +1014,21 @@ function ViewOutlet() {
               onClick={handleDownloadTemplate}
               disabled={isDownloading}
               className={`inline-flex items-center gap-2 text-sm font-medium ${
-                isDownloading 
-                  ? 'text-gray-400 cursor-not-allowed' 
-                  : 'text-brand-500 hover:text-brand-600'
+                isDownloading
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-brand-500 hover:text-brand-600"
               }`}
             >
-              <FontAwesomeIcon 
-                icon={isDownloading ? faSpinner : faDownload} 
-                className={`h-4 w-4 ${isDownloading ? 'animate-spin' : ''}`} 
+              <FontAwesomeIcon
+                icon={isDownloading ? faSpinner : faDownload}
+                className={`h-4 w-4 ${isDownloading ? "animate-spin" : ""}`}
               />
-              {isDownloading ? 'Downloading...' : 'Download Template'}
+              {isDownloading ? "Downloading..." : "Download Template"}
             </button>
             <span className="text-sm text-gray-500">
-              {selectedFile ? `Selected: ${selectedFile.name}` : "No file selected"}
+              {selectedFile
+                ? `Selected: ${selectedFile.name}`
+                : "No file selected"}
             </span>
           </div>
         </div>
