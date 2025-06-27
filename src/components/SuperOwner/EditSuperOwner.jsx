@@ -13,7 +13,7 @@ function EditSuperOwner() {
   const navigate = useNavigate();
   const { superOwnerId } = useParams();
   
-  const [formData, setFormData] = useState({
+  const [superOwnerDetails, setSuperOwnerDetails] = useState({
     user_id: adminData?.user_id || '',
     super_owner_id: superOwnerId,
     name: '',
@@ -53,7 +53,7 @@ function EditSuperOwner() {
 
       if (response.data?.super_owner) {
         const { name, mobile, email, aadhar_number, is_active } = response.data.super_owner;
-        setFormData(prev => ({
+        setSuperOwnerDetails(prev => ({
           ...prev,
           name,
           mobile,
@@ -122,7 +122,7 @@ function EditSuperOwner() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setSuperOwnerDetails(prev => ({
       ...prev,
       [name]: name === 'is_active' ? value === 'true' : value
     }));
@@ -150,7 +150,7 @@ function EditSuperOwner() {
       const response = await axios.put(
         'https://men4u.xyz/v2/admin/update_super_owner',
         {
-          ...formData,
+          ...superOwnerDetails,
           super_owner_id: parseInt(superOwnerId),
           outlet_ids: selectedOutlets
         },
@@ -264,7 +264,7 @@ function EditSuperOwner() {
                     <input
                       type="text"
                       name="name"
-                      value={formData.name}
+                      value={superOwnerDetails.name}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
@@ -276,7 +276,7 @@ function EditSuperOwner() {
                     <input
                       type="tel"
                       name="mobile"
-                      value={formData.mobile}
+                      value={superOwnerDetails.mobile}
                       onChange={handleChange}
                       pattern="[0-9]{10}"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -289,7 +289,7 @@ function EditSuperOwner() {
                     <input
                       type="email"
                       name="email"
-                      value={formData.email}
+                      value={superOwnerDetails.email}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
@@ -301,7 +301,7 @@ function EditSuperOwner() {
                     <input
                       type="text"
                       name="aadhar_number"
-                      value={formData.aadhar_number}
+                      value={superOwnerDetails.aadhar_number}
                       onChange={handleChange}
                       pattern="[0-9]{12}"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -313,7 +313,7 @@ function EditSuperOwner() {
                     <label className="block text-sm text-gray-500 mb-1">Status</label>
                     <select
                       name="is_active"
-                      value={formData.is_active}
+                      value={superOwnerDetails.is_active}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
