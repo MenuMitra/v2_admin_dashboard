@@ -17,16 +17,6 @@ import ImageUploader from './common/ImageUploader';
 import Breadcrumb from './Breadcrumb';
 import { toastController } from '../utils/toastController';
 
-// Add this helper function at the top of your file, outside the component
-const convertImageToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
-
 function CreateOutlet() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
@@ -36,7 +26,7 @@ function CreateOutlet() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   
-  const [formData, setFormData] = useState({
+  const [outletData, setOutletData] = useState({
     name: '',
     outlet_type: '',
     fssainumber: '',
@@ -156,21 +146,15 @@ function CreateOutlet() {
     }
   };
 
-  // Update handleImagesChange to handle base64 conversion
-  const handleImagesChange = async (images) => {
+  // Update handleImagesChange to handle base64 strings directly
+  const handleImagesChange = (images) => {
     if (Array.isArray(images) && images[0]) {
-      try {
-        const base64String = await convertImageToBase64(images[0]);
-        setFormData(prev => ({
-          ...prev,
-          image: base64String // Store base64 string instead of File object
-        }));
-      } catch (error) {
-        console.error('Error converting image to base64:', error);
-        toastController.error('Error processing image');
-      }
+      setOutletData(prev => ({
+        ...prev,
+        image: images[0] // ImageUploader now provides base64 string directly
+      }));
     } else {
-      setFormData(prev => ({
+      setOutletData(prev => ({
         ...prev,
         image: null
       }));
@@ -181,23 +165,20 @@ function CreateOutlet() {
     const { name, value, type, checked } = e.target;
     
     if (name === 'mobile') {
-      // Only allow numbers
       const numbersOnly = value.replace(/[^0-9]/g, '');
       const firstDigit = numbersOnly.charAt(0);
       
-      // If starts with 1-5, clear the field and show validation
       if (firstDigit && ['1','2','3','4','5'].includes(firstDigit)) {
-        setFormData(prev => ({
+        setOutletData(prev => ({
           ...prev,
-          [name]: '' // Clear the field
+          [name]: ''
         }));
         setValidationStates(prev => ({
           ...prev,
           mobile: true
         }));
       } else {
-        // For valid numbers (6-9) or empty field
-        setFormData(prev => ({
+        setOutletData(prev => ({
           ...prev,
           [name]: numbersOnly.slice(0, 10)
         }));
@@ -207,20 +188,18 @@ function CreateOutlet() {
         }));
       }
     } else if (name === 'fssainumber') {
-      // Only allow numbers and limit to 14 characters
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 14);
-      setFormData(prev => ({
+      setOutletData(prev => ({
         ...prev,
         [name]: numbersOnly
       }));
       
-      // Validate FSSAI number length
       setValidationStates(prev => ({
         ...prev,
         fssainumber: numbersOnly.length > 0 && numbersOnly.length !== 14
       }));
     } else {
-      setFormData(prev => ({
+      setOutletData(prev => ({
         ...prev,
         [name]: type === 'checkbox' ? checked : value
       }));
@@ -228,7 +207,6 @@ function CreateOutlet() {
   };
 
   const isUpiValid = (upi) => {
-    // UPI ID format: username@bankname or phonenumber@bankname
     const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/;
     return upi && upiRegex.test(upi);
   };
@@ -251,24 +229,24 @@ function CreateOutlet() {
     e.preventDefault();
     
     setValidationStates({
-        owner: formData.owner_id.length === 0,
-        name: !isNameValid(formData.name),
-        mobile: !isMobileValid(formData.mobile),
-        upi: !isUpiValid(formData.upi_id),
-        outlet_type: !formData.outlet_type,
-        food_type: !formData.veg_nonveg,
-        outlet_mode: !formData.outlet_mode,
-        address: !isAddressValid(formData.address),
+        owner: outletData.owner_id.length === 0,
+        name: !isNameValid(outletData.name),
+        mobile: !isMobileValid(outletData.mobile),
+        upi: !isUpiValid(outletData.upi_id),
+        outlet_type: !outletData.outlet_type,
+        food_type: !outletData.veg_nonveg,
+        outlet_mode: !outletData.outlet_mode,
+        address: !isAddressValid(outletData.address),
     });
 
-    if (formData.owner_id.length === 0 || 
-        !isNameValid(formData.name) || 
-        !isMobileValid(formData.mobile) ||
-        !isUpiValid(formData.upi_id) ||
-        !formData.outlet_type ||
-        !formData.veg_nonveg ||
-        !formData.outlet_mode ||
-        !isAddressValid(formData.address)) {
+    if (outletData.owner_id.length === 0 || 
+        !isNameValid(outletData.name) || 
+        !isMobileValid(outletData.mobile) ||
+        !isUpiValid(outletData.upi_id) ||
+        !outletData.outlet_type ||
+        !outletData.veg_nonveg ||
+        !outletData.outlet_mode ||
+        !isAddressValid(outletData.address)) {
         return;
     }
     
@@ -283,49 +261,49 @@ function CreateOutlet() {
 
       // Prepare the JSON payload
       const payload = {
-        owner_ids: formData.owner_id, // Already an array of numbers
+        owner_ids: outletData.owner_id,
         user_id: adminData.user_id,
-        name: formData.name,
-        mobile: formData.mobile,
-        address: formData.address,
-        outlet_type: formData.outlet_type,
-        outlet_mode: formData.outlet_mode,
-        veg_nonveg: formData.veg_nonveg,
-        upi_id: formData.upi_id,
+        name: outletData.name,
+        mobile: outletData.mobile,
+        address: outletData.address,
+        outlet_type: outletData.outlet_type,
+        outlet_mode: outletData.outlet_mode,
+        veg_nonveg: outletData.veg_nonveg,
+        upi_id: outletData.upi_id,
       };
 
       // Add optional fields only if they have values
-      if (formData.image) {
-        payload.image = formData.image;
+      if (outletData.image) {
+        payload.image = outletData.image;
       }
-      if (formData.fssainumber) {
-        payload.fssainumber = formData.fssainumber;
+      if (outletData.fssainumber) {
+        payload.fssainumber = outletData.fssainumber;
       }
-      if (formData.gstnumber) {
-        payload.gstnumber = formData.gstnumber;
+      if (outletData.gstnumber) {
+        payload.gstnumber = outletData.gstnumber;
       }
-      if (formData.whatsapp) {
-        payload.whatsapp = formData.whatsapp;
+      if (outletData.whatsapp) {
+        payload.whatsapp = outletData.whatsapp;
       }
-      if (formData.facebook) {
-        payload.facebook = formData.facebook;
+      if (outletData.facebook) {
+        payload.facebook = outletData.facebook;
       }
-      if (formData.instagram) {
-        payload.instagram = formData.instagram;
+      if (outletData.instagram) {
+        payload.instagram = outletData.instagram;
       }
-      if (formData.website) {
-        payload.website = formData.website;
+      if (outletData.website) {
+        payload.website = outletData.website;
       }
 
       // Format opening and closing times
-      if (formData.opening_time) {
-        const [timeStr, period] = formData.opening_time.split(' ');
+      if (outletData.opening_time) {
+        const [timeStr, period] = outletData.opening_time.split(' ');
         const [hours, minutes] = timeStr.split(':');
         payload.opening_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
       }
 
-      if (formData.closing_time) {
-        const [timeStr, period] = formData.closing_time.split(' ');
+      if (outletData.closing_time) {
+        const [timeStr, period] = outletData.closing_time.split(' ');
         const [hours, minutes] = timeStr.split(':');
         payload.closing_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
       }
@@ -441,7 +419,6 @@ function CreateOutlet() {
             <div className="relative">
                   <ImageUploader
                     maxImages={1}
-                    outputFormat="formData"
                     onImagesChange={handleImagesChange}
                     label="Outlet Image"
                     className="w-full"
@@ -457,7 +434,7 @@ function CreateOutlet() {
                   <TextInput
                     label="Outlet Name"
                     name="name"
-                    value={formData.name}
+                    value={outletData.name}
                     onChange={handleInputChange}
                     onFocus={() => handleFocus('name')}
                     placeholder="Enter Outlet Name"
@@ -469,8 +446,8 @@ function CreateOutlet() {
                   />
                   {validationStates.name && (
                     <p className="text-error-500 text-sm mt-1">
-                      {!formData.name ? 'Outlet name is required' : 
-                       formData.name.length < 3 ? 'Outlet name must be at least 3 characters' : 
+                      {!outletData.name ? 'Outlet name is required' : 
+                       outletData.name.length < 3 ? 'Outlet name must be at least 3 characters' : 
                        'Outlet name must not exceed 50 characters'}
                     </p>
                   )}
@@ -492,11 +469,11 @@ function CreateOutlet() {
                       aria-expanded={isDropdownOpen}
                       aria-haspopup="listbox"
                     >
-                      {formData.owner_id.length > 0 ? (
+                      {outletData.owner_id.length > 0 ? (
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="font-medium text-gray-900">
-                              {formData.owner_id.length} Owner(s) Selected
+                              {outletData.owner_id.length} Owner(s) Selected
                             </div>
                           </div>
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -522,10 +499,10 @@ function CreateOutlet() {
                         }}
                       >
                         {/* Selected Owners Display */}
-                        {formData.owner_id.length > 0 && (
+                        {outletData.owner_id.length > 0 && (
                           <div className="p-2 border-b bg-gray-50">
                             <div className="flex flex-wrap gap-2">
-                              {formData.owner_id.map(id => {
+                              {outletData.owner_id.map(id => {
                                 const owner = allOwners.find(o => o.user_id === id);
                                 return owner ? (
                                   <div 
@@ -536,7 +513,7 @@ function CreateOutlet() {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setFormData(prev => ({
+                                        setOutletData(prev => ({
                                           ...prev,
                                           owner_id: prev.owner_id.filter(ownerId => ownerId !== id)
                                         }));
@@ -576,7 +553,7 @@ function CreateOutlet() {
                                 key={owner.user_id}
                                 className={`
                                   p-3 cursor-pointer hover:bg-gray-50
-                                  ${formData.owner_id.includes(owner.user_id)
+                                  ${outletData.owner_id.includes(owner.user_id)
                                     ? 'bg-brand-50 border-l-4 border-brand-500' 
                                     : 'border-l-4 border-transparent'
                                   }
@@ -586,10 +563,10 @@ function CreateOutlet() {
                                   <div className="flex items-center gap-3">
                                     <input
                                       type="checkbox"
-                                      checked={formData.owner_id.includes(owner.user_id)}
+                                      checked={outletData.owner_id.includes(owner.user_id)}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        setFormData(prev => ({
+                                        setOutletData(prev => ({
                                           ...prev,
                                           owner_id: e.target.checked 
                                             ? [...prev.owner_id, owner.user_id]
@@ -632,7 +609,7 @@ function CreateOutlet() {
                     label="Mobile Number"
                     name="mobile"
                     type="tel"
-                    value={formData.mobile}
+                    value={outletData.mobile}
                     onChange={handleInputChange}
                     onFocus={() => handleFocus('mobile')}
                     placeholder="Enter Mobile Number"
@@ -654,7 +631,7 @@ function CreateOutlet() {
                   label="Email Address"
                   name="email"
                   type="email"
-                  value={formData.email}
+                  value={outletData.email}
                   onChange={handleInputChange}
                   placeholder="Enter Email Address"
                 />
@@ -663,7 +640,7 @@ function CreateOutlet() {
                   <TextInput
                     label="UPI ID"
                     name="upi_id"
-                    value={formData.upi_id}
+                    value={outletData.upi_id}
                     onChange={handleInputChange}
                     onFocus={() => handleFocus('upi')}
                     placeholder="username@bankname"
@@ -675,7 +652,7 @@ function CreateOutlet() {
                   />
                   {validationStates.upi && (
                     <p className="text-error-500 text-sm mt-1">
-                      {!formData.upi_id ? 'UPI ID is required' : 
+                      {!outletData.upi_id ? 'UPI ID is required' : 
                        'Please enter a valid UPI ID (e.g., username@bankname)'}
                     </p>
                   )}
@@ -684,10 +661,10 @@ function CreateOutlet() {
                 <SelectInput
                   label="Outlet Type"
                   name="outlet_type"
-                  value={formData.outlet_type}
+                  value={outletData.outlet_type}
                   onChange={handleInputChange}
                   onFocus={() => handleFocus('outlet_type')}
-                  error={validationStates.outlet_type && !formData.outlet_type}
+                  error={validationStates.outlet_type && !outletData.outlet_type}
                   required
                   options={Object.entries(outletTypes).map(([key, value]) => ({
                     value: key,
@@ -699,10 +676,10 @@ function CreateOutlet() {
                 <SelectInput
                   label="Food Type"
                   name="veg_nonveg"
-                  value={formData.veg_nonveg}
+                  value={outletData.veg_nonveg}
                   onChange={handleInputChange}
                   onFocus={() => handleFocus('food_type')}
-                  error={validationStates.food_type && !formData.veg_nonveg}
+                  error={validationStates.food_type && !outletData.veg_nonveg}
                   required
                   options={[
                     { value: 'veg', label: 'Veg' },
@@ -714,10 +691,10 @@ function CreateOutlet() {
                 <SelectInput
                   label="Outlet Mode"
                   name="outlet_mode"
-                  value={formData.outlet_mode}
+                  value={outletData.outlet_mode}
                   onChange={handleInputChange}
                   onFocus={() => handleFocus('outlet_mode')}
-                  error={validationStates.outlet_mode && !formData.outlet_mode}
+                  error={validationStates.outlet_mode && !outletData.outlet_mode}
                   required
                   options={[
                     { value: 'offline', label: 'Offline' },
@@ -731,7 +708,7 @@ function CreateOutlet() {
                 <TextInput
                   label="Address"
                   name="address"
-                  value={formData.address}
+                  value={outletData.address}
                   onChange={handleInputChange}
                   onFocus={() => handleFocus('address')}
                   placeholder="Enter Address"
@@ -743,8 +720,8 @@ function CreateOutlet() {
                 />
                 {validationStates.address && (
                   <p className="text-error-500 text-sm mt-1">
-                    {!formData.address ? 'Address is required' : 
-                     formData.address.length < 3 ? 'Address must be at least 3 characters' : 
+                    {!outletData.address ? 'Address is required' : 
+                     outletData.address.length < 3 ? 'Address must be at least 3 characters' : 
                      'Address must not exceed 50 characters'}
                   </p>
                 )}
@@ -767,7 +744,7 @@ function CreateOutlet() {
                   label="Service Charges (%)"
                   name="service_charges"
                   type="number"
-                  value={formData.service_charges}
+                  value={outletData.service_charges}
                   onChange={handleInputChange}
                   onFocus={() => handleFocus('service_charges')}
                   placeholder="Enter Service Charges"
@@ -780,7 +757,7 @@ function CreateOutlet() {
                   label="GST (%)"
                   name="gst"
                   type="number"
-                  value={formData.gst}
+                  value={outletData.gst}
                   onChange={handleInputChange}
                   onFocus={() => handleFocus('gst')}
                   placeholder="Enter GST"
@@ -791,7 +768,7 @@ function CreateOutlet() {
               <TimePickerInput
                 label="Opening Time"
                 name="opening_time"
-                value={formData.opening_time}
+                value={outletData.opening_time}
                 onChange={handleInputChange}
                 placeholder="Select opening time"
               />
@@ -799,7 +776,7 @@ function CreateOutlet() {
               <TimePickerInput
                 label="Closing Time"
                 name="closing_time"
-                value={formData.closing_time}
+                value={outletData.closing_time}
                 onChange={handleInputChange}
                 placeholder="Select closing time"
               />
@@ -807,7 +784,7 @@ function CreateOutlet() {
               <TextInput
                 label="FSSAI Number"
                 name="fssainumber"
-                value={formData.fssainumber}
+                value={outletData.fssainumber}
                 onChange={handleInputChange}
                 placeholder="Enter FSSAI Number"
               />
@@ -815,7 +792,7 @@ function CreateOutlet() {
               <TextInput
                 label="GST Number"
                 name="gstnumber"
-                value={formData.gstnumber}
+                value={outletData.gstnumber}
                 onChange={handleInputChange}
                 placeholder="Enter GST Number"
               />
@@ -836,7 +813,7 @@ function CreateOutlet() {
                 label="Website"
                 name="website"
                 type="url"
-                value={formData.website}
+                value={outletData.website}
                 onChange={handleInputChange}
                 placeholder="https://example.com"
               />
@@ -845,7 +822,7 @@ function CreateOutlet() {
                 label="WhatsApp Number"
                 name="whatsapp"
                 type="tel"
-                value={formData.whatsapp}
+                value={outletData.whatsapp}
                 onChange={handleInputChange}
                 placeholder="Enter 10 digit mobile number"
                 pattern="[0-9]{10}"
@@ -856,7 +833,7 @@ function CreateOutlet() {
                 label="Facebook"
                 name="facebook"
                 type="url"
-                value={formData.facebook}
+                value={outletData.facebook}
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/yourpage"
               />
@@ -865,7 +842,7 @@ function CreateOutlet() {
                 label="Instagram"
                 name="instagram"
                 type="url"
-                value={formData.instagram}
+                value={outletData.instagram}
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/yourhandle"
               />
@@ -874,7 +851,7 @@ function CreateOutlet() {
                 label="Google Business Link"
                 name="google_business_link"
                 type="url"
-                value={formData.google_business_link}
+                value={outletData.google_business_link}
                 onChange={handleInputChange}
                 placeholder="https://business.google.com/yourpage"
               />
@@ -883,7 +860,7 @@ function CreateOutlet() {
                 label="Google Review Link"
                 name="google_review"
                 type="url"
-                value={formData.google_review}
+                value={outletData.google_review}
                 onChange={handleInputChange}
                 placeholder="https://g.page/r/yourreviewpage"
               />
@@ -903,14 +880,14 @@ function CreateOutlet() {
               <Checkbox
                 label="Outlet is currently open"
                   name="is_open"
-                  checked={formData.is_open}
+                  checked={outletData.is_open}
                   onChange={handleInputChange}
                 />
 
               <Checkbox
                 label="Outlet is active"
                   name="outlet_status"
-                  checked={formData.outlet_status}
+                  checked={outletData.outlet_status}
                   onChange={handleInputChange}
                 />
             </div>
