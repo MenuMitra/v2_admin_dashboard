@@ -11,7 +11,7 @@ import {
 } from '../../forms/FormElements';
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faChevronLeft as faBack, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import ImageUploader from '../../common/ImageUploader';
 
 function EditMenu() {
@@ -36,10 +36,17 @@ function EditMenu() {
   const [portionData, setPortionData] = useState([
     { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
   ]);
-  const [menuImages, setMenuImages] = useState([]);
+  const [menuImages, setMenuImages] = useState({
+    existing: [],
+    new: []
+  });
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
+
+  // Add is_special to state
+  const [isSpecial, setIsSpecial] = useState(false);
+  const [existingImageIds, setExistingImageIds] = useState([]);
 
   // Ref for form submission from Save button
   const formRef = React.useRef();
@@ -57,7 +64,6 @@ function EditMenu() {
   useEffect(() => {
     const fetchMenuDetails = async () => {
       try {
-        const token = getToken();
         const response = await axios.post(
           'https://men4u.xyz/v2/common/menu_view',
           {
@@ -68,7 +74,7 @@ function EditMenu() {
           },
           {
             headers: {
-              Authorization: token,
+              Authorization: getToken(),
             }
           }
         );
@@ -81,6 +87,15 @@ function EditMenu() {
         setSpicyIndex(menuData.spicy_index?.toString() || '');
         setIngredients(menuData.ingredients);
         setOffer(menuData.offer?.toString() || '');
+        setIsSpecial(menuData.is_special || false);
+        setExistingImageIds(menuData.images?.map(img => img.image_id) || []);
+        setMenuImages(prev => ({
+          ...prev,
+          existing: menuData.images?.map(img => ({
+            image_id: img.image_id,
+            image_url: img.image
+          })) || []
+        }));
         setPortionData(menuData.portions.map((p, idx) => ({
           portion_name: p.portion_name,
           price: p.price.toString(),
@@ -209,7 +224,17 @@ function EditMenu() {
 
   // Image handlers
   const handleImagesChange = (newImages) => {
-    setMenuImages(newImages);
+    setMenuImages(prev => ({
+      ...prev,
+      new: newImages
+    }));
+  };
+
+  const handleRemoveExistingImage = (imageId) => {
+    setMenuImages(prev => ({
+      ...prev,
+      existing: prev.existing.filter(img => img.image_id !== imageId)
+    }));
   };
 
   // Form submit
@@ -237,32 +262,31 @@ function EditMenu() {
         flag: index === 0 ? 1 : 0
       }));
 
-      // Create JSON payload instead of FormData
+      // Create complete JSON payload
       const jsonPayload = {
         menu_id: Number(menuId),
         outlet_id: Number(outletId),
-        menu_cat_id: Number(menuCatId),
         user_id: adminData?.user_id,
         name: name.trim(),
+        portion_data: validPortionData,
         food_type: foodType,
-        description: description.trim(),
+        menu_cat_id: Number(menuCatId),
         spicy_index: spicyIndex ? spicyIndex.toString() : null,
-        ingredients: ingredients.trim(),
         offer: offer ? Number(offer) : 0,
-        app_source: 'admin_dashboard',
-        portion_data: validPortionData
+        description: description.trim(),
+        ingredients: ingredients.trim(),
+        is_special: isSpecial,
+        images: menuImages.new,
+        existing_image_ids: menuImages.existing.map(img => img.image_id),
+        app_source: 'admin_dashboard'
       };
 
-      // Add console logs to help debug
-      console.log('Sending update request with data:', jsonPayload);
-
-      // Make PUT request to update menu with JSON
       const response = await axios.put(
         'https://men4u.xyz/v2/common/menu_update',
         jsonPayload,
         {
           headers: {
-            Authorization: `${token}`,
+            Authorization: token,
             'Content-Type': 'application/json',
           },
         }
@@ -332,7 +356,6 @@ function EditMenu() {
             ref={formRef}
             onSubmit={handleSubmit}
             className="flex flex-col gap-4"
-            encType="multipart/form-data"
           >
             {/* Grid for form fields */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 text-base">
@@ -381,6 +404,18 @@ function EditMenu() {
                 onChange={e => setIngredients(e.target.value)}
                 placeholder="e.g. dal, vegetables"
               />
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="is_special"
+                  checked={isSpecial}
+                  onChange={(e) => setIsSpecial(e.target.checked)}
+                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                />
+                <label htmlFor="is_special" className="text-sm font-medium text-gray-700">
+                  Special Item
+                </label>
+              </div>
             </div>
 
             {/* Description field outside the grid */}
@@ -457,15 +492,52 @@ function EditMenu() {
             </div>
 
             {/* Images */}
-            <ImageUploader
-              maxImages={5}
-              outputFormat="formData"
-              existingImages={menuImages}
-              onImagesChange={handleImagesChange}
-              className="mb-4"
-              label="Menu Images"
-              required={false}
-            />
+            <div className="space-y-4">
+              {/* Display existing images */}
+              {menuImages.existing.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Existing Images
+                  </label>
+                  <div className="flex flex-wrap gap-4">
+                    {menuImages.existing.map((img) => (
+                      <div 
+                        key={img.image_id} 
+                        className="relative group w-24 h-24 border rounded-lg overflow-hidden"
+                      >
+                        <img
+                          src={img.image_url}
+                          alt="Menu item"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExistingImage(img.image_id)}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 
+                                   opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Upload new images */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Add New Images {menuImages.existing.length + menuImages.new.length < 5 && "(Optional)"}
+                </label>
+                <ImageUploader
+                  maxImages={5 - menuImages.existing.length}
+                  existingImages={menuImages.new}
+                  onImagesChange={handleImagesChange}
+                  className="mb-4"
+                  required={false}
+                />
+              </div>
+            </div>
 
             {error && <div className="text-error-500 text-center">{error}</div>}
             {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
