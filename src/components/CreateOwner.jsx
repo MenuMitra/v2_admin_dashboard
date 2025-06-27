@@ -26,7 +26,7 @@ function CreateOwner() {
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
-  const [formData, setFormData] = useState({
+  const [ownerData, setOwnerData] = useState({
     name: "",
     mobile: "",
     email: "",
@@ -80,7 +80,7 @@ function CreateOwner() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setOwnerData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -115,13 +115,13 @@ function CreateOwner() {
 
       const payload = {
         user_id: adminData.user_id,
-        name: formData.name,
-        mobile: formData.mobile,
-        email: formData.email,
-        address: formData.address,
-        aadhar_number: formData.aadhar_number,
-        dob: formData.dob,
-        functionality_ids: formData.functionality_ids,
+        name: ownerData.name,
+        mobile: ownerData.mobile,
+        email: ownerData.email,
+        address: ownerData.address,
+        aadhar_number: ownerData.aadhar_number,
+        dob: ownerData.dob,
+        functionality_ids: ownerData.functionality_ids,
       };
 
       await toastController.promise(
@@ -148,7 +148,7 @@ function CreateOwner() {
     }
   };
 
-  if (isLoading && !formData.name) {
+  if (isLoading && !ownerData.name) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -205,7 +205,7 @@ function CreateOwner() {
               <TextInput
                 label="Full Name"
                 name="name"
-                value={formData.name}
+                value={ownerData.name}
                 onChange={handleChange}
                 placeholder="Enter full name"
                 required
@@ -218,7 +218,7 @@ function CreateOwner() {
                 label="Mobile Number"
                 name="mobile"
                 type="tel"
-                value={formData.mobile}
+                value={ownerData.mobile}
                 onChange={handleChange}
                 placeholder="Enter mobile number"
                 required
@@ -231,7 +231,7 @@ function CreateOwner() {
                 label="Email Address"
                 name="email"
                 type="email"
-                value={formData.email}
+                value={ownerData.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
                 validationType="email"
@@ -241,7 +241,7 @@ function CreateOwner() {
               <DateInput
                 label="Date of Birth"
                 name="dob"
-                value={formData.dob}
+                value={ownerData.dob}
                 onChange={handleChange}
                 // required
                 placeholder="Select date of birth"
@@ -250,7 +250,7 @@ function CreateOwner() {
               <TextInput
                 label="Aadhar Number"
                 name="aadhar_number"
-                value={formData.aadhar_number}
+                value={ownerData.aadhar_number}
                 onChange={handleChange}
                 placeholder="Enter 12-digit Aadhar number"
                 required
@@ -264,7 +264,7 @@ function CreateOwner() {
             <Textarea
               label="Address"
               name="address"
-              value={formData.address}
+              value={ownerData.address}
               onChange={handleChange}
               placeholder="Enter complete address"
               rows={3}
@@ -297,7 +297,7 @@ function CreateOwner() {
                               ? [...prev, value]
                               : prev.filter((id) => id !== value)
                           );
-                          setFormData((prev) => ({
+                          setOwnerData((prev) => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
@@ -311,46 +311,7 @@ function CreateOwner() {
                   ))}
                 </div>
               </div>
-
-              {/* Selected Functionalities Tags */}
-              {/* {selectedFunctionalities.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {selectedFunctionalities.map(id => {
-                    const func = functionalities.find(f => f.functionality_id === id);
-                    return (
-                      <span
-                        key={id}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      >
-                        {func?.functionality_name}
-                        <button
-                          type="button"
-                          className="ml-1 inline-flex items-center justify-center"
-                          onClick={() => {
-                            setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
-                            setFormData(prev => ({
-                              ...prev,
-                              functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
-                            }));
-                          }}
-                        >
-                          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )} */}
             </div>
-
-            {/* Error Message */}
-            {/* {error && (
-              <div className="text-error-500 text-sm mt-2">
-                {error}
-              </div>
-            )} */}
           </form>
         </div>
       </div>
