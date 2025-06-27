@@ -20,12 +20,13 @@ function EditCustomer() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({
+  const [customerData, setCustomerData] = useState({
     name: "",
     mobile: "",
     email: "",
     role: "customer",
     address: "",
+    dob: "",
     is_active: true,
   });
 
@@ -51,12 +52,13 @@ function EditCustomer() {
         }
       );
       const { customer_details } = response.data;
-      setFormData({
+      setCustomerData({
         name: customer_details.name || "",
         mobile: customer_details.mobile || "",
         email: customer_details.email || "",
         role: customer_details.role || "customer",
         address: customer_details.address || "",
+        dob: customer_details.dob || "",
         is_active: customer_details.is_active === 1,
       });
     } catch (err) {
@@ -72,13 +74,17 @@ function EditCustomer() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.patch(
-        "https://men4u.xyz/v2/common/update_active_status",
+      const response = await axios.patch(
+        "https://men4u.xyz/v2/admin/customer_update",
         {
           user_id: adminData?.user_id,
-          type: "customer",
-          id: Number(customerId),
-          is_active: formData.is_active ? 1 : 0,
+          customer_id: Number(customerId),
+          name: customerData.name,
+          email: customerData.email,
+          mobile: customerData.mobile,
+          address: customerData.address,
+          dob: customerData.dob,
+          is_active: customerData.is_active ? 1 : 0,
           app_source: "admin_dashboard"
         },
         {
@@ -87,11 +93,14 @@ function EditCustomer() {
           },
         }
       );
-      toastController.success("Customer status updated successfully");
-      navigate(-1);
+
+      if (response.data?.detail) {
+        toastController.success("Customer updated successfully");
+        navigate(-1);
+      }
     } catch (error) {
       toastController.error(
-        error.response?.data?.msg || "Failed to update customer status"
+        error.response?.data?.msg || "Failed to update customer"
       );
     } finally {
       setLoading(false);
@@ -100,7 +109,7 @@ function EditCustomer() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setCustomerData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -167,64 +176,64 @@ function EditCustomer() {
             <TextInput
               label="Name"
               name="name"
-              value={formData.name}
+              value={customerData.name}
               onChange={handleInputChange}
               required
               placeholder="Enter customer name"
-              disabled
-              className="bg-gray-50 cursor-not-allowed"
             />
 
             <TextInput
               label="Mobile"
               name="mobile"
-              value={formData.mobile}
+              value={customerData.mobile}
               onChange={handleInputChange}
               required
               placeholder="Enter mobile number"
               validationType="phone"
-              disabled
-              className="bg-gray-50 cursor-not-allowed"
             />
 
             <TextInput
               label="Email"
               name="email"
-              value={formData.email}
+              value={customerData.email}
               onChange={handleInputChange}
               placeholder="Enter email address"
               validationType="email"
-              disabled
-              className="bg-gray-50 cursor-not-allowed"
             />
 
             <TextInput
               label="Address"
               name="address"
-              value={formData.address}
+              value={customerData.address}
               onChange={handleInputChange}
               placeholder="Enter address"
-              disabled
-              className="bg-gray-50 cursor-not-allowed"
+            />
+
+            <TextInput
+              label="Date of Birth"
+              name="dob"
+              type="date"
+              value={customerData.dob}
+              onChange={handleInputChange}
+              placeholder="Select date of birth"
             />
 
             <SelectInput
               label="Role"
               name="role"
-              value={formData.role}
+              value={customerData.role}
               onChange={handleInputChange}
               options={[
                 { value: "customer", label: "Customer" }
               ]}
-              disabled
             />
 
             <SelectInput
               label="Status"
               name="is_active"
-              value={formData.is_active ? "1" : "0"}
+              value={customerData.is_active ? "1" : "0"}
               onChange={(e) =>
-                setFormData((prev) => ({
+                setCustomerData((prev) => ({
                   ...prev,
                   is_active: e.target.value === "1",
                 }))
