@@ -286,7 +286,7 @@ function ViewOutlet() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
             >
               <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
-              <span>Bulk Upload</span>
+              <span className="hidden sm:inline">Bulk Upload</span>
             </button>
           </div>
 
