@@ -16,6 +16,7 @@ import {
 import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
 import Modal from '../../../common/Modal';
+import { toastController } from "../../../../utils/toastController";
 
 function Captains() {
   const { getToken } = useAuth();
@@ -125,11 +126,11 @@ function Captains() {
       header: "Email",
       sortable: true,
     },
-    {
-      field: "created_on",
-      header: "Created On",
-      sortable: true,
-    },
+    // {
+    //   field: "created_on",
+    //   header: "Created On",
+    //   sortable: true,
+    // },
     {
       field: "is_active",
       header: "Status",
@@ -179,6 +180,59 @@ function Captains() {
   const getActiveCount = () => captains.filter((captain) => captain.is_active).length;
   const getInactiveCount = () => captains.filter((captain) => !captain.is_active).length;
 
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const actionMessages = {
+        active: {
+          loading: "Activating selected captains...",
+          success: "Successfully activated selected captains",
+          error: "Failed to activate captains"
+        },
+        inactive: {
+          loading: "Deactivating selected captains...",
+          success: "Successfully deactivated selected captains",
+          error: "Failed to deactivate captains"
+        },
+        delete: {
+          loading: "Deleting selected captains...",
+          success: "Successfully deleted selected captains",
+          error: "Failed to delete captains"
+        }
+      };
+
+      const response = await toastController.promise(
+        axios.post(
+          "https://men4u.xyz/v2/common/bulk_captain_action",
+          {
+            user_id: adminData.user_id,
+            action: action,
+            app_source: "admin_dashboard",
+            captain_ids: selectedIds
+          },
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        actionMessages[action]
+      );
+
+      fetchCaptains();
+      
+      setSelectedItems([]);
+      
+      toastController.success(response.data.detail);
+      
+    } catch (error) {
+      toastController.error(
+        error.response?.data?.detail || 
+        `Failed to perform ${action} action on selected captains`
+      );
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -202,12 +256,11 @@ function Captains() {
         onSearchChange={setSearchTerm}
         darkMode={true}
         
-        // Enable selection and bulk actions
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
+        onBulkAction={handleBulkAction}
         
-        // Header props
         title="Captains"
         counts={{
           total: getTotalCount(),
@@ -227,7 +280,6 @@ function Captains() {
           position: "right"
         }}
         
-        // Add status filter props
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
