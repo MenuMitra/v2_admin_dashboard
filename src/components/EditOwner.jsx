@@ -24,7 +24,7 @@ function EditOwner() {
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
-  const [formData, setFormData] = useState({
+  const [ownerData, setOwnerData] = useState({
     name: '',
     email: '',
     mobile: '',
@@ -99,7 +99,7 @@ function EditOwner() {
       const funcIds = response.data.functionalities.map(f => f.functionality_id);
       setSelectedFunctionalities(funcIds);
 
-      setFormData({
+      setOwnerData({
         name: response.data.name,
         email: response.data.email,
         mobile: response.data.mobile,
@@ -120,7 +120,7 @@ function EditOwner() {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setOwnerData(prev => ({
       ...prev,
       [name]: name === 'is_active' ? Number(value) : value
     }));
@@ -142,15 +142,15 @@ function EditOwner() {
         {
           update_user_id: adminData.user_id,
           user_id: parseInt(ownerId),
-          name: formData.name,
-          mobile: formData.mobile,
-          address: formData.address,
-          aadhar_number: formData.aadhar_number,
-          dob: formData.dob,
-          email: formData.email,
-          account_type: formData.account_type,
-          functionality_ids: formData.functionality_ids,
-          is_active: Number(formData.is_active)
+          name: ownerData.name,
+          mobile: ownerData.mobile,
+          address: ownerData.address,
+          aadhar_number: ownerData.aadhar_number,
+          dob: ownerData.dob,
+          email: ownerData.email,
+          account_type: ownerData.account_type,
+          functionality_ids: ownerData.functionality_ids,
+          is_active: Number(ownerData.is_active)
         },
         {
           headers: {
@@ -227,7 +227,7 @@ function EditOwner() {
               <TextInput
                 label="Full Name"
                 name="name"
-                value={formData.name}
+                value={ownerData.name}
                 onChange={handleChange}
                 placeholder="Enter full name"
                 required
@@ -237,7 +237,7 @@ function EditOwner() {
                 label="Mobile Number"
                 name="mobile"
                 type="tel"
-                value={formData.mobile}
+                value={ownerData.mobile}
                 onChange={handleChange}
                 placeholder="Enter mobile number"
                 required
@@ -248,7 +248,7 @@ function EditOwner() {
                 label="Email Address"
                 name="email"
                 type="email"
-                value={formData.email}
+                value={ownerData.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
                 required
@@ -257,7 +257,7 @@ function EditOwner() {
               <DateInput
                 label="Date of Birth"
                 name="dob"
-                value={formData.dob}
+                value={ownerData.dob}
                 onChange={handleChange}
                 required
                 placeholder="Select date of birth"
@@ -266,7 +266,7 @@ function EditOwner() {
               <TextInput
                 label="Aadhar Number"
                 name="aadhar_number"
-                value={formData.aadhar_number}
+                value={ownerData.aadhar_number}
                 onChange={handleChange}
                 placeholder="Enter 12-digit Aadhar number"
                 required
@@ -278,7 +278,7 @@ function EditOwner() {
               <SelectInput
                 label="Owner Status"
                 name="is_active"
-                value={formData.is_active}
+                value={ownerData.is_active}
                 onChange={handleChange}
                 required
                 options={[
@@ -292,7 +292,7 @@ function EditOwner() {
               <SelectInput
                 label="Account Type"
                 name="account_type"
-                value={formData.account_type}
+                value={ownerData.account_type}
                 onChange={handleChange}
                 required
                 options={[
@@ -307,7 +307,7 @@ function EditOwner() {
             <Textarea
               label="Address"
               name="address"
-              value={formData.address}
+              value={ownerData.address}
               onChange={handleChange}
               placeholder="Enter complete address"
               rows={3}
@@ -335,7 +335,7 @@ function EditOwner() {
                               ? [...prev, value]
                               : prev.filter(id => id !== value)
                           );
-                          setFormData(prev => ({
+                          setOwnerData(prev => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
@@ -364,7 +364,7 @@ function EditOwner() {
                           className="ml-1 inline-flex items-center justify-center"
                           onClick={() => {
                             setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
-                            setFormData(prev => ({
+                            setOwnerData(prev => ({
                               ...prev,
                               functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
                             }));
