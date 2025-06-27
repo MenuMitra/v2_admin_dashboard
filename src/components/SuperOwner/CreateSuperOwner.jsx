@@ -10,7 +10,7 @@ function CreateSuperOwner() {
   const { adminData } = useAdmin();
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
+  const [superOwnerDetails, setSuperOwnerDetails] = useState({
     user_id: adminData?.user_id || "",
     name: "",
     mobile: "",
@@ -69,7 +69,7 @@ function CreateSuperOwner() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setSuperOwnerDetails((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -93,27 +93,27 @@ function CreateSuperOwner() {
   const validate = () => {
     const errors = {};
     // Name: required, only alphabets and spaces
-    if (!formData.name.trim()) {
+    if (!superOwnerDetails.name.trim()) {
       errors.name = "Name is required";
-    } else if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+    } else if (!/^[A-Za-z\s]+$/.test(superOwnerDetails.name)) {
       errors.name = "Name should only contain alphabets and spaces";
     }
     // Mobile: required, 10 digits, starts with 6/7/8/9
-    if (!formData.mobile.trim()) {
+    if (!superOwnerDetails.mobile.trim()) {
       errors.mobile = "Mobile number is required";
-    } else if (!/^[6-9]\d{9}$/.test(formData.mobile)) {
+    } else if (!/^[6-9]\d{9}$/.test(superOwnerDetails.mobile)) {
       errors.mobile = "Mobile must be 10 digits and start with 6, 7, 8, or 9";
     }
     // Email: required, valid format
-    if (!formData.email.trim()) {
+    if (!superOwnerDetails.email.trim()) {
       errors.email = "Email is required";
-    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
+    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(superOwnerDetails.email)) {
       errors.email = "Invalid email address";
     }
     // Aadhar: required, 12 digits
-    if (!formData.aadhar_number.trim()) {
+    if (!superOwnerDetails.aadhar_number.trim()) {
       errors.aadhar_number = "Aadhar number is required";
-    } else if (!/^\d{12}$/.test(formData.aadhar_number)) {
+    } else if (!/^\d{12}$/.test(superOwnerDetails.aadhar_number)) {
       errors.aadhar_number = "Aadhar number must be 12 digits";
     }
     // Outlets: at least one selected
@@ -142,7 +142,7 @@ function CreateSuperOwner() {
       const response = await axios.post(
         "https://men4u.xyz/v2/admin/create_super_owner",
         {
-          ...formData,
+          ...superOwnerDetails,
           outlet_ids: selectedOutlets,
         },
         {
@@ -240,7 +240,7 @@ function CreateSuperOwner() {
                     <input
                       type="text"
                       name="name"
-                      value={formData.name}
+                      value={superOwnerDetails.name}
                       onChange={handleChange}
                       placeholder="Enter name"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -260,7 +260,7 @@ function CreateSuperOwner() {
                     <input
                       type="tel"
                       name="mobile"
-                      value={formData.mobile}
+                      value={superOwnerDetails.mobile}
                       onChange={handleChange}
                       placeholder="Enter mobile number"
                       pattern="[0-9]{10}"
@@ -281,7 +281,7 @@ function CreateSuperOwner() {
                     <input
                       type="email"
                       name="email"
-                      value={formData.email}
+                      value={superOwnerDetails.email}
                       onChange={handleChange}
                       placeholder="Enter email address"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -301,7 +301,7 @@ function CreateSuperOwner() {
                     <input
                       type="text"
                       name="aadhar_number"
-                      value={formData.aadhar_number}
+                      value={superOwnerDetails.aadhar_number}
                       onChange={handleChange}
                       placeholder="Enter Aadhar number"
                       pattern="[0-9]{12}"
