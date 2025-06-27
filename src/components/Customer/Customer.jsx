@@ -4,10 +4,11 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPlus, faTrash, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPlus, faTrash, faPenToSquare, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import Modal from '../common/Modal';
+import { toastController } from "../../utils/toastController";
 
 function Customer() {
   const { getToken } = useAuth();
@@ -21,6 +22,7 @@ function Customer() {
   const [selectedOutlet, setSelectedOutlet] = useState('');
   const [outletName, setOutletName] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   // Add new state for modal
   const [deleteModal, setDeleteModal] = useState({
@@ -137,6 +139,57 @@ function Customer() {
     }
   };
 
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const actionMessages = {
+        active: {
+          loading: "Activating selected customers...",
+          success: "Successfully activated selected customers",
+          error: "Failed to activate customers"
+        },
+        inactive: {
+          loading: "Deactivating selected customers...",
+          success: "Successfully deactivated selected customers",
+          error: "Failed to deactivate customers"
+        },
+        delete: {
+          loading: "Deleting selected customers...",
+          success: "Successfully deleted selected customers",
+          error: "Failed to delete customers"
+        }
+      };
+
+      const response = await toastController.promise(
+        axios.post(
+          "https://men4u.xyz/v2/common/bulk_customer_action",
+          {
+            user_id: adminData.user_id,
+            action: action,
+            app_source: "admin_dashboard",
+            customer_ids: selectedIds
+          },
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        actionMessages[action]
+      );
+
+      fetchCustomers(selectedOutlet);
+      setSelectedItems([]);
+      toastController.success(response.data.detail);
+      
+    } catch (error) {
+      toastController.error(
+        error.response?.data?.detail || 
+        `Failed to perform ${action} action on selected customers`
+      );
+    }
+  };
+
   const columns = [
     {
       field: 'name',
@@ -160,11 +213,20 @@ function Customer() {
       sortable: true,
       render: (value) => value || '-'
     },
-    // Add status column
     {
       field: 'is_active',
       header: 'Status',
-      sortable: true
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value ? "text-success-500" : "text-error-500"
+            }`}
+          />
+        </div>
+      ),
     },
     {
       field: 'action',
@@ -252,6 +314,10 @@ function Customer() {
           setSearchTerm('');
         }}
         isLoading={loading}
+        enableSelection={true}
+        onSelectionChange={setSelectedItems}
+        selectedItems={selectedItems}
+        onBulkAction={handleBulkAction}
       />
 
       {/* Add Delete Confirmation Modal */}
