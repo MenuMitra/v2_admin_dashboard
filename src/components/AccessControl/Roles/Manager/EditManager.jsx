@@ -19,7 +19,7 @@ function EditManager() {
   const [error, setError] = useState(null);
   const [availableFunctionalities, setAvailableFunctionalities] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [formData, setFormData] = useState({
+  const [managerData, setManagerData] = useState({
     name: "",
     mobile: "",
     email: "",
@@ -107,15 +107,15 @@ function EditManager() {
         }
       );
       
-      const managerData = response.data.detail;
-      setFormData({
-        name: managerData.name || "",
-        mobile: managerData.mobile || "",
-        email: managerData.email || "",
-        address: managerData.address || "",
-        aadhar_number: managerData.aadhar_number || "",
-        dob: managerData.dob || "",
-        functionality_ids: managerData.functionalities?.map(f => f.functionality_id) || [],
+      const fetchedData = response.data.detail;
+      setManagerData({
+        name: fetchedData.name || "",
+        mobile: fetchedData.mobile || "",
+        email: fetchedData.email || "",
+        address: fetchedData.address || "",
+        aadhar_number: fetchedData.aadhar_number || "",
+        dob: fetchedData.dob || "",
+        functionality_ids: fetchedData.functionalities?.map(f => f.functionality_id) || [],
         role: "manager"
       });
     } catch (err) {
@@ -135,7 +135,7 @@ function EditManager() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          ...formData,
+          ...managerData,
           app_source: "admin_dashboard"
         },
         {
@@ -153,7 +153,7 @@ function EditManager() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setManagerData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -230,7 +230,7 @@ function EditManager() {
             <TextInput
               label="Name"
               name="name"
-              value={formData.name}
+              value={managerData.name}
               onChange={handleInputChange}
               required
             />
@@ -238,7 +238,7 @@ function EditManager() {
             <TextInput
               label="Mobile"
               name="mobile"
-              value={formData.mobile}
+              value={managerData.mobile}
               onChange={handleInputChange}
               required
               pattern="[0-9]{10}"
@@ -248,21 +248,21 @@ function EditManager() {
               label="Email"
               name="email"
               type="email"
-              value={formData.email}
+              value={managerData.email}
               onChange={handleInputChange}
             />
 
             <TextInput
               label="Address"
               name="address"
-              value={formData.address}
+              value={managerData.address}
               onChange={handleInputChange}
             />
 
             <TextInput
               label="Aadhar Number"
               name="aadhar_number"
-              value={formData.aadhar_number}
+              value={managerData.aadhar_number}
               onChange={handleInputChange}
               pattern="[0-9]{12}"
               required
@@ -271,7 +271,7 @@ function EditManager() {
             <DateInput
               label="Date of Birth"
               name="dob"
-              value={formData.dob}
+              value={managerData.dob}
               onChange={handleInputChange}
               required
             />
@@ -279,7 +279,7 @@ function EditManager() {
             <SelectInput
               label="Role"
               name="role"
-              value={formData.role}
+              value={managerData.role}
               onChange={handleInputChange}
               required
               options={roles.map(role => ({
@@ -303,11 +303,11 @@ function EditManager() {
                   aria-expanded={isDropdownOpen}
                   aria-haspopup="listbox"
                 >
-                  {formData.functionality_ids.length > 0 ? (
+                  {managerData.functionality_ids.length > 0 ? (
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-gray-900">
-                          {formData.functionality_ids.length} Functionality(s) Selected
+                          {managerData.functionality_ids.length} Functionality(s) Selected
                         </div>
                       </div>
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -349,17 +349,17 @@ function EditManager() {
                           key={func.functionality_id}
                           className={`
                             p-3 cursor-pointer hover:bg-gray-50
-                            ${formData.functionality_ids.includes(func.functionality_id)
+                            ${managerData.functionality_ids.includes(func.functionality_id)
                               ? 'bg-brand-50 border-l-4 border-brand-500' 
                               : 'border-l-4 border-transparent'
                             }
                           `}
                           onClick={() => {
-                            const newIds = formData.functionality_ids.includes(func.functionality_id)
-                              ? formData.functionality_ids.filter(id => id !== func.functionality_id)
-                              : [...formData.functionality_ids, func.functionality_id];
+                            const newIds = managerData.functionality_ids.includes(func.functionality_id)
+                              ? managerData.functionality_ids.filter(id => id !== func.functionality_id)
+                              : [...managerData.functionality_ids, func.functionality_id];
                             
-                            setFormData(prev => ({
+                            setManagerData(prev => ({
                               ...prev,
                               functionality_ids: newIds
                             }));
@@ -368,10 +368,10 @@ function EditManager() {
                           <div className="flex items-center gap-3">
                             <input
                               type="checkbox"
-                              checked={formData.functionality_ids.includes(func.functionality_id)}
+                              checked={managerData.functionality_ids.includes(func.functionality_id)}
                               onChange={(e) => {
                                 e.stopPropagation();
-                                setFormData(prev => ({
+                                setManagerData(prev => ({
                                   ...prev,
                                   functionality_ids: e.target.checked
                                     ? [...prev.functionality_ids, func.functionality_id]
