@@ -36,6 +36,8 @@ import {
   faInfoCircle,
   faDownload,
   faSpinner,
+  faExternalLink,
+  faLink
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -251,7 +253,7 @@ function ViewOutlet() {
                   title="View in Customer App"
                   className="inline-flex items-center justify-center ml-2 w-6 h-6 text-gray-700 transition rounded-full  hover:bg-gray-300"
                 >
-                  <svg
+                  {/* <svg
                     style={{ width: "0.68em", height: "0.68em" }}
                     viewBox="0 0 10 10"
                     xmlns="http://www.w3.org/2000/svg"
@@ -264,7 +266,8 @@ function ViewOutlet() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
-                  </svg>
+                  </svg> */}
+                  <FontAwesomeIcon icon={faLink} className="w-4 h-4" />
                 </a>
               </h2>
             </div>
