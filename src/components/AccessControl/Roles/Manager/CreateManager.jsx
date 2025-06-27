@@ -27,7 +27,7 @@ function CreateManager() {
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
-  const [formData, setFormData] = useState({
+  const [managerData, setManagerData] = useState({
     name: "",
     mobile: "",
     email: "",
@@ -80,7 +80,7 @@ function CreateManager() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setManagerData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -116,13 +116,13 @@ function CreateManager() {
       const payload = {
         user_id: adminData.user_id,
         outlet_id: Number(outletId),
-        name: formData.name,
-        mobile: formData.mobile,
-        email: formData.email,
-        address: formData.address,
-        aadhar_number: formData.aadhar_number,
-        dob: formData.dob,
-        functionality_ids: formData.functionality_ids,
+        name: managerData.name,
+        mobile: managerData.mobile,
+        email: managerData.email,
+        address: managerData.address,
+        aadhar_number: managerData.aadhar_number,
+        dob: managerData.dob,
+        functionality_ids: managerData.functionality_ids,
         app_source: "admin_dashboard"
       };
 
@@ -150,7 +150,7 @@ function CreateManager() {
     }
   };
 
-  if (isLoading && !formData.name) {
+  if (isLoading && !managerData.name) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -202,7 +202,7 @@ function CreateManager() {
               <TextInput
                 label="Full Name"
                 name="name"
-                value={formData.name}
+                value={managerData.name}
                 onChange={handleChange}
                 placeholder="Enter full name"
                 required
@@ -215,7 +215,7 @@ function CreateManager() {
                 label="Mobile Number"
                 name="mobile"
                 type="tel"
-                value={formData.mobile}
+                value={managerData.mobile}
                 onChange={handleChange}
                 placeholder="Enter mobile number"
                 required
@@ -228,7 +228,7 @@ function CreateManager() {
                 label="Email Address"
                 name="email"
                 type="email"
-                value={formData.email}
+                value={managerData.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
                 validationType="email"
@@ -238,7 +238,7 @@ function CreateManager() {
               <DateInput
                 label="Date of Birth"
                 name="dob"
-                value={formData.dob}
+                value={managerData.dob}
                 onChange={handleChange}
                 placeholder="Select date of birth"
               />
@@ -246,7 +246,7 @@ function CreateManager() {
               <TextInput
                 label="Aadhar Number"
                 name="aadhar_number"
-                value={formData.aadhar_number}
+                value={managerData.aadhar_number}
                 onChange={handleChange}
                 placeholder="Enter 12-digit Aadhar number"
                 required
@@ -259,7 +259,7 @@ function CreateManager() {
             <Textarea
               label="Address"
               name="address"
-              value={formData.address}
+              value={managerData.address}
               onChange={handleChange}
               placeholder="Enter complete address"
               rows={3}
@@ -290,7 +290,7 @@ function CreateManager() {
                               ? [...prev, value]
                               : prev.filter((id) => id !== value)
                           );
-                          setFormData((prev) => ({
+                          setManagerData((prev) => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
