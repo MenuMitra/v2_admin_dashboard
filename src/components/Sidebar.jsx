@@ -405,7 +405,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
   return (
     <aside
       className={`
-        fixed top-0 left-0 z-50 flex h-screen w-[290px] flex-col 
+        fixed top-10 left-0 z-50 flex h-screen w-[290px] flex-col 
         overflow-y-auto bg-white transition-transform duration-300
         border-r border-gray-200 dark:border-gray-800 dark:bg-black
         lg:static lg:translate-x-0
@@ -427,7 +427,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
       </div>
 
       {/* Menu Items */}
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-5 dark:text-white">
+      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-5 dark:text-white mt-20">
         <nav>
           {Object.entries(menuData).map(([groupName, items], idx) => (
             <MenuGroup key={idx} title={groupName} items={items} />
@@ -435,42 +435,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
         </nav>
       </div>
 
-      {/* Updated Logout Button */}
-      {/* <div className="absolute bottom-0 left-0 right-0 px-5 py-4 bg-white border-t border-gray-200 dark:bg-black dark:border-gray-800">
-        <button
-          onClick={handleLogout}
-          className={`w-full inline-flex items-center gap-2 px-4 py-3 text-sm font-medium text-error-500 hover:text-error-600 transition rounded-lg ${
-            sidebarToggle ? "justify-center" : "justify-start"
-          }`}
-        >
-          <FontAwesomeIcon icon={faSignOut} className="w-5 h-5" />
-          <span className={`${sidebarToggle ? "lg:hidden" : ""}`}>
-            Sign out
-          </span>
-        </button>
-      </div> */}
-
-      {/* Promo Box */}
-      {/* <div
-        className={`mx-auto mb-10 w-full max-w-60 rounded-2xl bg-gray-50 px-4 py-5 text-center 
-                      dark:bg-white/[0.03] ${sidebarToggle ? "lg:hidden" : ""}`}
-      >
-        <h3 className="mb-2 font-semibold text-gray-900 dark:text-white">
-          #1 Tailwind CSS Dashboard
-        </h3>
-        <p className="text-theme-sm mb-4 text-gray-500 dark:text-gray-400">
-          Leading Tailwind CSS Admin Template with 400+ UI Component and Pages.
-        </p>
-        <a
-          href="https://tailadmin.com/pricing"
-          target="_blank"
-          rel="nofollow"
-          className="bg-brand-500 text-theme-sm hover:bg-brand-600 flex items-center justify-center 
-                    rounded-lg p-3 font-medium text-white"
-        >
-          Purchase Plan
-        </a>
-      </div> */}
     </aside>
   );
 };
