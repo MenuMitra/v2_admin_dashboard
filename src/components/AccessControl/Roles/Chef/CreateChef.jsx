@@ -27,7 +27,7 @@ function CreateChef() {
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
-  const [formData, setFormData] = useState({
+  const [chefData, setChefData] = useState({
     name: "",
     mobile: "",
     email: "",
@@ -80,7 +80,7 @@ function CreateChef() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setChefData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -116,13 +116,13 @@ function CreateChef() {
       const payload = {
         user_id: adminData.user_id,
         outlet_id: Number(outletId),
-        name: formData.name,
-        mobile: formData.mobile,
-        email: formData.email,
-        address: formData.address,
-        aadhar_number: formData.aadhar_number,
-        dob: formData.dob,
-        functionality_ids: formData.functionality_ids,
+        name: chefData.name,
+        mobile: chefData.mobile,
+        email: chefData.email,
+        address: chefData.address,
+        aadhar_number: chefData.aadhar_number,
+        dob: chefData.dob,
+        functionality_ids: chefData.functionality_ids,
         app_source: "admin_dashboard"
       };
 
@@ -150,7 +150,7 @@ function CreateChef() {
     }
   };
 
-  if (isLoading && !formData.name) {
+  if (isLoading && !chefData.name) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -202,7 +202,7 @@ function CreateChef() {
               <TextInput
                 label="Full Name"
                 name="name"
-                value={formData.name}
+                value={chefData.name}
                 onChange={handleChange}
                 placeholder="Enter full name"
                 required
@@ -215,7 +215,7 @@ function CreateChef() {
                 label="Mobile Number"
                 name="mobile"
                 type="tel"
-                value={formData.mobile}
+                value={chefData.mobile}
                 onChange={handleChange}
                 placeholder="Enter mobile number"
                 required
@@ -228,7 +228,7 @@ function CreateChef() {
                 label="Email Address"
                 name="email"
                 type="email"
-                value={formData.email}
+                value={chefData.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
                 validationType="email"
@@ -238,7 +238,7 @@ function CreateChef() {
               <DateInput
                 label="Date of Birth"
                 name="dob"
-                value={formData.dob}
+                value={chefData.dob}
                 onChange={handleChange}
                 placeholder="Select date of birth"
               />
@@ -246,7 +246,7 @@ function CreateChef() {
               <TextInput
                 label="Aadhar Number"
                 name="aadhar_number"
-                value={formData.aadhar_number}
+                value={chefData.aadhar_number}
                 onChange={handleChange}
                 placeholder="Enter 12-digit Aadhar number"
                 required
@@ -259,7 +259,7 @@ function CreateChef() {
             <Textarea
               label="Address"
               name="address"
-              value={formData.address}
+              value={chefData.address}
               onChange={handleChange}
               placeholder="Enter complete address"
               rows={3}
@@ -290,7 +290,7 @@ function CreateChef() {
                               ? [...prev, value]
                               : prev.filter((id) => id !== value)
                           );
-                          setFormData((prev) => ({
+                          setChefData((prev) => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
