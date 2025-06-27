@@ -78,7 +78,7 @@ function DataTable({
     },
     {
       key: "delete",
-      label: "Delete",
+      label: "Delete Selected",
       className: "text-error-600 hover:bg-error-50",
     },
   ],
@@ -517,7 +517,7 @@ function DataTable({
             >
               {/* Checkbox column */}
               {enableSelection && (
-                <th className="px-2 py-3 text-center">
+                <th className="px-2 py-2.5 text-center">
                   <input
                     type="checkbox"
                     checked={selectedItems.length === currentItems.length}
@@ -530,7 +530,7 @@ function DataTable({
 
               {/* Bulk Actions column - Only visible when items are selected */}
               {enableSelection && selectedItems.length > 0 && (
-                <th className="px-0 py-2">
+                <th className="px-0 py-2.5">
                   <div className="relative">
                     <button
                       onClick={(e) => {
@@ -595,7 +595,7 @@ function DataTable({
                   key={column.field}
                   className={`${
                     column.field === "selection" ? "px-2" : "px-6"
-                  } py-3 text-center ${
+                  } py-2.5 text-center ${
                     enableSort && column.sortable
                       ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                       : ""
@@ -628,7 +628,7 @@ function DataTable({
               >
                 {/* Checkbox cell */}
                 {enableSelection && (
-                  <td className="px-2 py-3.5 text-center">
+                  <td className="px-2 py-2.5 text-center">
                     <input
                       type="checkbox"
                       checked={selectedItems.includes(item.user_id)}
@@ -641,7 +641,7 @@ function DataTable({
 
                 {/* Empty cell for bulk actions column when items are selected */}
                 {enableSelection && selectedItems.length > 0 && (
-                  <td className="px-6 py-3.5"></td>
+                  <td className="px-6 py-2.5"></td>
                 )}
 
                 {/* Regular cells */}
@@ -650,7 +650,7 @@ function DataTable({
                     key={column.field}
                     className={`${
                       column.field === "selection" ? "px-2" : "px-6"
-                    } py-3.5 text-center`}
+                    } py-2.5 text-center`}
                   >
                     {column.render ? (
                       column.render(item[column.field], item)
