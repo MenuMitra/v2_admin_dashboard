@@ -5,39 +5,19 @@ import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUtensils,
-  faUserGroup,
   faUserGear,
   faChevronLeft,
   faEdit,
   faTrash,
-  faStore,
-  faPhone,
-  faLocationDot,
-  faBowlFood,
-  faPercent,
-  faClock,
-  faIdCard,
-  faFileInvoice,
-  faQrcode,
-  faBook,
   faListUl,
-  faTableCells,
-  faReceipt,
-  faTable,
-  faCalendarPlus,
-  faUser,
-  faCalendarCheck,
   faUserPen,
-  faMessage,
   faUsers,
-  faChevronUp,
-  faChevronRight,
   faUpload,
   faInfoCircle,
   faDownload,
   faSpinner,
-  faExternalLink,
-  faLink
+  faLink,
+  faBowlFood 
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -245,7 +225,7 @@ function ViewOutlet() {
             {/* Center - Title */}
             <div className="flex-1 text-center">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 inline-flex items-center">
-                {outletData?.name || "View Outlet"}
+                {outletData?.name || "-"}
                 <a
                   href={`https://testing-menumitra-customer-v2.netlify.app/o${outletData?.outlet_code}/`}
                   target="_blank"
@@ -253,20 +233,6 @@ function ViewOutlet() {
                   title="View in Customer App"
                   className="inline-flex items-center justify-center ml-2 w-6 h-6 text-gray-700 transition rounded-full  hover:bg-gray-300"
                 >
-                  {/* <svg
-                    style={{ width: "0.68em", height: "0.68em" }}
-                    viewBox="0 0 10 10"
-                    xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M1.004 9.166 9.337.833m0 0v8.333m0-8.333H1.004"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg> */}
                   <FontAwesomeIcon icon={faLink} className="w-4 h-4" />
                 </a>
               </h2>
@@ -387,7 +353,7 @@ function ViewOutlet() {
               
                {/* Manager Card */}
               
-              <button type="button" class="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"><Link
+              <button type="button" className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"><Link
                 to={`/managers/${outletId}`}
                 
               >
