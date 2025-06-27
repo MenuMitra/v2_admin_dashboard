@@ -16,6 +16,7 @@ import {
 import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
 import Modal from '../../../common/Modal';
+import { toastController } from "../../../../utils/toastController";
 
 function Chefs() {
   const { getToken } = useAuth();
@@ -97,6 +98,57 @@ function Chefs() {
     setShowDeleteModal(true);
   };
 
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const actionMessages = {
+        active: {
+          loading: "Activating selected chefs...",
+          success: "Successfully activated selected chefs",
+          error: "Failed to activate chefs"
+        },
+        inactive: {
+          loading: "Deactivating selected chefs...",
+          success: "Successfully deactivated selected chefs",
+          error: "Failed to deactivate chefs"
+        },
+        delete: {
+          loading: "Deleting selected chefs...",
+          success: "Successfully deleted selected chefs",
+          error: "Failed to delete chefs"
+        }
+      };
+
+      const response = await toastController.promise(
+        axios.post(
+          "https://men4u.xyz/v2/common/bulk_chef_action",
+          {
+            user_id: adminData.user_id,
+            action: action,
+            app_source: "admin_dashboard",
+            chef_ids: selectedIds
+          },
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        actionMessages[action]
+      );
+
+      fetchChefs();
+      setSelectedItems([]);
+      toastController.success(response.data.detail);
+      
+    } catch (error) {
+      toastController.error(
+        error.response?.data?.detail || 
+        `Failed to perform ${action} action on selected chefs`
+      );
+    }
+  };
+
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
@@ -124,11 +176,21 @@ function Chefs() {
       header: "Email",
       sortable: true,
     },
-    // {
-    //   field: "dob",
-    //   header: "DOB",
-    //   sortable: true,
-    // },
+    {
+      field: "is_active",
+      header: "Status",
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value ? "text-success-500" : "text-error-500"
+            }`}
+          />
+        </div>
+      ),
+    },
     {
       field: "actions",
       header: "Actions",
@@ -192,6 +254,7 @@ function Chefs() {
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
+        onBulkAction={handleBulkAction}
         
         // Header props
         title="Chefs"
