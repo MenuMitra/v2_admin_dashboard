@@ -234,25 +234,6 @@ function Managers() {
     }
   };
 
-  // Define bulk action options
-  const bulkActionOptions = [
-    {
-      key: "active",
-      label: "Set Active",
-      className: "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-    },
-    {
-      key: "inactive",
-      label: "Set Inactive",
-      className: "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-    },
-    {
-      key: "delete",
-      label: "Delete Selected",
-      className: "text-error-600 hover:bg-error-50 dark:text-error-400 dark:hover:bg-error-900/20"
-    }
-  ];
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -281,7 +262,6 @@ function Managers() {
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
-        bulkActionOptions={bulkActionOptions}
         
         // Header props
         title="Managers"

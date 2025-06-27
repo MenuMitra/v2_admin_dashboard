@@ -1,19 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faTrash, faPlus, faCheck, faXmark, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import { useAdmin } from '../../hooks/useAdmin';
-import { useAuth } from '../../hooks/useAuth';
-import axios from 'axios';
-import DataTable from '../common/DataTable';
-import Breadcrumb from '../Breadcrumb';
-import Modal from '../common/Modal';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEye,
+  faPenToSquare,
+  faTrash,
+  faPlus,
+  faCheck,
+  faXmark,
+  faCircleCheck,
+  faCircleXmark,
+} from "@fortawesome/free-solid-svg-icons";
+import { useAdmin } from "../../hooks/useAdmin";
+import { useAuth } from "../../hooks/useAuth";
+import axios from "axios";
+import DataTable from "../common/DataTable";
+import Breadcrumb from "../Breadcrumb";
+import Modal from "../common/Modal";
 
 function Partners() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [partners, setPartners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,19 +37,19 @@ function Partners() {
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
-    inactive: 0
+    inactive: 0,
   });
 
   // Add these states after other state declarations
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
     action: null,
-    title: '',
-    message: ''
+    title: "",
+    message: "",
   });
 
   // Add status filter state
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     if (adminData?.user_id) {
@@ -52,10 +61,10 @@ function Partners() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -63,27 +72,28 @@ function Partners() {
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       setPartners(response.data);
-      
+
       // Calculate stats from the response
       const total = response.data.length;
-      const active = response.data.filter(partner => partner.is_active === 1).length;
+      const active = response.data.filter(
+        (partner) => partner.is_active === 1
+      ).length;
       const inactive = total - active;
-      
+
       setStats({
         total,
         active,
-        inactive
+        inactive,
       });
-
     } catch (err) {
-      setError('Failed to fetch partners');
-      console.error('Error fetching partners:', err);
+      setError("Failed to fetch partners");
+      console.error("Error fetching partners:", err);
     } finally {
       setIsLoading(false);
     }
@@ -94,26 +104,26 @@ function Partners() {
       setIsDeleting(true);
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
-      await axios.delete('https://men4u.xyz/v2/admin/delete_partner', {
+      await axios.delete("https://men4u.xyz/v2/admin/delete_partner", {
         headers: {
           Authorization: token,
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         data: {
           partner_id: partnerToDelete.user_id,
-          user_id: adminData.user_id
-        }
+          user_id: adminData.user_id,
+        },
       });
 
       setIsDeleteModalOpen(false);
       setPartnerToDelete(null);
       fetchPartners(); // Refresh the list
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to delete partner');
-      console.error('Error deleting partner:', err);
+      setError(err.response?.data?.detail || "Failed to delete partner");
+      console.error("Error deleting partner:", err);
     } finally {
       setIsDeleting(false);
     }
@@ -121,15 +131,17 @@ function Partners() {
 
   const handleSelectAll = (checked) => {
     setSelectAll(checked);
-    setSelectedPartners(checked ? partners.map(partner => partner.user_id) : []);
+    setSelectedPartners(
+      checked ? partners.map((partner) => partner.user_id) : []
+    );
   };
 
   const handleSelectPartner = (partnerId, checked) => {
-    setSelectedPartners(prev => {
-      const newSelected = checked 
+    setSelectedPartners((prev) => {
+      const newSelected = checked
         ? [...prev, partnerId]
-        : prev.filter(id => id !== partnerId);
-      
+        : prev.filter((id) => id !== partnerId);
+
       // Update selectAll state based on whether all items are selected
       setSelectAll(newSelected.length === partners.length);
       return newSelected;
@@ -137,24 +149,24 @@ function Partners() {
   };
 
   const getConfirmationDetails = (action) => {
-    switch(action) {
-      case 'active':
+    switch (action) {
+      case "active":
         return {
-          title: 'Confirm Activation',
-          message: `Are you sure you want to activate ${selectedPartners.length} selected partner(s)?`
+          title: "Confirm Activation",
+          message: `Are you sure you want to activate ${selectedPartners.length} selected partner(s)?`,
         };
-      case 'inactive':
+      case "inactive":
         return {
-          title: 'Confirm Deactivation',
-          message: `Are you sure you want to deactivate ${selectedPartners.length} selected partner(s)?`
+          title: "Confirm Deactivation",
+          message: `Are you sure you want to deactivate ${selectedPartners.length} selected partner(s)?`,
         };
-      case 'delete':
+      case "delete":
         return {
-          title: 'Confirm Deletion',
-          message: `Are you sure you want to delete ${selectedPartners.length} selected partner(s)? This action cannot be undone.`
+          title: "Confirm Deletion",
+          message: `Are you sure you want to delete ${selectedPartners.length} selected partner(s)? This action cannot be undone.`,
         };
       default:
-        return { title: '', message: '' };
+        return { title: "", message: "" };
     }
   };
 
@@ -164,7 +176,7 @@ function Partners() {
       isOpen: true,
       action,
       title,
-      message
+      message,
     });
     setIsActionDropdownOpen(false);
   };
@@ -173,7 +185,7 @@ function Partners() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       // Show confirmation modal first
@@ -182,14 +194,14 @@ function Partners() {
         isOpen: true,
         action,
         title,
-        message
+        message,
       });
-      
+
       // Store selected IDs for use after confirmation
-      setSelectedPartners(selectedIds.filter(id => id !== null));
+      setSelectedPartners(selectedIds.filter((id) => id !== null));
     } catch (err) {
       setError(err.response?.data?.detail || `Failed to ${action} partners`);
-      console.error('Error performing bulk action:', err);
+      console.error("Error performing bulk action:", err);
     }
   };
 
@@ -197,29 +209,31 @@ function Partners() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       // Ensure we have valid IDs
-      const validPartnerIds = selectedPartners.filter(id => id !== null && id !== undefined);
+      const validPartnerIds = selectedPartners.filter(
+        (id) => id !== null && id !== undefined
+      );
 
       if (validPartnerIds.length === 0) {
-        throw new Error('No valid partner IDs selected');
+        throw new Error("No valid partner IDs selected");
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/bulk_partner_action',
+        "https://men4u.xyz/v2/common/bulk_partner_action",
         {
           user_id: adminData.user_id,
           action: action,
           app_source: "admin_dashboard",
-          partner_ids: validPartnerIds
+          partner_ids: validPartnerIds,
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -227,30 +241,35 @@ function Partners() {
         setSelectedPartners([]);
         setSelectAll(false);
         setIsActionDropdownOpen(false);
-        setConfirmModal({ isOpen: false, action: null, title: '', message: '' });
+        setConfirmModal({
+          isOpen: false,
+          action: null,
+          title: "",
+          message: "",
+        });
         fetchPartners(); // Refresh the list
       }
     } catch (err) {
       setError(err.response?.data?.detail || `Failed to ${action} partners`);
-      console.error('Error performing bulk action:', err);
+      console.error("Error performing bulk action:", err);
     }
   };
 
   // Define columns for DataTable
   const columns = [
     {
-      field: 'name',
-      header: 'Name',
-      sortable: true
+      field: "name",
+      header: "Name",
+      sortable: true,
     },
     {
-      field: 'mobile',
-      header: 'Mobile',
-      sortable: true
+      field: "mobile",
+      header: "Mobile",
+      sortable: true,
     },
     {
-      field: 'is_active',
-      header: 'Status',
+      field: "is_active",
+      header: "Status",
       sortable: true,
       render: (value) => (
         <div className="flex items-center justify-center gap-2">
@@ -268,11 +287,11 @@ function Partners() {
             {value === 1 ? "Active" : "Inactive"}
           </span>
         </div>
-      )
+      ),
     },
     {
-      field: 'actions',
-      header: 'Actions',
+      field: "actions",
+      header: "Actions",
       sortable: false,
       render: (_, partner) => (
         <div className="flex items-center justify-center gap-2">
@@ -301,14 +320,14 @@ function Partners() {
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   // Add this breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Partners', path: '/partners' }
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Partners", path: "/partners" },
   ];
 
   if (isLoading) {
@@ -330,91 +349,11 @@ function Partners() {
         </div>
       )}
 
-      {/* {selectedPartners.length > 0 && (
-        <div className="mb-4 p-4 bg-blue-50 rounded-lg flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-blue-700">
-              {selectedPartners.length} {selectedPartners.length === 1 ? 'partner' : 'partners'} selected
-            </span>
-          </div>
-          <div className="flex gap-2 items-center">
-            <div className="relative inline-block">
-              <button
-                onClick={() => setIsActionDropdownOpen(!isActionDropdownOpen)}
-                onBlur={() => setTimeout(() => setIsActionDropdownOpen(false), 200)}
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600"
-              >
-                Actions
-                <svg
-                  className={`stroke-current duration-200 ease-in-out ${isActionDropdownOpen ? 'rotate-180' : ''}`}
-                  width="16"
-                  height="16"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4.79199 7.396L10.0003 12.6043L15.2087 7.396"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-              
-              {isActionDropdownOpen && (
-                <div className="absolute right-0 top-full z-40 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
-                  <ul className="flex flex-col gap-1">
-                    <li>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleBulkAction('active', selectedPartners);
-                          setIsActionDropdownOpen(false);
-                        }}
-                        className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                      >
-                        Set Active
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleBulkAction('inactive', selectedPartners);
-                          setIsActionDropdownOpen(false);
-                        }}
-                        className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-                      >
-                        Set Inactive
-                      </button>
-                    </li>
-                    <li>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleBulkAction('delete', selectedPartners);
-                          setIsActionDropdownOpen(false);
-                        }}
-                        className="w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium text-error-600 hover:bg-error-50"
-                      >
-                        Delete Selected
-                      </button>
-                    </li>
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )} */}
-
       <DataTable
-        data={partners.filter(partner => {
-          if (statusFilter === 'all') return true;
+        data={partners.filter((partner) => {
+          if (statusFilter === "all") return true;
           const isActive = partner.is_active === 1;
-          return statusFilter === 'active' ? isActive : !isActive;
+          return statusFilter === "active" ? isActive : !isActive;
         })}
         columns={columns}
         title="Partners"
@@ -422,16 +361,17 @@ function Partners() {
         onSearchChange={setSearchTerm}
         counts={{
           total: partners.length,
-          active: partners.filter(partner => partner.is_active === 1).length,
-          inactive: partners.filter(partner => partner.is_active === 0).length
+          active: partners.filter((partner) => partner.is_active === 1).length,
+          inactive: partners.filter((partner) => partner.is_active === 0)
+            .length,
         }}
         createButton={{
           label: "Create",
-          onClick: () => navigate('/create-partner'),
+          onClick: () => navigate("/create-partner"),
           className: "bg-success-500 hover:bg-success-600",
           position: "right",
           icon: faPlus,
-          showIconOnly: false
+          showIconOnly: false,
         }}
         searchPlaceholder="Search"
         enableSort={true}
@@ -443,7 +383,7 @@ function Partners() {
         backButtonLabel="Back"
         enableSelection={true}
         onSelectionChange={(selectedIds) => {
-          setSelectedPartners(selectedIds.filter(id => id !== null));
+          setSelectedPartners(selectedIds.filter((id) => id !== null));
         }}
         onBulkAction={handleBulkAction}
         enableStatusFilter={true}
@@ -478,14 +418,29 @@ function Partners() {
             >
               {isDeleting ? (
                 <div className="flex items-center gap-2">
-                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   Deleting...
                 </div>
               ) : (
-                'Delete Partner'
+                "Delete Partner"
               )}
             </button>
           </>
@@ -494,7 +449,8 @@ function Partners() {
         <div className="flex items-start">
           <div className="ml-4">
             <p className="text-sm text-gray-500">
-              Are you sure you want to delete this partner? This action cannot be undone.
+              Are you sure you want to delete this partner? This action cannot
+              be undone.
             </p>
             <p className="text-sm text-gray-500">
               All data associated with this partner will be permanently removed.
@@ -505,15 +461,29 @@ function Partners() {
 
       <Modal
         isOpen={confirmModal.isOpen}
-        onClose={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+        onClose={() =>
+          setConfirmModal({
+            isOpen: false,
+            action: null,
+            title: "",
+            message: "",
+          })
+        }
         title={confirmModal.title}
-        type={confirmModal.action === 'delete' ? 'error' : 'warning'}
+        type={confirmModal.action === "delete" ? "error" : "warning"}
         size="small"
       >
         <p className="mb-6">{confirmModal.message}</p>
         <div className="flex justify-between items-center w-full gap-3">
           <button
-            onClick={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
+            onClick={() =>
+              setConfirmModal({
+                isOpen: false,
+                action: null,
+                title: "",
+                message: "",
+              })
+            }
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
           >
             <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
@@ -522,9 +492,9 @@ function Partners() {
           <button
             onClick={() => executeBulkAction(confirmModal.action)}
             className={`px-4 py-2 text-sm font-medium text-white rounded-full transition ${
-              confirmModal.action === 'delete' 
-                ? 'bg-error-500 hover:bg-error-600' 
-                : 'bg-warning-500 hover:bg-warning-600'
+              confirmModal.action === "delete"
+                ? "bg-error-500 hover:bg-error-600"
+                : "bg-warning-500 hover:bg-warning-600"
             }`}
           >
             <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
