@@ -174,6 +174,59 @@ function Managers() {
   const getActiveCount = () => managers.filter((manager) => manager.is_active).length;
   const getInactiveCount = () => managers.filter((manager) => !manager.is_active).length;
 
+  // Add new handler for bulk actions
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const response = await axios.post(
+        "https://men4u.xyz/v2/common/bulk_manager_action",
+        {
+          user_id: adminData.user_id,
+          action: action, // 'active', 'inactive', or 'delete'
+          app_source: "admin_dashboard",
+          manager_ids: selectedIds
+        },
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Refresh the managers list after bulk action
+      fetchManagers();
+      
+      // Clear selected items
+      setSelectedItems([]);
+      
+      // You might want to show a success message here
+      console.log(response.data.detail);
+      
+    } catch (error) {
+      console.error("Error performing bulk action:", error);
+      // You might want to show an error message here
+    }
+  };
+
+  // Define bulk action options
+  const bulkActionOptions = [
+    {
+      key: "active",
+      label: "Set Active",
+      className: "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+    },
+    {
+      key: "inactive",
+      label: "Set Inactive",
+      className: "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
+    },
+    {
+      key: "delete",
+      label: "Delete Selected",
+      className: "text-error-600 hover:bg-error-50 dark:text-error-400 dark:hover:bg-error-900/20"
+    }
+  ];
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -201,6 +254,8 @@ function Managers() {
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
+        onBulkAction={handleBulkAction}
+        bulkActionOptions={bulkActionOptions}
         
         // Header props
         title="Managers"
