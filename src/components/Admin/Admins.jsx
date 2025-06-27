@@ -332,12 +332,12 @@ function Admins() {
         bulkActionOptions={[
           {
             key: "active",
-            label: "Set Active",
+            label: "Active",
             className: "text-success-600 hover:bg-success-50",
           },
           {
             key: "inactive",
-            label: "Set Inactive",
+            label: "Inactive",
             className: "text-warning-600 hover:bg-warning-50",
           },
         ]}
