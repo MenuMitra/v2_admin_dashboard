@@ -269,7 +269,24 @@ function ViewOutlet() {
 
         {/* Main Content */}
         <div className="p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          {/* Outlet Image - Only shown if image URL exists */}
+          {outletData?.image && (
+            <div className="mb-6">
+              <div className="relative w-full max-w-md mx-auto overflow-hidden rounded-2xl shadow-lg">
+                <img 
+                  src={outletData.image} 
+                  alt={`${outletData.name || 'Outlet'}`}
+                  className="w-full h-auto object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none'; // Hide image on error
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Menu Management Section */}
+          <div className="flex items-center gap-4 mb-6">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Menu Management
             </h2>
@@ -281,6 +298,7 @@ function ViewOutlet() {
               <span>Bulk Upload</span>
             </button>
           </div>
+
           {/* Stats and Navigation Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
             {/* Categories and Menus Cards */}
