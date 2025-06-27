@@ -23,7 +23,7 @@ function CreatePartner() {
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
-  const [formData, setFormData] = useState({
+  const [partnerDetails, setPartnerDetails] = useState({
     name: '',
     mobile: '',
     email: '',
@@ -63,7 +63,7 @@ function CreatePartner() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setPartnerDetails(prev => ({
       ...prev,
       [name]: value
     }));
@@ -80,7 +80,7 @@ function CreatePartner() {
         throw new Error('No authentication token available');
       }
 
-      const date = new Date(formData.dob);
+      const date = new Date(partnerDetails.dob);
       const formattedDate = date.toLocaleDateString('en-GB', {
         day: '2-digit',
         month: 'short',
@@ -89,13 +89,13 @@ function CreatePartner() {
 
       const requestData = {
         user_id: adminData?.user_id,
-        name: formData.name,
-        mobile: formData.mobile,
-        email: formData.email,
+        name: partnerDetails.name,
+        mobile: partnerDetails.mobile,
+        email: partnerDetails.email,
         dob: formattedDate,
-        aadhar_number: formData.aadhar_number,
-        address: formData.address,
-        functionality_ids: formData.functionality_ids
+        aadhar_number: partnerDetails.aadhar_number,
+        address: partnerDetails.address,
+        functionality_ids: partnerDetails.functionality_ids
       };
 
       const response = await axios.post(
@@ -128,7 +128,7 @@ function CreatePartner() {
     { label: 'Create Partner' }
   ];
 
-  if (isLoading && !formData.name) {
+  if (isLoading && !partnerDetails.name) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -185,7 +185,7 @@ function CreatePartner() {
               <TextInput
                 label="Full Name"
                 name="name"
-                value={formData.name}
+                value={partnerDetails.name}
                 onChange={handleChange}
                 placeholder="Enter full name"
                 required
@@ -195,7 +195,7 @@ function CreatePartner() {
                 label="Mobile Number"
                 name="mobile"
                 type="tel"
-                value={formData.mobile}
+                value={partnerDetails.mobile}
                 onChange={handleChange}
                 placeholder="Enter mobile number"
                 required
@@ -205,7 +205,7 @@ function CreatePartner() {
                 label="Email Address"
                 name="email"
                 type="email"
-                value={formData.email}
+                value={partnerDetails.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
                 required
@@ -214,7 +214,7 @@ function CreatePartner() {
               <DateInput
                 label="Date of Birth"
                 name="dob"
-                value={formData.dob}
+                value={partnerDetails.dob}
                 onChange={handleChange}
                 required
                 placeholder="Select date of birth"
@@ -223,7 +223,7 @@ function CreatePartner() {
               <TextInput
                 label="Aadhar Number"
                 name="aadhar_number"
-                value={formData.aadhar_number}
+                value={partnerDetails.aadhar_number}
                 onChange={handleChange}
                 placeholder="Enter 12-digit Aadhar number"
                 required
@@ -235,7 +235,7 @@ function CreatePartner() {
             <Textarea
               label="Address"
               name="address"
-              value={formData.address}
+              value={partnerDetails.address}
               onChange={handleChange}
               placeholder="Enter complete address"
               rows={3}
@@ -263,7 +263,7 @@ function CreatePartner() {
                               ? [...prev, value]
                               : prev.filter(id => id !== value)
                           );
-                          setFormData(prev => ({
+                          setPartnerDetails(prev => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
@@ -292,7 +292,7 @@ function CreatePartner() {
                           className="ml-1 inline-flex items-center justify-center"
                           onClick={() => {
                             setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
-                            setFormData(prev => ({
+                            setPartnerDetails(prev => ({
                               ...prev,
                               functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
                             }));
