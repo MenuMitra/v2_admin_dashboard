@@ -19,7 +19,7 @@ function EditWaiter() {
   const [error, setError] = useState(null);
   const [availableFunctionalities, setAvailableFunctionalities] = useState([]);
   const [roles, setRoles] = useState([]);
-  const [formData, setFormData] = useState({
+  const [waiterData, setWaiterData] = useState({
     name: "",
     mobile: "",
     email: "",
@@ -107,15 +107,15 @@ function EditWaiter() {
         }
       );
       
-      const waiterData = response.data.data;
-      setFormData({
-        name: waiterData.name || "",
-        mobile: waiterData.mobile || "",
-        email: waiterData.email || "",
-        address: waiterData.address || "",
-        aadhar_number: waiterData.aadhar_number || "",
-        dob: waiterData.dob || "",
-        functionality_ids: waiterData.functionalities?.map(f => f.functionality_id) || [],
+      const fetchedData = response.data.data;
+      setWaiterData({
+        name: fetchedData.name || "",
+        mobile: fetchedData.mobile || "",
+        email: fetchedData.email || "",
+        address: fetchedData.address || "",
+        aadhar_number: fetchedData.aadhar_number || "",
+        dob: fetchedData.dob || "",
+        functionality_ids: fetchedData.functionalities?.map(f => f.functionality_id) || [],
         role: "waiter"
       });
     } catch (err) {
@@ -135,7 +135,7 @@ function EditWaiter() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          ...formData,
+          ...waiterData,
           app_source: "admin_dashboard"
         },
         {
@@ -153,7 +153,7 @@ function EditWaiter() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setWaiterData(prev => ({
       ...prev,
       [name]: value
     }));
@@ -230,7 +230,7 @@ function EditWaiter() {
             <TextInput
               label="Name"
               name="name"
-              value={formData.name}
+              value={waiterData.name}
               onChange={handleInputChange}
               required
             />
@@ -238,7 +238,7 @@ function EditWaiter() {
             <TextInput
               label="Mobile"
               name="mobile"
-              value={formData.mobile}
+              value={waiterData.mobile}
               onChange={handleInputChange}
               required
               pattern="[0-9]{10}"
@@ -248,21 +248,21 @@ function EditWaiter() {
               label="Email"
               name="email"
               type="email"
-              value={formData.email}
+              value={waiterData.email}
               onChange={handleInputChange}
             />
 
             <TextInput
               label="Address"
               name="address"
-              value={formData.address}
+              value={waiterData.address}
               onChange={handleInputChange}
             />
 
             <TextInput
               label="Aadhar Number"
               name="aadhar_number"
-              value={formData.aadhar_number}
+              value={waiterData.aadhar_number}
               onChange={handleInputChange}
               pattern="[0-9]{12}"
               required
@@ -271,7 +271,7 @@ function EditWaiter() {
             <DateInput
               label="Date of Birth"
               name="dob"
-              value={formData.dob}
+              value={waiterData.dob}
               onChange={handleInputChange}
               required
             />
@@ -279,7 +279,7 @@ function EditWaiter() {
             <SelectInput
               label="Role"
               name="role"
-              value={formData.role}
+              value={waiterData.role}
               onChange={handleInputChange}
               required
               options={roles.map(role => ({
@@ -303,11 +303,11 @@ function EditWaiter() {
                   aria-expanded={isDropdownOpen}
                   aria-haspopup="listbox"
                 >
-                  {formData.functionality_ids.length > 0 ? (
+                  {waiterData.functionality_ids.length > 0 ? (
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-gray-900">
-                          {formData.functionality_ids.length} Functionality(s) Selected
+                          {waiterData.functionality_ids.length} Functionality(s) Selected
                         </div>
                       </div>
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -349,17 +349,17 @@ function EditWaiter() {
                           key={func.functionality_id}
                           className={`
                             p-3 cursor-pointer hover:bg-gray-50
-                            ${formData.functionality_ids.includes(func.functionality_id)
+                            ${waiterData.functionality_ids.includes(func.functionality_id)
                               ? 'bg-brand-50 border-l-4 border-brand-500' 
                               : 'border-l-4 border-transparent'
                             }
                           `}
                           onClick={() => {
-                            const newIds = formData.functionality_ids.includes(func.functionality_id)
-                              ? formData.functionality_ids.filter(id => id !== func.functionality_id)
-                              : [...formData.functionality_ids, func.functionality_id];
+                            const newIds = waiterData.functionality_ids.includes(func.functionality_id)
+                              ? waiterData.functionality_ids.filter(id => id !== func.functionality_id)
+                              : [...waiterData.functionality_ids, func.functionality_id];
                             
-                            setFormData(prev => ({
+                            setWaiterData(prev => ({
                               ...prev,
                               functionality_ids: newIds
                             }));
@@ -368,10 +368,10 @@ function EditWaiter() {
                           <div className="flex items-center gap-3">
                             <input
                               type="checkbox"
-                              checked={formData.functionality_ids.includes(func.functionality_id)}
+                              checked={waiterData.functionality_ids.includes(func.functionality_id)}
                               onChange={(e) => {
                                 e.stopPropagation();
-                                setFormData(prev => ({
+                                setWaiterData(prev => ({
                                   ...prev,
                                   functionality_ids: e.target.checked
                                     ? [...prev.functionality_ids, func.functionality_id]
