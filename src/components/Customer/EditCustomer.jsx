@@ -11,7 +11,7 @@ import {
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
-import { TextInput, SelectInput } from "../forms/FormElements";
+import { TextInput, SelectInput, DateInput } from "../forms/FormElements";
 import { toastController } from "../../utils/toastController";
 
 function EditCustomer() {
@@ -209,13 +209,13 @@ function EditCustomer() {
               placeholder="Enter address"
             />
 
-            <TextInput
+            <DateInput
               label="Date of Birth"
               name="dob"
-              type="date"
               value={customerData.dob}
               onChange={handleInputChange}
               placeholder="Select date of birth"
+              required
             />
 
             <SelectInput
