@@ -16,11 +16,8 @@ import {
   faPercent,
   faList,
   faStar,
-  faChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../../common/Modal';
-import { PhotoProvider, PhotoView } from 'react-photo-view';
-import 'react-photo-view/dist/react-photo-view.css';
 
 function MenuDetails() {
   const { outletId, menuId } = useParams();
@@ -29,16 +26,13 @@ function MenuDetails() {
   const navigate = useNavigate();
 
   const [menu, setMenu] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     const fetchMenuDetails = async () => {
       if (!adminData?.user_id || !menuId || !outletId) return;
       
-      setLoading(true);
       setError(null);
       try {
         const token = getToken();
@@ -60,8 +54,6 @@ function MenuDetails() {
         setMenu(response.data.detail);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to fetch menu details');
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -90,25 +82,8 @@ function MenuDetails() {
     }
   };
 
-  const nextImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === (menu?.images?.length || 1) - 1 ? 0 : prev + 1
-    );
-  };
-
-  const previousImage = () => {
-    setCurrentImageIndex((prev) => 
-      prev === 0 ? (menu?.images?.length || 1) - 1 : prev - 1
-    );
-  };
-
-  const goToImage = (index) => {
-    setCurrentImageIndex(index);
-  };
-
-  if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-error-500">{error}</div>;
-  if (!menu) return <div>No menu data found.</div>;
+  if (!menu) return null;
 
   return (
     <div className="p-4">
@@ -156,72 +131,22 @@ function MenuDetails() {
             {/* Image Preview Section */}
             {menu.images && menu.images.length > 0 && (
               <div className="mb-6">
-                <PhotoProvider>
-                  <div className="flex justify-center">
-                    <div className="relative w-[300px] h-[300px]">
-                      {/* Thumbnail Image */}
-                      <PhotoView src={menu.images[currentImageIndex].image}>
-                        <div className="w-[300px] h-[300px] border border-gray-200 rounded-lg p-2 flex items-center justify-center bg-white cursor-pointer">
-                          <img
-                            src={menu.images[currentImageIndex].image}
-                            alt={`${menu.name} - Image ${currentImageIndex + 1}`}
-                            className="max-w-full max-h-full object-contain"
-                          />
-                        </div>
-                      </PhotoView>
-
-                      {/* Navigation Controls */}
-                      {menu.images.length > 1 && (
-                        <>
-                          {/* Previous Button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              previousImage();
-                            }}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors z-10"
-                          >
-                            <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
-                          </button>
-
-                          {/* Next Button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              nextImage();
-                            }}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors z-10"
-                          >
-                            <FontAwesomeIcon icon={faChevronRight} className="w-4 h-4" />
-                          </button>
-
-                          {/* Image Counter */}
-                          <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
-                            {currentImageIndex + 1} / {menu.images.length}
-                          </div>
-
-                          {/* Thumbnail Navigation */}
-                          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                            {menu.images.map((_, index) => (
-                              <button
-                                key={index}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  goToImage(index);
-                                }}
-                                className={`w-2 h-2 rounded-full transition-colors ${
-                                  currentImageIndex === index
-                                    ? 'bg-brand-500'
-                                    : 'bg-gray-300 hover:bg-gray-400'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </>
-                      )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {menu.images.map((image, index) => (
+                    <div 
+                      key={index} 
+                      className="relative w-full aspect-square border border-gray-200 rounded-lg p-2 bg-white"
+                    >
+                      <div className="w-full h-full flex items-center justify-center">
+                        <img
+                          src={image.image}
+                          alt={`${menu.name} - Image ${index + 1}`}
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </div>
                     </div>
-                  </div>
-                </PhotoProvider>
+                  ))}
+                </div>
               </div>
             )}
 
