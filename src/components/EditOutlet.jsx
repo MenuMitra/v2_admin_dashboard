@@ -15,13 +15,14 @@ import {
 } from './forms/FormElements.jsx';
 import Breadcrumb from './Breadcrumb';
 import ImageUploader from './common/ImageUploader';
+import { API_CONFIG } from "../config/appConfig";
 
 function EditOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const navigate = useNavigate();
   const { outletId } = useParams();
-  
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [outletData, setOutletData] = useState({
     outlet_id: '',
     user_id: '',
@@ -76,7 +77,7 @@ function EditOutlet() {
       }
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/view_outlet",
+        `${BASE_URL}/${API_VERSION}/common/view_outlet`,
         {
           outlet_id: outletId,
           user_id: adminData?.user_id,
@@ -139,7 +140,7 @@ function EditOutlet() {
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/common/get_outlet_type',
+        `${BASE_URL}/${API_VERSION}/common/get_outlet_type`,
         {
           headers: {
             Authorization: token,
@@ -163,7 +164,7 @@ function EditOutlet() {
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/common/get_food_type_list',
+        `${BASE_URL}/${API_VERSION}/common/get_food_type_list`,
         {
           headers: {
             Authorization: token,
@@ -185,7 +186,7 @@ function EditOutlet() {
       if (!token) throw new Error('No authentication token available');
 
       const response = await axios.get(
-        `https://men4u.xyz/v2/common/listview_owner/${adminData.user_id}`,
+        `${BASE_URL}/${API_VERSION}/common/listview_owner/${adminData.user_id}`,
         { headers: { Authorization: token } }
       );
 
@@ -288,7 +289,7 @@ function EditOutlet() {
       };
 
       const response = await axios.patch(
-        'https://men4u.xyz/v2/common/update_outlet',
+        `${BASE_URL}/${API_VERSION}/common/update_outlet`,
         apiData,
         {
           headers: {
