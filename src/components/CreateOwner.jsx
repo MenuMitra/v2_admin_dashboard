@@ -17,6 +17,7 @@ import {
   labelStyles,
 } from "./forms/FormElements.jsx";
 import Breadcrumb from "./Breadcrumb";
+import { API_CONFIG } from "../config/appConfig";
 
 function CreateOwner() {
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ function CreateOwner() {
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [ownerData, setOwnerData] = useState({
     name: "",
     mobile: "",
@@ -62,7 +64,7 @@ function CreateOwner() {
       }
 
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: token,
@@ -125,7 +127,7 @@ function CreateOwner() {
       };
 
       await toastController.promise(
-        axios.post("https://men4u.xyz/v2/common/create_owner", payload, {
+        axios.post(`${BASE_URL}/${API_VERSION}/common/create_owner`, payload, {
           headers: {
             Authorization: token,
             "Content-Type": "application/json",
