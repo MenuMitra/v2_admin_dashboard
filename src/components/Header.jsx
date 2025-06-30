@@ -13,6 +13,7 @@ import { useAdmin } from "../hooks/useAdmin";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import { API_CONFIG } from "../config/appConfig";
 
 // Import your logo images
 import logo from "../assets/images/logo/logo.png";
@@ -24,6 +25,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const { getToken, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
+  const { BASE_URL, API_VERSION } = API_CONFIG;
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -34,7 +36,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "https://men4u.xyz/v2/common/logout",
+        `${BASE_URL}/${API_VERSION}/common/logout`,
         {
           user_id: adminData.user_id,
           role: adminData.role,
