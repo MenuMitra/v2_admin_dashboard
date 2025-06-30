@@ -9,8 +9,18 @@ import {
   faChevronLeft,
   faCircleCheck,
   faCircleXmark,
+  faPenToSquare,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../common/Modal";
+
+// Add protected mobiles array to match Admins.jsx
+const PROTECTED_MOBILES = [
+  "8806431723",
+  "9767637798",
+  "8600704616",
+  // Add more numbers here as needed
+];
 
 function AdminDetails() {
   const { adminId } = useParams();
@@ -110,6 +120,13 @@ function AdminDetails() {
   // Add delete handler
   const handleDeleteAdmin = async () => {
     try {
+      // Check if admin is protected
+      if (admin && PROTECTED_MOBILES.includes(admin.mobile)) {
+        setError("Cannot delete protected admin");
+        setShowDeleteModal(false);
+        return;
+      }
+
       const token = getToken();
       if (!token) {
         throw new Error("No authentication token available");
@@ -187,44 +204,24 @@ function AdminDetails() {
 
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate(`/edit-admin/${adminId}`)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                  />
-                </svg>
-                <span className="hidden sm:inline">Edit</span>
-              </button>
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-                <span className="hidden sm:inline">Delete</span>
-              </button>
+              {admin && !PROTECTED_MOBILES.includes(admin.mobile) && (
+                <>
+                  <button
+                    onClick={() => navigate(`/edit-admin/${adminId}`)}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                  >
+                    <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+                    <span className="hidden sm:inline">Edit</span>
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteModal(true)}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+                  >
+                    <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                    <span className="hidden sm:inline">Delete</span>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
