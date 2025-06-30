@@ -348,6 +348,7 @@ function Admins() {
         enableSelection={true}
         onSelectionChange={handleSelectionChange}
         onBulkAction={handleBulkAction}
+        isItemSelectable={(item) => !PROTECTED_MOBILES.includes(item.mobile)}
         bulkActionOptions={[
           {
             key: "active",

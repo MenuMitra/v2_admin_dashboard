@@ -66,6 +66,7 @@ function DataTable({
   enableStatusFilter = true,
   onStatusFilterChange = () => {},
   statusFilter = "all",
+  isItemSelectable = () => true,
   bulkActionOptions = [
     {
       key: "active",
@@ -322,9 +323,11 @@ function DataTable({
   // Add selection handling functions
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      const allIds = currentItems.map(item => item.id || item.user_id);
-      setSelectedItems(allIds);
-      onSelectionChange(allIds);
+      const selectableIds = currentItems
+        .filter(item => isItemSelectable(item))
+        .map(item => item.id || item.user_id);
+      setSelectedItems(selectableIds);
+      onSelectionChange(selectableIds);
     } else {
       setSelectedItems([]);
       onSelectionChange([]);
@@ -404,8 +407,9 @@ function DataTable({
 
   // Add this helper function
   const isAllCurrentItemsSelected = () => {
-    if (currentItems.length === 0) return false;
-    return currentItems.every(item => 
+    const selectableItems = currentItems.filter(item => isItemSelectable(item));
+    if (selectableItems.length === 0) return false;
+    return selectableItems.every(item => 
       selectedItems.includes(item.id || item.user_id)
     );
   };
@@ -650,7 +654,7 @@ function DataTable({
                   }`}
                 >
                   {/* Checkbox cell */}
-                  {enableSelection && (
+                  {enableSelection && isItemSelectable(item) && (
                     <td className="px-2 py-2.5 text-center">
                       <input
                         type="checkbox"
@@ -660,6 +664,10 @@ function DataTable({
                         onClick={(e) => e.stopPropagation()}
                       />
                     </td>
+                  )}
+                  {/* Add empty cell for non-selectable items when selection is enabled */}
+                  {enableSelection && !isItemSelectable(item) && (
+                    <td className="px-2 py-2.5"></td>
                   )}
 
                   {/* Empty cell for bulk actions column when items are selected */}
