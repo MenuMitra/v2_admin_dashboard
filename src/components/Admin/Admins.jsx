@@ -262,6 +262,24 @@ function Admins() {
     },
   ];
 
+  // Add this helper function before the return statement
+  const getFilteredData = () => {
+    const filtered = admins.filter((admin) => {
+      if (statusFilter === "all") return true;
+      const isActive = admin.is_active === true || admin.is_active === 1;
+      return statusFilter === "active" ? isActive : !isActive;
+    });
+
+    if (filtered.length === 0) {
+      return {
+        data: [],
+        message: `No ${statusFilter === "all" ? "" : statusFilter} admins found.`
+      };
+    }
+
+    return { data: filtered };
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -285,11 +303,8 @@ function Admins() {
       )}
 
       <DataTable
-        data={admins.filter((admin) => {
-          if (statusFilter === "all") return true;
-          const isActive = admin.is_active === true || admin.is_active === 1;
-          return statusFilter === "active" ? isActive : !isActive;
-        })}
+        data={getFilteredData().data}
+        emptyStateMessage={getFilteredData().message}
         columns={columns}
         title="Admins"
         searchTerm={searchTerm}

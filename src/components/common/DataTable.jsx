@@ -84,6 +84,7 @@ function DataTable({
     },
   ],
   onItemsPerPageChange = () => {},
+  emptyStateMessage = "No data found.",
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -632,56 +633,67 @@ function DataTable({
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((item, index) => (
-              <tr
-                key={index}
-                className={`border-t border-gray-100 ${
-                  darkMode ? "dark:border-gray-800" : ""
-                }`}
-              >
-                {/* Checkbox cell */}
-                {enableSelection && (
-                  <td className="px-2 py-2.5 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedItems.includes(item.user_id)}
-                      onChange={() => handleSelectItem(item.user_id)}
-                      className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  </td>
-                )}
+            {currentItems.length > 0 ? (
+              currentItems.map((item, index) => (
+                <tr
+                  key={index}
+                  className={`border-t border-gray-100 ${
+                    darkMode ? "dark:border-gray-800" : ""
+                  }`}
+                >
+                  {/* Checkbox cell */}
+                  {enableSelection && (
+                    <td className="px-2 py-2.5 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedItems.includes(item.user_id)}
+                        onChange={() => handleSelectItem(item.user_id)}
+                        className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </td>
+                  )}
 
-                {/* Empty cell for bulk actions column when items are selected */}
-                {enableSelection && selectedItems.length > 0 && (
-                  <td className="px-6 py-2.5"></td>
-                )}
+                  {/* Empty cell for bulk actions column when items are selected */}
+                  {enableSelection && selectedItems.length > 0 && (
+                    <td className="px-6 py-2.5"></td>
+                  )}
 
-                {/* Regular cells */}
-                {columns.map((column) => (
-                  <td
-                    key={column.field}
-                    className={`${
-                      column.field === "selection" ? "px-2" : "px-6"
-                    } py-2.5 text-center`}
-                  >
-                    {column.render ? (
-                      column.render(item[column.field], item)
-                    ) : column.field === "is_active" ? (
-                      renderStatus(item[column.field])
-                    ) : (
-                      <p
-                        className={`text-gray-500 text-theme-sm ${
-                          darkMode ? "dark:text-gray-400" : ""
-                        }`}
-                      >
-                        {item[column.field]}
-                      </p>
-                    )}
-                  </td>
-                ))}
+                  {/* Regular cells */}
+                  {columns.map((column) => (
+                    <td
+                      key={column.field}
+                      className={`${
+                        column.field === "selection" ? "px-2" : "px-6"
+                      } py-2.5 text-center`}
+                    >
+                      {column.render ? (
+                        column.render(item[column.field], item)
+                      ) : column.field === "is_active" ? (
+                        renderStatus(item[column.field])
+                      ) : (
+                        <p
+                          className={`text-gray-500 text-theme-sm ${
+                            darkMode ? "dark:text-gray-400" : ""
+                          }`}
+                        >
+                          {item[column.field]}
+                        </p>
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td 
+                  colSpan={columns.length + (enableSelection ? 1 : 0)} 
+                  className="p-6 text-center text-gray-500"
+                >
+                  {emptyStateMessage}
+                </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
