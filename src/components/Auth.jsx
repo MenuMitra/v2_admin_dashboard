@@ -4,6 +4,7 @@ import axios from "axios";
 import Logo from "../assets/images/logo/logo.png";
 import grid01 from "../assets/images/shape/grid-01.svg";
 import { toastController } from "../utils/toastController";
+import { API_CONFIG} from "../config/appConfig"
 
 function Auth() {
   const [mobile, setMobile] = useState("");
@@ -14,6 +15,7 @@ function Auth() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpScreen, setIsOtpScreen] = useState(false);
   const [mobileError, setMobileError] = useState("");
+  const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const navigate = useNavigate();
 
@@ -61,7 +63,7 @@ function Auth() {
 
     try {
       const response = await toastController.promise(
-        axios.post("https://men4u.xyz/v2/admin/admin_login", { mobile }),
+        axios.post(`${BASE_URL}/${API_VERSION}/admin/admin_login`, { mobile }),
         {
           loading: 'Sending OTP...',
           success: 'OTP sent successfully!',
@@ -89,7 +91,7 @@ function Auth() {
 
     try {
       const response = await toastController.promise(
-        axios.post("https://men4u.xyz/v2/admin/admin_verify_otp", {
+        axios.post(`${BASE_URL}/${API_VERSION}/admin/admin_verify_otp`, {
           mobile,
           otp: parseInt(otpString),
         }),
