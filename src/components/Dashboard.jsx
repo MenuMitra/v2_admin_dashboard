@@ -15,11 +15,13 @@ import {
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "./common/DataTable";
+import { API_CONFIG } from "../config/appConfig";
 
 function Dashboard() {
   const { getToken, isAuthenticated, logout } = useAuth();
   const { adminData } = useAdmin();
   const navigate = useNavigate();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [data, setData] = useState({
     outlet_data: [],
     counts: {
@@ -155,7 +157,7 @@ function Dashboard() {
           throw new Error("No authentication token available");
         }
 
-        const response = await fetch("https://men4u.xyz/v2/admin/admin_home", {
+        const response = await fetch(`${BASE_URL}/${API_VERSION}/admin/admin_home`, {
           method: "GET",
           headers: {
             Authorization: token,
