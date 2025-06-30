@@ -15,6 +15,7 @@ import { useAdmin } from "../../hooks/useAdmin";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import Modal from "../common/Modal";
+import { API_CONFIG } from "../../config/appConfig";
 
 function Admins() {
   const { getToken } = useAuth();
@@ -28,6 +29,7 @@ function Admins() {
   const [adminToDelete, setAdminToDelete] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedAdmins, setSelectedAdmins] = useState([]);
+  const { BASE_URL, API_VERSION } = API_CONFIG;
 
   // Replace single number with array of protected mobile numbers
   const PROTECTED_MOBILES = [
@@ -83,7 +85,7 @@ function Admins() {
       }
 
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/list_admins",
+        `${BASE_URL}/${API_VERSION}/admin/list_admins`,
         {
           headers: {
             Authorization: token,
@@ -113,7 +115,7 @@ function Admins() {
       }
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/admin/delete_admin",
+        `${BASE_URL}/${API_VERSION}/admin/delete_admin`,
         {
           admin_id: adminToDelete,
           user_id: adminData.user_id,
@@ -148,11 +150,13 @@ function Admins() {
         throw new Error("No authentication token available");
       }
 
-      const endpoint = "https://men4u.xyz/v2/admin/update_admin_status";
+      const endpoint = `${BASE_URL}/${API_VERSION}/common/bulk_admin_action`;
+      
+      // Normalize the payload to match API requirements
       const payload = {
-        admin_ids: selectedIds,
-        is_active: action === "active",
-        user_id: adminData.user_id,
+        user_ids: selectedIds, // admin_ids -> user_ids
+        action: action, // directly use "active" or "inactive"
+        app_source: "admin_dashboard"
       };
 
       const response = await axios.post(endpoint, payload, {
@@ -162,7 +166,7 @@ function Admins() {
         },
       });
 
-      if (response.data.status === "success") {
+      if (response.data.detail) {
         await fetchAdmins();
         setSelectedAdmins([]);
       } else {

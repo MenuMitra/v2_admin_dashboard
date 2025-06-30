@@ -322,7 +322,7 @@ function DataTable({
   // Add selection handling functions
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      const allIds = currentItems.map((item) => item.user_id);
+      const allIds = currentItems.map(item => item.id || item.user_id);
       setSelectedItems(allIds);
       onSelectionChange(allIds);
     } else {
@@ -400,6 +400,14 @@ function DataTable({
   const shouldDisableNavigation = {
     prev: () => currentPage === 1,
     next: () => currentPage === totalPages
+  };
+
+  // Add this helper function
+  const isAllCurrentItemsSelected = () => {
+    if (currentItems.length === 0) return false;
+    return currentItems.every(item => 
+      selectedItems.includes(item.id || item.user_id)
+    );
   };
 
   return (
@@ -533,7 +541,7 @@ function DataTable({
                 <th className="px-2 py-2.5 text-center">
                   <input
                     type="checkbox"
-                    checked={selectedItems.length === currentItems.length}
+                    checked={isAllCurrentItemsSelected()}
                     onChange={handleSelectAll}
                     className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
                     onClick={(e) => e.stopPropagation()}
@@ -646,8 +654,8 @@ function DataTable({
                     <td className="px-2 py-2.5 text-center">
                       <input
                         type="checkbox"
-                        checked={selectedItems.includes(item.user_id)}
-                        onChange={() => handleSelectItem(item.user_id)}
+                        checked={selectedItems.includes(item.id || item.user_id)}
+                        onChange={() => handleSelectItem(item.id || item.user_id)}
                         className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
                         onClick={(e) => e.stopPropagation()}
                       />
