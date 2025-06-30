@@ -312,7 +312,7 @@ function CreateOutlet() {
 
       const response = await toastController.promise(
         axios.post(
-          'https://men4u.xyz/v2/common/create_outlet',
+          `${BASE_URL}/${API_VERSION}/common/create_outlet`,
           payload,
           {
             headers: {
