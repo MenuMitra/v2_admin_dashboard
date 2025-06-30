@@ -14,6 +14,7 @@ import {
   SelectInput
 } from './forms/FormElements.jsx';
 import Breadcrumb from './Breadcrumb';
+import { API_CONFIG } from "../config/appConfig";
 
 function EditOwner() {
   const { getToken } = useAuth();
@@ -21,6 +22,7 @@ function EditOwner() {
   const { ownerId } = useParams();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
@@ -60,7 +62,7 @@ function EditOwner() {
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/admin/get_ubac_functionalities',
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: token,
@@ -83,7 +85,7 @@ function EditOwner() {
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/view_owner',
+        `${BASE_URL}/${API_VERSION}/common/view_owner`,
         {
           owner_id: Number(ownerId),
           user_id: adminData.user_id
@@ -138,7 +140,7 @@ function EditOwner() {
       }
 
       const response = await axios.patch(
-        'https://men4u.xyz/v2/common/update_owner',
+        `${BASE_URL}/${API_VERSION}/common/update_owner`,
         {
           update_user_id: adminData.user_id,
           user_id: parseInt(ownerId),
