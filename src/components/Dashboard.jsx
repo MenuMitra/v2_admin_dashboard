@@ -302,11 +302,15 @@ function Dashboard() {
           enableSort={true}
           enablePagination={true}
           enableSearch={true}
-          itemsPerPage={10}
+          itemsPerPage={50}
+          itemsPerPageOptions={[50, 100, 200]}
           darkMode={false}
           enableStatusFilter={true}
           statusFilter={statusFilter}
           onStatusFilterChange={(value) => setStatusFilter(value)}
+          // onItemsPerPageChange={(value) => {
+          //   console.log('Items per page changed to:', value);
+          // }}
         />
       </div>
     </div>
