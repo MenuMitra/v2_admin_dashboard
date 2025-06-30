@@ -16,6 +16,7 @@ import {
 import ImageUploader from './common/ImageUploader';
 import Breadcrumb from './Breadcrumb';
 import { toastController } from '../utils/toastController';
+import { API_CONFIG } from '../config/appConfig';
 
 function CreateOutlet() {
   const navigate = useNavigate();
@@ -25,7 +26,8 @@ function CreateOutlet() {
   const [allOwners, setAllOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
   const [outletData, setOutletData] = useState({
     name: '',
     outlet_type: '',
@@ -103,7 +105,7 @@ function CreateOutlet() {
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/common/get_outlet_type',
+        `${BASE_URL}/${API_VERSION}/common/get_outlet_type`,
         {
           headers: {
             Authorization: token,
@@ -128,7 +130,7 @@ function CreateOutlet() {
       }
 
       const response = await axios.get(
-        `https://men4u.xyz/v2/common/listview_owner/${adminData.user_id}`,
+        `${BASE_URL}/${API_VERSION}/common/listview_owner/${adminData.user_id}`,
         {
           headers: {
             Authorization: token,
@@ -581,12 +583,12 @@ function CreateOutlet() {
                                       </div>
                                       <div className="text-sm text-gray-500">
                                         <span>{owner.mobile}</span>
-                                        {owner.email && (
+                                        {/* {owner.email && (
                                           <>
                                             <span className="mx-2">•</span>
-                                            <span>{owner.email}</span>
+                                            <span className="text-balance">{owner.email}</span>
                                           </>
-                                        )}
+                                        )} */}
                                       </div>
                                     </div>
                                   </div>
