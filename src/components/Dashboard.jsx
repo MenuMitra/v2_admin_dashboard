@@ -83,20 +83,13 @@ function Dashboard() {
       header: "Status",
       sortable: true,
       render: (_, item) => (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 justify-center">
           <FontAwesomeIcon
-            icon={item.total_order_count > 0 ? faCircleCheck : faCircleXmark}
+            icon={item.is_active === 1 ? faCircleCheck : faCircleXmark}
             className={`w-5 h-5 ${
-              item.total_order_count > 0 ? "text-success-500" : "text-error-500"
+              item.is_active === 1 ? "text-success-500" : "text-error-500"
             }`}
           />
-          <span
-            className={`text-sm font-medium ${
-              item.total_order_count > 0 ? "text-success-700" : "text-error-700"
-            }`}
-          >
-            {item.total_order_count > 0 ? "Active" : "Inactive"}
-          </span>
         </div>
       ),
     },
@@ -141,13 +134,6 @@ function Dashboard() {
 
   const [statusFilter, setStatusFilter] = useState("all"); // "all", "active", "inactive"
   const outlets = data.outlet_data || [];
-
-  const filteredOutlets = outlets.filter((outlet) => {
-    if (statusFilter === "all") return true;
-    if (statusFilter === "active") return outlet.is_active === 1;
-    if (statusFilter === "inactive") return outlet.is_active === 0;
-    return true;
-  });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -298,10 +284,9 @@ function Dashboard() {
       {/* Replace Table Section with DataTable */}
       <div className="mt-6">
         <DataTable
-          data={filteredOutlets}
+          data={outlets}
           columns={columns}
           dashboardTitle="All Outlets"
-          // title="All Outlets"
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           searchPlaceholder="Search"
@@ -319,6 +304,9 @@ function Dashboard() {
           enableSearch={true}
           itemsPerPage={10}
           darkMode={false}
+          enableStatusFilter={true}
+          statusFilter={statusFilter}
+          onStatusFilterChange={(value) => setStatusFilter(value)}
         />
       </div>
     </div>
