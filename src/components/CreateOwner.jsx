@@ -35,7 +35,7 @@ function CreateOwner() {
     dob: "",
     aadhar_number: "",
     address: "",
-    functionality_ids: [],
+    // functionality_ids: [],
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
@@ -123,7 +123,7 @@ function CreateOwner() {
         address: ownerData.address,
         aadhar_number: ownerData.aadhar_number,
         dob: ownerData.dob,
-        functionality_ids: ownerData.functionality_ids,
+        // functionality_ids: ownerData.functionality_ids,
       };
 
       await toastController.promise(
@@ -274,9 +274,8 @@ function CreateOwner() {
             />
 
             {/* Functionalities */}
-            <div>
+            {/* <div>
               <label className={labelStyles}>
-                {/* <span className="text-error-600 text-red-500 mr-1">*</span> */}
                 Functionalities
               </label>
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
@@ -313,7 +312,7 @@ function CreateOwner() {
                   ))}
                 </div>
               </div>
-            </div>
+            </div> */}
           </form>
         </div>
       </div>
