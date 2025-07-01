@@ -373,35 +373,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
     );
   };
 
-  // const handleLogout = async () => {
-  //   try {
-  //     await axios.post(
-  //       'https://men4u.xyz/v2/common/logout',
-  //       {
-  //         user_id: adminData.user_id,
-  //         role: adminData.role,
-  //         app: "admin_dashboard"
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: getToken(),
-  //         },
-  //       }
-  //     );
-
-  //     // Clear both admin and auth data from local storage
-  //     clearAdmin();
-  //     logout();
-      
-  //     // Navigate to login page
-  //     navigate('/');
-      
-  //   } catch (error) {
-  //     console.error('Logout failed:', error);
-  //     // You might want to show an error toast/notification here
-  //   }
-  // };
-
   return (
     <aside
       className={`

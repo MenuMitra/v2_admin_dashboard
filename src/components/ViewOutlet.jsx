@@ -22,6 +22,7 @@ import {
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import Modal from "./common/Modal";
+import { API_CONFIG } from "../config/appConfig";
 
 function ViewOutlet() {
   const { getToken } = useAuth();
@@ -36,13 +37,15 @@ function ViewOutlet() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
   const fetchOutletDetails = async () => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/view_outlet",
+        `${BASE_URL}/${API_VERSION}/common/view_outlet`,
         {
           outlet_id: outletId,
           user_id: adminData?.user_id,
@@ -93,7 +96,7 @@ function ViewOutlet() {
     try {
       setLoading(true);
       const response = await axios.delete(
-        "https://men4u.xyz/v2/common/delete_outlet",
+        `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
         {
           headers: {
             Authorization: getToken(),
@@ -138,7 +141,7 @@ function ViewOutlet() {
       formData.append("file", selectedFile);
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/bulk_upload_file",
+        `${BASE_URL}/${API_VERSION}/common/bulk_upload_file`,
         formData,
         {
           headers: {
