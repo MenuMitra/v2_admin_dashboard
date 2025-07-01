@@ -13,6 +13,7 @@ import {
 import Breadcrumb from "../../../Breadcrumb";
 import Modal from "../../../common/Modal";
 import { toastController } from "../../../../utils/toastController";
+import { API_CONFIG } from "../../../../config/appConfig";
 
 function CaptainDetails() {
   const { outletId, userId } = useParams();
@@ -24,6 +25,8 @@ function CaptainDetails() {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
   useEffect(() => {
     fetchCaptainDetails();
   }, [outletId, userId]);
@@ -32,7 +35,7 @@ function CaptainDetails() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/captain_view",
+        `${BASE_URL}/${API_VERSION}/common/captain_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -60,7 +63,7 @@ function CaptainDetails() {
         throw new Error("No authentication token available");
       }
 
-      await axios.delete("https://men4u.xyz/v2/common/captain_delete", {
+      await axios.delete(`${BASE_URL}/${API_VERSION}/common/captain_delete`, {
         data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
