@@ -7,6 +7,10 @@ import { useAuth } from '../../../hooks/useAuth';
 import DataTable from '../../common/DataTable';
 import Breadcrumb from '../../Breadcrumb';
 import Modal from '../../common/Modal';
+import { API_CONFIG } from '../../../config/appConfig';
+import { toastController } from '../../../utils/toastController';
+
+const { BASE_URL, API_VERSION } = API_CONFIG;
 
 function Roles() {
   const { getToken } = useAuth();
@@ -35,17 +39,23 @@ function Roles() {
         throw new Error('No authentication token available');
       }
 
-      const response = await axios.get(
-        'https://men4u.xyz/v2/common/list_roles',
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json'
+      const response = await toastController.promise(
+        axios.get(
+          `${BASE_URL}/${API_VERSION}/common/list_roles`,
+          {
+            headers: {
+              Authorization: token,
+              'Content-Type': 'application/json'
+            }
           }
+        ),
+        {
+          loading: 'Loading roles...',
+          success: 'Roles loaded successfully!',
+          error: 'Failed to load roles'
         }
       );
 
-      // Since the API returns an array directly, we can use it as is
       setRoles(response.data);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to fetch roles');
@@ -60,6 +70,11 @@ function Roles() {
   }, []);
 
   const handleCreateRole = async () => {
+    if (!newRoleName.trim()) {
+      toastController.error('Please enter a role name');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       const token = getToken();
@@ -67,22 +82,28 @@ function Roles() {
         throw new Error('No authentication token available');
       }
 
-      await axios.post(
-        'https://men4u.xyz/v2/admin/create_ubac_role',
-        { role_name: newRoleName },
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json'
+      await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/create_ubac_role`,
+          { role_name: newRoleName },
+          {
+            headers: {
+              Authorization: token,
+              'Content-Type': 'application/json'
+            }
           }
+        ),
+        {
+          loading: 'Creating role...',
+          success: 'Role created successfully!',
+          error: 'Failed to create role'
         }
       );
 
-      await fetchRoles(); // Refresh the roles list
+      await fetchRoles();
       setIsModalOpen(false);
       setNewRoleName('');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create role');
       console.error('Error creating role:', err);
     } finally {
       setIsSubmitting(false);
@@ -142,12 +163,6 @@ function Roles() {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-
-      {error && (
-        <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
-          {error}
-        </div>
-      )}
 
       <DataTable
         data={roles}
