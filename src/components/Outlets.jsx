@@ -27,6 +27,7 @@ import Breadcrumb from "./Breadcrumb";
 import DataTable from "./common/DataTable";
 import Modal from "./common/Modal";
 import { API_CONFIG} from "../config/appConfig";
+import { toastController } from "../utils/toastController";
 
 const SearchIcon = () => (
   <svg
@@ -355,24 +356,31 @@ function Outlets() {
       setLoading(true);
       setError(null);
 
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
-        {
-          user_id: adminData?.user_id,
-          app_source: "admin_dashboard",
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
+      const response = await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
+          {
+            user_id: adminData?.user_id,
+            app_source: "admin_dashboard",
           },
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        {
+          loading: 'Loading outlets...',
+          success: 'Successfully loaded outlets!',
+          error: 'Failed to load outlets'
         }
       );
 
       if (response.data.detail === "Successfully retrieved outlets") {
         const transformedData = transformOutletData(response.data.data);
         setOutletData(transformedData);
-        setFilteredData(transformedData); // Initialize filtered data with all outlets
+        setFilteredData(transformedData);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch outlets");
@@ -446,23 +454,30 @@ function Outlets() {
   const handleDeleteOutlet = async () => {
     try {
       setLoading(true);
-      const response = await axios.delete(
-        `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
+      const response = await toastController.promise(
+        axios.delete(
+          `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "application/json",
+            },
+            data: {
+              outlet_id: outletToDelete.id,
+              user_id: adminData?.user_id,
+            },
+          }
+        ),
         {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
-          },
-          data: {
-            outlet_id: outletToDelete.id,
-            user_id: adminData?.user_id,
-          },
+          loading: 'Deleting outlet...',
+          success: 'Outlet deleted successfully!',
+          error: 'Failed to delete outlet'
         }
       );
 
       if (response.data.detail === "Outlet deleted successfully") {
         setShowDeleteModal(false);
-        fetchOutlets(); // Refresh the outlets list
+        fetchOutlets();
       }
     } catch (err) {
       console.error("Error deleting outlet:", err);
@@ -733,24 +748,30 @@ function Outlets() {
         throw new Error("No valid outlet IDs selected");
       }
 
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/bulk_outlet_action`,
-        {
-          user_id: adminData.user_id,
-          action: action,
-          app_source: "admin_dashboard",
-          outlet_ids: validOutletIds,
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
+      const response = await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/bulk_outlet_action`,
+          {
+            user_id: adminData.user_id,
+            action: action,
+            app_source: "admin_dashboard",
+            outlet_ids: validOutletIds,
           },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        {
+          loading: `${action === 'delete' ? 'Deleting' : action === 'active' ? 'Activating' : 'Deactivating'} outlets...`,
+          success: `Successfully ${action === 'delete' ? 'deleted' : action === 'active' ? 'activated' : 'deactivated'} outlets!`,
+          error: `Failed to ${action} outlets`
         }
       );
 
       if (response && response.status === 200) {
-        // Reset all selection states
         setSelectedOutlets([]);
         setConfirmModal({
           isOpen: false,
@@ -758,16 +779,12 @@ function Outlets() {
           title: "",
           message: "",
         });
-
-        // Refresh the data
         await fetchOutlets();
-
-        // Show success message if needed
-        // You can add a toast or notification here
       }
     } catch (err) {
       setError(err.response?.data?.detail || `Failed to ${action} outlets`);
       console.error("Error performing bulk action:", err);
+      toastController.error(`Failed to ${action} outlets: ${err.message}`);
     }
   };
 
