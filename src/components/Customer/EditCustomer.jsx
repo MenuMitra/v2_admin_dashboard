@@ -8,72 +8,76 @@ import {
   faChevronLeft as faBack,
   faSpinner,
   faSave,
-  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
-import { TextInput, SelectInput, DateInput } from "../forms/FormElements";
+import { TextInput, SelectInput } from "../forms/FormElements";
 import { toastController } from "../../utils/toastController";
+
+const INITIAL_CUSTOMER_STATE = {
+  name: "",
+  mobile: "",
+  role: "customer",
+  is_active: true,
+};
 
 function EditCustomer() {
   const { customerId } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const [loading, setLoading] = useState(true);
-  const [customerData, setCustomerData] = useState({
-    name: "",
-    mobile: "",
-    email: "",
-    role: "customer",
-    address: "",
-    dob: "",
-    is_active: true,
-  });
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [customerData, setCustomerData] = useState(INITIAL_CUSTOMER_STATE);
 
-  useEffect(() => {
-    if (customerId) {
-      fetchCustomerData();
-    }
-  }, [customerId]);
-
-  const fetchCustomerData = async () => {
-    setLoading(true);
+  const fetchData = async () => {
     try {
-      const response = await axios.post(
-        "https://men4u.xyz/v2/admin/customer_view",
-        {
-          user_id: Number(customerId),
-          app_source: "admin_dashboard",
-        },
-        {
-          headers: {
-            Authorization: getToken(),
+      setIsLoading(true);
+      const [customerResponse, rolesResponse] = await Promise.all([
+        axios.post(
+          "https://men4u.xyz/v2/admin/customer_view",
+          {
+            user_id: Number(customerId),
+            app_source: "admin_dashboard",
           },
-        }
-      );
-      const { customer_details } = response.data;
+          {
+            headers: { Authorization: getToken() },
+          }
+        ),
+        axios.get("https://men4u.xyz/v2/common/list_roles", {
+          headers: { Authorization: getToken() },
+        }),
+      ]);
+
+      const { customer_details } = customerResponse.data;
       setCustomerData({
         name: customer_details.name || "",
         mobile: customer_details.mobile || "",
-        email: customer_details.email || "",
         role: customer_details.role || "customer",
-        address: customer_details.address || "",
-        dob: customer_details.dob || "",
         is_active: customer_details.is_active === 1,
       });
-    } catch (err) {
+      setRoles(rolesResponse.data);
+    } catch (error) {
       toastController.error(
-        err.response?.data?.msg || "Failed to fetch customer details"
+        error.response?.data?.msg || "Failed to fetch data"
       );
+      navigate(-1);
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (customerId) {
+      fetchData();
+    }
+  }, [customerId]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
+      setIsSaving(true);
       const response = await axios.patch(
         "https://men4u.xyz/v2/admin/customer_update",
         {
@@ -81,13 +85,12 @@ function EditCustomer() {
           customer_id: Number(customerId),
           name: customerData.name,
           mobile: customerData.mobile,
+          role: customerData.role,
           is_active: customerData.is_active ? 1 : 0,
           app_source: "admin_dashboard"
         },
         {
-          headers: {
-            Authorization: getToken(),
-          },
+          headers: { Authorization: getToken() },
         }
       );
 
@@ -100,7 +103,7 @@ function EditCustomer() {
         error.response?.data?.msg || "Failed to update customer"
       );
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -108,17 +111,11 @@ function EditCustomer() {
     const { name, value } = e.target;
     setCustomerData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "is_active" ? value === "1" : value,
     }));
   };
 
-  const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Customers", path: "/customer" },
-    { label: "Edit Customer" },
-  ];
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin text-brand-500">
@@ -130,9 +127,16 @@ function EditCustomer() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Breadcrumb items={breadcrumbItems} />
+      <Breadcrumb
+        items={[
+          { label: "Dashboard", path: "/" },
+          { label: "Customers", path: "/customer" },
+          { label: "Edit Customer" },
+        ]}
+      />
+      
       <div className="rounded-2xl border border-gray-200 bg-white">
-        {/* Header Section */}
+        {/* Header */}
         <div className="overflow-hidden pt-4">
           <div className="flex items-center px-6 mb-3">
             <div className="flex items-center gap-2 order-1">
@@ -154,20 +158,21 @@ function EditCustomer() {
               <button
                 type="submit"
                 form="editCustomerForm"
-                disabled={loading}
+                disabled={isSaving}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-success-500 shadow-theme-xs hover:bg-success-600 disabled:opacity-50"
               >
-                <FontAwesomeIcon
-                  icon={loading ? faCheck : faSave}
-                  className="w-4 h-4"
-                />
-                Save
+                {isSaving ? (
+                  <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin" />
+                ) : (
+                  <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+                )}
+                {isSaving ? "Saving..." : "Save"}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Form Section */}
+        {/* Form */}
         <form id="editCustomerForm" onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             <TextInput
@@ -194,21 +199,17 @@ function EditCustomer() {
               name="role"
               value={customerData.role}
               onChange={handleInputChange}
-              options={[
-                { value: "customer", label: "Customer" }
-              ]}
+              options={roles.map(role => ({
+                value: role.role_name,
+                label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
+              }))}
             />
 
             <SelectInput
               label="Status"
               name="is_active"
               value={customerData.is_active ? "1" : "0"}
-              onChange={(e) =>
-                setCustomerData((prev) => ({
-                  ...prev,
-                  is_active: e.target.value === "1",
-                }))
-              }
+              onChange={handleInputChange}
               options={[
                 { value: "1", label: "Active" },
                 { value: "0", label: "Inactive" },
