@@ -25,6 +25,8 @@ import Breadcrumb from './Breadcrumb';
 import TablesViewHeader from './common/TablesViewHeader';
 import DataTable from './common/DataTable';
 import Modal from './common/Modal';
+import { API_CONFIG } from "../config/appConfig";
+import { toastController } from "../utils/toastController";
 
 function Owners() {
   const { getToken } = useAuth();
@@ -43,6 +45,8 @@ function Owners() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
 
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
   useEffect(() => {
     if (adminData?.user_id) {
       fetchOwners();
@@ -56,13 +60,20 @@ function Owners() {
         throw new Error("No authentication token available");
       }
 
-      const response = await axios.get(
-        `https://men4u.xyz/v2/common/listview_owner/${adminData.user_id}`,
+      const response = await toastController.promise(
+        axios.get(
+          `${BASE_URL}/${API_VERSION}/common/listview_owner/${adminData.user_id}`,
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        ),
         {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
+          loading: 'Loading owners...',
+          success: 'Owners loaded successfully!',
+          error: 'Failed to load owners'
         }
       );
 
@@ -89,16 +100,23 @@ function Owners() {
         throw new Error("No authentication token available");
       }
 
-      await axios.delete("https://men4u.xyz/v2/common/delete_owner", {
-        data: {
-          owner_id: ownerToDelete,
-          user_id: adminData.user_id,
-        },
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      });
+      await toastController.promise(
+        axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_owner`, {
+          data: {
+            owner_id: ownerToDelete,
+            user_id: adminData.user_id,
+          },
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }),
+        {
+          loading: 'Deleting owner...',
+          success: 'Owner deleted successfully!',
+          error: 'Failed to delete owner'
+        }
+      );
 
       setShowDeleteModal(false);
       setOwnerToDelete(null);
@@ -369,29 +387,31 @@ function Owners() {
         throw new Error("No authentication token available");
       }
 
-      const response = await axios.post(
-        "https://men4u.xyz/v2/common/bulk_owner_action",
-        {
-          user_id: adminData.user_id,
-          action: action,
-          app_source: "admin_dashboard",
-          owner_ids: selectedIds
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
+      await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/bulk_owner_action`,
+          {
+            user_id: adminData.user_id,
+            action: action,
+            app_source: "admin_dashboard",
+            owner_ids: selectedIds
           },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        {
+          loading: 'Processing bulk action...',
+          success: 'Bulk action completed successfully!',
+          error: 'Failed to process bulk action'
         }
       );
 
-      // Check if the request was successful (Status Code 200)
-      if (response.status === 200) {
-        // Clear the selection
-        setSelectedItems([]);
-        // Refresh the owners list
-        fetchOwners();
-      }
+      setSelectedItems([]);
+      fetchOwners();
     } catch (error) {
       console.error("Error performing bulk action:", error);
     }
