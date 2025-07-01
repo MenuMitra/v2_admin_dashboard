@@ -23,6 +23,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import Modal from "./common/Modal";
 import { API_CONFIG } from "../config/appConfig";
+import { toastController } from "../utils/toastController";
 
 function ViewOutlet() {
   const { getToken } = useAuth();
@@ -44,18 +45,25 @@ function ViewOutlet() {
       setLoading(true);
       setError(null);
 
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/view_outlet`,
-        {
-          outlet_id: outletId,
-          user_id: adminData?.user_id,
-          app_source: "admin_dashboard",
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
+      const response = await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+          {
+            outlet_id: outletId,
+            user_id: adminData?.user_id,
+            app_source: "admin_dashboard",
           },
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        {
+          loading: 'Loading outlet details...',
+          success: 'Outlet details loaded successfully!',
+          error: 'Failed to load outlet details'
         }
       );
 
@@ -95,24 +103,29 @@ function ViewOutlet() {
   const confirmDelete = async () => {
     try {
       setLoading(true);
-      const response = await axios.delete(
-        `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
+      await toastController.promise(
+        axios.delete(
+          `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "application/json",
+            },
+            data: {
+              outlet_id: outletId,
+              user_id: adminData?.user_id,
+            },
+          }
+        ),
         {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
-          },
-          data: {
-            outlet_id: outletId,
-            user_id: adminData?.user_id,
-          },
+          loading: 'Deleting outlet...',
+          success: 'Outlet deleted successfully!',
+          error: 'Failed to delete outlet'
         }
       );
 
-      if (response.data.detail === "Outlet deleted successfully") {
-        setShowDeleteModal(false);
-        navigate("/outlets");
-      }
+      setShowDeleteModal(false);
+      navigate("/outlets");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to delete outlet");
       console.error("Error deleting outlet:", err);
@@ -128,43 +141,40 @@ function ViewOutlet() {
   const handleBulkUpload = async () => {
     try {
       if (!selectedFile) {
+        toastController.error("Please select a file to upload");
         return;
       }
 
       setLoading(true);
-
-      // Create form data
       const formData = new FormData();
       formData.append("outlet_id", outletId);
       formData.append("user_id", adminData?.user_id);
       formData.append("app_source", "admin_dashboard");
       formData.append("file", selectedFile);
 
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/bulk_upload_file`,
-        formData,
+      await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/bulk_upload_file`,
+          formData,
+          {
+            headers: {
+              Authorization: getToken(),
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        ),
         {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "multipart/form-data",
-          },
+          loading: 'Uploading menu data...',
+          success: 'Menu data uploaded successfully!',
+          error: 'Failed to upload menu data'
         }
       );
 
-      if (response.data.message === "Menu data uploaded successfully") {
-        // Close modal and show success message
-        setShowBulkUploadModal(false);
-        setSelectedFile(null);
-
-        // You can add a toast notification here if you have one
-        console.log("Upload successful:", response.data);
-
-        // Refresh outlet details to show updated counts
-        fetchOutletDetails();
-      }
+      setShowBulkUploadModal(false);
+      setSelectedFile(null);
+      fetchOutletDetails();
     } catch (err) {
       console.error("Error uploading file:", err);
-      // You can add error handling/toast notification here
     } finally {
       setLoading(false);
     }
@@ -174,8 +184,6 @@ function ViewOutlet() {
     setIsDownloading(true);
     try {
       const templateUrl = "/downloads/bulk_template.csv";
-
-      // Fetch the file first to check if it exists
       const response = await fetch(templateUrl);
 
       if (!response.ok) {
@@ -191,12 +199,12 @@ function ViewOutlet() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
-      // Cleanup
       window.URL.revokeObjectURL(url);
+      
+      toastController.success("Template downloaded successfully!");
     } catch (error) {
       console.error("Error downloading template:", error);
-      // You can add a toast notification here if you have one
+      toastController.error("Failed to download template");
     } finally {
       setIsDownloading(false);
     }
