@@ -8,6 +8,7 @@ import { faChevronLeft as faBack, faSpinner, faSave } from "@fortawesome/free-so
 import Breadcrumb from "../../../Breadcrumb";
 import { TextInput, DateInput, SelectInput } from "../../../forms/FormElements";
 import { API_CONFIG } from "../../../../config/appConfig";
+import { toastController } from "../../../../utils/toastController";
 
 function EditChef() {
   const { outletId, userId } = useParams();
@@ -54,7 +55,7 @@ function EditChef() {
   const fetchRoles = async () => {
     try {
       const response = await axios.get(
-        "https://men4u.xyz/v2/common/list_roles",
+        `${BASE_URL}/${API_VERSION}/common/list_roles`,
         {
           headers: {
             Authorization: getToken(),
@@ -63,7 +64,7 @@ function EditChef() {
       );
       setRoles(response.data);
     } catch (err) {
-      console.error("Failed to fetch roles:", err);
+      toastController.error("Failed to load roles");
       setError("Failed to load roles");
     }
   };
@@ -71,7 +72,7 @@ function EditChef() {
   const fetchFunctionalities = async () => {
     try {
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: getToken(),
@@ -80,7 +81,7 @@ function EditChef() {
       );
       setAvailableFunctionalities(response.data);
     } catch (err) {
-      console.error("Failed to fetch functionalities:", err);
+      toastController.error("Failed to load functionalities");
       setError("Failed to load functionalities");
     }
   };
@@ -94,7 +95,7 @@ function EditChef() {
   const fetchChefDetails = async () => {
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/chef_view",
+        `${BASE_URL}/${API_VERSION}/common/chef_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -120,7 +121,9 @@ function EditChef() {
         role: data.role || "chef"
       });
     } catch (err) {
-      setError(err.response?.data?.msg || "Failed to fetch chef details");
+      const errorMsg = err.response?.data?.msg || "Failed to fetch chef details";
+      toastController.error(errorMsg);
+      setError(errorMsg);
     }
   };
 
@@ -130,24 +133,33 @@ function EditChef() {
     setError(null);
 
     try {
-      await axios.patch(
-        "https://men4u.xyz/v2/common/chef_update",
-        {
-          update_user_id: adminData?.user_id,
-          user_id: Number(userId),
-          outlet_id: Number(outletId),
-          ...chefData,
-          app_source: "admin_dashboard"
-        },
-        {
-          headers: {
-            Authorization: getToken(),
+      await toastController.promise(
+        axios.patch(
+          `${BASE_URL}/${API_VERSION}/common/chef_update`,
+          {
+            update_user_id: adminData?.user_id,
+            user_id: Number(userId),
+            outlet_id: Number(outletId),
+            ...chefData,
+            app_source: "admin_dashboard"
           },
+          {
+            headers: {
+              Authorization: getToken(),
+            },
+          }
+        ),
+        {
+          loading: "Updating chef details...",
+          success: "Chef updated successfully",
+          error: "Failed to update chef"
         }
       );
       navigate(`/chef-details/${outletId}/${userId}`);
     } catch (err) {
-      setError(err.response?.data?.msg || "Failed to update chef");
+      const errorMsg = err.response?.data?.msg || "Failed to update chef";
+      toastController.error(errorMsg);
+      setError(errorMsg);
       setSubmitting(false);
     }
   };
