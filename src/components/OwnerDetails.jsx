@@ -116,7 +116,7 @@ function OwnerDetails() {
       navigate(-1);
     } catch (error) {
       console.error("Error deleting owner:", error);
-      toastController.error("Failed to delete owner: " + error.message);
+      // toastController.error("Failed to delete owner: " + error.message);
     }
   };
 
