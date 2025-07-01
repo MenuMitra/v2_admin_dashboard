@@ -25,6 +25,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "./common/Modal";
 import Breadcrumb from "./Breadcrumb";
+import { API_CONFIG } from "../config/appConfig";
 
 function OwnerDetails() {
   const { getToken } = useAuth();
@@ -34,6 +35,8 @@ function OwnerDetails() {
   const [ownerData, setOwnerData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const { BASE_URL, API_VERSION } = API_CONFIG;
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
@@ -56,7 +59,7 @@ function OwnerDetails() {
       }
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/view_owner",
+        `${BASE_URL}/${API_VERSION}/common/view_owner`,
         {
           user_id: adminData.user_id,
           owner_id: parseInt(ownerId),
@@ -84,7 +87,7 @@ function OwnerDetails() {
         throw new Error("No authentication token available");
       }
 
-      await axios.delete("https://men4u.xyz/v2/common/delete_owner", {
+      await axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_owner`, {
         data: {
           owner_id: parseInt(ownerId),
           user_id: adminData.user_id,
