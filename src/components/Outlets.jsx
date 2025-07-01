@@ -397,18 +397,35 @@ function Outlets() {
     }
   }, [adminData?.user_id]);
 
-  // Handle search
-  useEffect(() => {
-    if (!outletData.length) return;
+  // Update the filtering logic to handle both search and status filters
+  const getFilteredData = () => {
+    if (!outletData.length) return [];
 
-    const filtered = outletData.filter((item) =>
-      Object.values(item).some((val) =>
-        val.toString().toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    );
+    return outletData.filter((item) => {
+      // First apply status filter
+      if (statusFilter !== "all") {
+        const isActive = item.outletStatus === 1;
+        if (statusFilter === "active" && !isActive) return false;
+        if (statusFilter === "inactive" && isActive) return false;
+      }
+
+      // Then apply search filter if there's a search query
+      if (searchQuery) {
+        return Object.values(item).some((val) =>
+          val?.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+
+      return true;
+    });
+  };
+
+  // Update the useEffect for filtering
+  useEffect(() => {
+    const filtered = getFilteredData();
     setFilteredData(filtered);
-    setCurrentPage(1); // Reset to first page when searching
-  }, [searchQuery, outletData]);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [searchQuery, statusFilter, outletData]);
 
   // Get current items
   const getCurrentItems = () => {
@@ -797,22 +814,19 @@ function Outlets() {
         </div>
       )}
       <DataTable
-        data={filteredData.filter((outlet) => {
-          if (statusFilter === "all") return true;
-          const isActive = outlet.outletStatus === 1;
-          return statusFilter === "active" ? isActive : !isActive;
-        })}
+        data={filteredData}
         columns={columns}
         title="Outlets"
         counts={{
-          total: filteredData.length,
-          active: filteredData.filter((outlet) => outlet.outletStatus === 1)
-            .length,
-          inactive: filteredData.filter((outlet) => outlet.outletStatus === 0)
-            .length,
+          total: outletData.length,
+          active: outletData.filter((outlet) => outlet.outletStatus === 1).length,
+          inactive: outletData.filter((outlet) => outlet.outletStatus === 0).length,
         }}
         searchTerm={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={(value) => {
+          setSearchQuery(value);
+          setCurrentPage(1); // Reset page when search changes
+        }}
         createButton={{
           show: true,
           label: "Create",
@@ -823,7 +837,7 @@ function Outlets() {
         }}
         onBackClick={() => navigate(-1)}
         showBackButton={true}
-        searchPlaceholder="Search"
+        searchPlaceholder="Search outlets..."
         darkMode={false}
         enableSort={true}
         enablePagination={true}
@@ -838,8 +852,23 @@ function Outlets() {
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
-          setCurrentPage(1); // Reset to first page when filter changes
+          setCurrentPage(1); // Reset page when status filter changes
         }}
+        statusField="outletStatus" // Specify which field to use for status
+        isItemSelectable={(item) => {
+          // Add logic to determine if an item can be selected based on its status
+          if (statusFilter === "all") return true;
+          return statusFilter === "active" ? 
+            item.outletStatus === 1 : 
+            item.outletStatus === 0;
+        }}
+        emptyStateMessage={
+          searchQuery
+            ? "No outlets found matching your search criteria."
+            : statusFilter !== "all"
+            ? `No ${statusFilter} outlets found.`
+            : "No outlets available."
+        }
       />
 
       {/* Add Modal component for confirmations */}

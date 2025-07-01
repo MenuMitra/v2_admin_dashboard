@@ -86,6 +86,7 @@ function DataTable({
   ],
   onItemsPerPageChange = () => {},
   emptyStateMessage = "No data found.",
+  statusField = "is_active",
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -148,48 +149,60 @@ function DataTable({
     );
   };
 
+  // Add normalizeStatus utility function
+  const normalizeStatus = (value) => {
+    if (value === null || value === undefined) return false;
+    return value === true || value === 1 || value === "1";
+  };
+
   // Data Processing
   const getSortedAndFilteredData = () => {
     let processedData = [...data];
 
-    // Modify status filter to handle both boolean and numeric values
+    // Update status filtering with normalized values
     if (enableStatusFilter && statusFilter !== "all") {
       processedData = processedData.filter((item) => {
-        const isActiveValue = item.is_active;
-        // Handle both boolean and numeric values
-        const isActive = isActiveValue === true || isActiveValue === 1;
+        const isActive = normalizeStatus(item[statusField]);
         return statusFilter === "active" ? isActive : !isActive;
       });
     }
 
-    // Apply search if enabled
+    // Update search with null/undefined handling
     if (enableSearch && searchTerm) {
       processedData = processedData.filter((item) =>
         Object.values(item).some(
           (value) =>
-            value &&
+            value !== null &&
+            value !== undefined &&
             value.toString().toLowerCase().includes(searchTerm.toLowerCase())
         )
       );
     }
 
-    // Apply sorting if enabled and sortField is set
+    // Update sorting with special status field handling
     if (enableSort && sortField) {
       processedData.sort((a, b) => {
-        let aValue = a[sortField] || "";
-        let bValue = b[sortField] || "";
+        let aValue = a[sortField];
+        let bValue = b[sortField];
+
+        // Special handling for status field
+        if (sortField === statusField) {
+          aValue = normalizeStatus(aValue);
+          bValue = normalizeStatus(bValue);
+        }
 
         if (typeof aValue === "number") {
           return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
         }
 
-        aValue = String(aValue).toLowerCase();
-        bValue = String(bValue).toLowerCase();
+        // Convert to strings for comparison, handling null/undefined
+        aValue = String(aValue ?? "");
+        bValue = String(bValue ?? "");
 
         if (sortOrder === "asc") {
-          return aValue > bValue ? 1 : -1;
+          return aValue.localeCompare(bValue);
         } else {
-          return aValue < bValue ? 1 : -1;
+          return bValue.localeCompare(aValue);
         }
       });
     }
@@ -344,23 +357,6 @@ function DataTable({
     });
   };
 
-  // Add a utility function to handle status rendering
-  const renderStatus = (value) => (
-    <div className="flex items-center justify-center gap-2">
-      <FontAwesomeIcon
-        icon={value ? faCircleCheck : faCircleXmark}
-        className={`w-5 h-5 ${value ? "text-success-500" : "text-error-500"}`}
-      />
-      {/* <span
-        className={`text-base font-medium ${
-          value ? "text-success-700" : "text-error-700"
-        }`}
-      >
-        {value ? "Active" : "Inactive"}
-      </span> */}
-    </div>
-  );
-
   // Update the renderOutletSelect function
   const renderOutletSelect = () => {
     if (!showOutletSelect) return null;
@@ -413,6 +409,16 @@ function DataTable({
       selectedItems.includes(item.id || item.user_id)
     );
   };
+
+  // Update renderStatus to use normalized values
+  const renderStatus = (value) => (
+    <div className="flex items-center justify-center gap-2">
+      <FontAwesomeIcon
+        icon={normalizeStatus(value) ? faCircleCheck : faCircleXmark}
+        className={`w-5 h-5 ${normalizeStatus(value) ? "text-success-500" : "text-error-500"}`}
+      />
+    </div>
+  );
 
   return (
     <div
@@ -685,7 +691,7 @@ function DataTable({
                     >
                       {column.render ? (
                         column.render(item[column.field], item)
-                      ) : column.field === "is_active" ? (
+                      ) : column.field === statusField ? (
                         renderStatus(item[column.field])
                       ) : (
                         <p
