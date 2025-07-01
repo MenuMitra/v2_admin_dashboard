@@ -17,6 +17,7 @@ import {
   labelStyles,
 } from "../../../forms/FormElements";
 import Breadcrumb from "../../../Breadcrumb";
+import { API_CONFIG } from "../../../../config/appConfig";
 
 function CreateManager() {
   const { outletId } = useParams();
@@ -43,6 +44,7 @@ function CreateManager() {
     aadhar_number: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
+  const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const breadcrumbItems = [
     { label: "Dashboard", path: "/" },
@@ -58,11 +60,12 @@ function CreateManager() {
     try {
       const token = getToken();
       if (!token) {
+        toastController.error("Authentication token not found");
         throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: token,
@@ -71,8 +74,7 @@ function CreateManager() {
       );
       setFunctionalities(response.data);
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.detail || "Failed to load functionalities";
+      const errorMsg = err.response?.data?.detail || "Failed to load functionalities";
       setError(errorMsg);
       toastController.error(errorMsg);
     }
@@ -100,16 +102,19 @@ function CreateManager() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitAttempted(true);
+    
     if (!isFormValid()) {
       toastController.error("Please fix validation errors before submitting");
       return;
     }
+
     setIsLoading(true);
     setError(null);
 
     try {
       const token = getToken();
       if (!token) {
+        toastController.error("Authentication token not found");
         throw new Error("No authentication token available");
       }
 
@@ -127,17 +132,20 @@ function CreateManager() {
       };
 
       await toastController.promise(
-        axios.post("https://men4u.xyz/v2/common/manager_create", payload, {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }),
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/manager_create`,
+          payload,
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        ),
         {
           loading: "Creating manager...",
           success: "Manager created successfully!",
-          error: (err) =>
-            err.response?.data?.detail || "Failed to create manager",
+          error: (err) => err.response?.data?.detail || "Failed to create manager",
         }
       );
 
@@ -145,6 +153,7 @@ function CreateManager() {
     } catch (err) {
       const errorMsg = err.response?.data?.detail || "Failed to create manager";
       setError(errorMsg);
+      toastController.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
