@@ -5,6 +5,8 @@ import { useAuth } from '../../../hooks/useAuth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faCheck } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../../Breadcrumb';
+import { API_CONFIG } from '../../../config/appConfig';
+import { toastController } from '../../../utils/toastController';
 
 function AddRoleAssignFunctionalities() {
   const { roleId } = useParams();
@@ -17,6 +19,8 @@ function AddRoleAssignFunctionalities() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Access Control', path: '/access-control' },
@@ -24,10 +28,14 @@ function AddRoleAssignFunctionalities() {
     { label: 'Assign Functionalities' }
   ];
 
-  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (!selectedFunctionality) {
+      toastController.error('Please select a functionality');
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -38,29 +46,35 @@ function AddRoleAssignFunctionalities() {
         throw new Error('No authentication token available');
       }
 
-      const response = await axios.post(
-        'https://men4u.xyz/v2/common/create_ubac_user_functionalities',
-        {
-          functionality_id: parseInt(selectedFunctionality),
-          user_id: parseInt(user_id)
-        },
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json'
+      await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/create_ubac_user_functionalities`,
+          {
+            functionality_id: parseInt(selectedFunctionality),
+            user_id: parseInt(user_id)
+          },
+          {
+            headers: {
+              Authorization: token,
+              'Content-Type': 'application/json'
+            }
           }
+        ),
+        {
+          loading: 'Assigning functionality...',
+          success: 'Functionality assigned successfully!',
+          error: 'Failed to assign functionality'
         }
       );
 
-      if (response.data.detail === "User functionality created successfully") {
-        setSuccess(true);
-        // Reset form
-        setSelectedFunctionality('');
-        // Optionally navigate back or show success message
-        setTimeout(() => {
-          navigate(-1);
-        }, 2000);
-      }
+      setSuccess(true);
+      setSelectedFunctionality('');
+      
+      // Navigate back after successful assignment
+      setTimeout(() => {
+        navigate(-1);
+      }, 1500);
+
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to assign functionality');
       console.error('Error assigning functionality:', err);
@@ -83,18 +97,6 @@ function AddRoleAssignFunctionalities() {
               Assign functionalities to the selected user
             </p>
           </div>
-
-          {error && (
-            <div className="mb-4 p-4 text-sm text-error-600 bg-error-50 rounded-lg dark:bg-error-500/15 dark:text-error-500">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="mb-4 p-4 text-sm text-success-600 bg-success-50 rounded-lg dark:bg-success-500/15 dark:text-success-500">
-              Functionality assigned successfully!
-            </div>
-          )}
 
           <form onSubmit={handleSubmit}>
             <div className="space-y-4">
