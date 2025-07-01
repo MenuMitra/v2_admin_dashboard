@@ -318,9 +318,9 @@ function Customer() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         counts={{
-          total: customers.length, // or use response.data.total_customers if you want to store it
-          active: customers.filter(c => c.is_active === true).length,  // Updated to handle boolean
-          inactive: customers.filter(c => c.is_active !== true).length // Updated to handle boolean
+          total: customers.length,
+          active: customers.filter(c => c.is_active === 1).length,
+          inactive: customers.filter(c => c.is_active !== 1).length
         }}
         createButton={{
           show: false
