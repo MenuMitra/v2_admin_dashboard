@@ -27,6 +27,9 @@ import {
 import Breadcrumb from "../../Breadcrumb";
 import Modal from "../../common/Modal";
 import { toastController } from "../../../utils/toastController";
+import { API_CONFIG } from "../../../config/appConfig";
+
+const { BASE_URL, API_VERSION } = API_CONFIG;
 
 // Role-specific components
 const CustomerDetails = ({ data }) => (
@@ -130,7 +133,7 @@ function RoleDetails() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/user_view",
+        `${BASE_URL}/${API_VERSION}/common/user_view`,
         {
           user_id: adminData?.user_id,
           staff_id: userId,
@@ -158,7 +161,7 @@ function RoleDetails() {
   const handleDeleteCustomer = async () => {
     try {
       await axios.delete(
-        "https://men4u.xyz/v2/admin/customer_delete",
+        `${BASE_URL}/${API_VERSION}/admin/customer_delete`,
         {
           headers: {
             Authorization: getToken(),
