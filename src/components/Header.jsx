@@ -17,6 +17,7 @@ import logo from "../assets/images/logo/logo.png";
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const { adminData, clearAdmin } = useAdmin();
   const { getToken, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +28,19 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -80,7 +94,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
         {/* Right Section - Admin Profile */}
         {adminData && (
           <div className="flex items-center">
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button
                 className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
