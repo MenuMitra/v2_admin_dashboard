@@ -117,18 +117,18 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
               {/* Dropdown Menu */}
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-64 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                  <Link to="/profile">
-                  <div className="mb-2 p-2">
-                    <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
-                      {adminData.name}
-                    </h4>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {adminData.email}
-                    </p>
-                    {/* <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      {adminData.role}
-                    </p> */}
-                  </div>
+                  <Link 
+                    to="/profile" 
+                    onClick={() => setDropdownOpen(false)}
+                  >
+                    <div className="mb-2 p-2">
+                      <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
+                        {adminData.name}
+                      </h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {adminData.email}
+                      </p>
+                    </div>
                   </Link>
                   <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
                   <button
