@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const useAuth = () => {
+  const navigate = useNavigate();
   const [authData, setAuthData] = useState(() => {
     // Initialize from localStorage if exists
     const savedAuth = localStorage.getItem('auth');
     return savedAuth ? JSON.parse(savedAuth) : null;
   });
 
-  // Update localStorage whenever authData changes
+  // Single source of truth for localStorage management
   useEffect(() => {
     if (authData) {
       localStorage.setItem('auth', JSON.stringify(authData));
@@ -26,7 +28,8 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    setAuthData(null);
+    setAuthData(null);  // useEffect will handle localStorage cleanup
+    navigate('/login');
   };
 
   const isAuthenticated = () => {
@@ -46,74 +49,3 @@ export const useAuth = () => {
   };
 };
 
-// import { useState, useEffect } from 'react';
-
-// export const useAdmin = () => {
-//   const [adminData, setAdminData] = useState(() => {
-//     // Initialize from localStorage if exists
-//     const savedAdmin = localStorage.getItem('adminData');
-//     return savedAdmin ? JSON.parse(savedAdmin) : null;
-//   });
-
-//   // Update localStorage whenever adminData changes
-//   useEffect(() => {
-//     if (adminData) {
-//       localStorage.setItem('adminData', JSON.stringify(adminData));
-//     } else {
-//       localStorage.removeItem('adminData');
-//     }
-//   }, [adminData]);
-
-//   const setAdmin = (response) => {
-//     const newAdminData = {
-//       user_id: response.data.user_id,
-//       name: response.data.name,
-//       mobile: response.data.mobile,
-//       email: response.data.email,
-//       role: response.data.role,
-//     };
-//     setAdminData(newAdminData);
-//   };
-
-//   const clearAdmin = () => {
-//     setAdminData(null);
-//   };
-
-//   const updateAdminProfile = (updatedData) => {
-//     setAdminData(prev => ({
-//       ...prev,
-//       ...updatedData
-//     }));
-//   };
-
-//   return {
-//     adminData,
-//     setAdmin,
-//     clearAdmin,
-//     updateAdminProfile,
-//   };
-// };
-
-// // Optional: Create a combined hook for both auth and admin data
-// // src/hooks/useAuthStore.js
-// export const useAuthStore = () => {
-//   const auth = useAuth();
-//   const admin = useAdmin();
-
-//   const handleLogin = (response) => {
-//     auth.login(response);
-//     admin.setAdmin(response);
-//   };
-
-//   const handleLogout = () => {
-//     auth.logout();
-//     admin.clearAdmin();
-//   };
-
-//   return {
-//     ...auth,
-//     ...admin,
-//     handleLogin,
-//     handleLogout,
-//   };
-// };
