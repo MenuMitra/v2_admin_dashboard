@@ -17,13 +17,14 @@ import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
 import Modal from '../../../common/Modal';
 import { toastController } from "../../../../utils/toastController";
+import { API_CONFIG } from "../../../../config/appConfig";
 
 function Captains() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { outletId } = useParams();
   const navigate = useNavigate();
-  
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [captains, setCaptains] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -41,7 +42,7 @@ function Captains() {
   const fetchCaptains = async () => {
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/captain_listview",
+        `${BASE_URL}/${API_VERSION}/common/captain_listview`,
         {
           user_id: adminData.user_id,
           outlet_id: Number(outletId),
@@ -73,7 +74,7 @@ function Captains() {
 
   const handleDeleteCaptain = async () => {
     try {
-      await axios.delete("https://men4u.xyz/v2/common/captain_delete", {
+      await axios.delete(`${BASE_URL}/${API_VERSION}/common/captain_delete`, {
         data: {
           update_user_id: adminData.user_id,
           outlet_id: outletId,
@@ -202,7 +203,7 @@ function Captains() {
 
       const response = await toastController.promise(
         axios.post(
-          "https://men4u.xyz/v2/common/bulk_captain_action",
+          `${BASE_URL}/${API_VERSION}/common/bulk_captain_action`,
           {
             user_id: adminData.user_id,
             action: action,
