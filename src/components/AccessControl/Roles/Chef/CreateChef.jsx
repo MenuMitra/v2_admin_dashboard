@@ -17,12 +17,14 @@ import {
   labelStyles,
 } from "../../../forms/FormElements";
 import Breadcrumb from "../../../Breadcrumb";
+import { API_CONFIG } from "../../../../config/appConfig";
 
 function CreateChef() {
   const { outletId } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const {BASE_URL, API_VERSION} = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
@@ -62,7 +64,7 @@ function CreateChef() {
       }
 
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: token,
@@ -127,7 +129,7 @@ function CreateChef() {
       };
 
       await toastController.promise(
-        axios.post("https://men4u.xyz/v2/common/chef_create", payload, {
+        axios.post(`${BASE_URL}/${API_VERSION}/common/chef_create`, payload, {
           headers: {
             Authorization: token,
             "Content-Type": "application/json",
