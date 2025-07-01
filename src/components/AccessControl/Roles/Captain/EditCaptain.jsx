@@ -7,13 +7,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack, faSpinner, faSave } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import { TextInput, DateInput, SelectInput } from "../../../forms/FormElements";
+import { API_CONFIG } from "../../../../config/appConfig";
 
 function EditCaptain() {
   const { outletId, userId } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  
+  const {BASE_URL, API_VERSION} = API_CONFIG;
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -53,7 +54,7 @@ function EditCaptain() {
   const fetchFunctionalities = async () => {
     try {
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: getToken(),
@@ -70,7 +71,7 @@ function EditCaptain() {
   const fetchRoles = async () => {
     try {
       const response = await axios.get(
-        "https://men4u.xyz/v2/common/list_roles",
+        `${BASE_URL}/${API_VERSION}/common/list_roles`,
         {
           headers: {
             Authorization: getToken(),
@@ -93,7 +94,7 @@ function EditCaptain() {
   const fetchCaptainDetails = async () => {
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/captain_view",
+        `${BASE_URL}/${API_VERSION}/common/captain_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -130,7 +131,7 @@ function EditCaptain() {
 
     try {
       await axios.patch(
-        "https://men4u.xyz/v2/common/captain_update",
+        `${BASE_URL}/${API_VERSION}/common/captain_update`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
