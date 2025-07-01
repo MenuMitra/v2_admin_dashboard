@@ -129,18 +129,22 @@ function Tickets() {
 
     const searchLower = searchTerm.toLowerCase().trim();
     const filtered = tickets.filter(ticket => {
-      const ticketNumber = String(ticket.ticket_number || '').toLowerCase();
-      const title = String(ticket.title || '').toLowerCase();
-      const userName = String(ticket.user_name || '').toLowerCase();
+      // Add all searchable fields here
+      const searchableFields = [
+        ticket.ticket_number,
+        ticket.title,
+        ticket.user_name,
+        ticket.status,
+        ticket.created_on
+      ];
 
-      return (
-        ticketNumber.includes(searchLower) ||
-        title.includes(searchLower) ||
-        userName.includes(searchLower)
+      return searchableFields.some(field => 
+        String(field || '').toLowerCase().includes(searchLower)
       );
     });
     
     setFilteredTickets(filtered);
+    setCurrentPage(1); // Reset to first page when searching
   };
 
   const handleBack = useCallback(() => {
@@ -345,30 +349,47 @@ function Tickets() {
         onBackClick={handleBack}
         showBackButton={true}
         showCreateButton={false}
-        showSearch={selectedOutlet && tickets.length > 0}
+        enableSearch={true}
+        showSearch={true}
         searchTerm={searchInput}
         onSearchChange={handleSearch}
-        searchPlaceholder="Search"
+        searchPlaceholder="Search by ticket number, title, status..."
         enableSort={true}
         enablePagination={true}
-        showOutletSelect={true}
+        showOutletSelect={false}
         outlets={outlets}
         selectedOutlet={selectedOutlet}
-        onOutletChange={handleOutletChange} // Use the new handler
+        onOutletChange={handleOutletChange}
         isLoading={loading}
         counts={{
-          total: filteredTickets.length,
-          active: filteredTickets.filter(t => t.status?.toLowerCase() === 'open').length,
-          inactive: filteredTickets.filter(t => t.status?.toLowerCase() === 'closed').length
+          total: tickets.length,
+          active: tickets.filter(t => t.status?.toLowerCase() === 'open').length,
+          inactive: tickets.filter(t => t.status?.toLowerCase() === 'closed').length
         }}
         error={error}
-        emptyMessage={
-          selectedOutlet && tickets.length === 0 && !loading
-            ? "No tickets found for this outlet"
-            : "No matching tickets found for your search"
+        emptyStateMessage={
+          !searchInput
+            ? "No tickets found"
+            : "No tickets found matching your search criteria"
         }
-        darkMode={true}
+        darkMode={false}
         createButton={{ show: false }}
+        enableStatusFilter={true}
+        statusFilter="all"
+        onStatusFilterChange={(status) => {
+          let filtered = tickets;
+          if (status !== 'all') {
+            const isOpen = status === 'active';
+            filtered = tickets.filter(ticket => 
+              isOpen 
+                ? ticket.status?.toLowerCase() === 'open'
+                : ticket.status?.toLowerCase() === 'closed'
+            );
+          }
+          setFilteredTickets(filtered);
+          setCurrentPage(1);
+        }}
+        statusField="status"
       />
     </div>
   );
