@@ -9,6 +9,7 @@ import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import Modal from '../common/Modal';
 import { toastController } from "../../utils/toastController";
+import { API_CONFIG } from '../../config/appConfig';
 
 function Customer() {
   const { getToken } = useAuth();
@@ -23,6 +24,8 @@ function Customer() {
   const [outletName, setOutletName] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [selectedItems, setSelectedItems] = useState([]);
+
+  const { BASE_URL, API_VERSION } = API_CONFIG;
 
   // Add new state for modal
   const [deleteModal, setDeleteModal] = useState({
@@ -49,7 +52,7 @@ function Customer() {
     setError(null);
     try {
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/listview_outlet',
+        `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
         {
           user_id: adminData?.user_id,
           app_source: "admin_dashboard"
@@ -83,7 +86,7 @@ function Customer() {
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/customer_listview',
+        `${BASE_URL}/${API_VERSION}/admin/customer_listview`,
         requestData,
         {
           headers: {
@@ -116,7 +119,7 @@ function Customer() {
     setError(null);
     try {
       await axios.delete(
-        'https://men4u.xyz/v2/admin/customer_delete',
+        `${BASE_URL}/${API_VERSION}/admin/customer_delete`,
         {
           headers: {
             Authorization: getToken(),
@@ -161,7 +164,7 @@ function Customer() {
 
       const response = await toastController.promise(
         axios.post(
-          "https://men4u.xyz/v2/common/bulk_customer_action",
+          `${BASE_URL}/${API_VERSION}/common/bulk_customer_action`,
           {
             user_id: adminData.user_id,
             action: action,
