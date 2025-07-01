@@ -8,6 +8,7 @@ import { faChevronLeft as faBack, faSpinner, faSave } from "@fortawesome/free-so
 import Breadcrumb from "../../../Breadcrumb";
 import { TextInput, DateInput, SelectInput } from "../../../forms/FormElements";
 import { API_CONFIG } from "../../../../config/appConfig";
+import { toastController } from "../../../../utils/toastController";
 
 function EditCaptain() {
   const { outletId, userId } = useParams();
@@ -63,7 +64,7 @@ function EditCaptain() {
       );
       setAvailableFunctionalities(response.data);
     } catch (err) {
-      console.error("Failed to fetch functionalities:", err);
+      toastController.error("Failed to load functionalities");
       setError("Failed to load functionalities");
     }
   };
@@ -80,7 +81,7 @@ function EditCaptain() {
       );
       setRoles(response.data);
     } catch (err) {
-      console.error("Failed to fetch roles:", err);
+      toastController.error("Failed to load roles");
       setError("Failed to load roles");
     }
   };
@@ -120,7 +121,9 @@ function EditCaptain() {
         role: "captain"
       });
     } catch (err) {
-      setError(err.response?.data?.msg || "Failed to fetch captain details");
+      const errorMsg = err.response?.data?.msg || "Failed to fetch captain details";
+      toastController.error(errorMsg);
+      setError(errorMsg);
     }
   };
 
@@ -130,24 +133,33 @@ function EditCaptain() {
     setError(null);
 
     try {
-      await axios.patch(
-        `${BASE_URL}/${API_VERSION}/common/captain_update`,
-        {
-          update_user_id: adminData?.user_id,
-          user_id: Number(userId),
-          outlet_id: Number(outletId),
-          ...captainData,
-          app_source: "admin_dashboard"
-        },
-        {
-          headers: {
-            Authorization: getToken(),
+      await toastController.promise(
+        axios.patch(
+          `${BASE_URL}/${API_VERSION}/common/captain_update`,
+          {
+            update_user_id: adminData?.user_id,
+            user_id: Number(userId),
+            outlet_id: Number(outletId),
+            ...captainData,
+            app_source: "admin_dashboard"
           },
+          {
+            headers: {
+              Authorization: getToken(),
+            },
+          }
+        ),
+        {
+          loading: "Updating captain details...",
+          success: "Captain updated successfully",
+          error: "Failed to update captain"
         }
       );
       navigate(`/captain-details/${outletId}/${userId}`);
     } catch (err) {
-      setError(err.response?.data?.msg || "Failed to update captain");
+      const errorMsg = err.response?.data?.msg || "Failed to update captain";
+      toastController.error(errorMsg);
+      setError(errorMsg);
       setSubmitting(false);
     }
   };
