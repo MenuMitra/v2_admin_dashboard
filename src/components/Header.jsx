@@ -136,7 +136,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                     onClick={handleLogout}
                   >
                     <FontAwesomeIcon icon={faSignOutAlt} className="h-4 w-4" />
-                    Sign Out
+                    Logout
                   </button>
                 </div>
               )}
