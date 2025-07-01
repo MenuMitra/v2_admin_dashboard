@@ -48,10 +48,8 @@ function Customer() {
   }, [selectedOutlet]);
 
   const fetchOutlets = async () => {
-    setLoading(true);
-    setError(null);
     try {
-      const response = await axios.post(
+      const promise = axios.post(
         `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
         {
           user_id: adminData?.user_id,
@@ -63,29 +61,36 @@ function Customer() {
           },
         }
       );
+
+      const response = await toastController.promise(
+        promise,
+        {
+          loading: 'Fetching outlets...',
+          success: 'Outlets loaded successfully',
+          error: 'Failed to fetch outlets'
+        }
+      );
+      
       setOutlets(response.data.data || []);
     } catch (err) {
-      setError(err.response?.data?.msg || 'Failed to fetch outlets');
+      toastController.error(err.response?.data?.msg || 'Failed to fetch outlets');
     } finally {
       setLoading(false);
     }
   };
 
   const fetchCustomers = async (outlet_id = null) => {
-    setLoading(true);
-    setError(null);
     try {
       const requestData = {
         user_id: adminData?.user_id,
         app_source: "admin_dashboard"
       };
 
-      // Only add outlet_id if it's explicitly provided and not empty
       if (outlet_id && outlet_id !== '') {
         requestData.outlet_id = outlet_id;
       }
 
-      const response = await axios.post(
+      const promise = axios.post(
         `${BASE_URL}/${API_VERSION}/admin/customer_listview`,
         requestData,
         {
@@ -95,11 +100,23 @@ function Customer() {
         }
       );
 
-      // Update to use the new response format
+      const response = await toastController.promise(
+        promise,
+        {
+          loading: 'Loading customers...',
+          success: 'Customers loaded successfully',
+          error: 'Failed to load customers'
+        }
+      );
+
       setCustomers(response.data.customers || []);
       setOutletName(response.data.outlet_name || '');
+      
+      if (response.data.customers?.length === 0) {
+        toastController.info('No customers found');
+      }
     } catch (err) {
-      setError(err.response?.data?.msg || 'Failed to fetch customers');
+      toastController.error(err.response?.data?.msg || 'Failed to fetch customers');
     } finally {
       setLoading(false);
     }
@@ -115,28 +132,34 @@ function Customer() {
 
   const confirmDelete = async () => {
     const customer_id = deleteModal.customerId;
-    setLoading(true);
-    setError(null);
     try {
-      await axios.delete(
+      const promise = axios.delete(
         `${BASE_URL}/${API_VERSION}/admin/customer_delete`,
         {
           headers: {
             Authorization: getToken(),
           },
-          data: {  // For DELETE requests, the body data goes in the 'data' property
+          data: {
             user_id: adminData?.user_id,
             customer_id: customer_id,
             app_source: "admin_dashboard"
           }
         }
       );
+
+      await toastController.promise(
+        promise,
+        {
+          loading: 'Deleting customer...',
+          success: 'Customer deleted successfully',
+          error: 'Failed to delete customer'
+        }
+      );
       
-      // Close modal and refresh the customer list
       setDeleteModal({ isOpen: false, customerId: null });
       fetchCustomers(selectedOutlet);
     } catch (err) {
-      setError(err.response?.data?.msg || 'Failed to delete customer');
+      toastController.error(err.response?.data?.msg || 'Failed to delete customer');
     } finally {
       setLoading(false);
     }
@@ -315,6 +338,7 @@ function Customer() {
         enableStatusFilter={true}
         onStatusFilterChange={(status) => {
           setSearchTerm('');
+          toastController.info(`Showing ${status} customers`);
         }}
         isLoading={loading}
         enableSelection={true}
