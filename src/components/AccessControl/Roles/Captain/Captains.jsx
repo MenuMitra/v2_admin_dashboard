@@ -59,7 +59,7 @@ function Captains() {
       setCaptains(response.data.data || []);
       setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching captains:", error);
+      toastController.error("Failed to fetch captains");
       setIsLoading(false);
     }
   };
@@ -74,24 +74,31 @@ function Captains() {
 
   const handleDeleteCaptain = async () => {
     try {
-      await axios.delete(`${BASE_URL}/${API_VERSION}/common/captain_delete`, {
-        data: {
-          update_user_id: adminData.user_id,
-          outlet_id: outletId,
-          user_id: captainToDelete.toString(),
-          app_source: "admin_dashboard",
-        },
-        headers: {
-          Authorization: getToken(),
-          "Content-Type": "application/json",
-        },
-      });
+      await toastController.promise(
+        axios.delete(`${BASE_URL}/${API_VERSION}/common/captain_delete`, {
+          data: {
+            update_user_id: adminData.user_id,
+            outlet_id: outletId,
+            user_id: captainToDelete.toString(),
+            app_source: "admin_dashboard",
+          },
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }),
+        {
+          loading: "Deleting captain...",
+          success: "Captain deleted successfully",
+          error: "Failed to delete captain"
+        }
+      );
 
       setShowDeleteModal(false);
       setCaptainToDelete(null);
       fetchCaptains();
     } catch (error) {
-      console.error("Error deleting captain:", error);
+      toastController.error(error.response?.data?.detail || "Failed to delete captain");
     }
   };
 
