@@ -80,10 +80,7 @@ function EditCustomer() {
           user_id: adminData?.user_id,
           customer_id: Number(customerId),
           name: customerData.name,
-          email: customerData.email,
           mobile: customerData.mobile,
-          address: customerData.address,
-          dob: customerData.dob,
           is_active: customerData.is_active ? 1 : 0,
           app_source: "admin_dashboard"
         },
@@ -190,32 +187,6 @@ function EditCustomer() {
               required
               placeholder="Enter mobile number"
               validationType="phone"
-            />
-
-            <TextInput
-              label="Email"
-              name="email"
-              value={customerData.email}
-              onChange={handleInputChange}
-              placeholder="Enter email address"
-              validationType="email"
-            />
-
-            <TextInput
-              label="Address"
-              name="address"
-              value={customerData.address}
-              onChange={handleInputChange}
-              placeholder="Enter address"
-            />
-
-            <DateInput
-              label="Date of Birth"
-              name="dob"
-              value={customerData.dob}
-              onChange={handleInputChange}
-              placeholder="Select date of birth"
-              required
             />
 
             <SelectInput
