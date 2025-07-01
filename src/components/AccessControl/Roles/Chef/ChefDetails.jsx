@@ -13,6 +13,7 @@ import {
 import Breadcrumb from "../../../Breadcrumb";
 import { toastController } from "../../../../utils/toastController";
 import Modal from "../../../common/Modal";
+import { API_CONFIG } from "../../../../config/appConfig";
 
 function ChefDetails() {
   const { outletId, userId } = useParams();
@@ -23,6 +24,7 @@ function ChefDetails() {
   const [chefData, setChefData] = useState(null);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const {BASE_URL, API_VERSION} = API_CONFIG;
 
   useEffect(() => {
     fetchChefDetails();
@@ -32,7 +34,7 @@ function ChefDetails() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/chef_view",
+        `${BASE_URL}/${API_VERSION}/common/chef_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -47,7 +49,9 @@ function ChefDetails() {
       );
       setChefData(response.data.detail);
     } catch (err) {
-      setError(err.response?.data?.msg || "Failed to fetch chef details");
+      const errorMsg = err.response?.data?.msg || "Failed to fetch chef details";
+      toastController.error(errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -57,22 +61,30 @@ function ChefDetails() {
     try {
       const token = getToken();
       if (!token) {
+        toastController.error("Authentication token not found");
         throw new Error("No authentication token available");
       }
 
-      await axios.delete("https://men4u.xyz/v2/common/chef_delete", {
-        data: {
-          update_user_id: adminData?.user_id,
-          user_id: Number(userId),
-          outlet_id: Number(outletId),
-          app_source: "admin_dashboard"
-        },
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json"
+      await toastController.promise(
+        axios.delete(`${BASE_URL}/${API_VERSION}/common/chef_delete`, {
+          data: {
+            update_user_id: adminData?.user_id,
+            user_id: Number(userId),
+            outlet_id: Number(outletId),
+            app_source: "admin_dashboard"
+          },
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json"
+          }
+        }),
+        {
+          loading: "Deleting chef...",
+          success: "Chef deleted successfully",
+          error: "Failed to delete chef"
         }
-      });
-      toastController.success("Chef deleted successfully");
+      );
+      
       navigate(`/view-outlet/${outletId}`);
     } catch (err) {
       toastController.error(err.response?.data?.msg || "Failed to delete chef");
