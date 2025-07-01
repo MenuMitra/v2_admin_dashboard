@@ -26,6 +26,7 @@ import {
 import Modal from "./common/Modal";
 import Breadcrumb from "./Breadcrumb";
 import { API_CONFIG } from "../config/appConfig";
+import { toastController } from "../utils/toastController";
 
 function OwnerDetails() {
   const { getToken } = useAuth();
@@ -58,17 +59,24 @@ function OwnerDetails() {
         throw new Error("No authentication token available");
       }
 
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/view_owner`,
-        {
-          user_id: adminData.user_id,
-          owner_id: parseInt(ownerId),
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
+      const response = await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/view_owner`,
+          {
+            user_id: adminData.user_id,
+            owner_id: parseInt(ownerId),
           },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        ),
+        {
+          loading: 'Loading owner details...',
+          success: 'Owner details loaded successfully!',
+          error: 'Failed to load owner details'
         }
       );
 
@@ -87,20 +95,28 @@ function OwnerDetails() {
         throw new Error("No authentication token available");
       }
 
-      await axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_owner`, {
-        data: {
-          owner_id: parseInt(ownerId),
-          user_id: adminData.user_id,
-        },
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      });
+      await toastController.promise(
+        axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_owner`, {
+          data: {
+            owner_id: parseInt(ownerId),
+            user_id: adminData.user_id,
+          },
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }),
+        {
+          loading: 'Deleting owner...',
+          success: 'Owner deleted successfully!',
+          error: 'Failed to delete owner'
+        }
+      );
 
       navigate(-1);
     } catch (error) {
       console.error("Error deleting owner:", error);
+      toastController.error("Failed to delete owner: " + error.message);
     }
   };
 
