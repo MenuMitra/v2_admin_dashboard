@@ -313,7 +313,7 @@ function EditOwner() {
               onChange={handleChange}
               placeholder="Enter complete address"
               rows={3}
-              required
+              // required
             />
 
             {/* Functionalities */}
