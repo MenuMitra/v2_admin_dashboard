@@ -7,6 +7,7 @@ import { useAuth } from '../../../hooks/useAuth';
 import DataTable from '../../common/DataTable';
 import Modal from '../../common/Modal';
 import Breadcrumb from '../../Breadcrumb';
+import { API_CONFIG } from "../../../config/appConfig";
 
 function Functionalities() {
   const { getToken } = useAuth();
@@ -25,6 +26,8 @@ function Functionalities() {
   const [deletingFunctionality, setDeletingFunctionality] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
   useEffect(() => {
     fetchFunctionalities();
   }, []);
@@ -40,7 +43,7 @@ function Functionalities() {
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/admin/get_ubac_functionalities',
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: token,
@@ -69,7 +72,7 @@ function Functionalities() {
       }
 
       await axios.post(
-        'https://men4u.xyz/v2/admin/create_ubac_functionality',
+        `${BASE_URL}/${API_VERSION}/admin/create_ubac_functionality`,
         {
           functionality_name: newFunctionalityName
         },
@@ -104,7 +107,7 @@ function Functionalities() {
       }
 
       await axios.put(
-        'https://men4u.xyz/v2/admin/update_ubac_functionality',
+        `${BASE_URL}/${API_VERSION}/admin/update_ubac_functionality`,
         {
           functionality_id: editingFunctionality.functionality_id,
           functionality_name: editingFunctionality.functionality_name
@@ -140,7 +143,7 @@ function Functionalities() {
       }
 
       await axios.delete(
-        `https://men4u.xyz/v2/admin/delete_ubac_functionality/${deletingFunctionality.functionality_id}`,
+        `${BASE_URL}/${API_VERSION}/admin/delete_ubac_functionality/${deletingFunctionality.functionality_id}`,
         {
           headers: {
             Authorization: token,
