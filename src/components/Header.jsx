@@ -117,6 +117,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
               {/* Dropdown Menu */}
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-64 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                  <Link to="/profile">
                   <div className="mb-2 p-2">
                     <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
                       {adminData.name}
@@ -124,19 +125,12 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {adminData.email}
                     </p>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {/* <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                       {adminData.role}
-                    </p>
+                    </p> */}
                   </div>
-                  <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
-                  <Link
-                    to="/profile"
-                    className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    <FontAwesomeIcon icon={faUser} className="h-4 w-4" />
-                    View Profile
                   </Link>
+                  <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
                   <button
                     className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-error-600 hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-950"
                     onClick={handleLogout}
