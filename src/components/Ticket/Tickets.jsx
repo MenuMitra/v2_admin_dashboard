@@ -45,7 +45,7 @@ function Tickets() {
 
   // Modify useEffect to fetch tickets on component mount
   useEffect(() => {
-    fetchOutlets();
+    // fetchOutlets();
     fetchTickets(); // Call fetchTickets without outletId
   }, []);
 
