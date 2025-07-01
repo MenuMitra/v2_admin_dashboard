@@ -23,6 +23,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
+import { API_CONFIG } from '../../config/appConfig';
 
 function Tickets() {
   const { getToken } = useAuth();
@@ -40,6 +41,7 @@ function Tickets() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const navigate = useNavigate();
+  const {API_VERSION, BASE_URL} = API_CONFIG
 
   // Modify useEffect to fetch tickets on component mount
   useEffect(() => {
@@ -53,7 +55,7 @@ function Tickets() {
 
     try {
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/listview_outlet',
+        `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
         {
           user_id: adminData?.user_id,
           app_source: "admin_dashboard"
@@ -95,7 +97,7 @@ function Tickets() {
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/ticket_list',
+        'https://men4u.xyz/v2/common/ticket_list',
         requestBody,
         {
           headers: {
