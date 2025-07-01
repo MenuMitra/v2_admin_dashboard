@@ -26,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import DataTable from "./common/DataTable";
 import Modal from "./common/Modal";
+import { API_CONFIG} from "../config/appConfig";
 
 const SearchIcon = () => (
   <svg
@@ -322,6 +323,8 @@ function Outlets() {
   });
   const [statusFilter, setStatusFilter] = useState("all");
 
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
   // Transform outlet data to match UI structure
   const transformOutletData = (outlets) => {
     return outlets.map((outlet) => ({
@@ -353,7 +356,7 @@ function Outlets() {
       setError(null);
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/listview_outlet",
+        `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
         {
           user_id: adminData?.user_id,
           app_source: "admin_dashboard",
@@ -444,7 +447,7 @@ function Outlets() {
     try {
       setLoading(true);
       const response = await axios.delete(
-        "https://men4u.xyz/v2/common/delete_outlet",
+        `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
         {
           headers: {
             Authorization: getToken(),
@@ -731,7 +734,7 @@ function Outlets() {
       }
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/bulk_outlet_action",
+        `${BASE_URL}/${API_VERSION}/common/bulk_outlet_action`,
         {
           user_id: adminData.user_id,
           action: action,
