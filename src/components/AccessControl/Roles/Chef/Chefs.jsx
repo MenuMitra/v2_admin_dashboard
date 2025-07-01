@@ -17,13 +17,14 @@ import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
 import Modal from '../../../common/Modal';
 import { toastController } from "../../../../utils/toastController";
+import { API_CONFIG } from "../../../../config/appConfig";
 
 function Chefs() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { outletId } = useParams();
   const navigate = useNavigate();
-  
+  const {BASE_URL, API_VERSION} = API_CONFIG;
   const [chefs, setChefs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -41,7 +42,7 @@ function Chefs() {
   const fetchChefs = async () => {
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/chef_listview",
+        `${BASE_URL}/${API_VERSION}/common/chef_listview`,
         {
           outlet_id: outletId,
           user_id: adminData.user_id,
@@ -58,7 +59,7 @@ function Chefs() {
       setChefs(response.data.detail || []);
       setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching chefs:", error);
+      toastController.error("Failed to fetch chefs list");
       setIsLoading(false);
     }
   };
@@ -73,23 +74,31 @@ function Chefs() {
 
   const handleDeleteChef = async () => {
     try {
-      await axios.delete("https://men4u.xyz/v2/common/chef_delete", {
-        data: {
-          update_user_id: adminData.user_id,
-          outlet_id: outletId,
-          user_id: chefToDelete.toString(),
-        },
-        headers: {
-          Authorization: getToken(),
-          "Content-Type": "application/json",
-        },
-      });
+      await toastController.promise(
+        axios.delete(`${BASE_URL}/${API_VERSION}/common/chef_delete`, {
+          data: {
+            update_user_id: adminData.user_id,
+            outlet_id: outletId,
+            user_id: chefToDelete.toString(),
+            app_source: "admin_dashboard",
+          },
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }),
+        {
+          loading: "Deleting chef...",
+          success: "Chef deleted successfully",
+          error: "Failed to delete chef"
+        }
+      );
 
       setShowDeleteModal(false);
       setChefToDelete(null);
       fetchChefs();
     } catch (error) {
-      console.error("Error deleting chef:", error);
+      toastController.error(error.response?.data?.msg || "Failed to delete chef");
     }
   };
 
@@ -120,7 +129,7 @@ function Chefs() {
 
       const response = await toastController.promise(
         axios.post(
-          "https://men4u.xyz/v2/common/bulk_chef_action",
+          `${BASE_URL}/${API_VERSION}/common/bulk_chef_action`,
           {
             user_id: adminData.user_id,
             action: action,
