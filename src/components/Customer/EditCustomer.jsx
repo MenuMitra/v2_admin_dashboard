@@ -12,11 +12,12 @@ import {
 import Breadcrumb from "../Breadcrumb";
 import { TextInput, SelectInput } from "../forms/FormElements";
 import { toastController } from "../../utils/toastController";
+import { API_CONFIG } from "../../config/appConfig";
 
 const INITIAL_CUSTOMER_STATE = {
   name: "",
   mobile: "",
-  role: "customer",
+  role: "",
   is_active: true,
 };
 
@@ -31,12 +32,14 @@ function EditCustomer() {
   const [roles, setRoles] = useState([]);
   const [customerData, setCustomerData] = useState(INITIAL_CUSTOMER_STATE);
 
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
       const [customerResponse, rolesResponse] = await Promise.all([
         axios.post(
-          "https://men4u.xyz/v2/admin/customer_view",
+          `${BASE_URL}/${API_VERSION}/admin/customer_view`,
           {
             user_id: Number(customerId),
             app_source: "admin_dashboard",
@@ -45,7 +48,7 @@ function EditCustomer() {
             headers: { Authorization: getToken() },
           }
         ),
-        axios.get("https://men4u.xyz/v2/common/list_roles", {
+        axios.get(`${BASE_URL}/${API_VERSION}/common/list_roles`, {
           headers: { Authorization: getToken() },
         }),
       ]);
@@ -54,7 +57,7 @@ function EditCustomer() {
       setCustomerData({
         name: customer_details.name || "",
         mobile: customer_details.mobile || "",
-        role: customer_details.role || "customer",
+        role: customer_details.role || "",
         is_active: customer_details.is_active === 1,
       });
       setRoles(rolesResponse.data);
@@ -76,10 +79,14 @@ function EditCustomer() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!customerData.role) {
+      toastController.error("Please select a role");
+      return;
+    }
     try {
       setIsSaving(true);
       const response = await axios.patch(
-        "https://men4u.xyz/v2/admin/customer_update",
+        `${BASE_URL}/${API_VERSION}/admin/customer_update`,
         {
           user_id: adminData?.user_id,
           customer_id: Number(customerId),
@@ -199,10 +206,14 @@ function EditCustomer() {
               name="role"
               value={customerData.role}
               onChange={handleInputChange}
-              options={roles.map(role => ({
-                value: role.role_name,
-                label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
-              }))}
+              required
+              options={[
+                { value: ""},
+                ...roles.map(role => ({
+                  value: role.role_name,
+                  label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
+                }))
+              ]}
             />
 
             <SelectInput
