@@ -14,6 +14,14 @@ import {
   labelStyles
 } from '../forms/FormElements.jsx';
 import Breadcrumb from '../Breadcrumb';
+import {
+  isNameValid,
+  isEmailValid,
+  isMobileValid,
+  isDobValid,
+  isAadharValid,
+  isAddressValid
+} from '../../utils/validations';
 
 function EditPartner() {
   const navigate = useNavigate();
@@ -24,6 +32,7 @@ function EditPartner() {
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const [partnerDetails, setPartnerDetails] = useState({
     name: '',
@@ -115,14 +124,94 @@ function EditPartner() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
+    // Special handling for mobile number
+    if (name === 'mobile') {
+      // Only allow digits
+      const onlyDigits = value.replace(/\D/g, '');
+      
+      // Check if number starts with 0-5
+      if (onlyDigits.length > 0 && /^[0-5]/.test(onlyDigits)) {
+        // Clear the field and show error
+        setPartnerDetails(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+        setValidationErrors(prev => ({
+          ...prev,
+          mobile: 'Mobile number must start with 6, 7, 8, or 9'
+        }));
+        return;
+      }
+
+      // Check for length validation
+      if (onlyDigits.length > 0 && onlyDigits.length !== 10) {
+        setValidationErrors(prev => ({
+          ...prev,
+          mobile: 'Mobile number must be exactly 10 digits'
+        }));
+      } else {
+        // Clear validation error if valid
+        setValidationErrors(prev => ({
+          ...prev,
+          mobile: ''
+        }));
+      }
+
+      setPartnerDetails(prev => ({
+        ...prev,
+        [name]: onlyDigits
+      }));
+      return;
+    }
+
+    // Handle other fields
     setPartnerDetails(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+
+    // Clear validation error for other fields when they change
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    const nameValidation = isNameValid(partnerDetails.name);
+    const emailValidation = isEmailValid(partnerDetails.email);
+    const mobileValidation = isMobileValid(partnerDetails.mobile);
+    const dobValidation = isDobValid(partnerDetails.dob);
+    const aadharValidation = isAadharValid(partnerDetails.aadhar_number);
+    const addressValidation = isAddressValid(partnerDetails.address);
+
+    if (!nameValidation.isValid) errors.name = nameValidation.message;
+    if (!emailValidation.isValid) errors.email = emailValidation.message;
+    if (!mobileValidation.isValid) errors.mobile = mobileValidation.message;
+    if (!dobValidation.isValid) errors.dob = dobValidation.message;
+    if (!aadharValidation.isValid) errors.aadhar_number = aadharValidation.message;
+    if (!addressValidation.isValid) errors.address = addressValidation.message;
+
+    // Mobile validation
+    if (!partnerDetails.mobile) {
+      errors.mobile = 'Mobile number is required';
+    } else if (!/^[6-9]\d{9}$/.test(partnerDetails.mobile)) {
+      errors.mobile = 'Enter a valid 10-digit mobile number starting with 6-9';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     setIsLoading(true);
     setError(null);
 
@@ -245,6 +334,7 @@ function EditPartner() {
                 onChange={handleChange}
                 placeholder="Enter full name"
                 required
+                error={validationErrors.name}
               />
 
               <TextInput
@@ -255,6 +345,9 @@ function EditPartner() {
                 onChange={handleChange}
                 placeholder="Enter mobile number"
                 required
+                pattern="[6-9][0-9]{9}"
+                maxLength="10"
+                error={validationErrors.mobile}
               />
 
               <TextInput
@@ -265,6 +358,7 @@ function EditPartner() {
                 onChange={handleChange}
                 placeholder="Enter email address"
                 required
+                error={validationErrors.email}
               />
 
               <DateInput
@@ -274,6 +368,7 @@ function EditPartner() {
                 onChange={handleChange}
                 required
                 placeholder="Select date of birth"
+                error={validationErrors.dob}
               />
 
               <TextInput
@@ -284,6 +379,7 @@ function EditPartner() {
                 placeholder="Enter 12-digit Aadhar number"
                 required
                 maxLength="12"
+                error={validationErrors.aadhar_number}
               />
 
               {/* Active Partner Checkbox */}
@@ -310,6 +406,7 @@ function EditPartner() {
               placeholder="Enter complete address"
               rows={3}
               required
+              error={validationErrors.address}
             />
 
             {/* Functionalities */}
