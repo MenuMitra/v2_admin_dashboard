@@ -85,10 +85,10 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
           </button>
 
           {/* Logo - Always visible */}
-          <Link to="/" className="flex items-center">
+          {/* <Link to="/" className="flex items-center">
             <img className="h-8 w-auto dark:hidden" src={logo} alt="Logo" />
             <img className="hidden h-8 w-auto dark:block" src={logo} alt="Logo" />
-          </Link>
+          </Link> */}
         </div>
 
         {/* Right Section - Admin Profile */}
