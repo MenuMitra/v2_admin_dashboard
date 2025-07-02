@@ -31,6 +31,7 @@ function Managers() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [outletName, setOutletName] = useState('');
 
   useEffect(() => {
     if (adminData?.user_id && outletId) {
@@ -55,6 +56,11 @@ function Managers() {
       );
 
       setManagers(response.data.detail || []);
+      
+      if (response.data.detail && response.data.detail.length > 0) {
+        setOutletName(response.data.detail[0].outlet_name);
+      }
+      
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching managers:", error);
@@ -100,6 +106,7 @@ function Managers() {
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Managers' }
   ];
 
@@ -175,7 +182,6 @@ function Managers() {
   const getActiveCount = () => managers.filter((manager) => manager.is_active).length;
   const getInactiveCount = () => managers.filter((manager) => !manager.is_active).length;
 
-  // Update the handleBulkAction function
   const handleBulkAction = async (action, selectedIds) => {
     try {
       const actionMessages = {
@@ -196,7 +202,6 @@ function Managers() {
         }
       };
 
-      // Show loading toast while action is processing
       const response = await toastController.promise(
         axios.post(
           "https://men4u.xyz/v2/common/bulk_manager_action",
@@ -216,17 +221,13 @@ function Managers() {
         actionMessages[action]
       );
 
-      // Refresh the managers list after bulk action
       fetchManagers();
       
-      // Clear selected items
       setSelectedItems([]);
       
-      // Show success message from API response
       toastController.success(response.data.detail);
       
     } catch (error) {
-      // Show error message
       toastController.error(
         error.response?.data?.detail || 
         `Failed to perform ${action} action on selected managers`
@@ -257,13 +258,11 @@ function Managers() {
         onSearchChange={setSearchTerm}
         darkMode={true}
         
-        // Enable selection and bulk actions
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
         
-        // Header props
         title="Managers"
         counts={{
           total: getTotalCount(),
@@ -283,7 +282,6 @@ function Managers() {
           position: "right"
         }}
         
-        // Add status filter props
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
