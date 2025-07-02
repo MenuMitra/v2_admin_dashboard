@@ -34,69 +34,29 @@ function Customer() {
     customerId: null
   });
 
-  // Fetch outlets on mount
-  useEffect(() => {
-    // fetchOutlets();
-    // Fetch customers immediately without waiting for outlet selection
-    fetchCustomers();
-  }, []);
-
-  // Fetch customers when selectedOutlet changes
-  useEffect(() => {
-    if (selectedOutlet) { // Only fetch if an outlet is actually selected
-      fetchCustomers(selectedOutlet);
-    }
-  }, [selectedOutlet]);
-
-  // Add useEffect to refetch when status filter changes
+  // Keep only this one useEffect that handles everything
   useEffect(() => {
     fetchCustomers(selectedOutlet);
-  }, [selectedOutlet, statusFilter]);
+  }, [selectedOutlet, statusFilter]); // This will handle both initial load and all subsequent changes
 
-  const fetchOutlets = async () => {
-    try {
-      const promise = axios.post(
-        `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
-        {
-          user_id: adminData?.user_id,
-          app_source: "admin_app"
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-        }
-      );
 
-      const response = await toastController.promise(
-        promise,
-        {
-          loading: 'Fetching outlets...',
-          success: 'Outlets loaded successfully',
-          error: 'Failed to fetch outlets'
-        }
-      );
-      
-      setOutlets(response.data.data || []);
-    } catch (err) {
-      toastController.error(err.response?.data?.msg || 'Failed to fetch outlets');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Modify fetchCustomers to handle all cases
   const fetchCustomers = async (outlet_id = null) => {
     try {
       setLoading(true);
+      setError(null); // Clear any previous errors
+
       const requestData = {
         user_id: adminData?.user_id,
         app_source: "admin_app"
       };
 
+      // Only add outlet_id if it's provided and not empty
       if (outlet_id && outlet_id !== '') {
         requestData.outlet_id = outlet_id;
       }
 
+      // Only add status filter if it's not 'all'
       if (statusFilter !== 'all') {
         requestData.is_active = statusFilter === 'active' ? 1 : 0;
       }
