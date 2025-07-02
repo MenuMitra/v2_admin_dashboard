@@ -59,7 +59,7 @@ function CreateCategory() {
   };
 
   return (
-    <div className="p-4">
+    <div className="">
       {/* Breadcrumb */}
       <Breadcrumb
         items={[

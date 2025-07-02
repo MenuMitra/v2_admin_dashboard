@@ -100,7 +100,7 @@ function MenuDetails() {
   if (!menu) return null;
 
   return (
-    <div className="p-4">
+    <div className="">
       {/* Add Breadcrumb */}
       <div className="mb-6">
         <Breadcrumb items={getBreadcrumbItems()} />

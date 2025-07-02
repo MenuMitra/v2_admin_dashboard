@@ -133,7 +133,9 @@ function ManageMenus() {
     setShowDeleteModal(true);
   };
   const handleCreateMenu = () => {
-    navigate(`/create-menu/${outletId}`);
+    navigate(`/create-menu/${outletId}`, {
+      state: { outletName: outletName }
+    });
   };
 
   // Add handleDeleteConfirm function

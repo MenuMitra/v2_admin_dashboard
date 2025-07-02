@@ -91,7 +91,7 @@ function EditCategory() {
   };
 
   return (
-    <div className="p-4">
+    <div className="">
       <Breadcrumb
         items={[
           { label: 'Dashboard', path: '/' },

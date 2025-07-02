@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
@@ -19,6 +19,8 @@ function CreateMenu() {
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const outletName = location.state?.outletName || '';
 
   // Add state for menu categories
   const [categories, setCategories] = useState([]);
@@ -231,12 +233,13 @@ function CreateMenu() {
   };
 
   return (
-    <div className="p-4">
+    <div className="">
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
           { label: 'Dashboard', path: '/' },
           { label: 'Outlets', path: '/outlets' },
+          { label: outletName, path: `/view-outlet/${outletId}` },
           { label: 'Menus', path: `/menus/${outletId}` },
           { label: 'Create Menu' }
         ]}
