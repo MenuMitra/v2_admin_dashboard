@@ -171,8 +171,8 @@ function CreateMenu() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate required fields
-    if (!name || !menuCatId || !foodType || !portionData[0].portion_name || !portionData[0].price) {
+    // Validate required fields - remove portion_name from validation
+    if (!name || !menuCatId || !foodType || !portionData[0].price) {
       setError('Please fill in all required fields');
       return;
     }
@@ -352,7 +352,6 @@ function CreateMenu() {
                       placeholder="Portion Name"
                       value={portion.portion_name}
                       onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
-                      required={idx === 0}
                       label={idx === 0 ? "Portion Name" : ""}
                     />
                     <TextInput
