@@ -34,6 +34,7 @@ function ManageCategories() {
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [outletInfo, setOutletInfo] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const normaliseData = (categories) =>
     categories.map((category) => ({
@@ -150,11 +151,12 @@ function ManageCategories() {
     // eslint-disable-next-line
   }, [adminData?.user_id, outletId]);
 
-  // Calculate counts for the DataTable header
+  // Update the counts to use API response values
   const counts = {
     total: categoryData.length,
-    active: categoryData.filter(cat => cat.is_active === 1).length,
-    inactive: categoryData.filter(cat => cat.is_active === 0).length,
+    // Use the first item's totals since they're the same for all items
+    active: categoryData[0]?.total_active_categories || 0,
+    inactive: categoryData[0]?.total_inactive_categories || 0,
   };
 
   // Update breadcrumb items to include outlet name
@@ -166,6 +168,11 @@ function ManageCategories() {
   ];
 
   const navigate = useNavigate();
+
+  // Add status filter handler
+  const handleStatusFilterChange = (status) => {
+    setStatusFilter(status);
+  };
 
   return (
     <>
@@ -199,6 +206,9 @@ function ManageCategories() {
               onBulkAction={handleBulkAction}
               selectedItems={selectedItems}
               onSelectionChange={setSelectedItems}
+              enableStatusFilter={true}
+              statusFilter={statusFilter}
+              onStatusFilterChange={handleStatusFilterChange}
             />
           </div>
         )}
@@ -261,9 +271,24 @@ function MenuCategoryTable({
   onCreateCategory,
   onBulkAction,
   selectedItems,
-  onSelectionChange 
+  onSelectionChange,
+  enableStatusFilter,
+  statusFilter,
+  onStatusFilterChange
 }) {
   const navigate = useNavigate();
+
+  // Filter data based on status before rendering
+  const filteredData = {
+    ...data,
+    menucat_details: data.menucat_details.filter(item => {
+      if (!item.menu_cat_id || !item.category_name) return false;
+      if (statusFilter === 'all') return true;
+      if (statusFilter === 'active') return item.is_active === 1;
+      if (statusFilter === 'inactive') return item.is_active === 0;
+      return true;
+    })
+  };
 
   const handleView = (row) => {
     navigate(`/category-details/${row.outlet_id}/${row.menu_cat_id}`);
@@ -356,7 +381,7 @@ function MenuCategoryTable({
 
   return (
     <DataTable
-      data={data.menucat_details}
+      data={filteredData.menucat_details}
       columns={columns}
       title="Menu Categories"
       counts={counts}
@@ -372,6 +397,9 @@ function MenuCategoryTable({
       onBulkAction={onBulkAction}
       onSelectionChange={onSelectionChange}
       selectedItems={selectedItems}
+      enableStatusFilter={enableStatusFilter}
+      statusFilter={statusFilter}
+      onStatusFilterChange={onStatusFilterChange}
       createButton={{
         show: true,
         label: "Create",
