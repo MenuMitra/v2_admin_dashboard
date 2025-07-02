@@ -29,6 +29,7 @@ function ManageMenus() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [filteredData, setFilteredData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Move breadcrumbItems inside the render since it needs menuData
   const getBreadcrumbItems = () => [
@@ -82,7 +83,7 @@ function ManageMenus() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminData?.user_id, outletId]);
 
-  // Add this function to handle both search and status filtering
+  // Update getFilteredData to include search filtering
   const getFilteredData = () => {
     if (!menuData.length) return [];
 
@@ -94,15 +95,23 @@ function ManageMenus() {
         if (statusFilter === "inactive" && isActive) return false;
       }
 
+      // Then apply search filter
+      if (searchTerm) {
+        const searchFields = ['name', 'category_name', 'food_type']; // Add fields you want to search
+        return searchFields.some(field => 
+          item[field]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+
       return true;
     });
   };
 
-  // Add useEffect for filtering
+  // Update useEffect to include searchTerm dependency
   useEffect(() => {
     const filtered = getFilteredData();
     setFilteredData(filtered);
-  }, [statusFilter, menuData]);
+  }, [statusFilter, menuData, searchTerm]);
 
   // Action handlers with correct dynamic routes
   const handleView = (row) => {
@@ -288,7 +297,7 @@ function ManageMenus() {
         enableSort={true}
         enableSearch={true}
         enablePagination={true}
-        searchPlaceholder="Search"
+        searchPlaceholder="Search menus..."
         emptyStateMessage="No menus found."
         emptyStateMessageByStatus={{
           all: "No menus found.",
@@ -326,6 +335,8 @@ function ManageMenus() {
           className: "bg-success-500 hover:bg-success-600",
           onClick: handleCreateMenu,
         }}
+        searchTerm={searchTerm}
+        onSearchChange={(value) => setSearchTerm(value)}
       />
 
       {/* Delete Confirmation Modal */}
