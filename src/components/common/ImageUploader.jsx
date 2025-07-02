@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { toastController } from '../../utils/toastController';
 
 const ImageUploader = ({
   maxImages = 5,
@@ -46,9 +47,16 @@ const ImageUploader = ({
   // Handle file selection
   const handleFiles = async (files) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    const validFiles = Array.from(files).filter(file => 
-      allowedTypes.includes(file.type)
-    ).slice(0, maxImages - images.length);
+    const remainingSlots = maxImages - images.length;
+    
+    if (remainingSlots <= 0) {
+      toastController.warning(`Maximum ${maxImages} images allowed`);
+      return;
+    }
+
+    const validFiles = Array.from(files)
+      .filter(file => allowedTypes.includes(file.type))
+      .slice(0, remainingSlots);
 
     if (validFiles.length === 0) return;
 
@@ -122,14 +130,21 @@ const ImageUploader = ({
               ? 'border-brand-500 bg-brand-50' 
               : 'border-gray-300 bg-gray-50 hover:bg-gray-100'
             }
+            ${images.length >= maxImages ? 'opacity-50 cursor-not-allowed' : ''}
             dark:hover:bg-gray-800 dark:bg-gray-700 
             dark:border-gray-600 dark:hover:border-gray-500 
             dark:hover:bg-gray-600 transition-all duration-200
           `}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
+          onDragEnter={(e) => images.length < maxImages && handleDrag(e)}
+          onDragLeave={(e) => images.length < maxImages && handleDrag(e)}
+          onDragOver={(e) => images.length < maxImages && handleDrag(e)}
+          onDrop={(e) => images.length < maxImages && handleDrop(e)}
+          onClick={(e) => {
+            if (images.length >= maxImages) {
+              e.preventDefault();
+              toastController.warning(`Maximum ${maxImages} images allowed`);
+            }
+          }}
         >
           <div className="flex flex-col items-center justify-center pt-5 pb-6">
             {/* Upload Icon */}
@@ -151,10 +166,16 @@ const ImageUploader = ({
             
             {/* Upload Text */}
             <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-              <span className="font-semibold">Click to upload</span> or drag and drop
+              {images.length >= maxImages ? (
+                <span className="font-semibold text-error-500">Maximum limit reached</span>
+              ) : (
+                <>
+                  <span className="font-semibold">Click to upload</span> or drag and drop
+                </>
+              )}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              PNG, JPG (max {maxImages} images)
+              PNG, JPG ({images.length} of {maxImages} images)
             </p>
           </div>
 
@@ -164,7 +185,15 @@ const ImageUploader = ({
             className="hidden"
             multiple={maxImages !== 1}
             accept="image/png,image/jpeg,image/webp"
-            onChange={(e) => handleFiles(e.target.files)}
+            onChange={(e) => {
+              if (images.length < maxImages) {
+                handleFiles(e.target.files);
+              } else {
+                e.target.value = null; // Reset input
+                toastController.warning(`Maximum ${maxImages} images allowed`);
+              }
+            }}
+            disabled={images.length >= maxImages}
           />
         </label>
       </div>
