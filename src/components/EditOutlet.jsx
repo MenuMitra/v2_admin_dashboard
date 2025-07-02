@@ -17,6 +17,7 @@ import Breadcrumb from './Breadcrumb';
 import ImageUploader from './common/ImageUploader';
 import { API_CONFIG } from "../config/appConfig";
 import { isValidSocialMediaLinks, isMobileValid, isWhatsappValid } from '../utils/validations';
+import { toastController } from '../utils/toastController';
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -280,6 +281,31 @@ function EditOutlet() {
           [`${name}Message`]: message
         }));
       }
+    } else if (['website', 'facebook', 'instagram', 'google_business_link', 'google_review'].includes(name)) {
+      setOutletData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+
+      // Only validate if there's a value
+      if (value) {
+        const { isValid, errors } = isValidSocialMediaLinks({ [name]: value });
+        setValidationStates(prev => ({
+          ...prev,
+          [name]: !isValid
+        }));
+
+        // Show error message if invalid
+        if (!isValid) {
+          toastController.error(errors[name]);
+        }
+      } else {
+        // Clear validation state if field is empty
+        setValidationStates(prev => ({
+          ...prev,
+          [name]: false
+        }));
+      }
     } else {
       setOutletData(prev => ({
         ...prev,
@@ -315,15 +341,14 @@ function EditOutlet() {
       const { isValid: isSocialValid, errors: socialErrors } = isValidSocialMediaLinks(socialMediaLinks);
 
       if (!isSocialValid) {
-        setValidationStates(prev => ({
-          ...prev,
-          website: !!socialErrors.website,
-          facebook: !!socialErrors.facebook,
-          instagram: !!socialErrors.instagram,
-          google_business_link: !!socialErrors.google_business_link,
-          google_review: !!socialErrors.google_review
-        }));
+        // Update validation states for all invalid fields
+        const newValidationStates = { ...validationStates };
+        Object.keys(socialErrors).forEach(key => {
+          newValidationStates[key] = true;
+        });
+        setValidationStates(newValidationStates);
 
+        // Show error messages
         Object.values(socialErrors).forEach(error => {
           toastController.error(error);
         });
