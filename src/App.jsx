@@ -60,6 +60,7 @@ import Captains from './components/AccessControl/Roles/Captain/Captains';
 import CreateCaptain from './components/AccessControl/Roles/Captain/CreateCaptain';
 import Waiters from './components/AccessControl/Roles/Waiter/Waiters';
 import CreateWaiter from './components/AccessControl/Roles/Waiter/CreateWaiter';
+import RoleFunctionalitiesMapping from './components/AccessControl/Roles/RoleFunctionalitiesMapping';
 
 function App() {
 
@@ -113,6 +114,7 @@ function App() {
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />
             <Route path="/role-details/:userId" element={<RoleDetails />} />
+            <Route path="/role-functionalities-mapping/:roleId" element={<RoleFunctionalitiesMapping />} />
             
                   {/* Chef Routes*/}
                   <Route path="/chefs/:outletId" element={<Chefs />} />
