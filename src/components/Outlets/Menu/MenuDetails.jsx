@@ -42,7 +42,7 @@ function MenuDetails() {
             menu_id: Number(menuId),
             outlet_id: Number(outletId),
             user_id: adminData?.user_id,
-            app_source: 'admin_dashboard',
+            app_source: 'admin_app',
           },
           {
             headers: {
@@ -68,7 +68,7 @@ function MenuDetails() {
           menu_id: Number(menuId),
           outlet_id: Number(outletId),
           user_id: adminData?.user_id,
-          app_source: 'admin_dashboard'
+          app_source: 'admin_app'
         },
         headers: {
           Authorization: `${token}`,

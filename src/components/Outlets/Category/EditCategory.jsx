@@ -33,7 +33,7 @@ function EditCategory() {
               menu_cat_id: Number(menuCategoryId),
               outlet_id: Number(outletId),
               user_id: adminData?.user_id,
-              app_source: 'admin_dashboard',
+              app_source: 'admin_app',
             },
             {
               headers: {
@@ -66,7 +66,7 @@ function EditCategory() {
           menu_cat_id: Number(menuCategoryId),
           user_id: adminData?.user_id,
           category_name: categoryName,
-          app_source: 'admin_dashboard',
+          app_source: 'admin_app',
           remove_image_flag: true // Keep this if needed by the API
         },
         {

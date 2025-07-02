@@ -69,7 +69,7 @@ function SuperOwnerDetails() {
           data: {
             user_id: adminData.user_id, // You might want to get this from adminData
             super_owner_id: superOwnerData.super_owner_id,
-            app_source: 'admin_dashboard'
+            app_source: 'admin_app'
           }
         }
       );

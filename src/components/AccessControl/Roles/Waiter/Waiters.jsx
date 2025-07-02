@@ -45,7 +45,7 @@ function Waiters() {
         {
           user_id: adminData.user_id,
           outlet_id: Number(outletId),
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         {
           headers: {
@@ -78,7 +78,7 @@ function Waiters() {
           update_user_id: adminData.user_id,
           outlet_id: outletId,
           user_id: waiterToDelete.toString(),
-          app_source: "admin_dashboard",
+          app_source: "admin_app",
         },
         headers: {
           Authorization: getToken(),
@@ -203,7 +203,7 @@ function Waiters() {
           {
             user_id: adminData.user_id,
             action: action,
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
             waiter_ids: selectedIds
           },
           {

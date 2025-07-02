@@ -47,7 +47,7 @@ function CustomerDetails() {
         "https://men4u.xyz/v2/admin/customer_view",
         {
           user_id: Number(customerId),
-          app_source: "admin_dashboard",
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -82,7 +82,7 @@ function CustomerDetails() {
           data: {
             user_id: adminData?.user_id,
             customer_id: customerId,
-            app_source: "admin_dashboard"
+            app_source: "admin_app"
           }
         }
       );

@@ -156,7 +156,7 @@ function Admins() {
       const payload = {
         user_ids: selectedIds, // admin_ids -> user_ids
         action: action, // directly use "active" or "inactive"
-        app_source: "admin_dashboard"
+        app_source: "admin_app"
       };
 
       const response = await axios.post(endpoint, payload, {

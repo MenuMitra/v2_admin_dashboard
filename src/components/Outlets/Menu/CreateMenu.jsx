@@ -67,7 +67,7 @@ function CreateMenu() {
           {
             outlet_id: outletId,
             user_id: adminData?.user_id,
-            app_source: 'admin_dashboard'
+            app_source: 'admin_app'
           },
           {
             headers: {
@@ -195,7 +195,7 @@ function CreateMenu() {
         spicy_index: spicyIndex,
         ingredients: ingredients.trim(),
         offer: offer || '0',
-        app_source: 'admin_dashboard',
+        app_source: 'admin_app',
         portion_data: portionData.map((portion, index) => ({
           portion_name: portion.portion_name.trim(),
           price: parseInt(portion.price, 10),

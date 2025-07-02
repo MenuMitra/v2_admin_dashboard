@@ -79,7 +79,7 @@ function SuperOwner() {
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/listview_super_owner',
         { 
-          app_source: 'admin_dashboard'  // Required by API
+          app_source: 'admin_app'  // Required by API
         },
         {
           headers: {
@@ -114,7 +114,7 @@ function SuperOwner() {
         {
           user_id: adminData?.user_id,
           super_owner_id: superOwnerId,
-          app_source: 'admin_dashboard'
+          app_source: 'admin_app'
         },
         {
           headers: {
@@ -160,7 +160,7 @@ function SuperOwner() {
       await axios.delete('https://men4u.xyz/v2/admin/delete_super_owner', {
         data: {
           super_owner_id: ownerToDelete,
-          app_source: 'admin_dashboard',
+          app_source: 'admin_app',
           user_id: adminData?.user_id
         },
         headers: {
@@ -233,7 +233,7 @@ function SuperOwner() {
         {
           user_id: adminData.user_id,
           action: action,
-          app_source: "admin_dashboard",
+          app_source: "admin_app",
           super_owner_ids: validSuperOwnerIds
         },
         {

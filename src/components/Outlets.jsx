@@ -94,7 +94,7 @@ function Outlets() {
           `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
           {
             user_id: adminData?.user_id,
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
           },
           {
             headers: {
@@ -504,7 +504,7 @@ function Outlets() {
           {
             user_id: adminData.user_id,
             action: action,
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
             outlet_ids: validOutletIds,
           },
           {

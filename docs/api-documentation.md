@@ -26,7 +26,7 @@ Get detailed information about a specific outlet.
 {
   "outlet_id": "string",
   "user_id": "string",
-  "app_source": "admin_dashboard"
+  "app_source": "admin_app"
 }
 ```
 

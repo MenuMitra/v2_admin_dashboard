@@ -125,7 +125,7 @@ function CreateCaptain() {
         aadhar_number: captainData.aadhar_number,
         dob: captainData.dob,
         functionality_ids: captainData.functionality_ids,
-        app_source: "admin_dashboard"
+        app_source: "admin_app"
       };
 
       await toastController.promise(

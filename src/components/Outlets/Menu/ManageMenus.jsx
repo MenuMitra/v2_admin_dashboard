@@ -53,7 +53,7 @@ function ManageMenus() {
         {
           outlet_id: outletId,
           user_id: adminData?.user_id,
-          app_source: 'admin_dashboard',
+          app_source: 'admin_app',
         },
         {
           headers: {
@@ -104,7 +104,7 @@ function ManageMenus() {
           outlet_id: Number(outletId),
           user_id: adminData?.user_id,
           menu_id: selectedMenu.menu_id,
-          app_source: 'admin_dashboard'
+          app_source: 'admin_app'
         },
         headers: {
           Authorization: `${token}`,
@@ -134,7 +134,7 @@ function ManageMenus() {
           user_id: adminData?.user_id,
           outlet_id: Number(outletId),
           action: action,
-          app_source: "admin_dashboard",
+          app_source: "admin_app",
           menu_ids: selectedMenuIds
         },
         {

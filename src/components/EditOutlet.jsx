@@ -93,7 +93,7 @@ function EditOutlet() {
         {
           outlet_id: outletId,
           user_id: adminData?.user_id,
-          app_source: "admin_dashboard",
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -355,7 +355,7 @@ function EditOutlet() {
         google_review: outletData.google_review || '',
         outlet_mode: outletData.outlet_mode,
         image: outletData.image || '',
-        app_source: "admin_dashboard"
+        app_source: "admin_app"
       };
 
       const response = await axios.patch(

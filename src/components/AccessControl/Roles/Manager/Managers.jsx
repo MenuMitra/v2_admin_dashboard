@@ -203,7 +203,7 @@ function Managers() {
           {
             user_id: adminData.user_id,
             action: action,
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
             manager_ids: selectedIds
           },
           {

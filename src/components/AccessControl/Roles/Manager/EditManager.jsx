@@ -98,7 +98,7 @@ function EditManager() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         {
           headers: {
@@ -136,7 +136,7 @@ function EditManager() {
           user_id: Number(userId),
           outlet_id: Number(outletId),
           ...managerData,
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         {
           headers: {

@@ -35,7 +35,7 @@ function CreateCategory() {
           outlet_id: outletId,
           category_name: categoryName,
           user_id: adminData?.user_id,
-          app_source: 'admin_dashboard'
+          app_source: 'admin_app'
         },
         {
           headers: {

@@ -226,7 +226,7 @@ function Partners() {
         {
           user_id: adminData.user_id,
           action: action,
-          app_source: "admin_dashboard",
+          app_source: "admin_app",
           partner_ids: validPartnerIds,
         },
         {

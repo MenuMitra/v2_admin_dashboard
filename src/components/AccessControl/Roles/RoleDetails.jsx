@@ -137,7 +137,7 @@ function RoleDetails() {
         {
           user_id: adminData?.user_id,
           staff_id: userId,
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         {
           headers: {
@@ -169,7 +169,7 @@ function RoleDetails() {
           data: {
             user_id: adminData?.user_id,
             customer_id: userId,
-            app_source: "admin_dashboard"
+            app_source: "admin_app"
           }
         }
       );

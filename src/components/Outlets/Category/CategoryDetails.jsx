@@ -48,7 +48,7 @@ function CategoryDetails() {
             menu_cat_id: Number(menuCategoryId),
             outlet_id: Number(outletId),
             user_id: adminData?.user_id,
-            app_source: 'admin_dashboard',
+            app_source: 'admin_app',
           },
           {
             headers: {

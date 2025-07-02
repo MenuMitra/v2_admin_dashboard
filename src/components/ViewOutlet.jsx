@@ -51,7 +51,7 @@ function ViewOutlet() {
           {
             outlet_id: outletId,
             user_id: adminData?.user_id,
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
           },
           {
             headers: {
@@ -149,7 +149,7 @@ function ViewOutlet() {
       const formData = new FormData();
       formData.append("outlet_id", outletId);
       formData.append("user_id", adminData?.user_id);
-      formData.append("app_source", "admin_dashboard");
+      formData.append("app_source", "admin_app");
       formData.append("file", selectedFile);
 
       await toastController.promise(

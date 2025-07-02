@@ -46,7 +46,7 @@ function Chefs() {
         {
           outlet_id: outletId,
           user_id: adminData.user_id,
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         {
           headers: {
@@ -80,7 +80,7 @@ function Chefs() {
             update_user_id: adminData.user_id,
             outlet_id: outletId,
             user_id: chefToDelete.toString(),
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
           },
           headers: {
             Authorization: getToken(),
@@ -133,7 +133,7 @@ function Chefs() {
           {
             user_id: adminData.user_id,
             action: action,
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
             chef_ids: selectedIds
           },
           {

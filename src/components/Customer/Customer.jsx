@@ -53,7 +53,7 @@ function Customer() {
         `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
         {
           user_id: adminData?.user_id,
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         {
           headers: {
@@ -83,7 +83,7 @@ function Customer() {
     try {
       const requestData = {
         user_id: adminData?.user_id,
-        app_source: "admin_dashboard"
+        app_source: "admin_app"
       };
 
       if (outlet_id && outlet_id !== '') {
@@ -142,7 +142,7 @@ function Customer() {
           data: {
             user_id: adminData?.user_id,
             customer_id: customer_id,
-            app_source: "admin_dashboard"
+            app_source: "admin_app"
           }
         }
       );
@@ -191,7 +191,7 @@ function Customer() {
           {
             user_id: adminData.user_id,
             action: action,
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
             customer_ids: selectedIds
           },
           {

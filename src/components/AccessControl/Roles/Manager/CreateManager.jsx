@@ -128,7 +128,7 @@ function CreateManager() {
         aadhar_number: managerData.aadhar_number,
         dob: managerData.dob,
         functionality_ids: managerData.functionality_ids,
-        app_source: "admin_dashboard"
+        app_source: "admin_app"
       };
 
       await toastController.promise(

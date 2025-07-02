@@ -42,7 +42,7 @@ function EditCustomer() {
           `${BASE_URL}/${API_VERSION}/admin/customer_view`,
           {
             user_id: Number(customerId),
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
           },
           {
             headers: { Authorization: getToken() },
@@ -94,7 +94,7 @@ function EditCustomer() {
           mobile: customerData.mobile,
           role: customerData.role,
           is_active: customerData.is_active ? 1 : 0,
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         {
           headers: { Authorization: getToken() },

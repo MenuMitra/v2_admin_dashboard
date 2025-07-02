@@ -49,7 +49,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
         {
           user_id: adminData.user_id,
           role: adminData.role,
-          app: "admin_dashboard",
+          app: "admin_app",
         },
         {
           headers: {

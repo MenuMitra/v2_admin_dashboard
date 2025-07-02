@@ -20,7 +20,7 @@ function EditSuperOwner() {
     mobile: '',
     email: '',
     aadhar_number: '',
-    app_source: 'admin_dashboard',
+    app_source: 'admin_app',
     is_active: true
   });
   const [loading, setLoading] = useState(false);
@@ -41,7 +41,7 @@ function EditSuperOwner() {
         {
           user_id: adminData?.user_id,
           super_owner_id: parseInt(superOwnerId),
-          app_source: 'admin_dashboard'
+          app_source: 'admin_app'
         },
         {
           headers: {
@@ -86,7 +86,7 @@ function EditSuperOwner() {
       const response = await axios.post(
         'https://men4u.xyz/v2/admin/get_outlets_for_super_owner',
         {
-          app_source: 'admin_dashboard',
+          app_source: 'admin_app',
           super_owner_id: parseInt(superOwnerId)
         },
         {

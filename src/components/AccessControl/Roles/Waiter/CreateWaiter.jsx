@@ -123,7 +123,7 @@ function CreateWaiter() {
         aadhar_number: waiterData.aadhar_number,
         dob: waiterData.dob,
         functionality_ids: waiterData.functionality_ids,
-        app_source: "admin_dashboard"
+        app_source: "admin_app"
       };
 
       await toastController.promise(

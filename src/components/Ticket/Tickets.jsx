@@ -58,7 +58,7 @@ function Tickets() {
         `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
         {
           user_id: adminData?.user_id,
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         {
           headers: {
@@ -88,7 +88,7 @@ function Tickets() {
     try {
       const requestBody = {
         user_id: adminData?.user_id,
-        app_source: "admin_dashboard"
+        app_source: "admin_app"
       };
 
       // Only add outlet_id if it exists

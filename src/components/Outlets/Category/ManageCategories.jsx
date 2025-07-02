@@ -51,7 +51,7 @@ function ManageCategories() {
           menu_cat_id: categoryToDelete.menu_cat_id,
           outlet_id: categoryToDelete.outlet_id,
           user_id: adminData?.user_id,
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         headers: {
           Authorization: token,
@@ -78,7 +78,7 @@ function ManageCategories() {
         {
           outlet_id: Number(outletId),
           user_id: adminData?.user_id,
-          app_source: "admin_dashboard",
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -116,7 +116,7 @@ function ManageCategories() {
           user_id: adminData?.user_id,
           outlet_id: Number(outletId),
           action: action,
-          app_source: "admin_dashboard",
+          app_source: "admin_app",
           menu_cat_ids: selectedCategoryIds
         },
         {

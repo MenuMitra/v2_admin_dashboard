@@ -70,7 +70,7 @@ function EditMenu() {
             menu_id: Number(menuId),
             outlet_id: Number(outletId),
             user_id: adminData?.user_id,
-            app_source: 'admin_dashboard',
+            app_source: 'admin_app',
           },
           {
             headers: {
@@ -123,7 +123,7 @@ function EditMenu() {
           {
             outlet_id: outletId,
             user_id: adminData?.user_id,
-            app_source: 'admin_dashboard'
+            app_source: 'admin_app'
           },
           {
             headers: {
@@ -278,7 +278,7 @@ function EditMenu() {
         is_special: isSpecial,
         images: menuImages.new,
         existing_image_ids: menuImages.existing.map(img => img.image_id),
-        app_source: 'admin_dashboard'
+        app_source: 'admin_app'
       };
 
       const response = await axios.put(

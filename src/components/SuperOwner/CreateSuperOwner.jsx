@@ -19,7 +19,7 @@ function CreateSuperOwner() {
     mobile: "",
     email: "",
     aadhar_number: "",
-    app_source: "admin_dashboard",
+    app_source: "admin_app",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,7 +42,7 @@ function CreateSuperOwner() {
       const response = await axios.post(
         "https://men4u.xyz/v2/admin/get_outlets_for_super_owner",
         {
-          app_source: "admin_dashboard",
+          app_source: "admin_app",
         },
         {
           headers: {

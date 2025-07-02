@@ -46,7 +46,7 @@ function Captains() {
         {
           user_id: adminData.user_id,
           outlet_id: Number(outletId),
-          app_source: "admin_dashboard"
+          app_source: "admin_app"
         },
         {
           headers: {
@@ -80,7 +80,7 @@ function Captains() {
             update_user_id: adminData.user_id,
             outlet_id: outletId,
             user_id: captainToDelete.toString(),
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
           },
           headers: {
             Authorization: getToken(),
@@ -214,7 +214,7 @@ function Captains() {
           {
             user_id: adminData.user_id,
             action: action,
-            app_source: "admin_dashboard",
+            app_source: "admin_app",
             captain_ids: selectedIds
           },
           {
