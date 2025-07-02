@@ -24,6 +24,7 @@ function CaptainDetails() {
   const [captainData, setCaptainData] = useState(null);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [outletName, setOutletName] = useState('');
 
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -48,7 +49,8 @@ function CaptainDetails() {
           },
         }
       );
-      setCaptainData(response.data.data); // Note: Changed from response.data.detail to response.data.data
+      setCaptainData(response.data.data);
+      setOutletName(response.data.data.outlet_name);
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to fetch captain details");
     } finally {
@@ -83,9 +85,11 @@ function CaptainDetails() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Captains", path: "/captains" },
-    { label: "Captain Details" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: "Captains", path: `/captains/${outletId}` },
+    { label: "Captain Details" }
   ];
 
   if (loading) {

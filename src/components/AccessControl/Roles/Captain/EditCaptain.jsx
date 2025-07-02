@@ -33,6 +33,7 @@ function EditCaptain() {
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [outletName, setOutletName] = useState('');
 
   const dropdownRef = useRef(null);
 
@@ -120,6 +121,7 @@ function EditCaptain() {
         functionality_ids: data.functionalities?.map(f => f.functionality_id) || [],
         role: "captain"
       });
+      setOutletName(data.outlet_name);
     } catch (err) {
       const errorMsg = err.response?.data?.msg || "Failed to fetch captain details";
       toastController.error(errorMsg);
@@ -173,8 +175,10 @@ function EditCaptain() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Captains", path: "/captains" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: "Captains", path: `/captains/${outletId}` },
     { label: "Captain Details", path: `/captain-details/${outletId}/${userId}` },
     { label: "Edit Captain" },
   ];
