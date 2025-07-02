@@ -234,12 +234,6 @@ function Customer() {
       render: (value) => value ?? '0'
     },
     {
-      field: 'last_login',
-      header: 'Last Login',
-      sortable: true,
-      render: (value) => value || '-'
-    },
-    {
       field: 'is_active',
       header: 'Status',
       sortable: true,
