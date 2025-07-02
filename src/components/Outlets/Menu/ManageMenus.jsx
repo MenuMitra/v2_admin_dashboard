@@ -28,10 +28,11 @@ function ManageMenus() {
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
 
-  // Breadcrumb items
-  const breadcrumbItems = [
+  // Move breadcrumbItems inside the render since it needs menuData
+  const getBreadcrumbItems = () => [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
+    { label: menuData[0]?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Menus' }
   ];
 
@@ -250,7 +251,7 @@ function ManageMenus() {
     <div>
       {/* Breadcrumb */}
       <div className="mb-6">
-        <Breadcrumb items={breadcrumbItems} />
+        <Breadcrumb items={getBreadcrumbItems()} />
       </div>
       <DataTable
         data={menuData}
