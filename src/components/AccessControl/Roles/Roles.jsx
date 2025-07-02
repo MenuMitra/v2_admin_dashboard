@@ -133,6 +133,14 @@ function Roles() {
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
           <button
+            onClick={() => navigate(`/view-role/${row.role_id}`)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Details"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          
+          <button
             onClick={() => navigate(`/add-role-assign-functionalities/${row.role_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-success-500 hover:bg-success-600 rounded-lg shadow-theme-xs transition"
             title="Create Role"
