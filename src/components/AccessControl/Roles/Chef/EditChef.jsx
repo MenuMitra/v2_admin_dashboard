@@ -33,6 +33,7 @@ function EditChef() {
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [outletName, setOutletName] = useState('');
 
   const dropdownRef = useRef(null);
 
@@ -120,6 +121,7 @@ function EditChef() {
         functionality_ids: data.functionalities?.map(f => f.functionality_id) || [],
         role: data.role || "chef"
       });
+      setOutletName(data.outlet_name);
     } catch (err) {
       const errorMsg = err.response?.data?.msg || "Failed to fetch chef details";
       toastController.error(errorMsg);
@@ -173,8 +175,10 @@ function EditChef() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Chefs", path: "/chefs" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: "Chefs", path: `/chefs/${outletId}` },
     { label: "Chef Details", path: `/chef-details/${outletId}/${userId}` },
     { label: "Edit Chef" },
   ];

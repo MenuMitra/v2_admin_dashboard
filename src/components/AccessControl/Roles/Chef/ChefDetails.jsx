@@ -25,6 +25,7 @@ function ChefDetails() {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const {BASE_URL, API_VERSION} = API_CONFIG;
+  const [outletName, setOutletName] = useState('');
 
   useEffect(() => {
     fetchChefDetails();
@@ -48,6 +49,7 @@ function ChefDetails() {
         }
       );
       setChefData(response.data.detail);
+      setOutletName(response.data.detail.outlet_name);
     } catch (err) {
       const errorMsg = err.response?.data?.msg || "Failed to fetch chef details";
       toastController.error(errorMsg);
@@ -92,9 +94,11 @@ function ChefDetails() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Chefs", path: "/chefs" },
-    { label: "Chef Details" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: "Chefs", path: `/chefs/${outletId}` },
+    { label: "Chef Details" }
   ];
 
   if (loading) {

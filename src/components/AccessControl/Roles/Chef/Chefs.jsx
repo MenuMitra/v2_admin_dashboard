@@ -32,6 +32,7 @@ function Chefs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [outletName, setOutletName] = useState('');
 
   useEffect(() => {
     if (adminData?.user_id && outletId) {
@@ -57,6 +58,11 @@ function Chefs() {
       );
 
       setChefs(response.data.detail || []);
+      
+      if (response.data.detail && response.data.detail.length > 0) {
+        setOutletName(response.data.detail[0].outlet_name);
+      }
+      
       setIsLoading(false);
     } catch (error) {
       toastController.error("Failed to fetch chefs list");
@@ -161,6 +167,7 @@ function Chefs() {
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Chefs' }
   ];
 
