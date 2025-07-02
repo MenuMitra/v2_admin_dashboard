@@ -32,7 +32,7 @@ function CategoryDetails() {
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
     { label: category?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: 'Categories', path: `/manage-categories/${outletId}` },
+    { label: 'Categories', path: `/categories/${outletId}` },
     { label: 'Category Details' }
   ];
 
