@@ -384,7 +384,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
         ${sidebarToggle ? 'lg:w-[90px]' : 'lg:w-[290px]'}
       `}
     >
-      {/* Sidebar Header */}
+      {/* Sidebar Header - Desktop */}
       <div
         className={`
           hidden lg:flex items-center justify-center gap-2 pt-8 pb-7 px-5
@@ -398,7 +398,8 @@ const Sidebar = ({ sidebarToggle = false }) => {
       </div>
 
       {/* Menu Items */}
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-5 dark:text-white mt-20">
+      <div className="block lg:hidden mt-20"></div> {/* Mobile-only spacer */}
+      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-5 dark:text-white">
         <nav>
           {Object.entries(menuData).map(([groupName, items], idx) => (
             <MenuGroup key={idx} title={groupName} items={items} />
