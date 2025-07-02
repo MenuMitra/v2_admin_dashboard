@@ -93,13 +93,19 @@ function EditMenu() {
         setOffer(menuData.offer?.toString() || '');
         setIsSpecial(menuData.is_special || false);
         setExistingImageIds(menuData.images?.map(img => img.image_id) || []);
-        setMenuImages(prev => ({
-          ...prev,
-          existing: menuData.images?.map(img => ({
-            image_id: img.image_id,
-            image_url: img.image
-          })) || []
-        }));
+
+        // Format the images from API for ImageUploader
+        const formattedExistingImages = menuData.images?.map(img => ({
+          id: img.image_id,
+          url: img.image,
+          isExisting: true,
+          flag: 1
+        })) || [];
+
+        setMenuImages({
+          existing: formattedExistingImages,
+          new: []
+        });
         setPortionData(menuData.portions.map((p, idx) => ({
           portion_name: p.portion_name,
           price: p.price.toString(),
@@ -226,21 +232,6 @@ function EditMenu() {
     setPortionData(prev => prev.filter((_, i) => i !== idx));
   };
 
-  // Image handlers
-  const handleImagesChange = (newImages) => {
-    setMenuImages(prev => ({
-      ...prev,
-      new: newImages
-    }));
-  };
-
-  const handleRemoveExistingImage = (imageId) => {
-    setMenuImages(prev => ({
-      ...prev,
-      existing: prev.existing.filter(img => img.image_id !== imageId)
-    }));
-  };
-
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -281,7 +272,10 @@ function EditMenu() {
         ingredients: ingredients.trim(),
         is_special: isSpecial,
         images: menuImages.new,
-        existing_image_ids: menuImages.existing.map(img => img.image_id),
+        existing_image_ids: menuImages.existing.map(img => ({
+          image_id: img.id,
+          flag: img.isExisting ? 1 : 0
+        })),
         app_source: 'admin_app'
       };
 
@@ -496,51 +490,39 @@ function EditMenu() {
               </button>
             </div>
 
-            {/* Images */}
+            {/* Images Section */}
             <div className="space-y-4">
-              {/* Display existing images */}
-              {menuImages.existing.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Existing Images
-                  </label>
-                  <div className="flex flex-wrap gap-4">
-                    {menuImages.existing.map((img) => (
-                      <div 
-                        key={img.image_id} 
-                        className="relative group w-24 h-24 border rounded-lg overflow-hidden"
-                      >
-                        <img
-                          src={img.image_url}
-                          alt="Menu item"
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveExistingImage(img.image_id)}
-                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 
-                                   opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Upload new images */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Add New Images {menuImages.existing.length + menuImages.new.length < 5 && "(Optional)"}
+                  Menu Images {menuImages.existing.length + menuImages.new.length < 5 && "(Optional)"}
                 </label>
-                <ImageUploader
-                  maxImages={5 - menuImages.existing.length}
-                  existingImages={menuImages.new}
-                  onImagesChange={handleImagesChange}
-                  className="mb-4"
-                  required={false}
-                />
+
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <ImageUploader
+                    maxImages={5}
+                    existingImages={[
+                      ...menuImages.existing,
+                      ...menuImages.new
+                    ]}
+                    onImagesChange={(updatedImages) => {
+                      // Separate existing and new images
+                      const existingImages = updatedImages.filter(img => img.isExisting);
+                      const newImages = updatedImages.filter(img => !img.isExisting);
+
+                      setMenuImages({
+                        existing: existingImages,
+                        new: newImages
+                      });
+                    }}
+                    className="mb-4"
+                    required={false}
+                  />
+
+                  {/* Image Count */}
+                  <div className="text-sm text-gray-500 text-center mt-2">
+                    {menuImages.existing.length + menuImages.new.length} of 5 images used
+                  </div>
+                </div>
               </div>
             </div>
 
