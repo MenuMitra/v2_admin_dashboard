@@ -178,11 +178,7 @@ function Roles() {
         title="Roles"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        counts={{
-          total: roles.length,
-          active: roles.length,
-          inactive: 0
-        }}
+        counts={null}
         createButton={{
           show: true,
           label: "Create",
@@ -199,7 +195,9 @@ function Roles() {
         searchPlaceholder="Search roles"
         enableSort={true}
         enablePagination={true}
-        enableSearch={true}
+        enableSearch={false}
+        enableStatusFilter={false}
+        showSearch={false}
         itemsPerPage={10}
       />
 
