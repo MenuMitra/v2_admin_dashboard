@@ -294,6 +294,7 @@ const Search = () => {
                   showHeader={false}
                   enableSort={true}
                   enablePagination={true}
+                  emptyStateMessage={`No results found for ${searchType}: "${searchInput}"`}
                   counts={{
                     total: totalResults,
                     active: searchResults.filter(r => r.is_active === 1).length,
@@ -303,6 +304,10 @@ const Search = () => {
               ) : loading ? (
                 <div className="text-center text-gray-500 text-sm sm:text-base mt-6 sm:mt-8">
                   Searching...
+                </div>
+              ) : searchInput.trim() ? (
+                <div className="text-center text-gray-500 text-sm sm:text-base mt-6 sm:mt-8">
+                  No results found for {searchType}: "<b>{searchInput}</b>"
                 </div>
               ) : null}
             </div>
