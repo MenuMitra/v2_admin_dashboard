@@ -24,6 +24,7 @@ function Customer() {
   const [outletName, setOutletName] = useState('');
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -46,6 +47,11 @@ function Customer() {
       fetchCustomers(selectedOutlet);
     }
   }, [selectedOutlet]);
+
+  // Add useEffect to refetch when status filter changes
+  useEffect(() => {
+    fetchCustomers(selectedOutlet);
+  }, [selectedOutlet, statusFilter]);
 
   const fetchOutlets = async () => {
     try {
@@ -81,6 +87,7 @@ function Customer() {
 
   const fetchCustomers = async (outlet_id = null) => {
     try {
+      setLoading(true);
       const requestData = {
         user_id: adminData?.user_id,
         app_source: "admin_app"
@@ -90,7 +97,11 @@ function Customer() {
         requestData.outlet_id = outlet_id;
       }
 
-      const promise = axios.post(
+      if (statusFilter !== 'all') {
+        requestData.is_active = statusFilter === 'active' ? 1 : 0;
+      }
+
+      const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/customer_listview`,
         requestData,
         {
@@ -100,23 +111,11 @@ function Customer() {
         }
       );
 
-      const response = await toastController.promise(
-        promise,
-        {
-          loading: 'Loading customers...',
-          success: 'Customers loaded successfully',
-          error: 'Failed to load customers'
-        }
-      );
-
       setCustomers(response.data.customers || []);
       setOutletName(response.data.outlet_name || '');
       
-      if (response.data.customers?.length === 0) {
-        toastController.info('No customers found');
-      }
     } catch (err) {
-      toastController.error(err.response?.data?.msg || 'Failed to fetch customers');
+      setError(err.response?.data?.msg || 'Failed to fetch customers');
     } finally {
       setLoading(false);
     }
@@ -133,7 +132,8 @@ function Customer() {
   const confirmDelete = async () => {
     const customer_id = deleteModal.customerId;
     try {
-      const promise = axios.delete(
+      setLoading(true);
+      await axios.delete(
         `${BASE_URL}/${API_VERSION}/admin/customer_delete`,
         {
           headers: {
@@ -146,20 +146,11 @@ function Customer() {
           }
         }
       );
-
-      await toastController.promise(
-        promise,
-        {
-          loading: 'Deleting customer...',
-          success: 'Customer deleted successfully',
-          error: 'Failed to delete customer'
-        }
-      );
       
       setDeleteModal({ isOpen: false, customerId: null });
       fetchCustomers(selectedOutlet);
     } catch (err) {
-      toastController.error(err.response?.data?.msg || 'Failed to delete customer');
+      setError(err.response?.data?.msg || 'Failed to delete customer');
     } finally {
       setLoading(false);
     }
@@ -167,53 +158,36 @@ function Customer() {
 
   const handleBulkAction = async (action, selectedIds) => {
     try {
-      const actionMessages = {
-        active: {
-          loading: "Activating selected customers...",
-          success: "Successfully activated selected customers",
-          error: "Failed to activate customers"
+      setLoading(true);
+      await axios.post(
+        `${BASE_URL}/${API_VERSION}/common/bulk_customer_action`,
+        {
+          user_id: adminData.user_id,
+          action: action,
+          app_source: "admin_app",
+          customer_ids: selectedIds
         },
-        inactive: {
-          loading: "Deactivating selected customers...",
-          success: "Successfully deactivated selected customers",
-          error: "Failed to deactivate customers"
-        },
-        delete: {
-          loading: "Deleting selected customers...",
-          success: "Successfully deleted selected customers",
-          error: "Failed to delete customers"
-        }
-      };
-
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/bulk_customer_action`,
-          {
-            user_id: adminData.user_id,
-            action: action,
-            app_source: "admin_app",
-            customer_ids: selectedIds
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
           },
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        actionMessages[action]
+        }
       );
 
       fetchCustomers(selectedOutlet);
       setSelectedItems([]);
-      toastController.success(response.data.detail);
       
     } catch (error) {
-      toastController.error(
-        error.response?.data?.detail || 
-        `Failed to perform ${action} action on selected customers`
-      );
+      setError(error.response?.data?.detail || `Failed to perform ${action} action`);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleStatusFilterChange = (status) => {
+    setSearchTerm('');
+    setStatusFilter(status.toLowerCase());
   };
 
   const columns = [
@@ -330,10 +304,8 @@ function Customer() {
         showBackButton={true}
         backButtonLabel="Back"
         enableStatusFilter={true}
-        onStatusFilterChange={(status) => {
-          setSearchTerm('');
-          toastController.info(`Showing ${status} customers`);
-        }}
+        onStatusFilterChange={handleStatusFilterChange}
+        statusFilter={statusFilter}
         isLoading={loading}
         enableSelection={true}
         onSelectionChange={setSelectedItems}
