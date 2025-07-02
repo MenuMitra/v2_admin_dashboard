@@ -307,6 +307,8 @@ function ManageMenus() {
         enableSort={true}
         enableSearch={true}
         enablePagination={true}
+        paginationOptions={[50, 100, 200]}
+        defaultPageSize={50}
         searchPlaceholder="Search menus..."
         emptyStateMessage="No menus found."
         emptyStateMessageByStatus={{
