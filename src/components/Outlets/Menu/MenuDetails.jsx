@@ -16,6 +16,10 @@ import {
   faPercent,
   faList,
   faStar,
+  faLeaf,
+  faDrumstickBite,
+  faEgg,
+  faSeedling,
 } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../../common/Modal';
 import Breadcrumb from '../../Breadcrumb';
@@ -187,10 +191,31 @@ function MenuDetails() {
               {/* Food Type */}
               <div className="flex items-center p-3">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
+                  <FontAwesomeIcon 
+                    icon={
+                      menu.food_type === 'veg' ? faLeaf :
+                      menu.food_type === 'nonveg' ? faDrumstickBite :
+                      menu.food_type === 'vegan' ? faSeedling :
+                      menu.food_type === 'egg' ? faEgg :
+                      faLeaf // default to veg icon
+                    } 
+                    className={`w-5 h-5 ${
+                      menu.food_type === 'veg' ? 'text-success-500' :
+                      menu.food_type === 'nonveg' ? 'text-error-500' :
+                      menu.food_type === 'vegan' ? 'text-emerald-500' :
+                      menu.food_type === 'egg' ? 'text-amber-500' :
+                      'text-success-500' // default to veg color
+                    }`} 
+                  />
                 </div>
                 <div className="ml-3">
-                  <div className={`text-base font-medium ${menu.food_type === 'veg' ? 'text-green-700' : 'text-red-700'}`}>
+                  <div className={`text-base font-medium ${
+                    menu.food_type === 'veg' ? 'text-success-500' :
+                    menu.food_type === 'nonveg' ? 'text-error-500' :
+                    menu.food_type === 'vegan' ? 'text-emerald-500' :
+                    menu.food_type === 'egg' ? 'text-amber-500' :
+                    'text-success-500' // default to veg color
+                  }`}>
                     {menu.food_type?.toUpperCase()}
                   </div>
                   <div className="text-sm text-gray-500">Food Type</div>
