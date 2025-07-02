@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import axios from "axios";
@@ -21,6 +21,8 @@ import Breadcrumb from "../../../Breadcrumb";
 function CreateWaiter() {
   const { outletId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const outletName = location.state?.outletName || 'Outlet';
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const [isLoading, setIsLoading] = useState(false);
@@ -45,9 +47,11 @@ function CreateWaiter() {
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Waiters", path: "/waiters" },
-    { label: "Create Waiter", path: "/create-waiter" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName, path: `/view-outlet/${outletId}` },
+    { label: "Waiters", path: `/waiters/${outletId}` },
+    { label: "Create Waiter" }
   ];
 
   useEffect(() => {
