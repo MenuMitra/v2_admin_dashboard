@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toastController } from '../utils/toastController';
 
 export const useAuth = () => {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ export const useAuth = () => {
         if (error.response?.status === 401) {
           // Check if we're not already on login page to prevent loops
           if (window.location.pathname !== '/login') {
+            toastController.error('Session expired. Please login again.');
             logout();
           }
         }
