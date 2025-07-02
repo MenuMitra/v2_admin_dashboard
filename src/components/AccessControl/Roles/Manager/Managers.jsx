@@ -17,12 +17,14 @@ import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
 import Modal from '../../../common/Modal';
 import { toastController } from "../../../../utils/toastController";
+import { API_CONFIG } from "../../../../config/appConfig";
 
 function Managers() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { outletId } = useParams();
   const navigate = useNavigate();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   
   const [managers, setManagers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -41,15 +43,21 @@ function Managers() {
 
   const fetchManagers = async () => {
     try {
+      const token = getToken();
+      if (!token) {
+        toastController.error("No authentication token available");
+        return;
+      }
+
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/manager_listview",
+        `${BASE_URL}/${API_VERSION}/common/manager_listview`,
         {
           outlet_id: outletId,
           user_id: adminData.user_id,
         },
         {
           headers: {
-            Authorization: getToken(),
+            Authorization: token,
             "Content-Type": "application/json",
           },
         }
@@ -61,9 +69,9 @@ function Managers() {
         setOutletName(response.data.detail[0].outlet_name);
       }
       
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching managers:", error);
+    } catch (err) {
+      toastController.error(err.response?.data?.msg || "Failed to fetch managers");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -78,23 +86,30 @@ function Managers() {
 
   const handleDeleteManager = async () => {
     try {
-      await axios.delete("https://men4u.xyz/v2/common/manager_delete", {
+      const token = getToken();
+      if (!token) {
+        toastController.error("No authentication token available");
+        return;
+      }
+
+      await axios.delete(`${BASE_URL}/${API_VERSION}/common/manager_delete`, {
         data: {
           update_user_id: adminData.user_id,
           outlet_id: outletId,
           user_id: managerToDelete.toString(),
         },
         headers: {
-          Authorization: getToken(),
+          Authorization: token,
           "Content-Type": "application/json",
         },
       });
 
+      toastController.success("Manager deleted successfully");
       setShowDeleteModal(false);
       setManagerToDelete(null);
       fetchManagers();
-    } catch (error) {
-      console.error("Error deleting manager:", error);
+    } catch (err) {
+      toastController.error(err.response?.data?.msg || "Failed to delete manager");
     }
   };
 
@@ -184,6 +199,12 @@ function Managers() {
 
   const handleBulkAction = async (action, selectedIds) => {
     try {
+      const token = getToken();
+      if (!token) {
+        toastController.error("No authentication token available");
+        return;
+      }
+
       const actionMessages = {
         active: {
           loading: "Activating selected managers...",
@@ -204,7 +225,7 @@ function Managers() {
 
       const response = await toastController.promise(
         axios.post(
-          "https://men4u.xyz/v2/common/bulk_manager_action",
+          `${BASE_URL}/${API_VERSION}/common/bulk_manager_action`,
           {
             user_id: adminData.user_id,
             action: action,
@@ -213,7 +234,7 @@ function Managers() {
           },
           {
             headers: {
-              Authorization: getToken(),
+              Authorization: token,
               "Content-Type": "application/json",
             },
           }
@@ -221,15 +242,12 @@ function Managers() {
         actionMessages[action]
       );
 
-      fetchManagers();
-      
+      await fetchManagers();
       setSelectedItems([]);
       
-      toastController.success(response.data.detail);
-      
-    } catch (error) {
+    } catch (err) {
       toastController.error(
-        error.response?.data?.detail || 
+        err.response?.data?.detail || 
         `Failed to perform ${action} action on selected managers`
       );
     }
