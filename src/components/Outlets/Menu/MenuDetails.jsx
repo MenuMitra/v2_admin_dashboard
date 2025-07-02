@@ -18,6 +18,7 @@ import {
   faStar,
 } from '@fortawesome/free-solid-svg-icons';
 import Modal from '../../common/Modal';
+import Breadcrumb from '../../Breadcrumb';
 
 function MenuDetails() {
   const { outletId, menuId } = useParams();
@@ -82,11 +83,25 @@ function MenuDetails() {
     }
   };
 
+  // Add breadcrumb items function
+  const getBreadcrumbItems = () => [
+    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Outlets', path: '/outlets' },
+    { label: menu?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: 'Menus', path: `/menus/${outletId}` },
+    { label: menu?.name || 'Menu Details' }
+  ];
+
   if (error) return <div className="text-error-500">{error}</div>;
   if (!menu) return null;
 
   return (
     <div className="p-4">
+      {/* Add Breadcrumb */}
+      <div className="mb-6">
+        <Breadcrumb items={getBreadcrumbItems()} />
+      </div>
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
           <div className="flex items-center px-6 mb-3">
