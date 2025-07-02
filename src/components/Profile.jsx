@@ -57,13 +57,10 @@ function Profile() {
         </div>
 
         {/* Profile Content */}
-        <div className="p-5 dark:border-gray-800 lg:p-6">
+        <div className=" dark:border-gray-800">
           {/* Personal Information Section */}
           <div className="rounded-2xl dark:border-gray-800 lg:p-6">
             <div>
-              <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-                Personal Information
-              </h4>
 
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                 <InfoField label="Name" value={adminData.name} />
