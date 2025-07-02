@@ -18,6 +18,8 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchType, setSearchType] = useState('name');
+  const [hasSearched, setHasSearched] = useState(false);
+  const [searchedTerm, setSearchedTerm] = useState('');
   const navigate = useNavigate();
 
   const handleBack = useCallback(() => {
@@ -75,6 +77,8 @@ const Search = () => {
   // Modified form submit handler to handle search
   const handleSearch = (e) => {
     e.preventDefault();
+    setHasSearched(true);
+    setSearchedTerm(searchInput);
     performSearch(searchInput);
   };
 
@@ -305,9 +309,9 @@ const Search = () => {
                 <div className="text-center text-gray-500 text-sm sm:text-base mt-6 sm:mt-8">
                   Searching...
                 </div>
-              ) : searchInput.trim() ? (
+              ) : (hasSearched && searchedTerm.trim()) ? (
                 <div className="text-center text-gray-500 text-sm sm:text-base mt-6 sm:mt-8">
-                  No results found for {searchType}: "<b>{searchInput}</b>"
+                  No results found for {searchType}: "<b>{searchedTerm}</b>"
                 </div>
               ) : null}
             </div>
