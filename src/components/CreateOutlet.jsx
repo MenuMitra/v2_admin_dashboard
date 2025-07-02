@@ -157,17 +157,13 @@ function CreateOutlet() {
     }
   };
 
-  // Update handleImagesChange to handle base64 strings directly
   const handleImagesChange = (images) => {
-    if (Array.isArray(images) && images[0]) {
+    const base64String = images[0]?.url || null;
+    if (base64String) {
+      console.log('Image received:', base64String.substring(0, 50) + '...');
       setOutletData(prev => ({
         ...prev,
-        image: images[0] // ImageUploader now provides base64 string directly
-      }));
-    } else {
-      setOutletData(prev => ({
-        ...prev,
-        image: null
+        image: base64String
       }));
     }
   };
@@ -234,7 +230,6 @@ function CreateOutlet() {
     return address && address.length >= 3 && address.length <= 50;
   };
 
-  // Update handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -296,10 +291,10 @@ function CreateOutlet() {
       // Get current date in YYYY-MM-DD format
       const currentDate = new Date().toISOString().split('T')[0];
 
-      // Prepare the JSON payload
+      // Create base payload with required fields
       const payload = {
         owner_ids: outletData.owner_id,
-        user_id: adminData.user_id,
+        user_id: adminData.user_id.toString(),
         name: outletData.name,
         mobile: outletData.mobile,
         address: outletData.address,
@@ -309,30 +304,33 @@ function CreateOutlet() {
         upi_id: outletData.upi_id,
       };
 
-      // Add optional fields only if they have values
-      if (outletData.image) {
-        payload.image = outletData.image;
+      // Add numeric fields as strings
+      if (outletData.service_charges !== '') {
+        payload.service_charges = outletData.service_charges.toString();
       }
-      if (outletData.fssainumber) {
-        payload.fssainumber = outletData.fssainumber;
-      }
-      if (outletData.gstnumber) {
-        payload.gstnumber = outletData.gstnumber;
-      }
-      if (outletData.whatsapp) {
-        payload.whatsapp = outletData.whatsapp;
-      }
-      if (outletData.facebook) {
-        payload.facebook = outletData.facebook;
-      }
-      if (outletData.instagram) {
-        payload.instagram = outletData.instagram;
-      }
-      if (outletData.website) {
-        payload.website = outletData.website;
+      if (outletData.gst !== '') {
+        payload.gst = outletData.gst.toString();
       }
 
-      // Format opening and closing times
+      // Add optional fields if they exist
+      const optionalFields = [
+        'fssainumber',
+        'gstnumber',
+        'whatsapp',
+        'facebook',
+        'instagram',
+        'website',
+        'google_business_link',
+        'google_review'
+      ];
+
+      optionalFields.forEach(field => {
+        if (outletData[field]) {
+          payload[field] = outletData[field];
+        }
+      });
+
+      // Handle time fields
       if (outletData.opening_time) {
         const [timeStr, period] = outletData.opening_time.split(' ');
         const [hours, minutes] = timeStr.split(':');
@@ -344,6 +342,13 @@ function CreateOutlet() {
         const [hours, minutes] = timeStr.split(':');
         payload.closing_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
       }
+
+      // Handle image - ensure it's a valid base64 string
+      if (outletData.image && typeof outletData.image === 'string' && outletData.image.startsWith('data:')) {
+        payload.image = outletData.image;
+      }
+
+      console.log('Sending payload:', { ...payload, image: payload.image ? 'base64_string_present' : null });
 
       const response = await toastController.promise(
         axios.post(
@@ -457,8 +462,10 @@ function CreateOutlet() {
                   <ImageUploader
                     maxImages={1}
                     onImagesChange={handleImagesChange}
+                    existingImages={outletData.image ? [{ url: outletData.image }] : []}
                     label="Outlet Image"
                     className="w-full"
+                    isOutletImage={true}
                   />
                 </div>
               {/* Select Owner and Image Upload in same grid */}
