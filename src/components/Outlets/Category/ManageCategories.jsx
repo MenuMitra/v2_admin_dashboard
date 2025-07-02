@@ -33,6 +33,7 @@ function ManageCategories() {
   const [deleteError, setDeleteError] = useState('');
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [outletInfo, setOutletInfo] = useState(null);
 
   const normaliseData = (categories) =>
     categories.map((category) => ({
@@ -87,14 +88,20 @@ function ManageCategories() {
           },
         }
       );
-      if (response.data.data?.menucat_details) {
-        const filtered = response.data.data.menucat_details.filter(
-          cat => cat.menu_cat_id && cat.category_name && cat.category_name !== 'all'
-        );
-        setCategoryData(normaliseData(filtered));
-      } else {
-        setCategoryData([]);
-        setCategoryError(response.data.msg || "Failed to fetch category details");
+      if (response.data.data) {
+        // Set outlet info
+        setOutletInfo(response.data.data.outlet_info);
+        
+        // Filter and set category data
+        if (response.data.data.menucat_details) {
+          const filtered = response.data.data.menucat_details.filter(
+            cat => cat.menu_cat_id && cat.category_name && cat.category_name !== 'all'
+          );
+          setCategoryData(normaliseData(filtered));
+        } else {
+          setCategoryData([]);
+          setCategoryError(response.data.msg || "Failed to fetch category details");
+        }
       }
     } catch (err) {
       setCategoryError(err.response?.data?.message || "Failed to fetch category details");
@@ -150,10 +157,11 @@ function ManageCategories() {
     inactive: categoryData.filter(cat => cat.is_active === 0).length,
   };
 
-  // Add breadcrumb items
+  // Update breadcrumb items to include outlet name
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
+    { label: outletInfo?.outlet_name || 'Loading...', path: `/outlet/${outletId}` },
     { label: 'Categories' }
   ];
 
