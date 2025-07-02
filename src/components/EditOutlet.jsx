@@ -858,90 +858,55 @@ function EditOutlet() {
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Website
-                </label>
-                <input
-                  type="url"
-                  name="website"
-                  value={outletData.website}
-                  onChange={handleInputChange}
-                  placeholder="https://example.com"
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.website ? 'border-error-500' : 'border-gray-300'}
-                  `}
-                />
-              </div>
+              <TextInput
+                label="Website"
+                name="website"
+                type="url"
+                value={outletData.website}
+                onChange={handleInputChange}
+                placeholder="https://example.com"
+                className={validationStates.website ? 'border-error-500' : ''}
+              />
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Facebook
-                </label>
-                <input
-                  type="url"
-                  name="facebook"
-                  value={outletData.facebook}
-                  onChange={handleInputChange}
-                  placeholder="https://facebook.com/yourpage"
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.facebook ? 'border-error-500' : 'border-gray-300'}
-                  `}
-                />
-              </div>
+              <TextInput
+                label="Facebook"
+                name="facebook"
+                type="url"
+                value={outletData.facebook}
+                onChange={handleInputChange}
+                placeholder="https://facebook.com/yourpage"
+                className={validationStates.facebook ? 'border-error-500' : ''}
+              />
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Instagram
-                </label>
-                <input
-                  type="url"
-                  name="instagram"
-                  value={outletData.instagram}
-                  onChange={handleInputChange}
-                  placeholder="https://instagram.com/yourhandle"
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.instagram ? 'border-error-500' : 'border-gray-300'}
-                  `}
-                />
-              </div>
+              <TextInput
+                label="Instagram"
+                name="instagram"
+                type="url"
+                value={outletData.instagram}
+                onChange={handleInputChange}
+                placeholder="https://instagram.com/yourhandle"
+                className={validationStates.instagram ? 'border-error-500' : ''}
+              />
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Google Business Link
-                </label>
-                <input
-                  type="url"
-                  name="google_business_link"
-                  value={outletData.google_business_link}
-                  onChange={handleInputChange}
-                  placeholder="https://business.google.com/yourpage"
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.google_business_link ? 'border-error-500' : 'border-gray-300'}
-                  `}
-                />
-              </div>
+              <TextInput
+                label="Google Business Link"
+                name="google_business_link"
+                type="url"
+                value={outletData.google_business_link}
+                onChange={handleInputChange}
+                placeholder="https://business.google.com/yourpage"
+                className={validationStates.google_business_link ? 'border-error-500' : ''}
+              />
 
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  Google Review Link
-                </label>
-                <input
-                  type="url"
-                  name="google_review"
-                  value={outletData.google_review}
-                  onChange={handleInputChange}
-                  placeholder="https://g.page/r/yourreviewpage"
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.google_review ? 'border-error-500' : 'border-gray-300'}
-                  `}
-                />
-              </div>
+              <TextInput
+                label="Google Review Link"
+                name="google_review"
+                type="url"
+                value={outletData.google_review}
+                onChange={handleInputChange}
+                placeholder="https://g.page/r/yourreviewpage"
+                className={validationStates.google_review ? 'border-error-500' : ''}
+              />
             </div>
           </section>
         </form>
