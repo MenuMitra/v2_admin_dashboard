@@ -82,11 +82,11 @@ function Profile() {
 // Helper Component
 const InfoField = ({ label, value }) => (
   <div>
+  <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+    {value || 'N/A'}
+  </p>
     <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
       {label}
-    </p>
-    <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-      {value || 'N/A'}
     </p>
   </div>
 );
