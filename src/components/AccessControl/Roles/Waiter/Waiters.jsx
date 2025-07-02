@@ -31,6 +31,7 @@ function Waiters() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [outletName, setOutletName] = useState('');
 
   useEffect(() => {
     if (adminData?.user_id && outletId) {
@@ -56,6 +57,11 @@ function Waiters() {
       );
 
       setWaiters(response.data.data || []);
+      
+      if (response.data.data && response.data.data.length > 0) {
+        setOutletName(response.data.data[0].outlet_name);
+      }
+      
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching waiters:", error);
@@ -102,6 +108,7 @@ function Waiters() {
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Waiters' }
   ];
 

@@ -23,6 +23,7 @@ function WaiterDetails() {
   const [waiterData, setWaiterData] = useState(null);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [outletName, setOutletName] = useState('');
 
   useEffect(() => {
     fetchWaiterDetails();
@@ -46,6 +47,7 @@ function WaiterDetails() {
         }
       );
       setWaiterData(response.data.data);
+      setOutletName(response.data.data.outlet_name);
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to fetch waiter details");
     } finally {
@@ -80,9 +82,11 @@ function WaiterDetails() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Waiters", path: "/waiters" },
-    { label: "Waiter Details" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: "Waiters", path: `/waiters/${outletId}` },
+    { label: "Waiter Details" }
   ];
 
   if (loading) {

@@ -31,6 +31,7 @@ function EditWaiter() {
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [outletName, setOutletName] = useState('');
 
   const dropdownRef = useRef(null);
 
@@ -118,6 +119,7 @@ function EditWaiter() {
         functionality_ids: fetchedData.functionalities?.map(f => f.functionality_id) || [],
         role: "waiter"
       });
+      setOutletName(fetchedData.outlet_name);
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to fetch waiter details");
     }
@@ -160,8 +162,10 @@ function EditWaiter() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Waiters", path: "/waiters" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: "Waiters", path: `/waiters/${outletId}` },
     { label: "Waiter Details", path: `/waiter-details/${outletId}/${userId}` },
     { label: "Edit Waiter" },
   ];
