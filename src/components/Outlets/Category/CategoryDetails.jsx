@@ -27,10 +27,11 @@ function CategoryDetails() {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Add breadcrumb items
-  const breadcrumbItems = [
+  // Move breadcrumbItems inside the render since it needs category data
+  const getBreadcrumbItems = () => [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
+    { label: category?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Categories', path: `/manage-categories/${outletId}` },
     { label: 'Category Details' }
   ];
@@ -97,7 +98,7 @@ function CategoryDetails() {
     <>
       {/* Breadcrumb */}
       <div className="mb-6">
-        <Breadcrumb items={breadcrumbItems} />
+        <Breadcrumb items={getBreadcrumbItems()} />
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white">
