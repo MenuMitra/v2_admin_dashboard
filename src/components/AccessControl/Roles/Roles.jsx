@@ -119,7 +119,7 @@ function Roles() {
       headerClassName: "text-center",
       render: (value) => (
         <div className="flex items-center justify-center">
-          <span className="font-medium text-gray-900 capitalize">
+          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90 capitalize">
             {value}
           </span>
         </div>
@@ -216,7 +216,7 @@ function Roles() {
           <div className="mb-6">
             <label 
               htmlFor="roleName" 
-              className="block text-sm font-medium text-left text-gray-700 mb-2"
+              className="block text-theme-sm font-medium text-left text-gray-700 mb-2"
             >
               Role Name <span className="text-error-500">*</span>
             </label>
@@ -234,7 +234,7 @@ function Roles() {
             <button
               onClick={handleCreateRole}
               disabled={!newRoleName.trim() || isSubmitting}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
+              className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
                 ${!newRoleName.trim() || isSubmitting
                   ? 'bg-success-500 cursor-not-allowed'
                   : 'bg-success-500 hover:bg-success-600'
