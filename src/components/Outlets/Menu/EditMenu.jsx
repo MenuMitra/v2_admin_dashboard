@@ -60,6 +60,9 @@ function EditMenu() {
     { value: 'pcs', label: 'Pieces (pcs)' }
   ];
 
+  // Add new state for outlet name
+  const [outletName, setOutletName] = useState('');
+
   // Fetch existing menu data
   useEffect(() => {
     const fetchMenuDetails = async () => {
@@ -81,6 +84,7 @@ function EditMenu() {
 
         const menuData = response.data.detail;
         setName(menuData.name);
+        setOutletName(menuData.outlet_name);
         setMenuCatId(menuData.menu_cat_id.toString());
         setFoodType(menuData.food_type);
         setDescription(menuData.description);
@@ -307,12 +311,13 @@ function EditMenu() {
   };
 
   return (
-    <div className="p-4">
-      {/* Breadcrumb */}
+    <div className="">
+      {/* Update Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: 'Dashboard', path: '/' },
+          { label: 'Dashboard', path: '/dashboard' },
           { label: 'Outlets', path: '/outlets' },
+          { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
           { label: 'Menus', path: `/menus/${outletId}` },
           { label: 'Edit Menu' }
         ]}
