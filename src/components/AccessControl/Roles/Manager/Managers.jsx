@@ -277,7 +277,9 @@ function Managers() {
           show: true,
           label: "Create",
           icon: faPlus,
-          onClick: () => navigate(`/create-manager/${outletId}`),
+          onClick: () => navigate(`/create-manager/${outletId}`, {
+            state: { outletName: outletName }
+          }),
           className: "bg-success-500 hover:bg-success-600",
           position: "right"
         }}

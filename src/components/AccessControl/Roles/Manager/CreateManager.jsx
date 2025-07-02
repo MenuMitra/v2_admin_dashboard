@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import axios from "axios";
@@ -22,6 +22,8 @@ import { API_CONFIG } from "../../../../config/appConfig";
 function CreateManager() {
   const { outletId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  const outletName = location.state?.outletName || 'Outlet';
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const [isLoading, setIsLoading] = useState(false);
@@ -47,9 +49,11 @@ function CreateManager() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Managers", path: "/managers" },
-    { label: "Create Manager", path: "/create-manager" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName, path: `/view-outlet/${outletId}` },
+    { label: "Managers", path: `/managers/${outletId}` },
+    { label: "Create Manager" }
   ];
 
   useEffect(() => {
