@@ -83,27 +83,26 @@ function RoleFunctionalitiesMapping() {
 
         {mappings.length > 0 && (
           <div>
-            <div className="mb-4">
+            <div className="mb-6">
               <span className="text-lg font-medium text-gray-800">
-                Role: <span className="capitalize">{mappings[0].role_name}</span>
+                Role: <span className="capitalize bg-brand-50 text-brand-600 px-3 py-1 rounded-full">{mappings[0].role_name}</span>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {mappings.map((mapping) => (
                 <div
                   key={mapping.functionality_id}
-                  className="p-4 border border-gray-200 rounded-lg flex items-center gap-3 bg-gray-50"
+                  className="p-4 border border-gray-200 rounded-lg flex items-center gap-3 hover:bg-gray-50 transition-colors duration-200"
                 >
-                  <div className="w-8 h-8 flex items-center justify-center bg-success-100 text-success-600 rounded-full">
-                    <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-800">
-                      {mapping.functionality_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-800 line-clamp-2">
+                      {mapping.functionality_name.split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(' ')}
                     </p>
-                    <p className="text-sm text-gray-500">
-                      ID: {mapping.functionality_id}
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      Functionality ID: {mapping.functionality_id}
                     </p>
                   </div>
                 </div>
