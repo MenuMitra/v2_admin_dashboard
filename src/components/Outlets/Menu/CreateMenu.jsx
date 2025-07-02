@@ -176,9 +176,17 @@ function CreateMenu() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!name || !menuCatId || !foodType || !portionData[0].price) {
+    if (!name || !menuCatId || !foodType) {
       toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
+      return;
+    }
+
+    // Add validation for portion prices
+    const missingPrices = portionData.some(portion => !portion.price);
+    if (missingPrices) {
+      toastController.error('Price is required for all portions');
+      setError('Price is required for all portions');
       return;
     }
 
