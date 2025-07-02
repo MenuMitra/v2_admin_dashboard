@@ -16,6 +16,7 @@ import {
 import Breadcrumb from './Breadcrumb';
 import ImageUploader from './common/ImageUploader';
 import { API_CONFIG } from "../config/appConfig";
+import { isValidSocialMediaLinks, isMobileValid, isWhatsappValid } from '../utils/validations';
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -58,6 +59,17 @@ function EditOutlet() {
   const [allOwners, setAllOwners] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [validationStates, setValidationStates] = useState({
+    website: false,
+    facebook: false,
+    instagram: false,
+    google_business_link: false,
+    google_review: false,
+    mobile: false,
+    mobileMessage: '',
+    whatsapp: false,
+    whatsappMessage: '',
+  });
 
   // Fetch outlet data when component mounts
   useEffect(() => {
@@ -237,13 +249,37 @@ function EditOutlet() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    if (name === 'whatsapp') {
-      // Only allow numbers and limit to 10 digits
+    if (name === 'mobile' || name === 'whatsapp') {
       const numbersOnly = value.replace(/[^0-9]/g, '');
-      setOutletData(prev => ({
-        ...prev,
-        [name]: numbersOnly.slice(0, 10)
-      }));
+      const firstDigit = numbersOnly.charAt(0);
+      
+      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
+        setOutletData(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+        setValidationStates(prev => ({
+          ...prev,
+          [name]: true,
+          [`${name}Message`]: `${name === 'mobile' ? 'Mobile' : 'WhatsApp'} number must start with 6, 7, 8, or 9`
+        }));
+      } else {
+        setOutletData(prev => ({
+          ...prev,
+          [name]: numbersOnly.slice(0, 10)
+        }));
+        
+        // Validate the number
+        const { isValid, message } = name === 'mobile' 
+          ? isMobileValid(numbersOnly.slice(0, 10))
+          : isWhatsappValid(numbersOnly.slice(0, 10));
+          
+        setValidationStates(prev => ({
+          ...prev,
+          [name]: !isValid,
+          [`${name}Message`]: message
+        }));
+      }
     } else {
       setOutletData(prev => ({
         ...prev,
@@ -252,12 +288,46 @@ function EditOutlet() {
     }
   };
 
+  const handleFocus = (fieldName) => {
+    setValidationStates(prev => ({
+      ...prev,
+      [fieldName]: false
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const token = getToken();
       if (!token) {
         throw new Error('No authentication token available');
+      }
+
+      // Validate social media links
+      const socialMediaLinks = {
+        website: outletData.website,
+        facebook: outletData.facebook,
+        instagram: outletData.instagram,
+        google_business_link: outletData.google_business_link,
+        google_review: outletData.google_review
+      };
+
+      const { isValid: isSocialValid, errors: socialErrors } = isValidSocialMediaLinks(socialMediaLinks);
+
+      if (!isSocialValid) {
+        setValidationStates(prev => ({
+          ...prev,
+          website: !!socialErrors.website,
+          facebook: !!socialErrors.facebook,
+          instagram: !!socialErrors.instagram,
+          google_business_link: !!socialErrors.google_business_link,
+          google_review: !!socialErrors.google_review
+        }));
+
+        Object.values(socialErrors).forEach(error => {
+          toastController.error(error);
+        });
+        return;
       }
 
       // Prepare API data with new_owner_ids as array
@@ -520,16 +590,28 @@ function EditOutlet() {
                   required
                 />
 
-                <TextInput
-                  label="Mobile Number"
-                  name="mobile"
-                  type="tel"
-                  value={outletData.mobile}
-                  onChange={handleInputChange}
-                  placeholder="Enter Mobile Number"
-                  required
-                  pattern="[0-9]{10}"
-                />
+                <div className="relative">
+                  <TextInput
+                    label="Mobile Number"
+                    name="mobile"
+                    type="tel"
+                    value={outletData.mobile}
+                    onChange={handleInputChange}
+                    onFocus={() => handleFocus('mobile')}
+                    placeholder="Enter Mobile Number"
+                    required
+                    maxLength={10}
+                    className={`
+                      focus:border-brand-500 focus:ring-brand-500
+                      ${validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                    `}
+                  />
+                  {validationStates.mobile && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {validationStates.mobileMessage}
+                    </p>
+                  )}
+                </div>
 
                 <TextInput
                   label="Email Address"
@@ -623,6 +705,28 @@ function EditOutlet() {
                   ]}
                   placeholder="Select Open/Close Status"
                 />
+
+                <div className="relative">
+                  <TextInput
+                    label="WhatsApp Number"
+                    name="whatsapp"
+                    type="tel"
+                    value={outletData.whatsapp}
+                    onChange={handleInputChange}
+                    onFocus={() => handleFocus('whatsapp')}
+                    placeholder="Enter 10 digit mobile number"
+                    maxLength={10}
+                    className={`
+                      focus:border-brand-500 focus:ring-brand-500
+                      ${validationStates.whatsapp ? 'border-error-500' : 'border-gray-300'}
+                    `}
+                  />
+                  {validationStates.whatsapp && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {validationStates.whatsappMessage}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <Textarea
@@ -739,23 +843,10 @@ function EditOutlet() {
                   value={outletData.website}
                   onChange={handleInputChange}
                   placeholder="https://example.com"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                  WhatsApp Number
-                </label>
-                <input
-                  type="tel"
-                  name="whatsapp"
-                  value={outletData.whatsapp}
-                  onChange={handleInputChange}
-                  placeholder="Enter 10 digit mobile number"
-                  pattern="[0-9]{10}"
-                  maxLength={10}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.website ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
               </div>
 
@@ -769,7 +860,10 @@ function EditOutlet() {
                   value={outletData.facebook}
                   onChange={handleInputChange}
                   placeholder="https://facebook.com/yourpage"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.facebook ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
               </div>
 
@@ -783,7 +877,10 @@ function EditOutlet() {
                   value={outletData.instagram}
                   onChange={handleInputChange}
                   placeholder="https://instagram.com/yourhandle"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.instagram ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
               </div>
 
@@ -797,7 +894,10 @@ function EditOutlet() {
                   value={outletData.google_business_link}
                   onChange={handleInputChange}
                   placeholder="https://business.google.com/yourpage"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.google_business_link ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
               </div>
 
@@ -811,7 +911,10 @@ function EditOutlet() {
                   value={outletData.google_review}
                   onChange={handleInputChange}
                   placeholder="https://g.page/r/yourreviewpage"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.google_review ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
               </div>
             </div>

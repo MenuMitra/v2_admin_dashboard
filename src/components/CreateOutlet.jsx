@@ -17,6 +17,7 @@ import ImageUploader from './common/ImageUploader';
 import Breadcrumb from './Breadcrumb';
 import { toastController } from '../utils/toastController';
 import { API_CONFIG } from '../config/appConfig';
+import { isValidSocialMediaLinks, isMobileValid, isWhatsappValid } from '../utils/validations';
 
 function CreateOutlet() {
   const navigate = useNavigate();
@@ -60,12 +61,20 @@ function CreateOutlet() {
     owner: false,
     name: false,
     mobile: false,
+    mobileMessage: '',
     upi: false,
     outlet_type: false,
     food_type: false,
     outlet_mode: false,
     address: false,
-    fssainumber: false
+    fssainumber: false,
+    website: false,
+    facebook: false,
+    instagram: false,
+    google_business_link: false,
+    google_review: false,
+    whatsapp: false,
+    whatsappMessage: '',
   });
 
   const dropdownRef = useRef(null);
@@ -166,27 +175,35 @@ function CreateOutlet() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    if (name === 'mobile') {
+    if (name === 'mobile' || name === 'whatsapp') {
       const numbersOnly = value.replace(/[^0-9]/g, '');
       const firstDigit = numbersOnly.charAt(0);
       
-      if (firstDigit && ['1','2','3','4','5'].includes(firstDigit)) {
+      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
         setOutletData(prev => ({
           ...prev,
           [name]: ''
         }));
         setValidationStates(prev => ({
           ...prev,
-          mobile: true
+          [name]: true,
+          [`${name}Message`]: `${name === 'mobile' ? 'Mobile' : 'WhatsApp'} number must start with 6, 7, 8, or 9`
         }));
       } else {
         setOutletData(prev => ({
           ...prev,
           [name]: numbersOnly.slice(0, 10)
         }));
+        
+        // Validate the number
+        const { isValid, message } = name === 'mobile' 
+          ? isMobileValid(numbersOnly.slice(0, 10))
+          : isWhatsappValid(numbersOnly.slice(0, 10));
+        
         setValidationStates(prev => ({
           ...prev,
-          mobile: false
+          [name]: !isValid,
+          [`${name}Message`]: message
         }));
       }
     } else if (name === 'fssainumber') {
@@ -213,15 +230,6 @@ function CreateOutlet() {
     return upi && upiRegex.test(upi);
   };
 
-  const isMobileValid = (mobile) => {
-    const mobileRegex = /^[6-9]\d{9}$/;
-    const startsWithInvalidNumber = /^[1-5]/;
-    
-    if (!mobile) return false;
-    if (startsWithInvalidNumber.test(mobile)) return false;
-    return mobileRegex.test(mobile);
-  };
-
   const isAddressValid = (address) => {
     return address && address.length >= 3 && address.length <= 50;
   };
@@ -230,15 +238,34 @@ function CreateOutlet() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate social media links
+    const socialMediaLinks = {
+      website: outletData.website,
+      facebook: outletData.facebook,
+      instagram: outletData.instagram,
+      google_business_link: outletData.google_business_link,
+      google_review: outletData.google_review
+    };
+
+    const { isValid: isSocialValid, errors: socialErrors } = isValidSocialMediaLinks(socialMediaLinks);
+
+    // Update validation states
     setValidationStates({
-        owner: outletData.owner_id.length === 0,
-        name: !isNameValid(outletData.name),
-        mobile: !isMobileValid(outletData.mobile),
-        upi: !isUpiValid(outletData.upi_id),
-        outlet_type: !outletData.outlet_type,
-        food_type: !outletData.veg_nonveg,
-        outlet_mode: !outletData.outlet_mode,
-        address: !isAddressValid(outletData.address),
+      owner: outletData.owner_id.length === 0,
+      name: !isNameValid(outletData.name),
+      mobile: !isMobileValid(outletData.mobile),
+      upi: !isUpiValid(outletData.upi_id),
+      outlet_type: !outletData.outlet_type,
+      food_type: !outletData.veg_nonveg,
+      outlet_mode: !outletData.outlet_mode,
+      address: !isAddressValid(outletData.address),
+      website: !!socialErrors.website,
+      facebook: !!socialErrors.facebook,
+      instagram: !!socialErrors.instagram,
+      google_business_link: !!socialErrors.google_business_link,
+      google_review: !!socialErrors.google_review,
+      whatsapp: !isWhatsappValid(outletData.whatsapp),
+      whatsappMessage: isWhatsappValid(outletData.whatsapp) ? '' : 'WhatsApp number must be 10 digits',
     });
 
     if (outletData.owner_id.length === 0 || 
@@ -248,7 +275,15 @@ function CreateOutlet() {
         !outletData.outlet_type ||
         !outletData.veg_nonveg ||
         !outletData.outlet_mode ||
-        !isAddressValid(outletData.address)) {
+        !isAddressValid(outletData.address) ||
+        !isSocialValid ||
+        !isWhatsappValid(outletData.whatsapp)) {
+        
+        if (!isSocialValid) {
+          Object.values(socialErrors).forEach(error => {
+            toastController.error(error);
+          });
+        }
         return;
     }
     
@@ -624,7 +659,7 @@ function CreateOutlet() {
                   />
                   {validationStates.mobile && (
                     <p className="text-error-500 text-sm mt-1">
-                      Mobile number must start with 6, 7, 8, or 9
+                      {validationStates.mobileMessage}
                     </p>
                   )}
                 </div>
@@ -811,61 +846,132 @@ function CreateOutlet() {
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <TextInput
-                label="Website"
-                name="website"
-                type="url"
-                value={outletData.website}
-                onChange={handleInputChange}
-                placeholder="https://example.com"
-              />
+              <div className="relative">
+                <TextInput
+                  label="Website"
+                  name="website"
+                  type="url"
+                  value={outletData.website}
+                  onChange={handleInputChange}
+                  onFocus={() => handleFocus('website')}
+                  placeholder="https://example.com"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.website ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {validationStates.website && (
+                  <p className="text-error-500 text-sm mt-1">
+                    Please enter a valid website URL starting with http:// or https://
+                  </p>
+                )}
+              </div>
 
-              <TextInput
-                label="WhatsApp Number"
-                name="whatsapp"
-                type="tel"
-                value={outletData.whatsapp}
-                onChange={handleInputChange}
-                placeholder="Enter 10 digit mobile number"
-                pattern="[0-9]{10}"
-                maxLength={10}
-              />
+              <div className="relative">
+                <TextInput
+                  label="WhatsApp Number"
+                  name="whatsapp"
+                  type="tel"
+                  value={outletData.whatsapp}
+                  onChange={handleInputChange}
+                  onFocus={() => handleFocus('whatsapp')}
+                  placeholder="Enter 10 digit mobile number"
+                  maxLength={10}
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.whatsapp ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {validationStates.whatsapp && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.whatsappMessage}
+                  </p>
+                )}
+              </div>
 
-              <TextInput
-                label="Facebook"
-                name="facebook"
-                type="url"
-                value={outletData.facebook}
-                onChange={handleInputChange}
-                placeholder="https://facebook.com/yourpage"
-              />
+              <div className="relative">
+                <TextInput
+                  label="Facebook"
+                  name="facebook"
+                  type="url"
+                  value={outletData.facebook}
+                  onChange={handleInputChange}
+                  onFocus={() => handleFocus('facebook')}
+                  placeholder="https://facebook.com/yourpage"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.facebook ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {validationStates.facebook && (
+                  <p className="text-error-500 text-sm mt-1">
+                    Please enter a valid Facebook URL
+                  </p>
+                )}
+              </div>
 
-              <TextInput
-                label="Instagram"
-                name="instagram"
-                type="url"
-                value={outletData.instagram}
-                onChange={handleInputChange}
-                placeholder="https://instagram.com/yourhandle"
-              />
+              <div className="relative">
+                <TextInput
+                  label="Instagram"
+                  name="instagram"
+                  type="url"
+                  value={outletData.instagram}
+                  onChange={handleInputChange}
+                  onFocus={() => handleFocus('instagram')}
+                  placeholder="https://instagram.com/yourhandle"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.instagram ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {validationStates.instagram && (
+                  <p className="text-error-500 text-sm mt-1">
+                    Please enter a valid Instagram URL
+                  </p>
+                )}
+              </div>
 
-              <TextInput
-                label="Google Business Link"
-                name="google_business_link"
-                type="url"
-                value={outletData.google_business_link}
-                onChange={handleInputChange}
-                placeholder="https://business.google.com/yourpage"
-              />
+              <div className="relative">
+                <TextInput
+                  label="Google Business Link"
+                  name="google_business_link"
+                  type="url"
+                  value={outletData.google_business_link}
+                  onChange={handleInputChange}
+                  onFocus={() => handleFocus('google_business_link')}
+                  placeholder="https://business.google.com/yourpage"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.google_business_link ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {validationStates.google_business_link && (
+                  <p className="text-error-500 text-sm mt-1">
+                    Please enter a valid Google Business URL
+                  </p>
+                )}
+              </div>
 
-              <TextInput
-                label="Google Review Link"
-                name="google_review"
-                type="url"
-                value={outletData.google_review}
-                onChange={handleInputChange}
-                placeholder="https://g.page/r/yourreviewpage"
-              />
+              <div className="relative">
+                <TextInput
+                  label="Google Review Link"
+                  name="google_review"
+                  type="url"
+                  value={outletData.google_review}
+                  onChange={handleInputChange}
+                  onFocus={() => handleFocus('google_review')}
+                  placeholder="https://g.page/r/yourreviewpage"
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.google_review ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {validationStates.google_review && (
+                  <p className="text-error-500 text-sm mt-1">
+                    Please enter a valid Google Review URL
+                  </p>
+                )}
+              </div>
             </div>
           </section>
 
