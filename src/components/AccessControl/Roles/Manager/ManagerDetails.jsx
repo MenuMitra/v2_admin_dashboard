@@ -23,6 +23,7 @@ function ManagerDetails() {
   const [managerData, setManagerData] = useState(null);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [outletName, setOutletName] = useState('');
 
   useEffect(() => {
     fetchManagerDetails();
@@ -46,6 +47,7 @@ function ManagerDetails() {
         }
       );
       setManagerData(response.data.detail);
+      setOutletName(response.data.detail.outlet_name);
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to fetch manager details");
     } finally {
@@ -80,9 +82,11 @@ function ManagerDetails() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Managers", path: "/managers" },
-    { label: "Manager Details" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: "Managers", path: `/managers/${outletId}` },
+    { label: "Manager Details" }
   ];
 
   if (loading) {

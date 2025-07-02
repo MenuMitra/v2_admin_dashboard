@@ -31,6 +31,7 @@ function EditManager() {
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [outletName, setOutletName] = useState('');
 
   const dropdownRef = useRef(null);
 
@@ -118,6 +119,8 @@ function EditManager() {
         functionality_ids: fetchedData.functionalities?.map(f => f.functionality_id) || [],
         role: "manager"
       });
+      
+      setOutletName(fetchedData.outlet_name);
     } catch (err) {
       setError(err.response?.data?.msg || "Failed to fetch manager details");
     }
@@ -160,10 +163,12 @@ function EditManager() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Managers", path: "/managers" },
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: "Managers", path: `/managers/${outletId}` },
     { label: "Manager Details", path: `/manager-details/${outletId}/${userId}` },
-    { label: "Edit Manager" },
+    { label: "Edit Manager" }
   ];
 
   const filteredFunctionalities = availableFunctionalities.filter(func =>
