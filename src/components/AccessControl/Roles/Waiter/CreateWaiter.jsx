@@ -9,6 +9,7 @@ import {
   faChevronLeft as faBack,
 } from "@fortawesome/free-solid-svg-icons";
 import { toastController } from "../../../../utils/toastController";
+import { API_CONFIG } from "../../../../config/appConfig";
 import {
   TextInput,
   DateInput,
@@ -25,6 +26,7 @@ function CreateWaiter() {
   const outletName = location.state?.outletName || 'Outlet';
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
@@ -62,21 +64,22 @@ function CreateWaiter() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error("No authentication token available");
+        toastController.error("No authentication token available");
+        return;
       }
 
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: token,
+            "Content-Type": "application/json"
           },
         }
       );
       setFunctionalities(response.data);
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.detail || "Failed to load functionalities";
+      const errorMsg = err.response?.data?.msg || "Failed to load functionalities";
       setError(errorMsg);
       toastController.error(errorMsg);
     }
@@ -104,19 +107,22 @@ function CreateWaiter() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitAttempted(true);
+    
     if (!isFormValid()) {
       toastController.error("Please fix validation errors before submitting");
       return;
     }
+
+    const token = getToken();
+    if (!token) {
+      toastController.error("No authentication token available");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
       const payload = {
         user_id: adminData.user_id,
         outlet_id: Number(outletId),
@@ -131,24 +137,28 @@ function CreateWaiter() {
       };
 
       await toastController.promise(
-        axios.post("https://men4u.xyz/v2/common/waiter_create", payload, {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }),
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/waiter_create`,
+          payload,
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        ),
         {
           loading: "Creating waiter...",
           success: "Waiter created successfully!",
-          error: (err) =>
-            err.response?.data?.detail || "Failed to create waiter",
+          error: (err) => err.response?.data?.msg || "Failed to create waiter",
         }
       );
 
       navigate(-1);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || "Failed to create waiter";
+      const errorMsg = err.response?.data?.msg || "Failed to create waiter";
       setError(errorMsg);
+      toastController.error(errorMsg);
     } finally {
       setIsLoading(false);
     }
