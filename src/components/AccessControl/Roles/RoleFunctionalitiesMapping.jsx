@@ -6,6 +6,7 @@ import { API_CONFIG } from '../../../config/appConfig';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faChevronLeft as faBack, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../../Breadcrumb';
+import Modal from '../../common/Modal';
 
 function RoleFunctionalitiesMapping() {
   const { roleId } = useParams();
@@ -15,6 +16,10 @@ function RoleFunctionalitiesMapping() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const { BASE_URL, API_VERSION } = API_CONFIG;
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [allFunctionalities, setAllFunctionalities] = useState([]);
+  const [isLoadingFunctionalities, setIsLoadingFunctionalities] = useState(false);
+  const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
@@ -27,6 +32,12 @@ function RoleFunctionalitiesMapping() {
   useEffect(() => {
     fetchRoleFunctionalityMappings();
   }, [roleId]);
+
+  useEffect(() => {
+    if (showEditModal) {
+      setSelectedFunctionalities(mappings.map(m => m.functionality_id));
+    }
+  }, [showEditModal, mappings]);
 
   const fetchRoleFunctionalityMappings = async () => {
     try {
@@ -55,6 +66,32 @@ function RoleFunctionalitiesMapping() {
       console.error('Error fetching mappings:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchAllFunctionalities = async () => {
+    try {
+      setIsLoadingFunctionalities(true);
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      setAllFunctionalities(response.data);
+    } catch (err) {
+      console.error('Error fetching functionalities:', err);
+    } finally {
+      setIsLoadingFunctionalities(false);
     }
   };
 
@@ -100,7 +137,10 @@ function RoleFunctionalitiesMapping() {
             {/* Right Side - Edit */}
             <div className="flex items-center gap-4 order-3">
               <button
-                onClick={() => navigate(`/edit-role/${roleId}`)}
+                onClick={() => {
+                  fetchAllFunctionalities();
+                  setShowEditModal(true);
+                }}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
               >
                 <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
@@ -150,6 +190,102 @@ function RoleFunctionalitiesMapping() {
           )}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <Modal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          title={`Edit Functionalities for ${mappings[0]?.role_name || 'Role'}`}
+          size="large"
+        >
+          <div className="w-full">
+            {isLoadingFunctionalities ? (
+              <div className="flex justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              <>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <span className="text-error-600 text-red-500 mr-1">*</span>
+                    Select Functionalities
+                  </label>
+
+                  <div className="relative">
+
+                    {/* Functionalities List */}
+                    <div className="border rounded-lg" style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 p-4">
+                        {allFunctionalities.map((functionality) => (
+                          <div
+                            key={functionality.functionality_id}
+                            className={`
+                              p-3 cursor-pointer hover:bg-gray-50 border rounded-lg
+                              ${selectedFunctionalities.includes(functionality.functionality_id)
+                                ? 'bg-brand-50 border-brand-500' 
+                                : 'border-gray-200'
+                              }
+                            `}
+                            onClick={() => {
+                              const isSelected = selectedFunctionalities.includes(functionality.functionality_id);
+                              setSelectedFunctionalities(prev => 
+                                isSelected
+                                  ? prev.filter(id => id !== functionality.functionality_id)
+                                  : [...prev, functionality.functionality_id]
+                              );
+                            }}
+                          >
+                            <div className="flex items-center gap-3">
+                              <input
+                                type="checkbox"
+                                checked={selectedFunctionalities.includes(functionality.functionality_id)}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  if (e.target.checked) {
+                                    setSelectedFunctionalities([...selectedFunctionalities, functionality.functionality_id]);
+                                  } else {
+                                    setSelectedFunctionalities(selectedFunctionalities.filter(id => id !== functionality.functionality_id));
+                                  }
+                                }}
+                                className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                              />
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  {functionality.functionality_name.split('_').map(word => 
+                                    word.charAt(0).toUpperCase() + word.slice(1)
+                                  ).join(' ')}
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                  ID: {functionality.functionality_id}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowEditModal(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }
