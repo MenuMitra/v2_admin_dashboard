@@ -373,7 +373,7 @@ function Tickets() {
         }
         darkMode={false}
         createButton={{ show: false }}
-        enableStatusFilter={true}
+        enableStatusFilter={false}
         statusFilter="all"
         onStatusFilterChange={(status) => {
           let filtered = tickets;
