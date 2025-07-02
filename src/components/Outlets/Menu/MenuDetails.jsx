@@ -179,14 +179,21 @@ function MenuDetails() {
                 <div className="ml-3">
                   <div className="text-base font-medium">{menu.name}</div>
                   <div className="text-sm text-gray-500">Menu Name</div>
-                  {menu.is_special && (
-                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium text-yellow-800 bg-yellow-100 rounded-full">
-                      <FontAwesomeIcon icon={faStar} className="w-3 h-3 mr-1" />
-                      Special
-                    </span>
-                  )}
                 </div>
               </div>
+
+              {/* Special Status */}
+              {menu.is_special && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faStar} className="w-5 h-5 text-yellow-500" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium text-yellow-700">Special Menu</div>
+                    <div className="text-sm text-gray-500">Menu Type</div>
+                  </div>
+                </div>
+              )}
 
               {/* Food Type */}
               <div className="flex items-center p-3">
