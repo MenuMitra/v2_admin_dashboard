@@ -171,7 +171,7 @@ function MenuDetails() {
 
             {/* Menu Information Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {/* Menu Name */}
+              {/* Menu Name - Always show */}
               <div className="flex items-center p-3">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
@@ -182,7 +182,52 @@ function MenuDetails() {
                 </div>
               </div>
 
-              {/* Special Status */}
+              {/* Food Type - Always show */}
+              <div className="flex items-center p-3">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon 
+                    icon={
+                      menu.food_type === 'veg' ? faLeaf :
+                      menu.food_type === 'nonveg' ? faDrumstickBite :
+                      menu.food_type === 'vegan' ? faSeedling :
+                      menu.food_type === 'egg' ? faEgg :
+                      faLeaf
+                    } 
+                    className={`w-5 h-5 ${
+                      menu.food_type === 'veg' ? 'text-success-500' :
+                      menu.food_type === 'nonveg' ? 'text-error-500' :
+                      menu.food_type === 'vegan' ? 'text-emerald-500' :
+                      menu.food_type === 'egg' ? 'text-amber-500' :
+                      'text-success-500'
+                    }`} 
+                  />
+                </div>
+                <div className="ml-3">
+                  <div className={`text-base font-medium ${
+                    menu.food_type === 'veg' ? 'text-success-500' :
+                    menu.food_type === 'nonveg' ? 'text-error-500' :
+                    menu.food_type === 'vegan' ? 'text-emerald-500' :
+                    menu.food_type === 'egg' ? 'text-amber-500' :
+                    'text-success-500'
+                  }`}>
+                    {menu.food_type?.toUpperCase()}
+                  </div>
+                  <div className="text-sm text-gray-500">Food Type</div>
+                </div>
+              </div>
+
+              {/* Category - Always show */}
+              <div className="flex items-center p-3">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium">{menu.category_name}</div>
+                  <div className="text-sm text-gray-500">Category</div>
+                </div>
+              </div>
+
+              {/* Special Status - Only if true */}
               {menu.is_special && (
                 <div className="flex items-center p-3">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -195,118 +240,85 @@ function MenuDetails() {
                 </div>
               )}
 
-              {/* Food Type */}
-              <div className="flex items-center p-3">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon 
-                    icon={
-                      menu.food_type === 'veg' ? faLeaf :
-                      menu.food_type === 'nonveg' ? faDrumstickBite :
-                      menu.food_type === 'vegan' ? faSeedling :
-                      menu.food_type === 'egg' ? faEgg :
-                      faLeaf // default to veg icon
-                    } 
-                    className={`w-5 h-5 ${
-                      menu.food_type === 'veg' ? 'text-success-500' :
-                      menu.food_type === 'nonveg' ? 'text-error-500' :
-                      menu.food_type === 'vegan' ? 'text-emerald-500' :
-                      menu.food_type === 'egg' ? 'text-amber-500' :
-                      'text-success-500' // default to veg color
-                    }`} 
-                  />
-                </div>
-                <div className="ml-3">
-                  <div className={`text-base font-medium ${
-                    menu.food_type === 'veg' ? 'text-success-500' :
-                    menu.food_type === 'nonveg' ? 'text-error-500' :
-                    menu.food_type === 'vegan' ? 'text-emerald-500' :
-                    menu.food_type === 'egg' ? 'text-amber-500' :
-                    'text-success-500' // default to veg color
-                  }`}>
-                    {menu.food_type?.toUpperCase()}
+              {/* Spicy Index - Only if > 0 */}
+              {menu.spicy_index > 0 && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faFire} className="w-5 h-5 text-error-500" />
                   </div>
-                  <div className="text-sm text-gray-500">Food Type</div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">Level {menu.spicy_index}</div>
+                    <div className="text-sm text-gray-500">Spicy Index</div>
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Category */}
-              <div className="flex items-center p-3 ">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+              {/* Offer - Only if > 0 */}
+              {menu.offer > 0 && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faPercent} className="w-5 h-5 text-success-500" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">{menu.offer}%</div>
+                    <div className="text-sm text-gray-500">Offer</div>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium">{menu.category_name}</div>
-                  <div className="text-sm text-gray-500">Category</div>
-                </div>
-              </div>
+              )}
 
-              {/* Spicy Index */}
-              <div className="flex items-center p-3 ">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faFire} className="w-5 h-5 text-error-500" />
+              {/* Description - Only if not empty */}
+              {menu.description?.trim() && (
+                <div className="flex items-start p-3 sm:col-span-2">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium break-words">{menu.description}</div>
+                    <div className="text-sm text-gray-500">Description</div>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium">Level {menu.spicy_index}</div>
-                  <div className="text-sm text-gray-500">Spicy Index</div>
-                </div>
-              </div>
+              )}
 
-              {/* Offer */}
-              <div className="flex items-center p-3 ">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faPercent} className="w-5 h-5 text-success-500" />
+              {/* Ingredients - Only if not empty */}
+              {menu.ingredients?.trim() && (
+                <div className="flex items-start p-3 sm:col-span-2">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium break-words">{menu.ingredients}</div>
+                    <div className="text-sm text-gray-500">Ingredients</div>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium">{menu.offer}%</div>
-                  <div className="text-sm text-gray-500">Offer</div>
-                </div>
-              </div>
-
-              {/* Description - Spans 2 columns */}
-              <div className="flex items-start p-3 sm:col-span-2">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
-                </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium break-words">{menu.description}</div>
-                  <div className="text-sm text-gray-500">Description</div>
-                </div>
-              </div>
-
-              {/* Ingredients - Spans 2 columns */}
-              <div className="flex items-start p-3  sm:col-span-2">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
-                </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium break-words">{menu.ingredients}</div>
-                  <div className="text-sm text-gray-500">Ingredients</div>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Portions Section */}
-            <div className="mt-6">
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Portions</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {menu.portions.map((portion, idx) => (
-                  <div key={idx} className="flex items-center p-3">
-                    <div className="w-8 h-8 flex items-center justify-center">
-                      <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
-                    </div>
-                    <div className="ml-3">
-                      <div className="text-base font-medium">{portion.portion_name}</div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-brand-500 font-medium">₹{portion.price}</span>
-                        <span className="text-sm text-gray-500">
-                          {portion.unit_value} {portion.unit_type}
-                        </span>
+            {/* Portions Section - Only show if portions have valid data */}
+            {menu.portions?.some(portion => portion.portion_name || portion.price || portion.unit_value || portion.unit_type) && (
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Portions</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {menu.portions.map((portion, idx) => (
+                    <div key={idx} className="flex items-center p-3">
+                      <div className="w-8 h-8 flex items-center justify-center">
+                        <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div className="ml-3">
+                        <div className="text-base font-medium">{portion.portion_name}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-brand-500 font-medium">₹{portion.price}</span>
+                          {(portion.unit_value || portion.unit_type) && (
+                            <span className="text-sm text-gray-500">
+                              {portion.unit_value} {portion.unit_type}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Status and Meta Info */}
             <div className="mt-6 pt-4 border-t border-gray-200">
