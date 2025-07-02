@@ -13,6 +13,8 @@ import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import ImageUploader from '../../common/ImageUploader';
+import { toastController } from '../../../utils/toastController';
+import { API_CONFIG } from '../../../config/appConfig';
 
 function CreateMenu() {
   const { outletId } = useParams();
@@ -21,6 +23,7 @@ function CreateMenu() {
   const navigate = useNavigate();
   const location = useLocation();
   const outletName = location.state?.outletName || '';
+  const { BASE_URL, API_VERSION } = API_CONFIG;
 
   // Add state for menu categories
   const [categories, setCategories] = useState([]);
@@ -65,7 +68,7 @@ function CreateMenu() {
       try {
         const token = getToken();
         const response = await axios.post(
-          'https://men4u.xyz/v2/common/menu_category_list',
+          `${BASE_URL}/${API_VERSION}/common/menu_category_list`,
           {
             outlet_id: outletId,
             user_id: adminData?.user_id,
@@ -78,12 +81,12 @@ function CreateMenu() {
           }
         );
         
-        // Get categories from the new response format
         const validCategories = response.data.data.menucat_details.filter(
           cat => cat.menu_cat_id !== null
         );
         setCategories(validCategories);
       } catch (err) {
+        toastController.error('Failed to load menu categories');
         setError('Failed to load menu categories');
       }
     };
@@ -99,7 +102,7 @@ function CreateMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          'https://men4u.xyz/v2/common/get_food_type_list',
+          `${BASE_URL}/${API_VERSION}/common/get_food_type_list`,
           {
             headers: {
               Authorization: token
@@ -107,14 +110,14 @@ function CreateMenu() {
           }
         );
         
-        // Convert the food_type_list object to array of options
         const types = Object.entries(response.data.food_type_list).map(([value, label]) => ({
           value,
-          label: label.charAt(0).toUpperCase() + label.slice(1) // Capitalize first letter
+          label: label.charAt(0).toUpperCase() + label.slice(1)
         }));
         
         setFoodTypes(types);
       } catch (err) {
+        toastController.error('Failed to load food types');
         setError('Failed to load food types');
       }
     };
@@ -128,7 +131,7 @@ function CreateMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          'https://men4u.xyz/v2/common/get_spicy_index_list',
+          `${BASE_URL}/${API_VERSION}/common/get_spicy_index_list`,
           {
             headers: {
               Authorization: token
@@ -136,14 +139,14 @@ function CreateMenu() {
           }
         );
         
-        // Convert the spicy_index_list object to array of options
         const indexOptions = Object.entries(response.data.spicy_index_list).map(([value, label]) => ({
           value,
-          label: `Level ${label}` // Adding "Level" prefix for better readability
+          label: `Level ${label}`
         }));
         
         setSpicyIndexOptions(indexOptions);
       } catch (err) {
+        toastController.error('Failed to load spicy index options');
         setError('Failed to load spicy index options');
       }
     };
@@ -173,8 +176,8 @@ function CreateMenu() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate required fields - remove portion_name from validation
     if (!name || !menuCatId || !foodType || !portionData[0].price) {
+      toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
       return;
     }
@@ -209,7 +212,7 @@ function CreateMenu() {
       };
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/menu_create',
+        `${BASE_URL}/${API_VERSION}/common/menu_create`,
         payload,
         {
           headers: {
@@ -219,14 +222,14 @@ function CreateMenu() {
         }
       );
 
+      toastController.success('Menu created successfully');
       setSuccessMsg(response.data.detail || 'Menu created successfully');
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        err.response?.data?.detail ||
-        'Failed to create menu'
-      );
+      console.error('Create error:', err);
+      const errorMessage = err.response?.data?.message || err.response?.data?.detail || 'Failed to create menu';
+      toastController.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -13,8 +13,11 @@ import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import ImageUploader from '../../common/ImageUploader';
+import { toastController } from '../../../utils/toastController';
+import { API_CONFIG } from '../../../config/appConfig';
 
 function EditMenu() {
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const { outletId, menuId } = useParams();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
@@ -68,7 +71,7 @@ function EditMenu() {
     const fetchMenuDetails = async () => {
       try {
         const response = await axios.post(
-          'https://men4u.xyz/v2/common/menu_view',
+          `${BASE_URL}/${API_VERSION}/common/menu_view`,
           {
             menu_id: Number(menuId),
             outlet_id: Number(outletId),
@@ -114,6 +117,7 @@ function EditMenu() {
           flag: idx === 0 ? 1 : 0
         })));
       } catch (err) {
+        toastController.error('Failed to load menu details');
         setError('Failed to load menu details');
       }
     };
@@ -129,7 +133,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.post(
-          'https://men4u.xyz/v2/common/menu_category_list',
+          `${BASE_URL}/${API_VERSION}/common/menu_category_list`,
           {
             outlet_id: outletId,
             user_id: adminData?.user_id,
@@ -147,6 +151,7 @@ function EditMenu() {
         );
         setCategories(validCategories);
       } catch (err) {
+        toastController.error('Failed to load menu categories');
         setError('Failed to load menu categories');
       }
     };
@@ -162,7 +167,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          'https://men4u.xyz/v2/common/get_food_type_list',
+          `${BASE_URL}/${API_VERSION}/common/get_food_type_list`,
           {
             headers: {
               Authorization: token
@@ -177,6 +182,7 @@ function EditMenu() {
         
         setFoodTypes(types);
       } catch (err) {
+        toastController.error('Failed to load food types');
         setError('Failed to load food types');
       }
     };
@@ -190,7 +196,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          'https://men4u.xyz/v2/common/get_spicy_index_list',
+          `${BASE_URL}/${API_VERSION}/common/get_spicy_index_list`,
           {
             headers: {
               Authorization: token
@@ -205,6 +211,7 @@ function EditMenu() {
         
         setSpicyIndexOptions(indexOptions);
       } catch (err) {
+        toastController.error('Failed to load spicy index options');
         setError('Failed to load spicy index options');
       }
     };
@@ -236,7 +243,8 @@ function EditMenu() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!name || !menuCatId || !foodType || !portionData[0].portion_name || !portionData[0].price) {
+    if (!name || !menuCatId || !foodType || !portionData[0].price) {
+      toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
       return;
     }
@@ -280,7 +288,7 @@ function EditMenu() {
       };
 
       const response = await axios.put(
-        'https://men4u.xyz/v2/common/menu_update',
+        `${BASE_URL}/${API_VERSION}/common/menu_update`,
         jsonPayload,
         {
           headers: {
@@ -290,15 +298,14 @@ function EditMenu() {
         }
       );
 
+      toastController.success('Menu updated successfully');
       setSuccessMsg(response.data.detail || 'Menu updated successfully');
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
       console.error('Update error:', err);
-      setError(
-        err.response?.data?.message ||
-        err.response?.data?.detail ||
-        'Failed to update menu'
-      );
+      const errorMessage = err.response?.data?.message || err.response?.data?.detail || 'Failed to update menu';
+      toastController.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -438,7 +445,6 @@ function EditMenu() {
                       placeholder="Portion Name"
                       value={portion.portion_name}
                       onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
-                      required={idx === 0}
                       label={idx === 0 ? "Portion Name" : ""}
                     />
                     <TextInput
