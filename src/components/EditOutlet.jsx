@@ -233,20 +233,6 @@ function EditOutlet() {
     );
   }
 
-  const handleImagesChange = (images) => {
-    if (Array.isArray(images) && images[0]) {
-      setOutletData(prev => ({
-        ...prev,
-        image: images[0]
-      }));
-    } else {
-      setOutletData(prev => ({
-        ...prev,
-        image: null
-      }));
-    }
-  };
-
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -596,10 +582,17 @@ function EditOutlet() {
                 <div className="relative">
                   <ImageUploader
                     maxImages={1}
-                    onImagesChange={handleImagesChange}
-                    existingImages={outletData.image ? [outletData.image] : []}
+                    onImagesChange={(images) => {
+                      const base64String = images[0]?.url || null;
+                      setOutletData(prev => ({
+                        ...prev,
+                        image: base64String
+                      }));
+                    }}
+                    existingImages={outletData.image ? [{ url: outletData.image }] : []}
                     label="Outlet Image"
                     className="w-full"
+                    isOutletImage={true}
                   />
                 </div>
               </div>

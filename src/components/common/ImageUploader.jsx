@@ -10,7 +10,8 @@ const ImageUploader = ({
   onImagesChange,
   className = '',
   label = '',
-  required = false
+  required = false,
+  isOutletImage = false
 }) => {
   const [dragActive, setDragActive] = useState(false);
   
@@ -75,7 +76,13 @@ const ImageUploader = ({
       const newImages = [...images, ...base64Array];
       setImages(newImages);
       setPreviews(newImages);
-      onImagesChange(newImages);
+      
+      // Handle differently for outlet images
+      if (isOutletImage) {
+        onImagesChange(newImages); // Parent component will extract base64 string
+      } else {
+        onImagesChange(newImages); // For other uses, pass the full array
+      }
     } catch (error) {
       console.error('Error processing images:', error);
     }
@@ -107,7 +114,12 @@ const ImageUploader = ({
     const newImages = images.filter((_, i) => i !== index);
     setPreviews(newImages);
     setImages(newImages);
-    onImagesChange(newImages);
+    
+    if (isOutletImage) {
+      onImagesChange(newImages); // Parent component will handle empty array
+    } else {
+      onImagesChange(newImages);
+    }
   };
 
   return (
