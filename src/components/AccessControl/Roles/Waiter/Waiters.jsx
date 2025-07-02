@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
+import { API_CONFIG } from "../../../../config/appConfig";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,6 +18,8 @@ import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
 import Modal from '../../../common/Modal';
 import { toastController } from "../../../../utils/toastController";
+
+const { BASE_URL, API_VERSION } = API_CONFIG;
 
 function Waiters() {
   const { getToken } = useAuth();
@@ -42,7 +45,7 @@ function Waiters() {
   const fetchWaiters = async () => {
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/waiter_listview",
+        `${BASE_URL}/${API_VERSION}/common/waiter_listview`,
         {
           user_id: adminData.user_id,
           outlet_id: Number(outletId),
@@ -65,6 +68,7 @@ function Waiters() {
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching waiters:", error);
+      toastController.error(error.response?.data?.msg || "Failed to fetch waiters");
       setIsLoading(false);
     }
   };
@@ -79,7 +83,7 @@ function Waiters() {
 
   const handleDeleteWaiter = async () => {
     try {
-      await axios.delete("https://men4u.xyz/v2/common/waiter_delete", {
+      await axios.delete(`${BASE_URL}/${API_VERSION}/common/waiter_delete`, {
         data: {
           update_user_id: adminData.user_id,
           outlet_id: outletId,
@@ -92,11 +96,12 @@ function Waiters() {
         },
       });
 
+      toastController.success("Waiter deleted successfully");
       setShowDeleteModal(false);
       setWaiterToDelete(null);
       fetchWaiters();
     } catch (error) {
-      console.error("Error deleting waiter:", error);
+      toastController.error(error.response?.data?.msg || "Failed to delete waiter");
     }
   };
 
@@ -206,7 +211,7 @@ function Waiters() {
 
       const response = await toastController.promise(
         axios.post(
-          "https://men4u.xyz/v2/common/bulk_waiter_action",
+          `${BASE_URL}/${API_VERSION}/common/bulk_waiter_action`,
           {
             user_id: adminData.user_id,
             action: action,
@@ -224,9 +229,7 @@ function Waiters() {
       );
 
       fetchWaiters();
-      
       setSelectedItems([]);
-      
       toastController.success(response.data.detail);
       
     } catch (error) {

@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { TextInput, PasswordInput } from "../forms/FormElements";
+import { API_CONFIG } from "../../config/appConfig";
 import axios from "axios";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { toastController } from "../../utils/toastController";
+
+const { BASE_URL, API_VERSION } = API_CONFIG;
 
 function CreateAdmin() {
   const navigate = useNavigate();
@@ -160,26 +164,34 @@ function CreateAdmin() {
         throw new Error("No authentication token available");
       }
 
-      const response = await axios.post(
-        "https://men4u.xyz/v2/admin/create_admin",
-        adminData,
+      const response = await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/create_admin`,
+          adminData,
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        ),
         {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
+          loading: "Creating admin...",
+          success: "Admin created successfully",
+          error: "Failed to create admin"
         }
       );
 
-      // Check for successful status code (200)
+      // Check for successful status code (201)
       if (response.status === 201) {
-        // Redirect to admins list
         navigate("/admins");
       } else {
         throw new Error("Failed to create admin");
       }
     } catch (err) {
-      setApiError(err.response?.data?.detail || "Failed to create admin");
+      const errorMessage = err.response?.data?.detail || "Failed to create admin";
+      setApiError(errorMessage);
+      toastController.error(errorMessage);
       console.error("Error creating admin:", err);
     } finally {
       setIsSubmitting(false);

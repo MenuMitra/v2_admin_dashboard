@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
+import { API_CONFIG } from "../../../../config/appConfig";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack, faSpinner, faSave } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import { TextInput, DateInput, SelectInput } from "../../../forms/FormElements";
+
+const { BASE_URL, API_VERSION } = API_CONFIG;
 
 function EditWaiter() {
   const { outletId, userId } = useParams();
@@ -54,7 +57,7 @@ function EditWaiter() {
   const fetchFunctionalities = async () => {
     try {
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
+        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: getToken(),
@@ -71,7 +74,7 @@ function EditWaiter() {
   const fetchRoles = async () => {
     try {
       const response = await axios.get(
-        "https://men4u.xyz/v2/common/list_roles",
+        `${BASE_URL}/${API_VERSION}/common/list_roles`,
         {
           headers: {
             Authorization: getToken(),
@@ -94,7 +97,7 @@ function EditWaiter() {
   const fetchWaiterDetails = async () => {
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/waiter_view",
+        `${BASE_URL}/${API_VERSION}/common/waiter_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -132,7 +135,7 @@ function EditWaiter() {
 
     try {
       await axios.patch(
-        "https://men4u.xyz/v2/common/waiter_update",
+        `${BASE_URL}/${API_VERSION}/common/waiter_update`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
+import { API_CONFIG } from "../../config/appConfig";
 import axios from "axios";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,6 +14,9 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../common/Modal";
+import { toastController } from "../../utils/toastController";
+
+const { BASE_URL, API_VERSION } = API_CONFIG;
 
 // Add protected mobiles array to match Admins.jsx
 const PROTECTED_MOBILES = [
@@ -94,7 +98,7 @@ function AdminDetails() {
       }
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/admin/view_admin",
+        `${BASE_URL}/${API_VERSION}/admin/view_admin`,
         { admin_id: parseInt(adminId) },
         {
           headers: {
@@ -106,11 +110,9 @@ function AdminDetails() {
 
       setAdmin(response.data);
     } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-          err.message ||
-          "Failed to fetch admin details"
-      );
+      const errorMessage = err.response?.data?.detail || err.message || "Failed to fetch admin details";
+      setError(errorMessage);
+      toastController.error(errorMessage);
       console.error("Error fetching admin details:", err);
     } finally {
       setIsLoading(false);
@@ -122,7 +124,9 @@ function AdminDetails() {
     try {
       // Check if admin is protected
       if (admin && PROTECTED_MOBILES.includes(admin.mobile)) {
-        setError("Cannot delete protected admin");
+        const errorMsg = "Cannot delete protected admin";
+        setError(errorMsg);
+        toastController.error(errorMsg);
         setShowDeleteModal(false);
         return;
       }
@@ -133,7 +137,7 @@ function AdminDetails() {
       }
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/admin/delete_admin",
+        `${BASE_URL}/${API_VERSION}/admin/delete_admin`,
         {
           admin_id: parseInt(adminId),
           user_id: adminData.user_id,
@@ -147,12 +151,15 @@ function AdminDetails() {
       );
 
       if (response.data.detail === "Admin deleted successfully") {
+        toastController.success("Admin deleted successfully");
         navigate("/admins");
       } else {
         throw new Error("Failed to delete admin");
       }
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to delete admin");
+      const errorMessage = err.response?.data?.detail || "Failed to delete admin";
+      setError(errorMessage);
+      toastController.error(errorMessage);
       console.error("Error deleting admin:", err);
     } finally {
       setShowDeleteModal(false);

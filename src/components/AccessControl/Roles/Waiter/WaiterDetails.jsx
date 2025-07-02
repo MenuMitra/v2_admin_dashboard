@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
+import { API_CONFIG } from "../../../../config/appConfig";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -13,6 +14,8 @@ import {
 import Breadcrumb from "../../../Breadcrumb";
 import Modal from "../../../common/Modal";
 import { toastController } from "../../../../utils/toastController";
+
+const { BASE_URL, API_VERSION } = API_CONFIG;
 
 function WaiterDetails() {
   const { outletId, userId } = useParams();
@@ -33,7 +36,7 @@ function WaiterDetails() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/waiter_view",
+        `${BASE_URL}/${API_VERSION}/common/waiter_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -62,7 +65,7 @@ function WaiterDetails() {
         throw new Error("No authentication token available");
       }
 
-      await axios.delete("https://men4u.xyz/v2/common/waiter_delete", {
+      await axios.delete(`${BASE_URL}/${API_VERSION}/common/waiter_delete`, {
         data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
