@@ -30,11 +30,13 @@ function ManageMenus() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [outletName, setOutletName] = useState('');
 
   // Move breadcrumbItems inside the render since it needs menuData
   const getBreadcrumbItems = () => [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
+    { label: outletName, path: `/view-outlet/${outletId}` },
     { label: 'Menus' },
   ];
 
@@ -67,6 +69,12 @@ function ManageMenus() {
       );
       // Normalize data before setting state
       const menuList = response.data.detail || [];
+      
+      // Set outlet name from the first menu item if available
+      if (menuList.length > 0) {
+        setOutletName(menuList[0].outlet_name);
+      }
+      
       setMenuData(normaliseData(menuList));
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch menu list');
