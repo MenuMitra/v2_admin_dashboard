@@ -148,13 +148,13 @@ function Roles() {
             <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
           </button> */}
           
-          <button
+          {/* <button
             onClick={() => navigate(`/edit-role/${row.role_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
             title="Update Role"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button>
+          </button> */}
         </div>
       )
     }
