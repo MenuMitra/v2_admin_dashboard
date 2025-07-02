@@ -86,6 +86,11 @@ function DataTable({
   ],
   onItemsPerPageChange = () => {},
   emptyStateMessage = "No data found.",
+  emptyStateMessageByStatus = {
+    all: "No data found.",
+    active: "No active items found.",
+    inactive: "No inactive items found."
+  },
   statusField = "is_active",
 }) {
   const [sortField, setSortField] = useState(null);
@@ -712,7 +717,9 @@ function DataTable({
                   colSpan={columns.length + (enableSelection ? 1 : 0)} 
                   className="p-6 text-center text-gray-500"
                 >
-                  {emptyStateMessage}
+                  {statusFilter && emptyStateMessageByStatus 
+                    ? emptyStateMessageByStatus[statusFilter] || emptyStateMessage
+                    : emptyStateMessage}
                 </td>
               </tr>
             )}

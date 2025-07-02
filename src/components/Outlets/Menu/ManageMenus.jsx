@@ -27,13 +27,14 @@ function ManageMenus() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [filteredData, setFilteredData] = useState([]);
 
   // Move breadcrumbItems inside the render since it needs menuData
   const getBreadcrumbItems = () => [
     { label: 'Dashboard', path: '/dashboard' },
     { label: 'Outlets', path: '/outlets' },
-    { label: menuData[0]?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: 'Menus' }
+    { label: 'Menus' },
   ];
 
   // Add this normalization function near the top of ManageMenus component
@@ -80,6 +81,28 @@ function ManageMenus() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminData?.user_id, outletId]);
+
+  // Add this function to handle both search and status filtering
+  const getFilteredData = () => {
+    if (!menuData.length) return [];
+
+    return menuData.filter((item) => {
+      // First apply status filter
+      if (statusFilter !== "all") {
+        const isActive = item.is_active === 1;
+        if (statusFilter === "active" && !isActive) return false;
+        if (statusFilter === "inactive" && isActive) return false;
+      }
+
+      return true;
+    });
+  };
+
+  // Add useEffect for filtering
+  useEffect(() => {
+    const filtered = getFilteredData();
+    setFilteredData(filtered);
+  }, [statusFilter, menuData]);
 
   // Action handlers with correct dynamic routes
   const handleView = (row) => {
@@ -254,14 +277,24 @@ function ManageMenus() {
         <Breadcrumb items={getBreadcrumbItems()} />
       </div>
       <DataTable
-        data={menuData}
+        data={filteredData}
         columns={allColumns}
         title="Menu List"
+        counts={{
+          total: menuData.length,
+          active: menuData.filter((menu) => menu.is_active === 1).length,
+          inactive: menuData.filter((menu) => menu.is_active === 0).length,
+        }}
         enableSort={true}
         enableSearch={true}
         enablePagination={true}
         searchPlaceholder="Search"
-        noDataMessage="No menus found."
+        emptyStateMessage="No menus found."
+        emptyStateMessageByStatus={{
+          all: "No menus found.",
+          active: "No active menus found.",
+          inactive: "No inactive menus found."
+        }}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
         backButtonLabel="Back"
@@ -269,6 +302,18 @@ function ManageMenus() {
         onBulkAction={handleBulkAction}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
+        enableStatusFilter={true}
+        statusFilter={statusFilter}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+        }}
+        statusField="is_active"
+        isItemSelectable={(item) => {
+          if (statusFilter === "all") return true;
+          return statusFilter === "active" ? 
+            item.is_active === 1 : 
+            item.is_active === 0;
+        }}
         createButton={{
           show: true,
           label: (
