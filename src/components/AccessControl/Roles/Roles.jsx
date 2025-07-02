@@ -198,7 +198,7 @@ function Roles() {
         enableSearch={false}
         enableStatusFilter={false}
         showSearch={false}
-        itemsPerPage={10}
+        itemsPerPage={50}
       />
 
       {/* Create Role Modal */}
