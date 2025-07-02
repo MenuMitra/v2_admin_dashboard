@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export const useAuth = () => {
   const navigate = useNavigate();
@@ -8,6 +9,34 @@ export const useAuth = () => {
     const savedAuth = localStorage.getItem('auth');
     return savedAuth ? JSON.parse(savedAuth) : null;
   });
+
+  // Define logout as useCallback to prevent stale closures
+  const logout = useCallback(() => {
+    setAuthData(null);
+    localStorage.removeItem('auth');
+    navigate('/login');
+  }, [navigate]); // Only depends on navigate
+
+  // Move interceptor after logout definition
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          // Check if we're not already on login page to prevent loops
+          if (window.location.pathname !== '/login') {
+            logout();
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    // Cleanup interceptor on unmount
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, [logout]); // Add logout as dependency
 
   // Single source of truth for localStorage management
   useEffect(() => {
@@ -25,11 +54,6 @@ export const useAuth = () => {
       expires_at: response.data.expires_at,
     };
     setAuthData(newAuthData);
-  };
-
-  const logout = () => {
-    setAuthData(null);  // useEffect will handle localStorage cleanup
-    navigate('/login');
   };
 
   const isAuthenticated = () => {
