@@ -108,10 +108,10 @@ function RoleFunctionalitiesMapping() {
       }
 
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/create_ubac_user_functionalities`,
+        `${BASE_URL}/${API_VERSION}/admin/create_ubac_role_functionality_mapping`,
         {
-          functionality_id: selectedFunctionalities,
-          user_id: parseInt(roleId) // Using roleId as user_id
+          functionality_ids: selectedFunctionalities,
+          role_id: parseInt(roleId) // Using roleId as user_id
         },
         {
           headers: {
