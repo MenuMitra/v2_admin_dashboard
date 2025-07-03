@@ -20,6 +20,8 @@ function RoleFunctionalitiesMapping() {
   const [allFunctionalities, setAllFunctionalities] = useState([]);
   const [isLoadingFunctionalities, setIsLoadingFunctionalities] = useState(false);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
@@ -92,6 +94,41 @@ function RoleFunctionalitiesMapping() {
       console.error('Error fetching functionalities:', err);
     } finally {
       setIsLoadingFunctionalities(false);
+    }
+  };
+
+  const handleSaveChanges = async () => {
+    try {
+      setIsSaving(true);
+      setSaveError(null);
+
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      await axios.post(
+        `${BASE_URL}/${API_VERSION}/common/create_ubac_user_functionalities`,
+        {
+          functionality_id: selectedFunctionalities,
+          user_id: parseInt(roleId) // Using roleId as user_id
+        },
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      // Close modal and refresh the mappings
+      setShowEditModal(false);
+      fetchRoleFunctionalityMappings();
+    } catch (err) {
+      setSaveError(err.response?.data?.detail || 'Failed to save functionalities');
+      console.error('Error saving functionalities:', err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -196,7 +233,7 @@ function RoleFunctionalitiesMapping() {
         <Modal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          title={`Edit Functionalities for ${mappings[0]?.role_name || 'Role'}`}
+          title={`Edit Functionalities : ${mappings[0]?.role_name || 'Role'}`}
           size="large"
         >
           <div className="w-full">
@@ -269,16 +306,34 @@ function RoleFunctionalitiesMapping() {
                 </div>
 
                 <div className="flex justify-end gap-3">
+                  {saveError && (
+                    <div className="flex-1 text-sm text-red-500">
+                      {saveError}
+                    </div>
+                  )}
                   <button
                     onClick={() => setShowEditModal(false)}
                     className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                    disabled={isSaving}
                   >
                     Cancel
                   </button>
                   <button
-                    className="px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600"
+                    onClick={handleSaveChanges}
+                    disabled={isSaving}
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Save Changes
+                    {isSaving ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
+                        Save Changes
+                      </>
+                    )}
                   </button>
                 </div>
               </>
