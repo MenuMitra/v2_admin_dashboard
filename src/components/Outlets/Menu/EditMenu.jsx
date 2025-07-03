@@ -329,6 +329,11 @@ function EditMenu() {
     try {
       const token = getToken();
 
+      // Get IDs of images marked for deletion (flag = 0)
+      const deletedImageIds = existingImages
+        .filter(img => img.flag === 0)
+        .map(img => img.id);
+
       // Construct the JSON payload
       const payload = {
         menu_id: Number(menuId),
@@ -351,10 +356,8 @@ function EditMenu() {
         ingredients: ingredients.trim(),
         is_special: isSpecial,
         images: images, // New images as base64
-        existing_image_ids: existingImages.map(img => ({
-          image_id: img.id,
-          flag: img.flag // 0 for delete, 1 for keep
-        })),
+        existing_image_ids: deletedImageIds, // Only IDs of images to be deleted
+        flag: 0, // Flag 0 for deletion
         app_source: 'admin_app'
       };
 
