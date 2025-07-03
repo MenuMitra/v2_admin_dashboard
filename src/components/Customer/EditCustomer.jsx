@@ -31,8 +31,31 @@ function EditCustomer() {
   const [isSaving, setIsSaving] = useState(false);
   const [roles, setRoles] = useState([]);
   const [customerData, setCustomerData] = useState(INITIAL_CUSTOMER_STATE);
+  const [validationStates, setValidationStates] = useState({
+    name: true,
+    mobile: true,
+    mobileMessage: '',
+    role: true
+  });
+  const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
   const { BASE_URL, API_VERSION } = API_CONFIG;
+
+  const isMobileValid = (mobile) => {
+    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
+    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    const firstDigit = numbersOnly.charAt(0);
+    
+    if (['0','1','2','3','4','5'].includes(firstDigit)) {
+      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+    }
+    
+    if (numbersOnly.length !== 10) {
+      return { isValid: false, message: 'Mobile number must be 10 digits' };
+    }
+    
+    return { isValid: true, message: '' };
+  };
 
   const fetchData = async () => {
     try {
@@ -77,38 +100,61 @@ function EditCustomer() {
     }
   }, [customerId]);
 
+  const handleValidation = (field) => (isValid) => {
+    setValidationStates((prev) => ({
+      ...prev,
+      [field]: isValid,
+    }));
+  };
+
+  const isFormValid = () => {
+    return (
+      customerData.name?.trim() && 
+      customerData.mobile?.trim() && 
+      customerData.role?.trim() &&
+      validationStates.name &&
+      validationStates.mobile &&
+      validationStates.role
+    );
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!customerData.role) {
-      toastController.error("Please select a role");
+    setIsSubmitAttempted(true);
+
+    if (!isFormValid()) {
+      toastController.error("Please fill all required fields correctly");
       return;
     }
+
     try {
       setIsSaving(true);
-      const response = await axios.patch(
-        `${BASE_URL}/${API_VERSION}/admin/customer_update`,
+      await toastController.promise(
+        axios.patch(
+          `${BASE_URL}/${API_VERSION}/admin/customer_update`,
+          {
+            user_id: adminData?.user_id,
+            customer_id: Number(customerId),
+            name: customerData.name,
+            mobile: customerData.mobile,
+            role: customerData.role,
+            is_active: customerData.is_active ? 1 : 0,
+            app_source: "admin_app"
+          },
+          {
+            headers: { Authorization: getToken() },
+          }
+        ),
         {
-          user_id: adminData?.user_id,
-          customer_id: Number(customerId),
-          name: customerData.name,
-          mobile: customerData.mobile,
-          role: customerData.role,
-          is_active: customerData.is_active ? 1 : 0,
-          app_source: "admin_app"
-        },
-        {
-          headers: { Authorization: getToken() },
+          loading: "Updating customer...",
+          success: "Customer updated successfully",
+          error: (err) => err.response?.data?.msg || "Failed to update customer"
         }
       );
 
-      if (response.data?.detail) {
-        toastController.success("Customer updated successfully");
-        navigate(-1);
-      }
+      navigate(-1);
     } catch (error) {
-      toastController.error(
-        error.response?.data?.msg || "Failed to update customer"
-      );
+      console.error('Error updating customer:', error);
     } finally {
       setIsSaving(false);
     }
@@ -116,10 +162,50 @@ function EditCustomer() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCustomerData((prev) => ({
-      ...prev,
-      [name]: name === "is_active" ? value === "1" : value,
-    }));
+    
+    if (name === 'mobile') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+      const firstDigit = numbersOnly.charAt(0);
+      
+      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
+        setValidationStates(prev => ({
+          ...prev,
+          mobile: false,
+          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+        }));
+        return;
+      }
+
+      setCustomerData(prev => ({ ...prev, [name]: numbersOnly }));
+      const { isValid, message } = isMobileValid(numbersOnly);
+      setValidationStates(prev => ({
+        ...prev,
+        mobile: isValid,
+        mobileMessage: message
+      }));
+    } 
+    else if (name === 'is_active') {
+      setCustomerData(prev => ({
+        ...prev,
+        [name]: value === "1"
+      }));
+    }
+    else if (name === 'role') {
+      setCustomerData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+      setValidationStates(prev => ({
+        ...prev,
+        role: !!value
+      }));
+    }
+    else {
+      setCustomerData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   if (isLoading) {
@@ -165,8 +251,15 @@ function EditCustomer() {
               <button
                 type="submit"
                 form="editCustomerForm"
-                disabled={isSaving}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-success-500 shadow-theme-xs hover:bg-success-600 disabled:opacity-50"
+                disabled={isSaving || !isFormValid()}
+                className={`
+                  inline-flex items-center gap-2 px-4 py-2 
+                  text-sm font-medium text-white rounded-full
+                  transition shadow-theme-xs
+                  ${isSaving || !isFormValid() 
+                    ? "bg-gray-400 cursor-not-allowed" 
+                    : "bg-success-500 hover:bg-success-600"}
+                `}
               >
                 {isSaving ? (
                   <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin" />
@@ -189,17 +282,32 @@ function EditCustomer() {
               onChange={handleInputChange}
               required
               placeholder="Enter customer name"
+              validationType="name"
+              onValidation={handleValidation("name")}
+              isSubmitAttempted={isSubmitAttempted}
             />
 
-            <TextInput
-              label="Mobile"
-              name="mobile"
-              value={customerData.mobile}
-              onChange={handleInputChange}
-              required
-              placeholder="Enter mobile number"
-              validationType="phone"
-            />
+            <div className="relative">
+              <TextInput
+                label="Mobile"
+                name="mobile"
+                type="tel"
+                value={customerData.mobile}
+                onChange={handleInputChange}
+                required
+                maxLength={10}
+                placeholder="Enter mobile number"
+                className={`
+                  focus:border-brand-500 focus:ring-brand-500
+                  ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                `}
+              />
+              {!validationStates.mobile && (
+                <p className="text-error-500 text-sm mt-1">
+                  {validationStates.mobileMessage}
+                </p>
+              )}
+            </div>
 
             <SelectInput
               label="Role"
