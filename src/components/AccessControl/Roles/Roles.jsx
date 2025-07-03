@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faSearch, faEye, faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
+import { useAdmin } from '../../../hooks/useAdmin';
 import DataTable from '../../common/DataTable';
 import Breadcrumb from '../../Breadcrumb';
 import Modal from '../../common/Modal';
@@ -14,6 +15,7 @@ const { BASE_URL, API_VERSION } = API_CONFIG;
 
 function Roles() {
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const [roles, setRoles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,6 +23,9 @@ function Roles() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newRoleName, setNewRoleName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState(null);
+  const [editRoleName, setEditRoleName] = useState('');
   const navigate = useNavigate();
 
   const breadcrumbItems = [
@@ -110,6 +115,53 @@ function Roles() {
     }
   };
 
+  const handleUpdateRole = async () => {
+    if (!editRoleName.trim() || !editingRole) {
+      toastController.error('Please enter a role name');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      await toastController.promise(
+        axios.put(
+          `${BASE_URL}/${API_VERSION}/admin/update_ubac_role`,
+          {
+            role_id: editingRole.role_id,
+            role_name: editRoleName,
+            user_id: adminData.user_id,
+            app_source: "admin_app"
+          },
+          {
+            headers: {
+              Authorization: token,
+              'Content-Type': 'application/json'
+            }
+          }
+        ),
+        {
+          loading: 'Updating role...',
+          success: 'Role updated successfully!',
+          error: 'Failed to update role'
+        }
+      );
+
+      await fetchRoles();
+      setIsEditModalOpen(false);
+      setEditingRole(null);
+      setEditRoleName('');
+    } catch (err) {
+      console.error('Error updating role:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Define columns for DataTable
   const columns = [
     {
@@ -139,22 +191,18 @@ function Roles() {
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
-{/*           
-          <button
-            onClick={() => navigate(`/add-role-assign-functionalities/${row.role_id}`)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-success-500 hover:bg-success-600 rounded-lg shadow-theme-xs transition"
-            title="Create Role"
-          >
-            <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-          </button> */}
           
-          {/* <button
-            onClick={() => navigate(`/edit-role/${row.role_id}`)}
+          <button
+            onClick={() => {
+              setEditingRole(row);
+              setEditRoleName(row.role_name);
+              setIsEditModalOpen(true);
+            }}
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-            title="Update Role"
+            title="Edit Role"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button> */}
+          </button>
         </div>
       )
     }
@@ -242,6 +290,63 @@ function Roles() {
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
               {isSubmitting ? 'Creating...' : 'Create'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Role Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingRole(null);
+          setEditRoleName('');
+        }}
+        title="Edit Role"
+        type="default"
+        size="small"
+      >
+        <div className="w-full">
+          <div className="mb-6">
+            <label 
+              htmlFor="editRoleName" 
+              className="block text-theme-sm font-medium text-left text-gray-700 mb-2"
+            >
+              Role Name <span className="text-error-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="editRoleName"
+              value={editRoleName}
+              onChange={(e) => setEditRoleName(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-warning-500 focus:border-warning-500 text-gray-900"
+              placeholder="Enter role name"
+            />
+          </div>
+
+          <div className="flex justify-end items-center gap-3">
+            <button
+              onClick={() => {
+                setIsEditModalOpen(false);
+                setEditingRole(null);
+                setEditRoleName('');
+              }}
+              className="px-4 py-2 text-theme-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleUpdateRole}
+              disabled={!editRoleName.trim() || isSubmitting}
+              className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
+                ${!editRoleName.trim() || isSubmitting
+                  ? 'bg-warning-500 cursor-not-allowed'
+                  : 'bg-warning-500 hover:bg-warning-600'
+                }`}
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+              {isSubmitting ? 'Updating...' : 'Update'}
             </button>
           </div>
         </div>
