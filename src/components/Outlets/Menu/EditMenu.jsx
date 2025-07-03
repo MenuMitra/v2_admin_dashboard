@@ -12,7 +12,6 @@ import {
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
-import ImageUploader from '../../common/ImageUploader';
 import { toastController } from '../../../utils/toastController';
 import { API_CONFIG } from '../../../config/appConfig';
 
@@ -39,17 +38,13 @@ function EditMenu() {
   const [portionData, setPortionData] = useState([
     { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
   ]);
-  const [menuImages, setMenuImages] = useState({
-    existing: [],
-    new: []
-  });
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
 
   // Add is_special to state
   const [isSpecial, setIsSpecial] = useState(false);
-  const [existingImageIds, setExistingImageIds] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
 
   // Ref for form submission from Save button
   const formRef = React.useRef();
@@ -65,6 +60,87 @@ function EditMenu() {
 
   // Add new state for outlet name
   const [outletName, setOutletName] = useState('');
+
+  // Update image state structure
+  const [images, setImages] = useState([]);
+  const [previews, setPreviews] = useState([]);
+
+  // Add file input ref
+  const fileInputRef = React.useRef(null);
+
+  // Function to convert file to base64
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // Handle file selection
+  const handleImageSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    const maxImages = 5;
+    
+    if (existingImages.length + images.length + files.length > maxImages) {
+      toastController.warning(`Maximum ${maxImages} images allowed`);
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const validFiles = files.filter(file => allowedTypes.includes(file.type));
+
+    if (validFiles.length === 0) {
+      toastController.error('Please select valid image files (JPEG, PNG, or WebP)');
+      return;
+    }
+
+    try {
+      const base64Array = await Promise.all(
+        validFiles.map(async (file) => {
+          const base64 = await fileToBase64(file);
+          return base64;
+        })
+      );
+
+      setImages(prev => [...prev, ...base64Array]);
+      setPreviews(prev => [...prev, ...base64Array]);
+    } catch (error) {
+      console.error('Error processing images:', error);
+      toastController.error('Error processing images');
+    }
+
+    e.target.value = '';
+  };
+
+  // Remove new image handler
+  const handleRemoveNewImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Remove existing image handler
+  const handleRemoveExistingImage = (imageId) => {
+    setExistingImages(prev => 
+      prev.map(img => 
+        img.id === imageId 
+          ? { ...img, flag: 0 } // Mark for deletion
+          : img
+      )
+    );
+  };
+
+  // Restore existing image handler
+  const handleRestoreExistingImage = (imageId) => {
+    setExistingImages(prev => 
+      prev.map(img => 
+        img.id === imageId 
+          ? { ...img, flag: 1 } // Restore image
+          : img
+      )
+    );
+  };
 
   // Fetch existing menu data
   useEffect(() => {
@@ -95,20 +171,17 @@ function EditMenu() {
         setIngredients(menuData.ingredients);
         setOffer(menuData.offer?.toString() || '');
         setIsSpecial(menuData.is_special || false);
-        setExistingImageIds(menuData.images?.map(img => img.image_id) || []);
 
-        // Format the images from API for ImageUploader
+        // Format existing images
         const formattedExistingImages = menuData.images?.map(img => ({
           id: img.image_id,
           url: img.image,
-          isExisting: true,
-          flag: 1
+          flag: 1 // Initially all images are kept
         })) || [];
 
-        setMenuImages({
-          existing: formattedExistingImages,
-          new: []
-        });
+        setExistingImages(formattedExistingImages);
+        setPreviews([]); // Clear previews for new images
+        setImages([]); // Clear new images array
         setPortionData(menuData.portions.map((p, idx) => ({
           portion_name: p.portion_name,
           price: p.price.toString(),
@@ -256,22 +329,20 @@ function EditMenu() {
     try {
       const token = getToken();
 
-      // Format portion data
-      const validPortionData = portionData.map((portion, index) => ({
-        portion_name: portion.portion_name.trim(),
-        price: parseInt(portion.price, 10),
-        unit_value: portion.unit_value.trim(),
-        unit_type: portion.unit_type.trim(),
-        flag: index === 0 ? 1 : 0
-      }));
-
-      // Create complete JSON payload
-      const jsonPayload = {
+      // Construct the JSON payload
+      const payload = {
         menu_id: Number(menuId),
         outlet_id: Number(outletId),
         user_id: adminData?.user_id,
         name: name.trim(),
-        portion_data: validPortionData,
+        portion_data: portionData.map((portion, index) => ({
+          ...(portion.menu_portion_id && { menu_portion_id: portion.menu_portion_id }),
+          portion_name: portion.portion_name.trim(),
+          price: parseInt(portion.price, 10),
+          unit_value: portion.unit_value.trim(),
+          unit_type: portion.unit_type.trim(),
+          flag: index === 0 ? 1 : 0
+        })),
         food_type: foodType,
         menu_cat_id: Number(menuCatId),
         spicy_index: spicyIndex ? spicyIndex.toString() : null,
@@ -279,17 +350,17 @@ function EditMenu() {
         description: description.trim(),
         ingredients: ingredients.trim(),
         is_special: isSpecial,
-        images: menuImages.new,
-        existing_image_ids: menuImages.existing.map(img => ({
+        images: images, // New images as base64
+        existing_image_ids: existingImages.map(img => ({
           image_id: img.id,
-          flag: img.isExisting ? 1 : 0
+          flag: img.flag // 0 for delete, 1 for keep
         })),
         app_source: 'admin_app'
       };
 
       const response = await axios.put(
         `${BASE_URL}/${API_VERSION}/common/menu_update`,
-        jsonPayload,
+        payload,
         {
           headers: {
             Authorization: token,
@@ -497,38 +568,139 @@ function EditMenu() {
             </div>
 
             {/* Images Section */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Menu Images {menuImages.existing.length + menuImages.new.length < 5 && "(Optional)"}
-                </label>
-
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                  <ImageUploader
-                    maxImages={5}
-                    existingImages={[
-                      ...menuImages.existing,
-                      ...menuImages.new
-                    ]}
-                    onImagesChange={(updatedImages) => {
-                      // Separate existing and new images
-                      const existingImages = updatedImages.filter(img => img.isExisting);
-                      const newImages = updatedImages.filter(img => !img.isExisting);
-
-                      setMenuImages({
-                        existing: existingImages,
-                        new: newImages
-                      });
-                    }}
-                    className="mb-4"
-                    required={false}
-                  />
-
-                  {/* Image Count */}
-                  <div className="text-sm text-gray-500 text-center mt-2">
-                    {menuImages.existing.length + menuImages.new.length} of 5 images used
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                Menu Images
+              </label>
+              
+              {/* Image Upload Area */}
+              <div className="flex items-center justify-center w-full">
+                <label
+                  htmlFor="image-upload"
+                  className={`
+                    flex flex-col items-center justify-center w-full h-64 
+                    border-2 border-dashed rounded-lg cursor-pointer 
+                    border-gray-300 bg-gray-50 hover:bg-gray-100
+                    dark:hover:bg-gray-800 dark:bg-gray-700 
+                    dark:border-gray-600 dark:hover:border-gray-500 
+                    transition-all duration-200
+                    ${(existingImages.filter(img => img.flag === 1).length + images.length) >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
+                  `}
+                  onClick={(e) => {
+                    if ((existingImages.filter(img => img.flag === 1).length + images.length) >= 5) {
+                      e.preventDefault();
+                      toastController.warning('Maximum 5 images allowed');
+                    }
+                  }}
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg 
+                      className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" 
+                      aria-hidden="true" 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      fill="none" 
+                      viewBox="0 0 20 16"
+                    >
+                      <path 
+                        stroke="currentColor" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth="2" 
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                      />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                      {(existingImages.filter(img => img.flag === 1).length + images.length) >= 5 ? (
+                        <span className="font-semibold text-error-500">Maximum limit reached</span>
+                      ) : (
+                        <>
+                          <span className="font-semibold">Click to upload</span> or drag and drop
+                        </>
+                      )}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      PNG, JPG, WebP ({existingImages.filter(img => img.flag === 1).length + images.length} of 5 images)
+                    </p>
                   </div>
-                </div>
+                </label>
+                <input
+                  ref={fileInputRef}
+                  id="image-upload"
+                  type="file"
+                  className="hidden"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageSelect}
+                  disabled={(existingImages.filter(img => img.flag === 1).length + images.length) >= 5}
+                />
+              </div>
+
+              {/* Image Previews */}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {/* Existing Images */}
+                {existingImages.map((img) => (
+                  <div 
+                    key={img.id}
+                    className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden"
+                    style={{
+                      width: '100px',
+                      aspectRatio: '1/1',
+                      opacity: img.flag === 0 ? 0.5 : 1
+                    }}
+                  >
+                    <img
+                      src={img.url}
+                      alt="Menu item"
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                      <button
+                        type="button"
+                        onClick={() => img.flag === 1 ? handleRemoveExistingImage(img.id) : handleRestoreExistingImage(img.id)}
+                        className={`w-8 h-8 flex items-center justify-center rounded-full 
+                          ${img.flag === 1 ? 'bg-error-500 hover:bg-error-600' : 'bg-success-500 hover:bg-success-600'}
+                          transition-colors duration-200`}
+                      >
+                        <FontAwesomeIcon 
+                          icon={img.flag === 1 ? faTimes : faPlus}
+                          className="w-4 h-4 text-white"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                {/* New Images */}
+                {previews.map((preview, index) => (
+                  <div 
+                    key={`new-${index}`}
+                    className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden"
+                    style={{
+                      width: '100px',
+                      aspectRatio: '1/1',
+                    }}
+                  >
+                    <img
+                      src={preview}
+                      alt={`New preview ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveNewImage(index)}
+                        className="w-8 h-8 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 transition-colors duration-200"
+                      >
+                        <FontAwesomeIcon 
+                          icon={faTimes} 
+                          className="w-4 h-4 text-white"
+                        />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
