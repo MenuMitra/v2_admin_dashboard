@@ -27,7 +27,6 @@ function CreateManager() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [managerData, setManagerData] = useState({
@@ -43,7 +42,9 @@ function CreateManager() {
     name: true,
     email: true,
     mobile: true,
+    mobileMessage: '',
     aadhar_number: true,
+    aadharMessage: ''
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -64,7 +65,6 @@ function CreateManager() {
     try {
       const token = getToken();
       if (!token) {
-        toastController.error("Authentication token not found");
         throw new Error("No authentication token available");
       }
 
@@ -78,29 +78,91 @@ function CreateManager() {
       );
       setFunctionalities(response.data);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || "Failed to load functionalities";
-      setError(errorMsg);
+      const errorMsg = err.response?.data?.detail || err.response?.data?.msg || "Failed to load functionalities";
       toastController.error(errorMsg);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setManagerData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const isMobileValid = (mobile) => {
+    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
+    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    const firstDigit = numbersOnly.charAt(0);
+    
+    if (['0','1','2','3','4','5'].includes(firstDigit)) {
+      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+    }
+    
+    if (numbersOnly.length !== 10) {
+      return { isValid: false, message: 'Mobile number must be 10 digits' };
+    }
+    
+    return { isValid: true, message: '' };
   };
 
-  const handleValidation = (field) => (isValid) => {
-    setValidationStates((prev) => ({
-      ...prev,
-      [field]: isValid,
-    }));
+  const isAadharValid = (aadhar) => {
+    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (numbersOnly.length !== 12) {
+      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+    }
+    return { isValid: true, message: '' };
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === 'mobile') {
+      const numbersOnly = value.replace(/[^0-9]/g, '');
+      // Check first digit - only allow if it's empty or starts with valid digit
+      if (numbersOnly.length > 0) {
+        const firstDigit = numbersOnly.charAt(0);
+        if (['0','1','2','3','4','5'].includes(firstDigit)) {
+          setValidationStates(prev => ({
+            ...prev,
+            mobile: false,
+            mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+          }));
+          return; // Don't update the value if first digit is invalid
+        }
+      }
+      
+      const trimmedNumber = numbersOnly.slice(0, 10);
+      const { isValid, message } = isMobileValid(trimmedNumber);
+      setValidationStates(prev => ({
+        ...prev,
+        mobile: isValid,
+        mobileMessage: message
+      }));
+      setManagerData(prev => ({ ...prev, mobile: trimmedNumber }));
+    } 
+    else if (name === 'aadhar_number') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+      const { isValid, message } = isAadharValid(numbersOnly);
+      setValidationStates(prev => ({
+        ...prev,
+        aadhar_number: isValid,
+        aadharMessage: message
+      }));
+      setManagerData(prev => ({ ...prev, aadhar_number: numbersOnly }));
+    }
+    else {
+      setManagerData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const isFormValid = () => {
-    return Object.values(validationStates).every((state) => state);
+    return (
+      managerData.name?.trim() && 
+      managerData.mobile?.trim() && 
+      managerData.aadhar_number?.trim() &&
+      validationStates.name &&
+      validationStates.mobile &&
+      validationStates.aadhar_number &&
+      validationStates.email
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -108,17 +170,15 @@ function CreateManager() {
     setIsSubmitAttempted(true);
     
     if (!isFormValid()) {
-      toastController.error("Please fix validation errors before submitting");
+      toastController.error("Please fill all required fields correctly");
       return;
     }
 
     setIsLoading(true);
-    setError(null);
 
     try {
       const token = getToken();
       if (!token) {
-        toastController.error("Authentication token not found");
         throw new Error("No authentication token available");
       }
 
@@ -149,16 +209,12 @@ function CreateManager() {
         {
           loading: "Creating manager...",
           success: "Manager created successfully!",
-          error: (err) => err.response?.data?.detail || "Failed to create manager",
+          error: (err) => err.response?.data?.detail || err.response?.data?.msg || "An error occurred while creating manager"
         }
       );
 
       navigate(-1);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || "Failed to create manager";
-      setError(errorMsg);
-      toastController.error(errorMsg);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -193,13 +249,14 @@ function CreateManager() {
 
             <button
               onClick={handleSubmit}
-              disabled={isLoading}
+              disabled={isLoading || !isFormValid()}
               className={`
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
                 transition shadow-sm
-                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
+                ${isLoading || !isFormValid() 
+                  ? "bg-gray-400 cursor-not-allowed" 
+                  : "bg-success-500 hover:bg-success-600"}
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -220,22 +277,31 @@ function CreateManager() {
                 placeholder="Enter full name"
                 required
                 validationType="name"
-                onValidation={handleValidation("name")}
+                onValidation={() => {}}
                 isSubmitAttempted={isSubmitAttempted}
               />
 
-              <TextInput
-                label="Mobile Number"
-                name="mobile"
-                type="tel"
-                value={managerData.mobile}
-                onChange={handleChange}
-                placeholder="Enter mobile number"
-                required
-                validationType="mobile"
-                onValidation={handleValidation("mobile")}
-                isSubmitAttempted={isSubmitAttempted}
-              />
+              <div className="relative">
+                <TextInput
+                  label="Mobile Number"
+                  name="mobile"
+                  type="tel"
+                  value={managerData.mobile}
+                  onChange={handleChange}
+                  placeholder="Enter mobile number"
+                  required={false}
+                  maxLength={10}
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {!validationStates.mobile && validationStates.mobileMessage && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.mobileMessage}
+                  </p>
+                )}
+              </div>
 
               <TextInput
                 label="Email Address"
@@ -245,7 +311,7 @@ function CreateManager() {
                 onChange={handleChange}
                 placeholder="Enter email address"
                 validationType="email"
-                onValidation={handleValidation("email")}
+                onValidation={() => {}}
               />
 
               <DateInput
@@ -256,17 +322,26 @@ function CreateManager() {
                 placeholder="Select date of birth"
               />
 
-              <TextInput
-                label="Aadhar Number"
-                name="aadhar_number"
-                value={managerData.aadhar_number}
-                onChange={handleChange}
-                placeholder="Enter 12-digit Aadhar number"
-                required
-                validationType="aadhar"
-                onValidation={handleValidation("aadhar_number")}
-                isSubmitAttempted={isSubmitAttempted}
-              />
+              <div className="relative">
+                <TextInput
+                  label="Aadhar Number"
+                  name="aadhar_number"
+                  value={managerData.aadhar_number}
+                  onChange={handleChange}
+                  placeholder="Enter 12-digit Aadhar number"
+                  required={false}
+                  maxLength={12}
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {!validationStates.aadhar_number && validationStates.aadharMessage && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.aadharMessage}
+                  </p>
+                )}
+              </div>
             </div>
 
             <Textarea
