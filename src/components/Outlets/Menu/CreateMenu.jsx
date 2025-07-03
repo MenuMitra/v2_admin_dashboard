@@ -11,8 +11,7 @@ import {
 } from '../../forms/FormElements';
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faChevronLeft as faBack, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import ImageUploader from '../../common/ImageUploader';
+import { faSave, faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { toastController } from '../../../utils/toastController';
 import { API_CONFIG } from '../../../config/appConfig';
 
@@ -40,6 +39,7 @@ function CreateMenu() {
     { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
   ]);
   const [images, setImages] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
@@ -61,6 +61,62 @@ function CreateMenu() {
     { value: 'ltr', label: 'Liter (ltr)' },
     { value: 'pcs', label: 'Pieces (pcs)' }
   ];
+
+  // Add file input ref
+  const fileInputRef = React.useRef(null);
+
+  // Function to convert file to base64
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // Handle file selection
+  const handleImageSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    const maxImages = 5;
+    
+    if (images.length + files.length > maxImages) {
+      toastController.warning(`Maximum ${maxImages} images allowed`);
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    const validFiles = files.filter(file => allowedTypes.includes(file.type));
+
+    if (validFiles.length === 0) {
+      toastController.error('Please select valid image files (JPEG, PNG, or WebP)');
+      return;
+    }
+
+    try {
+      const base64Array = await Promise.all(
+        validFiles.map(async (file) => {
+          const base64 = await fileToBase64(file);
+          return base64;
+        })
+      );
+
+      setImages(prev => [...prev, ...base64Array]);
+      setPreviews(prev => [...prev, ...base64Array]);
+    } catch (error) {
+      console.error('Error processing images:', error);
+      toastController.error('Error processing images');
+    }
+
+    // Clear input value to allow selecting same file again
+    e.target.value = '';
+  };
+
+  // Remove image handler
+  const handleRemoveImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   // Update useEffect to remove default category selection
   useEffect(() => {
@@ -417,14 +473,110 @@ function CreateMenu() {
               </button>
             </div>
             {/* Images */}
-            <ImageUploader
-              maxImages={5}
-              existingImages={[]}
-              onImagesChange={setImages}
-              className="mb-4"
-              label="Menu Images"
-              required={false}
-            />
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                Menu Images
+              </label>
+              
+              {/* Image Upload Area */}
+              <div className="flex items-center justify-center w-full">
+                <label
+                  htmlFor="image-upload"
+                  className={`
+                    flex flex-col items-center justify-center w-full h-64 
+                    border-2 border-dashed rounded-lg cursor-pointer 
+                    border-gray-300 bg-gray-50 hover:bg-gray-100
+                    dark:hover:bg-gray-800 dark:bg-gray-700 
+                    dark:border-gray-600 dark:hover:border-gray-500 
+                    transition-all duration-200
+                    ${images.length >= 5 ? 'opacity-50 cursor-not-allowed' : ''}
+                  `}
+                  onClick={(e) => {
+                    if (images.length >= 5) {
+                      e.preventDefault();
+                      toastController.warning('Maximum 5 images allowed');
+                    }
+                  }}
+                >
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <svg 
+                      className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" 
+                      aria-hidden="true" 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      fill="none" 
+                      viewBox="0 0 20 16"
+                    >
+                      <path 
+                        stroke="currentColor" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        strokeWidth="2" 
+                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                      />
+                    </svg>
+                    <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                      {images.length >= 5 ? (
+                        <span className="font-semibold text-error-500">Maximum limit reached</span>
+                      ) : (
+                        <>
+                          <span className="font-semibold">Click to upload</span> or drag and drop
+                        </>
+                      )}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      PNG, JPG, WebP ({images.length} of 5 images)
+                    </p>
+                  </div>
+                </label>
+                <input
+                  ref={fileInputRef}
+                  id="image-upload"
+                  type="file"
+                  className="hidden"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageSelect}
+                  disabled={images.length >= 5}
+                />
+              </div>
+
+              {/* Image Previews */}
+              {previews.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {previews.map((preview, index) => (
+                    <div 
+                      key={index}
+                      className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden"
+                      style={{
+                        width: '100px',
+                        aspectRatio: '1/1',
+                      }}
+                    >
+                      {/* Image */}
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                      
+                      {/* Delete Button Overlay */}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(index)}
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 transition-colors duration-200"
+                        >
+                          <FontAwesomeIcon 
+                            icon={faTimes} 
+                            className="w-4 h-4 text-white"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             {error && <div className="text-error-500 text-center">{error}</div>}
             {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
             <button
