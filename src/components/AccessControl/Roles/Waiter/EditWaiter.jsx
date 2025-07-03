@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack, faSpinner, faSave } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import { TextInput, DateInput, SelectInput } from "../../../forms/FormElements";
+import { toastController } from "../../../../utils/toastController";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -22,6 +23,14 @@ function EditWaiter() {
   const [error, setError] = useState(null);
   const [availableFunctionalities, setAvailableFunctionalities] = useState([]);
   const [roles, setRoles] = useState([]);
+  const [validationStates, setValidationStates] = useState({
+    name: true,
+    email: true,
+    mobile: true,
+    mobileMessage: '',
+    aadhar_number: true,
+    aadharMessage: ''
+  });
   const [waiterData, setWaiterData] = useState({
     name: "",
     mobile: "",
@@ -54,6 +63,31 @@ function EditWaiter() {
     };
   }, [isDropdownOpen]);
 
+  const isMobileValid = (mobile) => {
+    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
+    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    const firstDigit = numbersOnly.charAt(0);
+    
+    if (['0','1','2','3','4','5'].includes(firstDigit)) {
+      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+    }
+    
+    if (numbersOnly.length !== 10) {
+      return { isValid: false, message: 'Mobile number must be 10 digits' };
+    }
+    
+    return { isValid: true, message: '' };
+  };
+
+  const isAadharValid = (aadhar) => {
+    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (numbersOnly.length !== 12) {
+      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+    }
+    return { isValid: true, message: '' };
+  };
+
   const fetchFunctionalities = async () => {
     try {
       const response = await axios.get(
@@ -66,8 +100,8 @@ function EditWaiter() {
       );
       setAvailableFunctionalities(response.data);
     } catch (err) {
-      console.error("Failed to fetch functionalities:", err);
-      setError("Failed to load functionalities");
+      const errorMsg = err.response?.data?.detail || err.response?.data?.msg || "Failed to load functionalities";
+      toastController.error(errorMsg);
     }
   };
 
@@ -83,8 +117,8 @@ function EditWaiter() {
       );
       setRoles(response.data);
     } catch (err) {
-      console.error("Failed to fetch roles:", err);
-      setError("Failed to load roles");
+      const errorMsg = err.response?.data?.detail || err.response?.data?.msg || "Failed to load roles";
+      toastController.error(errorMsg);
     }
   };
 
@@ -124,44 +158,105 @@ function EditWaiter() {
       });
       setOutletName(fetchedData.outlet_name);
     } catch (err) {
-      setError(err.response?.data?.msg || "Failed to fetch waiter details");
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setError(null);
-
-    try {
-      await axios.patch(
-        `${BASE_URL}/${API_VERSION}/common/waiter_update`,
-        {
-          update_user_id: adminData?.user_id,
-          user_id: Number(userId),
-          outlet_id: Number(outletId),
-          ...waiterData,
-          app_source: "admin_app"
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-        }
-      );
-      navigate(`/waiter-details/${outletId}/${userId}`);
-    } catch (err) {
-      setError(err.response?.data?.msg || "Failed to update waiter");
-      setSubmitting(false);
+      const errorMsg = err.response?.data?.detail || err.response?.data?.msg || "Failed to fetch waiter details";
+      toastController.error(errorMsg);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setWaiterData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'mobile') {
+      const numbersOnly = value.replace(/[^0-9]/g, '');
+      // Check first digit - only allow if it's empty or starts with valid digit
+      if (numbersOnly.length > 0) {
+        const firstDigit = numbersOnly.charAt(0);
+        if (['0','1','2','3','4','5'].includes(firstDigit)) {
+          setValidationStates(prev => ({
+            ...prev,
+            mobile: false,
+            mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+          }));
+          return; // Don't update the value if first digit is invalid
+        }
+      }
+      
+      const trimmedNumber = numbersOnly.slice(0, 10);
+      const { isValid, message } = isMobileValid(trimmedNumber);
+      setValidationStates(prev => ({
+        ...prev,
+        mobile: isValid,
+        mobileMessage: message
+      }));
+      setWaiterData(prev => ({ ...prev, mobile: trimmedNumber }));
+    } 
+    else if (name === 'aadhar_number') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+      const { isValid, message } = isAadharValid(numbersOnly);
+      setValidationStates(prev => ({
+        ...prev,
+        aadhar_number: isValid,
+        aadharMessage: message
+      }));
+      setWaiterData(prev => ({ ...prev, aadhar_number: numbersOnly }));
+    }
+    else {
+      setWaiterData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const isFormValid = () => {
+    return (
+      waiterData.name?.trim() && 
+      waiterData.mobile?.trim() && 
+      waiterData.aadhar_number?.trim() &&
+      validationStates.name &&
+      validationStates.mobile &&
+      validationStates.aadhar_number &&
+      validationStates.email
+    );
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!isFormValid()) {
+      toastController.error("Please fill all required fields correctly");
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await toastController.promise(
+        axios.patch(
+          `${BASE_URL}/${API_VERSION}/common/waiter_update`,
+          {
+            update_user_id: adminData?.user_id,
+            user_id: Number(userId),
+            outlet_id: Number(outletId),
+            ...waiterData,
+            app_source: "admin_app"
+          },
+          {
+            headers: {
+              Authorization: getToken(),
+            },
+          }
+        ),
+        {
+          loading: "Updating waiter details...",
+          success: "Waiter updated successfully",
+          error: (err) => err.response?.data?.detail || err.response?.data?.msg || "An error occurred while updating waiter"
+        }
+      );
+      navigate(`/waiter-details/${outletId}/${userId}`);
+    } catch (err) {
+      setSubmitting(false);
+    }
   };
 
   const breadcrumbItems = [
@@ -212,13 +307,14 @@ function EditWaiter() {
             {/* Save Button */}
             <button
               onClick={handleSubmit}
-              disabled={submitting}
+              disabled={submitting || !isFormValid()}
               className={`
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
-                bg-brand-500 hover:bg-brand-600 
                 transition shadow-sm
-                ${submitting ? 'opacity-50 cursor-not-allowed' : ''}
+                ${submitting || !isFormValid() 
+                  ? "bg-gray-400 cursor-not-allowed" 
+                  : "bg-success-500 hover:bg-success-600"}
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
@@ -240,16 +336,29 @@ function EditWaiter() {
               value={waiterData.name}
               onChange={handleInputChange}
               required
+              validationType="name"
             />
 
-            <TextInput
-              label="Mobile"
-              name="mobile"
-              value={waiterData.mobile}
-              onChange={handleInputChange}
-              required
-              pattern="[0-9]{10}"
-            />
+            <div className="relative">
+              <TextInput
+                label="Mobile"
+                name="mobile"
+                type="tel"
+                value={waiterData.mobile}
+                onChange={handleInputChange}
+                required={false}
+                maxLength={10}
+                className={`
+                  focus:border-brand-500 focus:ring-brand-500
+                  ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                `}
+              />
+              {!validationStates.mobile && validationStates.mobileMessage && (
+                <p className="text-error-500 text-sm mt-1">
+                  {validationStates.mobileMessage}
+                </p>
+              )}
+            </div>
 
             <TextInput
               label="Email"
@@ -257,6 +366,7 @@ function EditWaiter() {
               type="email"
               value={waiterData.email}
               onChange={handleInputChange}
+              validationType="email"
             />
 
             <TextInput
@@ -266,14 +376,25 @@ function EditWaiter() {
               onChange={handleInputChange}
             />
 
-            <TextInput
-              label="Aadhar Number"
-              name="aadhar_number"
-              value={waiterData.aadhar_number}
-              onChange={handleInputChange}
-              pattern="[0-9]{12}"
-              required
-            />
+            <div className="relative">
+              <TextInput
+                label="Aadhar Number"
+                name="aadhar_number"
+                value={waiterData.aadhar_number}
+                onChange={handleInputChange}
+                required={false}
+                maxLength={12}
+                className={`
+                  focus:border-brand-500 focus:ring-brand-500
+                  ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                `}
+              />
+              {!validationStates.aadhar_number && validationStates.aadharMessage && (
+                <p className="text-error-500 text-sm mt-1">
+                  {validationStates.aadharMessage}
+                </p>
+              )}
+            </div>
 
             <DateInput
               label="Date of Birth"
