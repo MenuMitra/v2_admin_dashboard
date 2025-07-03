@@ -263,14 +263,14 @@ function EditOutlet() {
       }
 
       setOutletData(prev => ({ ...prev, [name]: numbersOnly }));
-      setValidationStates(prev => ({
-        ...prev,
+        setValidationStates(prev => ({
+          ...prev,
         [name]: numbersOnly.length !== 10,
         [`${name}Message`]: numbersOnly.length !== 10 ? 'Must be 10 digits' : ''
-      }));
+        }));
     } else if (['website', 'facebook', 'instagram', 'google_business_link', 'google_review'].includes(name)) {
       setOutletData(prev => ({ ...prev, [name]: value }));
-      
+
       if (value) {
         const { isValid, errors } = isValidSocialMediaLinks({ [name]: value });
         setValidationStates(prev => ({ ...prev, [name]: !isValid }));

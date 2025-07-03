@@ -37,6 +37,14 @@ function EditOwner() {
     is_active: 0,
     functionality_ids: []
   });
+  const [validationStates, setValidationStates] = useState({
+    name: true,
+    email: true,
+    mobile: true,
+    mobileMessage: '',
+    aadhar_number: true,
+    aadharMessage: ''
+  });
 
   const breadcrumbItems = [
     { label: "Dashboard", path: "/dashboard" },
@@ -120,12 +128,76 @@ function EditOwner() {
     }
   };
 
+  const isMobileValid = (mobile) => {
+    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
+    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    const firstDigit = numbersOnly.charAt(0);
+    
+    if (['0','1','2','3','4','5'].includes(firstDigit)) {
+      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+    }
+    
+    if (numbersOnly.length !== 10) {
+      return { isValid: false, message: 'Mobile number must be 10 digits' };
+    }
+    
+    return { isValid: true, message: '' };
+  };
+
+  const isAadharValid = (aadhar) => {
+    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (numbersOnly.length !== 12) {
+      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+    }
+    return { isValid: true, message: '' };
+  };
+
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    setOwnerData(prev => ({
-      ...prev,
-      [name]: name === 'is_active' ? Number(value) : value
-    }));
+    
+    if (name === 'mobile') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+      const { isValid, message } = isMobileValid(numbersOnly);
+      setValidationStates(prev => ({
+        ...prev,
+        mobile: isValid,
+        mobileMessage: message
+      }));
+      setOwnerData(prev => ({ ...prev, mobile: numbersOnly }));
+    } 
+    else if (name === 'aadhar_number') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+      const { isValid, message } = isAadharValid(numbersOnly);
+      setValidationStates(prev => ({
+        ...prev,
+        aadhar_number: isValid,
+        aadharMessage: message
+      }));
+      setOwnerData(prev => ({ ...prev, aadhar_number: numbersOnly }));
+    }
+    else {
+      setOwnerData(prev => ({
+        ...prev,
+        [name]: name === 'is_active' ? Number(value) : value
+      }));
+    }
+  };
+
+  const isFormValid = () => {
+    // Check if all required fields are filled and valid
+    return (
+      ownerData.name?.trim() && 
+      ownerData.mobile?.trim() && 
+      ownerData.aadhar_number?.trim() &&
+      ownerData.email?.trim() &&
+      ownerData.account_type &&
+      ownerData.functionality_ids.length > 0 &&
+      validationStates.name &&
+      validationStates.mobile &&
+      validationStates.aadhar_number &&
+      validationStates.email
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -206,13 +278,14 @@ function EditOwner() {
             {/* Save Button */}
             <button
               onClick={handleSubmit}
-              disabled={isLoading}
+              disabled={isLoading || !isFormValid()}
               className={`
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
                 transition shadow-sm
-                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                ${isLoading || !isFormValid() 
+                  ? "bg-gray-400 cursor-not-allowed" 
+                  : "bg-success-500 hover:bg-success-600"}
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
@@ -235,16 +308,27 @@ function EditOwner() {
                 required
               />
 
-              <TextInput
-                label="Mobile Number"
-                name="mobile"
-                type="tel"
-                value={ownerData.mobile}
-                onChange={handleChange}
-                placeholder="Enter mobile number"
-                required
-                pattern="[0-9]{10}"
-              />
+              <div className="relative">
+                <TextInput
+                  label="Mobile Number"
+                  name="mobile"
+                  type="tel"
+                  value={ownerData.mobile}
+                  onChange={handleChange}
+                  placeholder="Enter mobile number"
+                  required
+                  maxLength={10}
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {!validationStates.mobile && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.mobileMessage}
+                  </p>
+                )}
+              </div>
 
               <TextInput
                 label="Email Address"
@@ -265,16 +349,26 @@ function EditOwner() {
                 placeholder="Select date of birth"
               />
 
-              <TextInput
-                label="Aadhar Number"
-                name="aadhar_number"
-                value={ownerData.aadhar_number}
-                onChange={handleChange}
-                placeholder="Enter 12-digit Aadhar number"
-                required
-                pattern="[0-9]{12}"
-                maxLength="12"
-              />
+              <div className="relative">
+                <TextInput
+                  label="Aadhar Number"
+                  name="aadhar_number"
+                  value={ownerData.aadhar_number}
+                  onChange={handleChange}
+                  placeholder="Enter 12-digit Aadhar number"
+                  required
+                  maxLength={12}
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                  `}
+                />
+                {!validationStates.aadhar_number && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.aadharMessage}
+                  </p>
+                )}
+              </div>
 
               {/* Owner Status - Added to the grid */}
               <SelectInput
