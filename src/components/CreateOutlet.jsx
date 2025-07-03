@@ -79,6 +79,13 @@ function CreateOutlet() {
 
   const dropdownRef = useRef(null);
 
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  const [apiErrors, setApiErrors] = useState({
+    mobile: '',
+    // Add other fields that might have API errors
+  });
+
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/' },
     { label: 'Outlets', path: '/outlets' },
@@ -105,6 +112,121 @@ function CreateOutlet() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isDropdownOpen]);
+
+  useEffect(() => {
+    checkFormValidity();
+  }, [
+    outletData.name,
+    outletData.mobile,
+    outletData.owner_id,
+    outletData.upi_id,
+    outletData.outlet_type,
+    outletData.veg_nonveg,
+    outletData.outlet_mode,
+    outletData.address
+  ]);
+
+  useEffect(() => {
+    // Validate mobile number
+    if (outletData.mobile) {
+      const numbersOnly = outletData.mobile.replace(/[^0-9]/g, '');
+      const firstDigit = numbersOnly.charAt(0);
+      
+      if (numbersOnly.length !== 10) {
+        setValidationStates(prev => ({
+          ...prev,
+          mobile: true,
+          mobileMessage: 'Mobile number must be 10 digits'
+        }));
+      } else if (['0','1','2','3','4','5'].includes(firstDigit)) {
+        setValidationStates(prev => ({
+          ...prev,
+          mobile: true,
+          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+        }));
+      } else {
+        setValidationStates(prev => ({
+          ...prev,
+          mobile: false,
+          mobileMessage: ''
+        }));
+      }
+    }
+  }, [outletData.mobile]);
+
+  useEffect(() => {
+    // Validate name
+    if (outletData.name) {
+      const isValid = isNameValid(outletData.name);
+      setValidationStates(prev => ({
+        ...prev,
+        name: !isValid
+      }));
+    }
+  }, [outletData.name]);
+
+  useEffect(() => {
+    // Validate UPI ID
+    if (outletData.upi_id) {
+      const isValid = isUpiValid(outletData.upi_id);
+      setValidationStates(prev => ({
+        ...prev,
+        upi: !isValid
+      }));
+    }
+  }, [outletData.upi_id]);
+
+  useEffect(() => {
+    // Validate address
+    if (outletData.address) {
+      const isValid = isAddressValid(outletData.address);
+      setValidationStates(prev => ({
+        ...prev,
+        address: !isValid
+      }));
+    }
+  }, [outletData.address]);
+
+  useEffect(() => {
+    // Validate required select inputs
+    setValidationStates(prev => ({
+      ...prev,
+      outlet_type: !outletData.outlet_type && prev.outlet_type,
+      food_type: !outletData.veg_nonveg && prev.food_type,
+      outlet_mode: !outletData.outlet_mode && prev.outlet_mode
+    }));
+  }, [outletData.outlet_type, outletData.veg_nonveg, outletData.outlet_mode]);
+
+  useEffect(() => {
+    // Overall form validation
+    const requiredFields = {
+      name: isNameValid(outletData.name),
+      mobile: outletData.mobile.length === 10 && /^[6-9]/.test(outletData.mobile),
+      owner: outletData.owner_id.length > 0,
+      upi_id: isUpiValid(outletData.upi_id),
+      outlet_type: !!outletData.outlet_type,
+      veg_nonveg: !!outletData.veg_nonveg,
+      outlet_mode: !!outletData.outlet_mode,
+      address: isAddressValid(outletData.address)
+    };
+
+    // Check if there are any API errors
+    const hasApiErrors = Object.values(apiErrors).some(error => error !== '');
+
+    // Check if all required fields are valid and there are no API errors
+    const isValid = Object.values(requiredFields).every(field => field === true) && !hasApiErrors;
+    setIsFormValid(isValid);
+  }, [outletData, apiErrors, validationStates]);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup function to prevent state updates after unmount
+      setOutletData(prev => ({
+        ...prev,
+        image: prev.image // Preserve image state
+      }));
+    };
+  }, []);
 
   const fetchOutletTypes = async () => {
     try {
@@ -158,7 +280,8 @@ function CreateOutlet() {
   };
 
   const handleImagesChange = (images) => {
-    const base64String = images[0]?.url || null;
+    // Don't set to null if no new image is provided
+    const base64String = images[0]?.url;
     if (base64String) {
       console.log('Image received:', base64String.substring(0, 50) + '...');
       setOutletData(prev => ({
@@ -171,7 +294,49 @@ function CreateOutlet() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    if (name === 'mobile' || name === 'whatsapp') {
+    if (name === 'mobile') {
+      const numbersOnly = value.replace(/[^0-9]/g, '');
+      const firstDigit = numbersOnly.charAt(0);
+      
+      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
+        setOutletData(prev => ({
+          ...prev,
+          [name]: ''
+        }));
+        setValidationStates(prev => ({
+          ...prev,
+          mobile: true,
+          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+        }));
+      } else {
+        setOutletData(prev => ({
+          ...prev,
+          [name]: numbersOnly.slice(0, 10)
+        }));
+        
+        if (numbersOnly.length > 0) {
+          if (numbersOnly.length !== 10) {
+            setValidationStates(prev => ({
+              ...prev,
+              mobile: true,
+              mobileMessage: 'Mobile number must be 10 digits'
+            }));
+          } else {
+            setValidationStates(prev => ({
+              ...prev,
+              mobile: false,
+              mobileMessage: ''
+            }));
+          }
+        } else {
+          setValidationStates(prev => ({
+            ...prev,
+            mobile: false,
+            mobileMessage: ''
+          }));
+        }
+      }
+    } else if (name === 'whatsapp') {
       const numbersOnly = value.replace(/[^0-9]/g, '');
       const firstDigit = numbersOnly.charAt(0);
       
@@ -191,7 +356,6 @@ function CreateOutlet() {
           [name]: numbersOnly.slice(0, 10)
         }));
         
-        // Validate the number
         const { isValid, message } = name === 'mobile' 
           ? isMobileValid(numbersOnly.slice(0, 10))
           : isWhatsappValid(numbersOnly.slice(0, 10));
@@ -219,6 +383,9 @@ function CreateOutlet() {
         [name]: type === 'checkbox' ? checked : value
       }));
     }
+
+    // Check form validity after state updates
+    setTimeout(() => checkFormValidity(), 0);
   };
 
   const isUpiValid = (upi) => {
@@ -233,65 +400,18 @@ function CreateOutlet() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate social media links
-    const socialMediaLinks = {
-      website: outletData.website,
-      facebook: outletData.facebook,
-      instagram: outletData.instagram,
-      google_business_link: outletData.google_business_link,
-      google_review: outletData.google_review
-    };
-
-    const { isValid: isSocialValid, errors: socialErrors } = isValidSocialMediaLinks(socialMediaLinks);
-
-    // Update validation states
-    setValidationStates({
-      owner: outletData.owner_id.length === 0,
-      name: !isNameValid(outletData.name),
-      mobile: !isMobileValid(outletData.mobile),
-      upi: !isUpiValid(outletData.upi_id),
-      outlet_type: !outletData.outlet_type,
-      food_type: !outletData.veg_nonveg,
-      outlet_mode: !outletData.outlet_mode,
-      address: !isAddressValid(outletData.address),
-      website: !!socialErrors.website,
-      facebook: !!socialErrors.facebook,
-      instagram: !!socialErrors.instagram,
-      google_business_link: !!socialErrors.google_business_link,
-      google_review: !!socialErrors.google_review,
-      whatsapp: !isWhatsappValid(outletData.whatsapp),
-      whatsappMessage: isWhatsappValid(outletData.whatsapp) ? '' : 'WhatsApp number must be 10 digits',
-    });
-
-    if (outletData.owner_id.length === 0 || 
-        !isNameValid(outletData.name) || 
-        !isMobileValid(outletData.mobile) ||
-        !isUpiValid(outletData.upi_id) ||
-        !outletData.outlet_type ||
-        !outletData.veg_nonveg ||
-        !outletData.outlet_mode ||
-        !isAddressValid(outletData.address) ||
-        !isSocialValid ||
-        !isWhatsappValid(outletData.whatsapp)) {
-        
-        if (!isSocialValid) {
-          Object.values(socialErrors).forEach(error => {
-            toastController.error(error);
-          });
-        }
-        return;
+    if (!isFormValid) {
+      return;
     }
-    
+
     try {
       const token = getToken();
       if (!token) {
         throw new Error('No authentication token available');
       }
 
-      // Get current date in YYYY-MM-DD format
       const currentDate = new Date().toISOString().split('T')[0];
 
-      // Create base payload with required fields
       const payload = {
         owner_ids: outletData.owner_id,
         user_id: adminData.user_id.toString(),
@@ -304,7 +424,6 @@ function CreateOutlet() {
         upi_id: outletData.upi_id,
       };
 
-      // Add numeric fields as strings
       if (outletData.service_charges !== '') {
         payload.service_charges = outletData.service_charges.toString();
       }
@@ -312,7 +431,6 @@ function CreateOutlet() {
         payload.gst = outletData.gst.toString();
       }
 
-      // Add optional fields if they exist
       const optionalFields = [
         'fssainumber',
         'gstnumber',
@@ -330,7 +448,6 @@ function CreateOutlet() {
         }
       });
 
-      // Handle time fields
       if (outletData.opening_time) {
         const [timeStr, period] = outletData.opening_time.split(' ');
         const [hours, minutes] = timeStr.split(':');
@@ -343,7 +460,6 @@ function CreateOutlet() {
         payload.closing_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
       }
 
-      // Handle image - ensure it's a valid base64 string
       if (outletData.image && typeof outletData.image === 'string' && outletData.image.startsWith('data:')) {
         payload.image = outletData.image;
       }
@@ -369,11 +485,33 @@ function CreateOutlet() {
       );
 
       if (response.data.detail.includes("Outlet created successfully")) {
+        // Clear any existing API errors
+        setApiErrors({});
         navigate(-1);
       }
     } catch (error) {
       console.error('Error creating outlet:', error);
-      toastController.error(error.response?.data?.detail || 'An unexpected error occurred');
+      
+      // Handle specific API errors without clearing the image
+      if (error.response?.data?.detail) {
+        const errorMessage = error.response.data.detail;
+        
+        if (errorMessage.includes('mobile')) {
+          setApiErrors(prev => ({
+            ...prev,
+            mobile: errorMessage
+          }));
+          setValidationStates(prev => ({
+            ...prev,
+            mobile: true,
+            mobileMessage: errorMessage
+          }));
+        }
+        
+        toastController.error(errorMessage);
+      } else {
+        toastController.error('An unexpected error occurred');
+      }
     }
   };
 
@@ -383,12 +521,10 @@ function CreateOutlet() {
     owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Optional: Add a helper function to check name validation
   const isNameValid = (name) => {
     return name && name.length >= 3 && name.length <= 50;
   };
 
-  // Add this function to handle focus
   const handleFocus = (fieldName) => {
     setValidationStates(prev => ({
       ...prev,
@@ -396,13 +532,84 @@ function CreateOutlet() {
     }));
   };
 
-  // Add handler for owner dropdown click
   const handleOwnerClick = () => {
     setIsDropdownOpen(!isDropdownOpen);
-    // Clear owner validation when clicked
     setValidationStates(prev => ({
       ...prev,
       owner: false
+    }));
+  };
+
+  const validationRules = {
+    name: {
+      simple: {
+        minLength: 3,
+        maxLength: 50,
+        patternMessage: 'Name must be between 3 and 50 characters'
+      },
+      complex: {
+        pattern: /^[a-zA-Z0-9\s-_]+$/,
+        patternMessage: 'Name can only contain letters, numbers, spaces, hyphens and underscores'
+      }
+    },
+    mobile: {
+      pattern: /^[6-9]\d{9}$/,
+      patternMessage: 'Mobile number must be 10 digits and start with 6-9'
+    },
+    upi: {
+      pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/,
+      patternMessage: 'Please enter a valid UPI ID (e.g., username@bankname)'
+    }
+  };
+
+  const customValidators = {
+    mobile: (value) => {
+      const numbersOnly = value.replace(/[^0-9]/g, '');
+      const firstDigit = numbersOnly.charAt(0);
+      
+      if (!numbersOnly) {
+        return { isValid: false, message: 'Mobile number is required' };
+      }
+      
+      if (['0','1','2','3','4','5'].includes(firstDigit)) {
+        return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+      }
+      
+      if (numbersOnly.length !== 10) {
+        return { isValid: false, message: 'Mobile number must be 10 digits' };
+      }
+      
+      return { isValid: true, message: '' };
+    }
+  };
+
+  // Add this function to check all required fields
+  const checkFormValidity = () => {
+    const requiredFields = {
+      name: isNameValid(outletData.name),
+      mobile: outletData.mobile.length === 10 && /^[6-9]/.test(outletData.mobile),
+      owner: outletData.owner_id.length > 0,
+      upi_id: isUpiValid(outletData.upi_id),
+      outlet_type: !!outletData.outlet_type,
+      veg_nonveg: !!outletData.veg_nonveg,
+      outlet_mode: !!outletData.outlet_mode,
+      address: isAddressValid(outletData.address)
+    };
+
+    // Check if all required fields are valid
+    const isValid = Object.values(requiredFields).every(field => field === true);
+    setIsFormValid(isValid);
+    return isValid;
+  };
+
+  const resetForm = () => {
+    setOutletData(prev => ({
+      ...prev,
+      // Reset other fields but keep the image
+      name: '',
+      outlet_type: '',
+      // ... other fields
+      image: prev.image // Preserve the image
     }));
   };
 
@@ -411,43 +618,42 @@ function CreateOutlet() {
       <Breadcrumb items={breadcrumbItems} />
       
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
-            {/* Back Button */}
-              <button 
-                onClick={() => navigate(-1)}
+            <button 
+              onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
-              >
+            >
               <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
               <span>Back</span>
-              </button>
+            </button>
 
-            {/* Title - Centered between buttons */}
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
                 Create Outlet
               </h1>
 
-            {/* Create Button */}
-            <button
-              onClick={handleSubmit}
-              disabled={isLoading}
-              className={`
-                inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
-                transition shadow-sm
-                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
-              `}
-            >
-              <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-              <span>Create</span>
-            </button>
+            <div className="relative">
+              <button
+                onClick={handleSubmit}
+                disabled={!isFormValid || isLoading}
+                className={`
+                  inline-flex items-center gap-2 px-4 py-2 
+                  text-sm font-medium text-white rounded-full
+                  transition shadow-sm
+                  ${!isFormValid || isLoading 
+                    ? 'bg-gray-400 cursor-not-allowed opacity-50' 
+                    : 'bg-success-500 hover:bg-success-600'}
+                `}
+                title={!isFormValid ? "Please fill all required fields" : ""}
+              >
+                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                <span>Create</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
-          {/* Basic Information Section */}
           <section className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -456,7 +662,6 @@ function CreateOutlet() {
               Basic Information
             </h2>
 
-            {/* Basic Information Fields */}
             <div className="grid grid-cols-1 gap-6">
             <div className="relative">
                   <ImageUploader
@@ -466,12 +671,9 @@ function CreateOutlet() {
                     label="Outlet Image"
                     className="w-full"
                     isOutletImage={true}
+                    preserveImageOnValidation={true}
                   />
                 </div>
-              {/* Select Owner and Image Upload in same grid */}
-        
-
-              {/* Rest of the form fields in their own grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <div className="relative">
                 
@@ -481,20 +683,14 @@ function CreateOutlet() {
                     value={outletData.name}
                     onChange={handleInputChange}
                     onFocus={() => handleFocus('name')}
-                    placeholder="Enter Outlet Name"
-                    required
+                    required={true}
+                    validationType="simple"
+                    validationRules={validationRules.name.simple}
                     className={`
                       focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.name ? 'border-error-500' : 'border-gray-300'}
                     `}
                   />
-                  {validationStates.name && (
-                    <p className="text-error-500 text-sm mt-1">
-                      {!outletData.name ? 'Outlet name is required' : 
-                       outletData.name.length < 3 ? 'Outlet name must be at least 3 characters' : 
-                       'Outlet name must not exceed 50 characters'}
-                    </p>
-                  )}
                 </div>
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
@@ -529,7 +725,6 @@ function CreateOutlet() {
                       )}
                     </div>
 
-                    {/* Dropdown Panel */}
                     {isDropdownOpen && (
                       <div 
                         className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
@@ -542,7 +737,6 @@ function CreateOutlet() {
                           overflowY: 'auto'
                         }}
                       >
-                        {/* Selected Owners Display */}
                         {outletData.owner_id.length > 0 && (
                           <div className="p-2 border-b bg-gray-50">
                             <div className="flex flex-wrap gap-2">
@@ -573,7 +767,6 @@ function CreateOutlet() {
                           </div>
                         )}
 
-                        {/* Search Bar */}
                         <div className="sticky top-0 p-2 border-b bg-white">
                           <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -589,7 +782,6 @@ function CreateOutlet() {
                           </div>
                         </div>
 
-                        {/* Owners List */}
                         <div className="overflow-y-auto">
                           {filteredOwners.length > 0 ? (
                             filteredOwners.map((owner) => (
@@ -625,12 +817,6 @@ function CreateOutlet() {
                                       </div>
                                       <div className="text-sm text-gray-500">
                                         <span>{owner.mobile}</span>
-                                        {/* {owner.email && (
-                                          <>
-                                            <span className="mx-2">•</span>
-                                            <span className="text-balance">{owner.email}</span>
-                                          </>
-                                        )} */}
                                       </div>
                                     </div>
                                   </div>
@@ -655,18 +841,22 @@ function CreateOutlet() {
                     type="tel"
                     value={outletData.mobile}
                     onChange={handleInputChange}
-                    onFocus={() => handleFocus('mobile')}
-                    placeholder="Enter Mobile Number"
-                    required
+                    onFocus={() => {
+                      handleFocus('mobile');
+                      // Clear API error when user starts typing again
+                      setApiErrors(prev => ({ ...prev, mobile: '' }));
+                    }}
+                    required={true}
                     maxLength={10}
+                    placeholder="Enter 10 digit mobile number"
                     className={`
                       focus:border-brand-500 focus:ring-brand-500
-                      ${validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                      ${(validationStates.mobile || apiErrors.mobile) ? 'border-error-500' : 'border-gray-300'}
                     `}
                   />
-                  {validationStates.mobile && (
+                  {(validationStates.mobile || apiErrors.mobile) && (
                     <p className="text-error-500 text-sm mt-1">
-                      {validationStates.mobileMessage}
+                      {apiErrors.mobile || validationStates.mobileMessage}
                     </p>
                   )}
                 </div>
@@ -687,8 +877,9 @@ function CreateOutlet() {
                     value={outletData.upi_id}
                     onChange={handleInputChange}
                     onFocus={() => handleFocus('upi')}
+                    required={true}
+                    validationRules={validationRules.upi}
                     placeholder="username@bankname"
-                    required
                     className={`
                       focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.upi ? 'border-error-500' : 'border-gray-300'}
@@ -696,8 +887,7 @@ function CreateOutlet() {
                   />
                   {validationStates.upi && (
                     <p className="text-error-500 text-sm mt-1">
-                      {!outletData.upi_id ? 'UPI ID is required' : 
-                       'Please enter a valid UPI ID (e.g., username@bankname)'}
+                      {validationRules.upi.patternMessage}
                     </p>
                   )}
                 </div>
@@ -773,7 +963,6 @@ function CreateOutlet() {
             </div>
           </section>
 
-          {/* Business Details Section */}
           <section className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -843,7 +1032,6 @@ function CreateOutlet() {
             </div>
           </section>
 
-          {/* Social Media Section */}
           <section className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -981,32 +1169,6 @@ function CreateOutlet() {
               </div>
             </div>
           </section>
-
-          {/* Outlet Status Section */}
-          {/* <section className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Outlet Status
-            </h2>
-
-            <div className="space-y-4">
-              <Checkbox
-                label="Outlet is currently open"
-                  name="is_open"
-                  checked={outletData.is_open}
-                  onChange={handleInputChange}
-                />
-
-              <Checkbox
-                label="Outlet is active"
-                  name="outlet_status"
-                  checked={outletData.outlet_status}
-                  onChange={handleInputChange}
-                />
-            </div>
-          </section> */}
         </form>
       </div>
     </>

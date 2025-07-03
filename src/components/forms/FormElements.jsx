@@ -30,31 +30,73 @@ const RequiredLabel = ({ label }) => (
 // Text Input Component
 const TextInput = React.forwardRef(({ 
   label, 
-  required,
+  required = false,
   placeholder = '', 
   type = 'text',
   value,
   onChange,
   validationType = null,
+  validationRules = {},
+  customValidator = null,
   onValidation = () => {},
   isSubmitAttempted = false,
   className = '',
   onFocus,
+  errorMessage = '',
   ...props 
 }, ref) => {
   const [error, setError] = useState('');
   
   const showError = (required && isSubmitAttempted && !value) || error;
 
+  const validateInput = (value) => {
+    // Skip validation if field is not required and empty
+    if (!required && !value) {
+      setError('');
+      return true;
+    }
+
+    // Required field validation
+    if (required && !value) {
+      setError('This field is required');
+      return false;
+    }
+
+    // Custom validator function takes precedence
+    if (customValidator) {
+      const { isValid, message } = customValidator(value);
+      setError(message);
+      return isValid;
+    }
+
+    // Validation type specific validation
+    if (validationType) {
+      const { minLength, maxLength, pattern, patternMessage } = validationRules;
+      
+      if (minLength && value.length < minLength) {
+        setError(`Minimum ${minLength} characters required`);
+        return false;
+      }
+
+      if (maxLength && value.length > maxLength) {
+        setError(`Maximum ${maxLength} characters allowed`);
+        return false;
+      }
+
+      if (pattern && !pattern.test(value)) {
+        setError(patternMessage || 'Invalid format');
+        return false;
+      }
+    }
+
+    setError('');
+    return true;
+  };
+
   const handleChange = (e) => {
     const newValue = e.target.value;
-    
-    if (validationType) {
-      const { isValid, message } = validateInput(newValue, validationType);
-      setError(message);
-      onValidation(isValid);
-    }
-    
+    const isValid = validateInput(newValue);
+    onValidation(isValid);
     onChange?.(e);
   };
 
@@ -80,14 +122,9 @@ const TextInput = React.forwardRef(({
         `}
         {...props}
       />
-      {error && (
+      {(error || (errorMessage && showError)) && (
         <p className="mt-1 text-sm text-error-500">
-          {error}
-        </p>
-      )}
-      {required && isSubmitAttempted && !value && (
-        <p className="mt-1 text-sm text-error-500">
-          This field is required
+          {error || errorMessage}
         </p>
       )}
     </div>
