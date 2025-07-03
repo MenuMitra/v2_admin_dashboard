@@ -7,6 +7,10 @@ import axios from 'axios';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+import { toastController } from '../../utils/toastController';
+import { API_CONFIG } from '../../config/appConfig';
+
+const { BASE_URL, API_VERSION } = API_CONFIG;
 
 function EditAdmin() {
   const { adminId } = useParams();
@@ -15,26 +19,26 @@ function EditAdmin() {
   const { adminData } = useAdmin();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiError, setApiError] = useState(null);
   const [adminDetails, setAdminDetails] = useState({
     name: '',
     mobile: '',
     email: '',
-    is_active: 1
+    is_active: true,
+    role: 'admin'
   });
   const [validationStates, setValidationStates] = useState({
-    is_active: false
+    name: true,
+    email: true,
+    mobile: true,
+    mobileMessage: '',
+    is_active: true
   });
-  const [errors, setErrors] = useState({
-    name: '',
-    mobile: '',
-    email: ''
-  });
+  const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
   // Status options for the select input
   const statusOptions = [
-    { value: 1, label: 'Active' },
-    { value: 0, label: 'Inactive' }
+    { value: true, label: 'Active' },
+    { value: false, label: 'Inactive' }
   ];
 
   // Breadcrumb configuration
@@ -51,7 +55,6 @@ function EditAdmin() {
   const fetchAdminDetails = async () => {
     try {
       setIsLoading(true);
-      setApiError(null);
       
       const token = getToken();
       if (!token) {
@@ -59,7 +62,7 @@ function EditAdmin() {
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/view_admin',
+        `${BASE_URL}/${API_VERSION}/admin/view_admin`,
         { admin_id: parseInt(adminId) },
         {
           headers: {
@@ -73,131 +76,109 @@ function EditAdmin() {
         name: response.data.name,
         mobile: response.data.mobile,
         email: response.data.email,
-        is_active: response.data.is_active ? 1 : 0
+        is_active: response.data.is_active,
+        role: 'admin'
       });
-    } catch (err) {
-      setApiError(err.response?.data?.detail || err.message || 'Failed to fetch admin details');
-      console.error('Error fetching admin details:', err);
+    } catch (error) {
+      toastController.error(error.response?.data?.detail || 'Failed to fetch admin details');
+      console.error('Error fetching admin details:', error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const isMobileValid = (mobile) => {
+    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
+    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    const firstDigit = numbersOnly.charAt(0);
+    
+    if (['0','1','2','3','4','5'].includes(firstDigit)) {
+      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+    }
+    
+    if (numbersOnly.length !== 10) {
+      return { isValid: false, message: 'Mobile number must be 10 digits' };
+    }
+    
+    return { isValid: true, message: '' };
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     
     if (name === 'mobile') {
-      // Only allow numbers
-      const numbersOnly = value.replace(/[^0-9]/g, '');
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
       
-      // If starts with 1-5, clear the field
-      if (firstDigit && ['1','2','3','4','5'].includes(firstDigit)) {
-        setAdminDetails(prev => ({
-          ...prev,
-          [name]: '' // Clear the field
-        }));
-        setErrors(prev => ({
-          ...prev,
-          mobile: 'Mobile number must start with 6, 7, 8, or 9'
-        }));
-      } else {
-        // For valid numbers (6-9) or empty field
-        setAdminDetails(prev => ({
-          ...prev,
-          [name]: numbersOnly.slice(0, 10)
-        }));
-        setErrors(prev => ({
-          ...prev,
-          mobile: ''
-        }));
-      }
-    } else if (name === 'is_active') {
-      // Handle status changes
-      if (value === '') {
+      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
         setValidationStates(prev => ({
           ...prev,
-          is_active: true
+          mobile: false,
+          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
         }));
-      } else {
+        return;
+      }
+
+      setAdminDetails(prev => ({ ...prev, [name]: numbersOnly }));
+      const { isValid, message } = isMobileValid(numbersOnly);
+      setValidationStates(prev => ({
+        ...prev,
+        mobile: isValid,
+        mobileMessage: message
+      }));
+    } 
+    else if (name === 'is_active') {
+      const boolValue = value === 'true';
+      setAdminDetails(prev => ({
+        ...prev,
+        [name]: boolValue
+      }));
+      if (value === '') {
         setValidationStates(prev => ({
           ...prev,
           is_active: false
         }));
+      } else {
+        setValidationStates(prev => ({
+          ...prev,
+          is_active: true
+        }));
       }
-      setAdminDetails(prev => ({
-        ...prev,
-        [name]: value === '' ? '' : parseInt(value)
-      }));
-    } else {
+    }
+    else {
       setAdminDetails(prev => ({
         ...prev,
         [name]: value
       }));
-      // Clear error when user starts typing
-      if (name in errors) {
-        setErrors(prev => ({
-          ...prev,
-          [name]: ''
-        }));
-      }
     }
   };
 
-  const handleFocus = (fieldName) => {
-    setValidationStates(prev => ({
+  const handleValidation = (field) => (isValid) => {
+    setValidationStates((prev) => ({
       ...prev,
-      [fieldName]: false
+      [field]: isValid,
     }));
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    let isValid = true;
-    
-    // Name validation
-    if (!adminDetails.name.trim()) {
-      newErrors.name = 'Name is required';
-      isValid = false;
-    }
-
-    // Mobile validation
-    const mobileRegex = /^[6-9]\d{9}$/;
-    if (!adminDetails.mobile.trim()) {
-      newErrors.mobile = 'Mobile number is required';
-      isValid = false;
-    } else if (!mobileRegex.test(adminDetails.mobile)) {
-      newErrors.mobile = 'Mobile number must start with 6, 7, 8, or 9 and be 10 digits';
-      isValid = false;
-    }
-
-    // Email validation
-    if (!adminDetails.email.trim()) {
-      newErrors.email = 'Email is required';
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(adminDetails.email)) {
-      newErrors.email = 'Invalid email format';
-      isValid = false;
-    }
-
-    // Status validation - Check if status is empty or undefined
-    if (adminDetails.is_active === undefined || adminDetails.is_active === '') {
-      setValidationStates(prev => ({
-        ...prev,
-        is_active: true
-      }));
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
+  const isFormValid = () => {
+    return (
+      adminDetails.name?.trim() && 
+      adminDetails.mobile?.trim() && 
+      adminDetails.email?.trim() &&
+      adminDetails.is_active !== undefined &&
+      validationStates.name &&
+      validationStates.mobile &&
+      validationStates.email &&
+      validationStates.is_active
+    );
   };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    setApiError(null);
+    setIsSubmitAttempted(true);
     
-    if (!validateForm()) {
+    if (!isFormValid()) {
+      toastController.error("Please fill all required fields correctly");
       return;
     }
 
@@ -209,35 +190,45 @@ function EditAdmin() {
         throw new Error('No authentication token available');
       }
 
-      const response = await axios.patch(
-        'https://men4u.xyz/v2/admin/update_admin',
-        {
-          user_id: adminData.user_id,
-          admin_id: parseInt(adminId),
-          name: adminDetails.name,
-          email: adminDetails.email,
-          mobile: adminDetails.mobile,
-          is_active: adminDetails.is_active
-        },
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json'
+      await toastController.promise(
+        axios.patch(
+          `${BASE_URL}/${API_VERSION}/admin/update_admin`,
+          {
+            user_id: adminData.user_id,
+            admin_id: parseInt(adminId),
+            name: adminDetails.name,
+            email: adminDetails.email,
+            mobile: adminDetails.mobile,
+            is_active: adminDetails.is_active ? 1 : 0,
+            role: adminDetails.role
+          },
+          {
+            headers: {
+              Authorization: token,
+              'Content-Type': 'application/json'
+            }
           }
+        ),
+        {
+          loading: "Updating admin...",
+          success: "Admin updated successfully",
+          error: (err) => err.response?.data?.detail || "Failed to update admin"
         }
       );
 
-      if (response.status === 200) {
-        navigate('/admins');
-      } else {
-        throw new Error('Failed to update admin');
-      }
-    } catch (err) {
-      setApiError(err.response?.data?.detail || 'Failed to update admin');
-      console.error('Error updating admin:', err);
+      navigate('/admins');
+    } catch (error) {
+      console.error('Error updating admin:', error);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleFocus = (fieldName) => {
+    setValidationStates(prev => ({
+      ...prev,
+      [fieldName]: false
+    }));
   };
 
   if (isLoading) {
@@ -264,7 +255,7 @@ function EditAdmin() {
               <span>Back</span>
             </button>
 
-            {/* Title - Centered between buttons */}
+            {/* Title */}
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Edit Admin
             </h1>
@@ -272,104 +263,85 @@ function EditAdmin() {
             {/* Save Button */}
             <button
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isFormValid()}
               className={`
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
                 transition shadow-sm
-                ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
+                ${isSubmitting || !isFormValid() 
+                  ? "bg-gray-400 cursor-not-allowed" 
+                  : "bg-success-500 hover:bg-success-600"}
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>Save</span>
+              <span>{isSubmitting ? "Saving..." : "Save"}</span>
             </button>
           </div>
         </div>
 
         {/* Form Content */}
         <div className="p-6">
-          {apiError && (
-            <div className="mb-6 p-4 text-sm text-red-500 bg-red-50 rounded-lg dark:bg-red-500/10">
-              {apiError}
-            </div>
-          )}
-
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <div>
-                <TextInput
-                  label="Name"
-                  name="name"
-                  value={adminDetails.name}
-                  onChange={handleChange}
-                  placeholder="Enter admin name"
-                  required
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    ${errors.name ? 'border-error-500' : 'border-gray-300'}
-                  `}
-                />
-                {errors.name && (
-                  <p className="text-error-500 text-sm mt-1">
-                    {errors.name}
-                  </p>
-                )}
-              </div>
+              <TextInput
+                label="Name"
+                name="name"
+                value={adminDetails.name}
+                onChange={handleChange}
+                placeholder="Enter admin name"
+                required
+                validationType="name"
+                onValidation={handleValidation("name")}
+                isSubmitAttempted={isSubmitAttempted}
+              />
 
-              <div>
+              <div className="relative">
                 <TextInput
                   label="Mobile Number"
                   name="mobile"
+                  type="tel"
                   value={adminDetails.mobile}
                   onChange={handleChange}
-                  placeholder="Enter 10 digit mobile number"
+                  placeholder="Enter mobile number"
                   required
+                  maxLength={10}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${errors.mobile ? 'border-error-500' : 'border-gray-300'}
+                    ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
                   `}
                 />
-                {errors.mobile && (
+                {!validationStates.mobile && (
                   <p className="text-error-500 text-sm mt-1">
-                    {errors.mobile}
+                    {validationStates.mobileMessage}
                   </p>
                 )}
               </div>
 
-              <div>
-                <TextInput
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={adminDetails.email}
-                  onChange={handleChange}
-                  placeholder="Enter email address"
-                  required
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    ${errors.email   ? 'border-error-500' : 'border-gray-300'}
-                  `}
-                />
-                {errors.email && (
-                  <p className="text-error-500 text-sm mt-1">{errors.email}</p>
-                )}
-              </div>
+              <TextInput
+                label="Email"
+                name="email"
+                type="email"
+                value={adminDetails.email}
+                onChange={handleChange}
+                placeholder="Enter email address"
+                required
+                validationType="email"
+                onValidation={handleValidation("email")}
+                isSubmitAttempted={isSubmitAttempted}
+              />
 
-              <div>
-                <SelectInput
-                  label="Status"
-                  name="is_active"
-                  value={adminDetails.is_active}
-                  onChange={handleChange}
-                  onFocus={() => handleFocus('is_active')}
-                  error={validationStates.is_active}
-                  errorMessage="Please select a status"
-                  required
-                  options={statusOptions}
-                  placeholder="Select Status"
-                />
-              </div>
+              <SelectInput
+                label="Status"
+                name="is_active"
+                value={adminDetails.is_active}
+                onChange={handleChange}
+                onFocus={() => handleFocus('is_active')}
+                error={!validationStates.is_active && isSubmitAttempted}
+                errorMessage="Please select a status"
+                required
+                options={statusOptions}
+                placeholder="Select Status"
+              />
             </div>
           </form>
         </div>
