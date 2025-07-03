@@ -61,16 +61,29 @@ function EditOutlet() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [validationStates, setValidationStates] = useState({
+    owner: false,
+    name: false,
+    mobile: false,
+    mobileMessage: '',
+    upi: false,
+    outlet_type: false,
+    food_type: false,
+    outlet_mode: false,
+    address: false,
+    fssainumber: false,
     website: false,
     facebook: false,
     instagram: false,
     google_business_link: false,
     google_review: false,
-    mobile: false,
-    mobileMessage: '',
     whatsapp: false,
     whatsappMessage: '',
   });
+
+  // Add essential validation helper functions
+  const isNameValid = (name) => name?.length >= 3 && name?.length <= 50;
+  const isUpiValid = (upi) => /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/.test(upi);
+  const isAddressValid = (address) => address?.length >= 3 && address?.length <= 50;
 
   // Fetch outlet data when component mounts
   useEffect(() => {
@@ -237,60 +250,33 @@ function EditOutlet() {
     const { name, value, type, checked } = e.target;
     
     if (name === 'mobile' || name === 'whatsapp') {
-      const numbersOnly = value.replace(/[^0-9]/g, '');
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
       
       if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
-        setOutletData(prev => ({
-          ...prev,
-          [name]: ''
-        }));
         setValidationStates(prev => ({
           ...prev,
           [name]: true,
-          [`${name}Message`]: `${name === 'mobile' ? 'Mobile' : 'WhatsApp'} number must start with 6, 7, 8, or 9`
+          [`${name}Message`]: `Number must start with 6, 7, 8, or 9`
         }));
-      } else {
-        setOutletData(prev => ({
-          ...prev,
-          [name]: numbersOnly.slice(0, 10)
-        }));
-        
-        // Validate the number
-        const { isValid, message } = name === 'mobile' 
-          ? isMobileValid(numbersOnly.slice(0, 10))
-          : isWhatsappValid(numbersOnly.slice(0, 10));
-          
-        setValidationStates(prev => ({
-          ...prev,
-          [name]: !isValid,
-          [`${name}Message`]: message
-        }));
+        return;
       }
-    } else if (['website', 'facebook', 'instagram', 'google_business_link', 'google_review'].includes(name)) {
-      setOutletData(prev => ({
-        ...prev,
-        [name]: value
-      }));
 
-      // Only validate if there's a value
+      setOutletData(prev => ({ ...prev, [name]: numbersOnly }));
+      setValidationStates(prev => ({
+        ...prev,
+        [name]: numbersOnly.length !== 10,
+        [`${name}Message`]: numbersOnly.length !== 10 ? 'Must be 10 digits' : ''
+      }));
+    } else if (['website', 'facebook', 'instagram', 'google_business_link', 'google_review'].includes(name)) {
+      setOutletData(prev => ({ ...prev, [name]: value }));
+      
       if (value) {
         const { isValid, errors } = isValidSocialMediaLinks({ [name]: value });
-        setValidationStates(prev => ({
-          ...prev,
-          [name]: !isValid
-        }));
-
-        // Show error message if invalid
-        if (!isValid) {
-          toastController.error(errors[name]);
-        }
+        setValidationStates(prev => ({ ...prev, [name]: !isValid }));
+        if (!isValid) toastController.error(errors[name]);
       } else {
-        // Clear validation state if field is empty
-        setValidationStates(prev => ({
-          ...prev,
-          [name]: false
-        }));
+        setValidationStates(prev => ({ ...prev, [name]: false }));
       }
     } else {
       setOutletData(prev => ({
@@ -303,12 +289,33 @@ function EditOutlet() {
   const handleFocus = (fieldName) => {
     setValidationStates(prev => ({
       ...prev,
-      [fieldName]: false
+      [fieldName]: false,
+      [`${fieldName}Message`]: ''
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Basic validation check
+    const requiredFields = {
+      name: isNameValid(outletData.name),
+      mobile: outletData.mobile?.length === 10 && /^[6-9]/.test(outletData.mobile),
+      owner_ids: outletData.owner_ids?.length > 0,
+      upi_id: isUpiValid(outletData.upi_id),
+      outlet_type: !!outletData.outlet_type,
+      veg_nonveg: !!outletData.veg_nonveg,
+      outlet_mode: !!outletData.outlet_mode,
+      address: isAddressValid(outletData.address)
+    };
+
+    const isValid = Object.entries(requiredFields).every(([key, value]) => value);
+    
+    if (!isValid) {
+      toastController.error('Please fill all required fields correctly');
+      return;
+    }
+
     try {
       const token = getToken();
       if (!token) {
@@ -387,6 +394,7 @@ function EditOutlet() {
       }
     } catch (error) {
       console.error('Error updating outlet:', error);
+      toastController.error(error.response?.data?.detail || 'Failed to update outlet');
     }
   };
 
@@ -604,8 +612,12 @@ function EditOutlet() {
                   name="name"
                   value={outletData.name}
                   onChange={handleInputChange}
-                  placeholder="Enter Outlet Name"
+                  onFocus={() => handleFocus('name')}
                   required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    ${validationStates.name ? 'border-error-500' : 'border-gray-300'}
+                  `}
                 />
 
                 <div className="relative">
