@@ -34,6 +34,14 @@ function EditCaptain() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [outletName, setOutletName] = useState('');
+  const [validationStates, setValidationStates] = useState({
+    name: true,
+    email: true,
+    mobile: true,
+    mobileMessage: '',
+    aadhar_number: true,
+    aadharMessage: ''
+  });
 
   const dropdownRef = useRef(null);
 
@@ -154,24 +162,99 @@ function EditCaptain() {
         {
           loading: "Updating captain details...",
           success: "Captain updated successfully",
-          error: "Failed to update captain"
+          error: (err) => err.response?.data?.detail || err.response?.data?.msg || "An error occurred while updating captain"
         }
       );
       navigate(`/captain-details/${outletId}/${userId}`);
     } catch (err) {
-      const errorMsg = err.response?.data?.msg || "Failed to update captain";
-      toastController.error(errorMsg);
+      const errorMsg = err.response?.data?.detail || err.response?.data?.msg || "An error occurred while updating captain";
       setError(errorMsg);
       setSubmitting(false);
     }
   };
 
+  const isMobileValid = (mobile) => {
+    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
+    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    const firstDigit = numbersOnly.charAt(0);
+    
+    if (['0','1','2','3','4','5'].includes(firstDigit)) {
+      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+    }
+    
+    if (numbersOnly.length !== 10) {
+      return { isValid: false, message: 'Mobile number must be 10 digits' };
+    }
+    
+    return { isValid: true, message: '' };
+  };
+
+  const isAadharValid = (aadhar) => {
+    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (numbersOnly.length !== 12) {
+      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+    }
+    return { isValid: true, message: '' };
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCaptainData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    if (name === 'mobile') {
+      const numbersOnly = value.replace(/[^0-9]/g, '');
+      // Check first digit - only allow if it's empty or starts with valid digit
+      if (numbersOnly.length > 0) {
+        const firstDigit = numbersOnly.charAt(0);
+        if (['0','1','2','3','4','5'].includes(firstDigit)) {
+          setValidationStates(prev => ({
+            ...prev,
+            mobile: false,
+            mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+          }));
+          return; // Don't update the value if first digit is invalid
+        }
+      }
+      
+      const trimmedNumber = numbersOnly.slice(0, 10);
+      const { isValid, message } = isMobileValid(trimmedNumber);
+      setValidationStates(prev => ({
+        ...prev,
+        mobile: isValid,
+        mobileMessage: message
+      }));
+      setCaptainData(prev => ({ ...prev, mobile: trimmedNumber }));
+    } 
+    else if (name === 'aadhar_number') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+      const { isValid, message } = isAadharValid(numbersOnly);
+      setValidationStates(prev => ({
+        ...prev,
+        aadhar_number: isValid,
+        aadharMessage: message
+      }));
+      setCaptainData(prev => ({ ...prev, aadhar_number: numbersOnly }));
+    }
+    else {
+      setCaptainData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
+
+  const isFormValid = () => {
+    return (
+      captainData.name?.trim() && 
+      captainData.mobile?.trim() && 
+      captainData.aadhar_number?.trim() &&
+      captainData.role &&
+      captainData.functionality_ids.length > 0 &&
+      validationStates.name &&
+      validationStates.mobile &&
+      validationStates.aadhar_number &&
+      validationStates.email
+    );
   };
 
   const breadcrumbItems = [
@@ -222,13 +305,14 @@ function EditCaptain() {
             {/* Save Button */}
             <button
               onClick={handleSubmit}
-              disabled={submitting}
+              disabled={submitting || !isFormValid()}
               className={`
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
-                bg-brand-500 hover:bg-brand-600 
                 transition shadow-sm
-                ${submitting ? 'opacity-50 cursor-not-allowed' : ''}
+                ${submitting || !isFormValid() 
+                  ? "bg-gray-400 cursor-not-allowed" 
+                  : "bg-brand-500 hover:bg-brand-600"}
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
@@ -239,10 +323,7 @@ function EditCaptain() {
 
         {/* Form Section */}
         <form onSubmit={handleSubmit} className="p-6">
-          {error && (
-            <div className="mb-4 text-error-500 text-center">{error}</div>
-          )}
-
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
             <TextInput
               label="Name"
@@ -252,14 +333,25 @@ function EditCaptain() {
               required
             />
 
-            <TextInput
-              label="Mobile"
-              name="mobile"
-              value={captainData.mobile}
-              onChange={handleInputChange}
-              required
-              pattern="[0-9]{10}"
-            />
+            <div className="relative">
+              <TextInput
+                label="Mobile"
+                name="mobile"
+                value={captainData.mobile}
+                onChange={handleInputChange}
+                required={false}
+                maxLength={10}
+                className={`
+                  focus:border-brand-500 focus:ring-brand-500
+                  ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                `}
+              />
+              {!validationStates.mobile && validationStates.mobileMessage && (
+                <p className="text-error-500 text-sm mt-1">
+                  {validationStates.mobileMessage}
+                </p>
+              )}
+            </div>
 
             <TextInput
               label="Email"
@@ -276,14 +368,25 @@ function EditCaptain() {
               onChange={handleInputChange}
             />
 
-            <TextInput
-              label="Aadhar Number"
-              name="aadhar_number"
-              value={captainData.aadhar_number}
-              onChange={handleInputChange}
-              pattern="[0-9]{12}"
-              required
-            />
+            <div className="relative">
+              <TextInput
+                label="Aadhar Number"
+                name="aadhar_number"
+                value={captainData.aadhar_number}
+                onChange={handleInputChange}
+                required={false}
+                maxLength={12}
+                className={`
+                  focus:border-brand-500 focus:ring-brand-500
+                  ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                `}
+              />
+              {!validationStates.aadhar_number && validationStates.aadharMessage && (
+                <p className="text-error-500 text-sm mt-1">
+                  {validationStates.aadharMessage}
+                </p>
+              )}
+            </div>
 
             <DateInput
               label="Date of Birth"
