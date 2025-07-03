@@ -29,7 +29,7 @@ function TicketDetails() {
     setLoading(true);
     try {
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/ticket_view',
+        'https://men4u.xyz/v2/common/ticket_view',
         { ticket_id: ticketId },
         {
           headers: {
