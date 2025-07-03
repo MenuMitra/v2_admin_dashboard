@@ -36,7 +36,7 @@ function EditMenu() {
   const [ingredients, setIngredients] = useState('');
   const [offer, setOffer] = useState('');
   const [portionData, setPortionData] = useState([
-    { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
+    { menu_portion_id: null, portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
   ]);
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -183,6 +183,7 @@ function EditMenu() {
         setPreviews([]); // Clear previews for new images
         setImages([]); // Clear new images array
         setPortionData(menuData.portions.map((p, idx) => ({
+          menu_portion_id: p.menu_portion_id,
           portion_name: p.portion_name,
           price: p.price.toString(),
           unit_value: p.unit_value,
@@ -304,7 +305,14 @@ function EditMenu() {
   const addPortion = () => {
     setPortionData(prev => [
       ...prev,
-      { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 0 }
+      { 
+        menu_portion_id: null,
+        portion_name: '', 
+        price: '', 
+        unit_value: '', 
+        unit_type: '', 
+        flag: 0 
+      }
     ]);
   };
 
@@ -329,10 +337,26 @@ function EditMenu() {
     try {
       const token = getToken();
 
-      // Get IDs of images marked for deletion (flag = 0)
-      const deletedImageIds = existingImages
-        .filter(img => img.flag === 0)
-        .map(img => img.id);
+      // Format portion data properly
+      const formattedPortionData = portionData.map((portion, index) => {
+        const basePortionData = {
+          portion_name: portion.portion_name.trim(),
+          price: parseInt(portion.price, 10),
+          unit_value: portion.unit_value.trim(),
+          unit_type: portion.unit_type.trim(),
+          flag: index === 0 ? 1 : 0
+        };
+
+        // Only include menu_portion_id if it exists (for existing portions)
+        if (portion.menu_portion_id) {
+          return {
+            menu_portion_id: portion.menu_portion_id,
+            ...basePortionData
+          };
+        }
+
+        return basePortionData;
+      });
 
       // Construct the JSON payload
       const payload = {
@@ -340,14 +364,7 @@ function EditMenu() {
         outlet_id: Number(outletId),
         user_id: adminData?.user_id,
         name: name.trim(),
-        portion_data: portionData.map((portion, index) => ({
-          ...(portion.menu_portion_id && { menu_portion_id: portion.menu_portion_id }),
-          portion_name: portion.portion_name.trim(),
-          price: parseInt(portion.price, 10),
-          unit_value: portion.unit_value.trim(),
-          unit_type: portion.unit_type.trim(),
-          flag: index === 0 ? 1 : 0
-        })),
+        portion_data: formattedPortionData, // Use formatted portion data
         food_type: foodType,
         menu_cat_id: Number(menuCatId),
         spicy_index: spicyIndex ? spicyIndex.toString() : null,
@@ -355,9 +372,11 @@ function EditMenu() {
         description: description.trim(),
         ingredients: ingredients.trim(),
         is_special: isSpecial,
-        images: images, // New images as base64
-        existing_image_ids: deletedImageIds, // Only IDs of images to be deleted
-        flag: 0, // Flag 0 for deletion
+        images: images,
+        existing_image_ids: existingImages
+          .filter(img => img.flag === 0)
+          .map(img => img.id),
+        flag: 0,
         app_source: 'admin_app'
       };
 
