@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import { toastController } from '../../utils/toastController';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";  
 import Breadcrumb from '../Breadcrumb';
 
 function ViewSubscription() {
@@ -144,20 +144,20 @@ function ViewSubscription() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <div className="p-3 rounded-lg">
-                  <div className="text-sm text-gray-500 mb-1">Name</div>
                   <div className="text-base font-medium text-gray-900">{subscription.name}</div>
+                  <div className="text-sm text-gray-500 mb-1">Name</div>
                 </div>
                 <div className="p-3 rounded-lg">
-                  <div className="text-sm text-gray-500 mb-1">Price</div>
                   <div className="text-base font-medium text-gray-900">₹{subscription.price}</div>
+                  <div className="text-sm text-gray-500 mb-1">Price</div>
                 </div>
                 <div className="p-3 rounded-lg">
-                  <div className="text-sm text-gray-500 mb-1">Start Date</div>
                   <div className="text-base font-medium text-gray-900">{subscription.subscription_start_date}</div>
+                  <div className="text-sm text-gray-500 mb-1">Start Date</div>
                 </div>
                 <div className="p-3 rounded-lg">
-                  <div className="text-sm text-gray-500 mb-1">End Date</div>
                   <div className="text-base font-medium text-gray-900">{subscription.subscription_end_date}</div>
+                  <div className="text-sm text-gray-500 mb-1">End Date</div>
                 </div>
               </div>
             </div>
