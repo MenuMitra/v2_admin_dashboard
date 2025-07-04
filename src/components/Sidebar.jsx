@@ -19,7 +19,8 @@ import {
   faEllipsis,
   faUserShield,
   faList,
-  faRupeeSign
+  faIndianRupeeSign,
+  faMobileScreenButton
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -73,13 +74,13 @@ const menuData = {
       title: "Features",
       path: "/features",
       id: "features",
-      icon: faList,
+      icon: faMobileScreenButton,
     },
     {
       title: "Subscriptions",
       path: "/subscriptions",
       id: "subscriptions",
-      icon: faRupeeSign,
+      icon: faIndianRupeeSign,
     },
     {
       title: "Outlets",
