@@ -118,6 +118,7 @@ function Features() {
         title="Features"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
+        counts={null}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
         searchPlaceholder="Search features"
