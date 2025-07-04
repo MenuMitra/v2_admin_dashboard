@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPenToSquare, faPlus, faPencil, faTrash, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import DataTable from '../common/DataTable';
@@ -43,69 +43,50 @@ function Subscriptions() {
       field: 'name',
       header: 'Name',
       sortable: true,
-      headerClassName: "text-center",
       render: (value) => (
-        <div className="flex items-center justify-center">
-          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-            {value}
-          </span>
-        </div>
+        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+          {value}
+        </p>
       )
     },
     {
       field: 'price',
       header: 'Price',
       sortable: true,
-      headerClassName: "text-center",
-      render: (value) => (
-        <div className="flex items-center justify-center">
-          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-            ₹{value.toFixed(2)}
-          </span>
-        </div>
+      render: (price) => (
+        <p className="text-gray-500 text-theme-sm dark:text-gray-400">
+          ₹{price}
+        </p>
       )
     },
     {
-      field: 'subscription_start_date',
-      header: 'Start Date',
-      sortable: true,
-      headerClassName: "text-center",
-      render: (value) => (
-        <div className="flex items-center justify-center">
-          <span className="text-gray-800 text-theme-sm dark:text-white/90">
-            {value}
-          </span>
-        </div>
-      )
-    },
-    {
-      field: 'subscription_end_date',
-      header: 'End Date',
-      sortable: true,
-      headerClassName: "text-center",
-      render: (value) => (
-        <div className="flex items-center justify-center">
-          <span className="text-gray-800 text-theme-sm dark:text-white/90">
-            {value}
-          </span>
-        </div>
-      )
-    },
-    {
-      field: 'features',
-      header: 'Features',
+      field: 'actions',
+      header: 'Actions',
       sortable: false,
       headerClassName: "text-center",
-      render: (features) => (
-        <div className="flex flex-wrap items-center justify-center gap-1">
-          {features.map((feature) => (
-            <span
-              key={feature.feature_id}
-              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-100 text-brand-800"
-            >
-              {feature.name.split('_').join(' ')}
-            </span>
-          ))}
+      render: (_, row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => handleView(row)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            title="View Subscription"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleEdit(row)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Subscription"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleDelete(row)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Subscription"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
         </div>
       )
     }
@@ -143,6 +124,49 @@ function Subscriptions() {
   useEffect(() => {
     fetchSubscriptions();
   }, []);
+
+  const handleView = (subscription) => {
+    // Navigate to view subscription page
+    navigate(`/subscriptions/${subscription.subscription_id}`);
+  };
+
+  const handleEdit = (subscription) => {
+    // Navigate to edit subscription page
+    navigate(`/subscriptions/edit/${subscription.subscription_id}`);
+  };
+
+  const handleDelete = async (subscription) => {
+    if (window.confirm('Are you sure you want to delete this subscription?')) {
+      try {
+        const token = getToken();
+        if (!token) throw new Error('No authentication token available');
+
+        const response = await axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/delete_subscription`,
+          {
+            subscription_id: subscription.subscription_id,
+            user_id: adminData.user_id,
+            app_source: "admin_app"
+          },
+          {
+            headers: {
+              'Authorization': token,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.data.detail === "Subscription deleted successfully") {
+          toastController.success('Subscription deleted successfully');
+          // Refresh the subscriptions list
+          fetchSubscriptions();
+        }
+      } catch (error) {
+        console.error('Error deleting subscription:', error);
+        toastController.error(error.response?.data?.detail || 'Failed to delete subscription');
+      }
+    }
+  };
 
   if (isLoading) {
     return (
