@@ -65,6 +65,8 @@ import Features from './components/Features/Features';
 import EditFeature from './components/Features/EditFeature';
 import ViewFeature from './components/Features/ViewFeature';
 import Subscriptions from './components/Subscriptions/Subscriptions';
+import CreateSubscription from './components/Subscriptions/CreateSubscription';
+import EditSubscription from './components/Subscriptions/EditSubscription';
 
 function App() {
 
@@ -122,6 +124,8 @@ function App() {
 
             {/* Subscriptions Routes */}
             <Route path="/subscriptions" element={<Subscriptions />} />
+            <Route path="/create-subscription" element={<CreateSubscription />} />
+            <Route path="/edit-subscription/:subscriptionId" element={<EditSubscription />} />
 
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />
