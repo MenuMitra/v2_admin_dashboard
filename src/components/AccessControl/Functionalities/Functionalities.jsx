@@ -240,11 +240,7 @@ function Functionalities() {
         title="Functionalities"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        counts={{
-          total: functionalities.length,
-          active: functionalities.length,
-          inactive: 0
-        }}
+        counts={null}
         createButton={{
           label: "Create",
           onClick: () => setShowCreateModal(true),
@@ -256,8 +252,10 @@ function Functionalities() {
         searchPlaceholder="Search"
         enableSort={true}
         enablePagination={true}
-        enableSearch={true}
-        itemsPerPage={10}
+        enableSearch={false}
+        enableStatusFilter={false}
+        showSearch={false}
+        itemsPerPage={50}
         onBackClick={() => window.history.back()}
         showBackButton={true}
         backButtonLabel="Back"
