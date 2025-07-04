@@ -241,7 +241,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_food_type_list`,
+          `${BASE_URL}/${API_VERSION}/common/get_list/food_type`,
           {
             headers: {
               Authorization: token
@@ -270,7 +270,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_spicy_index_list`,
+          `${BASE_URL}/${API_VERSION}/common/get_list/spicy_index`,
           {
             headers: {
               Authorization: token
