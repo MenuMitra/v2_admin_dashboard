@@ -71,7 +71,7 @@ function EditCustomer() {
             headers: { Authorization: getToken() },
           }
         ),
-        axios.get(`${BASE_URL}/${API_VERSION}/common/list_roles`, {
+        axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/roles`, {
           headers: { Authorization: getToken() },
         }),
       ]);

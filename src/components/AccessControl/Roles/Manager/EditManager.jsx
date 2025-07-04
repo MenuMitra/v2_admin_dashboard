@@ -107,7 +107,7 @@ function EditManager() {
   const fetchRoles = async () => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/list_roles`,
+        `${BASE_URL}/${API_VERSION}/common/get_list/roles`,
         {
           headers: {
             Authorization: getToken(),
