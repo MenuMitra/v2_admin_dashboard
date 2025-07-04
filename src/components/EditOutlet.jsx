@@ -56,7 +56,7 @@ function EditOutlet() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [outletTypes, setOutletTypes] = useState({});
-  const [foodTypes, setFoodTypes] = useState({});
+  const [vegOrNonveg, setVegOrNonveg] = useState({});
   const [allOwners, setAllOwners] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -89,7 +89,7 @@ function EditOutlet() {
   useEffect(() => {
     if (adminData?.user_id && outletId) {
       fetchOutletTypes();
-      fetchFoodTypes();
+      fetchVegOrNonveg();
       fetchOwners();
       fetchOutletData();
     }
@@ -166,7 +166,7 @@ function EditOutlet() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_outlet_type`,
+        `${BASE_URL}/${API_VERSION}/common/get_list/outlet_type`,
         {
           headers: {
             Authorization: token,
@@ -182,7 +182,7 @@ function EditOutlet() {
     }
   };
 
-  const fetchFoodTypes = async () => {
+  const fetchVegOrNonveg = async () => {
     try {
       const token = getToken();
       if (!token) {
@@ -190,7 +190,7 @@ function EditOutlet() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_food_type_list`,
+        `${BASE_URL}/${API_VERSION}/common/get_list/veg_or_nonveg`,
         {
           headers: {
             Authorization: token,
@@ -198,11 +198,11 @@ function EditOutlet() {
         }
       );
 
-      if (response.data.food_type_list) {
-        setFoodTypes(response.data.food_type_list);
+      if (response.data.veg_or_nonveg_list) {
+        setVegOrNonveg(response.data.veg_or_nonveg_list);
       }
     } catch (error) {
-      console.error('Error fetching food types:', error);
+      console.error('Error fetching veg or nonveg types:', error);
     }
   };
 
@@ -680,10 +680,10 @@ function EditOutlet() {
                   value={outletData.veg_nonveg}
                   onChange={handleInputChange}
                   required
-                  options={[
-                    { value: 'veg', label: 'Veg' },
-                    { value: 'nonveg', label: 'Non-Veg' }
-                  ]}
+                  options={Object.entries(vegOrNonveg).map(([key, value]) => ({
+                    value: key,
+                    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ')
+                  }))}
                   placeholder="Select Food Type"
                 />
 
