@@ -278,9 +278,6 @@ function CreateNotification() {
                         {formData.outlet === 'all' ? 'All Outlets' : 
                          Object.entries(outlets).find(([name, id]) => id === formData.outlet)?.[0] || 'Select Outlet'}
                       </div>
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                      </svg>
                     </div>
                   </div>
 
@@ -366,9 +363,6 @@ function CreateNotification() {
                         {formData.role === 'all' ? 'All Roles' : 
                          mockData.roles.find(r => r.id === formData.role)?.name || 'Select Role'}
                       </div>
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                      </svg>
                     </div>
                   </div>
 
@@ -454,9 +448,6 @@ function CreateNotification() {
                         {formData.user === 'all' ? 'All Users' : 
                          mockData.users.find(u => u.id === formData.user)?.name || 'Select User'}
                       </div>
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                      </svg>
                     </div>
                   </div>
 
