@@ -51,7 +51,8 @@ function EditOutlet() {
     opening_time: '',
     closing_time: '',
     outlet_mode: '',
-    image: null
+    image: null,
+    subscription_id: '',
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -80,6 +81,9 @@ function EditOutlet() {
     whatsappMessage: '',
   });
 
+  // Add new state for subscriptions
+  const [subscriptions, setSubscriptions] = useState([]);
+
   // Add essential validation helper functions
   const isNameValid = (name) => name?.length >= 3 && name?.length <= 50;
   const isUpiValid = (upi) => /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/.test(upi);
@@ -92,6 +96,7 @@ function EditOutlet() {
       fetchVegOrNonveg();
       fetchOwners();
       fetchOutletData();
+      fetchSubscriptions();
     }
   }, [adminData?.user_id, outletId]);
 
@@ -147,7 +152,8 @@ function EditOutlet() {
           opening_time: data.opening_time ? data.opening_time.split(' ')[1] : '',
           closing_time: data.closing_time ? data.closing_time.split(' ')[1] : '',
           outlet_mode: data.outlet_mode || '',
-          image: data.image
+          image: data.image,
+          subscription_id: data.subscription_id || '',
         });
 
         setIsLoading(false);
@@ -221,6 +227,31 @@ function EditOutlet() {
       }
     } catch (error) {
       console.error('Error fetching owners:', error);
+    }
+  };
+
+  const fetchSubscriptions = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.data.detail === "Subscription list fetched successfully") {
+        setSubscriptions(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+      toastController.error('Failed to fetch subscriptions');
     }
   };
 
@@ -306,7 +337,8 @@ function EditOutlet() {
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
-      address: isAddressValid(outletData.address)
+      address: isAddressValid(outletData.address),
+      subscription_id: !!outletData.subscription_id,
     };
 
     const isValid = Object.entries(requiredFields).every(([key, value]) => value);
@@ -373,6 +405,7 @@ function EditOutlet() {
         google_review: outletData.google_review || '',
         outlet_mode: outletData.outlet_mode,
         image: outletData.image || '',
+        subscription_id: parseInt(outletData.subscription_id),
         app_source: "admin_app"
       };
 
@@ -757,6 +790,19 @@ function EditOutlet() {
                     </p>
                   )}
                 </div>
+
+                <SelectInput
+                  label="Subscription Plan"
+                  name="subscription_id"
+                  value={outletData.subscription_id}
+                  onChange={handleInputChange}
+                  required
+                  options={subscriptions.map(sub => ({
+                    value: sub.subscription_id.toString(),
+                    label: `${sub.name} - ₹${sub.price} (${sub.features.length} features)`
+                  }))}
+                  placeholder="Select Subscription Plan"
+                />
               </div>
 
               <Textarea
