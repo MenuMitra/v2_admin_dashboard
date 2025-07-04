@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPenToSquare, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import DataTable from '../common/DataTable';
@@ -21,6 +21,11 @@ function Features() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newFeatureName, setNewFeatureName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingFeature, setEditingFeature] = useState(null);
+  const [editFeatureName, setEditFeatureName] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingFeature, setDeletingFeature] = useState(null);
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const breadcrumbItems = [
@@ -53,6 +58,38 @@ function Features() {
           <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90 capitalize">
             {value.split('_').join(' ')}
           </span>
+        </div>
+      )
+    },
+    {
+      field: 'actions',
+      header: 'Actions',
+      sortable: false,
+      headerClassName: "text-center",
+      render: (_, row) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => {
+              setEditingFeature(row);
+              setEditFeatureName(row.name);
+              setIsEditModalOpen(true);
+            }}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            title="Edit Feature"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => {
+              setDeletingFeature(row);
+              setIsDeleteModalOpen(true);
+            }}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Feature"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
         </div>
       )
     }
@@ -146,6 +183,93 @@ function Features() {
     }
   };
 
+  const handleEditFeature = async () => {
+    if (!editFeatureName.trim() || !editingFeature) {
+      toastController.error('Please enter a feature name');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      await toastController.promise(
+        axios.put(
+          `${BASE_URL}/${API_VERSION}/admin/update_feature`,
+          {
+            feature_id: editingFeature.feature_id,
+            name: editFeatureName.toLowerCase().replace(/\s+/g, '_'),
+            user_id: adminData.user_id,
+            app_source: "admin_app"
+          },
+          {
+            headers: {
+              'Authorization': token,
+              'Content-Type': 'application/json'
+            }
+          }
+        ),
+        {
+          loading: 'Updating feature...',
+          success: 'Feature updated successfully!',
+          error: 'Failed to update feature'
+        }
+      );
+
+      setIsEditModalOpen(false);
+      setEditingFeature(null);
+      setEditFeatureName('');
+      fetchFeatures();
+    } catch (error) {
+      console.error('Error updating feature:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteFeature = async () => {
+    try {
+      setIsSubmitting(true);
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/delete_feature`,
+          {
+            feature_id: deletingFeature.feature_id,
+            user_id: adminData.user_id,
+            app_source: "admin_app"
+          },
+          {
+            headers: {
+              'Authorization': token,
+              'Content-Type': 'application/json'
+            }
+          }
+        ),
+        {
+          loading: 'Deleting feature...',
+          success: 'Feature deleted successfully!',
+          error: 'Failed to delete feature'
+        }
+      );
+
+      setIsDeleteModalOpen(false);
+      setDeletingFeature(null);
+      fetchFeatures();
+    } catch (error) {
+      console.error('Error deleting feature:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   useEffect(() => {
     if (adminData?.user_id) {
       fetchFeatures();
@@ -235,6 +359,105 @@ function Features() {
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
               {isSubmitting ? 'Creating...' : 'Create'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Feature Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingFeature(null);
+          setEditFeatureName('');
+        }}
+        title="Edit Feature"
+        type="default"
+        size="small"
+      >
+        <div className="w-full">
+          <div className="mb-6">
+            <label 
+              htmlFor="editFeatureName" 
+              className="block text-xs sm:text-sm font-medium text-left text-gray-700 mb-2"
+            >
+              Feature Name <span className="text-error-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="editFeatureName"
+              value={editFeatureName}
+              onChange={(e) => setEditFeatureName(e.target.value)}
+              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-warning-500 focus:border-warning-500 text-gray-900"
+              placeholder="Enter feature name"
+            />
+          </div>
+
+          <div className="flex justify-end items-center gap-3">
+            <button
+              onClick={() => {
+                setIsEditModalOpen(false);
+                setEditingFeature(null);
+                setEditFeatureName('');
+              }}
+              className="px-4 py-2 text-theme-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEditFeature}
+              disabled={!editFeatureName.trim() || isSubmitting}
+              className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
+                ${!editFeatureName.trim() || isSubmitting
+                  ? 'bg-warning-500 cursor-not-allowed'
+                  : 'bg-warning-500 hover:bg-warning-600'
+                }`}
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+              {isSubmitting ? 'Updating...' : 'Update'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Feature Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletingFeature(null);
+        }}
+        title="Delete Feature"
+        type="danger"
+        size="small"
+      >
+        <div className="w-full">
+          <p className="text-gray-700 mb-6">
+            Are you sure you want to delete the feature "{deletingFeature?.name}"? This action cannot be undone.
+          </p>
+
+          <div className="flex justify-end items-center gap-3">
+            <button
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setDeletingFeature(null);
+              }}
+              className="px-4 py-2 text-theme-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteFeature}
+              disabled={isSubmitting}
+              className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
+                ${isSubmitting
+                  ? 'bg-error-500 cursor-not-allowed'
+                  : 'bg-error-500 hover:bg-error-600'
+                }`}
+            >
+              <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+              {isSubmitting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </div>
