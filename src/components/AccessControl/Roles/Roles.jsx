@@ -90,7 +90,7 @@ function Roles() {
       await toastController.promise(
         axios.post(
           `${BASE_URL}/${API_VERSION}/admin/create_ubac_role`,
-          { role_name: newRoleName },
+          { role_name: newRoleName, user_id: adminData.user_id, app_source: "admin_app" },
           {
             headers: {
               Authorization: token,
