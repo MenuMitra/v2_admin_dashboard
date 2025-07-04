@@ -64,6 +64,7 @@ import RoleFunctionalitiesMapping from './components/AccessControl/Roles/RoleFun
 import Features from './components/Features/Features';
 import EditFeature from './components/Features/EditFeature';
 import ViewFeature from './components/Features/ViewFeature';
+import Subscriptions from './components/Subscriptions/Subscriptions';
 
 function App() {
 
@@ -118,6 +119,9 @@ function App() {
             <Route path="/features" element={<Features />} />
             <Route path="/edit-feature/:featureId" element={<EditFeature />} />
             <Route path="/view-feature/:featureId" element={<ViewFeature />} />
+
+            {/* Subscriptions Routes */}
+            <Route path="/subscriptions" element={<Subscriptions />} />
 
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />

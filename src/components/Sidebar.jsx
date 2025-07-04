@@ -18,7 +18,8 @@ import {
   faSignOut,
   faEllipsis,
   faUserShield,
-  faList
+  faList,
+  faRupeeSign
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -73,6 +74,12 @@ const menuData = {
       path: "/features",
       id: "features",
       icon: faList,
+    },
+    {
+      title: "Subscriptions",
+      path: "/subscriptions",
+      id: "subscriptions",
+      icon: faRupeeSign,
     },
     {
       title: "Outlets",
