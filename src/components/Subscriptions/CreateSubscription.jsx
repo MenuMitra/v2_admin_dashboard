@@ -194,7 +194,7 @@ function CreateSubscription() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+        <form onSubmit={handleSubmit} className="">
           {/* Basic Information Section */}
           <section className="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
             <h2 className="text-lg font-medium text-gray-800 dark:text-white/90 mb-4 flex items-center">
@@ -262,13 +262,35 @@ function CreateSubscription() {
               {features.map(feature => (
                 <div 
                   key={feature.feature_id}
-                  className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:border-brand-500 dark:hover:border-brand-500 transition-colors"
+                  onClick={() => handleFeatureChange(feature.feature_id)}
+                  className={`
+                    bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm 
+                    border cursor-pointer select-none
+                    ${formData.feature_ids.includes(feature.feature_id) 
+                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/10' 
+                      : 'border-gray-200 dark:border-gray-700 hover:border-brand-500/50 dark:hover:border-brand-500/50'
+                    }
+                    transition-all duration-200 ease-in-out
+                  `}
                 >
-                  <Checkbox
-                    label={feature.name.split('_').join(' ')}
-                    checked={formData.feature_ids.includes(feature.feature_id)}
-                    onChange={() => handleFeatureChange(feature.feature_id)}
-                  />
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      checked={formData.feature_ids.includes(feature.feature_id)}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        handleFeatureChange(feature.feature_id);
+                      }}
+                    />
+                    <span className={`
+                      text-sm font-medium pl-2
+                      ${formData.feature_ids.includes(feature.feature_id)
+                        ? 'text-brand-700 dark:text-brand-400'
+                        : 'text-gray-700 dark:text-gray-300'
+                      }
+                    `}>
+                      {feature.name.split('_').join(' ')}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
