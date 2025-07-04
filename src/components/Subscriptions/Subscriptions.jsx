@@ -127,12 +127,12 @@ function Subscriptions() {
 
   const handleView = (subscription) => {
     // Navigate to view subscription page
-    navigate(`/subscriptions/${subscription.subscription_id}`);
+    navigate(`/view-subscription/${subscription.subscription_id}`);
   };
 
   const handleEdit = (subscription) => {
     // Navigate to edit subscription page
-    navigate(`/subscriptions/edit/${subscription.subscription_id}`);
+    navigate(`/edit-subscription/${subscription.subscription_id}`);
   };
 
   const handleDelete = async (subscription) => {
