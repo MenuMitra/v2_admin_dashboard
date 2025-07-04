@@ -257,9 +257,9 @@ function CreateNotification() {
             </div>
 
             {/* Notification Target Options */}
-            <div className="flex gap-3">
+            <div className="flex flex-col md:flex-row gap-3">
               {/* Outlet Dropdown */}
-              <div className="relative" ref={outletDropdownRef}>
+              <div className="relative w-full md:w-auto" ref={outletDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Outlet
                 </label>
@@ -267,7 +267,7 @@ function CreateNotification() {
                   <div
                     onClick={() => handleDropdownClick('outlet')}
                     className={`
-                      inline-flex items-center gap-2 px-4 py-2 
+                      w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
                       text-sm font-medium text-gray-700 transition rounded-lg 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${dropdownStates.outlet ? 'border-error-500' : 'border-gray-300'}
@@ -347,7 +347,7 @@ function CreateNotification() {
               </div>
 
               {/* Role Dropdown */}
-              <div className="relative" ref={roleDropdownRef}>
+              <div className="relative w-full md:w-auto" ref={roleDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Role
                 </label>
@@ -355,7 +355,7 @@ function CreateNotification() {
                   <div
                     onClick={() => handleDropdownClick('role')}
                     className={`
-                      inline-flex items-center gap-2 px-4 py-2 
+                      w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
                       text-sm font-medium text-gray-700 transition rounded-lg 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${dropdownStates.role ? 'border-error-500' : 'border-gray-300'}
@@ -435,7 +435,7 @@ function CreateNotification() {
               </div>
 
               {/* User Dropdown */}
-              <div className="relative" ref={userDropdownRef}>
+              <div className="relative w-full md:w-auto" ref={userDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   User
                 </label>
@@ -443,7 +443,7 @@ function CreateNotification() {
                   <div
                     onClick={() => handleDropdownClick('user')}
                     className={`
-                      inline-flex items-center gap-2 px-4 py-2 
+                      w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
                       text-sm font-medium text-gray-700 transition rounded-lg 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${dropdownStates.user ? 'border-error-500' : 'border-gray-300'}
