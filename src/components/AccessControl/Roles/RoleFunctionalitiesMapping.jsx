@@ -37,7 +37,9 @@ function RoleFunctionalitiesMapping() {
 
   useEffect(() => {
     if (showEditModal) {
-      setSelectedFunctionalities(mappings.map(m => m.functionality_id));
+      // Use Set to ensure unique values
+      const uniqueIds = [...new Set(mappings.map(m => m.functionality_id))];
+      setSelectedFunctionalities(uniqueIds);
     }
   }, [showEditModal, mappings]);
 
@@ -130,6 +132,18 @@ function RoleFunctionalitiesMapping() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleFunctionalityToggle = (functionalityId) => {
+    setSelectedFunctionalities(prev => {
+      const uniqueSet = new Set(prev);
+      if (uniqueSet.has(functionalityId)) {
+        uniqueSet.delete(functionalityId);
+      } else {
+        uniqueSet.add(functionalityId);
+      }
+      return Array.from(uniqueSet);
+    });
   };
 
   if (isLoading) {
@@ -264,14 +278,7 @@ function RoleFunctionalitiesMapping() {
                                 : 'border-gray-200'
                               }
                             `}
-                            onClick={() => {
-                              const isSelected = selectedFunctionalities.includes(functionality.functionality_id);
-                              setSelectedFunctionalities(prev => 
-                                isSelected
-                                  ? prev.filter(id => id !== functionality.functionality_id)
-                                  : [...prev, functionality.functionality_id]
-                              );
-                            }}
+                            onClick={() => handleFunctionalityToggle(functionality.functionality_id)}
                           >
                             <div className="flex items-center gap-3">
                               <input
@@ -279,11 +286,7 @@ function RoleFunctionalitiesMapping() {
                                 checked={selectedFunctionalities.includes(functionality.functionality_id)}
                                 onChange={(e) => {
                                   e.stopPropagation();
-                                  if (e.target.checked) {
-                                    setSelectedFunctionalities([...selectedFunctionalities, functionality.functionality_id]);
-                                  } else {
-                                    setSelectedFunctionalities(selectedFunctionalities.filter(id => id !== functionality.functionality_id));
-                                  }
+                                  handleFunctionalityToggle(functionality.functionality_id);
                                 }}
                                 className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
                               />
