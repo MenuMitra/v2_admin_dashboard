@@ -68,6 +68,8 @@ import Subscriptions from './components/Subscriptions/Subscriptions';
 import CreateSubscription from './components/Subscriptions/CreateSubscription';
 import EditSubscription from './components/Subscriptions/EditSubscription';
 import ViewSubscription from './components/Subscriptions/ViewSubscription';
+import Notifications from './components/Notifications/Notifications';
+import CreateNotification from './components/Notifications/CreateNotification';
 
 function App() {
 
@@ -128,6 +130,10 @@ function App() {
             <Route path="/create-subscription" element={<CreateSubscription />} />
             <Route path="/edit-subscription/:subscriptionId" element={<EditSubscription />} />
             <Route path="/view-subscription/:subscriptionId" element={<ViewSubscription />} />
+
+            {/* Notifications Routes */}
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/create-notification" element={<CreateNotification />} />
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />
             <Route path="/role-details/:userId" element={<RoleDetails />} />
