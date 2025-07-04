@@ -212,9 +212,9 @@ function CreateNotification() {
             </div>
 
             {/* Notification Target Options */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="flex gap-3">
               {/* Outlet Dropdown */}
-              <div className="relative" ref={outletDropdownRef}>
+              <div className="relative w-[200px]" ref={outletDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Outlet
                 </label>
@@ -243,32 +243,38 @@ function CreateNotification() {
 
                   {dropdownStates.outlet && (
                     <div 
-                      className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
+                      className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
+                        position: 'absolute',
                         width: '100%',
-                        maxHeight: '250px',
+                        minWidth: '300px',
+                        zIndex: 9999,
+                        maxHeight: '350px',
                         overflowY: 'auto'
                       }}
                     >
-                      {/* Search input */}
                       <div className="sticky top-0 p-2 border-b bg-white">
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                          placeholder="Search outlets..."
-                          value={searchTerms.outlet}
-                          onChange={(e) => handleSearchChange('outlet', e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                          </span>
+                          <input
+                            type="text"
+                            className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            placeholder="Search outlets..."
+                            value={searchTerms.outlet}
+                            onChange={(e) => handleSearchChange('outlet', e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                          />
+                        </div>
                       </div>
 
-                      {/* Outlet options */}
                       <div className="overflow-y-auto">
                         {getFilteredOutlets().map((outlet) => (
                           <div
                             key={outlet.id}
                             className={`
-                              p-2 cursor-pointer hover:bg-gray-50
+                              p-3 cursor-pointer hover:bg-gray-50
                               ${formData.outlet === outlet.id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
                             `}
                             onClick={() => {
@@ -276,11 +282,19 @@ function CreateNotification() {
                               setDropdownStates(prev => ({ ...prev, outlet: false }));
                             }}
                           >
-                            {outlet.name}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div>
+                                  <div className="font-medium text-gray-900">
+                                    {outlet.name}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         ))}
                         {getFilteredOutlets().length === 0 && (
-                          <div className="p-2 text-center text-gray-500">
+                          <div className="p-4 text-center text-sm text-gray-500">
                             No outlets found
                           </div>
                         )}
@@ -291,7 +305,7 @@ function CreateNotification() {
               </div>
 
               {/* Role Dropdown */}
-              <div className="relative" ref={roleDropdownRef}>
+              <div className="relative w-[200px]" ref={roleDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Role
                 </label>
@@ -320,32 +334,38 @@ function CreateNotification() {
 
                   {dropdownStates.role && (
                     <div 
-                      className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
+                      className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
+                        position: 'absolute',
                         width: '100%',
-                        maxHeight: '250px',
+                        minWidth: '300px',
+                        zIndex: 9999,
+                        maxHeight: '350px',
                         overflowY: 'auto'
                       }}
                     >
-                      {/* Search input */}
                       <div className="sticky top-0 p-2 border-b bg-white">
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                          placeholder="Search roles..."
-                          value={searchTerms.role}
-                          onChange={(e) => handleSearchChange('role', e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                          </span>
+                          <input
+                            type="text"
+                            className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            placeholder="Search roles..."
+                            value={searchTerms.role}
+                            onChange={(e) => handleSearchChange('role', e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                          />
+                        </div>
                       </div>
 
-                      {/* Role options */}
                       <div className="overflow-y-auto">
                         {getFilteredRoles().map((role) => (
                           <div
                             key={role.id}
                             className={`
-                              p-2 cursor-pointer hover:bg-gray-50
+                              p-3 cursor-pointer hover:bg-gray-50
                               ${formData.role === role.id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
                             `}
                             onClick={() => {
@@ -353,11 +373,19 @@ function CreateNotification() {
                               setDropdownStates(prev => ({ ...prev, role: false }));
                             }}
                           >
-                            {role.name}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div>
+                                  <div className="font-medium text-gray-900">
+                                    {role.name}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         ))}
                         {getFilteredRoles().length === 0 && (
-                          <div className="p-2 text-center text-gray-500">
+                          <div className="p-4 text-center text-sm text-gray-500">
                             No roles found
                           </div>
                         )}
@@ -368,7 +396,7 @@ function CreateNotification() {
               </div>
 
               {/* User Dropdown */}
-              <div className="relative" ref={userDropdownRef}>
+              <div className="relative w-[200px]" ref={userDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   User
                 </label>
@@ -397,32 +425,38 @@ function CreateNotification() {
 
                   {dropdownStates.user && (
                     <div 
-                      className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
+                      className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
+                        position: 'absolute',
                         width: '100%',
-                        maxHeight: '250px',
+                        minWidth: '300px',
+                        zIndex: 9999,
+                        maxHeight: '350px',
                         overflowY: 'auto'
                       }}
                     >
-                      {/* Search input */}
                       <div className="sticky top-0 p-2 border-b bg-white">
-                        <input
-                          type="text"
-                          className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                          placeholder="Search users..."
-                          value={searchTerms.user}
-                          onChange={(e) => handleSearchChange('user', e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                          </span>
+                          <input
+                            type="text"
+                            className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            placeholder="Search users..."
+                            value={searchTerms.user}
+                            onChange={(e) => handleSearchChange('user', e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                          />
+                        </div>
                       </div>
 
-                      {/* User options */}
                       <div className="overflow-y-auto">
                         {getFilteredUsers().map((user) => (
                           <div
                             key={user.id}
                             className={`
-                              p-2 cursor-pointer hover:bg-gray-50
+                              p-3 cursor-pointer hover:bg-gray-50
                               ${formData.user === user.id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
                             `}
                             onClick={() => {
@@ -430,12 +464,19 @@ function CreateNotification() {
                               setDropdownStates(prev => ({ ...prev, user: false }));
                             }}
                           >
-                            <div className="font-medium">{user.name}</div>
-                            <div className="text-sm text-gray-500">{user.role}</div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div>
+                                  <div className="font-medium text-gray-900">
+                                    {user.name}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         ))}
                         {getFilteredUsers().length === 0 && (
-                          <div className="p-2 text-center text-gray-500">
+                          <div className="p-4 text-center text-sm text-gray-500">
                             No users found
                           </div>
                         )}
