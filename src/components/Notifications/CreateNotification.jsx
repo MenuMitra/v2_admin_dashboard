@@ -114,7 +114,7 @@ function CreateNotification() {
             </div>
 
             {/* Notification Target Options */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="flex gap-5">
               <SelectInput
                 label="Outlet"
                 name="outlet"
