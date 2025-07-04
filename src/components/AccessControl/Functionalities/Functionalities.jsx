@@ -408,7 +408,7 @@ function Functionalities() {
             setDeletingFunctionality(null);
             setError(null);
           }}
-          title="Delete Functionality"
+          title="Delete"
           size="small"
           type="error"
         >
@@ -452,7 +452,7 @@ function Functionalities() {
                   <span>Deleting...</span>
                 </>
               ) : (
-                'Delete Functionality'
+                'Delete'
               )}
             </button>
           </div>
