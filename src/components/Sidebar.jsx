@@ -69,6 +69,12 @@ const menuData = {
       icon: faHandshake,
     },
     {
+      title: "Features",
+      path: "/features",
+      id: "features",
+      icon: faList,
+    },
+    {
       title: "Outlets",
       path: "/outlets",
       id: "outlets",

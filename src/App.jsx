@@ -61,6 +61,9 @@ import CreateCaptain from './components/AccessControl/Roles/Captain/CreateCaptai
 import Waiters from './components/AccessControl/Roles/Waiter/Waiters';
 import CreateWaiter from './components/AccessControl/Roles/Waiter/CreateWaiter';
 import RoleFunctionalitiesMapping from './components/AccessControl/Roles/RoleFunctionalitiesMapping';
+import Features from './components/Features/Features';
+import EditFeature from './components/Features/EditFeature';
+import ViewFeature from './components/Features/ViewFeature';
 
 function App() {
 
@@ -110,6 +113,11 @@ function App() {
             <Route path="/functionalities" element={<Functionalities />} />
             <Route path="/add-role-assign-functionalities/:roleId" element={<AddRoleAssignFunctionalities />} />
             <Route path="/assign-functionality-role/:functionalityId" element={<AssignFunctionlaityRole />} />
+
+            {/* Features Routes */}
+            <Route path="/features" element={<Features />} />
+            <Route path="/edit-feature/:featureId" element={<EditFeature />} />
+            <Route path="/view-feature/:featureId" element={<ViewFeature />} />
 
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />
