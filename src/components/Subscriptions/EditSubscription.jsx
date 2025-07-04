@@ -18,7 +18,7 @@ import { toastController } from '../../utils/toastController';
 
 function EditSubscription() {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { subscriptionId } = useParams();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -46,21 +46,24 @@ function EditSubscription() {
   // Fetch subscription details
   const fetchSubscriptionDetails = async () => {
     try {
-      const token = getToken();
-      if (!token) throw new Error('No authentication token available');
-
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/view_subscription`,
-        {
-          subscription_id: parseInt(id),
-          user_id: adminData.user_id,
-          app_source: "admin_app"
-        },
-        {
-          headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
+      const response = await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/view_subscription`,
+          {
+            subscription_id: Number(subscriptionId),
+            user_id: adminData.user_id,
+            app_source: "admin_app"
+          },
+          {
+            headers: {
+              Authorization: getToken()
+            }
           }
+        ),
+        {
+          loading: 'Loading subscription details...',
+          success: 'Subscription details loaded successfully!',
+          error: 'Failed to load subscription details'
         }
       );
 
@@ -75,7 +78,7 @@ function EditSubscription() {
       }
     } catch (error) {
       console.error('Error fetching subscription details:', error);
-      toastController.error('Failed to fetch subscription details');
+      toastController.error(error.response?.data?.detail || 'Failed to fetch subscription details');
       navigate('/subscriptions');
     }
   };
@@ -83,20 +86,23 @@ function EditSubscription() {
   // Fetch available features
   const fetchFeatures = async () => {
     try {
-      const token = getToken();
-      if (!token) throw new Error('No authentication token available');
-
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/list_features`,
-        {
-          user_id: adminData.user_id,
-          app_source: "admin_app"
-        },
-        {
-          headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
+      const response = await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          {
+            user_id: adminData.user_id,
+            app_source: "admin_app"
+          },
+          {
+            headers: {
+              Authorization: getToken()
+            }
           }
+        ),
+        {
+          loading: 'Loading features...',
+          success: 'Features loaded successfully!',
+          error: 'Failed to load features'
         }
       );
 
@@ -105,14 +111,14 @@ function EditSubscription() {
       }
     } catch (error) {
       console.error('Error fetching features:', error);
-      toastController.error('Failed to fetch features');
+      toastController.error(error.response?.data?.detail || 'Failed to fetch features');
     }
   };
 
   useEffect(() => {
     fetchFeatures();
     fetchSubscriptionDetails();
-  }, [id]);
+  }, [subscriptionId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -164,13 +170,10 @@ function EditSubscription() {
 
     try {
       setIsLoading(true);
-      const token = getToken();
-      if (!token) throw new Error('No authentication token available');
-
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/update_subscription`,
         {
-          subscription_id: id,
+          subscription_id: Number(subscriptionId),
           ...formData,
           price: parseFloat(formData.price),
           user_id: adminData.user_id,
@@ -178,7 +181,7 @@ function EditSubscription() {
         },
         {
           headers: {
-            'Authorization': token,
+            'Authorization': getToken(),
             'Content-Type': 'application/json'
           }
         }
