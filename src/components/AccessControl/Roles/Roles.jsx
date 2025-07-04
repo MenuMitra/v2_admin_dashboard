@@ -26,6 +26,8 @@ function Roles() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [editRoleName, setEditRoleName] = useState('');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deletingRole, setDeletingRole] = useState(null);
   const navigate = useNavigate();
 
   const breadcrumbItems = [
@@ -49,7 +51,7 @@ function Roles() {
           `${BASE_URL}/${API_VERSION}/common/get_list/roles`,
           {
             headers: {
-              Authorization: token,
+              'Authorization': token,
               'Content-Type': 'application/json'
             }
           }
@@ -90,10 +92,14 @@ function Roles() {
       await toastController.promise(
         axios.post(
           `${BASE_URL}/${API_VERSION}/admin/create_ubac_role`,
-          { role_name: newRoleName, user_id: adminData.user_id, app_source: "admin_app" },
+          { 
+            role_name: newRoleName, 
+            user_id: adminData.user_id, 
+            app_source: "admin_app" 
+          },
           {
             headers: {
-              Authorization: token,
+              'Authorization': token,
               'Content-Type': 'application/json'
             }
           }
@@ -139,7 +145,7 @@ function Roles() {
           },
           {
             headers: {
-              Authorization: token,
+              'Authorization': token,
               'Content-Type': 'application/json'
             }
           }
@@ -157,6 +163,46 @@ function Roles() {
       setEditRoleName('');
     } catch (err) {
       console.error('Error updating role:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteRole = async () => {
+    try {
+      setIsSubmitting(true);
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      await toastController.promise(
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/delete_ubac_role`,
+          {
+            role_id: deletingRole.role_id,
+            user_id: adminData.user_id,
+            app_source: "admin_app"
+          },
+          {
+            headers: {
+              'Authorization': token,
+              'Content-Type': 'application/json'
+            }
+          }
+        ),
+        {
+          loading: 'Deleting role...',
+          success: 'Role deleted successfully!',
+          error: 'Failed to delete role'
+        }
+      );
+
+      await fetchRoles();
+      setIsDeleteModalOpen(false);
+      setDeletingRole(null);
+    } catch (err) {
+      console.error('Error deleting role:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -202,6 +248,17 @@ function Roles() {
             title="Edit Role"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+
+          <button
+            onClick={() => {
+              setDeletingRole(row);
+              setIsDeleteModalOpen(true);
+            }}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            title="Delete Role"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
           </button>
         </div>
       )
@@ -347,6 +404,48 @@ function Roles() {
             >
               <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
               {isSubmitting ? 'Updating...' : 'Update'}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete Role Modal */}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeletingRole(null);
+        }}
+        title="Delete Role"
+        type="danger"
+        size="small"
+      >
+        <div className="w-full">
+          <p className="text-gray-700 mb-6">
+            Are you sure you want to delete the role "{deletingRole?.role_name}"? This action cannot be undone.
+          </p>
+
+          <div className="flex justify-end items-center gap-3">
+            <button
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setDeletingRole(null);
+              }}
+              className="px-4 py-2 text-theme-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteRole}
+              disabled={isSubmitting}
+              className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
+                ${isSubmitting
+                  ? 'bg-error-500 cursor-not-allowed'
+                  : 'bg-error-500 hover:bg-error-600'
+                }`}
+            >
+              <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+              {isSubmitting ? 'Deleting...' : 'Delete'}
             </button>
           </div>
         </div>
