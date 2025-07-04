@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
+import { useAuth } from '../../hooks/useAuth';
+import { API_CONFIG } from '../../config/appConfig';
 import {
   TextInput,
   SelectInput,
@@ -11,7 +14,10 @@ import Breadcrumb from '../Breadcrumb';
 
 function CreateNotification() {
   const navigate = useNavigate();
+  const { getToken } = useAuth();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
+  const [outlets, setOutlets] = useState({});
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -115,13 +121,54 @@ function CreateNotification() {
     user: ''
   });
 
-  // Filter functions for each dropdown
+  // Add function to fetch outlets
+  const fetchOutlets = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/common/get_list/outlets`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.data.detail === "Successfully retrieved outlets") {
+        setOutlets(response.data.outlet_list);
+      }
+    } catch (error) {
+      console.error('Error fetching outlets:', error);
+    }
+  };
+
+  // Call fetchOutlets when component mounts
+  useEffect(() => {
+    fetchOutlets();
+  }, []);
+
+  // Move getFilteredOutlets after outlets state declaration
   const getFilteredOutlets = () => {
-    return mockData.outlets.filter(outlet =>
-      outlet.name.toLowerCase().includes(searchTerms.outlet.toLowerCase())
+    // Convert object to array of objects with name and id
+    const outletsArray = Object.entries(outlets).map(([name, id]) => ({
+      outlet_id: id,
+      outlet_name: name
+    }));
+
+    // Add "All Outlets" option
+    const allOutletsOption = { outlet_id: 'all', outlet_name: 'All Outlets' };
+    const allOutlets = [allOutletsOption, ...outletsArray];
+    
+    return allOutlets.filter(outlet =>
+      outlet.outlet_name.toLowerCase().includes(searchTerms.outlet.toLowerCase())
     );
   };
 
+  // Filter functions for each dropdown
   const getFilteredRoles = () => {
     return mockData.roles.filter(role =>
       role.name.toLowerCase().includes(searchTerms.role.toLowerCase())
@@ -196,7 +243,6 @@ function CreateNotification() {
                 onChange={handleInputChange}
                 placeholder="Enter notification title"
                 required
-                errorMessage="Enter between 3 to 100 characters. Special characters are not allowed."
               />
 
               <Textarea
@@ -207,7 +253,6 @@ function CreateNotification() {
                 placeholder="Enter notification description"
                 required
                 rows={3}
-                errorMessage="Enter between 3 to 500 characters"
               />
             </div>
 
@@ -227,14 +272,11 @@ function CreateNotification() {
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${dropdownStates.outlet ? 'border-error-500' : 'border-gray-300'}
                     `}
-                    role="combobox"
-                    aria-expanded={dropdownStates.outlet}
-                    aria-haspopup="listbox"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
                         {formData.outlet === 'all' ? 'All Outlets' : 
-                         mockData.outlets.find(o => o.id === formData.outlet)?.name || 'Select Outlet'}
+                         Object.entries(outlets).find(([name, id]) => id === formData.outlet)?.[0] || 'Select Outlet'}
                       </div>
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -272,13 +314,13 @@ function CreateNotification() {
                       <div className="overflow-y-auto">
                         {getFilteredOutlets().map((outlet) => (
                           <div
-                            key={outlet.id}
+                            key={outlet.outlet_id}
                             className={`
                               p-3 cursor-pointer hover:bg-gray-50
-                              ${formData.outlet === outlet.id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
+                              ${formData.outlet === outlet.outlet_id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
                             `}
                             onClick={() => {
-                              handleInputChange({ target: { name: 'outlet', value: outlet.id } });
+                              handleInputChange({ target: { name: 'outlet', value: outlet.outlet_id } });
                               setDropdownStates(prev => ({ ...prev, outlet: false }));
                             }}
                           >
@@ -286,7 +328,7 @@ function CreateNotification() {
                               <div className="flex items-center gap-3">
                                 <div>
                                   <div className="font-medium text-gray-900">
-                                    {outlet.name}
+                                    {outlet.outlet_name}
                                   </div>
                                 </div>
                               </div>
