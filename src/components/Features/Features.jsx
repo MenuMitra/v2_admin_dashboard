@@ -33,6 +33,21 @@ function Features() {
     { label: 'Features', path: '/features' }
   ];
 
+  // Add core features list
+  const CORE_FEATURES = [
+    'user_app',
+    'owner_app',
+    'pos_app',
+    'admin_app',
+    'waiter_app',
+    'captain_app',
+    'cds_app',
+    'kds_app'
+  ];
+
+  // Function to check if a feature is a core feature
+  const isCoreFeature = (featureName) => CORE_FEATURES.includes(featureName);
+
   // Define columns for DataTable
   const columns = [
     {
@@ -68,28 +83,34 @@ function Features() {
       headerClassName: "text-center",
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => {
-              setEditingFeature(row);
-              setEditFeatureName(row.name);
-              setIsEditModalOpen(true);
-            }}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-            title="Edit Feature"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button>
+          {isCoreFeature(row.name) ? (
+            <div className="text-xs text-gray-500 italic">Core System Feature</div>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  setEditingFeature(row);
+                  setEditFeatureName(row.name);
+                  setIsEditModalOpen(true);
+                }}
+                className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+                title="Edit Feature"
+              >
+                <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+              </button>
 
-          <button
-            onClick={() => {
-              setDeletingFeature(row);
-              setIsDeleteModalOpen(true);
-            }}
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-            title="Delete Feature"
-          >
-            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-          </button>
+              <button
+                onClick={() => {
+                  setDeletingFeature(row);
+                  setIsDeleteModalOpen(true);
+                }}
+                className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                title="Delete Feature"
+              >
+                <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+              </button>
+            </>
+          )}
         </div>
       )
     }
@@ -288,6 +309,25 @@ function Features() {
     <>
       <Breadcrumb items={breadcrumbItems} />
 
+      {/* Add warning message for core features */}
+      <div className="mb-4 p-4 bg-warning-50 border border-warning-200 rounded-lg">
+        <div className="flex items-start">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-warning-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-warning-800">Core System Features</h3>
+            <div className="mt-2 text-sm text-warning-700">
+              <p>
+                Core system features cannot be modified or deleted. These features are essential for the proper functioning of the system.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <DataTable
         data={features}
         columns={columns}
@@ -341,10 +381,20 @@ function Features() {
               type="text"
               id="featureName"
               value={newFeatureName}
-              onChange={(e) => setNewFeatureName(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (CORE_FEATURES.includes(value.toLowerCase().replace(/\s+/g, '_'))) {
+                  toastController.error('This name is reserved for core system features');
+                  return;
+                }
+                setNewFeatureName(value);
+              }}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-success-500 focus:border-success-500 text-gray-900"
               placeholder="Enter feature name"
             />
+            <p className="mt-2 text-xs text-gray-500">
+              Note: Feature names that match core system features are not allowed.
+            </p>
           </div>
 
           <div className="flex justify-end items-center gap-3">
