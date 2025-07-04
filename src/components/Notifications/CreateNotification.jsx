@@ -214,7 +214,7 @@ function CreateNotification() {
             {/* Notification Target Options */}
             <div className="flex gap-3">
               {/* Outlet Dropdown */}
-              <div className="relative w-[200px]" ref={outletDropdownRef}>
+              <div className="relative" ref={outletDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Outlet
                 </label>
@@ -222,15 +222,16 @@ function CreateNotification() {
                   <div
                     onClick={() => handleDropdownClick('outlet')}
                     className={`
-                      w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
-                      focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer
+                      inline-flex items-center gap-2 px-4 py-2 
+                      text-sm font-medium text-gray-700 transition rounded-lg 
+                      border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${dropdownStates.outlet ? 'border-error-500' : 'border-gray-300'}
                     `}
                     role="combobox"
                     aria-expanded={dropdownStates.outlet}
                     aria-haspopup="listbox"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
                         {formData.outlet === 'all' ? 'All Outlets' : 
                          mockData.outlets.find(o => o.id === formData.outlet)?.name || 'Select Outlet'}
@@ -246,8 +247,7 @@ function CreateNotification() {
                       className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
                         position: 'absolute',
-                        width: '100%',
-                        minWidth: '300px',
+                        width: '300px',
                         zIndex: 9999,
                         maxHeight: '350px',
                         overflowY: 'auto'
@@ -305,7 +305,7 @@ function CreateNotification() {
               </div>
 
               {/* Role Dropdown */}
-              <div className="relative w-[200px]" ref={roleDropdownRef}>
+              <div className="relative" ref={roleDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Role
                 </label>
@@ -313,15 +313,13 @@ function CreateNotification() {
                   <div
                     onClick={() => handleDropdownClick('role')}
                     className={`
-                      w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
-                      focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer
+                      inline-flex items-center gap-2 px-4 py-2 
+                      text-sm font-medium text-gray-700 transition rounded-lg 
+                      border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${dropdownStates.role ? 'border-error-500' : 'border-gray-300'}
                     `}
-                    role="combobox"
-                    aria-expanded={dropdownStates.role}
-                    aria-haspopup="listbox"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
                         {formData.role === 'all' ? 'All Roles' : 
                          mockData.roles.find(r => r.id === formData.role)?.name || 'Select Role'}
@@ -337,8 +335,7 @@ function CreateNotification() {
                       className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
                         position: 'absolute',
-                        width: '100%',
-                        minWidth: '300px',
+                        width: '300px',
                         zIndex: 9999,
                         maxHeight: '350px',
                         overflowY: 'auto'
@@ -396,7 +393,7 @@ function CreateNotification() {
               </div>
 
               {/* User Dropdown */}
-              <div className="relative w-[200px]" ref={userDropdownRef}>
+              <div className="relative" ref={userDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   User
                 </label>
@@ -404,15 +401,13 @@ function CreateNotification() {
                   <div
                     onClick={() => handleDropdownClick('user')}
                     className={`
-                      w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
-                      focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer
+                      inline-flex items-center gap-2 px-4 py-2 
+                      text-sm font-medium text-gray-700 transition rounded-lg 
+                      border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${dropdownStates.user ? 'border-error-500' : 'border-gray-300'}
                     `}
-                    role="combobox"
-                    aria-expanded={dropdownStates.user}
-                    aria-haspopup="listbox"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
                         {formData.user === 'all' ? 'All Users' : 
                          mockData.users.find(u => u.id === formData.user)?.name || 'Select User'}
@@ -428,8 +423,7 @@ function CreateNotification() {
                       className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
                         position: 'absolute',
-                        width: '100%',
-                        minWidth: '300px',
+                        width: '300px',
                         zIndex: 9999,
                         maxHeight: '350px',
                         overflowY: 'auto'
