@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faPlus, faPencil, faTrash, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPenToSquare, faPlus, faPencil, faTrash, faCircleCheck, faCircleXmark, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import DataTable from '../common/DataTable';
+import Modal from '../common/Modal';
 import Breadcrumb from '../Breadcrumb';
 import { API_CONFIG } from '../../config/appConfig';
 import { toastController } from '../../utils/toastController';
@@ -18,6 +19,9 @@ function Subscriptions() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const { BASE_URL, API_VERSION } = API_CONFIG;
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedSubscription, setSelectedSubscription] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/dashboard' },
@@ -135,36 +139,47 @@ function Subscriptions() {
     navigate(`/edit-subscription/${subscription.subscription_id}`);
   };
 
-  const handleDelete = async (subscription) => {
-    if (window.confirm('Are you sure you want to delete this subscription?')) {
-      try {
-        const token = getToken();
-        if (!token) throw new Error('No authentication token available');
+  const handleDelete = (subscription) => {
+    setSelectedSubscription(subscription);
+    setShowDeleteModal(true);
+  };
 
-        const response = await axios.post(
+  const confirmDelete = async () => {
+    if (!selectedSubscription) return;
+    
+    setIsDeleting(true);
+    try {
+      const response = await toastController.promise(
+        axios.post(
           `${BASE_URL}/${API_VERSION}/admin/delete_subscription`,
           {
-            subscription_id: subscription.subscription_id,
+            subscription_id: selectedSubscription.subscription_id,
             user_id: adminData.user_id,
             app_source: "admin_app"
           },
           {
             headers: {
-              'Authorization': token,
-              'Content-Type': 'application/json'
+              Authorization: getToken()
             }
           }
-        );
-
-        if (response.data.detail === "Subscription deleted successfully") {
-          toastController.success('Subscription deleted successfully');
-          // Refresh the subscriptions list
-          fetchSubscriptions();
+        ),
+        {
+          loading: 'Deleting subscription...',
+          success: 'Subscription deleted successfully!',
+          error: 'Failed to delete subscription'
         }
-      } catch (error) {
-        console.error('Error deleting subscription:', error);
-        toastController.error(error.response?.data?.detail || 'Failed to delete subscription');
+      );
+
+      if (response.data.detail === "Subscription deleted successfully") {
+        setShowDeleteModal(false);
+        fetchSubscriptions();
       }
+    } catch (error) {
+      console.error('Error deleting subscription:', error);
+      toastController.error(error.response?.data?.detail || 'Failed to delete subscription');
+    } finally {
+      setIsDeleting(false);
+      setSelectedSubscription(null);
     }
   };
 
@@ -208,6 +223,55 @@ function Subscriptions() {
           tooltip: "Create a new subscription"
         }}
       />
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setSelectedSubscription(null);
+        }}
+        title="Confirm Deletion"
+        type="error"
+        size="small"
+        actionButtons={
+          <>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSelectedSubscription(null);
+                }}
+                className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600 disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </>
+        }
+      >
+        <div className="flex flex-col items-center space-y-4">
+          <FontAwesomeIcon
+            icon={faExclamationTriangle}
+            className="h-8 w-8 text-error-500"
+          />
+          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
+            Are you sure you want to delete "{selectedSubscription?.name}"? <br/>
+            This action cannot be undone. All data associated with this subscription
+            will be permanently removed.
+          </p>
+        </div>
+      </Modal>
     </>
   );
 }
