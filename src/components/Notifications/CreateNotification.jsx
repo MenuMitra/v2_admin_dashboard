@@ -92,7 +92,7 @@ function CreateNotification() {
   // Add mock data for dropdowns
   const mockData = {
     outlets: [
-      { id: 'all', name: 'All Outlets' },
+      { id: 'all', name: 'Select Outlets' },
       { id: '1', name: 'Restaurant ABC' },
       { id: '2', name: 'Café XYZ' },
       { id: '3', name: 'Bistro 123' },
