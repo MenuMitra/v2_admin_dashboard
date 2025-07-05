@@ -109,7 +109,10 @@ const Notifications = () => {
           success_count: notification.success_count,
           failure_count: notification.failure_count,
           created_on: new Date(notification.created_on).toLocaleString(),
-          broadcast_status: notification.broadcast_status
+          broadcast_status: notification.broadcast_status,
+          // Store original values for filtering
+          original_outlet_id: notification.outlet_id,
+          original_role: notification.role
         }));
         setNotifications(formattedNotifications);
         setTotalCount(formattedNotifications.length);
@@ -142,6 +145,21 @@ const Notifications = () => {
 
   const handleRoleChange = (value) => {
     setSelectedRole(value);
+  };
+
+  // Filter notifications based on selected outlet and role
+  const getFilteredNotifications = () => {
+    return notifications.filter(notification => {
+      const matchesOutlet = !selectedOutlet || 
+        notification.original_outlet_id === "0" || // Include "All" outlets
+        notification.original_outlet_id === selectedOutlet; // Match specific outlet
+
+      const matchesRole = !selectedRole || 
+        notification.original_role === "all" || // Include "All" roles
+        notification.original_role === selectedRole; // Match specific role
+
+      return matchesOutlet && matchesRole;
+    });
   };
 
   const columns = [
@@ -209,11 +227,14 @@ const Notifications = () => {
     console.log('Bulk action:', action, 'Selected IDs:', selectedIds);
   };
 
+  // Get filtered notifications
+  const filteredNotifications = getFilteredNotifications();
+
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
       <DataTable
-        data={notifications}
+        data={filteredNotifications}
         columns={columns}
         enablePagination={true}
         itemsPerPage={itemsPerPage}
@@ -226,7 +247,7 @@ const Notifications = () => {
         darkMode={true}
         isLoading={isLoading}
         counts={{
-          total: totalCount,
+          total: filteredNotifications.length,
           active: null,
           inactive: null
         }}
