@@ -20,24 +20,24 @@ function CreateNotification() {
   const [outlets, setOutlets] = useState({});
   const [formData, setFormData] = useState({
     message: '',
+    type: 'Success',
     outlet: 'all',
     role: 'all',
     user: 'all'
   });
 
-  // Add these new states
   const [dropdownStates, setDropdownStates] = useState({
     outlet: false,
     role: false,
-    user: false
+    user: false,
+    type: false
   });
   
-  // Add refs for each dropdown
   const outletDropdownRef = useRef(null);
   const roleDropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
+  const typeDropdownRef = useRef(null);
 
-  // Add this effect to handle outside clicks for all dropdowns
   useEffect(() => {
     function handleClickOutside(event) {
       if (outletDropdownRef.current && !outletDropdownRef.current.contains(event.target)) {
@@ -49,13 +49,15 @@ function CreateNotification() {
       if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
         setDropdownStates(prev => ({ ...prev, user: false }));
       }
+      if (typeDropdownRef.current && !typeDropdownRef.current.contains(event.target)) {
+        setDropdownStates(prev => ({ ...prev, type: false }));
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Add handler for toggling dropdowns
   const handleDropdownClick = (dropdownName) => {
     setDropdownStates(prev => ({
       ...prev,
@@ -63,7 +65,6 @@ function CreateNotification() {
     }));
   };
 
-  // Add Breadcrumb configuration
   const breadcrumbItems = [
     { label: "Dashboard", path: "/dashboard" },
     { label: "Notifications", path: "/notifications" },
@@ -82,13 +83,44 @@ function CreateNotification() {
     return formData.message?.trim();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
+    setIsLoading(true);
+
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const payload = {
+        message: formData.message,
+        type: formData.type,
+        outlet_id: formData.outlet === 'all' ? '0' : formData.outlet.toString(),
+        role: formData.role === 'all' ? 'all' : formData.role,
+        user_id: formData.user === 'all' ? '0' : formData.user.toString()
+      };
+
+      const response = await axios.post(
+        `${BASE_URL}/${API_VERSION}/admin/create_notification`,
+        payload,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.data.notification_id) {
+        navigate('/notifications');
+      }
+    } catch (error) {
+      console.error('Error creating notification:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Add mock data for dropdowns
   const mockData = {
     outlets: [
       { id: 'all', name: 'Select Outlets' },
@@ -113,14 +145,12 @@ function CreateNotification() {
     ]
   };
 
-  // Add search states for each dropdown
   const [searchTerms, setSearchTerms] = useState({
     outlet: '',
     role: '',
     user: ''
   });
 
-  // Add function to fetch outlets
   const fetchOutlets = async () => {
     try {
       const token = getToken();
@@ -145,20 +175,20 @@ function CreateNotification() {
     }
   };
 
-  // Call fetchOutlets when component mounts
   useEffect(() => {
     fetchOutlets();
   }, []);
 
-  // Move getFilteredOutlets after outlets state declaration
   const getFilteredOutlets = () => {
-    // Convert object to array of objects with name and id
+    if (!outlets || Object.keys(outlets).length === 0) {
+      return [{ outlet_id: 'all', outlet_name: 'All Outlets' }];
+    }
+
     const outletsArray = Object.entries(outlets).map(([name, id]) => ({
-      outlet_id: id,
+      outlet_id: id.toString(),
       outlet_name: name
     }));
 
-    // Add "All Outlets" option
     const allOutletsOption = { outlet_id: 'all', outlet_name: 'All Outlets' };
     const allOutlets = [allOutletsOption, ...outletsArray];
     
@@ -167,7 +197,6 @@ function CreateNotification() {
     );
   };
 
-  // Filter functions for each dropdown
   const getFilteredRoles = () => {
     return mockData.roles.filter(role =>
       role.name.toLowerCase().includes(searchTerms.role.toLowerCase())
@@ -181,7 +210,6 @@ function CreateNotification() {
     );
   };
 
-  // Handle search input change
   const handleSearchChange = (type, value) => {
     setSearchTerms(prev => ({
       ...prev,
@@ -189,15 +217,20 @@ function CreateNotification() {
     }));
   };
 
+  const notificationTypes = [
+    { id: 'Info', name: 'Info' },
+    { id: 'Success', name: 'Success' },
+    { id: 'Warning', name: 'Warning' },
+    { id: 'Danger', name: 'Danger' }
+  ];
+
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
-            {/* Back Button */}
             <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
@@ -206,12 +239,10 @@ function CreateNotification() {
               <span>Back</span>
             </button>
 
-            {/* Title */}
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Create Notification
             </h1>
 
-            {/* Create Button */}
             <button
               onClick={handleSubmit}
               disabled={isLoading || !isFormValid()}
@@ -230,10 +261,8 @@ function CreateNotification() {
           </div>
         </div>
 
-        {/* Form Content */}
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Message Input */}
             <div className="grid grid-cols-1 gap-3">
               <Textarea
                 label="Message"
@@ -246,9 +275,69 @@ function CreateNotification() {
               />
             </div>
 
-            {/* Notification Target Options */}
             <div className="flex flex-col md:flex-row gap-3">
-              {/* Outlet Dropdown */}
+              <div className="relative w-full md:w-auto" ref={typeDropdownRef}>
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Type
+                </label>
+                <div className="relative">
+                  <div
+                    onClick={() => handleDropdownClick('type')}
+                    className={`
+                      w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
+                      text-sm font-medium text-gray-700 transition rounded-lg 
+                      border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
+                      ${dropdownStates.type ? 'border-error-500' : 'border-gray-300'}
+                    `}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-gray-900">
+                        {formData.type || 'Select Type'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {dropdownStates.type && (
+                    <div 
+                      className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
+                      style={{
+                        position: 'absolute',
+                        width: '300px',
+                        zIndex: 9999,
+                        maxHeight: '350px',
+                        overflowY: 'auto'
+                      }}
+                    >
+                      <div className="overflow-y-auto">
+                        {notificationTypes.map((type) => (
+                          <div
+                            key={type.id}
+                            className={`
+                              p-3 cursor-pointer hover:bg-gray-50
+                              ${formData.type === type.id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
+                            `}
+                            onClick={() => {
+                              handleInputChange({ target: { name: 'type', value: type.id } });
+                              setDropdownStates(prev => ({ ...prev, type: false }));
+                            }}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div>
+                                  <div className="font-medium text-gray-900">
+                                    {type.name}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="relative w-full md:w-auto" ref={outletDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Outlet
@@ -266,7 +355,7 @@ function CreateNotification() {
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
                         {formData.outlet === 'all' ? 'All Outlets' : 
-                         Object.entries(outlets).find(([name, id]) => id === formData.outlet)?.[0] || 'Select Outlet'}
+                         Object.entries(outlets).find(([name, id]) => id.toString() === formData.outlet)?.[0] || 'Select Outlet'}
                       </div>
                     </div>
                   </div>
@@ -333,7 +422,6 @@ function CreateNotification() {
                 </div>
               </div>
 
-              {/* Role Dropdown */}
               <div className="relative w-full md:w-auto" ref={roleDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Role
@@ -418,7 +506,6 @@ function CreateNotification() {
                 </div>
               </div>
 
-              {/* User Dropdown */}
               <div className="relative w-full md:w-auto" ref={userDropdownRef}>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   User
