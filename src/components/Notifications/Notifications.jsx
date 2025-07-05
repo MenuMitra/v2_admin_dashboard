@@ -104,7 +104,7 @@ function Notifications() {
         onBackClick={() => navigate("/dashboard")}
         createButton={{
           show: true,
-          label: "Add Notification",
+          label: "Create",
           icon: faPlus,
           onClick: () => navigate("/create-notification"),
           className: "bg-success-500 hover:bg-success-600",
