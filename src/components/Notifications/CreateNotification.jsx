@@ -18,6 +18,8 @@ function CreateNotification() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
   const [outlets, setOutlets] = useState({});
+  const [roles, setRoles] = useState([]);
+  const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
     message: '',
     type: 'Success',
@@ -197,16 +199,92 @@ function CreateNotification() {
     );
   };
 
+  const fetchFilterOptions = async (outletId, selectedRole = null) => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const payload = selectedRole 
+        ? { outlet_id: outletId, role: selectedRole }
+        : { outlet_id: outletId };
+
+      const response = await axios.post(
+        `${BASE_URL}/${API_VERSION}/admin/notification_filter_options`,
+        payload,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.data) {
+        if (selectedRole) {
+          setUsers(response.data.users || []);
+        } else {
+          setRoles(response.data.roles || []);
+          setUsers([]);
+          // Reset role and user selection when outlet changes
+          setFormData(prev => ({
+            ...prev,
+            role: 'all',
+            user: 'all'
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching filter options:', error);
+      setRoles([]);
+      setUsers([]);
+    }
+  };
+
+  // Update fetchFilterOptions call when outlet or role changes
+  useEffect(() => {
+    if (formData.outlet !== 'all') {
+      fetchFilterOptions(formData.outlet);
+    } else {
+      setRoles([]);
+      setUsers([]);
+    }
+  }, [formData.outlet]);
+
+  useEffect(() => {
+    if (formData.outlet !== 'all' && formData.role !== 'all') {
+      fetchFilterOptions(formData.outlet, formData.role);
+    } else {
+      setUsers([]);
+    }
+  }, [formData.role]);
+
   const getFilteredRoles = () => {
-    return mockData.roles.filter(role =>
+    const allRolesOption = { role: 'all', name: 'All Roles' };
+    const formattedRoles = roles.map(role => ({
+      id: role.role,
+      name: role.role.charAt(0).toUpperCase() + role.role.slice(1).replace('_', ' ')
+    }));
+    
+    const allRoles = [allRolesOption, ...formattedRoles];
+    
+    return allRoles.filter(role =>
       role.name.toLowerCase().includes(searchTerms.role.toLowerCase())
     );
   };
 
   const getFilteredUsers = () => {
-    return mockData.users.filter(user =>
+    const allUsersOption = { user_id: 'all', name: 'All Users', role: '' };
+    const formattedUsers = users.map(user => ({
+      ...user,
+      user_id: user.user_id.toString()
+    }));
+    
+    const allUsers = [allUsersOption, ...formattedUsers];
+    
+    return allUsers.filter(user =>
       user.name.toLowerCase().includes(searchTerms.user.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerms.user.toLowerCase())
+      user.role?.toLowerCase().includes(searchTerms.user.toLowerCase())
     );
   };
 
@@ -439,7 +517,8 @@ function CreateNotification() {
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
                         {formData.role === 'all' ? 'All Roles' : 
-                         mockData.roles.find(r => r.id === formData.role)?.name || 'Select Role'}
+                         roles.find(r => r.role === formData.role)?.role.charAt(0).toUpperCase() + 
+                         roles.find(r => r.role === formData.role)?.role.slice(1).replace('_', ' ') || 'Select Role'}
                       </div>
                     </div>
                   </div>
@@ -523,7 +602,7 @@ function CreateNotification() {
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
                         {formData.user === 'all' ? 'All Users' : 
-                         mockData.users.find(u => u.id === formData.user)?.name || 'Select User'}
+                         users.find(u => u.user_id.toString() === formData.user)?.name || 'Select User'}
                       </div>
                     </div>
                   </div>
@@ -558,13 +637,13 @@ function CreateNotification() {
                       <div className="overflow-y-auto">
                         {getFilteredUsers().map((user) => (
                           <div
-                            key={user.id}
+                            key={user.user_id}
                             className={`
                               p-3 cursor-pointer hover:bg-gray-50
-                              ${formData.user === user.id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
+                              ${formData.user === user.user_id.toString() ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
                             `}
                             onClick={() => {
-                              handleInputChange({ target: { name: 'user', value: user.id } });
+                              handleInputChange({ target: { name: 'user', value: user.user_id.toString() } });
                               setDropdownStates(prev => ({ ...prev, user: false }));
                             }}
                           >
@@ -574,6 +653,11 @@ function CreateNotification() {
                                   <div className="font-medium text-gray-900">
                                     {user.name}
                                   </div>
+                                  {user.user_id !== 'all' && (
+                                    <div className="text-sm text-gray-500">
+                                      {user.role}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </div>
