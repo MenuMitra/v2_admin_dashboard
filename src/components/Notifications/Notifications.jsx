@@ -62,6 +62,25 @@ function Notifications() {
   }, []);
 
   const columns = [
+
+    {
+      field: 'outlet',
+      header: 'Outlet',
+      sortable: true,
+    },
+    {
+      field: 'role',
+      header: 'Role',
+      sortable: true,
+      render: (value) => (
+        <span className="capitalize">{value}</span>
+      ),
+    },
+    {
+      field: 'user',
+      header: 'User',
+      sortable: true,
+    },
     {
       field: 'title',
       header: 'Message',
@@ -88,33 +107,15 @@ function Notifications() {
       ),
     },
     {
-      field: 'outlet',
-      header: 'Outlet',
-      sortable: true,
-    },
-    {
-      field: 'role',
-      header: 'Role',
-      sortable: true,
-      render: (value) => (
-        <span className="capitalize">{value}</span>
-      ),
-    },
-    {
-      field: 'user',
-      header: 'User',
-      sortable: true,
-    },
-    {
       field: 'success_count',
       header: 'Success Count',
       sortable: true,
     },
-    {
-      field: 'failure_count',
-      header: 'Failure Count',
-      sortable: true,
-    },
+    // {
+    //   field: 'failure_count',
+    //   header: 'Failure Count',
+    //   sortable: true,
+    // },
     {
       field: 'created_on',
       header: 'Created On',
