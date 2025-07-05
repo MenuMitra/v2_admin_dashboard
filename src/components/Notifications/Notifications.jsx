@@ -38,18 +38,18 @@ function Notifications() {
       ),
     },
     {
-      field: 'role',
-      header: 'ROLE',
+      field: 'outlet',
+      header: 'Outlet',
       sortable: true,
     },
     {
-      field: 'outlet',
-      header: 'OUTLET',
+      field: 'role',
+      header: 'Role',
       sortable: true,
     },
     {
       field: 'user',
-      header: 'USER',
+      header: 'User',
       sortable: true,
     },
     {
