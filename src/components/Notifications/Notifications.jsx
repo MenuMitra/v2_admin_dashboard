@@ -1,40 +1,90 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
+import { useAuth } from '../../hooks/useAuth';
+import { API_CONFIG } from '../../config/appConfig';
 import Breadcrumb from '../Breadcrumb';
 import DataTable from '../common/DataTable';
 
 function Notifications() {
   const navigate = useNavigate();
+  const { getToken } = useAuth();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data matching the screenshot
-  const mockNotifications = [
-    { id: 1, title: 'All', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 },
-    { id: 2, title: 'All', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 },
-    { id: 3, title: 'All', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 },
-    { id: 4, title: 'All', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 },
-    { id: 5, title: 'All', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 },
-    { id: 6, title: 'All', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 },
-    { id: 7, title: '111111', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 },
-    { id: 8, title: 'Aaaaaaaaaaaaaaaa', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 },
-    { id: 9, title: 'Cdj', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 },
-    { id: 10, title: 'Ddded', role: 'None', outlet: 'None', user: 'None', success_count: 0, failure_count: 0 }
-  ];
+  const fetchNotifications = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/admin/list_notifications`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (Array.isArray(response.data)) {
+        const formattedNotifications = response.data.map(notification => ({
+          id: notification.notification_id,
+          title: notification.message,
+          type: notification.type,
+          outlet: notification.outlet_id === "0" ? "All" : notification.outlet_id,
+          role: notification.role === "all" ? "All" : notification.role,
+          user: notification.user_id === "0" ? "All" : notification.user_id,
+          success_count: notification.success_count,
+          failure_count: notification.failure_count,
+          created_on: new Date(notification.created_on).toLocaleString(),
+          broadcast_status: notification.broadcast_status
+        }));
+        setNotifications(formattedNotifications);
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   const columns = [
     {
       field: 'title',
-      header: 'Title',
+      header: 'Message',
       sortable: true,
       render: (value) => (
         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
           {value}
         </p>
+      ),
+    },
+    {
+      field: 'type',
+      header: 'Type',
+      sortable: true,
+      render: (value) => (
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+          value === 'Success' ? 'bg-success-100 text-success-700' :
+          value === 'Info' ? 'bg-info-100 text-info-700' :
+          value === 'Warning' ? 'bg-warning-100 text-warning-700' :
+          'bg-error-100 text-error-700'
+        }`}>
+          {value}
+        </span>
       ),
     },
     {
@@ -46,6 +96,9 @@ function Notifications() {
       field: 'role',
       header: 'Role',
       sortable: true,
+      render: (value) => (
+        <span className="capitalize">{value}</span>
+      ),
     },
     {
       field: 'user',
@@ -60,6 +113,11 @@ function Notifications() {
     {
       field: 'failure_count',
       header: 'Failure Count',
+      sortable: true,
+    },
+    {
+      field: 'created_on',
+      header: 'Created On',
       sortable: true,
     },
   ];
@@ -78,7 +136,7 @@ function Notifications() {
     <>
       <Breadcrumb items={breadcrumbItems} />
       <DataTable
-        data={mockNotifications}
+        data={notifications}
         columns={columns}
         enablePagination={true}
         itemsPerPage={itemsPerPage}
@@ -89,6 +147,7 @@ function Notifications() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         darkMode={true}
+        isLoading={isLoading}
         
         // Enable selection and bulk actions
         enableSelection={true}
@@ -100,7 +159,7 @@ function Notifications() {
         title="Notifications"
         showBackButton={true}
         showSearch={true}
-        searchPlaceholder="Search"
+        searchPlaceholder="Search notifications..."
         onBackClick={() => navigate("/dashboard")}
         createButton={{
           show: true,
