@@ -29,7 +29,7 @@ function Notifications() {
   const columns = [
     {
       field: 'title',
-      header: 'TITLE',
+      header: 'Title',
       sortable: true,
       render: (value) => (
         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -54,12 +54,12 @@ function Notifications() {
     },
     {
       field: 'success_count',
-      header: 'SUCCESS COUNT',
+      header: 'Success Count',
       sortable: true,
     },
     {
       field: 'failure_count',
-      header: 'FAILURE COUNT',
+      header: 'Failure Count',
       sortable: true,
     },
   ];
