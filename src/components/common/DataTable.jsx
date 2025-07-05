@@ -383,7 +383,8 @@ function DataTable({
           <option value="">Outlets</option>
           {outlets.map((outlet) => (
             <option key={outlet.outlet_id} value={outlet.outlet_id}>
-              {outlet.outlet_name} ({outlet.outlet_code})
+              {outlet.outlet_name} 
+              {/* ({outlet.outlet_code}) */}
             </option>
           ))}
         </select>
@@ -416,7 +417,8 @@ function DataTable({
           <option value="">Roles</option>
           {roles.map((role) => (
             <option key={role.role_id} value={role.role_id}>
-              {role.role_name} ({role.count})
+              {role.role_name} 
+              {/* ({role.count}) */}
             </option>
           ))}
         </select>
