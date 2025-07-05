@@ -19,8 +19,7 @@ function CreateNotification() {
   const [isLoading, setIsLoading] = useState(false);
   const [outlets, setOutlets] = useState({});
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
+    message: '',
     outlet: 'all',
     role: 'all',
     user: 'all'
@@ -80,7 +79,7 @@ function CreateNotification() {
   };
 
   const isFormValid = () => {
-    return formData.title?.trim() && formData.description?.trim();
+    return formData.message?.trim();
   };
 
   const handleSubmit = (e) => {
@@ -234,23 +233,14 @@ function CreateNotification() {
         {/* Form Content */}
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
+            {/* Message Input */}
             <div className="grid grid-cols-1 gap-3">
-              <TextInput
-                label="Title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                placeholder="Enter notification title"
-                required
-              />
-
               <Textarea
-                label="Description"
-                name="description"
-                value={formData.description}
+                label="Message"
+                name="message"
+                value={formData.message}
                 onChange={handleInputChange}
-                placeholder="Enter notification description"
+                placeholder="Enter notification message"
                 required
                 rows={3}
               />
