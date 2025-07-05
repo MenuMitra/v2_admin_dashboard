@@ -484,12 +484,16 @@ function DataTable({
                 <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
                   Total: {counts.total}
                 </span>
-                <span className="text-success-600 shrink-0">
-                  Active: {counts.active}
-                </span>
-                <span className="text-error-500 shrink-0">
-                  Inactive: {counts.inactive}
-                </span>
+                {counts.active !== null && (
+                  <span className="text-success-600 shrink-0">
+                    Active: {counts.active}
+                  </span>
+                )}
+                {counts.inactive !== null && (
+                  <span className="text-error-500 shrink-0">
+                    Inactive: {counts.inactive}
+                  </span>
+                )}
               </div>
             )}
 

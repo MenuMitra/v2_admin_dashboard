@@ -13,11 +13,11 @@ function Notifications() {
   const { getToken } = useAuth();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
 
   const fetchNotifications = async () => {
     try {
@@ -49,6 +49,7 @@ function Notifications() {
           broadcast_status: notification.broadcast_status
         }));
         setNotifications(formattedNotifications);
+        setTotalCount(formattedNotifications.length);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -62,7 +63,6 @@ function Notifications() {
   }, []);
 
   const columns = [
-
     {
       field: 'outlet',
       header: 'Outlet',
@@ -111,11 +111,6 @@ function Notifications() {
       header: 'Success Count',
       sortable: true,
     },
-    // {
-    //   field: 'failure_count',
-    //   header: 'Failure Count',
-    //   sortable: true,
-    // },
     {
       field: 'created_on',
       header: 'Created On',
@@ -129,7 +124,6 @@ function Notifications() {
   ];
 
   const handleBulkAction = async (action, selectedIds) => {
-    // Implement bulk action logic here
     console.log('Bulk action:', action, 'Selected IDs:', selectedIds);
   };
 
@@ -149,18 +143,21 @@ function Notifications() {
         onSearchChange={setSearchTerm}
         darkMode={true}
         isLoading={isLoading}
+        counts={{
+          total: totalCount,
+          active: null,
+          inactive: null
+        }}
         
-        // Enable selection and bulk actions
-        enableSelection={true}
+        enableSelection={false}
         onBulkAction={handleBulkAction}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         
-        // Header props
         title="Notifications"
         showBackButton={true}
         showSearch={true}
-        searchPlaceholder="Search notifications..."
+        searchPlaceholder="Search"
         onBackClick={() => navigate("/dashboard")}
         createButton={{
           show: true,
@@ -171,10 +168,7 @@ function Notifications() {
           position: "right"
         }}
         
-        // Add status filter props
-        enableStatusFilter={true}
-        statusFilter={statusFilter}
-        onStatusFilterChange={(value) => setStatusFilter(value)}
+        enableStatusFilter={false}
       />
     </>
   );
