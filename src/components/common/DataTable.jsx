@@ -92,6 +92,10 @@ function DataTable({
     inactive: "No inactive items found."
   },
   statusField = "is_active",
+  showRoleSelect = false,
+  roles = [],
+  selectedRole = '',
+  onRoleChange = () => {},
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -376,10 +380,43 @@ function DataTable({
           onChange={(e) => onOutletChange(e.target.value)}
           disabled={isLoading}
         >
-          <option value="">All Outlets</option>
+          <option value="">Outlets</option>
           {outlets.map((outlet) => (
             <option key={outlet.outlet_id} value={outlet.outlet_id}>
               {outlet.outlet_name} ({outlet.outlet_code})
+            </option>
+          ))}
+        </select>
+        {isLoading && (
+          <span className="absolute right-3 top-1/2 -translate-y-1/2">
+            <FontAwesomeIcon
+              icon={faSpinner}
+              className="h-4 w-4 animate-spin text-gray-400"
+            />
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  // Add renderRoleSelect function
+  const renderRoleSelect = () => {
+    if (!showRoleSelect) return null;
+
+    return (
+      <div className="relative flex-1 sm:flex-initial">
+        <select
+          className={`w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
+            isLoading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          value={selectedRole}
+          onChange={(e) => onRoleChange(e.target.value)}
+          disabled={isLoading}
+        >
+          <option value="">Roles</option>
+          {roles.map((role) => (
+            <option key={role.role_id} value={role.role_id}>
+              {role.role_name} ({role.count})
             </option>
           ))}
         </select>
@@ -505,8 +542,11 @@ function DataTable({
 
             {/* Controls Section */}
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-              {/* Place outlet selection first in controls */}
-              {showOutletSelect && renderOutletSelect()}
+              {/* Place outlet and role selection first in controls */}
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                {showOutletSelect && renderOutletSelect()}
+                {showRoleSelect && renderRoleSelect()}
+              </div>
 
               {/* Add Status Filter Dropdown */}
               {enableStatusFilter && (

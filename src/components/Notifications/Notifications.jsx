@@ -8,7 +8,7 @@ import { API_CONFIG } from '../../config/appConfig';
 import Breadcrumb from '../Breadcrumb';
 import DataTable from '../common/DataTable';
 
-function Notifications() {
+const Notifications = () => {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -18,6 +18,69 @@ function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [outlets, setOutlets] = useState([]);
+  const [selectedOutlet, setSelectedOutlet] = useState('');
+  const [roles, setRoles] = useState([]);
+  const [selectedRole, setSelectedRole] = useState('');
+
+  const fetchOutlets = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/common/get_list/outlets`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.data.detail === "Successfully retrieved outlets") {
+        const formattedOutlets = Object.entries(response.data.outlet_list).map(([name, id]) => ({
+          outlet_id: id.toString(),
+          outlet_name: name,
+          outlet_code: id.toString()
+        }));
+        setOutlets(formattedOutlets);
+      }
+    } catch (error) {
+      console.error('Error fetching outlets:', error);
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/${API_VERSION}/admin/notification_filter_options`,
+        { outlet_id: selectedOutlet || "0" },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.data.roles) {
+        const formattedRoles = response.data.roles.map(role => ({
+          role_id: role.role,
+          role_name: role.role.charAt(0).toUpperCase() + role.role.slice(1).replace('_', ' '),
+          count: role.count
+        }));
+        setRoles(formattedRoles);
+      }
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+    }
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -59,8 +122,27 @@ function Notifications() {
   };
 
   useEffect(() => {
+    fetchOutlets();
     fetchNotifications();
   }, []);
+
+  useEffect(() => {
+    if (selectedOutlet) {
+      fetchRoles();
+    } else {
+      setRoles([]);
+      setSelectedRole('');
+    }
+  }, [selectedOutlet]);
+
+  const handleOutletChange = (value) => {
+    setSelectedOutlet(value);
+    setSelectedRole(''); // Reset role when outlet changes
+  };
+
+  const handleRoleChange = (value) => {
+    setSelectedRole(value);
+  };
 
   const columns = [
     {
@@ -169,9 +251,18 @@ function Notifications() {
         }}
         
         enableStatusFilter={false}
+        showOutletSelect={true}
+        outlets={outlets}
+        selectedOutlet={selectedOutlet}
+        onOutletChange={handleOutletChange}
+        
+        showRoleSelect={true}
+        roles={roles}
+        selectedRole={selectedRole}
+        onRoleChange={handleRoleChange}
       />
     </>
   );
-}
+};
 
 export default Notifications;
