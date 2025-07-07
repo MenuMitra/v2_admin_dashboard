@@ -153,7 +153,7 @@ function EditOutlet() {
           closing_time: data.closing_time ? data.closing_time.split(' ')[1] : '',
           outlet_mode: data.outlet_mode || '',
           image: data.image,
-          subscription_id: data.subscription_id || '',
+          subscription_id: data.subscription_details?.subscription_id?.toString() || data.subscription_id?.toString() || '',
         });
 
         setIsLoading(false);
@@ -338,12 +338,12 @@ function EditOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_id: !!outletData.subscription_id,
+      subscription_id: true,
     };
 
-    const isValid = Object.entries(requiredFields).every(([key, value]) => value);
+    const fieldsValid = Object.entries(requiredFields).every(([, value]) => value);
     
-    if (!isValid) {
+    if (!fieldsValid) {
       toastController.error('Please fill all required fields correctly');
       return;
     }
@@ -384,7 +384,7 @@ function EditOutlet() {
       const apiData = {
         outlet_id: parseInt(outletId),
         user_id: parseInt(adminData.user_id),
-        new_owner_ids: outletData.owner_ids, // Changed from owner_ids to new_owner_ids
+        new_owner_ids: outletData.owner_ids,
         name: outletData.name,
         outlet_type: outletData.outlet_type,
         fssainumber: outletData.fssainumber,
@@ -405,7 +405,7 @@ function EditOutlet() {
         google_review: outletData.google_review || '',
         outlet_mode: outletData.outlet_mode,
         image: outletData.image || '',
-        subscription_id: parseInt(outletData.subscription_id),
+        subscription_id: outletData.subscription_id ? parseInt(outletData.subscription_id) : undefined,
         app_source: "admin_app"
       };
 
