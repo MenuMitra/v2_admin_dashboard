@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
+import DatePickerInput from '../common/DatePickerInput';
 
 function Stats() {
   // Breadcrumb items
@@ -114,6 +115,23 @@ function Stats() {
   // State for search term
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Function to format date for the API
+  const formatDateForAPI = (date) => {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).replace(/(\d+) ([A-Za-z]+) (\d+)/, '$1 $2 $3');
+  };
+
+  // Function to parse date from API format
+  const parseDateFromAPI = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format for DatePicker
+  };
+
   return (
     <div>
       {/* Add Breadcrumb at the top */}
@@ -153,7 +171,6 @@ function Stats() {
             enableSort={true}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            // searchPlaceholder="Search endpoints..."
             emptyStateMessage="No API usage data available."
             counts={null}
             enableStatusFilter={false}
@@ -166,16 +183,28 @@ function Stats() {
                 onChange: (value) => handleFilterChange('app_source', value)
               },
               {
-                type: 'date',
-                label: 'Start Date',
-                value: payload.start_date,
-                onChange: (value) => handleFilterChange('start_date', value)
+                type: 'custom',
+                component: (
+                  <DatePickerInput
+                    label="Start Date"
+                    value={parseDateFromAPI(payload.start_date)}
+                    onChange={(e) => handleFilterChange('start_date', formatDateForAPI(e.target.value))}
+                    placeholder="Select start date"
+                    className="w-full sm:w-64"
+                  />
+                )
               },
               {
-                type: 'date',
-                label: 'End Date',
-                value: payload.end_date,
-                onChange: (value) => handleFilterChange('end_date', value)
+                type: 'custom',
+                component: (
+                  <DatePickerInput
+                    label="End Date"
+                    value={parseDateFromAPI(payload.end_date)}
+                    onChange={(e) => handleFilterChange('end_date', formatDateForAPI(e.target.value))}
+                    placeholder="Select end date"
+                    className="w-full sm:w-64"
+                  />
+                )
               }
             ]}
           />

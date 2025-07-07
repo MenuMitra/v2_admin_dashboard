@@ -2,6 +2,19 @@ import React from 'react';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/flatpickr.css';
 
+// Add custom styles for the Flatpickr dropdown
+const customStyles = `
+  <style>
+    .flatpickr-calendar {
+      z-index: 999 !important;
+    }
+    .flatpickr-calendar.open {
+      display: inline-block;
+      z-index: 999 !important;
+    }
+  </style>
+`;
+
 const DatePickerInput = ({ 
   label, 
   value, 
@@ -13,6 +26,16 @@ const DatePickerInput = ({
   className = "",
   error = ""
 }) => {
+  // Insert custom styles once when component mounts
+  React.useEffect(() => {
+    if (!document.getElementById('flatpickr-custom-styles')) {
+      const styleElement = document.createElement('div');
+      styleElement.id = 'flatpickr-custom-styles';
+      styleElement.innerHTML = customStyles;
+      document.head.appendChild(styleElement);
+    }
+  }, []);
+
   const handleDateChange = (selectedDates) => {
     // Create a synthetic event to match the standard onChange format
     const event = {
@@ -25,7 +48,7 @@ const DatePickerInput = ({
   };
 
   return (
-    <div className={`${className}`}>
+    <div className={`${className} relative`}>
       {label && (
         <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
           {label}
@@ -43,6 +66,7 @@ const DatePickerInput = ({
             disableMobile: true,
             allowInput: true,
             disabled,
+            position: 'auto', // This helps with positioning
           }}
           placeholder={placeholder}
           className={`

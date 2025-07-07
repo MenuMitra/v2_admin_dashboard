@@ -470,8 +470,18 @@ function DataTable({
     if (!customFilters || customFilters.length === 0) return null;
 
     return (
-      <>
+      <div className="flex flex-wrap gap-4 mb-4 relative" style={{ zIndex: 3 }}>
         {customFilters.map((filter, index) => {
+          // For custom components (like DatePickerInput)
+          if (filter.type === 'custom') {
+            return (
+              <div key={index} className="relative flex-1 sm:flex-initial" style={{ zIndex: 3 }}>
+                {filter.component}
+              </div>
+            );
+          }
+
+          // For select dropdowns
           if (filter.type === 'select') {
             return (
               <div key={index} className="relative flex-1 sm:flex-initial">
@@ -491,23 +501,9 @@ function DataTable({
             );
           }
           
-          if (filter.type === 'date') {
-            return (
-              <div key={index} className="relative flex-1 sm:flex-initial">
-                <input
-                  type="date"
-                  placeholder={filter.label}
-                  className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                  value={filter.value}
-                  onChange={(e) => filter.onChange(e.target.value)}
-                />
-              </div>
-            );
-          }
-          
           return null;
         })}
-      </>
+      </div>
     );
   };
 
@@ -519,7 +515,7 @@ function DataTable({
     >
       {/* Header Section */}
       {showHeader && (
-        <div className="overflow-hidden pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
           {/* Top Row - Back, Title, Create */}
           <div className="flex items-center px-6 mb-3">
             {/* Left Side */}
