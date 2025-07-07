@@ -96,6 +96,7 @@ function DataTable({
   roles = [],
   selectedRole = '',
   onRoleChange = () => {},
+  customFilters = [],
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -464,6 +465,52 @@ function DataTable({
     </div>
   );
 
+  // Add this new function to render custom filters
+  const renderCustomFilters = () => {
+    if (!customFilters || customFilters.length === 0) return null;
+
+    return (
+      <>
+        {customFilters.map((filter, index) => {
+          if (filter.type === 'select') {
+            return (
+              <div key={index} className="relative flex-1 sm:flex-initial">
+                <select
+                  className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                  value={filter.value}
+                  onChange={(e) => filter.onChange(e.target.value)}
+                >
+                  <option value="">{filter.label}</option>
+                  {filter.options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            );
+          }
+          
+          if (filter.type === 'date') {
+            return (
+              <div key={index} className="relative flex-1 sm:flex-initial">
+                <input
+                  type="date"
+                  placeholder={filter.label}
+                  className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                  value={filter.value}
+                  onChange={(e) => filter.onChange(e.target.value)}
+                />
+              </div>
+            );
+          }
+          
+          return null;
+        })}
+      </>
+    );
+  };
+
   return (
     <div
       className={`rounded-2xl border border-gray-200 bg-white ${
@@ -544,45 +591,30 @@ function DataTable({
 
             {/* Controls Section */}
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-              {/* Place outlet and role selection first in controls */}
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                {showOutletSelect && renderOutletSelect()}
-                {showRoleSelect && renderRoleSelect()}
-              </div>
-
-              {/* Add Status Filter Dropdown */}
-              {enableStatusFilter && (
-                <div className="relative">
-                  <select
-                    className="w-32 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 dark:text-gray-400 dark:border-gray-800 dark:bg-white/[0.03]"
-                    value={statusFilter}
-                    onChange={(e) => onStatusFilterChange(e.target.value)}
-                  >
-                    <option value="all">All</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-              )}
-
-              {/* Search Input */}
-              {showSearch && (
-                <div className="relative w-full sm:w-auto">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                    <FontAwesomeIcon
-                      icon={faMagnifyingGlass}
-                      className="w-4 h-4"
+              {/* Custom Filters Row */}
+              <div className="flex flex-col sm:flex-row gap-4 w-full">
+                {/* Custom filters will be rendered here */}
+                {renderCustomFilters()}
+                
+                {/* Search Input - Now part of the same row */}
+                {showSearch && (
+                  <div className="relative flex-1 sm:flex-initial">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
+                      <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        className="w-4 h-4"
+                      />
+                    </span>
+                    <input
+                      placeholder={searchPlaceholder}
+                      className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 shadow-theme-xs"
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => onSearchChange(e.target.value)}
                     />
-                  </span>
-                  <input
-                    placeholder={searchPlaceholder}
-                    className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:ring-brand-500/10 focus:border-brand-300 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 shadow-theme-xs"
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                  />
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

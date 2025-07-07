@@ -21,11 +21,26 @@ function Stats() {
     }
   });
 
-  // Hardcoded payload for now
-  const payload = {
+  // Payload state
+  const [payload, setPayload] = useState({
     app_source: "owner_app",
     start_date: "06 Jul 2025",
     end_date: "07 Jul 2025"
+  });
+
+  // Options for dropdowns
+  const appSourceOptions = [
+    { value: 'owner_app', label: 'Owner App' },
+    { value: 'customer_app', label: 'Customer App' },
+    { value: 'admin_app', label: 'Admin App' }
+  ];
+
+  // Function to handle filter changes
+  const handleFilterChange = (filterType, value) => {
+    setPayload(prev => ({
+      ...prev,
+      [filterType]: value
+    }));
   };
 
   useEffect(() => {
@@ -75,7 +90,7 @@ function Stats() {
     };
 
     fetchStats();
-  }, []); // Empty dependency array means this runs once on mount
+  }, [payload]); // Re-fetch when payload changes
 
   // Define columns for the DataTable
   const columns = [
@@ -96,6 +111,9 @@ function Stats() {
     }
   ];
 
+  // State for search term
+  const [searchTerm, setSearchTerm] = useState('');
+
   return (
     <div>
       {/* Add Breadcrumb at the top */}
@@ -103,7 +121,7 @@ function Stats() {
         <Breadcrumb items={breadcrumbItems} />
       </div>
 
-      <div className="">
+      <div className="p-6">
         {/* Summary Section */}
         {/* <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">API Usage Summary</h2>
@@ -133,8 +151,33 @@ function Stats() {
             title="API Usage Statistics"
             enableSearch={true}
             enableSort={true}
-            searchPlaceholder="Search endpoints..."
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            // searchPlaceholder="Search endpoints..."
             emptyStateMessage="No API usage data available."
+            counts={null}
+            enableStatusFilter={false}
+            customFilters={[
+              {
+                type: 'select',
+                label: 'App Source',
+                value: payload.app_source,
+                options: appSourceOptions,
+                onChange: (value) => handleFilterChange('app_source', value)
+              },
+              {
+                type: 'date',
+                label: 'Start Date',
+                value: payload.start_date,
+                onChange: (value) => handleFilterChange('start_date', value)
+              },
+              {
+                type: 'date',
+                label: 'End Date',
+                value: payload.end_date,
+                onChange: (value) => handleFilterChange('end_date', value)
+              }
+            ]}
           />
         </div>
       </div>
