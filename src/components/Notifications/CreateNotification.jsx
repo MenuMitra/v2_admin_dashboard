@@ -22,7 +22,7 @@ function CreateNotification() {
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
     message: '',
-    type: 'Success',
+    type: 'Info',
     outlet: 'all',
     role: 'all',
     user: 'all'
@@ -297,9 +297,10 @@ function CreateNotification() {
 
   const notificationTypes = [
     { id: 'Info', name: 'Info' },
-    { id: 'Success', name: 'Success' },
-    { id: 'Warning', name: 'Warning' },
-    { id: 'Danger', name: 'Danger' }
+    { id: 'Offer', name: 'Offer' },
+    // { id: 'Success', name: 'Success' },
+    // { id: 'Warning', name: 'Warning' },
+    // { id: 'Danger', name: 'Danger' }
   ];
 
   return (
