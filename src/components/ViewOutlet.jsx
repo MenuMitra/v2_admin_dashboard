@@ -926,6 +926,78 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
+
+          {/* Subscription Details section with divider */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+                Subscription Details
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.subscription_details?.name || "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Plan Name
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.subscription_details?.price 
+                          ? `₹${outletData.subscription_details.price}`
+                          : "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Plan Price
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.subscription_details?.subscription_start_date || "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Start Date
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                        {outletData?.subscription_details?.subscription_end_date || "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        End Date
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
