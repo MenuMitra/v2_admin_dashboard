@@ -171,39 +171,48 @@ function Stats() {
             enableSort={true}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
+            searchPlaceholder="Search"
             emptyStateMessage="No API usage data available."
             counts={null}
             enableStatusFilter={false}
+            showCreateButton={false}
             customFilters={[
               {
                 type: 'select',
-                label: 'App Source',
+                label: 'App Name',
                 value: payload.app_source,
                 options: appSourceOptions,
-                onChange: (value) => handleFilterChange('app_source', value)
+                onChange: (value) => handleFilterChange('app_source', value),
+                placeholder: "Select App"
               },
               {
                 type: 'custom',
+                label: 'Start Date',
                 component: (
-                  <DatePickerInput
-                    label="Start Date"
-                    value={parseDateFromAPI(payload.start_date)}
-                    onChange={(e) => handleFilterChange('start_date', formatDateForAPI(e.target.value))}
-                    placeholder="Select start date"
-                    className="w-full sm:w-64"
-                  />
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Start Date</label>
+                    <DatePickerInput
+                      value={parseDateFromAPI(payload.start_date)}
+                      onChange={(e) => handleFilterChange('start_date', formatDateForAPI(e.target.value))}
+                      placeholder="Select start date"
+                      className="w-full sm:w-64"
+                    />
+                  </div>
                 )
               },
               {
                 type: 'custom',
+                label: 'End Date',
                 component: (
-                  <DatePickerInput
-                    label="End Date"
-                    value={parseDateFromAPI(payload.end_date)}
-                    onChange={(e) => handleFilterChange('end_date', formatDateForAPI(e.target.value))}
-                    placeholder="Select end date"
-                    className="w-full sm:w-64"
-                  />
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">End Date</label>
+                    <DatePickerInput
+                      value={parseDateFromAPI(payload.end_date)}
+                      onChange={(e) => handleFilterChange('end_date', formatDateForAPI(e.target.value))}
+                      placeholder="Select end date"
+                      className="w-full sm:w-64"
+                    />
+                  </div>
                 )
               }
             ]}
