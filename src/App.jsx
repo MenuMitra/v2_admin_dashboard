@@ -70,6 +70,7 @@ import EditSubscription from './components/Subscriptions/EditSubscription';
 import ViewSubscription from './components/Subscriptions/ViewSubscription';
 import Notifications from './components/Notifications/Notifications';
 import CreateNotification from './components/Notifications/CreateNotification';
+import Stats from './components/Stats/Stats'
 
 function App() {
 
@@ -189,7 +190,8 @@ function App() {
             <Route path="/admin-details/:adminId" element={<AdminDetails />} />
             <Route path="/edit-admin/:adminId" element={<EditAdmin />} />
             
-            {/* Add other protected routes here */}
+            {/* Stats Routes */}
+            <Route path="/stats" element={<Stats />} />
           </Route>
         </Routes>
       </BrowserRouter>

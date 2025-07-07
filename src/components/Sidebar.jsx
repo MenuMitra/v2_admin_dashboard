@@ -21,7 +21,8 @@ import {
   faList,
   faIndianRupeeSign,
   faMobileScreenButton,
-  faBell
+  faBell,
+  faChartLine
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -124,6 +125,12 @@ const menuData = {
       path: "/notifications",
       id: "notifications",
       icon: faBell,
+    },
+    {
+      title: "Stats",
+      path: "/stats",
+      id: "stats",
+      icon: faChartLine,
     },
     {
       title: "My Profile",
