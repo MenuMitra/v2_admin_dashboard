@@ -17,7 +17,6 @@ const Notifications = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [totalCount, setTotalCount] = useState(0);
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlet, setSelectedOutlet] = useState('');
   const [roles, setRoles] = useState([]);
@@ -103,19 +102,18 @@ const Notifications = () => {
           id: notification.notification_id,
           title: notification.message,
           type: notification.type,
-          outlet: notification.outlet_id === "0" ? "All" : notification.outlet_id,
-          role: notification.role === "all" ? "All" : notification.role,
-          user: notification.user_id === "0" ? "All" : notification.user_id,
+          outlet: notification.outlet_name || (notification.outlet_id === "0" ? "All" : notification.outlet_id),
+          role: notification.role === "all" ? "All" : notification.role.charAt(0).toUpperCase() + notification.role.slice(1),
+          user: notification.user_name || (notification.user_id === "0" ? "All" : notification.user_id),
           success_count: notification.success_count,
           failure_count: notification.failure_count,
-          created_on: new Date(notification.created_on).toLocaleString(),
+          created_on: notification.sent_on || notification.created_on,
           broadcast_status: notification.broadcast_status,
           // Store original values for filtering
           original_outlet_id: notification.outlet_id,
           original_role: notification.role
         }));
         setNotifications(formattedNotifications);
-        setTotalCount(formattedNotifications.length);
       }
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -167,19 +165,31 @@ const Notifications = () => {
       field: 'outlet',
       header: 'Outlet',
       sortable: true,
+      render: (value) => (
+        <span className="font-medium text-gray-800 dark:text-white/90">
+          {value}
+        </span>
+      ),
     },
     {
       field: 'role',
       header: 'Role',
       sortable: true,
       render: (value) => (
-        <span className="capitalize">{value}</span>
+        <span className="capitalize font-medium text-gray-800 dark:text-white/90">
+          {value}
+        </span>
       ),
     },
     {
       field: 'user',
       header: 'User',
       sortable: true,
+      render: (value) => (
+        <span className="font-medium text-gray-800 dark:text-white/90">
+          {value}
+        </span>
+      ),
     },
     {
       field: 'title',
@@ -208,13 +218,57 @@ const Notifications = () => {
     },
     {
       field: 'success_count',
-      header: 'Success Count',
+      header: 'Success',
       sortable: true,
+      render: (value) => (
+        <span className="font-medium text-success-600">
+          {value}
+        </span>
+      ),
+    },
+    {
+      field: 'failure_count',
+      header: 'Failed',
+      sortable: true,
+      render: (value) => (
+        <span className="font-medium text-error-600">
+          {value}
+        </span>
+      ),
     },
     {
       field: 'created_on',
-      header: 'Created On',
+      header: 'Sent On',
       sortable: true,
+      render: (value) => {
+        // Parse the date string
+        const date = new Date(value);
+        
+        // Format the date components
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = date.toLocaleString('en-US', { month: 'short' });
+        const year = date.getFullYear();
+        
+        // Format time with AM/PM
+        let hours = date.getHours();
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const seconds = date.getSeconds().toString().padStart(2, '0');
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        
+        // Convert hours to 12-hour format
+        hours = hours % 12;
+        hours = hours ? hours : 12; // Convert 0 to 12
+        hours = hours.toString().padStart(2, '0');
+        
+        // Combine into final format
+        const formattedDate = `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${ampm}`;
+        
+        return (
+          <span className="font-medium text-gray-800 dark:text-white/90">
+            {formattedDate}
+          </span>
+        );
+      },
     },
   ];
 
