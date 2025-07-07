@@ -3,6 +3,26 @@ import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import DatePickerInput from '../common/DatePickerInput';
 
+// --- Helper functions moved to the top and corrected ---
+const getISODateString = (date) => {
+  // --- FIX: Use local date parts to avoid timezone shift on initialization ---
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const formatDateForApi = (yyyy_mm_dd) => {
+  if (!yyyy_mm_dd) return "";
+  const [year, month, day] = yyyy_mm_dd.split("-");
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
 function Stats() {
   // Breadcrumb items
   const breadcrumbItems = [
@@ -21,11 +41,11 @@ function Stats() {
     }
   });
 
-  // Payload state
+  // --- Update payload to use clean YYYY-MM-DD format ---
   const [payload, setPayload] = useState({
     app_source: "owner_app",
-    start_date: "06 Jul 2025",
-    end_date: "07 Jul 2025"
+    start_date: getISODateString(new Date()),
+    end_date: getISODateString(new Date())
   });
 
   // Options for dropdowns
@@ -35,7 +55,7 @@ function Stats() {
     { value: 'admin_app', label: 'Admin App' }
   ];
 
-  // Function to handle filter changes
+  // --- handleFilterChange now receives clean YYYY-MM-DD ---
   const handleFilterChange = (filterType, value) => {
     setPayload(prev => ({
       ...prev,
@@ -50,12 +70,19 @@ function Stats() {
     // Function to fetch stats
     const fetchStats = async () => {
       try {
+        // --- Create a separate payload for the API call with the correct date format ---
+        const apiPayload = {
+          ...payload,
+          start_date: formatDateForApi(payload.start_date),
+          end_date: formatDateForApi(payload.end_date)
+        };
+
         const response = await fetch('https://men4u.xyz/v2/admin/api_usage_stats', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(apiPayload) // Use the formatted payload
         });
         
         if (!response.ok) {
@@ -116,23 +143,6 @@ function Stats() {
 
   // State for search term
   const [searchTerm, setSearchTerm] = useState('');
-
-  // Function to format date for the API
-  const formatDateForAPI = (date) => {
-    if (!date) return '';
-    return new Date(date).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).replace(/(\d+) ([A-Za-z]+) (\d+)/, '$1 $2 $3');
-  };
-
-  // Function to parse date from API format
-  const parseDateFromAPI = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format for DatePicker
-  };
 
   return (
     <div>
@@ -201,8 +211,8 @@ function Stats() {
                   <div>
                     <label className="block text-sm text-gray-600 mb-1">Start Date</label>
                     <DatePickerInput
-                      value={parseDateFromAPI(payload.start_date)}
-                      onChange={(e) => handleFilterChange('start_date', formatDateForAPI(e.target.value))}
+                      value={payload.start_date}
+                      onChange={(e) => handleFilterChange('start_date', e.target.value)}
                       placeholder="Select start date"
                       className="w-full sm:w-64"
                     />
@@ -216,8 +226,8 @@ function Stats() {
                   <div>
                     <label className="block text-sm text-gray-600 mb-1">End Date</label>
                     <DatePickerInput
-                      value={parseDateFromAPI(payload.end_date)}
-                      onChange={(e) => handleFilterChange('end_date', formatDateForAPI(e.target.value))}
+                      value={payload.end_date}
+                      onChange={(e) => handleFilterChange('end_date', e.target.value)}
                       placeholder="Select end date"
                       className="w-full sm:w-64"
                     />

@@ -52,21 +52,33 @@ const DatePickerInput = ({
     }
   }, []);
 
-  const formatDisplayDate = (date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    const day = d.getDate().toString().padStart(2, '0');
-    const month = d.toLocaleString('default', { month: 'short' });
-    const year = d.getFullYear();
-    return `${day} ${month} ${year}`;
+  // --- Correctly format the display date from a YYYY-MM-DD string ---
+  const formatDisplayDate = (dateString_YYYY_MM_DD) => {
+    if (!dateString_YYYY_MM_DD) return "";
+    const [year, month, day] = dateString_YYYY_MM_DD.split("-");
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
+  // --- Emit a clean YYYY-MM-DD string on change ---
   const handleDateChange = (selectedDates) => {
+    if (selectedDates.length === 0) return;
+    const date = selectedDates[0];
+
+    // --- FIX: Construct date string from local parts to avoid timezone shift ---
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+
     const event = {
       target: {
         name,
-        value: selectedDates[0]
-      }
+        value: `${year}-${month}-${day}`, // Return correct "YYYY-MM-DD"
+      },
     };
     onChange(event);
   };
@@ -85,12 +97,13 @@ const DatePickerInput = ({
           value={value}
           onChange={handleDateChange}
           options={{
-            dateFormat: 'Y-m-d', // Keep this format for form value
+            dateFormat: 'Y-m-d', // This should match the format of our `value` prop
             static: true,
             disableMobile: true,
             allowInput: true,
             disabled,
             position: 'auto',
+            // No UTC or timezone hacks needed anymore
           }}
           placeholder={placeholder}
           className={`
