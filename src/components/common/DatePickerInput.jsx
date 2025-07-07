@@ -12,6 +12,22 @@ const customStyles = `
       display: inline-block;
       z-index: 999 !important;
     }
+    /* Add styles for the formatted date display */
+    .formatted-date {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #1F2937;
+      font-size: 0.875rem;
+    }
+    .flatpickr-input::placeholder {
+      color: transparent !important;
+    }
+    .flatpickr-input:not([value=""]) {
+      color: transparent !important;
+    }
   </style>
 `;
 
@@ -36,8 +52,16 @@ const DatePickerInput = ({
     }
   }, []);
 
+  const formatDisplayDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = d.toLocaleString('default', { month: 'short' });
+    const year = d.getFullYear();
+    return `${day} ${month} ${year}`;
+  };
+
   const handleDateChange = (selectedDates) => {
-    // Create a synthetic event to match the standard onChange format
     const event = {
       target: {
         name,
@@ -61,12 +85,12 @@ const DatePickerInput = ({
           value={value}
           onChange={handleDateChange}
           options={{
-            dateFormat: 'Y-m-d',
+            dateFormat: 'Y-m-d', // Keep this format for form value
             static: true,
             disableMobile: true,
             allowInput: true,
             disabled,
-            position: 'auto', // This helps with positioning
+            position: 'auto',
           }}
           placeholder={placeholder}
           className={`
@@ -80,6 +104,12 @@ const DatePickerInput = ({
             ${disabled ? 'cursor-not-allowed opacity-50' : ''}
           `}
         />
+        {/* Display formatted date */}
+        {value && (
+          <div className="formatted-date">
+            {formatDisplayDate(value)}
+          </div>
+        )}
         <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
           <svg
             className="fill-current"
