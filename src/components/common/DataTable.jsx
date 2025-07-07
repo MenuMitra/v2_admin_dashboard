@@ -14,9 +14,10 @@ import {
   faCircleXmark,
   faGear,
 } from "@fortawesome/free-solid-svg-icons";
+import PropTypes from "prop-types";
 
 function DataTable({
-  data,
+  data = [],
   columns,
   itemsPerPage = 50,
   itemsPerPageOptions = [50, 100, 200],
@@ -105,6 +106,9 @@ function DataTable({
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
 
+  // Add data validation at the start of the component
+  const safeData = Array.isArray(data) ? data : [];
+
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
     ------------------------------------------------------------ */
@@ -167,7 +171,8 @@ function DataTable({
 
   // Data Processing
   const getSortedAndFilteredData = () => {
-    let processedData = [...data];
+    // Use safeData instead of data directly
+    let processedData = [...safeData];
 
     // Update status filtering with normalized values
     if (enableStatusFilter && statusFilter !== "all") {
@@ -179,19 +184,21 @@ function DataTable({
 
     // Update search with null/undefined handling
     if (enableSearch && searchTerm) {
-      processedData = processedData.filter((item) =>
-        Object.values(item).some(
+      processedData = processedData.filter((item) => {
+        if (!item) return false; // Add null check for items
+        return Object.values(item).some(
           (value) =>
             value !== null &&
             value !== undefined &&
             value.toString().toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      );
+        );
+      });
     }
 
     // Update sorting with special status field handling
     if (enableSort && sortField) {
       processedData.sort((a, b) => {
+        if (!a || !b) return 0; // Add null check for items
         let aValue = a[sortField];
         let bValue = b[sortField];
 
@@ -529,372 +536,404 @@ function DataTable({
     );
   };
 
-  return (
-    <div
-      className={`rounded-2xl border border-gray-200 bg-white ${
-        darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""
-      }`}
-    >
-      {/* Header Section */}
-      {showHeader && (
-        <div className="pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
-          {/* Top Row - Back, Title, Create */}
-          <div className="flex items-center px-6 mb-3">
-            {/* Left Side */}
-            <div
-              className={`flex items-center gap-2 ${
-                mergedCreateButton.position === "left" ? "order-2" : "order-1"
-              }`}
-            >
-              {showBackButton && (
-                <button
-                  onClick={onBackClick}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
-                >
-                  <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
-                  <span className="hidden sm:inline">{backButtonLabel}</span>
-                </button>
-              )}
-              {mergedCreateButton.position === "left" && renderCreateButton()}
-            </div>
-
-            {/* Center - Title */}
-            <div
-              className={`text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90 ${
-                mergedCreateButton.position === "center"
-                  ? "flex items-center gap-4"
-                  : "flex-1 text-center"
-              }`}
-            >
-              {title}
-              {mergedCreateButton.position === "center" && renderCreateButton()}
-            </div>
-
-            {/* Right Side */}
-            <div
-              className={`flex items-center justify-end ${
-                mergedCreateButton.position === "right" ? "order-3" : "order-2"
-              }`}
-            >
-              {mergedCreateButton.position === "right" && renderCreateButton()}
-            </div>
-          </div>
-
-          {/* Stats and Controls Row */}
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center justify-between px-6 mb-4">
-            {/* Stats */}
-            {counts && (
-              <div className="flex items-center gap-4 sm:gap-6 text-sm overflow-x-auto whitespace-nowrap pb-2 sm:pb-0">
-                <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
-                  Total: {counts.total}
-                </span>
-                {counts.active !== null && (
-                  <span className="text-success-600 shrink-0">
-                    Active: {counts.active}
-                  </span>
-                )}
-                {counts.inactive !== null && (
-                  <span className="text-error-500 shrink-0">
-                    Inactive: {counts.inactive}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {dashboardTitle && (
-              <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
-                {dashboardTitle}
-              </span>
-            )}
-
-            {/* Controls Section */}
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-              {/* Custom Filters Row */}
-              <div className="flex flex-col sm:flex-row gap-4 w-full">
-                {renderCustomFilters()}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Table Section */}
-      <div className="max-w-full overflow-x-auto custom-scrollbar">
-        <table className="w-full">
-          <thead>
-            <tr
-              className={`border-t border-gray-100 ${
-                darkMode ? "dark:border-gray-800" : ""
-              }`}
-            >
-              {/* Checkbox column */}
-              {enableSelection && (
-                <th className="px-2 py-2.5 text-center">
-                  <input
-                    type="checkbox"
-                    checked={isAllCurrentItemsSelected()}
-                    onChange={handleSelectAll}
-                    className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </th>
-              )}
-
-              {/* Bulk Actions column - Only visible when items are selected */}
-              {enableSelection && selectedItems.length > 0 && (
-                <th className="px-0 py-2.5">
-                  <div className="relative">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsActionDropdownOpen(!isActionDropdownOpen);
-                      }}
-                      onBlur={() =>
-                        setTimeout(() => setIsActionDropdownOpen(false), 200)
-                      }
-                      className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 "
-                    >
-                      {/* Actions */}
-                      {/* <svg
-                        className={`stroke-current duration-200 ease-in-out ${
-                          isActionDropdownOpen ? "rotate-180" : ""
-                        }`}
-                        width="16"
-                        height="16"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M4.79199 7.396L10.0003 12.6043L15.2087 7.396"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg> */}
-                      <FontAwesomeIcon icon={faGear} />
-                    </button>
-
-                    {/* Dropdown Menu */}
-                    {isActionDropdownOpen && (
-                      <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
-                        <ul className="flex flex-col gap-1">
-                          {bulkActionOptions.map((option) => (
-                            <li key={option.key}>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onBulkAction(option.key, selectedItems);
-                                  setSelectedItems([]);
-                                  setIsActionDropdownOpen(false);
-                                }}
-                                className={`w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium ${option.className}`}
-                              >
-                                {option.label}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                </th>
-              )}
-
-              {/* Regular columns */}
-              {columns.map((column) => (
-                <th
-                  key={column.field}
-                  className={`${
-                    column.field === "selection" ? "px-2" : "px-6"
-                  } py-2.5 text-center ${
-                    enableSort && column.sortable
-                      ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    column.sortable ? handleSort(column.field) : null
-                  }
-                >
-                  <div className="flex items-center justify-center">
-                    <p
-                      className={`font-semibold text-gray-700 text-theme-xs ${
-                        darkMode ? "dark:text-white/90" : ""
-                      }`}
-                    >
-                      {column.header}
-                    </p>
-                    {column.sortable && renderSortIcon(column.field)}
-                  </div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.length > 0 ? (
-              currentItems.map((item, index) => (
-                <tr
-                  key={index}
-                  className={`border-t border-gray-100 ${
-                    darkMode ? "dark:border-gray-800" : ""
-                  }`}
-                >
-                  {/* Checkbox cell */}
-                  {enableSelection && isItemSelectable(item) && (
-                    <td className="px-2 py-2.5 text-center">
-                      <input
-                        type="checkbox"
-                        checked={selectedItems.includes(item.id || item.user_id)}
-                        onChange={() => handleSelectItem(item.id || item.user_id)}
-                        className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </td>
-                  )}
-                  {/* Add empty cell for non-selectable items when selection is enabled */}
-                  {enableSelection && !isItemSelectable(item) && (
-                    <td className="px-2 py-2.5"></td>
-                  )}
-
-                  {/* Empty cell for bulk actions column when items are selected */}
-                  {enableSelection && selectedItems.length > 0 && (
-                    <td className="px-6 py-2.5"></td>
-                  )}
-
-                  {/* Regular cells */}
-                  {columns.map((column) => (
-                    <td
-                      key={column.field}
-                      className={`${
-                        column.field === "selection" ? "px-2" : "px-6"
-                      } py-2.5 text-center`}
-                    >
-                      {column.render ? (
-                        column.render(item[column.field], item)
-                      ) : column.field === statusField ? (
-                        renderStatus(item[column.field])
-                      ) : (
-                        <p
-                          className={`text-gray-500 text-theme-sm ${
-                            darkMode ? "dark:text-gray-400" : ""
-                          }`}
-                        >
-                          {item[column.field]}
-                        </p>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td 
-                  colSpan={columns.length + (enableSelection ? 1 : 0)} 
-                  className="p-6 text-center text-gray-500"
-                >
-                  {statusFilter && emptyStateMessageByStatus 
-                    ? emptyStateMessageByStatus[statusFilter] || emptyStateMessage
-                    : emptyStateMessage}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination Section */}
-      {enablePagination && processedData.length > 0 && (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-800">
-          {/* Keep the entries dropdown */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className={`text-gray-500 text-theme-sm ${
-                darkMode ? "dark:text-gray-400" : ""
-              }`}>
-                Show
-              </span>
-              <select
-                value={itemsPerPage}
-                onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-                className="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
+  // Add error boundary wrapper
+  try {
+    return (
+      <div
+        className={`rounded-2xl border border-gray-200 bg-white ${
+          darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""
+        }`}
+      >
+        {/* Header Section */}
+        {showHeader && (
+          <div className="pt-4 dark:border-gray-800 dark:bg-white/[0.03]">
+            {/* Top Row - Back, Title, Create */}
+            <div className="flex items-center px-6 mb-3">
+              {/* Left Side */}
+              <div
+                className={`flex items-center gap-2 ${
+                  mergedCreateButton.position === "left" ? "order-2" : "order-1"
+                }`}
               >
-                {itemsPerPageOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              <span className={`text-gray-500 text-theme-sm ${
-                darkMode ? "dark:text-gray-400" : ""
-              }`}>
-                entries
-              </span>
+                {showBackButton && (
+                  <button
+                    onClick={onBackClick}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+                  >
+                    <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
+                    <span className="hidden sm:inline">{backButtonLabel}</span>
+                  </button>
+                )}
+                {mergedCreateButton.position === "left" && renderCreateButton()}
+              </div>
+
+              {/* Center - Title */}
+              <div
+                className={`text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90 ${
+                  mergedCreateButton.position === "center"
+                    ? "flex items-center gap-4"
+                    : "flex-1 text-center"
+                }`}
+              >
+                {title}
+                {mergedCreateButton.position === "center" && renderCreateButton()}
+              </div>
+
+              {/* Right Side */}
+              <div
+                className={`flex items-center justify-end ${
+                  mergedCreateButton.position === "right" ? "order-3" : "order-2"
+                }`}
+              >
+                {mergedCreateButton.position === "right" && renderCreateButton()}
+              </div>
             </div>
 
-            {/* Showing entries text */}
-            <div className={`text-gray-500 text-theme-sm ${
-              darkMode ? "dark:text-gray-400" : ""
-            }`}>
-              Showing {indexOfFirstItem + 1} to{" "}
-              {Math.min(indexOfLastItem, processedData.length)} of{" "}
-              {processedData.length} entries
+            {/* Stats and Controls Row */}
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center justify-between px-6 mb-4">
+              {/* Stats */}
+              {counts && (
+                <div className="flex items-center gap-4 sm:gap-6 text-sm overflow-x-auto whitespace-nowrap pb-2 sm:pb-0">
+                  <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
+                    Total: {counts.total}
+                  </span>
+                  {counts.active !== null && (
+                    <span className="text-success-600 shrink-0">
+                      Active: {counts.active}
+                    </span>
+                  )}
+                  {counts.inactive !== null && (
+                    <span className="text-error-500 shrink-0">
+                      Inactive: {counts.inactive}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {dashboardTitle && (
+                <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
+                  {dashboardTitle}
+                </span>
+              )}
+
+              {/* Controls Section */}
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                {/* Custom Filters Row */}
+                <div className="flex flex-col sm:flex-row gap-4 w-full">
+                  {renderCustomFilters()}
+                </div>
+              </div>
             </div>
           </div>
+        )}
 
-          {/* Pagination controls */}
-          <div className="flex items-center justify-between gap-2 sm:justify-normal">
-            <button
-              onClick={() => !shouldDisableNavigation.prev() && handlePageChange(currentPage - 1)}
-              disabled={shouldDisableNavigation.prev()}
-              className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
-                darkMode
-                  ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-                  : ""
-              } ${shouldDisableNavigation.prev() ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
-            </button>
+        {/* Table Section */}
+        <div className="max-w-full overflow-x-auto custom-scrollbar">
+          <table className="w-full">
+            <thead>
+              <tr
+                className={`border-t border-gray-100 ${
+                  darkMode ? "dark:border-gray-800" : ""
+                }`}
+              >
+                {/* Checkbox column */}
+                {enableSelection && (
+                  <th className="px-2 py-2.5 text-center">
+                    <input
+                      type="checkbox"
+                      checked={isAllCurrentItemsSelected()}
+                      onChange={handleSelectAll}
+                      className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </th>
+                )}
 
-            <span className={`block text-sm font-medium text-gray-700 ${
-              darkMode ? "dark:text-gray-400" : ""
-            } sm:hidden`}>
-              Page {currentPage} of {totalPages}
-            </span>
+                {/* Bulk Actions column - Only visible when items are selected */}
+                {enableSelection && selectedItems.length > 0 && (
+                  <th className="px-0 py-2.5">
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsActionDropdownOpen(!isActionDropdownOpen);
+                        }}
+                        onBlur={() =>
+                          setTimeout(() => setIsActionDropdownOpen(false), 200)
+                        }
+                        className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 "
+                      >
+                        {/* Actions */}
+                        {/* <svg
+                          className={`stroke-current duration-200 ease-in-out ${
+                            isActionDropdownOpen ? "rotate-180" : ""
+                          }`}
+                          width="16"
+                          height="16"
+                          viewBox="0 0 20 20"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M4.79199 7.396L10.0003 12.6043L15.2087 7.396"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg> */}
+                        <FontAwesomeIcon icon={faGear} />
+                      </button>
 
-            <ul className="hidden items-center gap-0.5 sm:flex">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                <li key={pageNum}>
-                  <button
-                    onClick={() => handlePageChange(pageNum)}
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
-                      currentPage === pageNum 
-                        ? "bg-brand-500 text-white"
-                        : "text-gray-700 hover:bg-brand-500 hover:text-white"
+                      {/* Dropdown Menu */}
+                      {isActionDropdownOpen && (
+                        <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
+                          <ul className="flex flex-col gap-1">
+                            {bulkActionOptions.map((option) => (
+                              <li key={option.key}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onBulkAction(option.key, selectedItems);
+                                    setSelectedItems([]);
+                                    setIsActionDropdownOpen(false);
+                                  }}
+                                  className={`w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium ${option.className}`}
+                                >
+                                  {option.label}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </th>
+                )}
+
+                {/* Regular columns */}
+                {columns.map((column) => (
+                  <th
+                    key={column.field}
+                    className={`${
+                      column.field === "selection" ? "px-2" : "px-6"
+                    } py-2.5 text-center ${
+                      enableSort && column.sortable
+                        ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      column.sortable ? handleSort(column.field) : null
+                    }
+                  >
+                    <div className="flex items-center justify-center">
+                      <p
+                        className={`font-semibold text-gray-700 text-theme-xs ${
+                          darkMode ? "dark:text-white/90" : ""
+                        }`}
+                      >
+                        {column.header}
+                      </p>
+                      {column.sortable && renderSortIcon(column.field)}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {currentItems.length > 0 ? (
+                currentItems.map((item, index) => (
+                  <tr
+                    key={index}
+                    className={`border-t border-gray-100 ${
+                      darkMode ? "dark:border-gray-800" : ""
                     }`}
                   >
-                    {pageNum}
-                  </button>
-                </li>
-              ))}
-            </ul>
+                    {/* Checkbox cell */}
+                    {enableSelection && isItemSelectable(item) && (
+                      <td className="px-2 py-2.5 text-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(item.id || item.user_id)}
+                          onChange={() => handleSelectItem(item.id || item.user_id)}
+                          className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </td>
+                    )}
+                    {/* Add empty cell for non-selectable items when selection is enabled */}
+                    {enableSelection && !isItemSelectable(item) && (
+                      <td className="px-2 py-2.5"></td>
+                    )}
 
-            <button
-              onClick={() => !shouldDisableNavigation.next() && handlePageChange(currentPage + 1)}
-              disabled={shouldDisableNavigation.next()}
-              className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
-                darkMode
-                  ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-                  : ""
-              } ${shouldDisableNavigation.next() ? "opacity-50 cursor-not-allowed" : ""}`}
-            >
-              <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
-            </button>
-          </div>
+                    {/* Empty cell for bulk actions column when items are selected */}
+                    {enableSelection && selectedItems.length > 0 && (
+                      <td className="px-6 py-2.5"></td>
+                    )}
+
+                    {/* Regular cells */}
+                    {columns.map((column) => (
+                      <td
+                        key={column.field}
+                        className={`${
+                          column.field === "selection" ? "px-2" : "px-6"
+                        } py-2.5 text-center`}
+                      >
+                        {column.render ? (
+                          column.render(item[column.field], item)
+                        ) : column.field === statusField ? (
+                          renderStatus(item[column.field])
+                        ) : (
+                          <p
+                            className={`text-gray-500 text-theme-sm ${
+                              darkMode ? "dark:text-gray-400" : ""
+                            }`}
+                          >
+                            {item[column.field]}
+                          </p>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td 
+                    colSpan={columns.length + (enableSelection ? 1 : 0)} 
+                    className="p-6 text-center text-gray-500"
+                  >
+                    {statusFilter && emptyStateMessageByStatus 
+                      ? emptyStateMessageByStatus[statusFilter] || emptyStateMessage
+                      : emptyStateMessage}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
-    </div>
-  );
+
+        {/* Pagination Section */}
+        {enablePagination && processedData.length > 0 && (
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+            {/* Keep the entries dropdown */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className={`text-gray-500 text-theme-sm ${
+                  darkMode ? "dark:text-gray-400" : ""
+                }`}>
+                  Show
+                </span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+                  className="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
+                >
+                  {itemsPerPageOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <span className={`text-gray-500 text-theme-sm ${
+                  darkMode ? "dark:text-gray-400" : ""
+                }`}>
+                  entries
+                </span>
+              </div>
+
+              {/* Showing entries text */}
+              <div className={`text-gray-500 text-theme-sm ${
+                darkMode ? "dark:text-gray-400" : ""
+              }`}>
+                Showing {indexOfFirstItem + 1} to{" "}
+                {Math.min(indexOfLastItem, processedData.length)} of{" "}
+                {processedData.length} entries
+              </div>
+            </div>
+
+            {/* Pagination controls */}
+            <div className="flex items-center justify-between gap-2 sm:justify-normal">
+              <button
+                onClick={() => !shouldDisableNavigation.prev() && handlePageChange(currentPage - 1)}
+                disabled={shouldDisableNavigation.prev()}
+                className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
+                  darkMode
+                    ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                    : ""
+                } ${shouldDisableNavigation.prev() ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
+              </button>
+
+              <span className={`block text-sm font-medium text-gray-700 ${
+                darkMode ? "dark:text-gray-400" : ""
+              } sm:hidden`}>
+                Page {currentPage} of {totalPages}
+              </span>
+
+              <ul className="hidden items-center gap-0.5 sm:flex">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <li key={pageNum}>
+                    <button
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
+                        currentPage === pageNum 
+                          ? "bg-brand-500 text-white"
+                          : "text-gray-700 hover:bg-brand-500 hover:text-white"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => !shouldDisableNavigation.next() && handlePageChange(currentPage + 1)}
+                disabled={shouldDisableNavigation.next()}
+                className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
+                  darkMode
+                    ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                    : ""
+                } ${shouldDisableNavigation.next() ? "opacity-50 cursor-not-allowed" : ""}`}
+              >
+                <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  } catch (error) {
+    console.error('DataTable Error:', error);
+    // Return a fallback UI
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white p-4">
+        <p className="text-gray-500 text-center">
+          Unable to display data at this moment. Please try again later.
+        </p>
+      </div>
+    );
+  }
 }
+
+// Add PropTypes validation
+DataTable.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.object),
+  columns: PropTypes.arrayOf(
+    PropTypes.shape({
+      field: PropTypes.string.isRequired,
+      header: PropTypes.string.isRequired,
+      sortable: PropTypes.bool,
+      render: PropTypes.func,
+    })
+  ).isRequired,
+  // ... other prop types
+};
+
+DataTable.defaultProps = {
+  data: [],
+  // ... other default props
+};
 
 export default DataTable;

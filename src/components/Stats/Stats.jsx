@@ -13,9 +13,8 @@ function Stats() {
 
   // State to store API data
   const [statsData, setStatsData] = useState({
-    summary: [],
-    detailed_stats: [],
     total_api_calls: 0,
+    endpoint_statistics: [],
     date_range: {
       start_date: '',
       end_date: ''
@@ -44,6 +43,9 @@ function Stats() {
     }));
   };
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     // Function to fetch stats
     const fetchStats = async () => {
@@ -66,27 +68,22 @@ function Stats() {
         console.error('Error fetching stats:', error);
         // For demo, setting mock data
         setStatsData({
-          summary: [
+          total_api_calls: 14,
+          endpoint_statistics: [
             {
-              app: "owner_app",
-              total_calls: 14
-            }
-          ],
-          detailed_stats: [
-            {
-              app_source: "owner_app",
               endpoint: "/common/update_staff",
               call_count: 5,
               last_accessed: "07-Jul-2025 01:17:20 PM"
             },
             // ... other mock data entries
           ],
-          total_api_calls: 14,
           date_range: {
             start_date: "06 Jul 2025",
             end_date: "07 Jul 2025"
           }
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -98,17 +95,22 @@ function Stats() {
     {
       field: 'endpoint',
       header: 'Endpoint',
-      sortable: true,
+      sortable: true
+    },
+    {
+      field: 'app_source',
+      header: 'App Source',
+      sortable: true
     },
     {
       field: 'call_count',
       header: 'Call Count',
-      sortable: true,
+      sortable: true
     },
     {
       field: 'last_accessed',
       header: 'Last Accessed',
-      sortable: true,
+      sortable: true
     }
   ];
 
@@ -162,18 +164,25 @@ function Stats() {
         </div> */}
 
         {/* Detailed Stats Table */}
-        <div>
+        {isLoading ? (
+          <div className="p-4 text-center">
+            <span>Loading...</span>
+          </div>
+        ) : error ? (
+          <div className="p-4 text-center text-red-500">
+            {error}
+          </div>
+        ) : (
           <DataTable
-            data={statsData.detailed_stats}
+            data={statsData.endpoint_statistics || []}
             columns={columns}
             title="API Usage Statistics"
+            counts={null}
             enableSearch={true}
             enableSort={true}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            searchPlaceholder="Search"
             emptyStateMessage="No API usage data available."
-            counts={null}
             enableStatusFilter={false}
             showCreateButton={false}
             customFilters={[
@@ -217,7 +226,7 @@ function Stats() {
               }
             ]}
           />
-        </div>
+        )}
       </div>
     </div>
   );
