@@ -146,12 +146,10 @@ function Stats() {
 
   return (
     <div>
-      {/* Add Breadcrumb at the top */}
-      <div className="px-6 pt-6">
         <Breadcrumb items={breadcrumbItems} />
-      </div>
 
-      <div className="p-6">
+
+      <div className="">
         {/* Summary Section */}
         {/* <div className="mb-6">
           <h2 className="text-xl font-semibold mb-4">API Usage Summary</h2>
