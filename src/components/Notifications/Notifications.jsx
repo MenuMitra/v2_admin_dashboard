@@ -111,7 +111,8 @@ const Notifications = () => {
           broadcast_status: notification.broadcast_status,
           // Store original values for filtering
           original_outlet_id: notification.outlet_id,
-          original_role: notification.role
+          original_role: notification.role,
+          original_user_id: notification.user_id
         }));
         setNotifications(formattedNotifications);
       }
@@ -165,10 +166,17 @@ const Notifications = () => {
       field: 'outlet',
       header: 'Outlet',
       sortable: true,
-      render: (value) => (
-        <span className="font-medium text-gray-800 dark:text-white/90">
+      render: (value, row) => (
+        <button
+          onClick={() => row.original_outlet_id !== "0" && navigate(`/view-outlet/${row.original_outlet_id}`)}
+          className={`font-medium ${
+            row.original_outlet_id !== "0"
+              ? "text-brand-500 hover:text-brand-600 hover:underline cursor-pointer"
+              : "text-gray-800 dark:text-white/90 cursor-default"
+          }`}
+        >
           {value}
-        </span>
+        </button>
       ),
     },
     {
@@ -185,10 +193,17 @@ const Notifications = () => {
       field: 'user',
       header: 'User',
       sortable: true,
-      render: (value) => (
-        <span className="font-medium text-gray-800 dark:text-white/90">
+      render: (value, row) => (
+        <button
+          onClick={() => row.original_user_id !== "0" && navigate(`/owner-details/${row.original_user_id}`)}
+          className={`font-medium ${
+            row.original_user_id !== "0"
+              ? "text-brand-500 hover:text-brand-600 hover:underline cursor-pointer"
+              : "text-gray-800 dark:text-white/90 cursor-default"
+          }`}
+        >
           {value}
-        </span>
+        </button>
       ),
     },
     {
@@ -226,16 +241,16 @@ const Notifications = () => {
         </span>
       ),
     },
-    {
-      field: 'failure_count',
-      header: 'Failed',
-      sortable: true,
-      render: (value) => (
-        <span className="font-medium text-error-600">
-          {value}
-        </span>
-      ),
-    },
+    // {
+    //   field: 'failure_count',
+    //   header: 'Failed',
+    //   sortable: true,
+    //   render: (value) => (
+    //     <span className="font-medium text-error-600">
+    //       {value}
+    //     </span>
+    //   ),
+    // },
     {
       field: 'created_on',
       header: 'Sent On',
