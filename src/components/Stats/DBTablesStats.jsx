@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import { useAuth } from '../../hooks/useAuth';
+import { API_CONFIG } from '../../config/appConfig';
+
 
 function DBTablesStats() {
-  const { getToken } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const { BASE_URL, API_VERSION } = API_CONFIG;
+    const { getToken } = useAuth();
   const [statsData, setStatsData] = useState({
     summary: {
       total_tables: 0,
@@ -16,6 +17,9 @@ function DBTablesStats() {
     },
     table_statistics: []
   });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Breadcrumb items
   const breadcrumbItems = [
@@ -45,37 +49,34 @@ function DBTablesStats() {
   ];
 
   // Fetch table statistics
-  useEffect(() => {
-    const fetchTableStats = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch('https://men4u.xyz/v2/admin/table_stats', {
-          method: 'GET',
-          headers: {
-            'Authorization': getToken(),
-            'Content-Type': 'application/json',
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch table statistics');
+  const fetchTableStats = async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/${API_VERSION}/admin/table_stats`, {
+        method: 'GET',
+        headers: {
+          'Authorization': getToken(),
+          'Content-Type': 'application/json',
         }
-
-        const data = await response.json();
-        setStatsData(data);
-      } catch (error) {
-        console.error('Error fetching table statistics:', error);
-        setError(error.message);
-      } finally {
-        setIsLoading(false);
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch table statistics');
       }
-    };
 
+      const data = await response.json();
+      setStatsData(data);
+    } catch (error) {
+      console.error('Error fetching table statistics:', error);
+      setError('Failed to fetch table statistics');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Call fetchTableStats only once when component mounts
+  useEffect(() => {
     fetchTableStats();
-  }, [getToken]);
-
-  // Search state
-  const [searchTerm, setSearchTerm] = useState('');
+  }, []); // Empty dependency array
 
   return (
     <div>
@@ -100,8 +101,8 @@ function DBTablesStats() {
         }}
         counts={{
           total: statsData.summary.total_tables,
-          active: null,  // Set to null to hide active count
-          inactive: null // Set to null to hide inactive count
+          active: null,
+          inactive: null
         }}
         dashboardTitle={`Total Records: ${statsData.summary.total_records} | Tables With Data: ${statsData.summary.tables_with_data} | Empty Tables: ${statsData.summary.empty_tables}`}
         emptyStateMessage="No table statistics available."
