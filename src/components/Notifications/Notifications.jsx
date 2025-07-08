@@ -89,7 +89,7 @@ const Notifications = () => {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/list_notifications`,
+        `${BASE_URL}/${API_VERSION}/common/list_notifications`,
         {
           headers: {
             Authorization: token,
