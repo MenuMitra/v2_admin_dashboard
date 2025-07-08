@@ -20,12 +20,14 @@ import {
 import Breadcrumb from "../Breadcrumb";
 import Modal from "../common/Modal";
 import { toastController } from "../../utils/toastController";
+import { API_CONFIG } from '../../config/appConfig';
 
 function CustomerDetails() {
   const { customerId } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -44,7 +46,7 @@ function CustomerDetails() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/admin/customer_view",
+        `${BASE_URL}/${API_VERSION}/admin/customer_view`,
         {
           user_id: Number(customerId),
           app_source: "admin_app",
