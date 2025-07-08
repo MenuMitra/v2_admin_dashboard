@@ -71,6 +71,7 @@ import ViewSubscription from './components/Subscriptions/ViewSubscription';
 import Notifications from './components/Notifications/Notifications';
 import CreateNotification from './components/Notifications/CreateNotification';
 import Stats from './components/Stats/Stats'
+import DBTablesStats from './components/Stats/DBTablesStats';
 
 function App() {
 
@@ -192,6 +193,7 @@ function App() {
             
             {/* Stats Routes */}
             <Route path="/stats" element={<Stats />} />
+            <Route path="/db-tables-stats" element={<DBTablesStats />} />
           </Route>
         </Routes>
       </BrowserRouter>

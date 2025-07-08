@@ -22,7 +22,8 @@ import {
   faIndianRupeeSign,
   faMobileScreenButton,
   faBell,
-  faChartLine
+  faChartLine,
+  faDatabase,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -131,6 +132,12 @@ const menuData = {
       path: "/stats",
       id: "stats",
       icon: faChartLine,
+    },
+    {
+      title: "DB Tables Stats",
+      path: "/db-tables-stats",
+      id: "db-tables-stats",
+      icon: faDatabase,
     },
     {
       title: "My Profile",
