@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
 import DatePickerInput from '../common/DatePickerInput';
+import { useAuth } from '../../hooks/useAuth';
 
 // --- Helper functions moved to the top and corrected ---
 const getISODateString = (date) => {
@@ -24,6 +25,7 @@ const formatDateForApi = (yyyy_mm_dd) => {
 };
 
 function Stats() {
+  const { getToken } = useAuth();
   // Breadcrumb items
   const breadcrumbItems = [
     { label: 'Dashboard', path: '/' },
@@ -48,12 +50,42 @@ function Stats() {
     end_date: getISODateString(new Date())
   });
 
-  // Options for dropdowns
-  const appSourceOptions = [
-    { value: 'owner_app', label: 'Owner App' },
-    { value: 'customer_app', label: 'Customer App' },
-    { value: 'admin_app', label: 'Admin App' }
-  ];
+  // Replace the hardcoded appSourceOptions with state
+  const [appSourceOptions, setAppSourceOptions] = useState([]);
+
+  // Add function to fetch app sources
+  const fetchAppSources = async () => {
+    try {
+      const response = await fetch('https://men4u.xyz/v2/common/get_list/app_source', {
+        method: 'GET',
+        headers: {
+          'Authorization': getToken(),
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch app sources');
+      }
+
+      const data = await response.json();
+      
+      // Transform the app_source_list object into the format needed for the dropdown
+      const options = Object.entries(data.app_source_list).map(([value, label]) => ({
+        value,
+        label: label.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+      }));
+      
+      setAppSourceOptions(options);
+    } catch (error) {
+      console.error('Error fetching app sources:', error);
+    }
+  };
+
+  // Add useEffect to fetch app sources when component mounts
+  useEffect(() => {
+    fetchAppSources();
+  }, []);
 
   // --- handleFilterChange now receives clean YYYY-MM-DD ---
   const handleFilterChange = (filterType, value) => {
