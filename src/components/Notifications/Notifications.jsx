@@ -59,8 +59,8 @@ const Notifications = () => {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/notification_filter_options`,
-        { outlet_id: selectedOutlet || "0" },
+        `${BASE_URL}/${API_VERSION}/common/notification_filter_options`,
+        { outlet_id: selectedOutlet},
         {
           headers: {
             Authorization: token,
