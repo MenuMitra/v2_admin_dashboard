@@ -145,21 +145,19 @@ function DataTable({
   const renderSortIcon = (field) => {
     if (!enableSort) return null;
 
-    if (sortField !== field) {
-      return (
-        <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 w-4 h-4" />
-      );
-    }
-    return sortOrder === "asc" ? (
-      <FontAwesomeIcon
-        icon={faSortUp}
-        className="ml-1 text-brand-500 w-4 h-4"
-      />
-    ) : (
-      <FontAwesomeIcon
-        icon={faSortDown}
-        className="ml-1 text-brand-500 w-4 h-4"
-      />
+    // Create a fixed-width container for the icon
+    return (
+      <span className="inline-flex justify-center items-center ml-1 w-4">
+        {sortField === field && (
+          <FontAwesomeIcon
+            icon={sortOrder === "asc" ? faSortUp : faSortDown}
+            className="text-brand-500 w-4 h-4"
+            style={{ 
+              transform: sortOrder === "asc" ? "translateY(2px)" : "translateY(-2px)" 
+            }}
+          />
+        )}
+      </span>
     );
   };
 
@@ -726,7 +724,7 @@ function DataTable({
                       column.sortable ? handleSort(column.field) : null
                     }
                   >
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center gap-1">
                       <p
                         className={`font-semibold text-gray-700 text-theme-xs ${
                           darkMode ? "dark:text-white/90" : ""
