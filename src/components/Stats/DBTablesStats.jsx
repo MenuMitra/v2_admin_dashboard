@@ -40,7 +40,7 @@ function DBTablesStats() {
       field: 'last_record_date',
       header: 'Last Record Date',
       sortable: true,
-      render: (value) => value || 'N/A'
+      render: (value) => value || '-'
     }
   ];
 
