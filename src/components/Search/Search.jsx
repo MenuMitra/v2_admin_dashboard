@@ -8,8 +8,10 @@ import Breadcrumb from '../Breadcrumb';
 import { SelectInput, TextInput } from '../forms/FormElements';
 import { useNavigate } from 'react-router-dom';
 import { toastController } from '../../utils/toastController';
+import { API_CONFIG } from '../../config/appConfig';
 
 const Search = () => {
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const { getToken } = useAuth();
   const [searchInput, setSearchInput] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
@@ -38,7 +40,7 @@ const Search = () => {
 
     try {
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/search',
+        `${BASE_URL}/${API_VERSION}/admin/search`,
         {
           search: searchType,
           value: value,
