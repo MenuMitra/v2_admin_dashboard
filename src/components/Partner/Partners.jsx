@@ -284,7 +284,6 @@ function Partners() {
               value === 1 ? "text-success-700" : "text-error-700"
             }`}
           >
-            {value === 1 ? "Active" : "Inactive"}
           </span>
         </div>
       ),

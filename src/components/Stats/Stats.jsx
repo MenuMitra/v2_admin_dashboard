@@ -225,6 +225,7 @@ function Stats() {
             emptyStateMessage="No API usage data available."
             enableStatusFilter={false}
             showCreateButton={false}
+            createButton={{ show: false }}
             customFilters={[
               {
                 type: 'select',

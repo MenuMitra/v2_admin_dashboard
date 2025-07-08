@@ -324,7 +324,6 @@ function SuperOwner() {
               value ? "text-success-700" : "text-error-700"
             }`}
           >
-            {value ? "Active" : "Inactive"}
           </span>
         </div>
       ),
