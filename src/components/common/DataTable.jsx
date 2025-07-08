@@ -475,61 +475,32 @@ function DataTable({
     if (!customFilters || customFilters.length === 0) return null;
 
     return (
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-4 relative" style={{ zIndex: 3 }}>
-        {/* Left side filters container */}
-        <div className="flex flex-wrap items-end gap-4">
-          {customFilters.map((filter, index) => {
-            // For custom components (like DatePickerInput)
-            if (filter.type === 'custom') {
-              return (
-                <div key={index} className="relative flex-1 sm:flex-initial" style={{ zIndex: 3 }}>
-                  {filter.component}
-                </div>
-              );
-            }
-
-            // For select dropdowns
-            if (filter.type === 'select') {
-              return (
-                <div key={index} className="relative flex-1 sm:flex-initial">
-                  <label className="block text-sm text-gray-600 mb-1">{filter.label}</label>
-                  <select
-                    className="w-full sm:w-64 h-10 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    value={filter.value}
-                    onChange={(e) => filter.onChange(e.target.value)}
-                  >
-                    <option value="">{filter.placeholder || `Select ${filter.label}`}</option>
-                    {filter.options.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              );
-            }
-            
-            return null;
-          })}
-        </div>
-
-        {/* Search Input - Right aligned */}
-        {showSearch && (
-          <div className="relative sm:flex-initial">
-            <div className="relative w-full sm:w-[250px]">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
-              </span>
-              <input
-                placeholder={searchPlaceholder}
-                className="w-full h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
-                type="text"
-                value={searchTerm}
-                onChange={(e) => onSearchChange(e.target.value)}
-              />
-            </div>
-          </div>
-        )}
+      <div className="flex flex-wrap items-center gap-4">
+        {customFilters.map((filter, index) => (
+          <React.Fragment key={index}>
+            {filter.type === 'custom' && (
+              <div className="relative" style={{ zIndex: 3 }}>
+                {filter.component}
+              </div>
+            )}
+            {filter.type === 'select' && (
+              <div className="relative">
+                <select
+                  className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                  value={filter.value}
+                  onChange={(e) => filter.onChange(e.target.value)}
+                >
+                  <option value="">{filter.placeholder || `Select ${filter.label}`}</option>
+                  {filter.options.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </React.Fragment>
+        ))}
       </div>
     );
   };
@@ -615,11 +586,66 @@ function DataTable({
               )}
 
               {/* Controls Section */}
-              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                {/* Custom Filters Row */}
-                <div className="flex flex-col sm:flex-row gap-4 w-full">
-                  {renderCustomFilters()}
-                </div>
+              <div className="flex flex-wrap items-center gap-4">
+                {/* Status Filter - if enabled */}
+                {enableStatusFilter && (
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => onStatusFilterChange(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                  >
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                )}
+
+                {/* Custom Filters */}
+                {customFilters && customFilters.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-4">
+                    {customFilters.map((filter, index) => (
+                      <React.Fragment key={index}>
+                        {filter.type === 'custom' && (
+                          <div className="relative" style={{ zIndex: 3 }}>
+                            {filter.component}
+                          </div>
+                        )}
+                        {filter.type === 'select' && (
+                          <div className="relative">
+                            <select
+                              className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                              value={filter.value}
+                              onChange={(e) => filter.onChange(e.target.value)}
+                            >
+                              <option value="">{filter.placeholder || `Select ${filter.label}`}</option>
+                              {filter.options.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                )}
+
+                {/* Search Input */}
+                {showSearch && (
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                      <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+                    </span>
+                    <input
+                      placeholder={searchPlaceholder}
+                      className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => onSearchChange(e.target.value)}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
