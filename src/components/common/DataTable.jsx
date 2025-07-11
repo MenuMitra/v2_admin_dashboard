@@ -90,12 +90,12 @@ function DataTable({
   emptyStateMessageByStatus = {
     all: "No data found.",
     active: "No active items found.",
-    inactive: "No inactive items found."
+    inactive: "No inactive items found.",
   },
   statusField = "is_active",
   showRoleSelect = false,
   roles = [],
-  selectedRole = '',
+  selectedRole = "",
   onRoleChange = () => {},
   customFilters = [],
 }) {
@@ -108,6 +108,19 @@ function DataTable({
 
   // Add data validation at the start of the component
   const safeData = Array.isArray(data) ? data : [];
+
+  // Ensure columns always has 6 items
+  const paddedColumns =
+    columns.length < 6
+      ? [
+          ...columns,
+          ...Array(6 - columns.length).fill({
+            field: "",
+            header: "",
+            sortable: false,
+          }),
+        ]
+      : columns;
 
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
@@ -152,8 +165,9 @@ function DataTable({
           <FontAwesomeIcon
             icon={sortOrder === "asc" ? faSortUp : faSortDown}
             className="text-brand-500 w-4 h-4"
-            style={{ 
-              transform: sortOrder === "asc" ? "translateY(2px)" : "translateY(-2px)" 
+            style={{
+              transform:
+                sortOrder === "asc" ? "translateY(2px)" : "translateY(-2px)",
             }}
           />
         )}
@@ -352,8 +366,8 @@ function DataTable({
   const handleSelectAll = (e) => {
     if (e.target.checked) {
       const selectableIds = currentItems
-        .filter(item => isItemSelectable(item))
-        .map(item => item.id || item.user_id);
+        .filter((item) => isItemSelectable(item))
+        .map((item) => item.id || item.user_id);
       setSelectedItems(selectableIds);
       onSelectionChange(selectableIds);
     } else {
@@ -389,7 +403,7 @@ function DataTable({
           <option value="">Outlets</option>
           {outlets.map((outlet) => (
             <option key={outlet.outlet_id} value={outlet.outlet_id}>
-              {outlet.outlet_name} 
+              {outlet.outlet_name}
               {/* ({outlet.outlet_code}) */}
             </option>
           ))}
@@ -423,7 +437,7 @@ function DataTable({
           <option value="">Roles</option>
           {roles.map((role) => (
             <option key={role.role_id} value={role.role_id}>
-              {role.role_name} 
+              {role.role_name}
               {/* ({role.count}) */}
             </option>
           ))}
@@ -448,14 +462,16 @@ function DataTable({
   // Update the helper functions
   const shouldDisableNavigation = {
     prev: () => currentPage === 1,
-    next: () => currentPage === totalPages
+    next: () => currentPage === totalPages,
   };
 
   // Add this helper function
   const isAllCurrentItemsSelected = () => {
-    const selectableItems = currentItems.filter(item => isItemSelectable(item));
+    const selectableItems = currentItems.filter((item) =>
+      isItemSelectable(item)
+    );
     if (selectableItems.length === 0) return false;
-    return selectableItems.every(item => 
+    return selectableItems.every((item) =>
       selectedItems.includes(item.id || item.user_id)
     );
   };
@@ -465,7 +481,9 @@ function DataTable({
     <div className="flex items-center justify-center gap-2">
       <FontAwesomeIcon
         icon={normalizeStatus(value) ? faCircleCheck : faCircleXmark}
-        className={`w-5 h-5 ${normalizeStatus(value) ? "text-success-500" : "text-error-500"}`}
+        className={`w-5 h-5 ${
+          normalizeStatus(value) ? "text-success-500" : "text-error-500"
+        }`}
       />
     </div>
   );
@@ -478,19 +496,21 @@ function DataTable({
       <div className="flex flex-wrap items-center gap-4">
         {customFilters.map((filter, index) => (
           <React.Fragment key={index}>
-            {filter.type === 'custom' && (
+            {filter.type === "custom" && (
               <div className="relative" style={{ zIndex: 3 }}>
                 {filter.component}
               </div>
             )}
-            {filter.type === 'select' && (
+            {filter.type === "select" && (
               <div className="relative">
                 <select
                   className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                   value={filter.value}
                   onChange={(e) => filter.onChange(e.target.value)}
                 >
-                  <option value="">{filter.placeholder || `Select ${filter.label}`}</option>
+                  <option value="">
+                    {filter.placeholder || `Select ${filter.label}`}
+                  </option>
                   {filter.options.map((option) => (
                     <option key={option.value} value={option.value}>
                       {option.label}
@@ -545,16 +565,20 @@ function DataTable({
                 }`}
               >
                 {title}
-                {mergedCreateButton.position === "center" && renderCreateButton()}
+                {mergedCreateButton.position === "center" &&
+                  renderCreateButton()}
               </div>
 
               {/* Right Side */}
               <div
                 className={`flex items-center justify-end ${
-                  mergedCreateButton.position === "right" ? "order-3" : "order-2"
+                  mergedCreateButton.position === "right"
+                    ? "order-3"
+                    : "order-2"
                 }`}
               >
-                {mergedCreateButton.position === "right" && renderCreateButton()}
+                {mergedCreateButton.position === "right" &&
+                  renderCreateButton()}
               </div>
             </div>
 
@@ -585,8 +609,8 @@ function DataTable({
                 </span>
               )}
 
-              {/* Controls Section */}
-              <div className="flex flex-wrap items-center gap-4">
+              {/* Controls Section - force all controls in one line */}
+              <div className="flex flex-nowrap items-center gap-4 w-full justify-end">
                 {/* Status Filter - if enabled */}
                 {enableStatusFilter && (
                   <select
@@ -602,22 +626,24 @@ function DataTable({
 
                 {/* Custom Filters */}
                 {customFilters && customFilters.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex flex-nowrap items-center gap-4">
                     {customFilters.map((filter, index) => (
                       <React.Fragment key={index}>
-                        {filter.type === 'custom' && (
+                        {filter.type === "custom" && (
                           <div className="relative" style={{ zIndex: 3 }}>
                             {filter.component}
                           </div>
                         )}
-                        {filter.type === 'select' && (
+                        {filter.type === "select" && (
                           <div className="relative">
                             <select
                               className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                               value={filter.value}
                               onChange={(e) => filter.onChange(e.target.value)}
                             >
-                              <option value="">{filter.placeholder || `Select ${filter.label}`}</option>
+                              <option value="">
+                                {filter.placeholder || `Select ${filter.label}`}
+                              </option>
                               {filter.options.map((option) => (
                                 <option key={option.value} value={option.value}>
                                   {option.label}
@@ -635,7 +661,10 @@ function DataTable({
                 {showSearch && (
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                      <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+                      <FontAwesomeIcon
+                        icon={faMagnifyingGlass}
+                        className="w-4 h-4"
+                      />
                     </span>
                     <input
                       placeholder={searchPlaceholder}
@@ -736,10 +765,10 @@ function DataTable({
                 )}
 
                 {/* Regular columns */}
-                {columns.map((column) => (
+                {paddedColumns.map((column, idx) => (
                   <th
-                    key={column.field}
-                    className={`${
+                    key={column.field || idx}
+                    className={`$${
                       column.field === "selection" ? "px-2" : "px-6"
                     } py-2.5 text-center ${
                       enableSort && column.sortable
@@ -778,8 +807,12 @@ function DataTable({
                       <td className="px-2 py-2.5 text-center">
                         <input
                           type="checkbox"
-                          checked={selectedItems.includes(item.id || item.user_id)}
-                          onChange={() => handleSelectItem(item.id || item.user_id)}
+                          checked={selectedItems.includes(
+                            item.id || item.user_id
+                          )}
+                          onChange={() =>
+                            handleSelectItem(item.id || item.user_id)
+                          }
                           className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
                           onClick={(e) => e.stopPropagation()}
                         />
@@ -796,18 +829,18 @@ function DataTable({
                     )}
 
                     {/* Regular cells */}
-                    {columns.map((column) => (
+                    {paddedColumns.map((column, idx) => (
                       <td
-                        key={column.field}
-                        className={`${
+                        key={column.field || idx}
+                        className={`$${
                           column.field === "selection" ? "px-2" : "px-6"
                         } py-2.5 text-center`}
                       >
-                        {column.render ? (
+                        {column.render && column.field ? (
                           column.render(item[column.field], item)
-                        ) : column.field === statusField ? (
+                        ) : column.field === statusField && column.field ? (
                           renderStatus(item[column.field])
-                        ) : (
+                        ) : column.field ? (
                           <p
                             className={`text-gray-500 text-theme-sm ${
                               darkMode ? "dark:text-gray-400" : ""
@@ -815,19 +848,20 @@ function DataTable({
                           >
                             {item[column.field]}
                           </p>
-                        )}
+                        ) : null}
                       </td>
                     ))}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td 
-                    colSpan={columns.length + (enableSelection ? 1 : 0)} 
+                  <td
+                    colSpan={paddedColumns.length + (enableSelection ? 1 : 0)}
                     className="p-6 text-center text-gray-500"
                   >
-                    {statusFilter && emptyStateMessageByStatus 
-                      ? emptyStateMessageByStatus[statusFilter] || emptyStateMessage
+                    {statusFilter && emptyStateMessageByStatus
+                      ? emptyStateMessageByStatus[statusFilter] ||
+                        emptyStateMessage
                       : emptyStateMessage}
                   </td>
                 </tr>
@@ -842,9 +876,11 @@ function DataTable({
             {/* Keep the entries dropdown */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <span className={`text-gray-500 text-theme-sm ${
-                  darkMode ? "dark:text-gray-400" : ""
-                }`}>
+                <span
+                  className={`text-gray-500 text-theme-sm ${
+                    darkMode ? "dark:text-gray-400" : ""
+                  }`}
+                >
                   Show
                 </span>
                 <select
@@ -858,17 +894,21 @@ function DataTable({
                     </option>
                   ))}
                 </select>
-                <span className={`text-gray-500 text-theme-sm ${
-                  darkMode ? "dark:text-gray-400" : ""
-                }`}>
+                <span
+                  className={`text-gray-500 text-theme-sm ${
+                    darkMode ? "dark:text-gray-400" : ""
+                  }`}
+                >
                   entries
                 </span>
               </div>
 
               {/* Showing entries text */}
-              <div className={`text-gray-500 text-theme-sm ${
-                darkMode ? "dark:text-gray-400" : ""
-              }`}>
+              <div
+                className={`text-gray-500 text-theme-sm ${
+                  darkMode ? "dark:text-gray-400" : ""
+                }`}
+              >
                 Showing {indexOfFirstItem + 1} to{" "}
                 {Math.min(indexOfLastItem, processedData.length)} of{" "}
                 {processedData.length} entries
@@ -878,48 +918,66 @@ function DataTable({
             {/* Pagination controls */}
             <div className="flex items-center justify-between gap-2 sm:justify-normal">
               <button
-                onClick={() => !shouldDisableNavigation.prev() && handlePageChange(currentPage - 1)}
+                onClick={() =>
+                  !shouldDisableNavigation.prev() &&
+                  handlePageChange(currentPage - 1)
+                }
                 disabled={shouldDisableNavigation.prev()}
                 className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
                   darkMode
                     ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     : ""
-                } ${shouldDisableNavigation.prev() ? "opacity-50 cursor-not-allowed" : ""}`}
+                } ${
+                  shouldDisableNavigation.prev()
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
               >
                 <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
               </button>
 
-              <span className={`block text-sm font-medium text-gray-700 ${
-                darkMode ? "dark:text-gray-400" : ""
-              } sm:hidden`}>
+              <span
+                className={`block text-sm font-medium text-gray-700 ${
+                  darkMode ? "dark:text-gray-400" : ""
+                } sm:hidden`}
+              >
                 Page {currentPage} of {totalPages}
               </span>
 
               <ul className="hidden items-center gap-0.5 sm:flex">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                  <li key={pageNum}>
-                    <button
-                      onClick={() => handlePageChange(pageNum)}
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
-                        currentPage === pageNum 
-                          ? "bg-brand-500 text-white"
-                          : "text-gray-700 hover:bg-brand-500 hover:text-white"
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  </li>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (pageNum) => (
+                    <li key={pageNum}>
+                      <button
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
+                          currentPage === pageNum
+                            ? "bg-brand-500 text-white"
+                            : "text-gray-700 hover:bg-brand-500 hover:text-white"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    </li>
+                  )
+                )}
               </ul>
 
               <button
-                onClick={() => !shouldDisableNavigation.next() && handlePageChange(currentPage + 1)}
+                onClick={() =>
+                  !shouldDisableNavigation.next() &&
+                  handlePageChange(currentPage + 1)
+                }
                 disabled={shouldDisableNavigation.next()}
                 className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
                   darkMode
                     ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     : ""
-                } ${shouldDisableNavigation.next() ? "opacity-50 cursor-not-allowed" : ""}`}
+                } ${
+                  shouldDisableNavigation.next()
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
               >
                 <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
               </button>
@@ -929,7 +987,7 @@ function DataTable({
       </div>
     );
   } catch (error) {
-    console.error('DataTable Error:', error);
+    console.error("DataTable Error:", error);
     // Return a fallback UI
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-4">

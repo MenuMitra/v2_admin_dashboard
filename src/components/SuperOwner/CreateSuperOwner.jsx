@@ -91,6 +91,21 @@ function CreateSuperOwner() {
         }));
       }
     }
+    // Live validation for email field
+    if (name === "email") {
+      const gmailPattern = /^[a-zA-Z0-9._%+-]+@\.com$/;
+      if (value && !gmailPattern.test(value)) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          email: "Email format is incorrect",
+        }));
+      } else {
+        setFieldErrors((prev) => ({
+          ...prev,
+          email: "",
+        }));
+      }
+    }
   };
 
   const validate = () => {
@@ -190,7 +205,7 @@ function CreateSuperOwner() {
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                  <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
+                <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>

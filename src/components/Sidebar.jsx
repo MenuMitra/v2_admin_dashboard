@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from 'axios';
-import { useAuth } from '../hooks/useAuth';
-import { useAdmin } from '../hooks/useAdmin';
+import axios from "axios";
+import { useAuth } from "../hooks/useAuth";
+import { useAdmin } from "../hooks/useAdmin";
 import {
   faGrip,
   faStore,
@@ -27,7 +27,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
-import logo from '../assets/images/logo/logo.png';
+import logo from "../assets/images/logo/logo.png";
 
 const menuData = {
   MENU: [
@@ -62,7 +62,7 @@ const menuData = {
       icon: faUsers,
     },
     {
-      title: "Super Owners", 
+      title: "Super Owners",
       path: "/super-owners",
       id: "super-owners",
       icon: faUserShield,
@@ -129,16 +129,16 @@ const menuData = {
     },
     {
       title: "Stats",
-      path: "/stats",
+      path: "/combined-stats",
       id: "stats",
       icon: faChartLine,
     },
-    {
-      title: "DB Tables Stats",
-      path: "/db-tables-stats",
-      id: "db-tables-stats",
-      icon: faDatabase,
-    },
+    // {
+    //   title: "DB Tables Stats",
+    //   path: "/db-tables-stats",
+    //   id: "db-tables-stats",
+    //   icon: faDatabase,
+    // },
     {
       title: "My Profile",
       path: "/profile",
@@ -146,7 +146,6 @@ const menuData = {
       icon: faUser,
     },
   ],
-  
 };
 
 const Sidebar = ({ sidebarToggle = false }) => {
@@ -181,80 +180,66 @@ const Sidebar = ({ sidebarToggle = false }) => {
 
   const MenuItem = ({ item }) => {
     const location = useLocation();
-    
+
     // Updated isRouteActive function to handle nested routes
     const isRouteActive = (path) => {
       // Get the base route (e.g., 'owners', 'partners', etc.)
-      const baseRoute = path.split('/')[1];
+      const baseRoute = path.split("/")[1];
       const currentPath = location.pathname;
 
       // Define route patterns for each base route
       const routePatterns = {
-        'owners': [
-          '/owners',
-          '/create-owner',
-          '/owner-details/',
-          '/edit-owner/'
+        owners: ["/owners", "/create-owner", "/owner-details/", "/edit-owner/"],
+        partners: [
+          "/partners",
+          "/create-partner",
+          "/partner-details/",
+          "/edit-partner/",
         ],
-        'partners': [
-          '/partners',
-          '/create-partner',
-          '/partner-details/',
-          '/edit-partner/'
+        outlets: [
+          "/outlets",
+          "/create-outlet",
+          "/view-outlet/",
+          "/edit-outlet/",
+          "/menus/",
+          "/menu-details/",
+          "/edit-menu/",
+          "/categories/",
+          "/category-details/",
+          "/edit-category/",
         ],
-        'outlets': [
-          '/outlets',
-          '/create-outlet',
-          '/view-outlet/',
-          '/edit-outlet/',
-          '/menus/',
-          '/menu-details/',
-          '/edit-menu/',
-          '/categories/',
-          '/category-details/',
-          '/edit-category/',
+        admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
+        "super-owners": [
+          "/super-owners",
+          "/create-super-owner",
+          "/super-owner-details/",
+          "/edit-super-owner/",
         ],
-        'admins': [
-          '/admins',
-          '/create-admin',
-          '/admin-details/',
-          '/edit-admin/'
-        ],
-        'super-owners': [
-          '/super-owners',
-          '/create-super-owner',
-          '/super-owner-details/',
-          '/edit-super-owner/'
-        ],
-        'qr-templates': [
-          '/qr-templates',
-          '/create-template',
-          '/template-details/',
-          '/edit-template/'
+        "qr-templates": [
+          "/qr-templates",
+          "/create-template",
+          "/template-details/",
+          "/edit-template/",
         ],
         // Special case for Access Control section
-        'roles': [
-          '/roles',
-          '/add-role-assign-functionalities/'
-        ],
-        'functionalities': [
-          '/functionalities',
-          '/assign-functionality-role/'
-        ]
+        roles: ["/roles", "/add-role-assign-functionalities/"],
+        functionalities: ["/functionalities", "/assign-functionality-role/"],
       };
 
       // Special case for Access Control section
       if (item.title === "Access Control") {
         return Object.keys(routePatterns)
-          .filter(key => ['roles', 'functionalities'].includes(key))
-          .some(key => 
-            routePatterns[key].some(pattern => currentPath.startsWith(pattern))
+          .filter((key) => ["roles", "functionalities"].includes(key))
+          .some((key) =>
+            routePatterns[key].some((pattern) =>
+              currentPath.startsWith(pattern)
+            )
           );
       }
 
       // For regular menu items
       if (routePatterns[baseRoute]) {
-        return routePatterns[baseRoute].some(pattern => 
+        return routePatterns[baseRoute].some((pattern) =>
           currentPath.startsWith(pattern)
         );
       }
@@ -264,10 +249,10 @@ const Sidebar = ({ sidebarToggle = false }) => {
     };
 
     // Updated isActive logic
-    const isActive = item.path 
+    const isActive = item.path
       ? isRouteActive(item.path)
-      : item.items?.some(subItem => isRouteActive(subItem.path));
-    
+      : item.items?.some((subItem) => isRouteActive(subItem.path));
+
     const hasDropdown = !!item.items;
     const isAccessControl = item.title === "Access Control";
 
@@ -279,23 +264,33 @@ const Sidebar = ({ sidebarToggle = false }) => {
             className={`
               flex items-center gap-3 rounded-md px-4 py-2.5
               hover:bg-gray-100 dark:hover:bg-gray-800
-              ${isActive ? 'bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-brand-400' : ''}
+              ${
+                isActive
+                  ? "bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-brand-400"
+                  : ""
+              }
               transition-all duration-300
             `}
           >
             <FontAwesomeIcon
               icon={item.icon}
-              className={`w-5 h-5 ${isActive ? 'text-brand-600 dark:text-brand-400' : ''}`}
+              className={`w-5 h-5 ${
+                isActive ? "text-brand-600 dark:text-brand-400" : ""
+              }`}
             />
-            <span className={`whitespace-nowrap ${sidebarToggle ? 'lg:hidden' : ''}`}>
+            <span
+              className={`whitespace-nowrap ${
+                sidebarToggle ? "lg:hidden" : ""
+              }`}
+            >
               {item.title}
             </span>
             {hasDropdown && (
               <FontAwesomeIcon
                 icon={faChevronDown}
                 className={`ml-auto transition-transform duration-300 ${
-                  isActive ? 'rotate-180' : ''
-                } ${sidebarToggle ? 'lg:hidden' : ''}`}
+                  isActive ? "rotate-180" : ""
+                } ${sidebarToggle ? "lg:hidden" : ""}`}
               />
             )}
           </Link>
@@ -306,26 +301,36 @@ const Sidebar = ({ sidebarToggle = false }) => {
               className={`
                 flex items-center gap-3 rounded-md px-4 py-2.5
                 hover:bg-gray-100 dark:hover:bg-gray-800
-                ${isActive ? 'bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-brand-400' : ''}
+                ${
+                  isActive
+                    ? "bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-brand-400"
+                    : ""
+                }
                 transition-all duration-300
               `}
             >
               <FontAwesomeIcon
                 icon={item.icon}
-                className={`w-5 h-5 ${isActive ? 'text-brand-600 dark:text-brand-400' : ''}`}
+                className={`w-5 h-5 ${
+                  isActive ? "text-brand-600 dark:text-brand-400" : ""
+                }`}
               />
-              <span className={`whitespace-nowrap ${sidebarToggle ? 'lg:hidden' : ''}`}>
+              <span
+                className={`whitespace-nowrap ${
+                  sidebarToggle ? "lg:hidden" : ""
+                }`}
+              >
                 {item.title}
               </span>
               <FontAwesomeIcon
                 icon={faChevronDown}
                 className={`ml-auto transition-transform duration-300 ${
-                  isActive ? 'rotate-180' : ''
-                } ${sidebarToggle ? 'lg:hidden' : ''}`}
+                  isActive ? "rotate-180" : ""
+                } ${sidebarToggle ? "lg:hidden" : ""}`}
               />
             </Link>
 
-            <div className={`block ${isActive ? '' : 'hidden'}`}>
+            <div className={`block ${isActive ? "" : "hidden"}`}>
               <ul
                 className={`menu-dropdown mt-2 flex flex-col gap-1 pl-9 ${
                   sidebarToggle ? "lg:hidden" : "flex"
@@ -415,23 +420,28 @@ const Sidebar = ({ sidebarToggle = false }) => {
         overflow-y-auto bg-white transition-transform duration-300
         border-r border-gray-200 dark:border-gray-800 dark:bg-black
         lg:static lg:translate-x-0
-        ${sidebarToggle ? 'translate-x-0' : '-translate-x-full'}
-        ${sidebarToggle ? 'lg:w-[90px]' : 'lg:w-[290px]'}
+        ${sidebarToggle ? "translate-x-0" : "-translate-x-full"}
+        ${sidebarToggle ? "lg:w-[90px]" : "lg:w-[290px]"}
       `}
     >
       {/* Sidebar Header - Desktop */}
       <div
         className={`
           hidden lg:flex items-center justify-center gap-2 pt-8 pb-7 px-5
-          ${sidebarToggle ? 'justify-center' : 'justify-center'}
+          ${sidebarToggle ? "justify-center" : "justify-center"}
         `}
       >
         <div className="flex items-center gap-2">
           <img className="w-10" src={logo} alt="Logo" />
-          <span className={`text-2xl font-semibold text-gray-900 dark:text-white ${sidebarToggle ? "lg:hidden" : ""}`}>ADMIN</span>
+          <span
+            className={`text-2xl font-semibold text-gray-900 dark:text-white ${
+              sidebarToggle ? "lg:hidden" : ""
+            }`}
+          >
+            ADMIN
+          </span>
         </div>
       </div>
-
       {/* Menu Items */}
       <div className="block lg:hidden mt-20"></div> {/* Mobile-only spacer */}
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-5 dark:text-white">
@@ -441,7 +451,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
           ))}
         </nav>
       </div>
-
     </aside>
   );
 };

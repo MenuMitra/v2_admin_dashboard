@@ -30,6 +30,7 @@ function CreateAdmin() {
     password: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
+  const [emailApiError, setEmailApiError] = useState("");
 
   // Breadcrumb configuration
   const breadcrumbItems = [
@@ -77,8 +78,20 @@ function CreateAdmin() {
         mobile: isValid,
         mobileMessage: message
       }));
-    } 
-    else {
+    } else if (name === 'email') {
+      // Gmail validation
+      const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+      if (value && !gmailPattern.test(value)) {
+        setEmailApiError('Email format is incorrect.');
+      } else {
+        setEmailApiError('');
+      }
+      setAdminData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+      return;
+    } else {
       setAdminData(prev => ({
         ...prev,
         [name]: value
@@ -109,6 +122,7 @@ function CreateAdmin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitAttempted(true);
+    setEmailApiError("");
     
     if (!isFormValid()) {
       toastController.error("Please fill all required fields correctly");
@@ -137,12 +151,22 @@ function CreateAdmin() {
         {
           loading: "Creating admin...",
           success: "Admin created successfully",
-          error: (err) => err.response?.data?.detail || "Failed to create admin"
+          error: (err) => {
+            if (err.response?.data?.detail === "Email format is incorrect") {
+              setEmailApiError("Email format is incorrect");
+            }
+            return err.response?.data?.detail || "Failed to create admin";
+          }
         }
       );
 
-      navigate("/admins");
+      if (!emailApiError) {
+        navigate("/admins");
+      }
     } catch (error) {
+      if (error.response?.data?.detail === "Email format is incorrect") {
+        setEmailApiError("Email format is incorrect");
+      }
       console.error("Error creating admin:", error);
     } finally {
       setIsSubmitting(false);
@@ -229,18 +253,23 @@ function CreateAdmin() {
                 )}
               </div>
 
-              <TextInput
-                label="Email"
-                name="email"
-                type="email"
-                value={adminData.email}
-                onChange={handleChange}
-                placeholder="Enter email address"
-                required
-                validationType="email"
-                onValidation={handleValidation("email")}
-                isSubmitAttempted={isSubmitAttempted}
-              />
+              <div className="relative">
+                <TextInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={adminData.email}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
+                  required
+                  validationType="email"
+                  onValidation={handleValidation("email")}
+                  isSubmitAttempted={isSubmitAttempted}
+                />
+                {emailApiError && (
+                  <p className="text-error-500 text-sm mt-1">{emailApiError}</p>
+                )}
+              </div>
 
               <TextInput
                 label="Password"

@@ -45,6 +45,7 @@ function EditOwner() {
     aadhar_number: true,
     aadharMessage: ''
   });
+  const [emailError, setEmailError] = useState("");
 
   const breadcrumbItems = [
     { label: "Dashboard", path: "/dashboard" },
@@ -155,7 +156,6 @@ function EditOwner() {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    
     if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
       const { isValid, message } = isMobileValid(numbersOnly);
@@ -175,7 +175,17 @@ function EditOwner() {
         aadharMessage: message
       }));
       setOwnerData(prev => ({ ...prev, aadhar_number: numbersOnly }));
-    }
+    } 
+    else if (name === 'email') {
+      const gmailPattern = /^[a-zA-Z0-9._%+-]+@\.com$/;
+      if (value && !gmailPattern.test(value)) {
+        setEmailError('Email format is incorrect.');
+      } else {
+        setEmailError('');
+      }
+      setOwnerData(prev => ({ ...prev, [name]: value }));
+      return;
+    } 
     else {
       setOwnerData(prev => ({
         ...prev,
@@ -330,15 +340,20 @@ function EditOwner() {
                 )}
               </div>
 
-              <TextInput
-                label="Email Address"
-                name="email"
-                type="email"
-                value={ownerData.email}
-                onChange={handleChange}
-                placeholder="Enter email address"
-                required
-              />
+              <div className="relative">
+                <TextInput
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  value={ownerData.email}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
+                  required
+                />
+                {emailError && (
+                  <p className="text-error-500 text-sm mt-1">{emailError}</p>
+                )}
+              </div>
 
               <DateInput
                 label="Date of Birth"

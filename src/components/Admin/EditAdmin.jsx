@@ -34,6 +34,7 @@ function EditAdmin() {
     is_active: true
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
+  const [emailApiError, setEmailApiError] = useState('');
 
   // Status options for the select input
   const statusOptions = [
@@ -105,7 +106,7 @@ function EditAdmin() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
@@ -126,6 +127,20 @@ function EditAdmin() {
         mobile: isValid,
         mobileMessage: message
       }));
+    } 
+    else if (name === 'email') {
+      // Gmail validation
+      const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+      if (value && !gmailPattern.test(value)) {
+        setEmailApiError('Email format is incorrect');
+      } else {
+        setEmailApiError('');
+      }
+      setAdminDetails(prev => ({
+        ...prev,
+        [name]: value
+      }));
+      return;
     } 
     else if (name === 'is_active') {
       const boolValue = value === 'true';
@@ -317,18 +332,23 @@ function EditAdmin() {
                 )}
               </div>
 
-              <TextInput
-                label="Email"
-                name="email"
-                type="email"
-                value={adminDetails.email}
-                onChange={handleChange}
-                placeholder="Enter email address"
-                required
-                validationType="email"
-                onValidation={handleValidation("email")}
-                isSubmitAttempted={isSubmitAttempted}
-              />
+              <div className="relative">
+                <TextInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={adminDetails.email}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
+                  required
+                  validationType="email"
+                  onValidation={handleValidation("email")}
+                  isSubmitAttempted={isSubmitAttempted}
+                />
+                {emailApiError && (
+                  <p className="text-error-500 text-sm mt-1">{emailApiError}</p>
+                )}
+              </div>
 
               <SelectInput
                 label="Status"

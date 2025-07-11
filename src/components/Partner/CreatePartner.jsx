@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAdmin } from '../../hooks/useAdmin';
-import { useAuth } from '../../hooks/useAuth';
-import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAdmin } from "../../hooks/useAdmin";
+import { useAuth } from "../../hooks/useAuth";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPlus,
+  faChevronLeft as faBack,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
   DateInput,
   Textarea,
   SelectInput,
   Checkbox,
-  labelStyles
-} from '../forms/FormElements.jsx';
-import Breadcrumb from '../Breadcrumb';
+  labelStyles,
+} from "../forms/FormElements.jsx";
+import Breadcrumb from "../Breadcrumb";
 
 function CreatePartner() {
   const navigate = useNavigate();
@@ -24,14 +27,15 @@ function CreatePartner() {
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [partnerDetails, setPartnerDetails] = useState({
-    name: '',
-    mobile: '',
-    email: '',
-    dob: '',
-    aadhar_number: '',
-    address: '',
-    functionality_ids: []
+    name: "",
+    mobile: "",
+    email: "",
+    dob: "",
+    aadhar_number: "",
+    address: "",
+    functionality_ids: [],
   });
+  const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
     fetchFunctionalities();
@@ -41,31 +45,59 @@ function CreatePartner() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/admin/get_ubac_functionalities',
+        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       setFunctionalities(response.data);
     } catch (err) {
-      console.error('Error fetching functionalities:', err);
-      setError('Failed to load functionalities');
+      console.error("Error fetching functionalities:", err);
+      setError("Failed to load functionalities");
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setPartnerDetails(prev => ({
+    // Mobile number validation: not starting with 0-5, max length 10
+    if (name === "mobile") {
+      // Only allow numbers
+      const numericValue = value.replace(/\D/g, "");
+      // Prevent starting with 0-5
+      if (numericValue.length > 0 && /^[0-5]/.test(numericValue)) {
+        return; // Do not update state if first digit is 0-5
+      }
+      // Limit to 10 digits
+      if (numericValue.length > 10) {
+        return;
+      }
+      setPartnerDetails((prev) => ({
+        ...prev,
+        [name]: numericValue,
+      }));
+      return;
+    }
+    // Email validation
+    if (name === "email") {
+      // Basic email regex and must end with @gmail.com
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+      if (value && !emailPattern.test(value)) {
+        setEmailError("Email format is incorrect.");
+      } else {
+        setEmailError("");
+      }
+    }
+    setPartnerDetails((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -77,15 +109,17 @@ function CreatePartner() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const date = new Date(partnerDetails.dob);
-      const formattedDate = date.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }).replace(/ /g, ' ');
+      const formattedDate = date
+        .toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+        .replace(/ /g, " ");
 
       const requestData = {
         user_id: adminData?.user_id,
@@ -95,27 +129,26 @@ function CreatePartner() {
         dob: formattedDate,
         aadhar_number: partnerDetails.aadhar_number,
         address: partnerDetails.address,
-        functionality_ids: partnerDetails.functionality_ids
+        functionality_ids: partnerDetails.functionality_ids,
       };
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/create_partner',
+        "https://men4u.xyz/v2/admin/create_partner",
         requestData,
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (response.data.detail === "Partner created successfully") {
-        navigate('/partners');
+        navigate("/partners");
       }
-
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create partner');
-      console.error('Error creating partner:', err);
+      setError(err.response?.data?.detail || "Failed to create partner");
+      console.error("Error creating partner:", err);
     } finally {
       setIsLoading(false);
     }
@@ -123,9 +156,9 @@ function CreatePartner() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
-    { label: 'Partners', path: '/partners' },
-    { label: 'Create Partner' }
+    { label: "Dashboard", path: "/" },
+    { label: "Partners", path: "/partners" },
+    { label: "Create Partner" },
   ];
 
   if (isLoading && !partnerDetails.name) {
@@ -168,7 +201,7 @@ function CreatePartner() {
                 text-sm font-medium text-white rounded-full
                 bg-success-500 hover:bg-success-600 
                 transition shadow-sm
-                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -199,17 +232,23 @@ function CreatePartner() {
                 onChange={handleChange}
                 placeholder="Enter mobile number"
                 required
+                maxLength={10}
               />
 
-              <TextInput
-                label="Email Address"
-                name="email"
-                type="email"
-                value={partnerDetails.email}
-                onChange={handleChange}
-                placeholder="Enter email address"
-                required
-              />
+              <div>
+                <TextInput
+                  label="Email Address"
+                  name="email"
+                  type="email"
+                  value={partnerDetails.email}
+                  onChange={handleChange}
+                  placeholder="Enter email address"
+                  required
+                />
+                {emailError && (
+                  <div className="text-error-500 text-sm mt-1">{emailError}</div>
+                )}
+              </div>
 
               <DateInput
                 label="Date of Birth"
@@ -251,23 +290,30 @@ function CreatePartner() {
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
                 <div className="flex flex-wrap gap-4">
                   {functionalities.map((func) => (
-                    <div key={func.functionality_id} className="min-w-[200px] flex-1">
+                    <div
+                      key={func.functionality_id}
+                      className="min-w-[200px] flex-1"
+                    >
                       <Checkbox
                         label={func.functionality_name}
                         value={func.functionality_id}
-                        checked={selectedFunctionalities.includes(func.functionality_id)}
+                        checked={selectedFunctionalities.includes(
+                          func.functionality_id
+                        )}
                         onChange={(e) => {
                           const value = Number(e.target.value);
-                          setSelectedFunctionalities(prev =>
+                          setSelectedFunctionalities((prev) =>
                             e.target.checked
                               ? [...prev, value]
-                              : prev.filter(id => id !== value)
+                              : prev.filter((id) => id !== value)
                           );
-                          setPartnerDetails(prev => ({
+                          setPartnerDetails((prev) => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
-                              : prev.functionality_ids.filter(id => id !== value)
+                              : prev.functionality_ids.filter(
+                                  (id) => id !== value
+                                ),
                           }));
                         }}
                       />
@@ -311,9 +357,7 @@ function CreatePartner() {
 
             {/* Error Message */}
             {error && (
-              <div className="text-error-500 text-sm mt-2">
-                {error}
-              </div>
+              <div className="text-error-500 text-sm mt-2">{error}</div>
             )}
           </form>
         </div>
