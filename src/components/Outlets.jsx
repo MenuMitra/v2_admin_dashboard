@@ -376,16 +376,13 @@ function Outlets() {
     },
     {
       field: "isOpen",
-      header: "Open/Close",
+      header: "Open \n Close",
       sortable: true,
       render: (value) => (
-        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
-           <FontAwesomeIcon
-            icon={value === 1 ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value === 1 ? "text-success-500" : "text-error-500"
-            }`}
-          />
+        <span className={`text-sm font-medium ${
+          value === 1 ? "text-success-500" : "text-error-500"
+        }`}>
+          {value === 1 ? "OPEN" : "CLOSE"}
         </span>
       ),
     },
