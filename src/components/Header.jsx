@@ -7,6 +7,7 @@ import {
   faChevronDown,
   faUser,
   faSignOutAlt,
+  faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAdmin } from "../hooks/useAdmin";
 import axios from "axios";
@@ -80,6 +81,17 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
           >
             <FontAwesomeIcon
               icon={sidebarToggle ? faXmark : faBars}
+              className="h-5 w-5"
+            />
+          </button>
+          <button
+            className={`flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 ${
+              sidebarToggle ? "bg-gray-100 dark:bg-gray-800" : ""
+            }`}
+            onClick={() => setSidebarToggle(!sidebarToggle)}
+          >
+            <FontAwesomeIcon
+              icon={faSearch}
               className="h-5 w-5"
             />
           </button>
