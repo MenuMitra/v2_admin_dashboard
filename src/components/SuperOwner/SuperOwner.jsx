@@ -16,7 +16,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../Breadcrumb';
 import DataTable from '../common/DataTable';
-import Modal from '../common/Modal';
+import DeleteConfirmModal from '../common/DeleteConfirmModal';
 import { useAdmin } from '../../hooks/useAdmin';
 
 function SuperOwner() {
@@ -423,80 +423,14 @@ function SuperOwner() {
         onReload={fetchSuperOwners}
       />
 
-      <Modal
-        isOpen={confirmModal.isOpen}
-        onClose={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
-        title={confirmModal.title}
-        type={confirmModal.action === 'delete' ? 'error' : 'warning'}
-        size="small"
-      >
-        <p className="mb-6">{confirmModal.message}</p>
-        <div className="flex justify-between items-center w-full gap-3">
-          <button
-            onClick={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
-          >
-            <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
-            Cancel
-          </button>
-          <button
-            onClick={() => executeBulkAction(confirmModal.action)}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-full transition ${
-              confirmModal.action === 'delete' 
-                ? 'bg-error-500 hover:bg-error-600' 
-                : 'bg-warning-500 hover:bg-warning-600'
-            }`}
-          >
-            <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
-            Confirm
-          </button>
-        </div>
-      </Modal>
-
-      <Modal
+      <DeleteConfirmModal 
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setOwnerToDelete(null);
         }}
-        title="Confirm Deletion"
-        type="error"
-        size="small"
-        customIcon={
-          <FontAwesomeIcon
-            icon={faTrash}
-            className="h-6 w-6 text-error-500"
-          />
-        }
-        actionButtons={
-          <>
-            <button
-              type="button"
-              onClick={() => {
-                setShowDeleteModal(false);
-                setOwnerToDelete(null);
-              }}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleDeleteOwner}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
-            >
-              Delete Super Owner
-            </button>
-          </>
-        }
-      >
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Are you sure you want to delete this super owner? This action
-          cannot be undone. 
-          <br/>All data associated with this super owner
-          will be permanently removed.
-        </p>
-      </Modal>
+        onDelete={handleDeleteOwner}
+      />
     </>
   );
 }

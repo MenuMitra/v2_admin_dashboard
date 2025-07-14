@@ -16,6 +16,8 @@ import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import Modal from "../common/Modal";
 import { API_CONFIG } from "../../config/appConfig";
+import { toastController } from "../../utils/toastController";
+import DeleteConfirmModal from '../../components/common/DeleteConfirmModal';
 
 function Admins() {
   const { getToken } = useAuth();
@@ -132,13 +134,18 @@ function Admins() {
       if (response.data.detail === "Admin deleted successfully") {
         setShowDeleteModal(false);
         setAdminToDelete(null);
+        // Show success toast
+        toastController.success(response.data.detail);
         // Refresh the admins list
         await fetchAdmins();
       } else {
         throw new Error("Failed to delete admin");
       }
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to delete admin");
+      // Show error toast
+      toastController.error(
+        err.response?.data?.detail || "Failed to delete admin"
+      );
       console.error("Error deleting admin:", err);
     }
   };
@@ -152,12 +159,12 @@ function Admins() {
       }
 
       const endpoint = `${BASE_URL}/${API_VERSION}/common/bulk_admin_action`;
-      
+
       // Normalize the payload to match API requirements
       const payload = {
         user_ids: selectedIds, // admin_ids -> user_ids
         action: action, // directly use "active" or "inactive"
-        app_source: "admin_app"
+        app_source: "admin_app",
       };
 
       const response = await axios.post(endpoint, payload, {
@@ -303,7 +310,9 @@ function Admins() {
     if (filtered.length === 0) {
       return {
         data: [],
-        message: `No ${statusFilter === "all" ? "" : statusFilter} admins found.`
+        message: `No ${
+          statusFilter === "all" ? "" : statusFilter
+        } admins found.`,
       };
     }
 
@@ -391,49 +400,14 @@ function Admins() {
       />
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setAdminToDelete(null);
         }}
-        type="error"
-        title="Confirm Deletion"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              type="button"
-              onClick={() => {
-                setShowDeleteModal(false);
-                setAdminToDelete(null);
-              }}
-              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleDeleteAdmin}
-              className="flex justify-center w-full px-4 py-3 text-theme-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
-            >
-              Delete Admin
-            </button>
-          </>
-        }
-      >
-        <div className="flex items-start">
-          <div className="ml-4">
-            <p className="text-theme-sm text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete this admin? This action cannot be
-              undone.
-            </p>
-            <p className="text-theme-sm text-gray-500 dark:text-gray-400">
-              All data associated with this admin will be permanently removed.
-            </p>
-          </div>
-        </div>
-      </Modal>
+        onDelete={handleDeleteAdmin}
+      />
     </>
   );
 }

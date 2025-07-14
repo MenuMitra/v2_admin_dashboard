@@ -7,6 +7,7 @@ import {
   faChevronDown,
   faUser,
   faSignOutAlt,
+  faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAdmin } from "../hooks/useAdmin";
 import axios from "axios";
@@ -25,7 +26,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
   useEffect(() => {
     if (!isAuthenticated()) {
-      navigate('/');
+      navigate("/");
     }
   }, [isAuthenticated, navigate]);
 
@@ -36,9 +37,9 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -83,7 +84,15 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
               className="h-5 w-5"
             />
           </button>
-
+          {/* Update the search button Link */}
+          <Link to="/search?focus=true">
+            <button
+              className={`flex h-10 w-24 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 w-28`}
+            >
+              <FontAwesomeIcon icon={faSearch} className="h-5 w-5 pr-1" />
+              Search
+            </button>
+          </Link>
           {/* Logo - Always visible */}
           {/* <Link to="/" className="flex items-center">
             <img className="h-8 w-auto dark:hidden" src={logo} alt="Logo" />
@@ -100,8 +109,8 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                  <FontAwesomeIcon 
-                    icon={faUser} 
+                  <FontAwesomeIcon
+                    icon={faUser}
                     className="text-gray-600 dark:text-gray-400"
                   />
                 </span>
@@ -110,17 +119,16 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                 </span>
                 <FontAwesomeIcon
                   icon={faChevronDown}
-                  className={`h-4 w-4 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+                  className={`h-4 w-4 transition-transform ${
+                    dropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
               {/* Dropdown Menu */}
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-64 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                  <Link 
-                    to="/profile" 
-                    onClick={() => setDropdownOpen(false)}
-                  >
+                  <Link to="/profile" onClick={() => setDropdownOpen(false)}>
                     <div className="mb-2 p-2">
                       <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
                         {adminData.name}

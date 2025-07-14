@@ -426,23 +426,30 @@ function Owners() {
           setShowDeleteModal(false);
           setOwnerToDelete(null);
         }}
-        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
       >
         Cancel
       </button>
       <button
         type="button"
         onClick={handleDeleteOwner}
-        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
+        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
       >
         Delete Owner
       </button>
     </>
   );
 
+  // First define the button classes as constants
+  const buttonBaseClasses = "flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs sm:w-auto";
+
+  const cancelButtonClasses = `${buttonBaseClasses} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200`;
+
+  const deleteButtonClasses = `${buttonBaseClasses} text-white bg-error-500 hover:bg-error-600`;
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify- min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
       </div>
     );
@@ -511,21 +518,37 @@ function Owners() {
           setShowDeleteModal(false);
           setOwnerToDelete(null);
         }}
-        title="Confirm Deletion"
         type="error"
+        title="Confirm Delete"
         size="small"
-        actionButtons={deleteModalButtons}
+        actionButtons={
+          <div className="flex justify-between w-full gap-4">
+            <button
+              type="button"
+              onClick={() => {
+                setShowDeleteModal(false);
+                setOwnerToDelete(null);
+              }}
+              className={cancelButtonClasses}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteOwner}
+              className={deleteButtonClasses}
+            >
+              Delete
+            </button>
+          </div>
+        }
       >
-        <div className="flex flex-col items-center space-y-4">
-          <FontAwesomeIcon
-            icon={faExclamationTriangle}
-            className="h-8 w-8 text-error-500"
-          />
-          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
-            Are you sure you want to delete this owner? <br/>
-            This action cannot be undone. All data associated with this owner
-            will be permanently removed.
-          </p>
+        <div className="flex items-start s">
+          <div className="text-center">
+            <p className="text-theme-sm text-gray-500 dark:text-gray-400">
+              Are you sure ?
+            </p>
+          </div>
         </div>
       </Modal>
     </>
