@@ -838,7 +838,7 @@ function DataTable({
                     key={column.field || idx}
                     className={`${
                       column.field === "selection" ? "px-2" : "px-6"
-                    } py-2.5 text-center ${
+                    } py-2.5 ${column.textAlign ? `text-${column.textAlign}` : "text-left"} ${
                       enableSort && column.sortable
                         ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                         : ""
@@ -847,7 +847,7 @@ function DataTable({
                       column.sortable ? handleSort(column.field) : null
                     }
                   >
-                    <div className="flex items-center gap-1">
+                    <div className={`flex items-center ${column.textAlign === "center" ? "justify-center w-full" : "gap-1"}`}>
                       <p
                         className={`font-semibold text-gray-700 text-theme-xs ${
                           darkMode ? "dark:text-white/90" : ""
