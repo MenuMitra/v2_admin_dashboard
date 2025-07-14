@@ -142,6 +142,7 @@ function Dashboard() {
     total_live_outlets: 0,
     total_outlets: 0,
     total_orders: 0,
+    total_earning: 0,
   });
   const [cardLoading, setCardLoading] = useState(false);
   const { isFullscreen, setIsFullscreen } = useFullscreen();
@@ -164,6 +165,7 @@ function Dashboard() {
         total_live_outlets: jsonData.counts?.live_outlet_count ?? 0,
         total_outlets: jsonData.counts?.outlet_count ?? 0,
         total_orders: jsonData.counts?.total_order_count ?? 0,
+        total_earning: jsonData.counts?.total_earning_count ??0,
       });
     } catch (e) {
       // fallback or error handling
@@ -191,6 +193,7 @@ function Dashboard() {
     cardData.total_live_outlets,
     cardData.total_outlets,
     cardData.total_orders,
+    cardData.total_earning,
   ];
 
   // Fullscreen styles
@@ -251,16 +254,20 @@ function Dashboard() {
           {/* Counts: Always centered horizontally and vertically */}
           <div className="flex flex-row items-center justify-center w-full h-full gap-6">
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-indigo-600">{cardData.total_live_outlets}</span>
+              <span className="text-2xl font-bold text-black">{cardData.total_live_outlets}</span>
               <span className="text-xs text-gray-500">Total Live Outlets</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-green-600">{cardData.total_outlets}</span>
+              <span className="text-2xl font-bold text-black">{cardData.total_outlets}</span>
               <span className="text-xs text-gray-500">Total Outlets</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-orange-500">{cardData.total_orders}</span>
+              <span className="text-2xl font-bold text-black">{cardData.total_orders}</span>
               <span className="text-xs text-gray-500">Total Orders</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-2xl font-bold text-black">{cardData.total_earning}</span>
+              <span className="text-xs text-gray-500">Total Earning</span>
             </div>
           </div>
           {/* Right: Icons (top-right in fullscreen) */}

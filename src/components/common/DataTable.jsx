@@ -617,7 +617,7 @@ function DataTable({
               {/* Left: Stats as badges */}
               {counts && (
                 <div className="flex items-center gap-2 text-sm flex-wrap">
-                  <span className="inline-block rounded-full bg-gray-100 text-gray-800 px-3 py-1 font-medium">Total: {counts.total}</span>
+                  <span className="inline-block text-gray-100 px-3 py-1 font-medium">Total: {counts.total}</span>
                   {counts.active !== null && (
                     <span className="inline-block rounded-full bg-success-100 text-success-700 px-3 py-1 font-medium">Active: {counts.active}</span>
                   )}
