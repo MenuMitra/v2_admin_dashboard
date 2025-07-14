@@ -342,10 +342,74 @@ function ViewOutlet() {
                   </div>
                 </Link>
               </div>
+              <div className="flex items-center rounded-2xl border border-gray-100 bg-white py-4 pl-4 pr-4 dark:border-gray-800 dark:bg-white/[0.03] xl:pr-5">
+                <div className="flex items-center gap-4 pr-4">
+                  <Link
+                    to={`/managers/${outletId}`}
+                    className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                            Managers
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+                <div className="flex items-center gap-4 pr-4">
+                  <Link
+                    to={`/menus/${outletId}`}
+                    className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+                  >
+                    <div className="flex items-center ">
+                      <div className="gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                            Chefs
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+                <div className="flex items-center gap-4 pr-4">
+                  <Link
+                    to={`/captains/${outletId}`}
+                    className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+                  >
+                    <div className="flex items-center ">
+                      <div className="gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                            Captains
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+                <div className="flex items-center gap-4 pr-4">
+                  <Link
+                    to={`/waiters/${outletId}`}
+                    className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+                  >
+                    <div className="flex items-center ">
+                      <div className="gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                            Waiters
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
-
-         
 
           {/* Staff Management Section */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
