@@ -276,93 +276,75 @@ function ViewOutlet() {
         </div>
 
         {/* Main Content */}
-        <div className="p-6">
-          {/* Outlet Image - Only shown if image URL exists */}
-          {outletData?.image && (
-            <div className="mb-6">
-              <div className="relative w-full max-w-md mx-auto overflow-hidden rounded-2xl shadow-lg">
-                <img
-                  src={outletData.image}
-                  alt={`${outletData.name || "Outlet"}`}
-                  className="w-full h-auto object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none"; // Hide image on error
-                  }}
-                />
+        <div className="p-4 sm:p-6">
+          {/* Using flex-col by default for mobile and row for larger screens */}
+          <div className="flex flex-col md:flex-row justify-between items-stretch gap-4 md:gap-6">
+            {/* Menu Management Section */}
+            <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Menu Management
+                </h2>
+                <button
+                  onClick={() => setShowBulkUploadModal(true)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                >
+                  <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
+                  <span>Bulk Upload</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <Link
+                  to={`/categories/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Categories</span>
+                </Link>
+
+                <Link
+                  to={`/menus/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Menus</span>
+                </Link>
               </div>
             </div>
-          )}
 
-          {/* Combined Management Section */}
-          <div className="">
-            <div className="flex flex-row justify-between items-start gap-6">
-          {/* Menu Management Section */}
-              <div className="p-6  bg-white flex-1 border border-gray-200 rounded-2xl">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-800">
-                Menu Management
+            {/* Staff Management Section */}
+            <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
+              <h2 className="text-lg font-semibold text-gray-800 mb-6">
+                Staff Management
               </h2>
-              <button
-                onClick={() => setShowBulkUploadModal(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
-              >
-                <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
-                    <span>Bulk Upload</span>
-              </button>
-            </div>
 
-                <div className="grid grid-cols-2 gap-4">
-              <Link
-                to={`/categories/${outletId}`}
-                    className="flex items-center justify-center p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-              >
-                    <span className="text-sm font-medium text-gray-800">Categories</span>
-              </Link>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <Link
+                  to={`/managers/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Managers</span>
+                </Link>
 
-              <Link
-                to={`/menus/${outletId}`}
-                    className="flex items-center justify-center p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-              >
-                <span className="text-sm font-medium text-gray-800">Menus</span>
-              </Link>
-            </div>
-          </div>
+                <Link
+                  to={`/chefs/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Chefs</span>
+                </Link>
 
-              {/* Staff Management Section */}
-              <div className="p-6  bg-white flex-1 border border-gray-200 rounded-2xl">
-                <h2 className="text-xl font-semibold text-gray-800 mb-6">
-              Staff Management
-            </h2>
+                <Link
+                  to={`/captains/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Captains</span>
+                </Link>
 
-                <div className="grid grid-cols-2 gap-4">
-              <Link
-                to={`/managers/${outletId}`}
-                    className="flex items-center justify-center p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-              >
-                    <span className="text-sm font-medium text-gray-800">Managers</span>
-              </Link>
-
-              <Link
-                to={`/chefs/${outletId}`}
-                    className="flex items-center justify-center p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-              >
-                <span className="text-sm font-medium text-gray-800">Chefs</span>
-              </Link>
-
-              <Link
-                to={`/captains/${outletId}`}
-                    className="flex items-center justify-center p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-              >
-                    <span className="text-sm font-medium text-gray-800">Captains</span>
-              </Link>
-
-              <Link
-                to={`/waiters/${outletId}`}
-                    className="flex items-center justify-center p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-              >
-                    <span className="text-sm font-medium text-gray-800">Waiters</span>
-              </Link>
-                </div>
+                <Link
+                  to={`/waiters/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Waiters</span>
+                </Link>
               </div>
             </div>
           </div>
@@ -370,7 +352,7 @@ function ViewOutlet() {
           {/* Outlet Owners Section */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Outlet Owners
               </h2>
             </div>
@@ -406,7 +388,7 @@ function ViewOutlet() {
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6 flex flex-wrap items-center justify-between gap-3 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Basic Information
             </h2>
           </div>
@@ -493,7 +475,7 @@ function ViewOutlet() {
           {/* Business Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Business Details
               </h2>
             </div>
@@ -628,7 +610,7 @@ function ViewOutlet() {
           {/* Order section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Orders Details
               </h2>
             </div>
@@ -669,7 +651,7 @@ function ViewOutlet() {
           {/* Manage Staff Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Manage Staff Details
               </h2>
             </div>
@@ -739,7 +721,7 @@ function ViewOutlet() {
           {/* Manage Outlet Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Manage Outlet Details
               </h2>
             </div>
@@ -824,7 +806,7 @@ function ViewOutlet() {
           {/* Audit Information section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Audit Information
               </h2>
             </div>
@@ -897,7 +879,7 @@ function ViewOutlet() {
           {/* Subscription Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Subscription Details
               </h2>
             </div>
