@@ -38,13 +38,19 @@ function CreateCaptain() {
     address: "",
     functionality_ids: [],
   });
+  const nameRegex = /^[A-Za-z ]+$/;
   const [validationStates, setValidationStates] = useState({
     name: true,
+    nameMessage: '',
     email: true,
     mobile: true,
     mobileMessage: '',
     aadhar_number: true,
-    aadharMessage: ''
+    aadharMessage: '',
+    address: true,
+    addressMessage: '',
+    functionalities: true,
+    functionalitiesMessage: ''
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
@@ -110,7 +116,17 @@ function CreateCaptain() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     
-    if (name === 'mobile') {
+    if (name === 'name') {
+      if (!value.trim()) {
+        setValidationStates(prev => ({ ...prev, name: false, nameMessage: '' }));
+      } else if (!nameRegex.test(value)) {
+        setValidationStates(prev => ({ ...prev, name: false, nameMessage: 'Name must contain only alphabets and spaces' }));
+      } else {
+        setValidationStates(prev => ({ ...prev, name: true, nameMessage: '' }));
+      }
+      setCaptainData(prev => ({ ...prev, name: value }));
+    } 
+    else if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '');
       // Check first digit - only allow if it's empty or starts with valid digit
       if (numbersOnly.length > 0) {
@@ -135,14 +151,18 @@ function CreateCaptain() {
       setCaptainData(prev => ({ ...prev, mobile: trimmedNumber }));
     } 
     else if (name === 'aadhar_number') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
-      const { isValid, message } = isAadharValid(numbersOnly);
-      setValidationStates(prev => ({
-        ...prev,
-        aadhar_number: isValid,
-        aadharMessage: message
-      }));
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 14);
+      if (!numbersOnly) {
+        setValidationStates(prev => ({ ...prev, aadhar_number: false, aadharMessage: 'Aadhar number is required' }));
+      } else if (numbersOnly.length < 12) {
+        setValidationStates(prev => ({ ...prev, aadhar_number: false, aadharMessage: 'Aadhar number must be at least 12 digits' }));
+      } else {
+        setValidationStates(prev => ({ ...prev, aadhar_number: true, aadharMessage: '' }));
+      }
       setCaptainData(prev => ({ ...prev, aadhar_number: numbersOnly }));
+    }
+    else if (name === 'address') {
+      setCaptainData(prev => ({ ...prev, address: value }));
     }
     else {
       setCaptainData(prev => ({
@@ -153,11 +173,13 @@ function CreateCaptain() {
   };
 
   const isFormValid = () => {
-    // Check if all required fields are filled and valid
     return (
-      captainData.name?.trim() && 
-      captainData.mobile?.trim() && 
+      captainData.name?.trim() &&
+      nameRegex.test(captainData.name) &&
+      captainData.mobile?.trim() &&
       captainData.aadhar_number?.trim() &&
+      captainData.aadhar_number.length >= 12 &&
+      selectedFunctionalities.length > 0 &&
       validationStates.name &&
       validationStates.mobile &&
       validationStates.aadhar_number &&
@@ -168,7 +190,14 @@ function CreateCaptain() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitAttempted(true);
-    if (!isFormValid()) {
+    let valid = isFormValid();
+    if (selectedFunctionalities.length === 0) {
+      setValidationStates(prev => ({ ...prev, functionalities: false, functionalitiesMessage: 'At least one functionality must be selected' }));
+      valid = false;
+    } else {
+      setValidationStates(prev => ({ ...prev, functionalities: true, functionalitiesMessage: '' }));
+    }
+    if (!valid) {
       toastController.error("Please fill all required fields correctly");
       return;
     }
@@ -268,17 +297,24 @@ function CreateCaptain() {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <TextInput
-                label="Full Name"
-                name="name"
-                value={captainData.name}
-                onChange={handleChange}
-                placeholder="Enter full name"
-                required
-                validationType="name"
-                onValidation={() => {}}
-                isSubmitAttempted={isSubmitAttempted}
-              />
+              <div>
+                <TextInput
+                  label="Full Name"
+                  name="name"
+                  value={captainData.name}
+                  onChange={handleChange}
+                  placeholder="Enter full name"
+                  required
+                  validationType="name"
+                  onValidation={() => {}}
+                  isSubmitAttempted={isSubmitAttempted}
+                />
+                {!validationStates.name && validationStates.nameMessage && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.nameMessage}
+                  </p>
+                )}
+              </div>
 
               <div className="relative">
                 <TextInput
@@ -288,7 +324,7 @@ function CreateCaptain() {
                   value={captainData.mobile}
                   onChange={handleChange}
                   placeholder="Enter mobile number"
-                  required={false}
+                  required={true}
                   maxLength={10}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
@@ -341,16 +377,22 @@ function CreateCaptain() {
                   </p>
                 )}
               </div>
-            </div>
 
-            <Textarea
-              label="Address"
-              name="address"
-              value={captainData.address}
-              onChange={handleChange}
-              placeholder="Enter complete address"
-              rows={3}
-            />
+              <div>
+                <TextInput
+                  label="Address"
+                  name="address"
+                  value={captainData.address}
+                  onChange={handleChange}
+                  placeholder="Enter complete address"
+                  minLength={5}
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    border-gray-300
+                  `}
+                />
+              </div>
+            </div>
 
             {/* Functionalities */}
             <div>
@@ -390,6 +432,11 @@ function CreateCaptain() {
                     </div>
                   ))}
                 </div>
+                {!validationStates.functionalities && validationStates.functionalitiesMessage && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.functionalitiesMessage}
+                  </p>
+                )}
               </div>
             </div>
           </form>

@@ -100,6 +100,12 @@ function DataTable({
   onRoleChange = () => {},
   customFilters = [],
   onReload = null,
+  accountType = "all",
+  onAccountTypeChange = () => {},
+  openCloseStatus = "all",
+  onOpenCloseStatusChange = () => {},
+  enableAccountTypeFilter = false,
+  enableOpenCloseStatusFilter = false,
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -260,37 +266,37 @@ function DataTable({
     const pages = [];
     if (totalPages <= 3) {
       for (let i = 1; i <= totalPages; i++) {
-        pages.push(
-          <li key={i}>
-            <button
-              onClick={() => handlePageChange(i)}
-              className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
-                currentPage === i
-                  ? "bg-brand-500 text-white"
-                  : `text-gray-700 hover:bg-brand-500 hover:text-white ${
-                      darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
-                    }`
-              }`}
-            >
-              {i}
-            </button>
-          </li>
-        );
-      }
+      pages.push(
+        <li key={i}>
+          <button
+            onClick={() => handlePageChange(i)}
+            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
+              currentPage === i
+                ? "bg-brand-500 text-white"
+                : `text-gray-700 hover:bg-brand-500 hover:text-white ${
+                    darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
+                  }`
+            }`}
+          >
+            {i}
+          </button>
+        </li>
+      );
+    }
     } else {
       // Show ellipsis if needed
       if (currentPage > 2) {
         pages.push(
-          <li key="start-ellipsis">
+        <li key="start-ellipsis">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700">
-              ...
-            </span>
-          </li>
-        );
-      }
+            ...
+          </span>
+        </li>
+      );
+    }
       // Show previous page if not on first page
       if (currentPage > 1) {
-        pages.push(
+      pages.push(
           <li key={currentPage - 1}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -333,11 +339,11 @@ function DataTable({
         pages.push(
           <li key="end-ellipsis">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700">
-              ...
-            </span>
-          </li>
-        );
-      }
+            ...
+          </span>
+        </li>
+      );
+    }
     }
     return pages;
   };
@@ -607,25 +613,21 @@ function DataTable({
             </div>
 
             {/* Stats and Controls Row */}
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 sm:items-center justify-between px-6 mb-4">
-              {/* Stats */}
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-0 sm:items-center justify-between px-0 pl-2 mb-4">
+              {/* Left: Stats as badges */}
               {counts && (
-                <div className="flex items-center gap-4 sm:gap-6 text-sm overflow-x-auto whitespace-nowrap pb-2 sm:pb-0">
-                  <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
-                    Total: {counts.total}
-                  </span>
+                <div className="flex items-center gap-2 text-sm flex-wrap">
+                  <span className="inline-block rounded-full bg-gray-100 text-gray-800 px-3 py-1 font-medium">Total: {counts.total}</span>
                   {counts.active !== null && (
-                    <span className="text-success-600 shrink-0">
-                      Active: {counts.active}
-                    </span>
+                    <span className="inline-block rounded-full bg-success-100 text-success-700 px-3 py-1 font-medium">Active: {counts.active}</span>
                   )}
                   {counts.inactive !== null && (
-                    <span className="text-error-500 shrink-0">
-                      Inactive: {counts.inactive}
-                    </span>
+                    <span className="inline-block rounded-full bg-error-100 text-error-700 px-3 py-1 font-medium">Inactive: {counts.inactive}</span>
                   )}
                 </div>
               )}
+              {/* Right: Controls */}
+              <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto justify-end">
 
               {dashboardTitle && (
                 <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
@@ -633,19 +635,49 @@ function DataTable({
                 </span>
               )}
 
-              {/* Controls Section - force all controls in one line */}
-              <div className="flex flex-nowrap items-center gap-4 w-full justify-end">
                 {/* Status Filter - if enabled */}
                 {enableStatusFilter && (
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => onStatusFilterChange(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
+                  <>
+                    <div className="relative w-40 mr-2">
+                      <select
+                        value={statusFilter}
+                        onChange={(e) => onStatusFilterChange(e.target.value)}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                      >
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </select>
+                    </div>
+                    {/* Account Type Filter */}
+                    {enableAccountTypeFilter && (
+                      <div className="relative w-40 mr-2">
+                        <select
+                          value={accountType || 'all'}
+                          onChange={onAccountTypeChange || (() => {})}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">Account Type</option>
+                          <option value="live">Live</option>
+                          <option value="test">Test</option>
+                        </select>
+                      </div>
+                    )}
+                    {/* Open/Close Filter */}
+                    {enableOpenCloseStatusFilter && (
+                      <div className="relative w-40">
+                        <select
+                          value={openCloseStatus || 'all'}
+                          onChange={onOpenCloseStatusChange || (() => {})}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">Open/Close</option>
+                          <option value="open">Open</option>
+                          <option value="close">Close</option>
+                        </select>
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {/* Custom Filters */}

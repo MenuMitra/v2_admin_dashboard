@@ -271,6 +271,7 @@ function Customer() {
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
+        onReload={fetchCustomers}
       />
 
       {/* Add Delete Confirmation Modal */}

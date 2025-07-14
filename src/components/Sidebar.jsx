@@ -416,12 +416,12 @@ const Sidebar = ({ sidebarToggle = false }) => {
   return (
     <aside
       className={`
-        fixed top-10 left-0 z-50 flex h-screen w-[290px] flex-col 
+        fixed top-10 left-0 z-50 flex h-screen w-[200px] flex-col 
         overflow-y-auto bg-white transition-transform duration-300
         border-r border-gray-200 dark:border-gray-800 dark:bg-black
         lg:static lg:translate-x-0
         ${sidebarToggle ? "translate-x-0" : "-translate-x-full"}
-        ${sidebarToggle ? "lg:w-[90px]" : "lg:w-[290px]"}
+        ${sidebarToggle ? "lg:w-[60px]" : "lg:w-[200px]"}
       `}
     >
       {/* Sidebar Header - Desktop */}

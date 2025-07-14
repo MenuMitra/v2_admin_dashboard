@@ -34,13 +34,19 @@ function EditCaptain() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [outletName, setOutletName] = useState('');
+  const nameRegex = /^[A-Za-z ]+$/;
   const [validationStates, setValidationStates] = useState({
     name: true,
+    nameMessage: '',
     email: true,
     mobile: true,
     mobileMessage: '',
     aadhar_number: true,
-    aadharMessage: ''
+    aadharMessage: '',
+    address: true,
+    addressMessage: '',
+    functionalities: true,
+    functionalitiesMessage: ''
   });
 
   const dropdownRef = useRef(null);
@@ -142,6 +148,19 @@ function EditCaptain() {
     setSubmitting(true);
     setError(null);
 
+    let valid = isFormValid();
+    if (!captainData.functionality_ids || captainData.functionality_ids.length === 0) {
+      setValidationStates(prev => ({ ...prev, functionalities: false, functionalitiesMessage: 'At least one functionality must be selected' }));
+      valid = false;
+    } else {
+      setValidationStates(prev => ({ ...prev, functionalities: true, functionalitiesMessage: '' }));
+    }
+    if (!valid) {
+      toastController.error("Please fill all required fields correctly");
+      setSubmitting(false);
+      return;
+    }
+
     try {
       await toastController.promise(
         axios.patch(
@@ -201,7 +220,17 @@ function EditCaptain() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
-    if (name === 'mobile') {
+    if (name === 'name') {
+      if (!value.trim()) {
+        setValidationStates(prev => ({ ...prev, name: false, nameMessage: '' }));
+      } else if (!nameRegex.test(value)) {
+        setValidationStates(prev => ({ ...prev, name: false, nameMessage: 'Name must contain only alphabets and spaces' }));
+      } else {
+        setValidationStates(prev => ({ ...prev, name: true, nameMessage: '' }));
+      }
+      setCaptainData(prev => ({ ...prev, name: value }));
+    }
+    else if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '');
       // Check first digit - only allow if it's empty or starts with valid digit
       if (numbersOnly.length > 0) {
@@ -226,7 +255,7 @@ function EditCaptain() {
       setCaptainData(prev => ({ ...prev, mobile: trimmedNumber }));
     } 
     else if (name === 'aadhar_number') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 14);
       const { isValid, message } = isAadharValid(numbersOnly);
       setValidationStates(prev => ({
         ...prev,
@@ -234,6 +263,9 @@ function EditCaptain() {
         aadharMessage: message
       }));
       setCaptainData(prev => ({ ...prev, aadhar_number: numbersOnly }));
+    }
+    else if (name === 'address') {
+      setCaptainData(prev => ({ ...prev, address: value }));
     }
     else {
       setCaptainData(prev => ({
@@ -245,11 +277,12 @@ function EditCaptain() {
 
   const isFormValid = () => {
     return (
-      captainData.name?.trim() && 
+      captainData.name?.trim() &&
+      nameRegex.test(captainData.name) &&
       captainData.mobile?.trim() && 
       captainData.aadhar_number?.trim() &&
-      captainData.role &&
-      captainData.functionality_ids.length > 0 &&
+      captainData.aadhar_number.length >= 12 &&
+      captainData.functionality_ids && captainData.functionality_ids.length > 0 &&
       validationStates.name &&
       validationStates.mobile &&
       validationStates.aadhar_number &&
@@ -325,13 +358,20 @@ function EditCaptain() {
         <form onSubmit={handleSubmit} className="p-6">
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-            <TextInput
-              label="Name"
-              name="name"
-              value={captainData.name}
-              onChange={handleInputChange}
-              required
-            />
+            <div className="relative">
+              <TextInput
+                label="Name"
+                name="name"
+                value={captainData.name}
+                onChange={handleInputChange}
+                required
+              />
+              {!validationStates.name && validationStates.nameMessage && (
+                <p className="text-error-500 text-sm mt-1">
+                  {validationStates.nameMessage}
+                </p>
+              )}
+            </div>
 
             <div className="relative">
               <TextInput
@@ -339,7 +379,7 @@ function EditCaptain() {
                 name="mobile"
                 value={captainData.mobile}
                 onChange={handleInputChange}
-                required={false}
+                required={true}
                 maxLength={10}
                 className={`
                   focus:border-brand-500 focus:ring-brand-500
@@ -361,12 +401,14 @@ function EditCaptain() {
               onChange={handleInputChange}
             />
 
-            <TextInput
-              label="Address"
-              name="address"
-              value={captainData.address}
-              onChange={handleInputChange}
-            />
+            <div className="relative">
+              <TextInput
+                label="Address"
+                name="address"
+                value={captainData.address}
+                onChange={handleInputChange}
+              />
+            </div>
 
             <div className="relative">
               <TextInput
@@ -375,7 +417,7 @@ function EditCaptain() {
                 value={captainData.aadhar_number}
                 onChange={handleInputChange}
                 required={false}
-                maxLength={12}
+                maxLength={14}
                 className={`
                   focus:border-brand-500 focus:ring-brand-500
                   ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
@@ -509,6 +551,11 @@ function EditCaptain() {
                   </div>
                 )}
               </div>
+              {!validationStates.functionalities && validationStates.functionalitiesMessage && (
+                <p className="text-error-500 text-sm mt-1">
+                  {validationStates.functionalitiesMessage}
+                </p>
+              )}
             </div>
           </div>
         </form>

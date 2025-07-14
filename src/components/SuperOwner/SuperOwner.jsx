@@ -420,6 +420,7 @@ function SuperOwner() {
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
         }}
+        onReload={fetchSuperOwners}
       />
 
       <Modal

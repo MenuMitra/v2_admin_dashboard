@@ -222,6 +222,7 @@ function Subscriptions() {
           disabled: false,
           tooltip: "Create a new subscription"
         }}
+        onReload={fetchSubscriptions}
       />
 
       {/* Delete Confirmation Modal */}

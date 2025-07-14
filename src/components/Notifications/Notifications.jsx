@@ -350,6 +350,7 @@ const Notifications = () => {
         roles={roles}
         selectedRole={selectedRole}
         onRoleChange={handleRoleChange}
+        onReload={fetchNotifications}
       />
     </>
   );

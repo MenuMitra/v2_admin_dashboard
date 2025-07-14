@@ -333,7 +333,7 @@ function CreateOutlet() {
     const value = e.target?.value ?? e.value;
     const type = e.target?.type;
     const checked = e.target?.checked;
-
+    
     if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '');
       const firstDigit = numbersOnly.charAt(0);

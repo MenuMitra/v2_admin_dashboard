@@ -56,6 +56,8 @@ function Outlets() {
     message: "",
   });
   const [statusFilter, setStatusFilter] = useState("all");
+  const [accountType, setAccountType] = useState("all");
+  const [openCloseStatus, setOpenCloseStatus] = useState("all");
 
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -73,6 +75,13 @@ function Outlets() {
       image: [{}],
       accountType: outlet.account_type,
       ownerCount: outlet.owner_count,
+      total_order_count: outlet.total_order_count,
+      total_cooking_count: outlet.total_cooking_count,
+      total_paid_count: outlet.total_paid_count,
+      total_cancel_count: outlet.total_cancel_count,
+      total_placed_count: outlet.total_placed_count,
+      total_menu: outlet.total_menu,
+      total_category: outlet.total_category,
     }));
   };
 
@@ -135,20 +144,27 @@ function Outlets() {
     if (!outletData.length) return [];
 
     return outletData.filter((item) => {
-      // First apply status filter
+      // Status filter
       if (statusFilter !== "all") {
         const isActive = item.outletStatus === 1;
         if (statusFilter === "active" && !isActive) return false;
         if (statusFilter === "inactive" && isActive) return false;
       }
-
-      // Then apply search filter if there's a search query
+      // Account Type filter
+      if (accountType !== "all") {
+        if ((item.accountType || '').toLowerCase() !== accountType) return false;
+      }
+      // Open/Close filter
+      if (openCloseStatus !== "all") {
+        if (openCloseStatus === "open" && item.isOpen !== 1) return false;
+        if (openCloseStatus === "close" && item.isOpen !== 0) return false;
+      }
+      // Search filter
       if (searchQuery) {
         return Object.values(item).some((val) =>
           val?.toString().toLowerCase().includes(searchQuery.toLowerCase())
         );
       }
-
       return true;
     });
   };
@@ -158,7 +174,7 @@ function Outlets() {
     const filtered = getFilteredData();
     setFilteredData(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [searchQuery, statusFilter, outletData]);
+  }, [searchQuery, statusFilter, accountType, openCloseStatus, outletData]);
 
   // Get current items
   const getCurrentItems = () => {
@@ -319,7 +335,7 @@ function Outlets() {
     },
     {
       field: "owner",
-      header: "Owner",
+      header: "No. of Owner",
       sortable: true,
       render: (value, row) => (
         <div className="flex items-center justify-center gap-2">
@@ -375,14 +391,13 @@ function Outlets() {
       header: "Open/Close",
       sortable: true,
       render: (value) => (
-        <span
-          className={`inline-block px-2 py-1 text-xs ${
-            value === 1
-              ? "bg-success-100 text-success-600"
-              : "bg-error-100 text-error-500"
-          }`}
-        >
-          {value === 1 ? "Open" : "Closed"}
+        <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: "100%" }}>
+           <FontAwesomeIcon
+            icon={value === 1 ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value === 1 ? "text-success-500" : "text-error-500"
+            }`}
+          />
         </span>
       ),
     },
@@ -406,6 +421,62 @@ function Outlets() {
             {value === 1 ? "Active" : "Inactive"}
           </span> */}
         </div>
+      ),
+    },
+    {
+      field: "total_order_count",
+      header: "Orders",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+      ),
+    },
+    {
+      field: "total_cooking_count",
+      header: "Cooking",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+      ),
+    },
+    {
+      field: "total_paid_count",
+      header: "Paid",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+      ),
+    },
+    {
+      field: "total_cancel_count",
+      header: "Cancelled ",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+      ),
+    },
+    {
+      field: "total_placed_count",
+      header: "Placed",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+      ),
+    },
+    {
+      field: "total_menu",
+      header: "Menus",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+      ),
+    },
+    {
+      field: "total_category",
+      header: "Categories",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
       ),
     },
     {
@@ -587,9 +658,15 @@ function Outlets() {
           setStatusFilter(value);
           setCurrentPage(1); // Reset page when status filter changes
         }}
-        statusField="outletStatus" // Specify which field to use for status
+        enableAccountTypeFilter={true}
+        enableOpenCloseStatusFilter={true}
+        accountType={accountType}
+        onAccountTypeChange={e => setAccountType(e.target.value)}
+        openCloseStatus={openCloseStatus}
+        onOpenCloseStatusChange={e => setOpenCloseStatus(e.target.value)}
+        statusField="outletStatus"
+        onReload={fetchOutlets}
         isItemSelectable={(item) => {
-          // Add logic to determine if an item can be selected based on its status
           if (statusFilter === "all") return true;
           return statusFilter === "active" ? 
             item.outletStatus === 1 : 

@@ -132,42 +132,42 @@ function PartnerDetails() {
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.name}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
                 </div>
 
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.email}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Email Address</p>
                 </div>
 
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.mobile}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Mobile Number</p>
                 </div>
 
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.address}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
                 </div>
 
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.dob}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Date of Birth</p>
                 </div>
 
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.aadhar_number}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Aadhar Number</p>
@@ -182,7 +182,7 @@ function PartnerDetails() {
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.role}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Role</p>
@@ -229,14 +229,14 @@ function PartnerDetails() {
                 </div>
 
                 {/* <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-xl font-normal text-gray-800 dark:text-white/90">
                     {partner.is_staff === 1 ? 'Yes' : 'No'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Staff Status</p>
                 </div> */}
 
                 {/* <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-xl font-normal text-gray-800 dark:text-white/90">
                     {partner.is_superuser === 1 ? 'Yes' : 'No'}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Superuser Status</p>
@@ -251,28 +251,28 @@ function PartnerDetails() {
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.created_on}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Created On</p>
                 </div>
 
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.created_by}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Created By</p>
                 </div>
 
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.updated_on}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Updated On</p>
                 </div>
 
                 <div>
-                  <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
+                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
                     {partner.updated_by}
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Updated By</p>

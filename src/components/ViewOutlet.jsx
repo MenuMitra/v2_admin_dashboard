@@ -25,6 +25,10 @@ import Modal from "./common/Modal";
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 
+function toTitleCase(str) {
+  return str ? str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()) : "";
+}
+
 function ViewOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
@@ -465,7 +469,7 @@ function ViewOutlet() {
                           transition-all duration-200
                         `}
                       >
-                        <span>{owner.owner_name}</span>
+                        <span>{toTitleCase(owner.owner_name)}</span>
                         {owner.is_primary && (
                           <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium bg-brand-500 text-white rounded-full">
                             P
@@ -489,8 +493,8 @@ function ViewOutlet() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div>
-                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
-                      {outletData?.name}
+                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                      {toTitleCase(outletData?.name)}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Outlet Name
@@ -504,7 +508,7 @@ function ViewOutlet() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div>
-                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                       {outletData?.mobile}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -519,7 +523,7 @@ function ViewOutlet() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div>
-                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                       {outletData?.address}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -534,7 +538,7 @@ function ViewOutlet() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div>
-                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                       {outletData?.whatsapp || "-"}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -549,7 +553,7 @@ function ViewOutlet() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div>
-                    <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                       {outletData?.outlet_mode
                         ? outletData.outlet_mode.charAt(0).toUpperCase() +
                           outletData.outlet_mode.slice(1)
@@ -576,7 +580,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.veg_nonveg
                           ? outletData.veg_nonveg.charAt(0).toUpperCase() +
                             outletData.veg_nonveg.slice(1)
@@ -594,7 +598,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.service_charges != null
                           ? `${outletData.service_charges}%`
                           : "-"}
@@ -611,7 +615,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.gst != null ? `${outletData.gst}%` : "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -626,7 +630,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.opening_time || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -641,7 +645,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.closing_time || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -656,7 +660,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.fssainumber || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -671,7 +675,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.gstnumber || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -686,7 +690,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.upi_id || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -711,7 +715,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.waiter_count ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -726,7 +730,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.chef_count ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -741,7 +745,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.captain_count ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -756,7 +760,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.manager_count ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -781,7 +785,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.total_menu ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -796,7 +800,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.total_category ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -811,7 +815,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.section_count ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -826,7 +830,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.orders_count ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -841,7 +845,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.table_count ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -866,7 +870,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.created_on || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -881,7 +885,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.created_by || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -896,7 +900,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.updated_on || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -911,7 +915,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.updated_by
                           ? outletData.updated_by.charAt(0).toUpperCase() +
                             outletData.updated_by.slice(1)
@@ -939,7 +943,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.subscription_details?.name || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -954,7 +958,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.subscription_details?.price 
                           ? `₹${outletData.subscription_details.price}`
                           : "-"}
@@ -971,7 +975,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.subscription_details?.subscription_start_date || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -986,7 +990,7 @@ function ViewOutlet() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
-                      <h4 className="text-lg font-bold text-gray-800 dark:text-white/90">
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.subscription_details?.subscription_end_date || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">

@@ -462,6 +462,7 @@ function Owners() {
           setCurrentPage(1);
         }}
         enableSort={true}
+        enableAccountTypeFilter={false}
         enableSearch={true}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -494,12 +495,14 @@ function Owners() {
         }}
         
         // Add status filter props
+      
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
           setCurrentPage(1);
         }}
+        onReload={fetchOwners}
       />
 
       <Modal

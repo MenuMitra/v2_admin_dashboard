@@ -390,6 +390,7 @@ function Partners() {
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
         }}
+        onReload={fetchPartners}
       />
 
       {/* Replace the custom delete modal with the shared Modal component */}

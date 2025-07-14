@@ -348,6 +348,7 @@ function Admins() {
         }}
         itemsPerPage={10}
         enableSelection={true}
+        onReload={fetchAdmins}
         onSelectionChange={handleSelectionChange}
         onBulkAction={handleBulkAction}
         isItemSelectable={(item) => !PROTECTED_MOBILES.includes(item.mobile)}

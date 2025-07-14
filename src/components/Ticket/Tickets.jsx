@@ -389,6 +389,7 @@ function Tickets() {
           setCurrentPage(1);
         }}
         statusField="status"
+        onReload={fetchTickets}
       />
     </div>
   );
