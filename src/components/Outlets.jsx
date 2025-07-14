@@ -545,7 +545,7 @@ function Outlets() {
         };
       case "delete":
         return {
-          title: "Confirm Deletion",
+          title: "Confirm Delete",
           message: `Are you sure you want to delete ${selectedOutlets.length} selected outlet(s)? This action cannot be undone.`,
         };
       default:
@@ -733,7 +733,7 @@ function Outlets() {
           setShowDeleteModal(false);
           setOutletToDelete(null);
         }}
-        title="Confirm Deletion"
+        title="Confirm Delete"
         type="error"
         size="small"
         customIcon={
@@ -756,7 +756,7 @@ function Outlets() {
               onClick={handleDeleteOutlet}
               className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
             >
-              Delete Outlet
+              Delete
             </button>
           </>
         }
