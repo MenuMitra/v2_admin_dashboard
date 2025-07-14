@@ -16,7 +16,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../Breadcrumb';
 import DataTable from '../common/DataTable';
-import Modal from '../common/Modal';
+import DeleteConfirmModal from '../common/DeleteConfirmModal';
 import { useAdmin } from '../../hooks/useAdmin';
 
 function SuperOwner() {
@@ -373,13 +373,6 @@ function SuperOwner() {
     );
   }
 
-  // First define the button classes as constants at the top of the component
-  const buttonBaseClasses = "flex-1 flex justify-center rounded-lg px-4 py-3 text-theme-sm font-medium shadow-theme-xs sm:w-auto";
-
-  const cancelButtonClasses = `${buttonBaseClasses} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200`;
-
-  const deleteButtonClasses = `${buttonBaseClasses} text-white bg-error-500 hover:bg-error-600`;
-
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
@@ -430,75 +423,14 @@ function SuperOwner() {
         onReload={fetchSuperOwners}
       />
 
-      <Modal
-        isOpen={confirmModal.isOpen}
-        onClose={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
-        title={confirmModal.title}
-        type={confirmModal.action === 'delete' ? 'error' : 'warning'}
-        size="small"
-      >
-        <p className="mb-6">{confirmModal.message}</p>
-        <div className="flex justify-between items-center w-full gap-3">
-          <button
-            onClick={() => setConfirmModal({ isOpen: false, action: null, title: '', message: '' })}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
-          >
-            <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
-            Cancel
-          </button>
-          <button
-            onClick={() => executeBulkAction(confirmModal.action)}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-full transition ${
-              confirmModal.action === 'delete' 
-                ? 'bg-error-500 hover:bg-error-600' 
-                : 'bg-warning-500 hover:bg-warning-600'
-            }`}
-          >
-            <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
-            Confirm
-          </button>
-        </div>
-      </Modal>
-
-      <Modal
+      <DeleteConfirmModal 
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setOwnerToDelete(null);
         }}
-        type="error"
-        title="Confirm Delete"
-        size="small"
-        actionButtons={
-          <div className="flex justify-between w-full gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                setShowDeleteModal(false);
-                setOwnerToDelete(null);
-              }}
-              className={cancelButtonClasses}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleDeleteOwner}
-              className={deleteButtonClasses}
-            >
-              Delete
-            </button>
-          </div>
-        }
-      >
-        <div className="flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-theme-sm text-gray-500 dark:text-gray-400">
-              Are you sure ?
-            </p>
-          </div>
-        </div>
-      </Modal>
+        onDelete={handleDeleteOwner}
+      />
     </>
   );
 }
