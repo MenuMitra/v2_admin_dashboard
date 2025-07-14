@@ -16,6 +16,7 @@ import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import Modal from "../common/Modal";
 import { API_CONFIG } from "../../config/appConfig";
+import { toastController } from "../../utils/toastController";
 
 function Admins() {
   const { getToken } = useAuth();
@@ -131,13 +132,16 @@ function Admins() {
       if (response.data.detail === "Admin deleted successfully") {
         setShowDeleteModal(false);
         setAdminToDelete(null);
+        // Show success toast
+        toastController.success(response.data.detail);
         // Refresh the admins list
         await fetchAdmins();
       } else {
         throw new Error("Failed to delete admin");
       }
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to delete admin");
+      // Show error toast
+      toastController.error(err.response?.data?.detail || "Failed to delete admin");
       console.error("Error deleting admin:", err);
     }
   };
