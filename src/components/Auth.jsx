@@ -4,7 +4,7 @@ import axios from "axios";
 import Logo from "../assets/images/logo/logo.png";
 import grid01 from "../assets/images/shape/grid-01.svg";
 import { toastController } from "../utils/toastController";
-import { API_CONFIG} from "../config/appConfig"
+import { API_CONFIG } from "../config/appConfig";
 import { useAuth } from "../hooks/useAuth";
 
 function Auth() {
@@ -77,9 +77,9 @@ function Auth() {
       const response = await toastController.promise(
         axios.post(`${BASE_URL}/${API_VERSION}/admin/admin_login`, { mobile }),
         {
-          loading: 'Sending OTP...',
-          success: 'OTP sent successfully!',
-          error: 'Admin not found with this mobile number'
+          loading: "Sending OTP...",
+          success: "OTP sent successfully!",
+          error: "Admin not found with this mobile number",
         }
       );
 
@@ -109,9 +109,9 @@ function Auth() {
           otp: parseInt(otpString),
         }),
         {
-          loading: 'Verifying OTP...',
-          success: 'Login successful!',
-          error: 'Failed to verify OTP'
+          loading: "Verifying OTP...",
+          success: "Login successful!",
+          error: "Failed to verify OTP",
         }
       );
 
@@ -166,21 +166,22 @@ function Auth() {
 
   const handleResendOTP = async () => {
     if (countdown > 0) return;
-    
+
     try {
       const response = await toastController.promise(
-        axios.post(`${BASE_URL}/${API_VERSION}/common/resend_otp`, 
+        axios.post(
+          `${BASE_URL}/${API_VERSION}/common/resend_otp`,
           { mobile, app_type: "admin" },
           {
             headers: {
-              Authorization: getToken()
-            }
+              Authorization: getToken(),
+            },
           }
         ),
         {
-          loading: 'Resending OTP...',
-          success: 'OTP resent successfully!',
-          error: 'Failed to resend OTP'
+          loading: "Resending OTP...",
+          success: "OTP resent successfully!",
+          error: "Failed to resend OTP",
         }
       );
 
@@ -228,6 +229,16 @@ function Auth() {
             <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
               {!isOtpSent && (
                 <div>
+                <div className="pb-28">
+                  <iframe
+                    src="https://www.youtube.com/embed/j2e2stCcICo?autoplay=1&mute=1&loop=1&playlist=j2e2stCcICo"
+                    title="MenuMitra Intro Video | Restaurant POS made easy | Shekru Labs India Pvt. Ltd"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                    className="rounded-3 shadow-lg border-0 mt-4 w-[300px] h-[169px]"
+                  />
+                  </div>
                   <div className="mb-5 sm:mb-8">
                     <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
                       Login In
@@ -250,11 +261,16 @@ function Auth() {
                             onChange={(e) => {
                               const value = e.target.value;
                               if (/^\d{0,10}$/.test(value)) {
-                                if (value.length > 0 && '012345'.includes(value[0])) {
-                                  setMobileError('Mobile number must start with 6-9');
-                                  setMobile('');
+                                if (
+                                  value.length > 0 &&
+                                  "012345".includes(value[0])
+                                ) {
+                                  setMobileError(
+                                    "Mobile number must start with 6-9"
+                                  );
+                                  setMobile("");
                                 } else {
-                                  setMobileError('');
+                                  setMobileError("");
                                   setMobile(value);
                                 }
                               }
@@ -351,12 +367,12 @@ function Auth() {
                         <a
                           onClick={handleResendOTP}
                           className={`pl-2 cursor-pointer ${
-                            countdown > 0 
-                              ? 'text-error-500 cursor-not-allowed' 
-                              : 'text-error-500 hover:text-error-600 dark:text-error-400'
+                            countdown > 0
+                              ? "text-error-500 cursor-not-allowed"
+                              : "text-error-500 hover:text-error-600 dark:text-error-400"
                           }`}
                         >
-                          Resend {countdown > 0 ? `(${countdown}s)` : ''}
+                          Resend {countdown > 0 ? `(${countdown}s)` : ""}
                         </a>
                       </p>
                     </div>
