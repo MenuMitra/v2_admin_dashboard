@@ -294,219 +294,82 @@ function ViewOutlet() {
           )}
 
           {/* Menu Management Section */}
-          <div className="flex items-center gap-4 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-              Menu Management
-            </h2>
-            <button
-              onClick={() => setShowBulkUploadModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
-            >
-              <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
-              <span className="hidden sm:inline">Bulk Upload</span>
-            </button>
-          </div>
 
-          <div className="border-t border-gray-100 p-4 dark:border-gray-800 sm:p-6">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
-              {/* Media item*/}
-              <div className="flex items-center rounded-2xl border border-gray-100 bg-white py-4 pl-4 pr-4 dark:border-gray-800 dark:bg-white/[0.03] xl:pr-5">
-                <div className="flex items-center gap-4 pr-4">
-                  <Link
-                    to={`/categories/${outletId}`}
-                    className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="gap-4">
-                        <div className="flex flex-col">
-                          <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                            Categories
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-                <Link
-                  to={`/menus/${outletId}`}
-                  className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-                >
-                  <div className="flex items-center ">
-                    <div className="gap-4">
-                      <div className="flex flex-col">
-                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                          Menus
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              </div>
-              <div className="flex items-center rounded-2xl border border-gray-100 bg-white py-4 pl-4 pr-4 dark:border-gray-800 dark:bg-white/[0.03] xl:pr-5">
-                <div className="flex items-center gap-4 pr-4">
-                  <Link
-                    to={`/managers/${outletId}`}
-                    className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="gap-4">
-                        <div className="flex flex-col">
-                          <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                            Managers
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-                <div className="flex items-center gap-4 pr-4">
-                  <Link
-                    to={`/chefs/${outletId}`}
-                    className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-                  >
-                    <div className="flex items-center ">
-                      <div className="gap-4">
-                        <div className="flex flex-col">
-                          <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                            Chefs
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-                <div className="flex items-center gap-4 pr-4">
-                  <Link
-                    to={`/captains/${outletId}`}
-                    className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-                  >
-                    <div className="flex items-center ">
-                      <div className="gap-4">
-                        <div className="flex flex-col">
-                          <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                            Captains
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-                <div className="flex items-center gap-4 pr-4">
-                  <Link
-                    to={`/waiters/${outletId}`}
-                    className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-                  >
-                    <div className="flex items-center ">
-                      <div className="gap-4">
-                        <div className="flex flex-col">
-                          <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                            Waiters
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
+          <hr className="my-4" />
 
-          {/* Staff Management Section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div className="flex flex-col gap-4 p-4 border border-gray-100 rounded-2xl bg-white">
+            <div className="flex items-center gap-4">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-                Staff Management
+                Menu Management
               </h2>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {/* Manager Card */}
               <button
-                type="button"
-                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+                onClick={() => setShowBulkUploadModal(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
               >
-                <Link to={`/managers/${outletId}`}>
-                  <div className="flex items-center justify-center sm:justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                        <FontAwesomeIcon
-                          icon={faUserGear}
-                          className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                        />
-                      </div>
-                      <div className="flex flex-col w-full sm:w-auto">
-                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
-                          Managers
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
+                <span className="hidden sm:inline">Bulk Upload</span>
               </button>
+            </div>
 
-              {/* Chef Card */}
+            <div className="flex flex-wrap gap-4">
+              <Link
+                to={`/categories/${outletId}`}
+                className="px-6 py-2.5 rounded-2xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+              >
+                <span className="text-sm font-medium text-gray-800">
+                  Categories
+                </span>
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap gap-4">
+              <Link
+                to={`/menus/${outletId}`}
+                className="px-6 py-2.5 rounded-2xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+              >
+                <span className="text-sm font-medium text-gray-800">Menus</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 p-4 border border-gray-100 rounded-2xl bg-white">
+            <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              Staff Management
+            </h2>
+
+            <div className="flex flex-wrap gap-4">
+              <Link
+                to={`/managers/${outletId}`}
+                className="px-6 py-2.5 rounded-2xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+              >
+                <span className="text-sm font-medium text-gray-800">
+                  Managers
+                </span>
+              </Link>
+
               <Link
                 to={`/chefs/${outletId}`}
-                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+                className="px-6 py-2.5 rounded-2xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
               >
-                <div className="flex items-center justify-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                      <FontAwesomeIcon
-                        icon={faBowlFood}
-                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                      />
-                    </div>
-                    <div className="flex flex-col w-full sm:w-auto">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
-                        Chefs
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <span className="text-sm font-medium text-gray-800">Chefs</span>
               </Link>
 
-              {/* Captain Card */}
               <Link
                 to={`/captains/${outletId}`}
-                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+                className="px-6 py-2.5 rounded-2xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
               >
-                <div className="flex items-center justify-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                      <FontAwesomeIcon
-                        icon={faUserPen}
-                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                      />
-                    </div>
-                    <div className="flex flex-col w-full sm:w-auto">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
-                        Captains
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <span className="text-sm font-medium text-gray-800">
+                  Captains
+                </span>
               </Link>
 
-              {/* Waiter Card */}
               <Link
                 to={`/waiters/${outletId}`}
-                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+                className="px-6 py-2.5 rounded-2xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
               >
-                <div className="flex items-center justify-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                      <FontAwesomeIcon
-                        icon={faUsers}
-                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                      />
-                    </div>
-                    <div className="flex flex-col w-full sm:w-auto">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
-                        Waiters
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <span className="text-sm font-medium text-gray-800">
+                  Waiters
+                </span>
               </Link>
             </div>
           </div>
