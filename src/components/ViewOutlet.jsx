@@ -26,7 +26,12 @@ import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 
 function toTitleCase(str) {
-  return str ? str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()) : "";
+  return str
+    ? str.replace(
+        /\w\S*/g,
+        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
 }
 
 function ViewOutlet() {
@@ -65,9 +70,9 @@ function ViewOutlet() {
           }
         ),
         {
-          loading: 'Loading outlet details...',
-          success: 'Outlet details loaded successfully!',
-          error: 'Failed to load outlet details'
+          loading: "Loading outlet details...",
+          success: "Outlet details loaded successfully!",
+          error: "Failed to load outlet details",
         }
       );
 
@@ -108,23 +113,20 @@ function ViewOutlet() {
     try {
       setLoading(true);
       await toastController.promise(
-        axios.delete(
-          `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-            data: {
-              outlet_id: outletId,
-              user_id: adminData?.user_id,
-            },
-          }
-        ),
+        axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_outlet`, {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+          data: {
+            outlet_id: outletId,
+            user_id: adminData?.user_id,
+          },
+        }),
         {
-          loading: 'Deleting outlet...',
-          success: 'Outlet deleted successfully!',
-          error: 'Failed to delete outlet'
+          loading: "Deleting outlet...",
+          success: "Outlet deleted successfully!",
+          error: "Failed to delete outlet",
         }
       );
 
@@ -168,9 +170,9 @@ function ViewOutlet() {
           }
         ),
         {
-          loading: 'Uploading menu data...',
-          success: 'Menu data uploaded successfully!',
-          error: 'Failed to upload menu data'
+          loading: "Uploading menu data...",
+          success: "Menu data uploaded successfully!",
+          error: "Failed to upload menu data",
         }
       );
 
@@ -204,7 +206,7 @@ function ViewOutlet() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
+
       toastController.success("Template downloaded successfully!");
     } catch (error) {
       console.error("Error downloading template:", error);
@@ -305,43 +307,41 @@ function ViewOutlet() {
             </button>
           </div>
 
-<div className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200">
-{/* Stats and Navigation Cards */}
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-            {/* Categories and Menus Cards */}
-            <Link
-              to={`/categories/${outletId}`}
-              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                      Categories
-                    </span>
+          <div className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200">
+            {/* Stats and Navigation Cards */}
+            <div className="grid grid-cols-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+              {/* Categories and Menus Cards */}
+              <Link
+                to={`/categories/${outletId}`}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col">
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                        Categories
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
 
-            <Link
-              to={`/menus/${outletId}`}
-              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                      Menus
-                    </span>
+              <Link
+                to={`/menus/${outletId}`}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col">
+                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
+                        Menus
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Link>
+              </Link>
+            </div>
           </div>
-
-</div>
-          
 
           {/* Staff Management Section */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
@@ -352,7 +352,10 @@ function ViewOutlet() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
               {/* Manager Card */}
-              <button type="button" className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
+              <button
+                type="button"
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
                 <Link to={`/managers/${outletId}`}>
                   <div className="flex items-center justify-center sm:justify-between">
                     <div className="flex items-center gap-4">
@@ -373,7 +376,10 @@ function ViewOutlet() {
               </button>
 
               {/* Chef Card */}
-              <Link to={`/chefs/${outletId}`} className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
+              <Link
+                to={`/chefs/${outletId}`}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
                 <div className="flex items-center justify-center sm:justify-between">
                   <div className="flex items-center gap-4">
                     <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
@@ -392,7 +398,10 @@ function ViewOutlet() {
               </Link>
 
               {/* Captain Card */}
-              <Link to={`/captains/${outletId}`} className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
+              <Link
+                to={`/captains/${outletId}`}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
                 <div className="flex items-center justify-center sm:justify-between">
                   <div className="flex items-center gap-4">
                     <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
@@ -411,7 +420,10 @@ function ViewOutlet() {
               </Link>
 
               {/* Waiter Card */}
-              <Link to={`/waiters/${outletId}`} className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
+              <Link
+                to={`/waiters/${outletId}`}
+                className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
+              >
                 <div className="flex items-center justify-center sm:justify-between">
                   <div className="flex items-center gap-4">
                     <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
@@ -716,7 +728,9 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.total_earning != null ? `₹${outletData.total_earning}` : "-"}
+                        {outletData?.total_earning != null
+                          ? `₹${outletData.total_earning}`
+                          : "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Total Earning
@@ -984,7 +998,7 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details?.price 
+                        {outletData?.subscription_details?.price
                           ? `₹${outletData.subscription_details.price}`
                           : "-"}
                       </h4>
@@ -1001,7 +1015,8 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details?.subscription_start_date || "-"}
+                        {outletData?.subscription_details
+                          ?.subscription_start_date || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Start Date
@@ -1016,7 +1031,8 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details?.subscription_end_date || "-"}
+                        {outletData?.subscription_details
+                          ?.subscription_end_date || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         End Date
