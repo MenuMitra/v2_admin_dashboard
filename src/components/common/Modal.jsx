@@ -74,7 +74,7 @@ const Modal = ({
         {/* Header with Title and Close Button */}
         <div className="flex items-center justify-between mb-4">
           {title && (
-            <h4 className="text-2xl font-semibold text-gray-800 dark:text-white/90 sm:text-title-sm">
+            <h4 className="text-xl font-semibold text-gray-800 dark:text-white/90 ">
               {title}
             </h4>
           )}

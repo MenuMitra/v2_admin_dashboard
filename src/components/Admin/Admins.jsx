@@ -378,38 +378,34 @@ function Admins() {
           setAdminToDelete(null);
         }}
         type="error"
-        title="Confirm Deletion"
+        title="Confirm Delete"
         size="small"
         actionButtons={
-          <>
-            <button
-              type="button"
-              onClick={handleDeleteAdmin}
-              className="flex justify-center w-full px-4 py-3 text-theme-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
-            >
-              Delete
-            </button>
+          <div className="flex justify-between w-full">
             <button
               type="button"
               onClick={() => {
                 setShowDeleteModal(false);
                 setAdminToDelete(null);
               }}
-              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
+              className="flex justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
             >
               Cancel
             </button>
-          </>
+            <button
+              type="button"
+              onClick={handleDeleteAdmin}
+              className="flex justify-center px-4 py-3 text-theme-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+            >
+              Delete
+            </button>
+          </div>
         }
       >
         <div className="flex items-start">
           <div className="ml-4">
             <p className="text-theme-sm text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete this admin? This action cannot be
-              undone.
-            </p>
-            <p className="text-theme-sm text-gray-500 dark:text-gray-400">
-              All data associated with this admin will be permanently removed.
+              Are you sure ?
             </p>
           </div>
         </div>
