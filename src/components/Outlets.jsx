@@ -329,7 +329,7 @@ function Outlets() {
       sortable: true,
       render: (value, row) => (
         <div className="flex flex-col items-start">
-          <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
             {value}
           <span className="pl-2 text-xs text-gray-500">
             ({row.code})
@@ -382,7 +382,7 @@ function Outlets() {
         <span className={`text-sm font-medium ${
           value === 1 ? "text-success-500" : "text-error-500"
         }`}>
-          {value === 1 ? "OPEN" : "CLOSE"}
+          {value === 1 ? "Open" : "Close"}
         </span>
       ),
     },
@@ -392,19 +392,19 @@ function Outlets() {
       sortable: true,
       render: (value) => (
         <div className="flex items-center justify-center gap-2">
-          <FontAwesomeIcon
+          {/* <FontAwesomeIcon
             icon={value === 1 ? faCircleCheck : faCircleXmark}
             className={`w-5 h-5 ${
               value === 1 ? "text-success-500" : "text-error-500"
             }`}
-          />
-          {/* <span
-            className={`text-base font-medium ${
-              value === 1 ? "text-success-700" : "text-error-700"
+          /> */}
+          <span
+            className={`text-sm font-medium ${
+              value === 1 ? "text-success-500" : "text-error-500"
             }`}
           >
             {value === 1 ? "Active" : "Inactive"}
-          </span> */}
+          </span>
         </div>
       ),
     },
