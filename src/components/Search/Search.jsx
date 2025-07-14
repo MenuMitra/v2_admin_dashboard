@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import axios from 'axios';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -23,6 +23,15 @@ const Search = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [searchedTerm, setSearchedTerm] = useState('');
   const navigate = useNavigate();
+  const searchInputRef = useRef(null);
+
+  useEffect(() => {
+    // Check if we should focus based on URL params
+    const queryParams = new URLSearchParams(window.location.search);
+    if (queryParams.get('focus') === 'true') {
+      searchInputRef.current?.focus();
+    }
+  }, []);
 
   const handleBack = useCallback(() => {
     window.history.back();
@@ -260,6 +269,7 @@ const Search = () => {
               <div className="flex gap-2 sm:gap-4 flex-1">
                 <div className="flex-1">
                   <input
+                    ref={searchInputRef}
                     type="text"
                     value={searchInput}
                     onChange={handleInputChange}

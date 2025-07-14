@@ -84,11 +84,13 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
               className="h-5 w-5"
             />
           </button>
-          <Link to="/search">
+          {/* Update the search button Link */}
+          <Link to="/search?focus=true">
             <button
-              className={`flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 `}
+              className={`flex h-10 w-24 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 w-28`}
             >
-              <FontAwesomeIcon icon={faSearch} className="h-5 w-5" />
+              <FontAwesomeIcon icon={faSearch} className="h-5 w-5 pr-1" />
+              Search
             </button>
           </Link>
           {/* Logo - Always visible */}
