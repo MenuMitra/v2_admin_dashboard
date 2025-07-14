@@ -141,7 +141,9 @@ function Admins() {
       }
     } catch (err) {
       // Show error toast
-      toastController.error(err.response?.data?.detail || "Failed to delete admin");
+      toastController.error(
+        err.response?.data?.detail || "Failed to delete admin"
+      );
       console.error("Error deleting admin:", err);
     }
   };
@@ -155,12 +157,12 @@ function Admins() {
       }
 
       const endpoint = `${BASE_URL}/${API_VERSION}/common/bulk_admin_action`;
-      
+
       // Normalize the payload to match API requirements
       const payload = {
         user_ids: selectedIds, // admin_ids -> user_ids
         action: action, // directly use "active" or "inactive"
-        app_source: "admin_app"
+        app_source: "admin_app",
       };
 
       const response = await axios.post(endpoint, payload, {
@@ -283,7 +285,9 @@ function Admins() {
     if (filtered.length === 0) {
       return {
         data: [],
-        message: `No ${statusFilter === "all" ? "" : statusFilter} admins found.`
+        message: `No ${
+          statusFilter === "all" ? "" : statusFilter
+        } admins found.`,
       };
     }
 
@@ -403,11 +407,9 @@ function Admins() {
         }
       >
         <div className="flex items-start">
-          <div className="ml-4">
-            <p className="text-theme-sm text-gray-500 dark:text-gray-400">
-              Are you sure ?
-            </p>
-          </div>
+          <p className="text-theme-sm text-gray-500 dark:text-gray-400">
+            Are you sure ?
+          </p>
         </div>
       </Modal>
     </>
