@@ -111,7 +111,7 @@ function Auth() {
         {
           loading: 'Verifying OTP...',
           success: 'Login successful!',
-          error: 'Failed to verify OTP'
+          error: 'Incorrect OTP'
         }
       );
 

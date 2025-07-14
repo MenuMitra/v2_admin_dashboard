@@ -36,6 +36,7 @@ function Admins() {
     "8806431723",
     "9767637798",
     "8600704616",
+    "8000000000",
     // Add more numbers here as needed
     // '1234567890',
     // '9876543210',
@@ -186,6 +187,29 @@ function Admins() {
       return admin && !PROTECTED_MOBILES.includes(admin.mobile);
     });
     setSelectedAdmins(filteredSelection);
+  };
+
+  // Add a reload-only fetch function
+  const reloadfetchAdmins = async () => {
+    try {
+      setError(null);
+      const token = getToken();
+      if (!token) return;
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/admin/list_admins`,
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.data.status === "success") {
+        setAdmins(response.data.data);
+      }
+    } catch (err) {
+      setError(err.response?.data?.detail || "Failed to fetch admins");
+    }
   };
 
   // Define columns for DataTable
@@ -348,7 +372,7 @@ function Admins() {
         }}
         itemsPerPage={10}
         enableSelection={true}
-        onReload={fetchAdmins}
+        onReload={reloadfetchAdmins}
         onSelectionChange={handleSelectionChange}
         onBulkAction={handleBulkAction}
         isItemSelectable={(item) => !PROTECTED_MOBILES.includes(item.mobile)}

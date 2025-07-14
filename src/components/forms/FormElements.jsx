@@ -357,21 +357,24 @@ const DateInput = React.forwardRef(({
   };
 
   return (
-    <DatePickerInput
-      ref={ref}
-      label={required ? <RequiredLabel label={label} /> : label}
-      value={getInputValue()}
-      onChange={handleDateChange}
-      placeholder={placeholder}
-      required={required}
-      disabled={disabled}
-      className={className}
-      error={error}
-      type="date" // Enforce date type
-      max="2999-12-31" // Reasonable future date limit
-      min="1900-01-01" // Reasonable past date limit
-      {...props}
-    />
+    <div className="mb-4">
+      {label && (
+        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+          {label} {required && <span className="text-error-600">*</span>}
+        </label>
+      )}
+      <input
+        type="date"
+        ref={ref}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${className}`}
+        {...props}
+      />
+      {error && <p className="text-error-500 text-xs mt-1">{error}</p>}
+    </div>
   );
 });
 

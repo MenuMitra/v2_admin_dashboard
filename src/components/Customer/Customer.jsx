@@ -75,7 +75,7 @@ function Customer() {
       setOutletName(response.data.outlet_name || '');
       
     } catch (err) {
-      setError(err.response?.data?.msg || 'Failed to fetch customers');
+      setError(err.response?.data?.msg || '');
     } finally {
       setLoading(false);
     }

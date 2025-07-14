@@ -374,8 +374,7 @@ function CreateOwner() {
                 name="dob"
                 value={ownerData.dob}
                 onChange={handleChange}
-                // required
-                placeholder="Select date of birth"
+                placeholder="Select Date of birth"
               />
 
               <div className="relative">

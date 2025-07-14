@@ -30,19 +30,7 @@ function Subscriptions() {
 
   // Define columns for DataTable
   const columns = [
-    {
-      field: 'subscription_id',
-      header: 'ID',
-      sortable: true,
-      headerClassName: "text-center",
-      render: (value) => (
-        <div className="flex items-center justify-center">
-          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-            {value}
-          </span>
-        </div>
-      )
-    },
+   
     {
       field: 'name',
       header: 'Name',
@@ -120,6 +108,32 @@ function Subscriptions() {
     } catch (error) {
       console.error('Error fetching subscriptions:', error);
       toastController.error(error.response?.data?.detail || 'Failed to fetch subscriptions');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Add a reload-only fetch function
+  const reloadfetchSubscriptions = async () => {
+    setIsLoading(true);
+    try {
+      const token = getToken();
+      if (!token) return;
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
+        {
+          headers: {
+            'Authorization': token,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      if (response.data.detail === "Subscription list fetched successfully") {
+        setSubscriptions(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+      // Optionally show a toast or set error state
     } finally {
       setIsLoading(false);
     }
@@ -207,9 +221,9 @@ function Subscriptions() {
         searchPlaceholder="Search subscriptions"
         enableSort={true}
         enablePagination={false}
-        enableSearch={false}
+        enableSearch={true}
         enableStatusFilter={false}
-        showSearch={false}
+        showSearch={true}
         itemsPerPage={50}
         createButton={{
           show: true,
@@ -222,7 +236,8 @@ function Subscriptions() {
           disabled: false,
           tooltip: "Create a new subscription"
         }}
-        onReload={fetchSubscriptions}
+        onReload={reloadfetchSubscriptions}
+        isLoading={isLoading}
       />
 
       {/* Delete Confirmation Modal */}

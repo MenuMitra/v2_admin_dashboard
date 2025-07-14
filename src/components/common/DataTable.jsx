@@ -617,25 +617,23 @@ function DataTable({
               {/* Left: Stats as badges */}
               {counts && (
                 <div className="flex items-center gap-2 text-sm flex-wrap">
-                  <span className="inline-block text-gray-100 px-3 py-1 font-medium">Total: {counts.total}</span>
+                  <span className="font-medium text-gray-800 dark:text-white/90">Total: {counts.total}</span>
                   {counts.active !== null && (
-                    <span className="inline-block rounded-full bg-success-100 text-success-700 px-3 py-1 font-medium">Active: {counts.active}</span>
+                    <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">Active: {counts.active}</span>
                   )}
                   {counts.inactive !== null && (
-                    <span className="inline-block rounded-full bg-error-100 text-error-700 px-3 py-1 font-medium">Inactive: {counts.inactive}</span>
+                    <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">Inactive: {counts.inactive}</span>
                   )}
                 </div>
               )}
               {/* Right: Controls */}
-              <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto justify-end">
-
-              {dashboardTitle && (
-                <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
-                  {dashboardTitle}
-                </span>
-              )}
-
-                {/* Status Filter - if enabled */}
+              <div className="flex flex-1 justify-end items-center gap-4 w-full sm:w-auto">
+                {/* Filters, Reload, Search, etc. */}
+                {dashboardTitle && (
+                  <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
+                    {dashboardTitle}
+                  </span>
+                )}
                 {enableStatusFilter && (
                   <>
                     <div className="relative w-40 mr-2">
@@ -713,6 +711,20 @@ function DataTable({
                   </div>
                 )}
 
+                {/* Reload Button */}
+                {onReload && (
+                  <button
+                    onClick={onReload}
+                    disabled={isLoading}
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Reload data"
+                  >
+                    <FontAwesomeIcon 
+                      icon={faRotate} 
+                      className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
+                    />
+                  </button>
+                )}
                 {/* Search Input */}
                 {showSearch && (
                   <div className="relative">
@@ -730,21 +742,6 @@ function DataTable({
                       onChange={(e) => onSearchChange(e.target.value)}
                     />
                   </div>
-                )}
-
-                {/* Reload Button */}
-                {onReload && (
-                  <button
-                    onClick={onReload}
-                    disabled={isLoading}
-                    className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Reload data"
-                  >
-                    <FontAwesomeIcon 
-                      icon={faRotate} 
-                      className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
-                    />
-                  </button>
                 )}
               </div>
             </div>
