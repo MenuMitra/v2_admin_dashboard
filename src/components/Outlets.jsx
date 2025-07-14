@@ -328,9 +328,14 @@ function Outlets() {
       header: "Name",
       sortable: true,
       render: (value, row) => (
-        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90 text-left">
-          {value}
-        </p>
+        <div className="flex flex-col items-start">
+          <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            {value}
+          <span className="pl-2 text-xs text-gray-500">
+            ({row.code})
+          </span>
+          </p>
+        </div>
       ),
     },
     {
@@ -343,16 +348,6 @@ function Outlets() {
             {row?.ownerCount || "-"}
           </span>
         </div>
-      ),
-    },
-    {
-      field: "code",
-      header: "Code",
-      sortable: true,
-      render: (value) => (
-        <p className="text-gray-500 text-theme-sm dark:text-gray-400">
-          {value}
-        </p>
       ),
     },
     {
