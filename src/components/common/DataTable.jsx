@@ -849,7 +849,7 @@ function DataTable({
                   >
                     <div className={`flex items-center ${column.textAlign === "center" ? "justify-center w-full" : "gap-1"}`}>
                       <p
-                        className={`font-semibold text-gray-700 text-theme-xs ${
+                        className={`font-semibold text-gray-700 text-theme-xs text-center ${
                           darkMode ? "dark:text-white/90" : ""
                         }`}
                       >

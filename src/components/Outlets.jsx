@@ -410,42 +410,35 @@ function Outlets() {
     },
     {
       field: "total_order_count",
-      header: "Orders",
+      header: "Total Orders",
       sortable: true,
+      textAlign: "center",
       render: (value) => (
-        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
       ),
     },
     {
       field: "total_paid_count",
-      header: "Paid",
+      header: "Total Paid",
       sortable: true,
       render: (value) => (
-        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
       ),
     },
     {
       field: "total_cancel_count",
-      header: "Cancelled ",
+      header: "Total Cancelled ",
       sortable: true,
       render: (value) => (
-        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
       ),
     },
     {
       field: "total_menu",
-      header: "Menus",
+      header: "Total Menus",
       sortable: true,
       render: (value) => (
-        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
-      ),
-    },
-    {
-      field: "total_category",
-      header: "Categories",
-      sortable: true,
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
+        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
       ),
     },
     {
