@@ -18,6 +18,7 @@ import ImageUploader from './common/ImageUploader';
 import { API_CONFIG } from "../config/appConfig";
 import { isValidSocialMediaLinks, isMobileValid, isWhatsappValid } from '../utils/validations';
 import { toastController } from '../utils/toastController';
+import CustomSelectInput from './common/CustomSelectInput';
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -87,7 +88,10 @@ function EditOutlet() {
   // Add essential validation helper functions
   const isNameValid = (name) => name?.length >= 3 && name?.length <= 50;
   const isUpiValid = (upi) => /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/.test(upi);
-  const isAddressValid = (address) => address?.length >= 3 && address?.length <= 50;
+  // Address validation function
+  const isAddressValid = (address) => {
+    return address && address.length >= 5 && address.length <= 50;
+  };
 
   // Fetch outlet data when component mounts
   useEffect(() => {
@@ -299,6 +303,15 @@ function EditOutlet() {
         [name]: numbersOnly.length !== 10,
         [`${name}Message`]: numbersOnly.length !== 10 ? 'Must be 10 digits' : ''
         }));
+    } else if (name === 'address') {
+      setOutletData(prev => ({ ...prev, [name]: value }));
+      
+      // Real-time address validation
+      if (value && value.length < 5) {
+        setValidationStates(prev => ({ ...prev, [name]: true }));
+      } else {
+        setValidationStates(prev => ({ ...prev, [name]: false }));
+      }
     } else if (['website', 'facebook', 'instagram', 'google_business_link', 'google_review'].includes(name)) {
       setOutletData(prev => ({ ...prev, [name]: value }));
 
@@ -406,7 +419,9 @@ function EditOutlet() {
         outlet_mode: outletData.outlet_mode,
         image: outletData.image || '',
         subscription_id: outletData.subscription_id ? parseInt(outletData.subscription_id) : undefined,
-        app_source: "admin_app"
+        app_source: "admin_app",
+        "opening_time": outletData.opening_time,
+        "closing_time": outletData.closing_time,
       };
 
       const response = await axios.patch(
@@ -732,74 +747,15 @@ function EditOutlet() {
                   ]}
                   placeholder="Select Outlet Mode"
                 />
-
-                <SelectInput
-                  label="Status"
-                  name="outlet_status"
-                  value={outletData.outlet_status ? "1" : "0"}
-                  onChange={(e) => {
-                    setOutletData(prev => ({
-                      ...prev,
-                      outlet_status: e.target.value === "1"
-                    }));
-                  }}
-                  required
-                  options={[
-                    { value: "1", label: "Active" },
-                    { value: "0", label: "Inactive" }
-                  ]}
-                  placeholder="Select Status"
-                />
-
-                <SelectInput
-                  label="Open/Close"
-                  name="is_open"
-                  value={outletData.is_open ? "1" : "0"}
-                  onChange={(e) => {
-                    setOutletData(prev => ({
-                      ...prev,
-                      is_open: e.target.value === "1"
-                    }));
-                  }}
-                  required
-                  options={[
-                    { value: "1", label: "Open" },
-                    { value: "0", label: "Closed" }
-                  ]}
-                  placeholder="Select Open/Close Status"
-                />
-
-                <div className="relative">
-                  <TextInput
-                    label="WhatsApp Number"
-                    name="whatsapp"
-                    type="tel"
-                    value={outletData.whatsapp}
-                    onChange={handleInputChange}
-                    onFocus={() => handleFocus('whatsapp')}
-                    placeholder="Enter 10 digit mobile number"
-                    maxLength={10}
-                    className={`
-                      focus:border-brand-500 focus:ring-brand-500
-                      ${validationStates.whatsapp ? 'border-error-500' : 'border-gray-300'}
-                    `}
-                  />
-                  {validationStates.whatsapp && (
-                    <p className="text-error-500 text-sm mt-1">
-                      {validationStates.whatsappMessage}
-                    </p>
-                  )}
-                </div>
-
-                <SelectInput
+                <CustomSelectInput
                   label="Subscription Plan"
                   name="subscription_id"
-                  value={outletData.subscription_id}
+                  value={outletData.subscription_id || ''}
                   onChange={handleInputChange}
                   required
                   options={subscriptions.map(sub => ({
                     value: sub.subscription_id.toString(),
-                    label: `${sub.name} - ₹${sub.price} (${sub.features.length} features)`
+                    label: `${sub.name} - ₹${sub.price} (${sub.features?.length || 0} features)`
                   }))}
                   placeholder="Select Subscription Plan"
                 />
@@ -814,6 +770,13 @@ function EditOutlet() {
                 required
                 rows={3}
               />
+              {validationStates.address && (
+                <p className="text-error-500 text-sm mt-1">
+                  {!outletData.address ? 'Address is required' : 
+                   outletData.address.length < 5 ? 'Minimum 5 characters required' : 
+                   'Address must not exceed 50 characters'}
+                </p>
+              )}
             </div>
           </section>
 
@@ -881,6 +844,7 @@ function EditOutlet() {
                   value={outletData.fssainumber}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  maxLength={14}
                 />
               </div>
 
@@ -892,6 +856,7 @@ function EditOutlet() {
                   type="text"
                   name="gstnumber"
                   value={outletData.gstnumber}
+                  maxLength={15}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />

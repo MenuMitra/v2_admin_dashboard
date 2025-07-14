@@ -70,7 +70,7 @@ function Managers() {
       }
       
     } catch (err) {
-      toastController.error(err.response?.data?.msg || "Failed to fetch managers");
+      toastController.error(err.response?.data?.msg || "outlet has no manager");
     } finally {
       setIsLoading(false);
     }

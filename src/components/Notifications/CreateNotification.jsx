@@ -11,6 +11,7 @@ import {
   Textarea,
 } from '../forms/FormElements';
 import Breadcrumb from '../Breadcrumb';
+import Modal from '../common/Modal';
 
 function CreateNotification() {
   const navigate = useNavigate();
@@ -39,6 +40,9 @@ function CreateNotification() {
   const roleDropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
   const typeDropdownRef = useRef(null);
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [pendingSubmitEvent, setPendingSubmitEvent] = useState(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -121,6 +125,26 @@ function CreateNotification() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Wrap the original handleSubmit to support modal confirmation
+  const handleCreateClick = (e) => {
+    e.preventDefault();
+    setPendingSubmitEvent(e);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSend = async () => {
+    setShowConfirmModal(false);
+    if (pendingSubmitEvent) {
+      await handleSubmit(pendingSubmitEvent);
+      setPendingSubmitEvent(null);
+    }
+  };
+
+  const handleCancelSend = () => {
+    setShowConfirmModal(false);
+    setPendingSubmitEvent(null);
   };
 
   const mockData = {
@@ -323,7 +347,7 @@ function CreateNotification() {
             </h1>
 
             <button
-              onClick={handleSubmit}
+              onClick={handleCreateClick}
               disabled={isLoading || !isFormValid()}
               className={`
                 inline-flex items-center gap-2 px-4 py-2 
@@ -678,6 +702,38 @@ function CreateNotification() {
           </form>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <Modal
+        isOpen={showConfirmModal}
+        onClose={handleCancelSend}
+        title="Confirm Notification"
+        type="info"
+        size="small"
+        actionButtons={[
+          <div key="actions" className="flex w-full justify-between">
+            <button
+              onClick={handleCancelSend}
+              className="px-4 py-2 rounded-full border border-gray-400 text-gray-700 bg-white hover:bg-gray-100"
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmSend}
+              className="px-4 py-2 rounded-full bg-success-500 text-white hover:bg-success-600"
+              autoFocus
+              type="button"
+            >
+              Confirm
+            </button>
+          </div>
+        ]}
+      >
+        <div className="text-base font-medium text-gray-700 py-2">
+          Would you like to send a confirmation notification?
+        </div>
+      </Modal>
     </>
   );
 }

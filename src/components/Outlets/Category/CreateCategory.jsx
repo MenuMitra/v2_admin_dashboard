@@ -18,6 +18,8 @@ function CreateCategory() {
   const [categoryName, setCategoryName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // Add state for name error
+  const [nameError, setNameError] = useState('');
 
   // Ref for form submission from Save button
   const formRef = React.useRef();
@@ -118,9 +120,18 @@ function CreateCategory() {
               label="Category Name"
               required
               value={categoryName}
-              onChange={e => setCategoryName(e.target.value)}
+              onChange={e => {
+                const value = e.target.value;
+                if (!/^[A-Za-z\s]*$/.test(value)) {
+                  setNameError('Category name should only contain alphabets and spaces');
+                } else {
+                  setNameError('');
+                }
+                setCategoryName(value);
+              }}
               placeholder="Enter category name"
             />
+            {nameError && <p className="text-error-500 text-sm mt-1">{nameError}</p>}
             <button
               type="submit"
               disabled={loading}

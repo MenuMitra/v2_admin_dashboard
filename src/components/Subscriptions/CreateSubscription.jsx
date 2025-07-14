@@ -26,13 +26,13 @@ function CreateSubscription() {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
-    subscription_end_date: '',
+    // subscription_end_date: '',
     feature_ids: []
   });
   const [validationStates, setValidationStates] = useState({
     name: false,
     price: false,
-    subscription_end_date: false,
+    // subscription_end_date: false,
     feature_ids: false
   });
 
@@ -63,7 +63,8 @@ function CreateSubscription() {
       );
 
       if (response.data.detail === "Feature list fetched successfully") {
-        setFeatures(response.data.data);
+        // Filter out 'admin_app' feature
+        setFeatures(response.data.data.filter(f => f.name !== 'admin_app'));
       }
     } catch (error) {
       console.error('Error fetching features:', error);
@@ -108,7 +109,7 @@ function CreateSubscription() {
     const newValidationStates = {
       name: !formData.name.trim(),
       price: !formData.price || isNaN(formData.price) || parseFloat(formData.price) <= 0,
-      subscription_end_date: !formData.subscription_end_date,
+      // subscription_end_date: !formData.subscription_end_date,
       feature_ids: formData.feature_ids.length === 0
     };
 
@@ -229,7 +230,7 @@ function CreateSubscription() {
                 placeholder="Enter price"
               />
 
-              <DateInput
+              {/* <DateInput
                 label="End Date"
                 name="subscription_end_date"
                 value={formData.subscription_end_date}
@@ -237,7 +238,7 @@ function CreateSubscription() {
                 required
                 error={validationStates.subscription_end_date}
                 placeholder="Select end date"
-              />
+              /> */}
             </div>
           </section>
 

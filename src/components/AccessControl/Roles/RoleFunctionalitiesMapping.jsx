@@ -100,6 +100,11 @@ function RoleFunctionalitiesMapping() {
   };
 
   const handleSaveChanges = async () => {
+    // Validation: must select at least one functionality
+    if (!selectedFunctionalities || selectedFunctionalities.length === 0) {
+      setSaveError('Please choose functionality');
+      return;
+    }
     try {
       setIsSaving(true);
       setSaveError(null);

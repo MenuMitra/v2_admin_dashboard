@@ -25,8 +25,8 @@ function SuperOwnerDetails() {
   // Add counts object for DataTable header
   const counts = {
     total: 1,  // Since we're viewing a single super owner
-    active: superOwnerData?.account_status ? 1 : 0,
-    inactive: superOwnerData?.account_status ? 0 : 1
+    active: superOwnerData?.is_active ? 1 : 0,
+    inactive: superOwnerData?.is_active ? 0 : 1
   };
 
   // Add breadcrumb items
@@ -238,17 +238,17 @@ function SuperOwnerDetails() {
               <div className="p-4">
                 <div className="mt-1 flex items-center gap-2">
                   <FontAwesomeIcon
-                    icon={superOwnerData.account_status ? faCircleCheck : faCircleXmark}
+                    icon={superOwnerData.is_active ? faCircleCheck : faCircleXmark}
                     className={`w-5 h-5 ${
-                      superOwnerData.account_status ? "text-success-500" : "text-error-500"
+                      superOwnerData.is_active ? "text-success-500" : "text-error-500"
                     }`}
                   />
                   <span
                     className={`text-base font-medium ${
-                      superOwnerData.account_status ? "text-success-700" : "text-error-700"
+                      superOwnerData.is_active ? "text-success-700" : "text-error-700"
                     }`}
                   >
-                    {superOwnerData.account_status ? "Active" : "Inactive"}
+                    {superOwnerData.is_active ? "Active" : "Inactive"}
                   </span>
                 </div>
                 <p className="text-sm text-gray-500">Account Status</p>

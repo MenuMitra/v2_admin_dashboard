@@ -65,7 +65,7 @@ function Captains() {
       
       setIsLoading(false);
     } catch (error) {
-      toastController.error("Failed to fetch captains");
+      toastController.error("outlet has no captain");
       setIsLoading(false);
     }
   };

@@ -79,7 +79,7 @@ function Auth() {
         {
           loading: 'Sending OTP...',
           success: 'OTP sent successfully!',
-          error: 'Failed to send OTP'
+          error: 'Admin not found with this mobile number'
         }
       );
 
@@ -170,7 +170,7 @@ function Auth() {
     try {
       const response = await toastController.promise(
         axios.post(`${BASE_URL}/${API_VERSION}/common/resend_otp`, 
-          { mobile },
+          { mobile, app_type: "admin" },
           {
             headers: {
               Authorization: getToken()
@@ -250,16 +250,11 @@ function Auth() {
                             onChange={(e) => {
                               const value = e.target.value;
                               if (/^\d{0,10}$/.test(value)) {
-                                if (
-                                  value.length > 0 &&
-                                  "12345".includes(value[0])
-                                ) {
-                                  setMobileError(
-                                    "Mobile number must start with 6-9"
-                                  );
-                                  setMobile("");
+                                if (value.length > 0 && '012345'.includes(value[0])) {
+                                  setMobileError('Mobile number must start with 6-9');
+                                  setMobile('');
                                 } else {
-                                  setMobileError("");
+                                  setMobileError('');
                                   setMobile(value);
                                 }
                               }

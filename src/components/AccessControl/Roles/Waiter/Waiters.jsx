@@ -68,7 +68,7 @@ function Waiters() {
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching waiters:", error);
-      toastController.error(error.response?.data?.msg || "Failed to fetch waiters");
+      toastController.error(error.response?.data?.msg || "outlet has no waiter");
       setIsLoading(false);
     }
   };

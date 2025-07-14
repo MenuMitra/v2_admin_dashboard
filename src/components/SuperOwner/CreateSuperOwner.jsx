@@ -72,71 +72,72 @@ function CreateSuperOwner() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setSuperOwnerDetails((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Live validation for mobile field
-    if (name === "mobile") {
-      if (value && !/^[6-9]/.test(value)) {
-        setFieldErrors((prev) => ({
-          ...prev,
-          mobile: "Mobile number must start with 6, 7, 8, or 9",
-        }));
-      } else {
-        setFieldErrors((prev) => ({
-          ...prev,
-          mobile: "",
-        }));
+    let error = '';
+    if (name === 'name') {
+      if (!/^[A-Za-z\s]*$/.test(value)) {
+        error = 'Name should only contain alphabets and spaces';
       }
     }
-    // Live validation for email field
-    if (name === "email") {
-      const gmailPattern = /^[a-zA-Z0-9._%+-]+@\.com$/;
-      if (value && !gmailPattern.test(value)) {
-        setFieldErrors((prev) => ({
+    if (name === 'mobile') {
+      // Only allow numbers, max 10 digits
+      let numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+      // Prevent first digit from being 0-5
+      if (numbersOnly.length === 1 && !/[6-9]/.test(numbersOnly.charAt(0))) {
+        setFieldErrors(prev => ({
           ...prev,
-          email: "Email format is incorrect",
+          mobile: 'Mobile must start with 6, 7, 8, or 9 and only digits allowed'
         }));
-      } else {
-        setFieldErrors((prev) => ({
-          ...prev,
-          email: "",
-        }));
+        return; // Do not update state if first digit is 0-5
+      }
+      setSuperOwnerDetails(prev => ({ ...prev, [name]: numbersOnly }));
+      setFieldErrors(prev => ({ ...prev, mobile: '' }));
+      return;
+    }
+    if (name === 'email') {
+      if (value && !/^([a-zA-Z0-9._%+-]+)@gmail\.com$/.test(value)) {
+        error = 'Email must be a valid @gmail.com address';
       }
     }
+    if (name === 'aadhar_number') {
+      // Only allow numbers, max 12 digits
+      let numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+      if (value !== numbersOnly) {
+        setFieldErrors(prev => ({
+          ...prev,
+          aadhar_number: 'Aadhar number must contain only digits'
+        }));
+      } else {
+        setFieldErrors(prev => ({ ...prev, aadhar_number: '' }));
+      }
+      setSuperOwnerDetails(prev => ({ ...prev, [name]: numbersOnly }));
+      return;
+    }
+    setSuperOwnerDetails((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const validate = () => {
     const errors = {};
-    // Name: required, only alphabets and spaces
     if (!superOwnerDetails.name.trim()) {
-      errors.name = "Name is required";
+      errors.name = 'Name is required';
     } else if (!/^[A-Za-z\s]+$/.test(superOwnerDetails.name)) {
-      errors.name = "Name should only contain alphabets and spaces";
+      errors.name = 'Name should only contain alphabets and spaces';
     }
-    // Mobile: required, 10 digits, starts with 6/7/8/9
     if (!superOwnerDetails.mobile.trim()) {
-      errors.mobile = "Mobile number is required";
-    } else if (!/^[6-9]\d{9}$/.test(superOwnerDetails.mobile)) {
-      errors.mobile = "Mobile must be 10 digits and start with 6, 7, 8, or 9";
+      errors.mobile = 'Mobile number is required';
+    } else if (!/^[6-9][0-9]{9}$/.test(superOwnerDetails.mobile)) {
+      errors.mobile = 'Mobile must be 10 digits, start with 6, 7, 8, or 9';
     }
-    // Email: required, valid format
-    if (!superOwnerDetails.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(superOwnerDetails.email)) {
-      errors.email = "Invalid email address";
+    if (superOwnerDetails.email && !/^([a-zA-Z0-9._%+-]+)@gmail\.com$/.test(superOwnerDetails.email)) {
+      errors.email = 'Email must be a valid @gmail.com address';
     }
-    // Aadhar: required, 12 digits
     if (!superOwnerDetails.aadhar_number.trim()) {
-      errors.aadhar_number = "Aadhar number is required";
-    } else if (!/^\d{12}$/.test(superOwnerDetails.aadhar_number)) {
-      errors.aadhar_number = "Aadhar number must be 12 digits";
+      errors.aadhar_number = 'Aadhar number is required';
+    } else if (!/^[0-9]{12}$/.test(superOwnerDetails.aadhar_number)) {
+      errors.aadhar_number = 'Aadhar number must be 12 digits';
     }
-    // Outlets: at least one selected
     if (selectedOutlets.length === 0) {
-      errors.outlets = "Please select at least one outlet";
+      errors.outlets = 'Please select at least one outlet';
     }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -241,7 +242,7 @@ function CreateSuperOwner() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">
                   <div>
                     <label className="block text-sm text-gray-500 mb-1">
-                      Name
+                      Name <span className="text-error-600">*</span>
                     </label>
                     <input
                       type="text"
@@ -261,7 +262,7 @@ function CreateSuperOwner() {
 
                   <div>
                     <label className="block text-sm text-gray-500 mb-1">
-                      Mobile
+                      Mobile <span className="text-error-600">*</span>
                     </label>
                     <input
                       type="tel"
@@ -269,6 +270,7 @@ function CreateSuperOwner() {
                       value={superOwnerDetails.mobile}
                       onChange={handleChange}
                       placeholder="Enter mobile number"
+                      maxLength={10}
                       pattern="[0-9]{10}"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
@@ -291,7 +293,6 @@ function CreateSuperOwner() {
                       onChange={handleChange}
                       placeholder="Enter email address"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
                     />
                     {fieldErrors.email && (
                       <p className="text-error-500 text-sm mt-1">
@@ -302,7 +303,7 @@ function CreateSuperOwner() {
 
                   <div>
                     <label className="block text-sm text-gray-500 mb-1">
-                      Aadhar Number
+                      Aadhar Number <span className="text-error-600">*</span>
                     </label>
                     <input
                       type="text"
@@ -310,6 +311,7 @@ function CreateSuperOwner() {
                       value={superOwnerDetails.aadhar_number}
                       onChange={handleChange}
                       placeholder="Enter Aadhar number"
+                      maxLength={12}
                       pattern="[0-9]{12}"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required

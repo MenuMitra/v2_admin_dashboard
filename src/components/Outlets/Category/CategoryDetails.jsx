@@ -194,35 +194,41 @@ function CategoryDetails() {
                 </div>
               </div>
               {/* Created By */}
-              <div className="flex items-center p-3 rounded-lg bg-gray-50">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
+              {category.created_by && (
+                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">{category.created_by}</div>
+                    <div className="text-sm text-gray-500">Created By</div>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium">{category.created_by}</div>
-                  <div className="text-sm text-gray-500">Created By</div>
-                </div>
-              </div>
+              )}
               {/* Updated On */}
-              <div className="flex items-center p-3 rounded-lg bg-gray-50">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faCalendarCheck} className="w-5 h-5 text-gray-400" />
+              {category.updated_on && (
+                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faCalendarCheck} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">{category.updated_on}</div>
+                    <div className="text-sm text-gray-500">Updated On</div>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium">{category.updated_on || '-'}</div>
-                  <div className="text-sm text-gray-500">Updated On</div>
-                </div>
-              </div>
+              )}
               {/* Updated By */}
-              <div className="flex items-center p-3 rounded-lg bg-gray-50">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
+              {category.updated_by && (
+                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">{category.updated_by}</div>
+                    <div className="text-sm text-gray-500">Updated By</div>
+                  </div>
                 </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium">{category.updated_by || '-'}</div>
-                  <div className="text-sm text-gray-500">Updated By</div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

@@ -107,7 +107,8 @@ function EditSubscription() {
       );
 
       if (response.data.detail === "Feature list fetched successfully") {
-        setFeatures(response.data.data);
+        // Filter out 'admin_app' feature
+        setFeatures(response.data.data.filter(f => f.name !== 'admin_app'));
       }
     } catch (error) {
       console.error('Error fetching features:', error);
@@ -318,10 +319,7 @@ function EditSubscription() {
                   <div className="flex items-center space-x-3">
                     <Checkbox
                       checked={formData.feature_ids.includes(feature.feature_id)}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        handleFeatureChange(feature.feature_id);
-                      }}
+                      onChange={() => handleFeatureChange(feature.feature_id)}
                     />
                     <span className={`
                       text-sm font-medium pl-2

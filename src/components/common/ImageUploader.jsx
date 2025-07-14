@@ -179,7 +179,7 @@ const ImageUploader = ({
             {/* Upload Text */}
             <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
               {images.length >= maxImages ? (
-                <span className="font-semibold text-error-500">Maximum limit reached</span>
+                <span className="font-semibold text-error-500"></span>
               ) : (
                 <>
                   <span className="font-semibold">Click to upload</span> or drag and drop
@@ -222,6 +222,18 @@ const ImageUploader = ({
                 aspectRatio: '1/1',
               }}
             >
+              {/* Remove Button - small, top-left, always visible */}
+              <button
+                onClick={() => handleRemoveImage(index)}
+                className="absolute top-1 right-1 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-white bg-opacity-80 hover:bg-error-100 border border-gray-300 p-0.5"
+                style={{ lineHeight: 1 }}
+                title="Remove"
+              >
+                <FontAwesomeIcon 
+                  icon={faTimes} 
+                  className="w-3 h-3 text-error-500"
+                />
+              </button>
               {/* Image */}
               <img
                 src={preview.url}
@@ -233,19 +245,6 @@ const ImageUploader = ({
                 }}
               />
               
-              {/* Delete Button Overlay */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                <button
-                  onClick={() => handleRemoveImage(index)}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 transition-colors duration-200"
-                >
-                  <FontAwesomeIcon 
-                    icon={faTimes} 
-                    className="w-4 h-4 text-white"
-                  />
-                </button>
-              </div>
-
               {/* Existing Label */}
               {/* {preview.isExisting && (
                 <div className="absolute bottom-0 left-0 right-0 text-xs text-white bg-black/50 py-1 px-2 text-center">

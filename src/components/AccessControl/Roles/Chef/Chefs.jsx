@@ -65,7 +65,7 @@ function Chefs() {
       
       setIsLoading(false);
     } catch (error) {
-      toastController.error("Failed to fetch chefs list");
+      toastController.error("outlet has no chef");
       setIsLoading(false);
     }
   };

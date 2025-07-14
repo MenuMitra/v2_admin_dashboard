@@ -131,7 +131,7 @@ function CombinedStats() {
           end_date: formatDateForApi(apiPayload.end_date),
         };
         const response = await fetch(
-          "https://men4u.xyz/v2/admin/api_usage_stats",
+          "https://men4u.xyz/v2/admin/app_usage_stats",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

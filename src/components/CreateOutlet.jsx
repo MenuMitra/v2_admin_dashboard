@@ -18,6 +18,14 @@ import Breadcrumb from './Breadcrumb';
 import { toastController } from '../utils/toastController';
 import { API_CONFIG } from '../config/appConfig';
 import { isValidSocialMediaLinks, isMobileValid, isWhatsappValid } from '../utils/validations';
+import CustomSelectInput from './common/CustomSelectInput';
+
+function formatDateToDDMMMYYYY(dateStr) {
+  if (!dateStr) return '';
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const [year, month, day] = dateStr.split("-");
+  return `${day} ${months[parseInt(month, 10) - 1]} ${year}`;
+}
 
 function CreateOutlet() {
   const navigate = useNavigate();
@@ -27,6 +35,7 @@ function CreateOutlet() {
   const [allOwners, setAllOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [subscriptions, setSubscriptions] = useState([]);
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const [outletData, setOutletData] = useState({
@@ -53,7 +62,9 @@ function CreateOutlet() {
     opening_time: '',
     closing_time: '',
     owner_id: [],
-    image: null
+    image: null,
+    subscription_id: '',
+    subscription_end_date: '',
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -95,6 +106,7 @@ function CreateOutlet() {
   useEffect(() => {
     fetchOutletTypes();
     fetchOwners();
+    fetchSubscriptions();
   }, []);
 
   useEffect(() => {
@@ -123,7 +135,8 @@ function CreateOutlet() {
     outletData.outlet_type,
     outletData.veg_nonveg,
     outletData.outlet_mode,
-    outletData.address
+    outletData.address,
+    outletData.subscription_end_date,
   ]);
 
   useEffect(() => {
@@ -207,7 +220,8 @@ function CreateOutlet() {
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
-      address: isAddressValid(outletData.address)
+      address: isAddressValid(outletData.address),
+      subscription_end_date: outletData.subscription_id ? !!outletData.subscription_end_date : true,
     };
 
     // Check if there are any API errors
@@ -236,7 +250,7 @@ function CreateOutlet() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_outlet_type`,
+        `${BASE_URL}/${API_VERSION}/common/get_list/outlet_type`,
         {
           headers: {
             Authorization: token,
@@ -279,6 +293,28 @@ function CreateOutlet() {
     }
   };
 
+  const fetchSubscriptions = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      if (response.data.detail === "Subscription list fetched successfully") {
+        setSubscriptions(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching subscriptions:', error);
+    }
+  };
+
   const handleImagesChange = (images) => {
     // Don't set to null if no new image is provided
     const base64String = images[0]?.url;
@@ -292,8 +328,12 @@ function CreateOutlet() {
   };
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    
+    // Support react-select's { target: { name, value } } and native events
+    const name = e.target?.name || e.name;
+    const value = e.target?.value ?? e.value;
+    const type = e.target?.type;
+    const checked = e.target?.checked;
+
     if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '');
       const firstDigit = numbersOnly.charAt(0);
@@ -397,6 +437,12 @@ function CreateOutlet() {
     return address && address.length >= 3 && address.length <= 50;
   };
 
+  // GST Number validation function
+  const isGSTNumberValid = (gstnumber) => {
+    // 15-character alphanumeric (uppercase letters and digits)
+    return /^[0-9A-Z]{15}$/.test(gstnumber);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -422,6 +468,7 @@ function CreateOutlet() {
         outlet_mode: outletData.outlet_mode,
         veg_nonveg: outletData.veg_nonveg,
         upi_id: outletData.upi_id,
+        subscription_id: outletData.subscription_id, // <-- added
       };
 
       if (outletData.service_charges !== '') {
@@ -429,6 +476,10 @@ function CreateOutlet() {
       }
       if (outletData.gst !== '') {
         payload.gst = outletData.gst.toString();
+      }
+
+      if (outletData.subscription_id && outletData.subscription_end_date) {
+        payload.subscription_end_date = formatDateToDDMMMYYYY(outletData.subscription_end_date);
       }
 
       const optionalFields = [
@@ -593,7 +644,8 @@ function CreateOutlet() {
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
-      address: isAddressValid(outletData.address)
+      address: isAddressValid(outletData.address),
+      subscription_end_date: outletData.subscription_id ? !!outletData.subscription_end_date : true,
     };
 
     // Check if all required fields are valid
@@ -683,6 +735,7 @@ function CreateOutlet() {
                     value={outletData.name}
                     onChange={handleInputChange}
                     onFocus={() => handleFocus('name')}
+                    placeholder="Enter Outlet Name"
                     required={true}
                     validationType="simple"
                     validationRules={validationRules.name.simple}
@@ -694,7 +747,7 @@ function CreateOutlet() {
                 </div>
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    <span className="text-error-600">*</span> Select Owner(s)
+                    <span className="text-error-600">*</span> Select Owners
                   </label>
                   
                   <div className="relative" ref={dropdownRef}>
@@ -713,7 +766,7 @@ function CreateOutlet() {
                         <div className="flex items-center justify-between">
                           <div>
                             <div className="font-medium text-gray-900">
-                              {outletData.owner_id.length} Owner(s) Selected
+                              {outletData.owner_id.length} Owner Selected
                             </div>
                           </div>
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -721,7 +774,7 @@ function CreateOutlet() {
                           </svg>
                         </div>
                       ) : (
-                        <div className="text-gray-500">Select Owner(s)</div>
+                        <div className="text-gray-500">Select Owner</div>
                       )}
                     </div>
 
@@ -936,6 +989,34 @@ function CreateOutlet() {
                   ]}
                   placeholder="Select Outlet Mode"
                 />
+                <CustomSelectInput
+                  label="Subscription Plan"
+                  name="subscription_id"
+                  value={outletData.subscription_id || ''}
+                  onChange={handleInputChange}
+                  required
+                  options={subscriptions.map(sub => ({
+                    value: sub.subscription_id.toString(),
+                    label: `${sub.name} - ₹${sub.price} (${sub.features?.length || 0} features)`
+                  }))}
+                  placeholder="Select Subscription Plan"
+                />
+                {outletData.subscription_id && (
+                  <div className="relative">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                      <span className="text-error-600">*</span> Subscription End Date
+                    </label>
+                    <input
+                      type="date"
+                      name="subscription_end_date"
+                      value={outletData.subscription_end_date}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                      min={new Date().toISOString().split('T')[0]}
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="relative">
@@ -955,7 +1036,7 @@ function CreateOutlet() {
                 {validationStates.address && (
                   <p className="text-error-500 text-sm mt-1">
                     {!outletData.address ? 'Address is required' : 
-                     outletData.address.length < 3 ? 'Address must be at least 3 characters' : 
+                     outletData.address.length < 5 ? 'Minimum 5 characters required' : 
                      'Address must not exceed 50 characters'}
                   </p>
                 )}
@@ -1019,6 +1100,7 @@ function CreateOutlet() {
                 name="fssainumber"
                 value={outletData.fssainumber}
                 onChange={handleInputChange}
+                maxLength={14}
                 placeholder="Enter FSSAI Number"
               />
 
@@ -1028,7 +1110,15 @@ function CreateOutlet() {
                 value={outletData.gstnumber}
                 onChange={handleInputChange}
                 placeholder="Enter GST Number"
+                maxLength={15}
               />
+              {validationStates.gstnumber && (
+                <p className="text-error-500 text-sm mt-1">
+                  {!outletData.gstnumber ? 'GST Number is required' :
+                    !isGSTNumberValid(outletData.gstnumber) ? 'GST Number must be a 15-digit alphanumeric code' :
+                    ''}
+                </p>
+              )}
             </div>
           </section>
 

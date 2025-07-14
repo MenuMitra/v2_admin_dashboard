@@ -13,6 +13,7 @@ import {
   faCircleCheck,
   faCircleXmark,
   faGear,
+  faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
 
@@ -98,6 +99,7 @@ function DataTable({
   selectedRole = "",
   onRoleChange = () => {},
   customFilters = [],
+  onReload = null,
 }) {
   const [sortField, setSortField] = useState(null);
   const [sortOrder, setSortOrder] = useState("asc");
@@ -158,19 +160,22 @@ function DataTable({
   const renderSortIcon = (field) => {
     if (!enableSort) return null;
 
-    // Create a fixed-width container for the icon
+    // Always show a sort icon for sortable columns
+    let icon = faSort;
+    let iconClass = "text-gray-400 w-4 h-4";
+    let style = {};
+
+    if (sortField === field) {
+      icon = sortOrder === "asc" ? faSortUp : faSortDown;
+      iconClass = "text-brand-500 w-4 h-4";
+      style = {
+        transform: sortOrder === "asc" ? "translateY(2px)" : "translateY(-2px)",
+      };
+    }
+
     return (
       <span className="inline-flex justify-center items-center ml-1 w-4">
-        {sortField === field && (
-          <FontAwesomeIcon
-            icon={sortOrder === "asc" ? faSortUp : faSortDown}
-            className="text-brand-500 w-4 h-4"
-            style={{
-              transform:
-                sortOrder === "asc" ? "translateY(2px)" : "translateY(-2px)",
-            }}
-          />
-        )}
+        <FontAwesomeIcon icon={icon} className={iconClass} style={style} />
       </span>
     );
   };
@@ -250,71 +255,90 @@ function DataTable({
     setCurrentPage(pageNumber);
   };
 
-  // Pagination Numbers Renderer
+  // Replace renderPaginationNumbers with a version that shows only 3 page numbers at a time (current, previous, next), with ellipsis if needed
   const renderPaginationNumbers = () => {
     const pages = [];
-    const maxVisiblePages = 7;
-    let startPage = 1;
-    let endPage = totalPages;
-
-    if (totalPages > maxVisiblePages) {
-      const middlePage = Math.floor(maxVisiblePages / 2);
-      if (currentPage <= middlePage) {
-        endPage = maxVisiblePages;
-      } else if (currentPage + middlePage >= totalPages) {
-        startPage = totalPages - maxVisiblePages + 1;
-      } else {
-        startPage = currentPage - middlePage;
-        endPage = currentPage + middlePage;
+    if (totalPages <= 3) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(
+          <li key={i}>
+            <button
+              onClick={() => handlePageChange(i)}
+              className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
+                currentPage === i
+                  ? "bg-brand-500 text-white"
+                  : `text-gray-700 hover:bg-brand-500 hover:text-white ${
+                      darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
+                    }`
+              }`}
+            >
+              {i}
+            </button>
+          </li>
+        );
       }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
+    } else {
+      // Show ellipsis if needed
+      if (currentPage > 2) {
+        pages.push(
+          <li key="start-ellipsis">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700">
+              ...
+            </span>
+          </li>
+        );
+      }
+      // Show previous page if not on first page
+      if (currentPage > 1) {
+        pages.push(
+          <li key={currentPage - 1}>
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${
+                darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
+              }`}
+            >
+              {currentPage - 1}
+            </button>
+          </li>
+        );
+      }
+      // Show current page
       pages.push(
-        <li key={i}>
+        <li key={currentPage}>
           <button
-            onClick={() => handlePageChange(i)}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
-              currentPage === i
-                ? "bg-brand-500 text-white"
-                : `text-gray-700 hover:bg-brand-500 hover:text-white ${
-                    darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
-                  }`
-            }`}
+            onClick={() => handlePageChange(currentPage)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium bg-brand-500 text-white"
           >
-            {i}
+            {currentPage}
           </button>
         </li>
       );
+      // Show next page if not on last page
+      if (currentPage < totalPages) {
+        pages.push(
+          <li key={currentPage + 1}>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${
+                darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
+              }`}
+            >
+              {currentPage + 1}
+            </button>
+          </li>
+        );
+      }
+      if (currentPage < totalPages - 1) {
+        pages.push(
+          <li key="end-ellipsis">
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700">
+              ...
+            </span>
+          </li>
+        );
+      }
     }
-
-    if (startPage > 1) {
-      pages.unshift(
-        <li key="start-ellipsis">
-          <span
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 ${
-              darkMode ? "dark:text-gray-400" : ""
-            }`}
-          >
-            ...
-          </span>
-        </li>
-      );
-    }
-    if (endPage < totalPages) {
-      pages.push(
-        <li key="end-ellipsis">
-          <span
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 ${
-              darkMode ? "dark:text-gray-400" : ""
-            }`}
-          >
-            ...
-          </span>
-        </li>
-      );
-    }
-
     return pages;
   };
 
@@ -675,6 +699,21 @@ function DataTable({
                     />
                   </div>
                 )}
+
+                {/* Reload Button */}
+                {onReload && (
+                  <button
+                    onClick={onReload}
+                    disabled={isLoading}
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Reload data"
+                  >
+                    <FontAwesomeIcon 
+                      icon={faRotate} 
+                      className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
+                    />
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -945,22 +984,7 @@ function DataTable({
               </span>
 
               <ul className="hidden items-center gap-0.5 sm:flex">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (pageNum) => (
-                    <li key={pageNum}>
-                      <button
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
-                          currentPage === pageNum
-                            ? "bg-brand-500 text-white"
-                            : "text-gray-700 hover:bg-brand-500 hover:text-white"
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    </li>
-                  )
-                )}
+                {renderPaginationNumbers()}
               </ul>
 
               <button

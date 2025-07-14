@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
@@ -43,7 +43,8 @@ function CreateOwner() {
     mobile: true,
     mobileMessage: '',
     aadhar_number: true,
-    aadharMessage: ''
+    aadharMessage: '',
+    address: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
@@ -107,10 +108,29 @@ function CreateOwner() {
     return { isValid: true, message: '' };
   };
 
+  // Update address validation function to only allow alphabets and spaces
+  const isAddressValid = (address) => {
+    // Only allow letters and spaces
+    const alphabetOnly = /^[A-Za-z\s]+$/.test(address);
+    return address && address.length >= 5 && address.length <= 50 && alphabetOnly;
+  };
+
+  // Update handleChange to include address validation
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     
-    if (name === 'mobile') {
+    if (name === 'address') {
+      // Filter out numbers and special characters, only allow letters and spaces
+      const filteredValue = value.replace(/[^A-Za-z\s]/g, '');
+      setOwnerData(prev => ({ ...prev, [name]: filteredValue }));
+      
+      // Real-time address validation - only check length since we filter characters
+      if (filteredValue && filteredValue.length < 5) {
+        setValidationStates(prev => ({ ...prev, [name]: true }));
+      } else {
+        setValidationStates(prev => ({ ...prev, [name]: false }));
+      }
+    } else if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
       
@@ -122,6 +142,30 @@ function CreateOwner() {
         }));
         return;
       }
+      else if (name === 'name') {
+  // Allow only alphabets and spaces
+  const filteredValue = value.replace(/[^A-Za-z\s]/g, '');
+  setOwnerData(prev => ({ ...prev, [name]: filteredValue }));
+
+  // Mark as invalid if too short or empty
+  let errorMsg = '';
+  if (value !== filteredValue) {
+    errorMsg = 'Only alphabets and spaces are allowed.';
+    setValidationStates(prev => ({ ...prev, [name]: true, [`${name}Message`]: errorMsg }));
+    // Show error for 1 second
+    if (nameErrorTimeout.current) clearTimeout(nameErrorTimeout.current);
+    nameErrorTimeout.current = setTimeout(() => {
+      setValidationStates(prev => ({ ...prev, [name]: false, [`${name}Message`]: '' }));
+    }, 1000);
+  } else if (filteredValue.length > 0 && filteredValue.length < 2) {
+    errorMsg = 'Minimum 2 characters required.';
+    setValidationStates(prev => ({ ...prev, [name]: true, [`${name}Message`]: errorMsg }));
+  } else {
+    setValidationStates(prev => ({ ...prev, [name]: false, [`${name}Message`]: '' }));
+  }
+  return;
+}
+
 
       setOwnerData(prev => ({ ...prev, [name]: numbersOnly }));
       const { isValid, message } = isMobileValid(numbersOnly);
@@ -144,7 +188,7 @@ function CreateOwner() {
     else {
       setOwnerData(prev => ({
         ...prev,
-        [name]: value
+        [name]: type === 'checkbox' ? checked : value
       }));
     }
   };
@@ -164,7 +208,8 @@ function CreateOwner() {
       ownerData.aadhar_number?.trim() &&
       validationStates.name &&
       validationStates.mobile &&
-      validationStates.aadhar_number
+      validationStates.aadhar_number &&
+      validationStates.address
     );
   };
 
@@ -285,6 +330,11 @@ function CreateOwner() {
                 onValidation={handleValidation("name")}
                 isSubmitAttempted={isSubmitAttempted}
               />
+              {validationStates.name && validationStates.nameMessage && (
+                <p className="text-error-500 text-sm -mt-1">
+                  {validationStates.nameMessage}
+                </p>
+              )}
 
               <div className="relative">
                 <TextInput
@@ -358,8 +408,15 @@ function CreateOwner() {
               onChange={handleChange}
               placeholder="Enter complete address"
               rows={3}
-              // required
+              
             />
+            {validationStates.address && (
+              <p className="text-error-500 text-sm -mt-1">
+                {!ownerData.address ? '' : 
+                 ownerData.address.length < 5 ? 'Minimum 5 characters required' : 
+                 'Address must not exceed 50 characters'}
+              </p>
+            )}
 
             {/* Functionalities */}
             {/* <div>

@@ -129,7 +129,7 @@ const menuData = {
     },
     {
       title: "Stats",
-      path: "/combined-stats",
+      path: "/stats",
       id: "stats",
       icon: faChartLine,
     },

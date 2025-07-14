@@ -155,16 +155,29 @@ function EditOwner() {
   };
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value, type, checked } = e.target;
+
     if (name === 'mobile') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
-      const { isValid, message } = isMobileValid(numbersOnly);
-      setValidationStates(prev => ({
-        ...prev,
-        mobile: isValid,
-        mobileMessage: message
-      }));
-      setOwnerData(prev => ({ ...prev, mobile: numbersOnly }));
+      // Only allow numbers, max 10 digits
+      let numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+      // Prevent first digit from being 0-5
+      if (numbersOnly.length === 1 && ['0','1','2','3','4','5'].includes(numbersOnly.charAt(0))) {
+        setValidationStates(prev => ({
+          ...prev,
+          mobile: false,
+          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+        }));
+        numbersOnly = '';
+      } else {
+        const { isValid, message } = isMobileValid(numbersOnly);
+        setValidationStates(prev => ({
+          ...prev,
+          mobile: isValid,
+          mobileMessage: message
+        }));
+      }
+      setOwnerData(prev => ({ ...prev, [name]: numbersOnly }));
+      return;
     } 
     else if (name === 'aadhar_number') {
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
@@ -200,13 +213,11 @@ function EditOwner() {
       ownerData.name?.trim() && 
       ownerData.mobile?.trim() && 
       ownerData.aadhar_number?.trim() &&
-      ownerData.email?.trim() &&
       ownerData.account_type &&
       ownerData.functionality_ids.length > 0 &&
       validationStates.name &&
       validationStates.mobile &&
-      validationStates.aadhar_number &&
-      validationStates.email
+      validationStates.aadhar_number
     );
   };
 
@@ -348,7 +359,10 @@ function EditOwner() {
                   value={ownerData.email}
                   onChange={handleChange}
                   placeholder="Enter email address"
-                  required
+                  className={`
+                    focus:border-brand-500 focus:ring-brand-500
+                    border-gray-300
+                  `}
                 />
                 {emailError && (
                   <p className="text-error-500 text-sm mt-1">{emailError}</p>
@@ -360,8 +374,11 @@ function EditOwner() {
                 name="dob"
                 value={ownerData.dob}
                 onChange={handleChange}
-                required
                 placeholder="Select date of birth"
+                className={`
+                  focus:border-brand-500 focus:ring-brand-500
+                  border-gray-300
+                `}
               />
 
               <div className="relative">

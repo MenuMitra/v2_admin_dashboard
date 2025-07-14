@@ -46,6 +46,9 @@ function EditMenu() {
   const [isSpecial, setIsSpecial] = useState(false);
   const [existingImages, setExistingImages] = useState([]);
 
+  // Add state for name error
+  const [nameError, setNameError] = useState('');
+
   // Ref for form submission from Save button
   const formRef = React.useRef();
 
@@ -462,9 +465,18 @@ function EditMenu() {
                 label="Menu Name"
                 required
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={e => {
+                  const value = e.target.value;
+                  if (!/^[A-Za-z\s]*$/.test(value)) {
+                    setNameError('Menu name should only contain alphabets and spaces');
+                  } else {
+                    setNameError('');
+                  }
+                  setName(value);
+                }}
                 placeholder="Enter menu name"
               />
+              { nameError && <p className="text-error-500 text-sm mt-1">{nameError}</p> }
               <SelectInput
                 label="Category"
                 required
@@ -554,8 +566,6 @@ function EditMenu() {
                       type="number"
                       value={portion.unit_value}
                       onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
-                      required={idx === 0}
-                      min="0"
                       label={idx === 0 ? "Unit Value" : ""}
                     />
                     <SelectInput
@@ -563,7 +573,6 @@ function EditMenu() {
                       onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
                       options={unitTypeOptions}
                       placeholder="Select Unit"
-                      required={idx === 0}
                       label={idx === 0 ? "Unit Type" : ""}
                     />
                   </div>

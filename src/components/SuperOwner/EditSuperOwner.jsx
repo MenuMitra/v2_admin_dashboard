@@ -28,6 +28,8 @@ function EditSuperOwner() {
   const [success, setSuccess] = useState('');
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlets, setSelectedOutlets] = useState([]);
+  // Add state for field errors
+  const [fieldErrors, setFieldErrors] = useState({});
 
   const fetchSuperOwnerDetails = async () => {
     try {
@@ -120,12 +122,79 @@ function EditSuperOwner() {
     });
   };
 
+  // Update handleChange for validation
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setSuperOwnerDetails(prev => ({
-      ...prev,
-      [name]: name === 'is_active' ? value === 'true' : value
-    }));
+    let error = '';
+    if (name === 'name') {
+      if (!/^[A-Za-z\s]*$/.test(value)) {
+        error = 'Name should only contain alphabets and spaces';
+      }
+    }
+    if (name === 'mobile') {
+      // Only allow numbers, max 10 digits
+      let numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+      // Prevent first digit from being 0-5
+      if (numbersOnly.length === 1 && !/[6-9]/.test(numbersOnly.charAt(0))) {
+        setFieldErrors(prev => ({
+          ...prev,
+          mobile: 'Mobile must start with 6, 7, 8, or 9 and only digits allowed'
+        }));
+        return; // Do not update state if first digit is 0-5
+      }
+      setSuperOwnerDetails(prev => ({ ...prev, [name]: numbersOnly }));
+      setFieldErrors(prev => ({ ...prev, mobile: '' }));
+      return;
+    }
+    if (name === 'email') {
+      if (value && !/^([a-zA-Z0-9._%+-]+)@gmail\.com$/.test(value)) {
+        error = 'Email must be a valid @gmail.com address';
+      }
+    }
+    if (name === 'aadhar_number') {
+      // Only allow numbers, max 12 digits
+      let numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+      if (value !== numbersOnly) {
+        setFieldErrors(prev => ({
+          ...prev,
+          aadhar_number: 'Aadhar number must contain only digits'
+        }));
+      } else {
+        setFieldErrors(prev => ({ ...prev, aadhar_number: '' }));
+      }
+      setSuperOwnerDetails(prev => ({ ...prev, [name]: numbersOnly }));
+      return;
+    }
+    setSuperOwnerDetails((prev) => ({ ...prev, [name]: value }));
+    setFieldErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
+  // Update validation before submit
+  const validate = () => {
+    const errors = {};
+    if (!superOwnerDetails.name.trim()) {
+      errors.name = 'Name is required';
+    } else if (!/^[A-Za-z\s]+$/.test(superOwnerDetails.name)) {
+      errors.name = 'Name should only contain alphabets and spaces';
+    }
+    if (!superOwnerDetails.mobile.trim()) {
+      errors.mobile = 'Mobile number is required';
+    } else if (!/^[6-9][0-9]{9}$/.test(superOwnerDetails.mobile)) {
+      errors.mobile = 'Mobile must be 10 digits, start with 6, 7, 8, or 9';
+    }
+    if (superOwnerDetails.email && !/^([a-zA-Z0-9._%+-]+)@gmail\.com$/.test(superOwnerDetails.email)) {
+      errors.email = 'Email must be a valid @gmail.com address';
+    }
+    if (!superOwnerDetails.aadhar_number.trim()) {
+      errors.aadhar_number = 'Aadhar number is required';
+    } else if (!/^[0-9]{12}$/.test(superOwnerDetails.aadhar_number)) {
+      errors.aadhar_number = 'Aadhar number must be 12 digits';
+    }
+    if (selectedOutlets.length === 0) {
+      errors.outlets = 'Please select at least one outlet';
+    }
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
@@ -136,8 +205,8 @@ function EditSuperOwner() {
       return;
     }
 
-    if (selectedOutlets.length === 0) {
-      setError('Please select at least one outlet');
+    if (!validate()) {
+      setError('Please fill in all required fields correctly.');
       return;
     }
 
@@ -260,7 +329,7 @@ function EditSuperOwner() {
                 {/* Basic Information Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">
                   <div>
-                    <label className="block text-sm text-gray-500 mb-1">Name</label>
+                    <label className="block text-sm text-gray-500 mb-1">Name <span className="text-error-600">*</span></label>
                     <input
                       type="text"
                       name="name"
@@ -269,19 +338,26 @@ function EditSuperOwner() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
+                    {fieldErrors.name && (
+                      <p className="text-error-500 text-sm mt-1">{fieldErrors.name}</p>
+                    )}
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-500 mb-1">Mobile</label>
+                    <label className="block text-sm text-gray-500 mb-1">Mobile <span className="text-error-600">*</span></label>
                     <input
                       type="tel"
                       name="mobile"
                       value={superOwnerDetails.mobile}
                       onChange={handleChange}
+                      maxLength={10}
                       pattern="[0-9]{10}"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
+                    {fieldErrors.mobile && (
+                      <p className="text-error-500 text-sm mt-1">{fieldErrors.mobile}</p>
+                    )}
                   </div>
 
                   <div>
@@ -292,21 +368,27 @@ function EditSuperOwner() {
                       value={superOwnerDetails.email}
                       onChange={handleChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
                     />
+                    {fieldErrors.email && (
+                      <p className="text-error-500 text-sm mt-1">{fieldErrors.email}</p>
+                    )}
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-500 mb-1">Aadhar Number</label>
+                    <label className="block text-sm text-gray-500 mb-1">Aadhar Number <span className="text-error-600">*</span></label>
                     <input
                       type="text"
                       name="aadhar_number"
                       value={superOwnerDetails.aadhar_number}
                       onChange={handleChange}
+                      maxLength={12}
                       pattern="[0-9]{12}"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
+                    {fieldErrors.aadhar_number && (
+                      <p className="text-error-500 text-sm mt-1">{fieldErrors.aadhar_number}</p>
+                    )}
                   </div>
 
                   <div>
