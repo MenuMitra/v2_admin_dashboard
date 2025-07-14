@@ -838,7 +838,7 @@ function DataTable({
                     key={column.field || idx}
                     className={`${
                       column.field === "selection" ? "px-2" : "px-6"
-                    } py-2.5 text-left ${
+                    } py-2.5 text-center ${
                       enableSort && column.sortable
                         ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                         : ""
@@ -902,7 +902,7 @@ function DataTable({
                         key={column.field || idx}
                         className={`${
                           column.field === "selection" ? "px-2" : "px-6"
-                        } py-2.5 text-left ${
+                        } py-2.5 text-center ${
                           // Add whitespace-nowrap and overflow handling for name column
                           column.field === "name" || column.field === "outlet_name" ? 
                           "whitespace-nowrap" : ""
