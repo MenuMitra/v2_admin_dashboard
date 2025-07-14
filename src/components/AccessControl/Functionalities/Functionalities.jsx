@@ -361,7 +361,7 @@ function Functionalities() {
               </p>
             </div>
 
-            <div className="flex justify-end items-center gap-3">
+            <div className="flex justify-between w-full items-center gap-3">
               <button
                 onClick={() => {
                   setShowEditModal(false);
