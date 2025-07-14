@@ -132,7 +132,7 @@ const ImageUploader = ({
       )}
 
       {/* New Drag & Drop Area */}
-      <div className="flex items-center justify-center w-full">
+      <div className="flex items-center justify-start w-full">
         <label
           htmlFor="dropzone-file"
           className={`
