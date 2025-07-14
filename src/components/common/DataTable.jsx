@@ -902,7 +902,11 @@ function DataTable({
                         key={column.field || idx}
                         className={`${
                           column.field === "selection" ? "px-2" : "px-6"
-                        } py-2.5 text-left`}
+                        } py-2.5 text-left ${
+                          // Add whitespace-nowrap and overflow handling for name column
+                          column.field === "name" || column.field === "outlet_name" ? 
+                          "whitespace-nowrap" : ""
+                        }`}
                       >
                         {column.render && column.field ? (
                           column.render(item[column.field], item)
@@ -914,6 +918,9 @@ function DataTable({
                           <p
                             className={`text-gray-500 text-theme-sm ${
                               darkMode ? "dark:text-gray-400" : ""
+                            } ${
+                              // Add overflow classes to the text element as well
+                              column.field === "name" || column.field === "outlet_name"
                             }`}
                           >
                             {item[column.field]}
