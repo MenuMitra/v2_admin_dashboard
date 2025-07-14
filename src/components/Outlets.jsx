@@ -365,20 +365,13 @@ function Outlets() {
       header: "Acc. Type",
       sortable: true,
       render: (value) => (
-        <>
-          <FontAwesomeIcon
-            icon={
-              value?.toLowerCase() === "live"
-                ? faCircleCheck
-                : faTriangleExclamation
-            }
-            className={`w-4 h-4 ${
-              value?.toLowerCase() === "live"
-                ? "text-success-500"
-                : "text-warning-500"
-            }`}
-          />
-        </>
+        <span className={`text-sm font-medium ${
+          value?.toLowerCase() === "live"
+            ? "text-success-500"
+            : "text-warning-500"
+        }`}>
+          {value?.toLowerCase() === "live" ? "Live" : "Test"}
+        </span>
       ),
     },
     {
