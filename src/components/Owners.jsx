@@ -426,14 +426,14 @@ function Owners() {
           setShowDeleteModal(false);
           setOwnerToDelete(null);
         }}
-        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
       >
         Cancel
       </button>
       <button
         type="button"
         onClick={handleDeleteOwner}
-        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
+        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
       >
         Delete Owner
       </button>
@@ -441,7 +441,7 @@ function Owners() {
   );
 
   // First define the button classes as constants
-  const buttonBaseClasses = "flex-1 flex justify-center rounded-lg px-4 py-3 text-theme-sm font-medium shadow-theme-xs sm:w-auto";
+  const buttonBaseClasses = "flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs sm:w-auto";
 
   const cancelButtonClasses = `${buttonBaseClasses} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200`;
 
@@ -449,7 +449,7 @@ function Owners() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify- min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
       </div>
     );
@@ -543,7 +543,7 @@ function Owners() {
           </div>
         }
       >
-        <div className="flex items-center justify-center">
+        <div className="flex items-start s">
           <div className="text-center">
             <p className="text-theme-sm text-gray-500 dark:text-gray-400">
               Are you sure ?
