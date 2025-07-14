@@ -361,7 +361,7 @@ function ViewOutlet() {
                 </div>
                 <div className="flex items-center gap-4 pr-4">
                   <Link
-                    to={`/menus/${outletId}`}
+                    to={`/chefs/${outletId}`}
                     className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
                   >
                     <div className="flex items-center ">
