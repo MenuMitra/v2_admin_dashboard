@@ -836,9 +836,9 @@ function DataTable({
                 {paddedColumns.map((column, idx) => (
                   <th
                     key={column.field || idx}
-                    className={`$${
+                    className={`${
                       column.field === "selection" ? "px-2" : "px-6"
-                    } py-2.5 text-center ${
+                    } py-2.5 text-left ${
                       enableSort && column.sortable
                         ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                         : ""
@@ -847,7 +847,7 @@ function DataTable({
                       column.sortable ? handleSort(column.field) : null
                     }
                   >
-                    <div className="flex items-center justify-center gap-1">
+                    <div className="flex items-center gap-1">
                       <p
                         className={`font-semibold text-gray-700 text-theme-xs ${
                           darkMode ? "dark:text-white/90" : ""
@@ -900,14 +900,16 @@ function DataTable({
                     {paddedColumns.map((column, idx) => (
                       <td
                         key={column.field || idx}
-                        className={`$${
+                        className={`${
                           column.field === "selection" ? "px-2" : "px-6"
-                        } py-2.5 text-center`}
+                        } py-2.5 text-left`}
                       >
                         {column.render && column.field ? (
                           column.render(item[column.field], item)
                         ) : column.field === statusField && column.field ? (
-                          renderStatus(item[column.field])
+                          <div className="flex items-center">
+                            {renderStatus(item[column.field])}
+                          </div>
                         ) : column.field ? (
                           <p
                             className={`text-gray-500 text-theme-sm ${
@@ -1060,6 +1062,7 @@ DataTable.propTypes = {
       field: PropTypes.string.isRequired,
       header: PropTypes.string.isRequired,
       sortable: PropTypes.bool,
+      textAlign: PropTypes.oneOf(['left', 'center', 'right']),  // New prop
       render: PropTypes.func,
     })
   ).isRequired,

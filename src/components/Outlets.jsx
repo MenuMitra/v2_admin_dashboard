@@ -328,7 +328,7 @@ function Outlets() {
       header: "Name",
       sortable: true,
       render: (value, row) => (
-        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90 text-left">
           {value}
         </p>
       ),
