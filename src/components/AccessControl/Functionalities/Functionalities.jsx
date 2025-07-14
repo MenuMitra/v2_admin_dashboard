@@ -342,8 +342,8 @@ function Functionalities() {
               <label 
                 htmlFor="functionalityName" 
                 className="block text-sm font-medium text-left text-gray-700 mb-2"
-              >
-                Functionality Name <span className="text-error-500">*</span>
+              > <span className="text-error-500">*</span>
+                Functionality Name
               </label>
               <input
                 type="text"
@@ -390,7 +390,6 @@ function Functionalities() {
                   </>
                 ) : (
                   <>
-                    <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                     <span>Update</span>
                   </>
                 )}
