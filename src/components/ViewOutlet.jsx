@@ -305,8 +305,9 @@ function ViewOutlet() {
             </button>
           </div>
 
-          {/* Stats and Navigation Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+<div className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200">
+{/* Stats and Navigation Cards */}
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
             {/* Categories and Menus Cards */}
             <Link
               to={`/categories/${outletId}`}
@@ -314,16 +315,7 @@ function ViewOutlet() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                    <FontAwesomeIcon
-                      icon={faListUl}
-                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                    />
-                  </div>
                   <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Manage
-                    </span>
                     <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
                       Categories
                     </span>
@@ -338,16 +330,7 @@ function ViewOutlet() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                    <FontAwesomeIcon
-                      icon={faUtensils}
-                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                    />
-                  </div>
                   <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Manage
-                    </span>
                     <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
                       Menus
                     </span>
@@ -356,6 +339,9 @@ function ViewOutlet() {
               </div>
             </Link>
           </div>
+
+</div>
+          
 
           {/* Staff Management Section */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
