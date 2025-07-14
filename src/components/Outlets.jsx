@@ -361,6 +361,39 @@ function Outlets() {
       ),
     },
     {
+      field: "total_order_count",
+      header: "Total Orders",
+      sortable: true,
+      textAlign: "center",
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
+      ),
+    },
+    {
+      field: "total_paid_count",
+      header: "Total Paid",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
+      ),
+    },
+    {
+      field: "total_cancel_count",
+      header: "Total Cancelled ",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
+      ),
+    },
+    {
+      field: "total_menu",
+      header: "Total Menus",
+      sortable: true,
+      render: (value) => (
+        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
+      ),
+    },
+    {
       field: "accountType",
       header: "Acc. Type",
       sortable: true,
@@ -406,39 +439,6 @@ function Outlets() {
             {value === 1 ? "Active" : "Inactive"}
           </span>
         </div>
-      ),
-    },
-    {
-      field: "total_order_count",
-      header: "Total Orders",
-      sortable: true,
-      textAlign: "center",
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
-      ),
-    },
-    {
-      field: "total_paid_count",
-      header: "Total Paid",
-      sortable: true,
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
-      ),
-    },
-    {
-      field: "total_cancel_count",
-      header: "Total Cancelled ",
-      sortable: true,
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
-      ),
-    },
-    {
-      field: "total_menu",
-      header: "Total Menus",
-      sortable: true,
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
       ),
     },
     {
