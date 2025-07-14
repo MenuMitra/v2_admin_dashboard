@@ -420,8 +420,8 @@ function EditOutlet() {
         image: outletData.image || '',
         subscription_id: outletData.subscription_id ? parseInt(outletData.subscription_id) : undefined,
         app_source: "admin_app",
-        "opening_time": outletData.opening_time,
-        "closing_time": outletData.closing_time,
+        "opening_time": formatTime(outletData.opening_time),
+        "closing_time": formatTime(outletData.closing_time),
       };
 
       const response = await axios.patch(

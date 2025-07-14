@@ -160,6 +160,26 @@ function EditAdmin() {
         }));
       }
     }
+    else if (name === 'name') {
+      // Only allow alphabets and spaces
+      const alphaOnly = value.replace(/[^A-Za-z ]/g, '');
+      if (value !== alphaOnly) {
+        setValidationStates(prev => ({
+          ...prev,
+          name: false,
+        }));
+      } else {
+        setValidationStates(prev => ({
+          ...prev,
+          name: true,
+        }));
+      }
+      setAdminDetails(prev => ({
+        ...prev,
+        [name]: alphaOnly
+      }));
+      return;
+    }
     else {
       setAdminDetails(prev => ({
         ...prev,
@@ -298,17 +318,24 @@ function EditAdmin() {
         <div className="p-6">
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <TextInput
-                label="Name"
-                name="name"
-                value={adminDetails.name}
-                onChange={handleChange}
-                placeholder="Enter admin name"
-                required
-                validationType="name"
-                onValidation={handleValidation("name")}
-                isSubmitAttempted={isSubmitAttempted}
-              />
+              <div className="relative">
+                <TextInput
+                  label="Name"
+                  name="name"
+                  value={adminDetails.name}
+                  onChange={handleChange}
+                  placeholder="Enter admin name"
+                  required
+                  validationType="name"
+                  onValidation={handleValidation("name")}
+                  isSubmitAttempted={isSubmitAttempted}
+                />
+                {!validationStates.name && (
+                  <p className="text-error-500 text-sm mt-1">
+                    Only alphabets and spaces are allowed in the name.
+                  </p>
+                )}
+              </div>
 
               <div className="relative">
                 <TextInput
