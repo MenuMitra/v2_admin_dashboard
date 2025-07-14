@@ -417,14 +417,6 @@ function Outlets() {
       ),
     },
     {
-      field: "total_cooking_count",
-      header: "Cooking",
-      sortable: true,
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
-      ),
-    },
-    {
       field: "total_paid_count",
       header: "Paid",
       sortable: true,
@@ -435,14 +427,6 @@ function Outlets() {
     {
       field: "total_cancel_count",
       header: "Cancelled ",
-      sortable: true,
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
-      ),
-    },
-    {
-      field: "total_placed_count",
-      header: "Placed",
       sortable: true,
       render: (value) => (
         <span className="text-gray-700 font-medium text-xs">{value ?? 0}</span>
