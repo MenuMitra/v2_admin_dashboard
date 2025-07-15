@@ -12,6 +12,8 @@ import { toastController } from "../../../../utils/toastController";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
+const nameRegex = /^[A-Za-z ]+$/;
+
 function EditWaiter() {
   const { outletId, userId } = useParams();
   const navigate = useNavigate();
@@ -170,7 +172,6 @@ function EditWaiter() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const nameRegex = /^[A-Za-z ]+$/;
     if (name === 'name') {
       if (!value.trim()) {
         setValidationStates(prev => ({ ...prev, name: false, nameMessage: 'Name is required' }));
