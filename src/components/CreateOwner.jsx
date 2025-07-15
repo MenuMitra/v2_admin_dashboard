@@ -50,7 +50,7 @@ function CreateOwner() {
 
   // Add Breadcrumb configuration
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Owners", path: "/owners" },
     { label: "Create Owner", path: "/create-owner" },
   ];

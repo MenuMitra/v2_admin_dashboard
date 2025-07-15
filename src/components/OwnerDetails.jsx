@@ -40,7 +40,7 @@ function OwnerDetails() {
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Owners", path: "/owners" },
     { label: "Owner Details", path: `/owner-details/${ownerId}` },
   ];

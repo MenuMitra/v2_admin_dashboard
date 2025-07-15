@@ -69,7 +69,7 @@ function Admins() {
 
   // Add this breadcrumb items configuration
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Admins", path: "/admins" },
   ];
 

@@ -83,7 +83,7 @@ function WaiterDetails() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: "Waiters", path: `/waiters/${outletId}` },

@@ -20,7 +20,7 @@ function ViewSubscription() {
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Subscriptions", path: "/subscriptions" },
     { label: "Subscription Details", path: `/view-subscription/${subscriptionId}` },
   ];

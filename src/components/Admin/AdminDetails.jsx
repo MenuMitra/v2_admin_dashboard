@@ -38,7 +38,7 @@ function AdminDetails() {
 
   // Breadcrumb configuration
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Admins", path: "/admins" },
     { label: "Admin Details", path: `/admin-details/${adminId}` },
   ];

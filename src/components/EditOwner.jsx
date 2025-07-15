@@ -48,7 +48,7 @@ function EditOwner() {
   const [emailError, setEmailError] = useState("");
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Owners", path: "/owners" },
     { label: "Edit Owner", path: `/edit-owner/${ownerId}` },
   ];

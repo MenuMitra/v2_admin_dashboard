@@ -208,7 +208,7 @@ function Outlets() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Outlets" },
   ];
 

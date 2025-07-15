@@ -85,7 +85,7 @@ function App() {
           {/* Protected routes with AppLayout */}
           <Route element={<PrivateRoute />}>
             {/* Dashboard Routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/home" element={<Dashboard />} />
 
             {/* Profile Routes */}
             <Route path="/profile" element={<Profile />} />

@@ -72,7 +72,7 @@ function CreateNotification() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Notifications", path: "/notifications" },
     { label: "Create Notification", path: "/create-notification" },
   ];

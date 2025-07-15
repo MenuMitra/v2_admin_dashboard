@@ -87,7 +87,7 @@ function ViewOutlet() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
     { label: outletData?.name || "View Outlet" },
   ];
