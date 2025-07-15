@@ -9,9 +9,6 @@ import {
   faPenToSquare,
   faTrash,
   faPlus,
-  faSort,
-  faSortUp,
-  faSortDown,
   faXmark,
   faCheck,
 } from "@fortawesome/free-solid-svg-icons";
@@ -30,17 +27,13 @@ function Outlets() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const [outletData, setOutletData] = useState([]);
-  const [error, setError] = useState(null);
+  // Removed error state; errors are now handled by toastController.error
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [filteredData, setFilteredData] = useState([]);
-  const itemsPerPage = 10;
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [outletToDelete, setOutletToDelete] = useState(null);
-  const [sortField, setSortField] = useState(null);
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [sortCount, setSortCount] = useState(0);
+  // Removed unused sortField, setSortField, sortOrder, setSortOrder, sortCount, setSortCount
   const [selectedOutlets, setSelectedOutlets] = useState([]);
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -88,7 +81,7 @@ function Outlets() {
   // Fetch outlets from API
   const fetchOutlets = async () => {
     try {
-      setError(null);
+      // setError removed; handled by toastController.error
 
       const response = await toastController.promise(
         axios.post(
@@ -117,7 +110,9 @@ function Outlets() {
         setFilteredData(transformedData);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch outlets");
+      const errorMsg = err.response?.data?.message || "Failed to fetch outlets";
+      // setError removed; handled by toastController.error
+      toastController.error(errorMsg);
       console.error("Error fetching outlets:", err);
     }
   };
@@ -163,35 +158,8 @@ function Outlets() {
   useEffect(() => {
     const filtered = getFilteredData();
     setFilteredData(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    // setCurrentPage(1); // Reset to first page when filters change
   }, [searchQuery, statusFilter, accountType, openCloseStatus, outletData]);
-
-  // Get current items
-  const getCurrentItems = () => {
-    const sortedData = getSortedOutlets();
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return sortedData.slice(startIndex, endIndex);
-  };
-
-  // Calculate total pages based on filtered data
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-  // Handle page change
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  // Update table headers
-  const tableHeaders = [
-    { label: "Outlet Name", key: "name" },
-    { label: "Outlet Code", key: "code" },
-    { label: "Mobile", key: "mobile" },
-    { label: "Account Type", key: "accountType" },
-    { label: "Open/Close", key: "isOpen" },
-    { label: "Status", key: "outletStatus" },
-    { label: "Actions", key: "actions" },
-  ];
 
   // Add this function to handle view button click
   const handleViewOutlet = (outletId) => {
@@ -244,69 +212,7 @@ function Outlets() {
     { label: "Outlets" },
   ];
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      if (sortCount === 0) {
-        setSortOrder("asc");
-        setSortCount(1);
-      } else if (sortCount === 1) {
-        setSortOrder("desc");
-        setSortCount(2);
-      } else {
-        setSortField(null);
-        setSortOrder("asc");
-        setSortCount(0);
-      }
-    } else {
-      setSortField(field);
-      setSortOrder("asc");
-      setSortCount(1);
-    }
-  };
-
-  const renderSortIcon = (field) => {
-    if (sortField !== field) {
-      return (
-        <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 w-4 h-4" />
-      );
-    }
-    return sortOrder === "asc" ? (
-      <FontAwesomeIcon
-        icon={faSortUp}
-        className="ml-1 text-brand-500 w-4 h-4"
-      />
-    ) : (
-      <FontAwesomeIcon
-        icon={faSortDown}
-        className="ml-1 text-brand-500 w-4 h-4"
-      />
-    );
-  };
-
-  const getSortedOutlets = () => {
-    let sorted = [...filteredData];
-
-    if (!sortField) return sorted;
-
-    return sorted.sort((a, b) => {
-      let aValue = a[sortField] || "";
-      let bValue = b[sortField] || "";
-
-      if (sortField === "outletStatus" || sortField === "isOpen") {
-        aValue = parseInt(aValue) || 0;
-        bValue = parseInt(bValue) || 0;
-      } else {
-        aValue = String(aValue).toLowerCase();
-        bValue = String(bValue).toLowerCase();
-      }
-
-      if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-  };
+  // Removed unused getSortedOutlets
 
   // Define columns for DataTable
   const columns = [
@@ -475,7 +381,9 @@ function Outlets() {
       // Store selected IDs for use after confirmation
       setSelectedOutlets(selectedIds.filter((id) => id !== null));
     } catch (err) {
-      setError(err.response?.data?.detail || `Failed to ${action} outlets`);
+      const errorMsg = err.response?.data?.detail || `Failed to ${action} outlets`;
+      // setError removed; handled by toastController.error
+      toastController.error(errorMsg);
       console.error("Error performing bulk action:", err);
     }
   };
@@ -553,20 +461,17 @@ function Outlets() {
         await fetchOutlets();
       }
     } catch (err) {
-      setError(err.response?.data?.detail || `Failed to ${action} outlets`);
+      const errorMsg = err.response?.data?.detail || `Failed to ${action} outlets`;
+      // setError removed; handled by toastController.error
+      toastController.error(errorMsg);
       console.error("Error performing bulk action:", err);
-      toastController.error(`Failed to ${action} outlets: ${err.message}`);
     }
   };
 
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-      {error && (
-        <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
-          {error}
-        </div>
-      )}
+     
       <DataTable
         data={filteredData}
         columns={columns}
@@ -579,7 +484,7 @@ function Outlets() {
         searchTerm={searchQuery}
         onSearchChange={(value) => {
           setSearchQuery(value);
-          setCurrentPage(1); // Reset page when search changes
+          // setCurrentPage(1); // Reset page when search changes
         }}
         createButton={{
           show: true,
@@ -606,7 +511,7 @@ function Outlets() {
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
-          setCurrentPage(1); // Reset page when status filter changes
+          // setCurrentPage(1); // Reset page when status filter changes
         }}
         enableAccountTypeFilter={true}
         enableOpenCloseStatusFilter={true}
@@ -631,9 +536,52 @@ function Outlets() {
         }
       />
 
-      {/* Add Modal component for confirmations */}
-      <Modal
-        isOpen={confirmModal.isOpen}
+      {/* Modal for active/inactive actions only */}
+      {confirmModal.isOpen && confirmModal.action !== 'delete' && (
+        <Modal
+          isOpen={confirmModal.isOpen}
+          onClose={() =>
+            setConfirmModal({
+              isOpen: false,
+              action: null,
+              title: "",
+              message: "",
+            })
+          }
+          title={confirmModal.title}
+          type="warning"
+          size="small"
+        >
+          <p className="mb-6">{confirmModal.message}</p>
+          <div className="flex justify-between items-center w-full gap-3">
+            <button
+              onClick={() =>
+                setConfirmModal({
+                  isOpen: false,
+                  action: null,
+                  title: "",
+                  message: "",
+                })
+              }
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
+            >
+              <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+              Cancel
+            </button>
+            <button
+              onClick={() => executeBulkAction(confirmModal.action)}
+              className="px-4 py-2 text-sm font-medium text-white rounded-full transition bg-warning-500 hover:bg-warning-600"
+            >
+              <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
+              Confirm
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* DeleteConfirmModal for bulk delete only */}
+      <DeleteConfirmModal
+        isOpen={confirmModal.isOpen && confirmModal.action === 'delete'}
         onClose={() =>
           setConfirmModal({
             isOpen: false,
@@ -642,39 +590,8 @@ function Outlets() {
             message: "",
           })
         }
-        title={confirmModal.title}
-        type={confirmModal.action === "delete" ? "error" : "warning"}
-        size="small"
-      >
-        <p className="mb-6">{confirmModal.message}</p>
-        <div className="flex justify-between items-center w-full gap-3">
-          <button
-            onClick={() =>
-              setConfirmModal({
-                isOpen: false,
-                action: null,
-                title: "",
-                message: "",
-              })
-            }
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
-          >
-            <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
-            Cancel
-          </button>
-          <button
-            onClick={() => executeBulkAction(confirmModal.action)}
-            className={`px-4 py-2 text-sm font-medium text-white rounded-full transition ${
-              confirmModal.action === "delete"
-                ? "bg-error-500 hover:bg-error-600"
-                : "bg-warning-500 hover:bg-warning-600"
-            }`}
-          >
-            <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
-            Confirm
-          </button>
-        </div>
-      </Modal>
+        onDelete={() => executeBulkAction('delete')}
+      />
 
       {/* Delete Modal using DeleteConfirmModal */}
       <DeleteConfirmModal
