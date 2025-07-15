@@ -39,7 +39,7 @@ const DeleteConfirmModal = ({
       }
     >
       <div className="flex items-start">
-        <div className="text-center w-full">
+        <div className="text-left w-full">
           <p className="text-theme-sm text-gray-500 dark:text-gray-400">
             {message}
           </p>

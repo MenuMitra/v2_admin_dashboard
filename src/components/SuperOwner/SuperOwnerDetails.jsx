@@ -3,7 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 import Breadcrumb from '../Breadcrumb';
-import Modal from '../common/Modal';
+import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import { useAdmin } from '../../hooks/useAdmin';
@@ -13,7 +13,6 @@ function SuperOwnerDetails() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const { 
     superOwnerData, 
     assignedOutlets, 
@@ -21,13 +20,6 @@ function SuperOwnerDetails() {
     totalOutlets,
     totalFunctionalities 
   } = location.state || {};
-
-  // Add counts object for DataTable header
-  const counts = {
-    total: 1,  // Since we're viewing a single super owner
-    active: superOwnerData?.is_active ? 1 : 0,
-    inactive: superOwnerData?.is_active ? 0 : 1
-  };
 
   // Add breadcrumb items
   const breadcrumbItems = [
@@ -52,7 +44,6 @@ function SuperOwnerDetails() {
   };
 
   const handleDelete = async () => {
-    setIsDeleting(true);
     try {
       const token = getToken();
       if (!token) {
@@ -80,45 +71,8 @@ function SuperOwnerDetails() {
     } catch (error) {
       console.error('Error deleting super owner:', error);
       alert('Failed to delete super owner');
-    } finally {
-      setIsDeleting(false);
     }
   };
-
-  // Add action buttons for Modal
-  const deleteModalButtons = (
-    <>
-      <button
-        onClick={() => setIsModalOpen(false)}
-        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-        disabled={isDeleting}
-      >
-        Cancel
-      </button>
-      <button
-        onClick={handleDelete}
-        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600 disabled:opacity-50"
-        disabled={isDeleting}
-      >
-        {isDeleting ? (
-          <>
-            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Deleting...</span>
-          </>
-        ) : (
-          <>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-            </svg>
-            <span>Delete</span>
-          </>
-        )}
-      </button>
-    </>
-  );
 
   return (
     <>
@@ -266,19 +220,14 @@ function SuperOwnerDetails() {
         </div>
       </div>
 
-      {/* Replace custom modal with Modal component */}
-      <Modal
+      {/* Use reusable DeleteConfirmModal */}
+      <DeleteConfirmModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onDelete={handleDelete}
         title="Confirm Delete"
-        type="error"
-        size="small"
-        actionButtons={deleteModalButtons}
-      >
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Are you sure you want to delete this super owner? This action cannot be undone.
-        </p>
-      </Modal>
+        message="Are you sure you ?."
+      />
     </>
   );
 }
