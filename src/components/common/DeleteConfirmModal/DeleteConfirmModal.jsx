@@ -1,6 +1,10 @@
 import React from 'react';
 import Modal from '../Modal';
 
+const buttonBaseClasses = "flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs sm:w-auto";
+const cancelButtonClasses = `${buttonBaseClasses} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200`;
+const deleteButtonClasses = `${buttonBaseClasses} text-white bg-error-500 hover:bg-error-600`;
+
 const DeleteConfirmModal = ({ 
   isOpen, 
   onClose, 
@@ -16,18 +20,18 @@ const DeleteConfirmModal = ({
       title={title}
       size="small"
       actionButtons={
-        <div className="flex justify-between w-full">
+        <div className="flex justify-between w-full gap-4">
           <button
             type="button"
             onClick={onClose}
-            className="flex justify-center rounded-full border border-gray-300 bg-white px-4 py-3 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
+            className={cancelButtonClasses}
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={onDelete}
-            className="flex justify-center px-4 py-3 text-theme-sm font-medium text-white rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
+            className={deleteButtonClasses}
           >
             Delete
           </button>
@@ -35,9 +39,11 @@ const DeleteConfirmModal = ({
       }
     >
       <div className="flex items-start">
-        <p className="text-theme-sm text-gray-500 dark:text-gray-400">
-          {message}
-        </p>
+        <div className="text-center w-full">
+          <p className="text-theme-sm text-gray-500 dark:text-gray-400">
+            {message}
+          </p>
+        </div>
       </div>
     </Modal>
   );
