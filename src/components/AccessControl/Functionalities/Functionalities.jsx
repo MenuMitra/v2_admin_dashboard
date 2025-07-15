@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
@@ -8,10 +7,10 @@ import DataTable from '../../common/DataTable';
 import Modal from '../../common/Modal';
 import Breadcrumb from '../../Breadcrumb';
 import { API_CONFIG } from "../../../config/appConfig";
+import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 
 function Functionalities() {
   const { getToken } = useAuth();
-  const navigate = useNavigate();
   const [functionalities, setFunctionalities] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,7 +23,6 @@ function Functionalities() {
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingFunctionality, setDeletingFunctionality] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -134,7 +132,6 @@ function Functionalities() {
 
   const handleDeleteFunctionality = async () => {
     try {
-      setIsDeleting(true);
       setError(null);
 
       const token = getToken();
@@ -160,7 +157,7 @@ function Functionalities() {
       setError(err.response?.data?.detail || 'Failed to delete functionality');
       console.error('Error deleting functionality:', err);
     } finally {
-      setIsDeleting(false);
+      // No loading state needed
     }
   };
 
@@ -399,64 +396,15 @@ function Functionalities() {
         </Modal>
       )}
 
-      {showDeleteModal && (
-        <Modal
-          isOpen={showDeleteModal}
-          onClose={() => {
-            setShowDeleteModal(false);
-            setDeletingFunctionality(null);
-            setError(null);
-          }}
-          title="Delete"
-          size="small"
-          type="error"
-        >
-          <div className="text-left">
-            {error && (
-              <div className="mb-4 p-3 text-sm text-red-500 bg-red-50 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            <div className="mb-6">
-              <p className="text-sm text-gray-500 text-left">
-                Are you sure you want to delete the functionality "{deletingFunctionality?.functionality_name.replace(/_/g, ' ')}"? This action cannot be undone.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end gap-3">
-            <button
-              onClick={() => {
-                setShowDeleteModal(false);
-                setDeletingFunctionality(null);
-                setError(null);
-              }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              disabled={isDeleting}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDeleteFunctionality}
-              disabled={isDeleting}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 disabled:opacity-50"
-            >
-              {isDeleting ? (
-                <>
-                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  <span>Deleting...</span>
-                </>
-              ) : (
-                'Delete'
-              )}
-            </button>
-          </div>
-        </Modal>
-      )}
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setDeletingFunctionality(null);
+          setError(null);
+        }}
+        onDelete={handleDeleteFunctionality}
+      />
     </>
   );
 }
