@@ -15,7 +15,6 @@ import {
   faLocationDot,
   faUserTag,
   faUserCheck,
-  faUserTie,
   faCalendarPlus,
   faCalendarCheck,
   faCircleCheck,
@@ -23,7 +22,7 @@ import {
   faStore,
   faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
-import Modal from "./common/Modal";
+import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import Breadcrumb from "./Breadcrumb";
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
@@ -499,43 +498,11 @@ function OwnerDetails() {
           </div>
         </div>
 
-        <Modal
+        <DeleteConfirmModal
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
-          type="error"
-          title="Confirm Deletion"
-          size="small"
-          actionButtons={
-            <>
-              <button
-                type="button"
-                onClick={() => setShowDeleteModal(false)}
-                className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteOwner}
-                className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
-              >
-                Delete Owner
-              </button>
-            </>
-          }
-        >
-          <div className="flex items-start">
-            <div className="ml-4">
-              <p className="text-sm text-gray-500">
-                Are you sure you want to delete this owner? This action cannot be
-                undone.
-              </p>
-              <p className="text-sm text-gray-500">
-                All data associated with this owner will be permanently removed.
-              </p>
-            </div>
-          </div>
-        </Modal>
+          onDelete={handleDeleteOwner}
+        />
       </div>
     </>
   );
