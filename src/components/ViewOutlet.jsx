@@ -4,24 +4,19 @@ import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faUtensils,
-  faUserGear,
   faChevronLeft,
   faEdit,
   faTrash,
-  faListUl,
-  faUserPen,
-  faUsers,
   faUpload,
   faInfoCircle,
   faDownload,
   faSpinner,
   faLink,
-  faBowlFood,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
-import Modal from "./common/Modal";
+import DeleteConfirmModal from './common/DeleteConfirmModal/DeleteConfirmModal';
+import Modal from './common/Modal';
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 
@@ -40,7 +35,6 @@ function ViewOutlet() {
   const { outletId } = useParams();
   const [outletData, setOutletData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
@@ -52,7 +46,6 @@ function ViewOutlet() {
   const fetchOutletDetails = async () => {
     try {
       setLoading(true);
-      setError(null);
 
       const response = await toastController.promise(
         axios.post(
@@ -80,7 +73,6 @@ function ViewOutlet() {
         setOutletData(response.data.data);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch outlet details");
       console.error("Error fetching outlet details:", err);
     } finally {
       setLoading(false);
@@ -133,7 +125,6 @@ function ViewOutlet() {
       setShowDeleteModal(false);
       navigate("/outlets");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to delete outlet");
       console.error("Error deleting outlet:", err);
     } finally {
       setLoading(false);
@@ -360,7 +351,7 @@ function ViewOutlet() {
               <div className="flex items-center gap-3">
                 <div>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {outletData?.owners?.map((owner, index) => (
+                    {outletData?.owners?.map((owner) => (
                       <div
                         key={owner.owner_id}
                         onClick={() => handleOwnerClick(owner.owner_id)}
@@ -952,35 +943,13 @@ function ViewOutlet() {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        title="Delete Outlet"
-        type="error"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              onClick={() => setShowDeleteModal(false)}
-              className="inline-flex items-center gap-2 rounded-full bg-gray-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={confirmDelete}
-              className="inline-flex items-center gap-2 rounded-full bg-error-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-error-600"
-            >
-              Delete
-            </button>
-          </>
-        }
-      >
-        <p>
-          Are you sure you want to delete this outlet? This action cannot be
-          undone.
-        </p>
-      </Modal>
+        onDelete={confirmDelete}
+        title="Confirm Delete"
+        message="Are you sure ?"
+      />
 
       {/* Bulk Upload Modal */}
       <Modal
