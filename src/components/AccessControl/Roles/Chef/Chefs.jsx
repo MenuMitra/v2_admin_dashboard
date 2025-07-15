@@ -9,13 +9,12 @@ import {
   faEye,
   faPenToSquare,
   faTrash,
-  faExclamationTriangle,
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
-import Modal from '../../../common/Modal';
+import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
 import { API_CONFIG } from "../../../../config/appConfig";
 
@@ -64,7 +63,7 @@ function Chefs() {
       }
       
       setIsLoading(false);
-    } catch (error) {
+    } catch {
       toastController.error("outlet has no chef");
       setIsLoading(false);
     }
@@ -298,46 +297,14 @@ function Chefs() {
         onStatusFilterChange={setStatusFilter}
       />
 
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setChefToDelete(null);
         }}
-        title="Confirm Deletion"
-        type="error"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              onClick={() => {
-                setShowDeleteModal(false);
-                setChefToDelete(null);
-              }}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDeleteChef}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
-            >
-              Delete Chef
-            </button>
-          </>
-        }
-      >
-        <div className="flex flex-col items-center space-y-4">
-          <FontAwesomeIcon
-            icon={faExclamationTriangle}
-            className="h-8 w-8 text-error-500"
-          />
-          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
-            Are you sure you want to delete this chef? <br/>
-            This action cannot be undone.
-          </p>
-        </div>
-      </Modal>
+        onDelete={handleDeleteChef}
+      />
     </>
   );
 }
