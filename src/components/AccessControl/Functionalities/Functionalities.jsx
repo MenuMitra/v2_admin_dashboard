@@ -293,31 +293,35 @@ function Functionalities() {
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3">
-            <button
-              onClick={() => {
-                setShowCreateModal(false);
-                setNewFunctionalityName('');
-                setError(null);
-              }}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              disabled={isCreating}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleCreateFunctionality}
-              disabled={isCreating || !newFunctionalityName.trim()}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-success-500 shadow-theme-xs hover:bg-success-600 disabled:opacity-50"
-            >
-              {isCreating ? (
-                <>
-                  <span>Creating...</span>
-                </>
-              ) : (
-                'Create'
-              )}
-            </button>
+          <div className="flex justify-between items-center">
+            <div>
+              <button
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setNewFunctionalityName('');
+                  setError(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                disabled={isCreating}
+              >
+                Cancel
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={handleCreateFunctionality}
+                disabled={isCreating || !newFunctionalityName.trim()}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-success-500 shadow-theme-xs hover:bg-success-600 disabled:opacity-50"
+              >
+                {isCreating ? (
+                  <>
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  'Create'
+                )}
+              </button>
+            </div>
           </div>
         </Modal>
       )}
