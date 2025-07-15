@@ -21,7 +21,7 @@ import {
   faEgg,
   faSeedling,
 } from '@fortawesome/free-solid-svg-icons';
-import Modal from '../../common/Modal';
+import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import Breadcrumb from '../../Breadcrumb';
 
 function MenuDetails() {
@@ -391,33 +391,11 @@ function MenuDetails() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        type="error"
-        title="Confirm Deletion"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              onClick={() => setShowDeleteModal(false)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 rounded-lg border border-gray-300 bg-white hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDeleteMenu}
-              className="px-4 py-2 text-sm font-medium text-white rounded-lg bg-error-500 hover:bg-error-600"
-            >
-              Delete Menu
-            </button>
-          </>
-        }
-      >
-        <p className="text-sm text-gray-500">
-          Are you sure you want to delete {menu.name}? This action cannot be undone.
-        </p>
-      </Modal>
+        onDelete={handleDeleteMenu}
+      />
     </div>
   );
 }
