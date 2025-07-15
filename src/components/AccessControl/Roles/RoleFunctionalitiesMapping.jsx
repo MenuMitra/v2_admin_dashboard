@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
+import { useAdmin } from '../../../hooks/useAdmin';
 import { API_CONFIG } from '../../../config/appConfig';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faChevronLeft as faBack, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faChevronLeft as faBack, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../../Breadcrumb';
 import Modal from '../../common/Modal';
+import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 
 function RoleFunctionalitiesMapping() {
   const { roleId } = useParams();
@@ -22,6 +24,8 @@ function RoleFunctionalitiesMapping() {
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { adminData } = useAdmin();
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
@@ -151,6 +155,35 @@ function RoleFunctionalitiesMapping() {
     });
   };
 
+  const handleDeleteRoleMapping = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+      await axios.post(
+        `${BASE_URL}/${API_VERSION}/admin/delete_ubac_role`,
+        {
+          role_id: parseInt(roleId),
+          user_id: adminData.user_id,
+          app_source: 'admin_app',
+        },
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      setIsDeleteModalOpen(false);
+      navigate('/roles');
+    } catch (err) {
+      console.error('Error deleting role:', err);
+    } finally {
+      // No loading state needed
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -201,6 +234,13 @@ function RoleFunctionalitiesMapping() {
               >
                 <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                 <span className="hidden sm:inline">Assign</span>
+              </button>
+              <button
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+              >
+                <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                <span className="hidden sm:inline">Delete</span>
               </button>
             </div>
           </div>
@@ -349,6 +389,12 @@ function RoleFunctionalitiesMapping() {
           </div>
         </Modal>
       )}
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onDelete={handleDeleteRoleMapping}
+      />
     </div>
   );
 }
