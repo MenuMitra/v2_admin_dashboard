@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import brand02 from "../assets/images/brand/brand-02.svg";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
@@ -9,18 +8,12 @@ import {
   faEye,
   faPenToSquare,
   faTrash,
-  faChevronLeft,
-  faChevronRight,
   faPlus,
-  faSearch,
   faSort,
   faSortUp,
   faSortDown,
   faXmark,
   faCheck,
-  faCircleCheck,
-  faCircleXmark,
-  faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -28,6 +21,7 @@ import DataTable from "./common/DataTable";
 import Modal from "./common/Modal";
 import { API_CONFIG} from "../config/appConfig";
 import { toastController } from "../utils/toastController";
+import DeleteConfirmModal from './common/DeleteConfirmModal/DeleteConfirmModal';
 
 
 
@@ -36,7 +30,6 @@ function Outlets() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const [outletData, setOutletData] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,7 +88,6 @@ function Outlets() {
   // Fetch outlets from API
   const fetchOutlets = async () => {
     try {
-      setLoading(true);
       setError(null);
 
       const response = await toastController.promise(
@@ -127,8 +119,6 @@ function Outlets() {
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch outlets");
       console.error("Error fetching outlets:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -219,7 +209,6 @@ function Outlets() {
 
   const handleDeleteOutlet = async () => {
     try {
-      setLoading(true);
       const response = await toastController.promise(
         axios.delete(
           `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
@@ -247,8 +236,6 @@ function Outlets() {
       }
     } catch (err) {
       console.error("Error deleting outlet:", err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -689,48 +676,17 @@ function Outlets() {
         </div>
       </Modal>
 
-      {/* Delete Modal - Keep existing implementation */}
-      <Modal
+      {/* Delete Modal using DeleteConfirmModal */}
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setOutletToDelete(null);
         }}
+        onDelete={handleDeleteOutlet}
         title="Confirm Delete"
-        type="error"
-        size="small"
-        customIcon={
-          <FontAwesomeIcon icon={faTrash} className="h-6 w-6 text-error-500" />
-        }
-        actionButtons={
-          <>
-            <button
-              type="button"
-              onClick={() => {
-                setShowDeleteModal(false);
-                setOutletToDelete(null);
-              }}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleDeleteOutlet}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
-            >
-              Delete
-            </button>
-          </>
-        }
-      >
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Are you sure you want to delete outlet "{outletToDelete?.name}"? This
-          action cannot be undone.
-          <br />
-          All data associated with this outlet will be permanently removed.
-        </p>
-      </Modal>
+        message={"Are you sure ?"}
+      />
     </>
   );
 }
