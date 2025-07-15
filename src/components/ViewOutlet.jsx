@@ -250,7 +250,7 @@ function ViewOutlet() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleEdit}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 hover:bg-warning-600 shadow-theme-xs"
               >
                 <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit</span>
