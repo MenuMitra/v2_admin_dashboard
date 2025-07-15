@@ -193,7 +193,7 @@ const Search = () => {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Search' }
   ];
 

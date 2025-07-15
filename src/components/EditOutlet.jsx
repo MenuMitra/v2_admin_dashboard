@@ -267,7 +267,7 @@ function EditOutlet() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: 'Edit Outlet' }
   ];

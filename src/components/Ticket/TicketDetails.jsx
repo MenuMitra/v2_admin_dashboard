@@ -160,7 +160,7 @@ function TicketDetails() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Tickets', path: '/tickets' },
     { label: `Ticket Details` }
   ];

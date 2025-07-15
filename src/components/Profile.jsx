@@ -11,7 +11,7 @@ function Profile() {
 
   // Add breadcrumb items configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Profile' }
   ];
 

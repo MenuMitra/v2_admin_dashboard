@@ -268,7 +268,7 @@ function EditPartner() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Partners', path: '/partners' },
     { label: 'Edit Partner' }
   ];

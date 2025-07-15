@@ -65,7 +65,7 @@ function CreateCategory() {
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: 'Dashboard', path: '/' },
+          { label: 'Home', path: '/home' },
           { label: 'Outlets', path: '/outlets' },
           { label: 'Categories', path: `/outlets/${outletId}/categories` },
           { label: 'Create Category' }

@@ -98,7 +98,7 @@ function CreateOutlet() {
   });
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: 'Create Outlet' }
   ];

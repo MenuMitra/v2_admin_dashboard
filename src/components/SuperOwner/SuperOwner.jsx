@@ -173,7 +173,7 @@ function SuperOwner() {
   // handleBulkAction can be left as is if used by DataTable, but confirmModal logic is removed
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Super Owners', path: '/super-owners' }
   ];
 

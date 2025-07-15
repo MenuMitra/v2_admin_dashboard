@@ -23,7 +23,7 @@ function SuperOwnerDetails() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Super Owners', path: '/super-owners' },
     { label: 'Details' }
   ];
