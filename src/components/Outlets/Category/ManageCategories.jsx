@@ -5,20 +5,16 @@ import { useAdmin } from '../../../hooks/useAdmin';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faListUl,
-  faChevronRight,
   faPlus,
-  faUtensils,
   faEye,
   faPenToSquare,
   faTrash,
-  faArrowLeft,
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from '../../Breadcrumb';
 import DataTable from "../../common/DataTable";
-import Modal from '../../common/Modal';
+import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import CreateCategory from './CreateCategory';
 
 function ManageCategories() {
@@ -29,8 +25,6 @@ function ManageCategories() {
   const [categoryLoading, setCategoryLoading] = useState(false);
   const [categoryError, setCategoryError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [outletInfo, setOutletInfo] = useState(null);
@@ -44,8 +38,6 @@ function ManageCategories() {
 
   const handleDeleteCategory = async () => {
     if (!categoryToDelete) return;
-    setDeleting(true);
-    setDeleteError('');
     try {
       const token = getToken();
       await axios.delete('https://men4u.xyz/v2/common/menu_category_delete', {
@@ -64,9 +56,9 @@ function ManageCategories() {
       setCategoryToDelete(null);
       fetchCategoryDetails();
     } catch (err) {
-      setDeleteError(err.response?.data?.detail || "Failed to delete category");
+      setCategoryError(err.response?.data?.detail || "Failed to delete category");
     } finally {
-      setDeleting(false);
+      // No loading state needed
     }
   };
 
@@ -199,7 +191,6 @@ function ManageCategories() {
               onDelete={row => {
                 setCategoryToDelete(row);
                 setShowDeleteModal(true);
-                setDeleteError('');
               }}
               noDataMessage="No categories found. Create your first category to get started."
               onCreateCategory={() => navigate(`/create-category/${outletId}`)}
@@ -214,51 +205,14 @@ function ManageCategories() {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setCategoryToDelete(null);
         }}
-        type="error"
-        title="Confirm Deletion"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              type="button"
-              onClick={() => {
-                setShowDeleteModal(false);
-                setCategoryToDelete(null);
-              }}
-              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover hover:text-gray-800 sm:w-auto"
-              disabled={deleting}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleDeleteCategory}
-              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
-              disabled={deleting}
-            >
-              {deleting ? "Deleting..." : "Delete Category"}
-            </button>
-          </>
-        }
-      >
-        <div className="flex items-start">
-          <div className="ml-4">
-            <p className="text-sm text-gray-500">
-              Are you sure you want to delete this category? This action cannot be undone.
-            </p>
-            {deleteError && (
-              <p className="text-sm text-error-500 mt-2">{deleteError}</p>
-            )}
-          </div>
-        </div>
-      </Modal>
+        onDelete={handleDeleteCategory}
+      />
     </>
   );
 }
@@ -306,9 +260,8 @@ function MenuCategoryTable({
       field: 'category_name',
       header: 'Name',
       sortable: true,
-      render: (value, row) => (
+      render: (value) => (
         <div className="flex items-center justify-center gap-3">
-          
           <span className="font-medium text-gray-800 dark:text-white/90">
             {value}
           </span>
