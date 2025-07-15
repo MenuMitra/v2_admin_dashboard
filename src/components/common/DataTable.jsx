@@ -796,7 +796,7 @@ function DataTable({
                         onBlur={() =>
                           setTimeout(() => setIsActionDropdownOpen(false), 200)
                         }
-                        className="inline-flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-600 "
+                        className="inline-flex items-center gap-2 rounded-lg border border-gray-200  px-3 py-1.5 text-sm font-medium  hover:bg-brand-600 hover:text-white outline outline-offset-2"
                       >
                         {/* Actions */}
                         {/* <svg
