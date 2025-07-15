@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useAdmin } from '../../hooks/useAdmin';
-import { useAuth } from '../../hooks/useAuth';
-import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAdmin } from "../../hooks/useAdmin";
+import { useAuth } from "../../hooks/useAuth";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSave,
+  faChevronLeft as faBack,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
   DateInput,
   Textarea,
   SelectInput,
   Checkbox,
-  labelStyles
-} from '../forms/FormElements.jsx';
-import Breadcrumb from '../Breadcrumb';
+  labelStyles,
+} from "../forms/FormElements.jsx";
+import Breadcrumb from "../Breadcrumb";
 import {
   isNameValid,
   isEmailValid,
   isMobileValid,
   isDobValid,
   isAadharValid,
-  isAddressValid
-} from '../../utils/validations';
+  isAddressValid,
+} from "../../utils/validations";
 
 function EditPartner() {
   const navigate = useNavigate();
@@ -35,14 +38,14 @@ function EditPartner() {
   const [validationErrors, setValidationErrors] = useState({});
 
   const [partnerDetails, setPartnerDetails] = useState({
-    name: '',
-    email: '',
-    mobile: '',
-    dob: '',
-    aadhar_number: '',
-    address: '',
+    name: "",
+    email: "",
+    mobile: "",
+    dob: "",
+    aadhar_number: "",
+    address: "",
     is_active: 0,
-    functionality_ids: []
+    functionality_ids: [],
   });
 
   useEffect(() => {
@@ -59,23 +62,23 @@ function EditPartner() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
-        'https://men4u.xyz/v2/admin/get_ubac_functionalities',
+        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       setFunctionalities(response.data);
     } catch (err) {
-      console.error('Error fetching functionalities:', err);
-      setError('Failed to load functionalities');
+      console.error("Error fetching functionalities:", err);
+      setError("Failed to load functionalities");
     }
   };
 
@@ -84,24 +87,26 @@ function EditPartner() {
       setIsLoading(true);
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/view_partner',
+        "https://men4u.xyz/v2/admin/view_partner",
         {
           partner_id: Number(partnerId),
-          user_id: adminData.user_id
+          user_id: adminData.user_id,
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
-      const funcIds = response.data.functionalities.map(f => f.functionality_id);
+      const funcIds = response.data.functionalities.map(
+        (f) => f.functionality_id
+      );
       setSelectedFunctionalities(funcIds);
 
       setPartnerDetails({
@@ -112,70 +117,70 @@ function EditPartner() {
         aadhar_number: response.data.aadhar_number,
         address: response.data.address,
         is_active: response.data.is_active,
-        functionality_ids: funcIds
+        functionality_ids: funcIds,
       });
       setIsLoading(false);
     } catch (err) {
-      setError('Failed to fetch partner details');
-      console.error('Error fetching partner details:', err);
+      setError("Failed to fetch partner details");
+      console.error("Error fetching partner details:", err);
       setIsLoading(false);
     }
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     // Special handling for mobile number
-    if (name === 'mobile') {
+    if (name === "mobile") {
       // Only allow digits
-      const onlyDigits = value.replace(/\D/g, '');
-      
+      const onlyDigits = value.replace(/\D/g, "");
+
       // Check if number starts with 0-5
       if (onlyDigits.length > 0 && /^[0-5]/.test(onlyDigits)) {
         // Clear the field and show error
-        setPartnerDetails(prev => ({
+        setPartnerDetails((prev) => ({
           ...prev,
-          [name]: ''
+          [name]: "",
         }));
-        setValidationErrors(prev => ({
+        setValidationErrors((prev) => ({
           ...prev,
-          mobile: 'Mobile number must start with 6, 7, 8, or 9'
+          mobile: "Mobile number must start with 6, 7, 8, or 9",
         }));
         return;
       }
 
       // Check for length validation
       if (onlyDigits.length > 0 && onlyDigits.length !== 10) {
-        setValidationErrors(prev => ({
+        setValidationErrors((prev) => ({
           ...prev,
-          mobile: 'Mobile number must be exactly 10 digits'
+          mobile: "Mobile number must be exactly 10 digits",
         }));
       } else {
         // Clear validation error if valid
-        setValidationErrors(prev => ({
+        setValidationErrors((prev) => ({
           ...prev,
-          mobile: ''
+          mobile: "",
         }));
       }
 
-      setPartnerDetails(prev => ({
+      setPartnerDetails((prev) => ({
         ...prev,
-        [name]: onlyDigits
+        [name]: onlyDigits,
       }));
       return;
     }
 
     // Handle other fields
-    setPartnerDetails(prev => ({
+    setPartnerDetails((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
 
     // Clear validation error for other fields when they change
     if (validationErrors[name]) {
-      setValidationErrors(prev => ({
+      setValidationErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
@@ -193,14 +198,15 @@ function EditPartner() {
     if (!emailValidation.isValid) errors.email = emailValidation.message;
     if (!mobileValidation.isValid) errors.mobile = mobileValidation.message;
     if (!dobValidation.isValid) errors.dob = dobValidation.message;
-    if (!aadharValidation.isValid) errors.aadhar_number = aadharValidation.message;
+    if (!aadharValidation.isValid)
+      errors.aadhar_number = aadharValidation.message;
     if (!addressValidation.isValid) errors.address = addressValidation.message;
 
     // Mobile validation
     if (!partnerDetails.mobile) {
-      errors.mobile = 'Mobile number is required';
+      errors.mobile = "Mobile number is required";
     } else if (!/^[6-9]\d{9}$/.test(partnerDetails.mobile)) {
-      errors.mobile = 'Enter a valid 10-digit mobile number starting with 6-9';
+      errors.mobile = "Enter a valid 10-digit mobile number starting with 6-9";
     }
 
     setValidationErrors(errors);
@@ -218,15 +224,17 @@ function EditPartner() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const date = new Date(partnerDetails.dob);
-      const formattedDate = date.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }).replace(/ /g, ' ');
+      const formattedDate = date
+        .toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+        .replace(/ /g, " ");
 
       const requestData = {
         update_user_id: adminData?.user_id,
@@ -238,29 +246,28 @@ function EditPartner() {
         aadhar_number: partnerDetails.aadhar_number,
         address: partnerDetails.address,
         functionality_ids: selectedFunctionalities,
-        is_active: Number(partnerDetails.is_active)
+        is_active: Number(partnerDetails.is_active),
       };
 
-      console.log('Updating partner with data:', requestData);
+      console.log("Updating partner with data:", requestData);
 
       const response = await axios.patch(
-        'https://men4u.xyz/v2/admin/update_partner',
+        "https://men4u.xyz/v2/admin/update_partner",
         requestData,
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (response.data.detail === "Partner updated successfully") {
-        navigate('/partners');
+        navigate("/partners");
       }
-
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to update partner');
-      console.error('Error updating partner:', err);
+      setError(err.response?.data?.detail || "Failed to update partner");
+      console.error("Error updating partner:", err);
     } finally {
       setIsLoading(false);
     }
@@ -268,9 +275,9 @@ function EditPartner() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Partners', path: '/partners' },
-    { label: 'Edit Partner' }
+    { label: "Home", path: "/home" },
+    { label: "Partners", path: "/partners" },
+    { label: "Edit Partner" },
   ];
 
   if (isLoading) {
@@ -313,7 +320,7 @@ function EditPartner() {
                 text-sm font-medium text-white rounded-full
                 bg-success-500 hover:bg-success-600 
                 transition shadow-sm
-                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
@@ -390,26 +397,24 @@ function EditPartner() {
                 onChange={handleChange}
                 required
                 options={[
-                  { value: 1, label: 'Active' },
-                  { value: 0, label: 'Inactive' }
+                  { value: 1, label: "Active" },
+                  { value: 0, label: "Inactive" },
                 ]}
                 placeholder="Select Status"
               />
-            </div>
 
-            {/* Address */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              {/* Address */}
               <div className="sm:col-span-1">
-            <Textarea
-              label="Address"
-              name="address"
-              value={partnerDetails.address}
-              onChange={handleChange}
-              placeholder="Enter address"
-              rows={3}
-              required
-            />
-            </div>
+                <Textarea
+                  label="Address"
+                  name="address"
+                  value={partnerDetails.address}
+                  onChange={handleChange}
+                  placeholder="Enter address"
+                  rows={3}
+                  required
+                />
+              </div>
             </div>
 
             {/* Functionalities */}
@@ -421,23 +426,30 @@ function EditPartner() {
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
                 <div className="flex flex-wrap gap-4">
                   {functionalities.map((func) => (
-                    <div key={func.functionality_id} className="min-w-[200px] flex-1">
+                    <div
+                      key={func.functionality_id}
+                      className="min-w-[200px] flex-1"
+                    >
                       <Checkbox
                         label={func.functionality_name}
                         value={func.functionality_id}
-                        checked={selectedFunctionalities.includes(func.functionality_id)}
+                        checked={selectedFunctionalities.includes(
+                          func.functionality_id
+                        )}
                         onChange={(e) => {
                           const value = Number(e.target.value);
-                          setSelectedFunctionalities(prev =>
+                          setSelectedFunctionalities((prev) =>
                             e.target.checked
                               ? [...prev, value]
-                              : prev.filter(id => id !== value)
+                              : prev.filter((id) => id !== value)
                           );
-                          setPartnerDetails(prev => ({
+                          setPartnerDetails((prev) => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
-                              : prev.functionality_ids.filter(id => id !== value)
+                              : prev.functionality_ids.filter(
+                                  (id) => id !== value
+                                ),
                           }));
                         }}
                       />
@@ -481,9 +493,7 @@ function EditPartner() {
 
             {/* Error Message */}
             {error && (
-              <div className="text-error-500 text-sm mt-2">
-                {error}
-              </div>
+              <div className="text-error-500 text-sm mt-2">{error}</div>
             )}
           </form>
         </div>

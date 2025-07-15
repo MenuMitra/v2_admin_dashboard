@@ -1123,6 +1123,29 @@ function CreateOutlet() {
                   ]}
                   placeholder="Select Outlet Mode"
                 />
+
+                <div className="sm:col-span-1">
+                  <Textarea
+                    label="Address"
+                    name="address"
+                    value={outletData.address}
+                    onChange={handleInputChange}
+                    onFocus={() => handleFocus("address")}
+                    placeholder="Enter Address"
+                    required
+                    rows={3}
+                  />
+                  {validationStates.address && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {!outletData.address
+                        ? "Address is required"
+                        : outletData.address.length < 5
+                        ? "Minimum 5 characters required"
+                        : "Address must not exceed 50 characters"}
+                    </p>
+                  )}
+                </div>
+
                 <CustomSelectInput
                   label="Subscription Plan"
                   name="subscription_id"
@@ -1154,30 +1177,6 @@ function CreateOutlet() {
                     />
                   </div>
                 )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <div className="sm:col-span-1">
-                  <Textarea
-                    label="Address"
-                    name="address"
-                    value={outletData.address}
-                    onChange={handleInputChange}
-                    onFocus={() => handleFocus("address")}
-                    placeholder="Enter Address"
-                    required
-                    rows={3}
-                  />
-                  {validationStates.address && (
-                    <p className="text-error-500 text-sm mt-1">
-                      {!outletData.address
-                        ? "Address is required"
-                        : outletData.address.length < 5
-                        ? "Minimum 5 characters required"
-                        : "Address must not exceed 50 characters"}
-                    </p>
-                  )}
-                </div>
               </div>
             </div>
           </section>
@@ -1214,6 +1213,14 @@ function CreateOutlet() {
                 />
               </div>
 
+              <TextInput
+                label="FSSAI Number"
+                name="fssainumber"
+                value={outletData.fssainumber}
+                onChange={handleInputChange}
+                maxLength={14}
+                placeholder="Enter FSSAI Number"
+              />
               <div className="relative">
                 <TextInput
                   label="GST (%)"
@@ -1226,121 +1233,6 @@ function CreateOutlet() {
                   className="focus:border-brand-500 focus:ring-brand-500 border-gray-300"
                 />
               </div>
-
-              {/* Opening Time */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  <span className="text-error-600">*</span> Opening Time
-                </label>
-                <div className="flex gap-2">
-                  {/* Hour Dropdown */}
-                  <select
-                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    value={openingHour}
-                    onChange={(e) =>
-                      handleOpeningTimeChange("hour", e.target.value)
-                    }
-                  >
-                    <option value="">HH</option>
-                    {[...Array(12)].map((_, i) => {
-                      const val = (i + 1).toString().padStart(2, "0");
-                      return (
-                        <option key={val} value={val}>
-                          {val}
-                        </option>
-                      );
-                    })}
-                  </select>
-                  {/* Minute Dropdown */}
-                  <select
-                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    value={openingMinute}
-                    onChange={(e) =>
-                      handleOpeningTimeChange("minute", e.target.value)
-                    }
-                  >
-                    <option value="">MM</option>
-                    {["00", "15", "30", "45"].map((min) => (
-                      <option key={min} value={min}>
-                        {min}
-                      </option>
-                    ))}
-                  </select>
-                  {/* AM/PM Dropdown */}
-                  <select
-                    className="w-20 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    value={openingPeriod}
-                    onChange={(e) =>
-                      handleOpeningTimeChange("period", e.target.value)
-                    }
-                  >
-                    <option value="AM">AM</option>
-                    <option value="PM">PM</option>
-                  </select>
-                </div>
-              </div>
-              {/* Closing Time */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  <span className="text-error-600">*</span> Closing Time
-                </label>
-                <div className="flex gap-2">
-                  {/* Hour Dropdown */}
-                  <select
-                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    value={closingHour}
-                    onChange={(e) =>
-                      handleClosingTimeChange("hour", e.target.value)
-                    }
-                  >
-                    <option value="">HH</option>
-                    {[...Array(12)].map((_, i) => {
-                      const val = (i + 1).toString().padStart(2, "0");
-                      return (
-                        <option key={val} value={val}>
-                          {val}
-                        </option>
-                      );
-                    })}
-                  </select>
-                  {/* Minute Dropdown */}
-                  <select
-                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    value={closingMinute}
-                    onChange={(e) =>
-                      handleClosingTimeChange("minute", e.target.value)
-                    }
-                  >
-                    <option value="">MM</option>
-                    {["00", "15", "30", "45"].map((min) => (
-                      <option key={min} value={min}>
-                        {min}
-                      </option>
-                    ))}
-                  </select>
-                  {/* AM/PM Dropdown */}
-                  <select
-                    className="w-20 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                    value={closingPeriod}
-                    onChange={(e) =>
-                      handleClosingTimeChange("period", e.target.value)
-                    }
-                  >
-                    <option value="AM">AM</option>
-                    <option value="PM">PM</option>
-                  </select>
-                </div>
-              </div>
-
-              <TextInput
-                label="FSSAI Number"
-                name="fssainumber"
-                value={outletData.fssainumber}
-                onChange={handleInputChange}
-                maxLength={14}
-                placeholder="Enter FSSAI Number"
-              />
-
               <TextInput
                 label="GST Number"
                 name="gstnumber"
@@ -1358,6 +1250,113 @@ function CreateOutlet() {
                     : ""}
                 </p>
               )}
+              {/* Opening Time */}
+              <div className="flex flex-row flex-nowrap items-end gap-10 mb-4">
+                {/* Opening Time */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Opening Time
+                  </label>
+                  <div className="flex gap-2">
+                    {/* Hour Dropdown */}
+                    <select
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      value={openingHour}
+                      onChange={(e) =>
+                        handleOpeningTimeChange("hour", e.target.value)
+                      }
+                    >
+                      <option value="">HH</option>
+                      {[...Array(12)].map((_, i) => {
+                        const val = (i + 1).toString().padStart(2, "0");
+                        return (
+                          <option key={val} value={val}>
+                            {val}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    {/* Minute Dropdown */}
+                    <select
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      value={openingMinute}
+                      onChange={(e) =>
+                        handleOpeningTimeChange("minute", e.target.value)
+                      }
+                    >
+                      <option value="">MM</option>
+                      {["00", "15", "30", "45"].map((min) => (
+                        <option key={min} value={min}>
+                          {min}
+                        </option>
+                      ))}
+                    </select>
+                    {/* AM/PM Dropdown */}
+                    <select
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      value={openingPeriod}
+                      onChange={(e) =>
+                        handleOpeningTimeChange("period", e.target.value)
+                      }
+                    >
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </select>
+                  </div>
+                </div>
+                {/* Closing Time */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                     Closing Time
+                  </label>
+                  <div className="flex gap-2">
+                    {/* Hour Dropdown */}
+                    <select
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      value={closingHour}
+                      onChange={(e) =>
+                        handleClosingTimeChange("hour", e.target.value)
+                      }
+                    >
+                      <option value="">HH</option>
+                      {[...Array(12)].map((_, i) => {
+                        const val = (i + 1).toString().padStart(2, "0");
+                        return (
+                          <option key={val} value={val}>
+                            {val}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    {/* Minute Dropdown */}
+                    <select
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      value={closingMinute}
+                      onChange={(e) =>
+                        handleClosingTimeChange("minute", e.target.value)
+                      }
+                    >
+                      <option value="">MM</option>
+                      {["00", "15", "30", "45"].map((min) => (
+                        <option key={min} value={min}>
+                          {min}
+                        </option>
+                      ))}
+                    </select>
+                    {/* AM/PM Dropdown */}
+                    <select
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      value={closingPeriod}
+                      onChange={(e) =>
+                        handleClosingTimeChange("period", e.target.value)
+                      }
+                    >
+                      <option value="AM">AM</option>
+                      <option value="PM">PM</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 

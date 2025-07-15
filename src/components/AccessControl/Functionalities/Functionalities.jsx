@@ -264,7 +264,7 @@ function Functionalities() {
         searchPlaceholder="Search"
         enableSort={true}
         enablePagination={true}
-        enableSearch={false}
+        enableSearch={true}
         enableStatusFilter={false}
         showSearch={true}
         itemsPerPage={50}

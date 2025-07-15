@@ -435,7 +435,7 @@ function EditOutlet() {
     const requiredFields = {
       name: isNameValid(outletData.name),
       mobile:
-        outletData.mobile?.length === 10 && /^[6-9]/.test(outletData.mobile),
+      outletData.mobile?.length === 10 && /^[6-9]/.test(outletData.mobile),
       owner_ids: outletData.owner_ids?.length > 0,
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
@@ -936,9 +936,7 @@ function EditOutlet() {
                     />
                   </div>
                 )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                
                 <div className="sm:col-span-1">
                   <Textarea
                     label="Address"
@@ -1012,11 +1010,11 @@ function EditOutlet() {
               {/* Opening Time */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  <span className="text-error-600">*</span> Opening Time
+                  Opening Time
                 </label>
                 <div className="flex gap-2">
                   <select
-                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     value={openingHour}
                     onChange={(e) =>
                       handleOpeningTimeChange("hour", e.target.value)
@@ -1033,7 +1031,7 @@ function EditOutlet() {
                     })}
                   </select>
                   <select
-                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     value={openingMinute}
                     onChange={(e) =>
                       handleOpeningTimeChange("minute", e.target.value)
@@ -1047,7 +1045,7 @@ function EditOutlet() {
                     ))}
                   </select>
                   <select
-                    className="w-20 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     value={openingPeriod}
                     onChange={(e) =>
                       handleOpeningTimeChange("period", e.target.value)
@@ -1061,11 +1059,11 @@ function EditOutlet() {
               {/* Closing Time */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  <span className="text-error-600">*</span> Closing Time
+                  Closing Time
                 </label>
                 <div className="flex gap-2">
                   <select
-                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     value={closingHour}
                     onChange={(e) =>
                       handleClosingTimeChange("hour", e.target.value)
@@ -1082,7 +1080,7 @@ function EditOutlet() {
                     })}
                   </select>
                   <select
-                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     value={closingMinute}
                     onChange={(e) =>
                       handleClosingTimeChange("minute", e.target.value)
@@ -1096,7 +1094,7 @@ function EditOutlet() {
                     ))}
                   </select>
                   <select
-                    className="w-20 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     value={closingPeriod}
                     onChange={(e) =>
                       handleClosingTimeChange("period", e.target.value)

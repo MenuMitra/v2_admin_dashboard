@@ -1,35 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useAuth } from '../../hooks/useAuth';
-import { useAdmin } from '../../hooks/useAdmin';
-import { useNavigate, Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faTrash, faPenToSquare, faCircleCheck, faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import DataTable from '../common/DataTable';
-import Breadcrumb from '../Breadcrumb';
-import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
-import { API_CONFIG } from '../../config/appConfig';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
+import { useNavigate, Link } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEye,
+  faTrash,
+  faPenToSquare,
+  faCircleCheck,
+  faCircleXmark,
+} from "@fortawesome/free-solid-svg-icons";
+import DataTable from "../common/DataTable";
+import Breadcrumb from "../Breadcrumb";
+import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import { API_CONFIG } from "../../config/appConfig";
 
 function Customer() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
   const [error, setError] = useState(null);
-  const [selectedOutlet] = useState('');
-  const [outletName, setOutletName] = useState('');
+  const [selectedOutlet] = useState("");
+  const [outletName, setOutletName] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   // Add new state for modal
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
-    customerId: null
+    customerId: null,
   });
 
   // Keep only this one useEffect that handles everything
@@ -37,26 +44,29 @@ function Customer() {
     fetchCustomers(selectedOutlet);
   }, [selectedOutlet, statusFilter]); // This will handle both initial load and all subsequent changes
 
-
   // Modify fetchCustomers to handle all cases
-  const fetchCustomers = async (outlet_id = null) => {
+  const fetchCustomers = async (outlet_id = null, isReload = false) => {
     try {
-      setLoading(true);
+      if (isReload) {
+        setIsReloading(true);
+      } else {
+        setLoading(true);
+      }
       setError(null); // Clear any previous errors
 
       const requestData = {
         user_id: adminData?.user_id,
-        app_source: "admin_app"
+        app_source: "admin_app",
       };
 
       // Only add outlet_id if it's provided and not empty
-      if (outlet_id && outlet_id !== '') {
+      if (outlet_id && outlet_id !== "") {
         requestData.outlet_id = outlet_id;
       }
 
       // Only add status filter if it's not 'all'
-      if (statusFilter !== 'all') {
-        requestData.is_active = statusFilter === 'active' ? 1 : 0;
+      if (statusFilter !== "all") {
+        requestData.is_active = statusFilter === "active" ? 1 : 0;
       }
 
       const response = await axios.post(
@@ -70,20 +80,28 @@ function Customer() {
       );
 
       setCustomers(response.data.customers || []);
-      setOutletName(response.data.outlet_name || '');
-      
+      setOutletName(response.data.outlet_name || "");
     } catch (err) {
-      setError(err.response?.data?.msg || '');
+      setError(err.response?.data?.msg || "");
     } finally {
-      setLoading(false);
+      if (isReload) {
+        setIsReloading(false);
+      } else {
+        setLoading(false);
+      }
     }
+  };
+
+  // For DataTable reload button
+  const reloadFetchCustomers = async () => {
+    await fetchCustomers(null, true);
   };
 
   const handleDeleteCustomer = async (customer_id) => {
     // Open delete confirmation modal
     setDeleteModal({
       isOpen: true,
-      customerId: customer_id
+      customerId: customer_id,
     });
   };
 
@@ -91,24 +109,21 @@ function Customer() {
     const customer_id = deleteModal.customerId;
     try {
       setLoading(true);
-      await axios.delete(
-        `${BASE_URL}/${API_VERSION}/admin/customer_delete`,
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-          data: {
-            user_id: adminData?.user_id,
-            customer_id: customer_id,
-            app_source: "admin_app"
-          }
-        }
-      );
-      
+      await axios.delete(`${BASE_URL}/${API_VERSION}/admin/customer_delete`, {
+        headers: {
+          Authorization: getToken(),
+        },
+        data: {
+          user_id: adminData?.user_id,
+          customer_id: customer_id,
+          app_source: "admin_app",
+        },
+      });
+
       setDeleteModal({ isOpen: false, customerId: null });
       fetchCustomers(selectedOutlet);
     } catch (err) {
-      setError(err.response?.data?.msg || 'Failed to delete customer');
+      setError(err.response?.data?.msg || "Failed to delete customer");
     } finally {
       setLoading(false);
     }
@@ -123,7 +138,7 @@ function Customer() {
           user_id: adminData.user_id,
           action: action,
           app_source: "admin_app",
-          customer_ids: selectedIds
+          customer_ids: selectedIds,
         },
         {
           headers: {
@@ -135,39 +150,40 @@ function Customer() {
 
       fetchCustomers(selectedOutlet);
       setSelectedItems([]);
-      
     } catch (error) {
-      setError(error.response?.data?.detail || `Failed to perform ${action} action`);
+      setError(
+        error.response?.data?.detail || `Failed to perform ${action} action`
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleStatusFilterChange = (status) => {
-    setSearchTerm('');
+    setSearchTerm("");
     setStatusFilter(status.toLowerCase());
   };
 
   const columns = [
     {
-      field: 'name',
-      header: 'Name',
-      sortable: true
-    },
-    {
-      field: 'mobile',
-      header: 'Mobile',
-      sortable: true
-    },
-    {
-      field: 'total_orders_all_outlets',
-      header: 'Total Orders',
+      field: "name",
+      header: "Name",
       sortable: true,
-      render: (value) => value ?? '0'
     },
     {
-      field: 'is_active',
-      header: 'Status',
+      field: "mobile",
+      header: "Mobile",
+      sortable: true,
+    },
+    {
+      field: "total_orders_all_outlets",
+      header: "Total Orders",
+      sortable: true,
+      render: (value) => value ?? "0",
+    },
+    {
+      field: "is_active",
+      header: "Status",
       sortable: true,
       render: (value) => (
         <div className="flex items-center justify-center gap-2">
@@ -181,26 +197,26 @@ function Customer() {
       ),
     },
     {
-      field: 'action',
-      header: 'Action',
+      field: "action",
+      header: "Action",
       sortable: false,
       render: (_, row) => (
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={() => navigate(`/customer-details/${row.user_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
             title="View Details"
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
-          <button 
+          <button
             onClick={() => navigate(`/edit-customer/${row.user_id}`)}
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
             title="Edit Customer"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
-          <button 
+          <button
             onClick={() => handleDeleteCustomer(row.user_id)}
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
             title="Delete Customer"
@@ -208,8 +224,8 @@ function Customer() {
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   // Update columns to include the view action
@@ -224,11 +240,8 @@ function Customer() {
   return (
     <>
       {/* Breadcrumb */}
-      <Breadcrumb 
-        items={[
-          { label: 'Home', path: '/home' },
-          { label: 'Customers' }
-        ]} 
+      <Breadcrumb
+        items={[{ label: "Home", path: "/home" }, { label: "Customers" }]}
       />
 
       {error && (
@@ -240,16 +253,16 @@ function Customer() {
       <DataTable
         data={customers}
         columns={columns}
-        title={`Customers${outletName ? ` - ${outletName}` : ''}`}
+        title={`Customers${outletName ? ` - ${outletName}` : ""}`}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         counts={{
           total: customers.length,
-          active: customers.filter(c => c.is_active === 1).length,
-          inactive: customers.filter(c => c.is_active !== 1).length
+          active: customers.filter((c) => c.is_active === 1).length,
+          inactive: customers.filter((c) => c.is_active !== 1).length,
         }}
         createButton={{
-          show: false
+          show: false,
         }}
         searchPlaceholder="Search"
         enableSort={true}
@@ -269,7 +282,8 @@ function Customer() {
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
-        onReload={fetchCustomers}
+        onReload={reloadFetchCustomers}
+        isReloading={isReloading}
       />
 
       {/* Add Delete Confirmation Modal */}
