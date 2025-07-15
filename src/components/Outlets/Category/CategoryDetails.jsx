@@ -13,7 +13,7 @@ import {
   faUser,
   faChevronLeft,
 } from '@fortawesome/free-solid-svg-icons';
-import Modal from '../../common/Modal';
+import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import Breadcrumb from '../../Breadcrumb';
 
 function CategoryDetails() {
@@ -73,11 +73,12 @@ function CategoryDetails() {
   const handleDeleteCategory = async () => {
     try {
       const token = getToken();
-      await axios.delete('https://men4u.xyz/v2/common/delete_menu_category', {
+      await axios.delete('https://men4u.xyz/v2/common/menu_category_delete', {
         data: {
           menu_cat_id: Number(menuCategoryId),
           outlet_id: Number(outletId),
           user_id: adminData?.user_id,
+          app_source: 'admin_app',
         },
         headers: {
           Authorization: token,
@@ -233,42 +234,11 @@ function CategoryDetails() {
           </div>
         </div>
         {/* Delete Confirmation Modal */}
-        <Modal
+        <DeleteConfirmModal
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
-          type="error"
-          title="Confirm Deletion"
-          size="small"
-          actionButtons={
-            <>
-              <button
-                type="button"
-                onClick={() => setShowDeleteModal(false)}
-                className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover hover:text-gray-800 sm:w-auto"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteCategory}
-                className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
-              >
-                Delete Category
-              </button>
-            </>
-          }
-        >
-          <div className="flex items-start">
-            <div className="ml-4">
-              <p className="text-sm text-gray-500">
-                Are you sure you want to delete this category? This action cannot be undone.
-              </p>
-              <p className="text-sm text-gray-500">
-                All data associated with this category will be permanently removed.
-              </p>
-            </div>
-          </div>
-        </Modal>
+          onDelete={handleDeleteCategory}
+        />
       </div>
     </>
   );
