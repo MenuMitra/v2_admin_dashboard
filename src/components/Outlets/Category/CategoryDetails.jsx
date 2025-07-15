@@ -15,6 +15,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import Breadcrumb from '../../Breadcrumb';
+import { toastController } from '../../../utils/toastController';
 
 function CategoryDetails() {
   const { outletId, menuCategoryId } = useParams();
@@ -87,7 +88,7 @@ function CategoryDetails() {
       });
       navigate(-1);
     } catch (error) {
-      setError(error.response?.data?.message || 'Failed to delete category');
+      toastController.error(error.response?.data?.message || 'Failed to delete category');
     }
   };
 
