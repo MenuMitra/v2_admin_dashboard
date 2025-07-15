@@ -14,15 +14,13 @@ import {
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import Modal from '../../common/Modal';
+import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 
 function ManageMenus() {
   const { outletId } = useParams();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const [menuData, setMenuData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(null);
@@ -34,7 +32,7 @@ function ManageMenus() {
 
   // Move breadcrumbItems inside the render since it needs menuData
   const getBreadcrumbItems = () => [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: outletName, path: `/view-outlet/${outletId}` },
     { label: 'Menus' },
@@ -49,8 +47,6 @@ function ManageMenus() {
 
   // Move fetchMenus outside of useEffect
   const fetchMenus = async () => {
-    setLoading(true);
-    setError('');
     try {
       const token = getToken();
       const response = await axios.post(
@@ -76,10 +72,10 @@ function ManageMenus() {
       }
       
       setMenuData(normaliseData(menuList));
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch menu list');
+    } catch {
+      // error intentionally ignored
     } finally {
-      setLoading(false);
+      // setLoading(false); // Removed loading and error state
     }
   };
 
@@ -158,8 +154,8 @@ function ManageMenus() {
       setShowDeleteModal(false);
       setSelectedMenu(null);
       await fetchMenus(); // Immediately fetch updated data
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete menu');
+    } catch {
+      // error intentionally ignored
     }
   };
 
@@ -192,8 +188,8 @@ function ManageMenus() {
         setSelectedItems([]); // Clear selections
         await fetchMenus(); // Immediately fetch updated data
       }
-    } catch (err) {
-      setError(err.response?.data?.message || 'Failed to perform bulk action');
+    } catch {
+      // error intentionally ignored
     }
   };
 
@@ -352,48 +348,14 @@ function ManageMenus() {
       />
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setSelectedMenu(null);
         }}
-        type="error"
-        title="Confirm Deletion"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              type="button"
-              onClick={() => {
-                setShowDeleteModal(false);
-                setSelectedMenu(null);
-              }}
-              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover hover:text-gray-800 sm:w-auto"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleDeleteConfirm}
-              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
-            >
-              Delete Menu
-            </button>
-          </>
-        }
-      >
-        <div className="flex items-start">
-          <div className="ml-4">
-            <p className="text-sm text-gray-500">
-              Are you sure you want to delete {selectedMenu?.name}? This action cannot be undone.
-            </p>
-            <p className="text-sm text-gray-500">
-              All data associated with this menu will be permanently removed.
-            </p>
-          </div>
-        </div>
-      </Modal>
+        onDelete={handleDeleteConfirm}
+      />
     </div>
   );
 }

@@ -10,13 +10,12 @@ import {
   faEye,
   faPenToSquare,
   faTrash,
-  faExclamationTriangle,
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
-import Modal from '../../../common/Modal';
+import DeleteConfirmModal from '../../../common/DeleteConfirmModal/DeleteConfirmModal';
 import { toastController } from "../../../../utils/toastController";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -111,7 +110,7 @@ function Waiters() {
   };
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Waiters' }
@@ -294,46 +293,14 @@ function Waiters() {
         onStatusFilterChange={setStatusFilter}
       />
 
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setWaiterToDelete(null);
         }}
-        title="Confirm Deletion"
-        type="error"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              onClick={() => {
-                setShowDeleteModal(false);
-                setWaiterToDelete(null);
-              }}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDeleteWaiter}
-              className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
-            >
-              Delete Waiter
-            </button>
-          </>
-        }
-      >
-        <div className="flex flex-col items-center space-y-4">
-          <FontAwesomeIcon
-            icon={faExclamationTriangle}
-            className="h-8 w-8 text-error-500"
-          />
-          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
-            Are you sure you want to delete this waiter? <br/>
-            This action cannot be undone.
-          </p>
-        </div>
-      </Modal>
+        onDelete={handleDeleteWaiter}
+      />
     </>
   );
 }

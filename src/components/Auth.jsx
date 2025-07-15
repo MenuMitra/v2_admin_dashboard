@@ -131,7 +131,7 @@ function Auth() {
           role: response.data.role,
         };
         localStorage.setItem("adminData", JSON.stringify(adminData));
-        navigate("/dashboard");
+        navigate("/home");
       }
     } catch (err) {
       const errorMsg = err.response?.data?.detail || "Failed to verify OTP";

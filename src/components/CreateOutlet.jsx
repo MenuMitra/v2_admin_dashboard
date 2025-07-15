@@ -98,7 +98,7 @@ function CreateOutlet() {
   });
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: 'Create Outlet' }
   ];
@@ -750,10 +750,7 @@ function CreateOutlet() {
               </svg>
               Basic Information
             </h2>
-
-            <div className="grid grid-cols-1 gap-6">
-            <div className="relative">
-                  <ImageUploader
+            <ImageUploader
                     maxImages={1}
                     onImagesChange={handleImagesChange}
                     existingImages={outletData.image ? [{ url: outletData.image }] : []}
@@ -762,6 +759,11 @@ function CreateOutlet() {
                     isOutletImage={true}
                     preserveImageOnValidation={true}
                   />
+
+            <div className="grid grid-cols-1 gap-6">
+            
+            <div className="relative">
+                  
                 </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <div className="relative">

@@ -288,7 +288,7 @@ const Notifications = () => {
   ];
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Notifications' }
   ];
 

@@ -11,7 +11,7 @@ import {
   faTrash as faDelete
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
-import Modal from "../../../common/Modal";
+import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
 import { API_CONFIG } from "../../../../config/appConfig";
 
@@ -84,7 +84,7 @@ function ManagerDetails() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: "Managers", path: `/managers/${outletId}` },
@@ -207,7 +207,7 @@ function ManagerDetails() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate(`/edit-manager/${outletId}/${userId}`)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
               >
                 <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit</span>
@@ -237,45 +237,11 @@ function ManagerDetails() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        type="error"
-        title="Confirm Deletion"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              type="button"
-              onClick={() => setShowDeleteModal(false)}
-              className="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 sm:w-auto"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                handleDelete();
-                setShowDeleteModal(false);
-              }}
-              className="flex justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg bg-error-500 shadow-theme-xs hover:bg-error-600 sm:w-auto"
-            >
-              Delete Manager
-            </button>
-          </>
-        }
-      >
-        <div className="flex items-start">
-          <div className="ml-4">
-            <p className="text-sm text-gray-500">
-              Are you sure you want to delete this manager? This action cannot be undone.
-            </p>
-            <p className="text-sm text-gray-500">
-              All data associated with this manager will be permanently removed.
-            </p>
-          </div>
-        </div>
-      </Modal>
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

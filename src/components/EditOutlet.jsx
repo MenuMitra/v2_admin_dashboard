@@ -320,9 +320,9 @@ function EditOutlet() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Outlets", path: "/outlets" },
-    { label: "Edit Outlet" },
+    { label: 'Home', path: '/home' },
+    { label: 'Outlets', path: '/outlets' },
+    { label: 'Edit Outlet' }
   ];
 
   // Show loading state while fetching data
@@ -878,7 +878,7 @@ function EditOutlet() {
                   placeholder="Select Subscription Plan"
                 />
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">     
               <div className="sm:col-span-1">
                 <Textarea

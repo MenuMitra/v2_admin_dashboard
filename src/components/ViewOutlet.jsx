@@ -4,29 +4,29 @@ import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faUtensils,
-  faUserGear,
   faChevronLeft,
   faEdit,
   faTrash,
-  faListUl,
-  faUserPen,
-  faUsers,
   faUpload,
   faInfoCircle,
   faDownload,
   faSpinner,
   faLink,
-  faBowlFood,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
-import Modal from "./common/Modal";
+import DeleteConfirmModal from './common/DeleteConfirmModal/DeleteConfirmModal';
+import Modal from './common/Modal';
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 
 function toTitleCase(str) {
-  return str ? str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()) : "";
+  return str
+    ? str.replace(
+        /\w\S*/g,
+        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
 }
 
 function ViewOutlet() {
@@ -35,7 +35,6 @@ function ViewOutlet() {
   const { outletId } = useParams();
   const [outletData, setOutletData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
@@ -47,7 +46,6 @@ function ViewOutlet() {
   const fetchOutletDetails = async () => {
     try {
       setLoading(true);
-      setError(null);
 
       const response = await toastController.promise(
         axios.post(
@@ -65,9 +63,9 @@ function ViewOutlet() {
           }
         ),
         {
-          loading: 'Loading outlet details...',
-          success: 'Outlet details loaded successfully!',
-          error: 'Failed to load outlet details'
+          loading: "Loading outlet details...",
+          success: "Outlet details loaded successfully!",
+          error: "Failed to load outlet details",
         }
       );
 
@@ -75,7 +73,6 @@ function ViewOutlet() {
         setOutletData(response.data.data);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to fetch outlet details");
       console.error("Error fetching outlet details:", err);
     } finally {
       setLoading(false);
@@ -90,7 +87,7 @@ function ViewOutlet() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
     { label: outletData?.name || "View Outlet" },
   ];
@@ -108,30 +105,26 @@ function ViewOutlet() {
     try {
       setLoading(true);
       await toastController.promise(
-        axios.delete(
-          `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-            data: {
-              outlet_id: outletId,
-              user_id: adminData?.user_id,
-            },
-          }
-        ),
+        axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_outlet`, {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+          data: {
+            outlet_id: outletId,
+            user_id: adminData?.user_id,
+          },
+        }),
         {
-          loading: 'Deleting outlet...',
-          success: 'Outlet deleted successfully!',
-          error: 'Failed to delete outlet'
+          loading: "Deleting outlet...",
+          success: "Outlet deleted successfully!",
+          error: "Failed to delete outlet",
         }
       );
 
       setShowDeleteModal(false);
       navigate("/outlets");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to delete outlet");
       console.error("Error deleting outlet:", err);
     } finally {
       setLoading(false);
@@ -168,9 +161,9 @@ function ViewOutlet() {
           }
         ),
         {
-          loading: 'Uploading menu data...',
-          success: 'Menu data uploaded successfully!',
-          error: 'Failed to upload menu data'
+          loading: "Uploading menu data...",
+          success: "Menu data uploaded successfully!",
+          error: "Failed to upload menu data",
         }
       );
 
@@ -204,7 +197,7 @@ function ViewOutlet() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
+
       toastController.success("Template downloaded successfully!");
     } catch (error) {
       console.error("Error downloading template:", error);
@@ -257,7 +250,7 @@ function ViewOutlet() {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleEdit}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 hover:bg-warning-600 shadow-theme-xs"
               >
                 <FontAwesomeIcon icon={faEdit} className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit</span>
@@ -274,181 +267,83 @@ function ViewOutlet() {
         </div>
 
         {/* Main Content */}
-        <div className="p-6">
-          {/* Outlet Image - Only shown if image URL exists */}
-          {outletData?.image && (
-            <div className="mb-6">
-              <div className="relative w-full max-w-md mx-auto overflow-hidden rounded-2xl shadow-lg">
-                <img
-                  src={outletData.image}
-                  alt={`${outletData.name || "Outlet"}`}
-                  className="w-full h-auto object-cover"
-                  onError={(e) => {
-                    e.target.style.display = "none"; // Hide image on error
-                  }}
-                />
+        <div className="p-4 sm:p-6">
+          {/* Using flex-col by default for mobile and row for larger screens */}
+          <div className="flex flex-col md:flex-row justify-between items-stretch gap-4 md:gap-6">
+            {/* Menu Management Section */}
+            <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Menu Management
+                </h2>
+                <button
+                  onClick={() => setShowBulkUploadModal(true)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                >
+                  <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
+                  <span>Bulk Upload</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <Link
+                  to={`/categories/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Categories</span>
+                </Link>
+
+                <Link
+                  to={`/menus/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Menus</span>
+                </Link>
               </div>
             </div>
-          )}
 
-          {/* Menu Management Section */}
-          <div className="flex items-center gap-4 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-              Menu Management
-            </h2>
-            <button
-              onClick={() => setShowBulkUploadModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
-            >
-              <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
-              <span className="hidden sm:inline">Bulk Upload</span>
-            </button>
-          </div>
-
-          {/* Stats and Navigation Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-            {/* Categories and Menus Cards */}
-            <Link
-              to={`/categories/${outletId}`}
-              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                    <FontAwesomeIcon
-                      icon={faListUl}
-                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Manage
-                    </span>
-                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                      Categories
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              to={`/menus/${outletId}`}
-              className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                    <FontAwesomeIcon
-                      icon={faUtensils}
-                      className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Manage
-                    </span>
-                    <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500">
-                      Menus
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-
-          {/* Staff Management Section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+            {/* Staff Management Section */}
+            <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
+              <h2 className="text-lg font-semibold text-gray-800 mb-6">
                 Staff Management
               </h2>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {/* Manager Card */}
-              <button type="button" className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
-                <Link to={`/managers/${outletId}`}>
-                  <div className="flex items-center justify-center sm:justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                        <FontAwesomeIcon
-                          icon={faUserGear}
-                          className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                        />
-                      </div>
-                      <div className="flex flex-col w-full sm:w-auto">
-                        <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
-                          Managers
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <Link
+                  to={`/managers/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Managers</span>
                 </Link>
-              </button>
 
-              {/* Chef Card */}
-              <Link to={`/chefs/${outletId}`} className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
-                <div className="flex items-center justify-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                      <FontAwesomeIcon
-                        icon={faBowlFood}
-                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                      />
-                    </div>
-                    <div className="flex flex-col w-full sm:w-auto">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
-                        Chefs
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+                <Link
+                  to={`/chefs/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Chefs</span>
+                </Link>
 
-              {/* Captain Card */}
-              <Link to={`/captains/${outletId}`} className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
-                <div className="flex items-center justify-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                      <FontAwesomeIcon
-                        icon={faUserPen}
-                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                      />
-                    </div>
-                    <div className="flex flex-col w-full sm:w-auto">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
-                        Captains
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+                <Link
+                  to={`/captains/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Captains</span>
+                </Link>
 
-              {/* Waiter Card */}
-              <Link to={`/waiters/${outletId}`} className="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6 transition-all duration-200 hover:border-brand-500 hover:shadow-lg">
-                <div className="flex items-center justify-center sm:justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="hidden sm:flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800 group-hover:bg-brand-50">
-                      <FontAwesomeIcon
-                        icon={faUsers}
-                        className="w-6 h-6 text-gray-800 dark:text-white/90 group-hover:text-brand-500"
-                      />
-                    </div>
-                    <div className="flex flex-col w-full sm:w-auto">
-                      <span className="text-lg font-semibold text-gray-800 dark:text-white/90 group-hover:text-brand-500 text-center sm:text-left">
-                        Waiters
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+                <Link
+                  to={`/waiters/${outletId}`}
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                >
+                  <span className="text-sm font-medium text-gray-800">Waiters</span>
+                </Link>
+              </div>
             </div>
           </div>
 
           {/* Outlet Owners Section */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Outlet Owners
               </h2>
             </div>
@@ -456,7 +351,7 @@ function ViewOutlet() {
               <div className="flex items-center gap-3">
                 <div>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {outletData?.owners?.map((owner, index) => (
+                    {outletData?.owners?.map((owner) => (
                       <div
                         key={owner.owner_id}
                         onClick={() => handleOwnerClick(owner.owner_id)}
@@ -484,7 +379,7 @@ function ViewOutlet() {
           </div>
 
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6 flex flex-wrap items-center justify-between gap-3 mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Basic Information
             </h2>
           </div>
@@ -571,7 +466,7 @@ function ViewOutlet() {
           {/* Business Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Business Details
               </h2>
             </div>
@@ -706,7 +601,7 @@ function ViewOutlet() {
           {/* Order section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Orders Details
               </h2>
             </div>
@@ -730,7 +625,9 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.total_earning != null ? `₹${outletData.total_earning}` : "-"}
+                        {outletData?.total_earning != null
+                          ? `₹${outletData.total_earning}`
+                          : "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Total Earning
@@ -745,7 +642,7 @@ function ViewOutlet() {
           {/* Manage Staff Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Manage Staff Details
               </h2>
             </div>
@@ -815,7 +712,7 @@ function ViewOutlet() {
           {/* Manage Outlet Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Manage Outlet Details
               </h2>
             </div>
@@ -900,7 +797,7 @@ function ViewOutlet() {
           {/* Audit Information section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Audit Information
               </h2>
             </div>
@@ -973,7 +870,7 @@ function ViewOutlet() {
           {/* Subscription Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Subscription Details
               </h2>
             </div>
@@ -998,7 +895,7 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details?.price 
+                        {outletData?.subscription_details?.price
                           ? `₹${outletData.subscription_details.price}`
                           : "-"}
                       </h4>
@@ -1015,7 +912,8 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details?.subscription_start_date || "-"}
+                        {outletData?.subscription_details
+                          ?.subscription_start_date || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Start Date
@@ -1030,7 +928,8 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details?.subscription_end_date || "-"}
+                        {outletData?.subscription_details
+                          ?.subscription_end_date || "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         End Date
@@ -1044,35 +943,13 @@ function ViewOutlet() {
         </div>
       </div>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        title="Delete Outlet"
-        type="error"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              onClick={() => setShowDeleteModal(false)}
-              className="inline-flex items-center gap-2 rounded-full bg-gray-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-gray-600"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={confirmDelete}
-              className="inline-flex items-center gap-2 rounded-full bg-error-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-error-600"
-            >
-              Delete
-            </button>
-          </>
-        }
-      >
-        <p>
-          Are you sure you want to delete this outlet? This action cannot be
-          undone.
-        </p>
-      </Modal>
+        onDelete={confirmDelete}
+        title="Confirm Delete"
+        message="Are you sure ?"
+      />
 
       {/* Bulk Upload Modal */}
       <Modal

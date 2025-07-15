@@ -41,9 +41,9 @@ function EditSubscription() {
   });
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
-    { label: "Subscriptions", path: "/subscriptions" },
-    { label: "Edit Subscription" },
+    { label: 'Home', path: '/home' },
+    { label: 'Subscriptions', path: '/subscriptions' },
+    { label: 'Edit Subscription' }
   ];
 
   // Fetch subscription details

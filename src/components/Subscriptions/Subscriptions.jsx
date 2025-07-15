@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faPlus, faPencil, faTrash, faCircleCheck, faCircleXmark, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPenToSquare, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import DataTable from '../common/DataTable';
-import Modal from '../common/Modal';
+import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
 import Breadcrumb from '../Breadcrumb';
 import { API_CONFIG } from '../../config/appConfig';
 import { toastController } from '../../utils/toastController';
@@ -21,10 +21,9 @@ function Subscriptions() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Subscriptions', path: '/subscriptions' }
   ];
 
@@ -160,8 +159,6 @@ function Subscriptions() {
 
   const confirmDelete = async () => {
     if (!selectedSubscription) return;
-    
-    setIsDeleting(true);
     try {
       const response = await toastController.promise(
         axios.post(
@@ -192,7 +189,6 @@ function Subscriptions() {
       console.error('Error deleting subscription:', error);
       toastController.error(error.response?.data?.detail || 'Failed to delete subscription');
     } finally {
-      setIsDeleting(false);
       setSelectedSubscription(null);
     }
   };
@@ -240,54 +236,17 @@ function Subscriptions() {
         isLoading={isLoading}
       />
 
-      {/* Delete Confirmation Modal */}
-      <Modal
+      {/* Delete Confirmation Modal using DeleteConfirmModal */}
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setSelectedSubscription(null);
         }}
-        title="Confirm Deletion"
-        type="error"
-        size="small"
-        actionButtons={
-          <>
-            <div className="flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setSelectedSubscription(null);
-                }}
-                className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-                disabled={isDeleting}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={confirmDelete}
-                disabled={isDeleting}
-                className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600 disabled:opacity-50"
-              >
-                {isDeleting ? 'Deleting...' : 'Delete'}
-              </button>
-            </div>
-          </>
-        }
-      >
-        <div className="flex flex-col items-center space-y-4">
-          <FontAwesomeIcon
-            icon={faExclamationTriangle}
-            className="h-8 w-8 text-error-500"
-          />
-          <p className="text-sm text-center text-gray-500 dark:text-gray-400">
-            Are you sure you want to delete "{selectedSubscription?.name}"? <br/>
-            This action cannot be undone. All data associated with this subscription
-            will be permanently removed.
-          </p>
-        </div>
-      </Modal>
+        onDelete={confirmDelete}
+        title="Confirm Delete"
+        message={"Are you sure ?"}
+      />
     </>
   );
 }

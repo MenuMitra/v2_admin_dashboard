@@ -132,11 +132,11 @@ const ImageUploader = ({
       )}
 
       {/* New Drag & Drop Area */}
-      <div className="flex items-center justify-center w-full">
+      <div className="items-center justify-start">
         <label
           htmlFor="dropzone-file"
           className={`
-            flex flex-col items-center justify-center w-full h-64 
+            flex flex-col items-center justify-center  h-64 
             border-2 border-dashed rounded-lg cursor-pointer 
             ${dragActive 
               ? 'border-brand-500 bg-brand-50' 
@@ -158,7 +158,7 @@ const ImageUploader = ({
             }
           }}
         >
-          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+          <div className="flex flex-col items-center justify-center pt-5 pb-6 px-6">
             {/* Upload Icon */}
             <svg 
               className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" 
@@ -182,7 +182,7 @@ const ImageUploader = ({
                 <span className="font-semibold text-error-500"></span>
               ) : (
                 <>
-                  <span className="font-semibold">Click to upload</span> or drag and drop
+                  <span className="font-semibold">Click to upload</span> or <br /> drag and drop
                 </>
               )}
             </p>

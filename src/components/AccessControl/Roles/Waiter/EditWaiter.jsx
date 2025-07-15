@@ -16,6 +16,8 @@ import { toastController } from "../../../../utils/toastController";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
+const nameRegex = /^[A-Za-z ]+$/;
+
 function EditWaiter() {
   const { outletId, userId } = useParams();
   const navigate = useNavigate();
@@ -369,7 +371,7 @@ function EditWaiter() {
   };
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
     { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
     { label: "Waiters", path: `/waiters/${outletId}` },

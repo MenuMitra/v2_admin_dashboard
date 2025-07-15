@@ -4,21 +4,9 @@ import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUser,
-  faEnvelope,
-  faPhone,
-  faCalendarDays,
-  faCircleCheck,
-  faSpinner,
-  faChevronLeft as faBack,
-  faShoppingCart,
-  faCreditCard,
-  faMoneyBill,
-  faChartLine,
-} from "@fortawesome/free-solid-svg-icons";
+import { faSpinner, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
-import Modal from "../common/Modal";
+import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
 import { toastController } from "../../utils/toastController";
 import { API_CONFIG } from '../../config/appConfig';
 
@@ -30,7 +18,7 @@ function CustomerDetails() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // error state removed (was unused)
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
     customerId: null
@@ -330,31 +318,11 @@ function CustomerDetails() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, customerId: null })}
-        title="Delete Customer"
-        type="error"
-        size="small"
-        actionButtons={
-          <>
-            <button
-              onClick={() => setDeleteModal({ isOpen: false, customerId: null })}
-              className="flex h-11 items-center justify-center rounded-lg border border-gray-200 bg-white px-6 text-sm font-medium text-gray-700 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={confirmDelete}
-              className="flex h-11 items-center justify-center rounded-lg bg-error-500 px-6 text-sm font-medium text-white transition hover:bg-error-600"
-            >
-              Delete
-            </button>
-          </>
-        }
-      >
-        <p>Are you sure you want to delete this customer? This action cannot be undone.</p>
-      </Modal>
+        onDelete={confirmDelete}
+      />
     </div>
   );
 }

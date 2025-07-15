@@ -11,6 +11,7 @@ import {
   faChevronLeft as faBack,
   faPenToSquare
 } from "@fortawesome/free-solid-svg-icons";
+import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
 
 function PartnerDetails() { 
   const { partnerId } = useParams();
@@ -20,6 +21,7 @@ function PartnerDetails() {
   const [partner, setPartner] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
     if (adminData?.user_id && partnerId) {
@@ -60,6 +62,31 @@ function PartnerDetails() {
     }
   };
 
+  // Delete handler using the same API as Partners.jsx
+  const handleDelete = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+      await axios.delete('https://men4u.xyz/v2/admin/delete_partner', {
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+        data: {
+          partner_id: Number(partnerId),
+          user_id: adminData.user_id,
+        },
+      });
+      setIsDeleteModalOpen(false);
+      navigate(-1);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Failed to delete partner');
+      console.error('Error deleting partner:', err);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -78,7 +105,7 @@ function PartnerDetails() {
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Partners', path: '/partners' },
     { label: 'View', path: '#' }
   ];
@@ -109,8 +136,8 @@ function PartnerDetails() {
               Partner Details
             </div>
 
-            {/* Right Side - Status and Edit */}
-            <div className="flex items-center gap-4 order-3">
+            {/* Right Side - Status, Edit, Delete */}
+            <div className="flex items-center gap-2 order-3">
               <button
                 onClick={() => navigate(`/edit-partner/${partnerId}`)}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
@@ -118,6 +145,25 @@ function PartnerDetails() {
               >
                 <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit</span>
+              </button>
+              <button
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                <span className="hidden sm:inline">Delete</span>
               </button>
             </div>
           </div>
@@ -300,6 +346,12 @@ function PartnerDetails() {
           </>
         )}
       </div>
+      {/* Delete confirmation modal */}
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onDelete={handleDelete}
+      />
     </>
   );
 }

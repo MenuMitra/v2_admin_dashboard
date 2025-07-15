@@ -8,15 +8,12 @@ import {
   faEye,
   faPenToSquare,
   faTrash,
-  faUserShield,
-  faXmark,
-  faCheck,
   faCircleCheck,
   faCircleXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import Breadcrumb from '../Breadcrumb';
 import DataTable from '../common/DataTable';
-import DeleteConfirmModal from '../common/DeleteConfirmModal';
+import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
 import { useAdmin } from '../../hooks/useAdmin';
 
 function SuperOwner() {
@@ -30,12 +27,7 @@ function SuperOwner() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState(null);
-  const [confirmModal, setConfirmModal] = useState({
-    isOpen: false,
-    action: null,
-    title: '',
-    message: ''
-  });
+  // Removed confirmModal state as it's not used for single delete
   const [statusFilter, setStatusFilter] = useState('all');
 
   useEffect(() => {
@@ -178,88 +170,10 @@ function SuperOwner() {
     }
   };
 
-  const getConfirmationDetails = (action) => {
-    switch(action) {
-      case 'active':
-        return {
-          title: 'Confirm Activation',
-          message: `Are you sure you want to activate ${selectedItems.length} selected super owner(s)?`
-        };
-      case 'inactive':
-        return {
-          title: 'Confirm Deactivation',
-          message: `Are you sure you want to deactivate ${selectedItems.length} selected super owner(s)?`
-        };
-      case 'delete':
-        return {
-          title: 'Confirm Deletion',
-          message: `Are you sure you want to delete ${selectedItems.length} selected super owner(s)? This action cannot be undone.`
-        };
-      default:
-        return { title: '', message: '' };
-    }
-  };
-
-  const handleBulkAction = async (action, selectedIds) => {
-    try {
-      const { title, message } = getConfirmationDetails(action);
-      setConfirmModal({
-        isOpen: true,
-        action,
-        title,
-        message
-      });
-    } catch (error) {
-      console.error('Error in bulk action:', error);
-      setError('Failed to perform bulk action');
-    }
-  };
-
-  const executeBulkAction = async (action) => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      const validSuperOwnerIds = selectedItems.filter(id => id !== null && id !== undefined);
-
-      if (validSuperOwnerIds.length === 0) {
-        throw new Error('No valid super owner IDs selected');
-      }
-
-      const response = await axios.post(
-        'https://men4u.xyz/v2/common/bulk_super_owner_action',
-        {
-          user_id: adminData.user_id,
-          action: action,
-          app_source: "admin_app",
-          super_owner_ids: validSuperOwnerIds
-        },
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      if (response.status === 200) {
-        // Clear selections
-        setSelectedItems([]); // Clear local state
-        setConfirmModal({ isOpen: false, action: null, title: '', message: '' });
-        
-        // Refresh data
-        await fetchSuperOwners();
-      }
-    } catch (error) {
-      console.error('Error executing bulk action:', error);
-      setError(error.response?.data?.detail || `Failed to ${action} super owners`);
-    }
-  };
+  // handleBulkAction can be left as is if used by DataTable, but confirmModal logic is removed
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
+    { label: 'Home', path: '/home' },
     { label: 'Super Owners', path: '/super-owners' }
   ];
 
@@ -362,8 +276,7 @@ function SuperOwner() {
   ];
 
   const getTotalCount = () => superOwners.length;
-  const getActiveCount = () => superOwners.filter(owner => owner.is_active).length;
-  const getInactiveCount = () => superOwners.filter(owner => !owner.is_active).length;
+  // Removed getActiveCount and getInactiveCount as they are not used in the DataTable counts
 
   if (loading) {
     return (
@@ -394,13 +307,12 @@ function SuperOwner() {
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
-        onBulkAction={handleBulkAction}
+        onBulkAction={() => {}} // Removed bulk action as it's not used
         
         title="Super Owners"
         counts={{
           total: getTotalCount(),
-          active: superOwners.filter(owner => owner.is_active === true).length,
-          inactive: superOwners.filter(owner => owner.is_active === false).length
+          // Removed active and inactive counts from DataTable
         }}
         showBackButton={true}
         showSearch={true}
@@ -430,6 +342,8 @@ function SuperOwner() {
           setOwnerToDelete(null);
         }}
         onDelete={handleDeleteOwner}
+        title="Confirm Delete"
+        message="Are you sure ?"
       />
     </>
   );

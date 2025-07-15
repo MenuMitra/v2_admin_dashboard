@@ -6,18 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
-  faFilter,
   faEye,
   faPenToSquare,
   faTrash,
-  faExclamationTriangle,
-  faArrowRight,
-  faSort,
-  faSortUp,
-  faSortDown,
-  faChevronLeft,
-  faChevronRight,
-  faSearch,
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
@@ -25,6 +16,7 @@ import Breadcrumb from './Breadcrumb';
 import TablesViewHeader from './common/TablesViewHeader';
 import DataTable from './common/DataTable';
 import Modal from './common/Modal';
+import DeleteConfirmModal from './common/DeleteConfirmModal/DeleteConfirmModal';
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 
@@ -36,10 +28,6 @@ function Owners() {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState(null);
-  const [sortField, setSortField] = useState(null);
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [sortCount, setSortCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
@@ -131,152 +119,6 @@ function Owners() {
     setShowDeleteModal(true);
   };
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      if (sortCount === 0) {
-        setSortOrder("asc");
-        setSortCount(1);
-      } else if (sortCount === 1) {
-        setSortOrder("desc");
-        setSortCount(2);
-      } else {
-        setSortField(null);
-        setSortOrder("asc");
-        setSortCount(0);
-      }
-    } else {
-      setSortField(field);
-      setSortOrder("asc");
-      setSortCount(1);
-    }
-  };
-
-  const getSortedOwners = () => {
-    let filteredOwners = owners;
-
-    // First apply search filter
-    if (searchTerm) {
-      filteredOwners = owners.filter(
-        (owner) =>
-          owner.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          owner.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          owner.mobile?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          owner.address?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Then apply sorting
-    if (!sortField) return filteredOwners;
-
-    return [...filteredOwners].sort((a, b) => {
-      let aValue = a[sortField] || "";
-      let bValue = b[sortField] || "";
-
-      if (sortField === "is_active") {
-        aValue = parseInt(aValue) || 0;
-        bValue = parseInt(bValue) || 0;
-      } else {
-        aValue = String(aValue).toLowerCase();
-        bValue = String(bValue).toLowerCase();
-      }
-
-      if (sortOrder === "asc") {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-  };
-
-  const renderSortIcon = (field) => {
-    if (sortField !== field) {
-      return (
-        <FontAwesomeIcon icon={faSort} className="ml-1 text-gray-400 w-4 h-4" />
-      );
-    }
-    return sortOrder === "asc" ? (
-      <FontAwesomeIcon
-        icon={faSortUp}
-        className="ml-1 text-brand-500 w-4 h-4"
-      />
-    ) : (
-      <FontAwesomeIcon
-        icon={faSortDown}
-        className="ml-1 text-brand-500 w-4 h-4"
-      />
-    );
-  };
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = getSortedOwners().slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-  const totalPages = Math.ceil(getSortedOwners().length / itemsPerPage);
-
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const renderPaginationNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 7; // Show max 7 page numbers
-    let startPage = 1;
-    let endPage = totalPages;
-
-    if (totalPages > maxVisiblePages) {
-      const middlePage = Math.floor(maxVisiblePages / 2);
-      if (currentPage <= middlePage) {
-        endPage = maxVisiblePages;
-      } else if (currentPage + middlePage >= totalPages) {
-        startPage = totalPages - maxVisiblePages + 1;
-      } else {
-        startPage = currentPage - middlePage;
-        endPage = currentPage + middlePage;
-      }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <li key={i}>
-          <button
-            onClick={() => handlePageChange(i)}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
-              currentPage === i
-                ? "bg-brand-500 text-white"
-                : "text-gray-700 hover:bg-brand-500 hover:text-white dark:text-gray-400 dark:hover:text-white"
-            }`}
-          >
-            {i}
-          </button>
-        </li>
-      );
-    }
-
-    // Add ellipsis if needed
-    if (startPage > 1) {
-      pages.unshift(
-        <li key="start-ellipsis">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
-            ...
-          </span>
-        </li>
-      );
-    }
-    if (endPage < totalPages) {
-      pages.push(
-        <li key="end-ellipsis">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
-            ...
-          </span>
-        </li>
-      );
-    }
-
-    return pages;
-  };
-
   const getTotalCount = () => owners.length;
   const getActiveCount = () =>
     owners.filter((owner) => owner.is_active === 1).length;
@@ -284,7 +126,7 @@ function Owners() {
     owners.filter((owner) => owner.is_active === 0).length;
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Owners' }
   ];
 
@@ -417,36 +259,6 @@ function Owners() {
     }
   };
 
-  // Add delete modal buttons
-  const deleteModalButtons = (
-    <>
-      <button
-        type="button"
-        onClick={() => {
-          setShowDeleteModal(false);
-          setOwnerToDelete(null);
-        }}
-        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
-      >
-        Cancel
-      </button>
-      <button
-        type="button"
-        onClick={handleDeleteOwner}
-        className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 bg-error-500 px-4 py-3 font-medium text-white hover:bg-error-600"
-      >
-        Delete Owner
-      </button>
-    </>
-  );
-
-  // First define the button classes as constants
-  const buttonBaseClasses = "flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs sm:w-auto";
-
-  const cancelButtonClasses = `${buttonBaseClasses} border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200`;
-
-  const deleteButtonClasses = `${buttonBaseClasses} text-white bg-error-500 hover:bg-error-600`;
-
   if (isLoading) {
     return (
       <div className="flex items-center justify- min-h-screen">
@@ -466,7 +278,6 @@ function Owners() {
         itemsPerPageOptions={[50, 100, 200]}
         onItemsPerPageChange={(value) => {
           setItemsPerPage(Number(value));
-          setCurrentPage(1);
         }}
         enableSort={true}
         enableAccountTypeFilter={false}
@@ -507,50 +318,20 @@ function Owners() {
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
-          setCurrentPage(1);
         }}
         onReload={fetchOwners}
       />
 
-      <Modal
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);
           setOwnerToDelete(null);
         }}
-        type="error"
+        onDelete={handleDeleteOwner}
         title="Confirm Delete"
-        size="small"
-        actionButtons={
-          <div className="flex justify-between w-full gap-4">
-            <button
-              type="button"
-              onClick={() => {
-                setShowDeleteModal(false);
-                setOwnerToDelete(null);
-              }}
-              className={cancelButtonClasses}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleDeleteOwner}
-              className={deleteButtonClasses}
-            >
-              Delete
-            </button>
-          </div>
-        }
-      >
-        <div className="flex items-start s">
-          <div className="text-center">
-            <p className="text-theme-sm text-gray-500 dark:text-gray-400">
-              Are you sure ?
-            </p>
-          </div>
-        </div>
-      </Modal>
+        message="Are you sure ?"
+      />
     </>
   );
 }

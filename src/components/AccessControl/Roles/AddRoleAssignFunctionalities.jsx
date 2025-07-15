@@ -22,7 +22,7 @@ function AddRoleAssignFunctionalities() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Access Control', path: '/access-control' },
     { label: 'Roles', path: '/roles' },
     { label: 'Assign Functionalities' }

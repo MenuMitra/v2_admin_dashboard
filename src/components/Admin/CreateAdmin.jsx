@@ -34,7 +34,7 @@ function CreateAdmin() {
 
   // Breadcrumb configuration
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Admins", path: "/admins" },
     { label: "Create Admin", path: "/create-admin" },
   ];

@@ -96,7 +96,7 @@ function EditCategory() {
     <div className="">
       <Breadcrumb
         items={[
-          { label: 'Dashboard', path: '/' },
+          { label: 'Home', path: '/home' },
           { label: 'Outlets', path: '/outlets' },
           { label: 'Categories', path: `/categories/${outletId}` },
           { label: 'Edit Category' }

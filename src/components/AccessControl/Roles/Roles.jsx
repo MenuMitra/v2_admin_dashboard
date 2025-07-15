@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft, faSearch, faEye, faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
 import { useAdmin } from '../../../hooks/useAdmin';
 import DataTable from '../../common/DataTable';
 import Breadcrumb from '../../Breadcrumb';
+import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import Modal from '../../common/Modal';
 import { API_CONFIG } from '../../../config/appConfig';
 import { toastController } from '../../../utils/toastController';
@@ -18,7 +19,6 @@ function Roles() {
   const { adminData } = useAdmin();
   const [roles, setRoles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newRoleName, setNewRoleName] = useState('');
@@ -31,7 +31,7 @@ function Roles() {
   const navigate = useNavigate();
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Access Control', path: '/dashboard' },
     { label: 'Roles', path: '/roles' }
   ];
@@ -39,7 +39,6 @@ function Roles() {
   const fetchRoles = async () => {
     try {
       setIsLoading(true);
-      setError(null);
       
       const token = getToken();
       if (!token) {
@@ -65,7 +64,6 @@ function Roles() {
 
       setRoles(response.data);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to fetch roles');
       console.error('Error fetching roles:', err);
     } finally {
       setIsLoading(false);
@@ -335,19 +333,33 @@ function Roles() {
             />
           </div>
 
-          <div className="flex justify-end items-center gap-3">
-            <button
-              onClick={handleCreateRole}
-              disabled={!newRoleName.trim() || isSubmitting}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
-                ${!newRoleName.trim() || isSubmitting
-                  ? 'bg-success-500 cursor-not-allowed'
-                  : 'bg-success-500 hover:bg-success-600'
-                }`}
-            >
-              <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-              {isSubmitting ? 'Creating...' : 'Create'}
-            </button>
+          <div className="flex justify-between items-center">
+            <div>
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setNewRoleName('');
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={handleCreateRole}
+                disabled={!newRoleName.trim() || isSubmitting}
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
+                  ${!newRoleName.trim() || isSubmitting
+                    ? 'bg-success-500 cursor-not-allowed'
+                    : 'bg-success-500 hover:bg-success-600'
+                  }`}
+              >
+                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                {isSubmitting ? 'Creating...' : 'Create'}
+              </button>
+            </div>
           </div>
         </div>
       </Modal>
@@ -409,47 +421,14 @@ function Roles() {
         </div>
       </Modal>
 
-      {/* Delete Role Modal */}
-      <Modal
+      <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => {
           setIsDeleteModalOpen(false);
           setDeletingRole(null);
         }}
-        title="Delete Role"
-        type="danger"
-        size="small"
-      >
-        <div className="w-full">
-          <p className="text-gray-700 mb-6">
-            Are you sure you want to delete the role "{deletingRole?.role_name}"? This action cannot be undone.
-          </p>
-
-          <div className="flex justify-end items-center gap-3">
-            <button
-              onClick={() => {
-                setIsDeleteModalOpen(false);
-                setDeletingRole(null);
-              }}
-              className="px-4 py-2 text-theme-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDeleteRole}
-              disabled={isSubmitting}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
-                ${isSubmitting
-                  ? 'bg-error-500 cursor-not-allowed'
-                  : 'bg-error-500 hover:bg-error-600'
-                }`}
-            >
-              <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-              {isSubmitting ? 'Deleting...' : 'Delete'}
-            </button>
-          </div>
-        </div>
-      </Modal>
+        onDelete={handleDeleteRole}
+      />
     </>
   );
 }

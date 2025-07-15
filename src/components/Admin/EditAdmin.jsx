@@ -44,7 +44,7 @@ function EditAdmin() {
 
   // Breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Admins', path: '/admins' },
     { label: 'Edit Admin', path: `/edit-admin/${adminId}` }
   ];

@@ -57,7 +57,7 @@ function CreateWaiter() {
   const nameRegex = /^[A-Za-z ]+$/;
 
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
     { label: outletName, path: `/view-outlet/${outletId}` },
     { label: "Waiters", path: `/waiters/${outletId}` },

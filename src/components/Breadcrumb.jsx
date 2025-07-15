@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHome } from "@fortawesome/free-solid-svg-icons";
 
 const ChevronIcon = () => (
   <svg 
@@ -25,6 +27,7 @@ const Breadcrumb = ({ items }) => {
     <ol className="flex flex-wrap items-center gap-1.5 mb-5">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
+        const isFirst = index === 0;
 
         if (isLast) {
           return (
@@ -49,6 +52,11 @@ const Breadcrumb = ({ items }) => {
               {index !== 0 && (
                 <span>
                   <ChevronIcon />
+                </span>
+              )}
+              {isFirst && (
+                <span className="ml-2">
+                  <FontAwesomeIcon icon={faHome} className="w-4 h-4" />
                 </span>
               )}
               <span>{item.label}</span>

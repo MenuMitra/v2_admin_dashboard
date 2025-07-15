@@ -836,9 +836,9 @@ function DataTable({
                 {paddedColumns.map((column, idx) => (
                   <th
                     key={column.field || idx}
-                    className={`$${
+                    className={`${
                       column.field === "selection" ? "px-2" : "px-6"
-                    } py-2.5 text-center ${
+                    } py-2.5 ${column.textAlign ? `text-${column.textAlign}` : "text-left"} ${
                       enableSort && column.sortable
                         ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                         : ""
@@ -847,9 +847,9 @@ function DataTable({
                       column.sortable ? handleSort(column.field) : null
                     }
                   >
-                    <div className="flex items-center justify-center gap-1">
+                    <div className={`flex items-center ${column.textAlign === "center" ? "justify-center w-full" : "gap-1"}`}>
                       <p
-                        className={`font-semibold text-gray-700 text-theme-xs ${
+                        className={`font-semibold text-gray-700 text-theme-xs text-center ${
                           darkMode ? "dark:text-white/90" : ""
                         }`}
                       >
@@ -900,18 +900,27 @@ function DataTable({
                     {paddedColumns.map((column, idx) => (
                       <td
                         key={column.field || idx}
-                        className={`$${
+                        className={`${
                           column.field === "selection" ? "px-2" : "px-6"
-                        } py-2.5 text-center`}
+                        } py-2.5 text-center ${
+                          // Add whitespace-nowrap and overflow handling for name column
+                          column.field === "name" || column.field === "outlet_name" ? 
+                          "whitespace-nowrap" : ""
+                        }`}
                       >
                         {column.render && column.field ? (
                           column.render(item[column.field], item)
                         ) : column.field === statusField && column.field ? (
-                          renderStatus(item[column.field])
+                          <div className="flex items-center">
+                            {renderStatus(item[column.field])}
+                          </div>
                         ) : column.field ? (
                           <p
                             className={`text-gray-500 text-theme-sm ${
                               darkMode ? "dark:text-gray-400" : ""
+                            } ${
+                              // Add overflow classes to the text element as well
+                              column.field === "name" || column.field === "outlet_name"
                             }`}
                           >
                             {item[column.field]}
@@ -1060,6 +1069,7 @@ DataTable.propTypes = {
       field: PropTypes.string.isRequired,
       header: PropTypes.string.isRequired,
       sortable: PropTypes.bool,
+      textAlign: PropTypes.oneOf(['left', 'center', 'right']),  // New prop
       render: PropTypes.func,
     })
   ).isRequired,

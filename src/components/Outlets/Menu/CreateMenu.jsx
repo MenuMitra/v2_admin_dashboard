@@ -304,7 +304,7 @@ function CreateMenu() {
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: 'Dashboard', path: '/' },
+          { label: 'Home', path: '/home' },
           { label: 'Outlets', path: '/outlets' },
           { label: outletName, path: `/view-outlet/${outletId}` },
           { label: 'Menus', path: `/menus/${outletId}` },
