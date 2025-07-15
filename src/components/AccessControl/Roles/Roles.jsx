@@ -333,19 +333,33 @@ function Roles() {
             />
           </div>
 
-          <div className="flex justify-end items-center gap-3">
-            <button
-              onClick={handleCreateRole}
-              disabled={!newRoleName.trim() || isSubmitting}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
-                ${!newRoleName.trim() || isSubmitting
-                  ? 'bg-success-500 cursor-not-allowed'
-                  : 'bg-success-500 hover:bg-success-600'
-                }`}
-            >
-              <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-              {isSubmitting ? 'Creating...' : 'Create'}
-            </button>
+          <div className="flex justify-between items-center">
+            <div>
+              <button
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setNewRoleName('');
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={handleCreateRole}
+                disabled={!newRoleName.trim() || isSubmitting}
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
+                  ${!newRoleName.trim() || isSubmitting
+                    ? 'bg-success-500 cursor-not-allowed'
+                    : 'bg-success-500 hover:bg-success-600'
+                  }`}
+              >
+                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                {isSubmitting ? 'Creating...' : 'Create'}
+              </button>
+            </div>
           </div>
         </div>
       </Modal>
