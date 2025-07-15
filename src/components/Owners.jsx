@@ -126,7 +126,7 @@ function Owners() {
     owners.filter((owner) => owner.is_active === 0).length;
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Owners' }
   ];
 

@@ -37,7 +37,7 @@ function CreateSubscription() {
   });
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Subscriptions', path: '/subscriptions' },
     { label: 'Create Subscription' }
   ];

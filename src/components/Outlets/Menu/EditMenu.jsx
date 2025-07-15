@@ -412,7 +412,7 @@ function EditMenu() {
       {/* Update Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: 'Dashboard', path: '/dashboard' },
+          { label: 'Home', path: '/home' },
           { label: 'Outlets', path: '/outlets' },
           { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
           { label: 'Menus', path: `/menus/${outletId}` },

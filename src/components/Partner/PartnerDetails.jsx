@@ -105,7 +105,7 @@ function PartnerDetails() {
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Partners', path: '/partners' },
     { label: 'View', path: '#' }
   ];

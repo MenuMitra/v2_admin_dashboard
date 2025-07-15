@@ -207,7 +207,7 @@ function Functionalities() {
 
   // Add this breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Access Control', path: '/dashboard' },
     { label: 'Functionalities', path: '/functionalities' }
   ];

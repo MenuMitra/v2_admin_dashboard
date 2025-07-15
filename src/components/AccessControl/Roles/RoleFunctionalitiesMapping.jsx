@@ -29,7 +29,7 @@ function RoleFunctionalitiesMapping() {
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Access Control', path: '/dashboard' },
     { label: 'Roles', path: '/roles' },
     { label: 'Role Functionalities', path: '#' }

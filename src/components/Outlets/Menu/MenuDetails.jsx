@@ -89,7 +89,7 @@ function MenuDetails() {
 
   // Add breadcrumb items function
   const getBreadcrumbItems = () => [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: menu?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Menus', path: `/menus/${outletId}` },

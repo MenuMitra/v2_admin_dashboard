@@ -32,7 +32,7 @@ function ManageMenus() {
 
   // Move breadcrumbItems inside the render since it needs menuData
   const getBreadcrumbItems = () => [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: outletName, path: `/view-outlet/${outletId}` },
     { label: 'Menus' },

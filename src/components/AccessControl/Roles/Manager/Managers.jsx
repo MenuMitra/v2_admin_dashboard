@@ -118,7 +118,7 @@ function Managers() {
   };
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Managers' }

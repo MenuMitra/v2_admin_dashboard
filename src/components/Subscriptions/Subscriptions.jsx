@@ -23,7 +23,7 @@ function Subscriptions() {
   const [selectedSubscription, setSelectedSubscription] = useState(null);
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Subscriptions', path: '/subscriptions' }
   ];
 

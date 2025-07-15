@@ -226,7 +226,7 @@ function Customer() {
       {/* Breadcrumb */}
       <Breadcrumb 
         items={[
-          { label: 'Dashboard', path: '/dashboard' },
+          { label: 'Home', path: '/home' },
           { label: 'Customers' }
         ]} 
       />

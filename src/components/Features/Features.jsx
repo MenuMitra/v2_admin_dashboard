@@ -30,7 +30,7 @@ function Features() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Features', path: '/features' }
   ];
 

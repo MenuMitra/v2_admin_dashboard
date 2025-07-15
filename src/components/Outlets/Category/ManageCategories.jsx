@@ -153,7 +153,7 @@ function ManageCategories() {
 
   // Update breadcrumb items to include outlet name
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: outletInfo?.outlet_name || 'Loading...', path: `/outlet/${outletId}` },
     { label: 'Categories' }

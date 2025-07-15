@@ -31,7 +31,7 @@ function Roles() {
   const navigate = useNavigate();
 
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Access Control', path: '/dashboard' },
     { label: 'Roles', path: '/roles' }
   ];

@@ -30,7 +30,7 @@ function CategoryDetails() {
 
   // Move breadcrumbItems inside the render since it needs category data
   const getBreadcrumbItems = () => [
-    { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: category?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Categories', path: `/categories/${outletId}` },
