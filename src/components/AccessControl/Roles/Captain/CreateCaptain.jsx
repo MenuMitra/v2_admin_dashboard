@@ -56,7 +56,7 @@ function CreateCaptain() {
 
   const breadcrumbItems = [
     { label: "Dashboard", path: "/" },
-    { label: "Captains", path: "/captains" },
+    { label: "Captains", path: `/captains/${outletId}` },
     { label: "Create Captain", path: "/create-captain" },
   ];
 
@@ -379,6 +379,7 @@ function CreateCaptain() {
               </div>
 
               <div>
+                
                 <TextInput
                   label="Address"
                   name="address"
@@ -386,10 +387,10 @@ function CreateCaptain() {
                   onChange={handleChange}
                   placeholder="Enter complete address"
                   minLength={5}
-                  className={`
-                    focus:border-brand-500 focus:ring-brand-500
-                    border-gray-300
-                  `}
+                  // className={`
+                  //   focus:border-brand-500 focus:ring-brand-500
+                  //   border-gray-300
+                  // `}
                 />
               </div>
             </div>

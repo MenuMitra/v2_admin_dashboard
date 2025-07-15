@@ -200,54 +200,30 @@ function TicketDetails() {
         </div>
 
         {/* Details Grid */}
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-          {/* Left Column */}
-          <div className="space-y-6">
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h4>
-              <p className="mt-2 text-gray-900 dark:text-white">{ticket.description}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</h4>
-              <p className="mt-2 text-gray-900 dark:text-white capitalize">{ticket.status}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Created By</h4>
-              <p className="mt-2 text-gray-900 dark:text-white">{`${ticket.user_name} (${ticket.user_role})`}</p>
-            </div>
+        <div className="p-6 flex flex-row gap-x-8 gap-y-6">
+          {/* Description */}
+          <div className="flex-1 min-w-0">
+           
+            <p className="mt-2 text-gray-900 dark:text-white break-words">{ticket.description}</p>
+            <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</h4>
           </div>
-
-          {/* Right Column */}
-          <div className="space-y-6">
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Created On</h4>
-              <p className="mt-2 text-gray-900 dark:text-white">{formatTicketDate(ticket.created_on)}</p>
-            </div>
-            <div>
-              <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Attachments</h4>
-              <div className="mt-2 space-y-2">
-                {ticket.attachment_1 ? (
-                  <a href={ticket.attachment_1} target="_blank" rel="noopener noreferrer" 
-                     className="inline-flex items-center gap-2 text-brand-500 hover:text-brand-600">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
-                    Attachment 1
-                  </a>
-                ) : (
-                  <p className="text-gray-500 dark:text-gray-400">No attachments</p>
-                )}
-                {ticket.attachment_2 && (
-                  <a href={ticket.attachment_2} target="_blank" rel="noopener noreferrer" 
-                     className="inline-flex items-center gap-2 text-brand-500 hover:text-brand-600">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
-                    Attachment 2
-                  </a>
-                )}
-              </div>
-            </div>
+          {/* Status */}
+          <div className="flex-1 min-w-0">
+           
+            <p className="mt-2 text-gray-900 dark:text-white capitalize">{ticket.status}</p>
+            <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Status</h4>
+          </div>
+          {/* Created By */}
+          <div className="flex-1 min-w-0">
+           
+            <p className="mt-2 text-gray-900 dark:text-white">{`${ticket.user_name} (${ticket.user_role})`}</p>
+            <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Created By</h4>
+          </div>
+          {/* Created On */}
+          <div className="flex-1 min-w-0">
+           
+            <p className="mt-2 text-gray-900 dark:text-white">{formatTicketDate(ticket.created_on)}</p>
+            <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Created On</h4>
           </div>
         </div>
       </div>

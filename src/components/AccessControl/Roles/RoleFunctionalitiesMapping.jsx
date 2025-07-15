@@ -1,12 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import { API_CONFIG } from '../../../config/appConfig';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faChevronLeft as faBack, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-import Breadcrumb from '../../Breadcrumb';
-import Modal from '../../common/Modal';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import { API_CONFIG } from "../../../config/appConfig";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheck,
+  faChevronLeft as faBack,
+  faPenToSquare,
+} from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "../../Breadcrumb";
+import Modal from "../../common/Modal";
 
 function RoleFunctionalitiesMapping() {
   const { roleId } = useParams();
@@ -18,17 +22,18 @@ function RoleFunctionalitiesMapping() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [showEditModal, setShowEditModal] = useState(false);
   const [allFunctionalities, setAllFunctionalities] = useState([]);
-  const [isLoadingFunctionalities, setIsLoadingFunctionalities] = useState(false);
+  const [isLoadingFunctionalities, setIsLoadingFunctionalities] =
+    useState(false);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Access Control', path: '/dashboard' },
-    { label: 'Roles', path: '/roles' },
-    { label: 'Role Functionalities', path: '#' }
+    { label: "Dashboard", path: "/dashboard" },
+    { label: "Access Control", path: "/dashboard" },
+    { label: "Roles", path: "/roles" },
+    { label: "Role Functionalities", path: "#" },
   ];
 
   useEffect(() => {
@@ -38,7 +43,7 @@ function RoleFunctionalitiesMapping() {
   useEffect(() => {
     if (showEditModal) {
       // Use Set to ensure unique values
-      const uniqueIds = [...new Set(mappings.map(m => m.functionality_id))];
+      const uniqueIds = [...new Set(mappings.map((m) => m.functionality_id))];
       setSelectedFunctionalities(uniqueIds);
     }
   }, [showEditModal, mappings]);
@@ -50,7 +55,7 @@ function RoleFunctionalitiesMapping() {
 
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.post(
@@ -59,15 +64,18 @@ function RoleFunctionalitiesMapping() {
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       setMappings(response.data);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to fetch role functionality mappings');
-      console.error('Error fetching mappings:', err);
+      setError(
+        err.response?.data?.detail ||
+          "Failed to fetch role functionality mappings"
+      );
+      console.error("Error fetching mappings:", err);
     } finally {
       setIsLoading(false);
     }
@@ -78,7 +86,7 @@ function RoleFunctionalitiesMapping() {
       setIsLoadingFunctionalities(true);
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -86,14 +94,14 @@ function RoleFunctionalitiesMapping() {
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       setAllFunctionalities(response.data);
     } catch (err) {
-      console.error('Error fetching functionalities:', err);
+      console.error("Error fetching functionalities:", err);
     } finally {
       setIsLoadingFunctionalities(false);
     }
@@ -102,7 +110,7 @@ function RoleFunctionalitiesMapping() {
   const handleSaveChanges = async () => {
     // Validation: must select at least one functionality
     if (!selectedFunctionalities || selectedFunctionalities.length === 0) {
-      setSaveError('Please choose functionality');
+      setSaveError("Please choose functionality");
       return;
     }
     try {
@@ -111,20 +119,20 @@ function RoleFunctionalitiesMapping() {
 
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/create_ubac_role_functionality_mapping`,
         {
           functionality_ids: selectedFunctionalities,
-          role_id: parseInt(roleId) // Using roleId as user_id
+          role_id: parseInt(roleId), // Using roleId as user_id
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -132,15 +140,17 @@ function RoleFunctionalitiesMapping() {
       setShowEditModal(false);
       fetchRoleFunctionalityMappings();
     } catch (err) {
-      setSaveError(err.response?.data?.detail || 'Failed to save functionalities');
-      console.error('Error saving functionalities:', err);
+      setSaveError(
+        err.response?.data?.detail || "Failed to save functionalities"
+      );
+      console.error("Error saving functionalities:", err);
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleFunctionalityToggle = (functionalityId) => {
-    setSelectedFunctionalities(prev => {
+    setSelectedFunctionalities((prev) => {
       const uniqueSet = new Set(prev);
       if (uniqueSet.has(functionalityId)) {
         uniqueSet.delete(functionalityId);
@@ -170,7 +180,7 @@ function RoleFunctionalitiesMapping() {
           <div className="flex items-center px-6 mb-3">
             {/* Left Side - Back Button */}
             <div className="flex items-center gap-2 order-1">
-              <button 
+              <button
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
@@ -183,10 +193,13 @@ function RoleFunctionalitiesMapping() {
             <div className="flex-1 text-center text-lg sm:text-xl font-semibold text-gray-800">
               {mappings.length > 0 ? (
                 <>
-                  Role Functionalities: <span className="capitalize text-brand-600">{mappings[0].role_name}</span>
+                  Role Functionalities:{" "}
+                  <span className="capitalize text-brand-600">
+                    {mappings[0].role_name}
+                  </span>
                 </>
               ) : (
-                'Role Functionalities Mapping'
+                "Role Functionalities Mapping"
               )}
             </div>
 
@@ -216,7 +229,6 @@ function RoleFunctionalitiesMapping() {
 
           {mappings.length > 0 && (
             <div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 {mappings.map((mapping) => (
                   <div
@@ -225,13 +237,17 @@ function RoleFunctionalitiesMapping() {
                   >
                     <div className="flex-1">
                       <p className="font-medium text-gray-800 line-clamp-2">
-                        {mapping.functionality_name.split('_').map(word => 
-                          word.charAt(0).toUpperCase() + word.slice(1)
-                        ).join(' ')}
+                        {mapping.functionality_name
+                          .split("_")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
                       </p>
-                      <p className="text-sm text-gray-500 mt-0.5">
+                      {/* <p className="text-sm text-gray-500 mt-0.5">
                         ID: {mapping.functionality_id}
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 ))}
@@ -241,7 +257,9 @@ function RoleFunctionalitiesMapping() {
 
           {mappings.length === 0 && !error && (
             <div className="text-center py-8">
-              <p className="text-gray-500">No functionalities mapped to this role.</p>
+              <p className="text-gray-500">
+                No functionalities mapped to this role.
+              </p>
             </div>
           )}
         </div>
@@ -252,7 +270,7 @@ function RoleFunctionalitiesMapping() {
         <Modal
           isOpen={showEditModal}
           onClose={() => setShowEditModal(false)}
-          title={`Edit Functionalities : ${mappings[0]?.role_name || 'Role'}`}
+          title={`Edit Functionalities : ${mappings[0]?.role_name || "Role"}`}
           size="large"
         >
           <div className="w-full">
@@ -269,41 +287,59 @@ function RoleFunctionalitiesMapping() {
                   </label>
 
                   <div className="relative">
-
                     {/* Functionalities List */}
-                    <div className="border rounded-lg" style={{ maxHeight: '350px', overflowY: 'auto' }}>
+                    <div
+                      className="border rounded-lg"
+                      style={{ maxHeight: "350px", overflowY: "auto" }}
+                    >
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 p-4">
                         {allFunctionalities.map((functionality) => (
                           <div
                             key={functionality.functionality_id}
                             className={`
                               p-3 cursor-pointer hover:bg-gray-50 border rounded-lg
-                              ${selectedFunctionalities.includes(functionality.functionality_id)
-                                ? 'bg-brand-50 border-brand-500' 
-                                : 'border-gray-200'
+                              ${
+                                selectedFunctionalities.includes(
+                                  functionality.functionality_id
+                                )
+                                  ? "bg-brand-50 border-brand-500"
+                                  : "border-gray-200"
                               }
                             `}
-                            onClick={() => handleFunctionalityToggle(functionality.functionality_id)}
+                            onClick={() =>
+                              handleFunctionalityToggle(
+                                functionality.functionality_id
+                              )
+                            }
                           >
                             <div className="flex items-center gap-3">
                               <input
                                 type="checkbox"
-                                checked={selectedFunctionalities.includes(functionality.functionality_id)}
+                                checked={selectedFunctionalities.includes(
+                                  functionality.functionality_id
+                                )}
                                 onChange={(e) => {
                                   e.stopPropagation();
-                                  handleFunctionalityToggle(functionality.functionality_id);
+                                  handleFunctionalityToggle(
+                                    functionality.functionality_id
+                                  );
                                 }}
                                 className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
                               />
                               <div>
                                 <div className="font-medium text-gray-900">
-                                  {functionality.functionality_name.split('_').map(word => 
-                                    word.charAt(0).toUpperCase() + word.slice(1)
-                                  ).join(' ')}
+                                  {functionality.functionality_name
+                                    .split("_")
+                                    .map(
+                                      (word) =>
+                                        word.charAt(0).toUpperCase() +
+                                        word.slice(1)
+                                    )
+                                    .join(" ")}
                                 </div>
-                                <div className="text-sm text-gray-500">
+                                {/* <div className="text-sm text-gray-500">
                                   ID: {functionality.functionality_id}
-                                </div>
+                                </div> */}
                               </div>
                             </div>
                           </div>
@@ -313,7 +349,7 @@ function RoleFunctionalitiesMapping() {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-3">
+                <div className="flex justify-between items-center mt-6">
                   {saveError && (
                     <div className="flex-1 text-sm text-red-500">
                       {saveError}

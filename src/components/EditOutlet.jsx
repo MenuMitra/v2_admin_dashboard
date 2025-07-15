@@ -1,24 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { useAdmin } from '../hooks/useAdmin';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { useAdmin } from "../hooks/useAdmin";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack, faSave } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft as faBack,
+  faSave,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
   SelectInput,
   Textarea,
   Checkbox,
   TimePickerInput,
-  labelStyles
-} from './forms/FormElements.jsx';
-import Breadcrumb from './Breadcrumb';
-import ImageUploader from './common/ImageUploader';
+  labelStyles,
+} from "./forms/FormElements.jsx";
+import Breadcrumb from "./Breadcrumb";
+import ImageUploader from "./common/ImageUploader";
 import { API_CONFIG } from "../config/appConfig";
-import { isValidSocialMediaLinks, isMobileValid, isWhatsappValid } from '../utils/validations';
-import { toastController } from '../utils/toastController';
-import CustomSelectInput from './common/CustomSelectInput';
+import {
+  isValidSocialMediaLinks,
+  isMobileValid,
+  isWhatsappValid,
+} from "../utils/validations";
+import { toastController } from "../utils/toastController";
+import CustomSelectInput from "./common/CustomSelectInput";
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -27,46 +34,46 @@ function EditOutlet() {
   const { outletId } = useParams();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [outletData, setOutletData] = useState({
-    outlet_id: '',
-    user_id: '',
+    outlet_id: "",
+    user_id: "",
     owner_ids: [],
-    name: '',
-    outlet_type: '',
-    fssainumber: '',
-    gstnumber: '',
-    mobile: '',
-    veg_nonveg: '',
-    service_charges: '',
-    gst: '',
-    address: '',
+    name: "",
+    outlet_type: "",
+    fssainumber: "",
+    gstnumber: "",
+    mobile: "",
+    veg_nonveg: "",
+    service_charges: "",
+    gst: "",
+    address: "",
     is_open: true,
     outlet_status: true,
-    upi_id: '',
-    website: '',
-    whatsapp: '',
-    facebook: '',
-    instagram: '',
-    google_business_link: '',
-    google_review: '',
-    email: '',
-    opening_time: '',
-    closing_time: '',
-    outlet_mode: '',
+    upi_id: "",
+    website: "",
+    whatsapp: "",
+    facebook: "",
+    instagram: "",
+    google_business_link: "",
+    google_review: "",
+    email: "",
+    opening_time: "",
+    closing_time: "",
+    outlet_mode: "",
     image: null,
-    subscription_id: '',
+    subscription_id: "",
   });
 
   const [isLoading, setIsLoading] = useState(true);
   const [outletTypes, setOutletTypes] = useState({});
   const [vegOrNonveg, setVegOrNonveg] = useState({});
   const [allOwners, setAllOwners] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [validationStates, setValidationStates] = useState({
     owner: false,
     name: false,
     mobile: false,
-    mobileMessage: '',
+    mobileMessage: "",
     upi: false,
     outlet_type: false,
     food_type: false,
@@ -79,7 +86,7 @@ function EditOutlet() {
     google_business_link: false,
     google_review: false,
     whatsapp: false,
-    whatsappMessage: '',
+    whatsappMessage: "",
   });
 
   // Add new state for subscriptions
@@ -91,6 +98,44 @@ function EditOutlet() {
   // Address validation function
   const isAddressValid = (address) => {
     return address && address.length >= 5 && address.length <= 50;
+  };
+
+  // Add at the top of the component:
+  const [openingHour, setOpeningHour] = useState("");
+  const [openingMinute, setOpeningMinute] = useState("");
+  const [openingPeriod, setOpeningPeriod] = useState("AM");
+  const [closingHour, setClosingHour] = useState("");
+  const [closingMinute, setClosingMinute] = useState("");
+  const [closingPeriod, setClosingPeriod] = useState("AM");
+
+  const handleOpeningTimeChange = (type, value) => {
+    if (type === "hour") setOpeningHour(value);
+    if (type === "minute") setOpeningMinute(value);
+    if (type === "period") setOpeningPeriod(value);
+    const hour = type === "hour" ? value : openingHour;
+    const minute = type === "minute" ? value : openingMinute;
+    const period = type === "period" ? value : openingPeriod;
+    if (hour && minute && period) {
+      setOutletData((prev) => ({
+        ...prev,
+        opening_time: `${hour}:${minute} ${period}`,
+      }));
+    }
+  };
+
+  const handleClosingTimeChange = (type, value) => {
+    if (type === "hour") setClosingHour(value);
+    if (type === "minute") setClosingMinute(value);
+    if (type === "period") setClosingPeriod(value);
+    const hour = type === "hour" ? value : closingHour;
+    const minute = type === "minute" ? value : closingMinute;
+    const period = type === "period" ? value : closingPeriod;
+    if (hour && minute && period) {
+      setOutletData((prev) => ({
+        ...prev,
+        closing_time: `${hour}:${minute} ${period}`,
+      }));
+    }
   };
 
   // Fetch outlet data when component mounts
@@ -108,7 +153,7 @@ function EditOutlet() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.post(
@@ -128,16 +173,16 @@ function EditOutlet() {
 
       if (response.data.detail === "Successfully retrieved outlet details") {
         const data = response.data.data;
-        
+
         // Update form data with fetched data
         setOutletData({
           outlet_id: outletId,
           user_id: adminData?.user_id,
-          owner_ids: data.owners.map(owner => owner.owner_id),
+          owner_ids: data.owners.map((owner) => owner.owner_id),
           name: data.name,
           outlet_type: data.outlet_type,
-          fssainumber: data.fssainumber === 'None' ? '' : data.fssainumber,
-          gstnumber: data.gstnumber || '',
+          fssainumber: data.fssainumber === "None" ? "" : data.fssainumber,
+          gstnumber: data.gstnumber || "",
           mobile: data.mobile,
           veg_nonveg: data.veg_nonveg,
           service_charges: data.service_charges,
@@ -146,24 +191,31 @@ function EditOutlet() {
           is_open: data.is_open === 1,
           outlet_status: data.outlet_status === 1,
           upi_id: data.upi_id,
-          website: data.website || '',
-          whatsapp: data.whatsapp?.replace(/\D/g, '') || '',
-          facebook: data.facebook || '',
-          instagram: data.instagram || '',
-          google_business_link: data.google_business_link || '',
-          google_review: data.google_review || '',
-          email: data.email || '',
-          opening_time: data.opening_time ? data.opening_time.split(' ')[1] : '',
-          closing_time: data.closing_time ? data.closing_time.split(' ')[1] : '',
-          outlet_mode: data.outlet_mode || '',
+          website: data.website || "",
+          whatsapp: data.whatsapp?.replace(/\D/g, "") || "",
+          facebook: data.facebook || "",
+          instagram: data.instagram || "",
+          google_business_link: data.google_business_link || "",
+          google_review: data.google_review || "",
+          email: data.email || "",
+          opening_time: data.opening_time
+            ? data.opening_time.split(" ")[1]
+            : "",
+          closing_time: data.closing_time
+            ? data.closing_time.split(" ")[1]
+            : "",
+          outlet_mode: data.outlet_mode || "",
           image: data.image,
-          subscription_id: data.subscription_details?.subscription_id?.toString() || data.subscription_id?.toString() || '',
+          subscription_id:
+            data.subscription_details?.subscription_id?.toString() ||
+            data.subscription_id?.toString() ||
+            "",
         });
 
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Error fetching outlet data:', error);
+      console.error("Error fetching outlet data:", error);
       navigate(-1);
     }
   };
@@ -172,7 +224,7 @@ function EditOutlet() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -188,7 +240,7 @@ function EditOutlet() {
         setOutletTypes(response.data.outlet_type_list);
       }
     } catch (error) {
-      console.error('Error fetching outlet types:', error);
+      console.error("Error fetching outlet types:", error);
     }
   };
 
@@ -196,7 +248,7 @@ function EditOutlet() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -212,14 +264,14 @@ function EditOutlet() {
         setVegOrNonveg(response.data.veg_or_nonveg_list);
       }
     } catch (error) {
-      console.error('Error fetching veg or nonveg types:', error);
+      console.error("Error fetching veg or nonveg types:", error);
     }
   };
 
   const fetchOwners = async () => {
     try {
       const token = getToken();
-      if (!token) throw new Error('No authentication token available');
+      if (!token) throw new Error("No authentication token available");
 
       const response = await axios.get(
         `${BASE_URL}/${API_VERSION}/common/listview_owner/${adminData.user_id}`,
@@ -230,7 +282,7 @@ function EditOutlet() {
         setAllOwners(response.data);
       }
     } catch (error) {
-      console.error('Error fetching owners:', error);
+      console.error("Error fetching owners:", error);
     }
   };
 
@@ -238,7 +290,7 @@ function EditOutlet() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -254,22 +306,23 @@ function EditOutlet() {
         setSubscriptions(response.data.data);
       }
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
-      toastController.error('Failed to fetch subscriptions');
+      console.error("Error fetching subscriptions:", error);
+      toastController.error("Failed to fetch subscriptions");
     }
   };
 
-  const filteredOwners = allOwners.filter(owner => 
-    owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    owner.mobile.includes(searchTerm) ||
-    owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOwners = allOwners.filter(
+    (owner) =>
+      owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      owner.mobile.includes(searchTerm) ||
+      owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: 'Dashboard', path: '/' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: 'Edit Outlet' }
+    { label: "Dashboard", path: "/" },
+    { label: "Outlets", path: "/outlets" },
+    { label: "Edit Outlet" },
   ];
 
   // Show loading state while fetching data
@@ -283,68 +336,83 @@ function EditOutlet() {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
-    if (name === 'mobile' || name === 'whatsapp') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+
+    if (name === "mobile" || name === "whatsapp") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
-      
-      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
-        setValidationStates(prev => ({
+
+      if (firstDigit && ["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+        setValidationStates((prev) => ({
           ...prev,
           [name]: true,
-          [`${name}Message`]: `Number must start with 6, 7, 8, or 9`
+          [`${name}Message`]: `Number must start with 6, 7, 8, or 9`,
         }));
         return;
       }
 
-      setOutletData(prev => ({ ...prev, [name]: numbersOnly }));
-        setValidationStates(prev => ({
-          ...prev,
+      setOutletData((prev) => ({ ...prev, [name]: numbersOnly }));
+      setValidationStates((prev) => ({
+        ...prev,
         [name]: numbersOnly.length !== 10,
-        [`${name}Message`]: numbersOnly.length !== 10 ? 'Must be 10 digits' : ''
-        }));
-    } else if (name === 'address') {
-      setOutletData(prev => ({ ...prev, [name]: value }));
-      
+        [`${name}Message`]:
+          numbersOnly.length !== 10 ? "Must be 10 digits" : "",
+      }));
+    } else if (name === "address") {
+      setOutletData((prev) => ({ ...prev, [name]: value }));
+
       // Real-time address validation
       if (value && value.length < 5) {
-        setValidationStates(prev => ({ ...prev, [name]: true }));
+        setValidationStates((prev) => ({ ...prev, [name]: true }));
       } else {
-        setValidationStates(prev => ({ ...prev, [name]: false }));
+        setValidationStates((prev) => ({ ...prev, [name]: false }));
       }
-    } else if (['website', 'facebook', 'instagram', 'google_business_link', 'google_review'].includes(name)) {
-      setOutletData(prev => ({ ...prev, [name]: value }));
+    } else if (
+      [
+        "website",
+        "facebook",
+        "instagram",
+        "google_business_link",
+        "google_review",
+      ].includes(name)
+    ) {
+      setOutletData((prev) => ({ ...prev, [name]: value }));
 
       if (value) {
         const { isValid, errors } = isValidSocialMediaLinks({ [name]: value });
-        setValidationStates(prev => ({ ...prev, [name]: !isValid }));
+        setValidationStates((prev) => ({ ...prev, [name]: !isValid }));
         if (!isValid) toastController.error(errors[name]);
       } else {
-        setValidationStates(prev => ({ ...prev, [name]: false }));
+        setValidationStates((prev) => ({ ...prev, [name]: false }));
       }
     } else {
-      setOutletData(prev => ({
+      setOutletData((prev) => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value
+        [name]: type === "checkbox" ? checked : value,
       }));
     }
   };
 
   const handleFocus = (fieldName) => {
-    setValidationStates(prev => ({
+    setValidationStates((prev) => ({
       ...prev,
       [fieldName]: false,
-      [`${fieldName}Message`]: ''
+      [`${fieldName}Message`]: "",
     }));
   };
 
+  // Add this helper function at the top of the file:
+  function to12HourTime(hour, minute, period) {
+    return `${hour}:${minute}:00 ${period}`;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Basic validation check
     const requiredFields = {
       name: isNameValid(outletData.name),
-      mobile: outletData.mobile?.length === 10 && /^[6-9]/.test(outletData.mobile),
+      mobile:
+        outletData.mobile?.length === 10 && /^[6-9]/.test(outletData.mobile),
       owner_ids: outletData.owner_ids?.length > 0,
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
@@ -354,17 +422,19 @@ function EditOutlet() {
       subscription_id: true,
     };
 
-    const fieldsValid = Object.entries(requiredFields).every(([, value]) => value);
-    
+    const fieldsValid = Object.entries(requiredFields).every(
+      ([, value]) => value
+    );
+
     if (!fieldsValid) {
-      toastController.error('Please fill all required fields correctly');
+      toastController.error("Please fill all required fields correctly");
       return;
     }
 
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       // Validate social media links
@@ -373,21 +443,22 @@ function EditOutlet() {
         facebook: outletData.facebook,
         instagram: outletData.instagram,
         google_business_link: outletData.google_business_link,
-        google_review: outletData.google_review
+        google_review: outletData.google_review,
       };
 
-      const { isValid: isSocialValid, errors: socialErrors } = isValidSocialMediaLinks(socialMediaLinks);
+      const { isValid: isSocialValid, errors: socialErrors } =
+        isValidSocialMediaLinks(socialMediaLinks);
 
       if (!isSocialValid) {
         // Update validation states for all invalid fields
         const newValidationStates = { ...validationStates };
-        Object.keys(socialErrors).forEach(key => {
+        Object.keys(socialErrors).forEach((key) => {
           newValidationStates[key] = true;
         });
         setValidationStates(newValidationStates);
 
         // Show error messages
-        Object.values(socialErrors).forEach(error => {
+        Object.values(socialErrors).forEach((error) => {
           toastController.error(error);
         });
         return;
@@ -410,18 +481,20 @@ function EditOutlet() {
         is_open: outletData.is_open ? 1 : 0,
         outlet_status: outletData.outlet_status ? 1 : 0,
         upi_id: outletData.upi_id,
-        website: outletData.website || '',
-        whatsapp: outletData.whatsapp || '',
-        facebook: outletData.facebook || '',
-        instagram: outletData.instagram || '',
-        google_business_link: outletData.google_business_link || '',
-        google_review: outletData.google_review || '',
+        website: outletData.website || "",
+        whatsapp: outletData.whatsapp || "",
+        facebook: outletData.facebook || "",
+        instagram: outletData.instagram || "",
+        google_business_link: outletData.google_business_link || "",
+        google_review: outletData.google_review || "",
         outlet_mode: outletData.outlet_mode,
-        image: outletData.image || '',
-        subscription_id: outletData.subscription_id ? parseInt(outletData.subscription_id) : undefined,
+        image: outletData.image || "",
+        subscription_id: outletData.subscription_id
+          ? parseInt(outletData.subscription_id)
+          : undefined,
         app_source: "admin_app",
-        "opening_time": formatTime(outletData.opening_time),
-        "closing_time": formatTime(outletData.closing_time),
+        opening_time: to12HourTime(openingHour, openingMinute, openingPeriod),
+        closing_time: to12HourTime(closingHour, closingMinute, closingPeriod),
       };
 
       const response = await axios.patch(
@@ -429,20 +502,22 @@ function EditOutlet() {
         apiData,
         {
           headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
-          }
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (response.data.detail === "Outlet information updated successfully") {
         navigate(-1);
       } else {
-        throw new Error('Failed to update outlet');
+        throw new Error("Failed to update outlet");
       }
     } catch (error) {
-      console.error('Error updating outlet:', error);
-      toastController.error(error.response?.data?.detail || 'Failed to update outlet');
+      console.error("Error updating outlet:", error);
+      toastController.error(
+        error.response?.data?.detail || "Failed to update outlet"
+      );
     }
   };
 
@@ -456,7 +531,7 @@ function EditOutlet() {
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
             {/* Back Button */}
-            <button 
+            <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
             >
@@ -478,7 +553,7 @@ function EditOutlet() {
                 text-sm font-medium text-white rounded-full
                 bg-brand-500 hover:bg-brand-600 
                 transition shadow-sm
-                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
@@ -491,8 +566,18 @@ function EditOutlet() {
           {/* Basic Information Section */}
           <section className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               Basic Information
             </h2>
@@ -506,7 +591,7 @@ function EditOutlet() {
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     <span className="text-error-600">*</span> Select Owner(s)
                   </label>
-                  
+
                   <div className="relative">
                     <div
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -522,8 +607,18 @@ function EditOutlet() {
                               {outletData.owner_ids.length} Owner(s) Selected
                             </div>
                           </div>
-                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                          <svg
+                            className="w-5 h-5 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
+                            />
                           </svg>
                         </div>
                       ) : (
@@ -534,10 +629,10 @@ function EditOutlet() {
                     {/* Selected Owners Display */}
                     {outletData.owner_ids.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {outletData.owner_ids.map(id => {
-                          const owner = allOwners.find(o => o.user_id === id);
+                        {outletData.owner_ids.map((id) => {
+                          const owner = allOwners.find((o) => o.user_id === id);
                           return owner ? (
-                            <div 
+                            <div
                               key={owner.user_id}
                               className="inline-flex items-center gap-1 px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-sm"
                             >
@@ -545,9 +640,11 @@ function EditOutlet() {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setOutletData(prev => ({
+                                  setOutletData((prev) => ({
                                     ...prev,
-                                    owner_ids: prev.owner_ids.filter(ownerId => ownerId !== id)
+                                    owner_ids: prev.owner_ids.filter(
+                                      (ownerId) => ownerId !== id
+                                    ),
                                   }));
                                 }}
                                 className="ml-1 text-brand-500 hover:text-brand-700"
@@ -562,13 +659,13 @@ function EditOutlet() {
 
                     {/* Dropdown Panel */}
                     {isDropdownOpen && (
-                      <div 
+                      <div
                         className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
                         style={{
-                          width: '100%',
-                          minWidth: '300px',
-                          maxHeight: '350px',
-                          overflowY: 'auto'
+                          width: "100%",
+                          minWidth: "300px",
+                          maxHeight: "350px",
+                          overflowY: "auto",
                         }}
                       >
                         {/* Search Bar */}
@@ -590,23 +687,28 @@ function EditOutlet() {
                               key={owner.user_id}
                               className={`
                                 p-3 cursor-pointer hover:bg-gray-50
-                                ${outletData.owner_ids.includes(owner.user_id)
-                                  ? 'bg-brand-50 border-l-4 border-brand-500' 
-                                  : 'border-l-4 border-transparent'
+                                ${
+                                  outletData.owner_ids.includes(owner.user_id)
+                                    ? "bg-brand-50 border-l-4 border-brand-500"
+                                    : "border-l-4 border-transparent"
                                 }
                               `}
                             >
                               <div className="flex items-center gap-3">
                                 <input
                                   type="checkbox"
-                                  checked={outletData.owner_ids.includes(owner.user_id)}
+                                  checked={outletData.owner_ids.includes(
+                                    owner.user_id
+                                  )}
                                   onChange={(e) => {
                                     e.stopPropagation();
-                                    setOutletData(prev => ({
+                                    setOutletData((prev) => ({
                                       ...prev,
                                       owner_ids: e.target.checked
                                         ? [...prev.owner_ids, owner.user_id]
-                                        : prev.owner_ids.filter(id => id !== owner.user_id)
+                                        : prev.owner_ids.filter(
+                                            (id) => id !== owner.user_id
+                                          ),
                                     }));
                                   }}
                                   className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
@@ -640,12 +742,14 @@ function EditOutlet() {
                     maxImages={1}
                     onImagesChange={(images) => {
                       const base64String = images[0]?.url || null;
-                      setOutletData(prev => ({
+                      setOutletData((prev) => ({
                         ...prev,
-                        image: base64String
+                        image: base64String,
                       }));
                     }}
-                    existingImages={outletData.image ? [{ url: outletData.image }] : []}
+                    existingImages={
+                      outletData.image ? [{ url: outletData.image }] : []
+                    }
                     label="Outlet Image"
                     className="w-full"
                     isOutletImage={true}
@@ -660,11 +764,15 @@ function EditOutlet() {
                   name="name"
                   value={outletData.name}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('name')}
+                  onFocus={() => handleFocus("name")}
                   required
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.name ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      validationStates.name
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
 
@@ -675,13 +783,17 @@ function EditOutlet() {
                     type="tel"
                     value={outletData.mobile}
                     onChange={handleInputChange}
-                    onFocus={() => handleFocus('mobile')}
+                    onFocus={() => handleFocus("mobile")}
                     placeholder="Enter Mobile Number"
                     required
                     maxLength={10}
                     className={`
                       focus:border-brand-500 focus:ring-brand-500
-                      ${validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                      ${
+                        validationStates.mobile
+                          ? "border-error-500"
+                          : "border-gray-300"
+                      }
                     `}
                   />
                   {validationStates.mobile && (
@@ -717,7 +829,9 @@ function EditOutlet() {
                   required
                   options={Object.entries(outletTypes).map(([key, value]) => ({
                     value: key,
-                    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ')
+                    label:
+                      value.charAt(0).toUpperCase() +
+                      value.slice(1).replace(/_/g, " "),
                   }))}
                   placeholder="Select Outlet Type"
                 />
@@ -730,7 +844,9 @@ function EditOutlet() {
                   required
                   options={Object.entries(vegOrNonveg).map(([key, value]) => ({
                     value: key,
-                    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ')
+                    label:
+                      value.charAt(0).toUpperCase() +
+                      value.slice(1).replace(/_/g, " "),
                   }))}
                   placeholder="Select Food Type"
                 />
@@ -742,49 +858,67 @@ function EditOutlet() {
                   onChange={handleInputChange}
                   required
                   options={[
-                    { value: 'offline', label: 'Offline' },
-                    { value: 'online', label: 'Online' }
+                    { value: "offline", label: "Offline" },
+                    { value: "online", label: "Online" },
                   ]}
                   placeholder="Select Outlet Mode"
                 />
                 <CustomSelectInput
                   label="Subscription Plan"
                   name="subscription_id"
-                  value={outletData.subscription_id || ''}
+                  value={outletData.subscription_id || ""}
                   onChange={handleInputChange}
                   required
-                  options={subscriptions.map(sub => ({
+                  options={subscriptions.map((sub) => ({
                     value: sub.subscription_id.toString(),
-                    label: `${sub.name} - ₹${sub.price} (${sub.features?.length || 0} features)`
+                    label: `${sub.name} - ₹${sub.price} (${
+                      sub.features?.length || 0
+                    } features)`,
                   }))}
                   placeholder="Select Subscription Plan"
                 />
               </div>
-
-              <Textarea
-                label="Address"
-                name="address"
-                value={outletData.address}
-                onChange={handleInputChange}
-                placeholder="Enter Address"
-                required
-                rows={3}
-              />
-              {validationStates.address && (
-                <p className="text-error-500 text-sm mt-1">
-                  {!outletData.address ? 'Address is required' : 
-                   outletData.address.length < 5 ? 'Minimum 5 characters required' : 
-                   'Address must not exceed 50 characters'}
-                </p>
-              )}
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">     
+              <div className="sm:col-span-1">
+                <Textarea
+                  label="Address"
+                  name="address"
+                  value={outletData.address}
+                  onChange={handleInputChange}
+                  placeholder="Enter Address"
+                  required
+                  rows={3}
+                />
+                {validationStates.address && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {!outletData.address
+                      ? "Address is required"
+                      : outletData.address.length < 5
+                      ? "Minimum 5 characters required"
+                      : "Address must not exceed 50 characters"}
+                  </p>
+                )}
+              </div>
+            </div>  
             </div>
           </section>
 
           {/* Business Details Section */}
           <section className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
               Business Details
             </h2>
@@ -816,23 +950,104 @@ function EditOutlet() {
                 />
               </div>
 
-              <TimePickerInput
-                label="Opening Time"
-                  name="opening_time"
-                  value={outletData.opening_time}
-                  onChange={handleInputChange}
-                required
-                placeholder="Select opening time"
-                />
-
-              <TimePickerInput
-                label="Closing Time"
-                  name="closing_time"
-                  value={outletData.closing_time}
-                  onChange={handleInputChange}
-                required
-                placeholder="Select closing time"
-                />
+              {/* Opening Time */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <span className="text-error-600">*</span> Opening Time
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    value={openingHour}
+                    onChange={(e) =>
+                      handleOpeningTimeChange("hour", e.target.value)
+                    }
+                  >
+                    <option value="">HH</option>
+                    {[...Array(12)].map((_, i) => {
+                      const val = (i + 1).toString().padStart(2, "0");
+                      return (
+                        <option key={val} value={val}>
+                          {val}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <select
+                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    value={openingMinute}
+                    onChange={(e) =>
+                      handleOpeningTimeChange("minute", e.target.value)
+                    }
+                  >
+                    <option value="">MM</option>
+                    {["00", "15", "30", "45"].map((min) => (
+                      <option key={min} value={min}>
+                        {min}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="w-20 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    value={openingPeriod}
+                    onChange={(e) =>
+                      handleOpeningTimeChange("period", e.target.value)
+                    }
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+              </div>
+              {/* Closing Time */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <span className="text-error-600">*</span> Closing Time
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    value={closingHour}
+                    onChange={(e) =>
+                      handleClosingTimeChange("hour", e.target.value)
+                    }
+                  >
+                    <option value="">HH</option>
+                    {[...Array(12)].map((_, i) => {
+                      const val = (i + 1).toString().padStart(2, "0");
+                      return (
+                        <option key={val} value={val}>
+                          {val}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <select
+                    className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    value={closingMinute}
+                    onChange={(e) =>
+                      handleClosingTimeChange("minute", e.target.value)
+                    }
+                  >
+                    <option value="">MM</option>
+                    {["00", "15", "30", "45"].map((min) => (
+                      <option key={min} value={min}>
+                        {min}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="w-20 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    value={closingPeriod}
+                    onChange={(e) =>
+                      handleClosingTimeChange("period", e.target.value)
+                    }
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+              </div>
 
               <div>
                 <label className="block text-xs sm:text-sm font-medium text-gray-700">
@@ -867,8 +1082,18 @@ function EditOutlet() {
           {/* Social Media Section */}
           <section className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                />
               </svg>
               Social Media
             </h2>
@@ -881,7 +1106,7 @@ function EditOutlet() {
                 value={outletData.website}
                 onChange={handleInputChange}
                 placeholder="https://example.com"
-                className={validationStates.website ? 'border-error-500' : ''}
+                className={validationStates.website ? "border-error-500" : ""}
               />
 
               <TextInput
@@ -891,7 +1116,7 @@ function EditOutlet() {
                 value={outletData.facebook}
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/yourpage"
-                className={validationStates.facebook ? 'border-error-500' : ''}
+                className={validationStates.facebook ? "border-error-500" : ""}
               />
 
               <TextInput
@@ -901,7 +1126,7 @@ function EditOutlet() {
                 value={outletData.instagram}
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/yourhandle"
-                className={validationStates.instagram ? 'border-error-500' : ''}
+                className={validationStates.instagram ? "border-error-500" : ""}
               />
 
               <TextInput
@@ -911,7 +1136,11 @@ function EditOutlet() {
                 value={outletData.google_business_link}
                 onChange={handleInputChange}
                 placeholder="https://business.google.com/yourpage"
-                className={validationStates.google_business_link ? 'border-error-500' : ''}
+                className={
+                  validationStates.google_business_link
+                    ? "border-error-500"
+                    : ""
+                }
               />
 
               <TextInput
@@ -921,7 +1150,9 @@ function EditOutlet() {
                 value={outletData.google_review}
                 onChange={handleInputChange}
                 placeholder="https://g.page/r/yourreviewpage"
-                className={validationStates.google_review ? 'border-error-500' : ''}
+                className={
+                  validationStates.google_review ? "border-error-500" : ""
+                }
               />
             </div>
           </section>

@@ -50,7 +50,7 @@ function CreateChef() {
 
   const breadcrumbItems = [
     { label: "Dashboard", path: "/" },
-    { label: "Chefs", path: "/chefs" },
+    { label: "Chefs", path: `/chefs/${outletId}` },
     { label: "Create Chef", path: "/create-chef" },
   ];
 
@@ -339,9 +339,8 @@ function CreateChef() {
                   </p>
                 )}
               </div>
-            </div>
-
-            <Textarea
+              <div className="sm:col-span-1">
+              <Textarea
               label="Address"
               name="address"
               value={chefData.address}
@@ -349,6 +348,10 @@ function CreateChef() {
               placeholder="Enter complete address"
               rows={3}
             />
+              </div> 
+            </div>
+
+           
 
             {/* Functionalities */}
             <div>

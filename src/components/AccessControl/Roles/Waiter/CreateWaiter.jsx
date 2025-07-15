@@ -393,8 +393,7 @@ function CreateWaiter() {
                   </p>
                 )}
               </div>
-            </div>
-
+              <div className="sm:col-span-1">
             <Textarea
               label="Address"
               name="address"
@@ -408,6 +407,10 @@ function CreateWaiter() {
                 {validationStates.addressMessage}
               </p>
             )}
+          </div>
+            </div>
+            
+           
 
             {/* Functionalities */}
             <div>

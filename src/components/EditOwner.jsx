@@ -431,16 +431,28 @@ function EditOwner() {
               />
             </div>
 
-            {/* Address - Keep this outside the grid as it's full width */}
-            <Textarea
-              label="Address"
-              name="address"
-              value={ownerData.address}
-              onChange={handleChange}
-              placeholder="Enter complete address"
-              rows={3}
-              // required
-            />
+            {/* Address */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              <div className="sm:col-span-1">
+                <Textarea
+                  label="Address"
+                  name="address"
+                  value={ownerData.address}
+                  onChange={handleChange}
+                  placeholder="Enter complete address"
+                  rows={3}
+                />
+                {validationStates.address && (
+                  <p className="text-error-500 text-sm -mt-1">
+                    {!ownerData.address
+                      ? ""
+                      : ownerData.address.length < 5
+                      ? "Minimum 5 characters required"
+                      : "Address must not exceed 50 characters"}
+                  </p>
+                )}
+              </div>
+            </div>
 
             {/* Functionalities */}
             <div>

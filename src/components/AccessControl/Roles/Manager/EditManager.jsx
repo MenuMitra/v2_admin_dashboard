@@ -399,6 +399,7 @@ function EditManager() {
               type="email"
               value={managerData.email}
               onChange={handleInputChange}
+              placeholder="Enter Email"
               validationType="email"
             />
 
@@ -407,6 +408,7 @@ function EditManager() {
                 label="Address"
                 name="address"
                 value={managerData.address}
+                placeholder="Enter Address"
                 onChange={handleInputChange}
               />
             </div>
@@ -417,6 +419,7 @@ function EditManager() {
                 name="aadhar_number"
                 value={managerData.aadhar_number}
                 onChange={handleInputChange}
+                
                 required={true}
                 maxLength={14}
                 className={`

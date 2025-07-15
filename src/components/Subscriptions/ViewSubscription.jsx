@@ -116,6 +116,7 @@ function ViewSubscription() {
               <button
                 onClick={() => navigate(`/edit-subscription/${subscriptionId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                style={{ backgroundColor: '#f7941d' }}
               >
                 <svg
                   className="w-4 h-4"
@@ -151,14 +152,7 @@ function ViewSubscription() {
                   <div className="text-base font-medium text-gray-900">₹{subscription.price}</div>
                   <div className="text-sm text-gray-500 mb-1">Price</div>
                 </div>
-                <div className="p-3 rounded-lg">
-                  <div className="text-base font-medium text-gray-900">{subscription.subscription_start_date}</div>
-                  <div className="text-sm text-gray-500 mb-1">Start Date</div>
-                </div>
-                <div className="p-3 rounded-lg">
-                  <div className="text-base font-medium text-gray-900">{subscription.subscription_end_date}</div>
-                  <div className="text-sm text-gray-500 mb-1">End Date</div>
-                </div>
+                
               </div>
             </div>
 

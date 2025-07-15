@@ -530,6 +530,8 @@ function EditMenu() {
             </div>
 
             {/* Description field outside the grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="sm:col-span-1">
             <Textarea
               label="Description"
               value={description}
@@ -537,6 +539,8 @@ function EditMenu() {
               placeholder="Enter menu description"
               rows={3}
             />
+            </div>
+            </div>
 
             {/* Portion Data */}
             <div>

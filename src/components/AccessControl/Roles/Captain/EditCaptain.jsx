@@ -397,6 +397,7 @@ function EditCaptain() {
               label="Email"
               name="email"
               type="email"
+              placeholder="Enter Email"
               value={captainData.email}
               onChange={handleInputChange}
             />
@@ -405,6 +406,7 @@ function EditCaptain() {
               <TextInput
                 label="Address"
                 name="address"
+                placeholder="Enter Address"
                 value={captainData.address}
                 onChange={handleInputChange}
               />

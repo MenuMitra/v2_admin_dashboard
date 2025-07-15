@@ -98,7 +98,7 @@ function EditCategory() {
         items={[
           { label: 'Dashboard', path: '/' },
           { label: 'Outlets', path: '/outlets' },
-          { label: 'Categories', path: `/outlets/${outletId}/categories` },
+          { label: 'Categories', path: `/categories/${outletId}` },
           { label: 'Edit Category' }
         ]}
       />
@@ -137,34 +137,42 @@ function EditCategory() {
         </div>
 
         <div className="p-6">
-          <form
+        <form
             ref={formRef}
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
-            <TextInput
-              label="Category Name"
-              required
-              value={categoryName}
-              onChange={e => {
-                const value = e.target.value;
-                if (!/^[A-Za-z\s]*$/.test(value)) {
-                  setNameError('Category name should only contain alphabets and spaces');
-                } else {
-                  setNameError('');
-                }
-                setCategoryName(value);
-              }}
-              placeholder="Enter category name"
-            />
-            {nameError && <p className="text-error-500 text-sm mt-1">{nameError}</p>}
+            <div className="sm:col-span-1">
+              <TextInput
+                label="Category Name"
+                required
+                value={categoryName}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (!/^[A-Za-z\s]*$/.test(value)) {
+                    setNameError(
+                      "Category name should only contain alphabets and spaces"
+                    );
+                  } else {
+                    setNameError("");
+                  }
+                  setCategoryName(value);
+                }}
+                placeholder="Enter category name"
+              />
+              {nameError && (
+                <p className="text-error-500 text-sm mt-1">{nameError}</p>
+              )}
+            </div>
+
+            {/* Submit button hidden */}
             <button
               type="submit"
               disabled={loading}
               className="w-full py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
-              style={{ display: 'none' }}
+              style={{ display: "none" }}
             >
-              {loading ? 'Updating...' : 'Update Category'}
+              {loading ? "Creating..." : "Create Category"}
             </button>
           </form>
         </div>

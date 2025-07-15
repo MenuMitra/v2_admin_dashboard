@@ -403,6 +403,8 @@ function CreateMenu() {
               />
             </div>
             {/* Description field outside the grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="sm:col-span-1">
             <Textarea
               label="Description"
               value={description}
@@ -410,6 +412,8 @@ function CreateMenu() {
               placeholder="Enter menu description"
               rows={3}
             />
+            </div>
+            </div>
             {/* Portion Data */}
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">

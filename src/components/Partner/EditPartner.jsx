@@ -398,16 +398,19 @@ function EditPartner() {
             </div>
 
             {/* Address */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              <div className="sm:col-span-1">
             <Textarea
               label="Address"
               name="address"
               value={partnerDetails.address}
               onChange={handleChange}
-              placeholder="Enter complete address"
+              placeholder="Enter address"
               rows={3}
               required
-              error={validationErrors.address}
             />
+            </div>
+            </div>
 
             {/* Functionalities */}
             <div>

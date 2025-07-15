@@ -46,14 +46,14 @@ function AdminDetails() {
   // Format date helper function
   const formatDate = (dateString) => {
     if (!dateString) {
-      return '-'; // or any default value you prefer
+      return "-"; // or any default value you prefer
     }
 
     const date = new Date(dateString);
-    
+
     // Check for invalid date
     if (isNaN(date.getTime())) {
-      return 'Invalid Date';
+      return "Invalid Date";
     }
 
     const months = [
@@ -73,13 +73,13 @@ function AdminDetails() {
     const month = months[date.getMonth()];
     const day = date.getDate().toString().padStart(2, "0");
     const year = date.getFullYear();
-    
+
     let hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, "0");
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
     hours = hours % 12;
     hours = hours ? hours : 12; // convert 0 to 12
-    
+
     return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
   };
 
@@ -110,7 +110,10 @@ function AdminDetails() {
 
       setAdmin(response.data);
     } catch (err) {
-      const errorMessage = err.response?.data?.detail || err.message || "Failed to fetch admin details";
+      const errorMessage =
+        err.response?.data?.detail ||
+        err.message ||
+        "Failed to fetch admin details";
       setError(errorMessage);
       toastController.error(errorMessage);
       console.error("Error fetching admin details:", err);
@@ -157,7 +160,8 @@ function AdminDetails() {
         throw new Error("Failed to delete admin");
       }
     } catch (err) {
-      const errorMessage = err.response?.data?.detail || "Failed to delete admin";
+      const errorMessage =
+        err.response?.data?.detail || "Failed to delete admin";
       setError(errorMessage);
       toastController.error(errorMessage);
       console.error("Error deleting admin:", err);
@@ -215,7 +219,8 @@ function AdminDetails() {
                 <>
                   <button
                     onClick={() => navigate(`/edit-admin/${adminId}`)}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full shadow-theme-xs hover:brightness-110"
+                    style={{ backgroundColor: "#f7941d" }}
                   >
                     <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                     <span className="hidden sm:inline">Edit</span>

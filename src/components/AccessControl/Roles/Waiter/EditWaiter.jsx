@@ -5,7 +5,11 @@ import { useAdmin } from "../../../../hooks/useAdmin";
 import { API_CONFIG } from "../../../../config/appConfig";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack, faSpinner, faSave } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft as faBack,
+  faSpinner,
+  faSave,
+} from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import { TextInput, DateInput, SelectInput } from "../../../forms/FormElements";
 import { toastController } from "../../../../utils/toastController";
@@ -17,7 +21,7 @@ function EditWaiter() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -25,16 +29,16 @@ function EditWaiter() {
   const [roles, setRoles] = useState([]);
   const [validationStates, setValidationStates] = useState({
     name: true,
-    nameMessage: '',
+    nameMessage: "",
     email: true,
     mobile: true,
-    mobileMessage: '',
+    mobileMessage: "",
     aadhar_number: true,
-    aadharMessage: '',
+    aadharMessage: "",
     address: true,
-    addressMessage: '',
+    addressMessage: "",
     functionalities: true,
-    functionalitiesMessage: ''
+    functionalitiesMessage: "",
   });
   const [waiterData, setWaiterData] = useState({
     name: "",
@@ -44,13 +48,16 @@ function EditWaiter() {
     aadhar_number: "",
     dob: "",
     functionality_ids: [],
-    role: "waiter"
+    role: "waiter",
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [outletName, setOutletName] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [outletName, setOutletName] = useState("");
 
   const dropdownRef = useRef(null);
+
+  // Make nameRegex available everywhere in the component
+  const nameRegex = /^[A-Za-z ]+$/;
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -60,37 +67,45 @@ function EditWaiter() {
     }
 
     if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDropdownOpen]);
 
   const isMobileValid = (mobile) => {
-    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
-    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    if (!mobile)
+      return { isValid: false, message: "Mobile number is required" };
+    const numbersOnly = mobile.replace(/[^0-9]/g, "");
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
-      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+
+    if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+      return {
+        isValid: false,
+        message: "Mobile number must start with 6, 7, 8, or 9",
+      };
     }
-    
+
     if (numbersOnly.length !== 10) {
-      return { isValid: false, message: 'Mobile number must be 10 digits' };
+      return { isValid: false, message: "Mobile number must be 10 digits" };
     }
-    
-    return { isValid: true, message: '' };
+
+    return { isValid: true, message: "" };
   };
 
   const isAadharValid = (aadhar) => {
-    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
-    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (!aadhar)
+      return { isValid: false, message: "Aadhar number is required" };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, "");
     if (numbersOnly.length !== 12) {
-      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+      return {
+        isValid: false,
+        message: "Aadhar number must be exactly 12 digits",
+      };
     }
-    return { isValid: true, message: '' };
+    return { isValid: true, message: "" };
   };
 
   const fetchFunctionalities = async () => {
@@ -105,7 +120,10 @@ function EditWaiter() {
       );
       setAvailableFunctionalities(response.data);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || err.response?.data?.msg || "Failed to load functionalities";
+      const errorMsg =
+        err.response?.data?.detail ||
+        err.response?.data?.msg ||
+        "Failed to load functionalities";
       toastController.error(errorMsg);
     }
   };
@@ -122,13 +140,20 @@ function EditWaiter() {
       );
       setRoles(response.data);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || err.response?.data?.msg || "Failed to load roles";
+      const errorMsg =
+        err.response?.data?.detail ||
+        err.response?.data?.msg ||
+        "Failed to load roles";
       toastController.error(errorMsg);
     }
   };
 
   useEffect(() => {
-    Promise.all([fetchWaiterDetails(), fetchFunctionalities(), fetchRoles()]).finally(() => {
+    Promise.all([
+      fetchWaiterDetails(),
+      fetchFunctionalities(),
+      fetchRoles(),
+    ]).finally(() => {
       setLoading(false);
     });
   }, [outletId, userId]);
@@ -141,7 +166,7 @@ function EditWaiter() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -149,7 +174,7 @@ function EditWaiter() {
           },
         }
       );
-      
+
       const fetchedData = response.data.data;
       setWaiterData({
         name: fetchedData.name || "",
@@ -158,76 +183,111 @@ function EditWaiter() {
         address: fetchedData.address || "",
         aadhar_number: fetchedData.aadhar_number || "",
         dob: fetchedData.dob || "",
-        functionality_ids: fetchedData.functionalities?.map(f => f.functionality_id) || [],
-        role: "waiter"
+        functionality_ids:
+          fetchedData.functionalities?.map((f) => f.functionality_id) || [],
+        role: "waiter",
       });
       setOutletName(fetchedData.outlet_name);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || err.response?.data?.msg || "Failed to fetch waiter details";
+      const errorMsg =
+        err.response?.data?.detail ||
+        err.response?.data?.msg ||
+        "Failed to fetch waiter details";
       toastController.error(errorMsg);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    const nameRegex = /^[A-Za-z ]+$/;
-    if (name === 'name') {
+    if (name === "name") {
       if (!value.trim()) {
-        setValidationStates(prev => ({ ...prev, name: false, nameMessage: 'Name is required' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          name: false,
+          nameMessage: "Name is required",
+        }));
       } else if (!nameRegex.test(value)) {
-        setValidationStates(prev => ({ ...prev, name: false, nameMessage: 'Name must contain only alphabets and spaces' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          name: false,
+          nameMessage: "Name must contain only alphabets and spaces",
+        }));
       } else {
-        setValidationStates(prev => ({ ...prev, name: true, nameMessage: '' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          name: true,
+          nameMessage: "",
+        }));
       }
-      setWaiterData(prev => ({ ...prev, name: value }));
-    }
-    else if (name === 'mobile') {
-      const numbersOnly = value.replace(/[^0-9]/g, '');
+      setWaiterData((prev) => ({ ...prev, name: value }));
+    } else if (name === "mobile") {
+      const numbersOnly = value.replace(/[^0-9]/g, "");
       if (numbersOnly.length > 0) {
         const firstDigit = numbersOnly.charAt(0);
-        if (['0','1','2','3','4','5'].includes(firstDigit)) {
-          setValidationStates(prev => ({
+        if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+          setValidationStates((prev) => ({
             ...prev,
             mobile: false,
-            mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+            mobileMessage: "Mobile number must start with 6, 7, 8, or 9",
           }));
           return;
         }
       }
       const trimmedNumber = numbersOnly.slice(0, 10);
       const { isValid, message } = isMobileValid(trimmedNumber);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         mobile: isValid,
-        mobileMessage: message
+        mobileMessage: message,
       }));
-      setWaiterData(prev => ({ ...prev, mobile: trimmedNumber }));
-    }
-    else if (name === 'aadhar_number') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 14);
+      setWaiterData((prev) => ({ ...prev, mobile: trimmedNumber }));
+    } else if (name === "aadhar_number") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 14);
       if (!numbersOnly) {
-        setValidationStates(prev => ({ ...prev, aadhar_number: false, aadharMessage: 'Aadhar number is required' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: false,
+          aadharMessage: "Aadhar number is required",
+        }));
       } else if (numbersOnly.length < 12) {
-        setValidationStates(prev => ({ ...prev, aadhar_number: false, aadharMessage: 'Aadhar number must be at least 12 digits' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: false,
+          aadharMessage: "Aadhar number must be at least 12 digits",
+        }));
       } else if (numbersOnly.length > 14) {
-        setValidationStates(prev => ({ ...prev, aadhar_number: false, aadharMessage: 'Aadhar number cannot exceed 14 digits' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: false,
+          aadharMessage: "Aadhar number cannot exceed 14 digits",
+        }));
       } else {
-        setValidationStates(prev => ({ ...prev, aadhar_number: true, aadharMessage: '' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: true,
+          aadharMessage: "",
+        }));
       }
-      setWaiterData(prev => ({ ...prev, aadhar_number: numbersOnly }));
-    }
-    else if (name === 'address') {
+      setWaiterData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
+    } else if (name === "address") {
       if (value && value.trim().length > 0 && value.trim().length < 5) {
-        setValidationStates(prev => ({ ...prev, address: false, addressMessage: 'Address must be at least 5 characters' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          address: false,
+          addressMessage: "Address must be at least 5 characters",
+        }));
       } else {
-        setValidationStates(prev => ({ ...prev, address: true, addressMessage: '' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          address: true,
+          addressMessage: "",
+        }));
       }
-      setWaiterData(prev => ({ ...prev, address: value }));
-    }
-    else {
-      setWaiterData(prev => ({
+      setWaiterData((prev) => ({ ...prev, address: value }));
+    } else {
+      setWaiterData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -239,7 +299,8 @@ function EditWaiter() {
       waiterData.mobile?.trim() &&
       waiterData.aadhar_number?.trim() &&
       waiterData.aadhar_number.length >= 12 &&
-      waiterData.functionality_ids && waiterData.functionality_ids.length > 0 &&
+      waiterData.functionality_ids &&
+      waiterData.functionality_ids.length > 0 &&
       validationStates.name &&
       validationStates.mobile &&
       validationStates.aadhar_number &&
@@ -251,11 +312,22 @@ function EditWaiter() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     let valid = isFormValid();
-    if (!waiterData.functionality_ids || waiterData.functionality_ids.length === 0) {
-      setValidationStates(prev => ({ ...prev, functionalities: false, functionalitiesMessage: 'At least one functionality must be selected' }));
+    if (
+      !waiterData.functionality_ids ||
+      waiterData.functionality_ids.length === 0
+    ) {
+      setValidationStates((prev) => ({
+        ...prev,
+        functionalities: false,
+        functionalitiesMessage: "At least one functionality must be selected",
+      }));
       valid = false;
     } else {
-      setValidationStates(prev => ({ ...prev, functionalities: true, functionalitiesMessage: '' }));
+      setValidationStates((prev) => ({
+        ...prev,
+        functionalities: true,
+        functionalitiesMessage: "",
+      }));
     }
     if (!valid) {
       toastController.error("Please fill all required fields correctly");
@@ -273,7 +345,7 @@ function EditWaiter() {
             user_id: Number(userId),
             outlet_id: Number(outletId),
             ...waiterData,
-            app_source: "admin_app"
+            app_source: "admin_app",
           },
           {
             headers: {
@@ -284,7 +356,10 @@ function EditWaiter() {
         {
           loading: "Updating waiter details...",
           success: "Waiter updated successfully",
-          error: (err) => err.response?.data?.detail || err.response?.data?.msg || "An error occurred while updating waiter"
+          error: (err) =>
+            err.response?.data?.detail ||
+            err.response?.data?.msg ||
+            "An error occurred while updating waiter",
         }
       );
       navigate(`/waiter-details/${outletId}/${userId}`);
@@ -296,13 +371,13 @@ function EditWaiter() {
   const breadcrumbItems = [
     { label: "Dashboard", path: "/dashboard" },
     { label: "Outlets", path: "/outlets" },
-    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
     { label: "Waiters", path: `/waiters/${outletId}` },
     { label: "Waiter Details", path: `/waiter-details/${outletId}/${userId}` },
     { label: "Edit Waiter" },
   ];
 
-  const filteredFunctionalities = availableFunctionalities.filter(func =>
+  const filteredFunctionalities = availableFunctionalities.filter((func) =>
     func.functionality_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -319,7 +394,7 @@ function EditWaiter() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={breadcrumbItems} />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200">
@@ -334,9 +409,7 @@ function EditWaiter() {
             </button>
 
             {/* Title */}
-            <h1 className="text-xl font-semibold text-gray-800">
-              Edit Waiter
-            </h1>
+            <h1 className="text-xl font-semibold text-gray-800">Edit Waiter</h1>
 
             {/* Save Button */}
             <button
@@ -346,13 +419,15 @@ function EditWaiter() {
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 transition shadow-sm
-                ${submitting || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-success-500 hover:bg-success-600"}
+                ${
+                  submitting || !isFormValid()
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-success-500 hover:bg-success-600"
+                }
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>{submitting ? 'Saving...' : 'Save'}</span>
+              <span>{submitting ? "Saving..." : "Save"}</span>
             </button>
           </div>
         </div>
@@ -389,7 +464,11 @@ function EditWaiter() {
                 maxLength={10}
                 className={`
                   focus:border-brand-500 focus:ring-brand-500
-                  ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                  ${
+                    !validationStates.mobile
+                      ? "border-error-500"
+                      : "border-gray-300"
+                  }
                 `}
               />
               {!validationStates.mobile && validationStates.mobileMessage && (
@@ -403,6 +482,7 @@ function EditWaiter() {
               label="Email"
               name="email"
               type="email"
+              placeholder="Enter Email"
               value={waiterData.email}
               onChange={handleInputChange}
               validationType="email"
@@ -411,6 +491,7 @@ function EditWaiter() {
             <TextInput
               label="Address"
               name="address"
+              placeholder="Enter Address"
               value={waiterData.address}
               onChange={handleInputChange}
             />
@@ -430,14 +511,19 @@ function EditWaiter() {
                 maxLength={14}
                 className={`
                   focus:border-brand-500 focus:ring-brand-500
-                  ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                  ${
+                    !validationStates.aadhar_number
+                      ? "border-error-500"
+                      : "border-gray-300"
+                  }
                 `}
               />
-              {!validationStates.aadhar_number && validationStates.aadharMessage && (
-                <p className="text-error-500 text-sm mt-1">
-                  {validationStates.aadharMessage}
-                </p>
-              )}
+              {!validationStates.aadhar_number &&
+                validationStates.aadharMessage && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.aadharMessage}
+                  </p>
+                )}
             </div>
 
             <DateInput
@@ -454,9 +540,11 @@ function EditWaiter() {
               value={waiterData.role}
               onChange={handleInputChange}
               required
-              options={roles.map(role => ({
+              options={roles.map((role) => ({
                 value: role.role_name,
-                label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
+                label:
+                  role.role_name.charAt(0).toUpperCase() +
+                  role.role_name.slice(1),
               }))}
               placeholder="Select Role"
             />
@@ -466,7 +554,7 @@ function EditWaiter() {
               <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                 <span className="text-error-600">*</span> Select Functionalities
               </label>
-              
+
               <div className="relative" ref={dropdownRef}>
                 <div
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -479,11 +567,22 @@ function EditWaiter() {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-gray-900">
-                          {waiterData.functionality_ids.length} Functionality(s) Selected
+                          {waiterData.functionality_ids.length} Functionality(s)
+                          Selected
                         </div>
                       </div>
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      <svg
+                        className="w-5 h-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M19 9l-7 7-7-7"
+                        />
                       </svg>
                     </div>
                   ) : (
@@ -493,13 +592,13 @@ function EditWaiter() {
 
                 {/* Dropdown Panel */}
                 {isDropdownOpen && (
-                  <div 
+                  <div
                     className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
                     style={{
-                      width: '100%',
-                      minWidth: '300px',
-                      maxHeight: '350px',
-                      overflowY: 'auto'
+                      width: "100%",
+                      minWidth: "300px",
+                      maxHeight: "350px",
+                      overflowY: "auto",
                     }}
                   >
                     {/* Search Bar */}
@@ -521,33 +620,51 @@ function EditWaiter() {
                           key={func.functionality_id}
                           className={`
                             p-3 cursor-pointer hover:bg-gray-50
-                            ${waiterData.functionality_ids.includes(func.functionality_id)
-                              ? 'bg-brand-50 border-l-4 border-brand-500' 
-                              : 'border-l-4 border-transparent'
+                            ${
+                              waiterData.functionality_ids.includes(
+                                func.functionality_id
+                              )
+                                ? "bg-brand-50 border-l-4 border-brand-500"
+                                : "border-l-4 border-transparent"
                             }
                           `}
                           onClick={() => {
-                            const newIds = waiterData.functionality_ids.includes(func.functionality_id)
-                              ? waiterData.functionality_ids.filter(id => id !== func.functionality_id)
-                              : [...waiterData.functionality_ids, func.functionality_id];
-                            
-                            setWaiterData(prev => ({
+                            const newIds =
+                              waiterData.functionality_ids.includes(
+                                func.functionality_id
+                              )
+                                ? waiterData.functionality_ids.filter(
+                                    (id) => id !== func.functionality_id
+                                  )
+                                : [
+                                    ...waiterData.functionality_ids,
+                                    func.functionality_id,
+                                  ];
+
+                            setWaiterData((prev) => ({
                               ...prev,
-                              functionality_ids: newIds
+                              functionality_ids: newIds,
                             }));
                           }}
                         >
                           <div className="flex items-center gap-3">
                             <input
                               type="checkbox"
-                              checked={waiterData.functionality_ids.includes(func.functionality_id)}
+                              checked={waiterData.functionality_ids.includes(
+                                func.functionality_id
+                              )}
                               onChange={(e) => {
                                 e.stopPropagation();
-                                setWaiterData(prev => ({
+                                setWaiterData((prev) => ({
                                   ...prev,
                                   functionality_ids: e.target.checked
-                                    ? [...prev.functionality_ids, func.functionality_id]
-                                    : prev.functionality_ids.filter(id => id !== func.functionality_id)
+                                    ? [
+                                        ...prev.functionality_ids,
+                                        func.functionality_id,
+                                      ]
+                                    : prev.functionality_ids.filter(
+                                        (id) => id !== func.functionality_id
+                                      ),
                                 }));
                               }}
                               className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
@@ -562,11 +679,12 @@ function EditWaiter() {
                   </div>
                 )}
               </div>
-              {!validationStates.functionalities && validationStates.functionalitiesMessage && (
-                <p className="text-error-500 text-sm mt-1">
-                  {validationStates.functionalitiesMessage}
-                </p>
-              )}
+              {!validationStates.functionalities &&
+                validationStates.functionalitiesMessage && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.functionalitiesMessage}
+                  </p>
+                )}
             </div>
           </div>
         </form>

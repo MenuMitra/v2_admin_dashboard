@@ -41,9 +41,9 @@ function CreateOwner() {
     name: true,
     email: true,
     mobile: true,
-    mobileMessage: '',
+    mobileMessage: "",
     aadhar_number: true,
-    aadharMessage: '',
+    aadharMessage: "",
     address: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
@@ -84,111 +84,133 @@ function CreateOwner() {
   };
 
   const isMobileValid = (mobile) => {
-    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
-    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    if (!mobile)
+      return { isValid: false, message: "Mobile number is required" };
+    const numbersOnly = mobile.replace(/[^0-9]/g, "");
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
-      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+
+    if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+      return {
+        isValid: false,
+        message: "Mobile number must start with 6, 7, 8, or 9",
+      };
     }
-    
+
     if (numbersOnly.length !== 10) {
-      return { isValid: false, message: 'Mobile number must be 10 digits' };
+      return { isValid: false, message: "Mobile number must be 10 digits" };
     }
-    
-    return { isValid: true, message: '' };
+
+    return { isValid: true, message: "" };
   };
 
   const isAadharValid = (aadhar) => {
-    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
-    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (!aadhar)
+      return { isValid: false, message: "Aadhar number is required" };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, "");
     if (numbersOnly.length !== 12) {
-      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+      return {
+        isValid: false,
+        message: "Aadhar number must be exactly 12 digits",
+      };
     }
-    return { isValid: true, message: '' };
+    return { isValid: true, message: "" };
   };
 
   // Update address validation function to only allow alphabets and spaces
   const isAddressValid = (address) => {
     // Only allow letters and spaces
     const alphabetOnly = /^[A-Za-z\s]+$/.test(address);
-    return address && address.length >= 5 && address.length <= 50 && alphabetOnly;
+    return (
+      address && address.length >= 5 && address.length <= 50 && alphabetOnly
+    );
   };
 
   // Update handleChange to include address validation
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
-    if (name === 'address') {
+
+    if (name === "address") {
       // Filter out numbers and special characters, only allow letters and spaces
-      const filteredValue = value.replace(/[^A-Za-z\s]/g, '');
-      setOwnerData(prev => ({ ...prev, [name]: filteredValue }));
-      
+      const filteredValue = value.replace(/[^A-Za-z\s]/g, "");
+      setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
+
       // Real-time address validation - only check length since we filter characters
       if (filteredValue && filteredValue.length < 5) {
-        setValidationStates(prev => ({ ...prev, [name]: true }));
+        setValidationStates((prev) => ({ ...prev, [name]: true }));
       } else {
-        setValidationStates(prev => ({ ...prev, [name]: false }));
+        setValidationStates((prev) => ({ ...prev, [name]: false }));
       }
-    } else if (name === 'mobile') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+    } else if (name === "mobile") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
-      
-      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
-        setValidationStates(prev => ({
+
+      if (firstDigit && ["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+        setValidationStates((prev) => ({
           ...prev,
           mobile: false,
-          mobileMessage: 'Number must start with 6, 7, 8, or 9'
+          mobileMessage: "Number must start with 6, 7, 8, or 9",
         }));
         return;
+      } else if (name === "name") {
+        // Allow only alphabets and spaces
+        const filteredValue = value.replace(/[^A-Za-z\s]/g, "");
+        setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
+
+        // Mark as invalid if too short or empty
+        let errorMsg = "";
+        if (value !== filteredValue) {
+          errorMsg = "Only alphabets and spaces are allowed.";
+          setValidationStates((prev) => ({
+            ...prev,
+            [name]: true,
+            [`${name}Message`]: errorMsg,
+          }));
+          // Show error for 1 second
+          if (nameErrorTimeout.current) clearTimeout(nameErrorTimeout.current);
+          nameErrorTimeout.current = setTimeout(() => {
+            setValidationStates((prev) => ({
+              ...prev,
+              [name]: false,
+              [`${name}Message`]: "",
+            }));
+          }, 1000);
+        } else if (filteredValue.length > 0 && filteredValue.length < 2) {
+          errorMsg = "Minimum 2 characters required.";
+          setValidationStates((prev) => ({
+            ...prev,
+            [name]: true,
+            [`${name}Message`]: errorMsg,
+          }));
+        } else {
+          setValidationStates((prev) => ({
+            ...prev,
+            [name]: false,
+            [`${name}Message`]: "",
+          }));
+        }
+        return;
       }
-      else if (name === 'name') {
-  // Allow only alphabets and spaces
-  const filteredValue = value.replace(/[^A-Za-z\s]/g, '');
-  setOwnerData(prev => ({ ...prev, [name]: filteredValue }));
 
-  // Mark as invalid if too short or empty
-  let errorMsg = '';
-  if (value !== filteredValue) {
-    errorMsg = 'Only alphabets and spaces are allowed.';
-    setValidationStates(prev => ({ ...prev, [name]: true, [`${name}Message`]: errorMsg }));
-    // Show error for 1 second
-    if (nameErrorTimeout.current) clearTimeout(nameErrorTimeout.current);
-    nameErrorTimeout.current = setTimeout(() => {
-      setValidationStates(prev => ({ ...prev, [name]: false, [`${name}Message`]: '' }));
-    }, 1000);
-  } else if (filteredValue.length > 0 && filteredValue.length < 2) {
-    errorMsg = 'Minimum 2 characters required.';
-    setValidationStates(prev => ({ ...prev, [name]: true, [`${name}Message`]: errorMsg }));
-  } else {
-    setValidationStates(prev => ({ ...prev, [name]: false, [`${name}Message`]: '' }));
-  }
-  return;
-}
-
-
-      setOwnerData(prev => ({ ...prev, [name]: numbersOnly }));
+      setOwnerData((prev) => ({ ...prev, [name]: numbersOnly }));
       const { isValid, message } = isMobileValid(numbersOnly);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         mobile: isValid,
-        mobileMessage: message
+        mobileMessage: message,
       }));
-    } 
-    else if (name === 'aadhar_number') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+    } else if (name === "aadhar_number") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 12);
       const { isValid, message } = isAadharValid(numbersOnly);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         aadhar_number: isValid,
-        aadharMessage: message
+        aadharMessage: message,
       }));
-      setOwnerData(prev => ({ ...prev, aadhar_number: numbersOnly }));
-    }
-    else {
-      setOwnerData(prev => ({
+      setOwnerData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
+    } else {
+      setOwnerData((prev) => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value
+        [name]: type === "checkbox" ? checked : value,
       }));
     }
   };
@@ -203,8 +225,8 @@ function CreateOwner() {
   const isFormValid = () => {
     // Check if all required fields are filled and valid
     return (
-      ownerData.name?.trim() && 
-      ownerData.mobile?.trim() && 
+      ownerData.name?.trim() &&
+      ownerData.mobile?.trim() &&
       ownerData.aadhar_number?.trim() &&
       validationStates.name &&
       validationStates.mobile &&
@@ -303,9 +325,11 @@ function CreateOwner() {
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 transition shadow-sm
-                ${isLoading || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-success-500 hover:bg-success-600"}
+                ${
+                  isLoading || !isFormValid()
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-success-500 hover:bg-success-600"
+                }
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -348,7 +372,11 @@ function CreateOwner() {
                   maxLength={10}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      !validationStates.mobile
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {!validationStates.mobile && (
@@ -388,7 +416,11 @@ function CreateOwner() {
                   maxLength={12}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      !validationStates.aadhar_number
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {!validationStates.aadhar_number && (
@@ -400,22 +432,27 @@ function CreateOwner() {
             </div>
 
             {/* Address */}
-            <Textarea
-              label="Address"
-              name="address"
-              value={ownerData.address}
-              onChange={handleChange}
-              placeholder="Enter complete address"
-              rows={3}
-              
-            />
-            {validationStates.address && (
-              <p className="text-error-500 text-sm -mt-1">
-                {!ownerData.address ? '' : 
-                 ownerData.address.length < 5 ? 'Minimum 5 characters required' : 
-                 'Address must not exceed 50 characters'}
-              </p>
-            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              <div className="sm:col-span-1">
+                <Textarea
+                  label="Address"
+                  name="address"
+                  value={ownerData.address}
+                  onChange={handleChange}
+                  placeholder="Enter address"
+                  rows={3}
+                />
+                {validationStates.address && (
+                  <p className="text-error-500 text-sm -mt-1">
+                    {!ownerData.address
+                      ? ""
+                      : ownerData.address.length < 5
+                      ? "Minimum 5 characters required"
+                      : "Address must not exceed 50 characters"}
+                  </p>
+                )}
+              </div>
+            </div>
 
             {/* Functionalities */}
             {/* <div>
