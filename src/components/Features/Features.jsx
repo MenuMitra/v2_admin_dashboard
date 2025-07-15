@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import DataTable from '../common/DataTable';
 import Breadcrumb from '../Breadcrumb';
+import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
 import Modal from '../common/Modal';
 import { API_CONFIG } from '../../config/appConfig';
 import { toastController } from '../../utils/toastController';
@@ -471,47 +472,17 @@ function Features() {
         </div>
       </Modal>
 
-      {/* Delete Feature Modal */}
-      <Modal
+      {/* Delete Feature Modal using DeleteConfirmModal */}
+      <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => {
           setIsDeleteModalOpen(false);
           setDeletingFeature(null);
         }}
+        onDelete={handleDeleteFeature}
         title="Delete Feature"
-        type="danger"
-        size="small"
-      >
-        <div className="w-full">
-          <p className="text-gray-700 mb-6">
-            Are you sure you want to delete the feature "{deletingFeature?.name}"? This action cannot be undone.
-          </p>
-
-          <div className="flex justify-end items-center gap-3">
-            <button
-              onClick={() => {
-                setIsDeleteModalOpen(false);
-                setDeletingFeature(null);
-              }}
-              className="px-4 py-2 text-theme-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDeleteFeature}
-              disabled={isSubmitting}
-              className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
-                ${isSubmitting
-                  ? 'bg-error-500 cursor-not-allowed'
-                  : 'bg-error-500 hover:bg-error-600'
-                }`}
-            >
-              <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-              {isSubmitting ? 'Deleting...' : 'Delete'}
-            </button>
-          </div>
-        </div>
-      </Modal>
+        message={"Are you sure ?"}
+      />
     </>
   );
 }
