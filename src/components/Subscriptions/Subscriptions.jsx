@@ -1,15 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPenToSquare, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../../hooks/useAuth';
-import { useAdmin } from '../../hooks/useAdmin';
-import DataTable from '../common/DataTable';
-import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
-import Breadcrumb from '../Breadcrumb';
-import { API_CONFIG } from '../../config/appConfig';
-import { toastController } from '../../utils/toastController';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEye,
+  faPenToSquare,
+  faPlus,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
+import DataTable from "../common/DataTable";
+import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import Breadcrumb from "../Breadcrumb";
+import { API_CONFIG } from "../../config/appConfig";
+import { toastController } from "../../utils/toastController";
 
 function Subscriptions() {
   const navigate = useNavigate();
@@ -17,42 +22,42 @@ function Subscriptions() {
   const { adminData } = useAdmin();
   const [subscriptions, setSubscriptions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
+  const [searchTerm, setSearchTerm] = useState("");
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
 
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Subscriptions', path: '/subscriptions' }
+    { label: "Home", path: "/home" },
+    { label: "Subscriptions", path: "/subscriptions" },
   ];
 
   // Define columns for DataTable
   const columns = [
-   
     {
-      field: 'name',
-      header: 'Name',
+      field: "name",
+      header: "Name",
       sortable: true,
       render: (value) => (
         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
           {value}
         </p>
-      )
+      ),
     },
     {
-      field: 'price',
-      header: 'Price',
+      field: "price",
+      header: "Price",
       sortable: true,
       render: (price) => (
         <p className="text-gray-500 text-theme-sm dark:text-gray-400">
           ₹{price}
         </p>
-      )
+      ),
     },
     {
-      field: 'actions',
-      header: 'Actions',
+      field: "actions",
+      header: "Actions",
       sortable: false,
       headerClassName: "text-center",
       render: (_, row) => (
@@ -79,8 +84,8 @@ function Subscriptions() {
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   const fetchSubscriptions = async () => {
@@ -88,16 +93,16 @@ function Subscriptions() {
       setIsLoading(true);
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
         `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
         {
           headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
-          }
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -105,8 +110,10 @@ function Subscriptions() {
         setSubscriptions(response.data.data);
       }
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
-      toastController.error(error.response?.data?.detail || 'Failed to fetch subscriptions');
+      console.error("Error fetching subscriptions:", error);
+      toastController.error(
+        error.response?.data?.detail || "Failed to fetch subscriptions"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -114,7 +121,7 @@ function Subscriptions() {
 
   // Add a reload-only fetch function
   const reloadfetchSubscriptions = async () => {
-    setIsLoading(true);
+    setIsReloading(true);
     try {
       const token = getToken();
       if (!token) return;
@@ -122,19 +129,19 @@ function Subscriptions() {
         `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
         {
           headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
-          }
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
         }
       );
       if (response.data.detail === "Subscription list fetched successfully") {
         setSubscriptions(response.data.data);
       }
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
+      console.error("Error fetching subscriptions:", error);
       // Optionally show a toast or set error state
     } finally {
-      setIsLoading(false);
+      setIsReloading(false);
     }
   };
 
@@ -166,18 +173,18 @@ function Subscriptions() {
           {
             subscription_id: selectedSubscription.subscription_id,
             user_id: adminData.user_id,
-            app_source: "admin_app"
+            app_source: "admin_app",
           },
           {
             headers: {
-              Authorization: getToken()
-            }
+              Authorization: getToken(),
+            },
           }
         ),
         {
-          loading: 'Deleting subscription...',
-          success: 'Subscription deleted successfully!',
-          error: 'Failed to delete subscription'
+          loading: "Deleting subscription...",
+          success: "Subscription deleted successfully!",
+          error: "Failed to delete subscription",
         }
       );
 
@@ -186,8 +193,10 @@ function Subscriptions() {
         fetchSubscriptions();
       }
     } catch (error) {
-      console.error('Error deleting subscription:', error);
-      toastController.error(error.response?.data?.detail || 'Failed to delete subscription');
+      console.error("Error deleting subscription:", error);
+      toastController.error(
+        error.response?.data?.detail || "Failed to delete subscription"
+      );
     } finally {
       setSelectedSubscription(null);
     }
@@ -225,15 +234,15 @@ function Subscriptions() {
           show: true,
           label: "Create",
           icon: faPlus,
-          onClick: () => navigate('/create-subscription'),
+          onClick: () => navigate("/create-subscription"),
           className: "bg-success-500 hover:bg-success-600",
           position: "right",
           showIconOnly: false,
           disabled: false,
-          tooltip: "Create a new subscription"
+          tooltip: "Create a new subscription",
         }}
         onReload={reloadfetchSubscriptions}
-        isLoading={isLoading}
+        isLoading={isReloading}
       />
 
       {/* Delete Confirmation Modal using DeleteConfirmModal */}

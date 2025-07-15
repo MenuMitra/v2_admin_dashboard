@@ -1,14 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { API_CONFIG } from '../../../config/appConfig';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faChevronLeft as faBack, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
-import Breadcrumb from '../../Breadcrumb';
-import Modal from '../../common/Modal';
-import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { API_CONFIG } from "../../../config/appConfig";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCheck,
+  faChevronLeft as faBack,
+  faPenToSquare,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "../../Breadcrumb";
+import Modal from "../../common/Modal";
+import DeleteConfirmModal from "../../common/DeleteConfirmModal/DeleteConfirmModal";
 
 function RoleFunctionalitiesMapping() {
   const { roleId } = useParams();
@@ -30,10 +35,10 @@ function RoleFunctionalitiesMapping() {
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Access Control', path: '/dashboard' },
-    { label: 'Roles', path: '/roles' },
-    { label: 'Role Functionalities', path: '#' }
+    { label: "Home", path: "/home" },
+    { label: "Access Control", path: "/dashboard" },
+    { label: "Roles", path: "/roles" },
+    { label: "Role Functionalities", path: "#" },
   ];
 
   useEffect(() => {
@@ -165,26 +170,26 @@ function RoleFunctionalitiesMapping() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
       await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/delete_ubac_role`,
         {
           role_id: parseInt(roleId),
           user_id: adminData.user_id,
-          app_source: 'admin_app',
+          app_source: "admin_app",
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
       setIsDeleteModalOpen(false);
-      navigate('/roles');
+      navigate("/roles");
     } catch (err) {
-      console.error('Error deleting role:', err);
+      console.error("Error deleting role:", err);
     } finally {
       // No loading state needed
     }

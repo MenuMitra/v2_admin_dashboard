@@ -23,6 +23,7 @@ function Partners() {
   const [searchTerm, setSearchTerm] = useState("");
   const [partners, setPartners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
   const [error, setError] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [partnerToDelete, setPartnerToDelete] = useState(null);
@@ -36,9 +37,13 @@ function Partners() {
     }
   }, [adminData?.user_id]);
 
-  const fetchPartners = async () => {
+  const fetchPartners = async (isReload = false) => {
     try {
-      setIsLoading(true);
+      if (isReload) {
+        setIsReloading(true);
+      } else {
+        setIsLoading(true);
+      }
       setError(null);
 
       const token = getToken();
@@ -73,8 +78,17 @@ function Partners() {
       setError("Failed to fetch partners");
       console.error("Error fetching partners:", err);
     } finally {
-      setIsLoading(false);
+      if (isReload) {
+        setIsReloading(false);
+      } else {
+        setIsLoading(false);
+      }
     }
+  };
+
+  // For DataTable reload button
+  const reloadFetchPartners = async () => {
+    await fetchPartners(true);
   };
 
   const handleDelete = async () => {
@@ -119,7 +133,6 @@ function Partners() {
       //   title,
       //   message,
       // });
-
     } catch (err) {
       setError(err.response?.data?.detail || `Failed to ${action} partners`);
       console.error("Error performing bulk action:", err);
@@ -154,8 +167,7 @@ function Partners() {
             className={`text-base font-medium ${
               value === 1 ? "text-success-700" : "text-error-700"
             }`}
-          >
-          </span>
+          ></span>
         </div>
       ),
     },
@@ -259,7 +271,8 @@ function Partners() {
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
         }}
-        onReload={fetchPartners}
+        onReload={reloadFetchPartners}
+        isLoading={isReloading}
       />
 
       {/* Use reusable DeleteConfirmModal for single delete */}

@@ -1,22 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import DataTable from '../../common/DataTable';
-import Modal from '../../common/Modal';
-import Breadcrumb from '../../Breadcrumb';
+import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPlus,
+  faPenToSquare,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import DataTable from "../../common/DataTable";
+import Modal from "../../common/Modal";
+import Breadcrumb from "../../Breadcrumb";
 import { API_CONFIG } from "../../../config/appConfig";
-import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
+import DeleteConfirmModal from "../../common/DeleteConfirmModal/DeleteConfirmModal";
 
 function Functionalities() {
   const { getToken } = useAuth();
   const [functionalities, setFunctionalities] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newFunctionalityName, setNewFunctionalityName] = useState('');
+  const [newFunctionalityName, setNewFunctionalityName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingFunctionality, setEditingFunctionality] = useState(null);
@@ -30,14 +35,18 @@ function Functionalities() {
     fetchFunctionalities();
   }, []);
 
-  const fetchFunctionalities = async () => {
+  const fetchFunctionalities = async (isReload = false) => {
     try {
-      setIsLoading(true);
+      if (isReload) {
+        setIsReloading(true);
+      } else {
+        setIsLoading(true);
+      }
       setError(null);
-      
+
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -45,18 +54,27 @@ function Functionalities() {
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       setFunctionalities(response.data);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to fetch functionalities');
-      console.error('Error fetching functionalities:', err);
+      setError(err.response?.data?.detail || "Failed to fetch functionalities");
+      console.error("Error fetching functionalities:", err);
     } finally {
-      setIsLoading(false);
+      if (isReload) {
+        setIsReloading(false);
+      } else {
+        setIsLoading(false);
+      }
     }
+  };
+
+  // For DataTable reload button
+  const reloadFunctionalities = async () => {
+    await fetchFunctionalities(true);
   };
 
   const handleCreateFunctionality = async () => {
@@ -66,29 +84,29 @@ function Functionalities() {
 
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/create_ubac_functionality`,
         {
-          functionality_name: newFunctionalityName
+          functionality_name: newFunctionalityName,
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
       // Refresh functionalities list
       fetchFunctionalities();
       setShowCreateModal(false);
-      setNewFunctionalityName('');
+      setNewFunctionalityName("");
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create functionality');
-      console.error('Error creating functionality:', err);
+      setError(err.response?.data?.detail || "Failed to create functionality");
+      console.error("Error creating functionality:", err);
     } finally {
       setIsCreating(false);
     }
@@ -101,20 +119,20 @@ function Functionalities() {
 
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await axios.put(
         `${BASE_URL}/${API_VERSION}/admin/update_ubac_functionality`,
         {
           functionality_id: editingFunctionality.functionality_id,
-          functionality_name: editingFunctionality.functionality_name
+          functionality_name: editingFunctionality.functionality_name,
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -123,8 +141,8 @@ function Functionalities() {
       setShowEditModal(false);
       setEditingFunctionality(null);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to update functionality');
-      console.error('Error updating functionality:', err);
+      setError(err.response?.data?.detail || "Failed to update functionality");
+      console.error("Error updating functionality:", err);
     } finally {
       setIsEditing(false);
     }
@@ -136,7 +154,7 @@ function Functionalities() {
 
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await axios.delete(
@@ -144,8 +162,8 @@ function Functionalities() {
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -154,8 +172,8 @@ function Functionalities() {
       setShowDeleteModal(false);
       setDeletingFunctionality(null);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to delete functionality');
-      console.error('Error deleting functionality:', err);
+      setError(err.response?.data?.detail || "Failed to delete functionality");
+      console.error("Error deleting functionality:", err);
     } finally {
       // No loading state needed
     }
@@ -163,20 +181,17 @@ function Functionalities() {
 
   // Define columns for DataTable
   const columns = [
-
     {
-      field: 'functionality_name',
-      header: 'Name',
+      field: "functionality_name",
+      header: "Name",
       sortable: true,
       render: (value) => (
-        <span className="font-medium text-gray-900">
-          {value}
-        </span>
-      )
+        <span className="font-medium text-gray-900">{value}</span>
+      ),
     },
     {
-      field: 'actions',
-      header: 'Actions',
+      field: "actions",
+      header: "Actions",
       sortable: false,
       render: (_, functionality) => (
         <div className="flex items-center justify-center gap-2">
@@ -201,15 +216,15 @@ function Functionalities() {
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   // Add this breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Access Control', path: '/dashboard' },
-    { label: 'Functionalities', path: '/functionalities' }
+    { label: "Home", path: "/home" },
+    { label: "Access Control", path: "/dashboard" },
+    { label: "Functionalities", path: "/functionalities" },
   ];
 
   if (isLoading) {
@@ -244,18 +259,20 @@ function Functionalities() {
           className: "bg-success-500 hover:bg-success-600",
           position: "right",
           icon: faPlus,
-          showIconOnly: false
+          showIconOnly: false,
         }}
         searchPlaceholder="Search"
         enableSort={true}
         enablePagination={true}
         enableSearch={false}
         enableStatusFilter={false}
-        showSearch={false}
+        showSearch={true}
         itemsPerPage={50}
         onBackClick={() => window.history.back()}
         showBackButton={true}
         backButtonLabel="Back"
+        onReload={reloadFunctionalities}
+        isLoading={isReloading}
       />
 
       {showCreateModal && (
@@ -263,7 +280,7 @@ function Functionalities() {
           isOpen={showCreateModal}
           onClose={() => {
             setShowCreateModal(false);
-            setNewFunctionalityName('');
+            setNewFunctionalityName("");
             setError(null);
           }}
           title="Add New Functionality"
@@ -288,7 +305,8 @@ function Functionalities() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500"
               />
               <p className="mt-1 text-xs text-gray-500">
-                Use underscores instead of spaces (e.g., manage_orders, view_reports)
+                Use underscores instead of spaces (e.g., manage_orders,
+                view_reports)
               </p>
             </div>
           </div>
@@ -298,7 +316,7 @@ function Functionalities() {
               <button
                 onClick={() => {
                   setShowCreateModal(false);
-                  setNewFunctionalityName('');
+                  setNewFunctionalityName("");
                   setError(null);
                 }}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
@@ -318,7 +336,7 @@ function Functionalities() {
                     <span>Creating...</span>
                   </>
                 ) : (
-                  'Create'
+                  "Create"
                 )}
               </button>
             </div>
@@ -340,25 +358,30 @@ function Functionalities() {
         >
           <div className="w-full">
             <div className="mb-6">
-              <label 
-                htmlFor="functionalityName" 
+              <label
+                htmlFor="functionalityName"
                 className="block text-sm font-medium text-left text-gray-700 mb-2"
-              > <span className="text-error-500">*</span>
+              >
+                {" "}
+                <span className="text-error-500">*</span>
                 Functionality Name
               </label>
               <input
                 type="text"
                 id="functionalityName"
-                value={editingFunctionality?.functionality_name || ''}
-                onChange={(e) => setEditingFunctionality(prev => ({
-                  ...prev,
-                  functionality_name: e.target.value
-                }))}
+                value={editingFunctionality?.functionality_name || ""}
+                onChange={(e) =>
+                  setEditingFunctionality((prev) => ({
+                    ...prev,
+                    functionality_name: e.target.value,
+                  }))
+                }
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-success-500 focus:border-success-500 text-gray-900"
                 placeholder="Enter functionality name"
               />
               <p className="mt-1 text-xs text-gray-500">
-                Use underscores instead of spaces (e.g., manage_orders, view_reports)
+                Use underscores instead of spaces (e.g., manage_orders,
+                view_reports)
               </p>
             </div>
 
@@ -374,18 +397,36 @@ function Functionalities() {
               </button>
               <button
                 onClick={handleEditFunctionality}
-                disabled={!editingFunctionality?.functionality_name.trim() || isEditing}
+                disabled={
+                  !editingFunctionality?.functionality_name.trim() || isEditing
+                }
                 className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
-                  ${!editingFunctionality?.functionality_name.trim() || isEditing
-                    ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-success-500 hover:bg-success-600'
+                  ${
+                    !editingFunctionality?.functionality_name.trim() ||
+                    isEditing
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-success-500 hover:bg-success-600"
                   }`}
               >
                 {isEditing ? (
                   <>
-                    <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      />
                     </svg>
                     <span>Updating...</span>
                   </>

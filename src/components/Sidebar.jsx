@@ -5,7 +5,7 @@ import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import {
-  faGrip,
+  faHome,
   faStore,
   faQrcode,
   faLock,
@@ -47,7 +47,7 @@ const menuData = {
       title: "Home",
       path: "/home",
       id: "home",
-      icon: faGrip,
+      icon: faHome,
     },
     {
       title: "Admins",

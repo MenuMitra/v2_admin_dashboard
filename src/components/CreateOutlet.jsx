@@ -1,28 +1,48 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import axios from 'axios';
-import { useAdmin } from '../hooks/useAdmin';
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
+import axios from "axios";
+import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack, faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft as faBack,
+  faPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
   SelectInput,
   Textarea,
   Checkbox,
   TimePickerInput,
-  labelStyles
-} from './forms/FormElements.jsx';
-import ImageUploader from './common/ImageUploader';
-import Breadcrumb from './Breadcrumb';
-import { toastController } from '../utils/toastController';
-import { API_CONFIG } from '../config/appConfig';
-import { isValidSocialMediaLinks, isMobileValid, isWhatsappValid } from '../utils/validations';
-import CustomSelectInput from './common/CustomSelectInput';
+  labelStyles,
+} from "./forms/FormElements.jsx";
+import ImageUploader from "./common/ImageUploader";
+import Breadcrumb from "./Breadcrumb";
+import { toastController } from "../utils/toastController";
+import { API_CONFIG } from "../config/appConfig";
+import {
+  isValidSocialMediaLinks,
+  isMobileValid,
+  isWhatsappValid,
+} from "../utils/validations";
+import CustomSelectInput from "./common/CustomSelectInput";
 
 function formatDateToDDMMMYYYY(dateStr) {
-  if (!dateStr) return '';
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  if (!dateStr) return "";
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const [year, month, day] = dateStr.split("-");
   return `${day} ${months[parseInt(month, 10) - 1]} ${year}`;
 }
@@ -34,37 +54,37 @@ function CreateOutlet() {
   const [outletTypes, setOutletTypes] = useState({});
   const [allOwners, setAllOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [subscriptions, setSubscriptions] = useState([]);
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const [outletData, setOutletData] = useState({
-    name: '',
-    outlet_type: '',
-    fssainumber: '',
-    gstnumber: '',
-    mobile: '',
-    veg_nonveg: '',
-    service_charges: '',
-    gst: '',
-    address: '',
-    outlet_mode: '',
+    name: "",
+    outlet_type: "",
+    fssainumber: "",
+    gstnumber: "",
+    mobile: "",
+    veg_nonveg: "",
+    service_charges: "",
+    gst: "",
+    address: "",
+    outlet_mode: "",
     is_open: true,
     outlet_status: true,
-    upi_id: '',
-    website: '',
-    whatsapp: '',
-    facebook: '',
-    instagram: '',
-    google_business_link: '',
-    google_review: '',
-    email: '',
-    opening_time: '',
-    closing_time: '',
+    upi_id: "",
+    website: "",
+    whatsapp: "",
+    facebook: "",
+    instagram: "",
+    google_business_link: "",
+    google_review: "",
+    email: "",
+    opening_time: "",
+    closing_time: "",
     owner_id: [],
     image: null,
-    subscription_id: '',
-    subscription_end_date: '',
+    subscription_id: "",
+    subscription_end_date: "",
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -72,7 +92,7 @@ function CreateOutlet() {
     owner: false,
     name: false,
     mobile: false,
-    mobileMessage: '',
+    mobileMessage: "",
     upi: false,
     outlet_type: false,
     food_type: false,
@@ -85,7 +105,7 @@ function CreateOutlet() {
     google_business_link: false,
     google_review: false,
     whatsapp: false,
-    whatsappMessage: '',
+    whatsappMessage: "",
   });
 
   const dropdownRef = useRef(null);
@@ -93,14 +113,14 @@ function CreateOutlet() {
   const [isFormValid, setIsFormValid] = useState(false);
 
   const [apiErrors, setApiErrors] = useState({
-    mobile: '',
+    mobile: "",
     // Add other fields that might have API errors
   });
 
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: 'Create Outlet' }
+    { label: "Home", path: "/home" },
+    { label: "Outlets", path: "/outlets" },
+    { label: "Create Outlet" },
   ];
 
   useEffect(() => {
@@ -117,11 +137,11 @@ function CreateOutlet() {
     }
 
     if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDropdownOpen]);
 
@@ -142,26 +162,26 @@ function CreateOutlet() {
   useEffect(() => {
     // Validate mobile number
     if (outletData.mobile) {
-      const numbersOnly = outletData.mobile.replace(/[^0-9]/g, '');
+      const numbersOnly = outletData.mobile.replace(/[^0-9]/g, "");
       const firstDigit = numbersOnly.charAt(0);
-      
+
       if (numbersOnly.length !== 10) {
-        setValidationStates(prev => ({
+        setValidationStates((prev) => ({
           ...prev,
           mobile: true,
-          mobileMessage: 'Mobile number must be 10 digits'
+          mobileMessage: "Mobile number must be 10 digits",
         }));
-      } else if (['0','1','2','3','4','5'].includes(firstDigit)) {
-        setValidationStates(prev => ({
+      } else if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+        setValidationStates((prev) => ({
           ...prev,
           mobile: true,
-          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+          mobileMessage: "Mobile number must start with 6, 7, 8, or 9",
         }));
       } else {
-        setValidationStates(prev => ({
+        setValidationStates((prev) => ({
           ...prev,
           mobile: false,
-          mobileMessage: ''
+          mobileMessage: "",
         }));
       }
     }
@@ -171,9 +191,9 @@ function CreateOutlet() {
     // Validate name
     if (outletData.name) {
       const isValid = isNameValid(outletData.name);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
-        name: !isValid
+        name: !isValid,
       }));
     }
   }, [outletData.name]);
@@ -182,9 +202,9 @@ function CreateOutlet() {
     // Validate UPI ID
     if (outletData.upi_id) {
       const isValid = isUpiValid(outletData.upi_id);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
-        upi: !isValid
+        upi: !isValid,
       }));
     }
   }, [outletData.upi_id]);
@@ -193,20 +213,20 @@ function CreateOutlet() {
     // Validate address
     if (outletData.address) {
       const isValid = isAddressValid(outletData.address);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
-        address: !isValid
+        address: !isValid,
       }));
     }
   }, [outletData.address]);
 
   useEffect(() => {
     // Validate required select inputs
-    setValidationStates(prev => ({
+    setValidationStates((prev) => ({
       ...prev,
       outlet_type: !outletData.outlet_type && prev.outlet_type,
       food_type: !outletData.veg_nonveg && prev.food_type,
-      outlet_mode: !outletData.outlet_mode && prev.outlet_mode
+      outlet_mode: !outletData.outlet_mode && prev.outlet_mode,
     }));
   }, [outletData.outlet_type, outletData.veg_nonveg, outletData.outlet_mode]);
 
@@ -214,30 +234,35 @@ function CreateOutlet() {
     // Overall form validation
     const requiredFields = {
       name: isNameValid(outletData.name),
-      mobile: outletData.mobile.length === 10 && /^[6-9]/.test(outletData.mobile),
+      mobile:
+        outletData.mobile.length === 10 && /^[6-9]/.test(outletData.mobile),
       owner: outletData.owner_id.length > 0,
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_end_date: outletData.subscription_id ? !!outletData.subscription_end_date : true,
+      subscription_end_date: outletData.subscription_id
+        ? !!outletData.subscription_end_date
+        : true,
     };
 
     // Check if there are any API errors
-    const hasApiErrors = Object.values(apiErrors).some(error => error !== '');
+    const hasApiErrors = Object.values(apiErrors).some((error) => error !== "");
 
     // Check if all required fields are valid and there are no API errors
-    const isValid = Object.values(requiredFields).every(field => field === true) && !hasApiErrors;
+    const isValid =
+      Object.values(requiredFields).every((field) => field === true) &&
+      !hasApiErrors;
     setIsFormValid(isValid);
   }, [outletData, apiErrors, validationStates]);
 
   useEffect(() => {
     return () => {
       // Cleanup function to prevent state updates after unmount
-      setOutletData(prev => ({
+      setOutletData((prev) => ({
         ...prev,
-        image: prev.image // Preserve image state
+        image: prev.image, // Preserve image state
       }));
     };
   }, []);
@@ -246,7 +271,7 @@ function CreateOutlet() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -262,7 +287,7 @@ function CreateOutlet() {
         setOutletTypes(response.data.outlet_type_list);
       }
     } catch (error) {
-      console.error('Error fetching outlet types:', error);
+      console.error("Error fetching outlet types:", error);
     }
   };
 
@@ -271,7 +296,7 @@ function CreateOutlet() {
       setIsLoading(true);
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -287,7 +312,7 @@ function CreateOutlet() {
         setAllOwners(response.data);
       }
     } catch (error) {
-      console.error('Error fetching owners:', error);
+      console.error("Error fetching owners:", error);
     } finally {
       setIsLoading(false);
     }
@@ -297,7 +322,7 @@ function CreateOutlet() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
       const response = await axios.get(
         `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
@@ -311,7 +336,7 @@ function CreateOutlet() {
         setSubscriptions(response.data.data);
       }
     } catch (error) {
-      console.error('Error fetching subscriptions:', error);
+      console.error("Error fetching subscriptions:", error);
     }
   };
 
@@ -319,10 +344,10 @@ function CreateOutlet() {
     // Don't set to null if no new image is provided
     const base64String = images[0]?.url;
     if (base64String) {
-      console.log('Image received:', base64String.substring(0, 50) + '...');
-      setOutletData(prev => ({
+      console.log("Image received:", base64String.substring(0, 50) + "...");
+      setOutletData((prev) => ({
         ...prev,
-        image: base64String
+        image: base64String,
       }));
     }
   };
@@ -333,94 +358,97 @@ function CreateOutlet() {
     const value = e.target?.value ?? e.value;
     const type = e.target?.type;
     const checked = e.target?.checked;
-    
-    if (name === 'mobile') {
-      const numbersOnly = value.replace(/[^0-9]/g, '');
+
+    if (name === "mobile") {
+      const numbersOnly = value.replace(/[^0-9]/g, "");
       const firstDigit = numbersOnly.charAt(0);
-      
-      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
-        setOutletData(prev => ({
+
+      if (firstDigit && ["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+        setOutletData((prev) => ({
           ...prev,
-          [name]: ''
+          [name]: "",
         }));
-        setValidationStates(prev => ({
+        setValidationStates((prev) => ({
           ...prev,
           mobile: true,
-          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+          mobileMessage: "Mobile number must start with 6, 7, 8, or 9",
         }));
       } else {
-        setOutletData(prev => ({
+        setOutletData((prev) => ({
           ...prev,
-          [name]: numbersOnly.slice(0, 10)
+          [name]: numbersOnly.slice(0, 10),
         }));
-        
+
         if (numbersOnly.length > 0) {
           if (numbersOnly.length !== 10) {
-            setValidationStates(prev => ({
+            setValidationStates((prev) => ({
               ...prev,
               mobile: true,
-              mobileMessage: 'Mobile number must be 10 digits'
+              mobileMessage: "Mobile number must be 10 digits",
             }));
           } else {
-            setValidationStates(prev => ({
+            setValidationStates((prev) => ({
               ...prev,
               mobile: false,
-              mobileMessage: ''
+              mobileMessage: "",
             }));
           }
         } else {
-          setValidationStates(prev => ({
+          setValidationStates((prev) => ({
             ...prev,
             mobile: false,
-            mobileMessage: ''
+            mobileMessage: "",
           }));
         }
       }
-    } else if (name === 'whatsapp') {
-      const numbersOnly = value.replace(/[^0-9]/g, '');
+    } else if (name === "whatsapp") {
+      const numbersOnly = value.replace(/[^0-9]/g, "");
       const firstDigit = numbersOnly.charAt(0);
-      
-      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
-        setOutletData(prev => ({
+
+      if (firstDigit && ["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+        setOutletData((prev) => ({
           ...prev,
-          [name]: ''
+          [name]: "",
         }));
-        setValidationStates(prev => ({
+        setValidationStates((prev) => ({
           ...prev,
           [name]: true,
-          [`${name}Message`]: `${name === 'mobile' ? 'Mobile' : 'WhatsApp'} number must start with 6, 7, 8, or 9`
+          [`${name}Message`]: `${
+            name === "mobile" ? "Mobile" : "WhatsApp"
+          } number must start with 6, 7, 8, or 9`,
         }));
       } else {
-        setOutletData(prev => ({
+        setOutletData((prev) => ({
           ...prev,
-          [name]: numbersOnly.slice(0, 10)
+          [name]: numbersOnly.slice(0, 10),
         }));
-        
-        const { isValid, message } = name === 'mobile' 
-          ? isMobileValid(numbersOnly.slice(0, 10))
-          : isWhatsappValid(numbersOnly.slice(0, 10));
-        
-        setValidationStates(prev => ({
+
+        const { isValid, message } =
+          name === "mobile"
+            ? isMobileValid(numbersOnly.slice(0, 10))
+            : isWhatsappValid(numbersOnly.slice(0, 10));
+
+        setValidationStates((prev) => ({
           ...prev,
           [name]: !isValid,
-          [`${name}Message`]: message
+          [`${name}Message`]: message,
         }));
       }
-    } else if (name === 'fssainumber') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 14);
-      setOutletData(prev => ({
+    } else if (name === "fssainumber") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 14);
+      setOutletData((prev) => ({
         ...prev,
-        [name]: numbersOnly
+        [name]: numbersOnly,
       }));
-      
-      setValidationStates(prev => ({
+
+      setValidationStates((prev) => ({
         ...prev,
-        fssainumber: numbersOnly.length > 0 && numbersOnly.length !== 14
+        fssainumber: numbersOnly.length > 0 && numbersOnly.length !== 14,
       }));
     } else {
-      setOutletData(prev => ({
+      setOutletData((prev) => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value
+        [name]: type === "checkbox" ? checked : value,
       }));
     }
 
@@ -445,7 +473,7 @@ function CreateOutlet() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!isFormValid) {
       return;
     }
@@ -453,10 +481,10 @@ function CreateOutlet() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
-      const currentDate = new Date().toISOString().split('T')[0];
+      const currentDate = new Date().toISOString().split("T")[0];
 
       const payload = {
         owner_ids: outletData.owner_id,
@@ -471,67 +499,72 @@ function CreateOutlet() {
         subscription_id: outletData.subscription_id, // <-- added
       };
 
-      if (outletData.service_charges !== '') {
+      if (outletData.service_charges !== "") {
         payload.service_charges = outletData.service_charges.toString();
       }
-      if (outletData.gst !== '') {
+      if (outletData.gst !== "") {
         payload.gst = outletData.gst.toString();
       }
 
       if (outletData.subscription_id && outletData.subscription_end_date) {
-        payload.subscription_end_date = formatDateToDDMMMYYYY(outletData.subscription_end_date);
+        payload.subscription_end_date = formatDateToDDMMMYYYY(
+          outletData.subscription_end_date
+        );
       }
 
       const optionalFields = [
-        'fssainumber',
-        'gstnumber',
-        'whatsapp',
-        'facebook',
-        'instagram',
-        'website',
-        'google_business_link',
-        'google_review'
+        "fssainumber",
+        "gstnumber",
+        "whatsapp",
+        "facebook",
+        "instagram",
+        "website",
+        "google_business_link",
+        "google_review",
       ];
 
-      optionalFields.forEach(field => {
+      optionalFields.forEach((field) => {
         if (outletData[field]) {
           payload[field] = outletData[field];
         }
       });
 
       if (outletData.opening_time) {
-        const [timeStr, period] = outletData.opening_time.split(' ');
-        const [hours, minutes] = timeStr.split(':');
+        const [timeStr, period] = outletData.opening_time.split(" ");
+        const [hours, minutes] = timeStr.split(":");
         payload.opening_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
       }
 
       if (outletData.closing_time) {
-        const [timeStr, period] = outletData.closing_time.split(' ');
-        const [hours, minutes] = timeStr.split(':');
+        const [timeStr, period] = outletData.closing_time.split(" ");
+        const [hours, minutes] = timeStr.split(":");
         payload.closing_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
       }
 
-      if (outletData.image && typeof outletData.image === 'string' && outletData.image.startsWith('data:')) {
+      if (
+        outletData.image &&
+        typeof outletData.image === "string" &&
+        outletData.image.startsWith("data:")
+      ) {
         payload.image = outletData.image;
       }
 
-      console.log('Sending payload:', { ...payload, image: payload.image ? 'base64_string_present' : null });
+      console.log("Sending payload:", {
+        ...payload,
+        image: payload.image ? "base64_string_present" : null,
+      });
 
       const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/create_outlet`,
-          payload,
-          {
-            headers: {
-              'Authorization': token,
-              'Content-Type': 'application/json',
-            },
-          }
-        ),
+        axios.post(`${BASE_URL}/${API_VERSION}/common/create_outlet`, payload, {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }),
         {
-          loading: 'Creating outlet...',
-          success: 'Outlet created successfully!',
-          error: 'Failed to create outlet'
+          loading: "Creating outlet...",
+          success: "Outlet created successfully!",
+          error: "Failed to create outlet",
         }
       );
 
@@ -541,35 +574,36 @@ function CreateOutlet() {
         navigate(-1);
       }
     } catch (error) {
-      console.error('Error creating outlet:', error);
-      
+      console.error("Error creating outlet:", error);
+
       // Handle specific API errors without clearing the image
       if (error.response?.data?.detail) {
         const errorMessage = error.response.data.detail;
-        
-        if (errorMessage.includes('mobile')) {
-          setApiErrors(prev => ({
+
+        if (errorMessage.includes("mobile")) {
+          setApiErrors((prev) => ({
             ...prev,
-            mobile: errorMessage
+            mobile: errorMessage,
           }));
-          setValidationStates(prev => ({
+          setValidationStates((prev) => ({
             ...prev,
             mobile: true,
-            mobileMessage: errorMessage
+            mobileMessage: errorMessage,
           }));
         }
-        
+
         toastController.error(errorMessage);
       } else {
-        toastController.error('An unexpected error occurred');
+        toastController.error("An unexpected error occurred");
       }
     }
   };
 
-  const filteredOwners = allOwners.filter(owner => 
-    owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    owner.mobile.includes(searchTerm) ||
-    owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOwners = allOwners.filter(
+    (owner) =>
+      owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      owner.mobile.includes(searchTerm) ||
+      owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const isNameValid = (name) => {
@@ -577,17 +611,17 @@ function CreateOutlet() {
   };
 
   const handleFocus = (fieldName) => {
-    setValidationStates(prev => ({
+    setValidationStates((prev) => ({
       ...prev,
-      [fieldName]: false
+      [fieldName]: false,
     }));
   };
 
   const handleOwnerClick = () => {
     setIsDropdownOpen(!isDropdownOpen);
-    setValidationStates(prev => ({
+    setValidationStates((prev) => ({
       ...prev,
-      owner: false
+      owner: false,
     }));
   };
 
@@ -596,108 +630,117 @@ function CreateOutlet() {
       simple: {
         minLength: 3,
         maxLength: 50,
-        patternMessage: 'Name must be between 3 and 50 characters'
+        patternMessage: "Name must be between 3 and 50 characters",
       },
       complex: {
         pattern: /^[a-zA-Z0-9\s-_]+$/,
-        patternMessage: 'Name can only contain letters, numbers, spaces, hyphens and underscores'
-      }
+        patternMessage:
+          "Name can only contain letters, numbers, spaces, hyphens and underscores",
+      },
     },
     mobile: {
       pattern: /^[6-9]\d{9}$/,
-      patternMessage: 'Mobile number must be 10 digits and start with 6-9'
+      patternMessage: "Mobile number must be 10 digits and start with 6-9",
     },
     upi: {
       pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/,
-      patternMessage: 'Please enter a valid UPI ID (e.g., username@bankname)'
-    }
+      patternMessage: "Please enter a valid UPI ID (e.g., username@bankname)",
+    },
   };
 
   const customValidators = {
     mobile: (value) => {
-      const numbersOnly = value.replace(/[^0-9]/g, '');
+      const numbersOnly = value.replace(/[^0-9]/g, "");
       const firstDigit = numbersOnly.charAt(0);
-      
+
       if (!numbersOnly) {
-        return { isValid: false, message: 'Mobile number is required' };
+        return { isValid: false, message: "Mobile number is required" };
       }
-      
-      if (['0','1','2','3','4','5'].includes(firstDigit)) {
-        return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+
+      if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+        return {
+          isValid: false,
+          message: "Mobile number must start with 6, 7, 8, or 9",
+        };
       }
-      
+
       if (numbersOnly.length !== 10) {
-        return { isValid: false, message: 'Mobile number must be 10 digits' };
+        return { isValid: false, message: "Mobile number must be 10 digits" };
       }
-      
-      return { isValid: true, message: '' };
-    }
+
+      return { isValid: true, message: "" };
+    },
   };
 
   // Add this function to check all required fields
   const checkFormValidity = () => {
     const requiredFields = {
       name: isNameValid(outletData.name),
-      mobile: outletData.mobile.length === 10 && /^[6-9]/.test(outletData.mobile),
+      mobile:
+        outletData.mobile.length === 10 && /^[6-9]/.test(outletData.mobile),
       owner: outletData.owner_id.length > 0,
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_end_date: outletData.subscription_id ? !!outletData.subscription_end_date : true,
+      subscription_end_date: outletData.subscription_id
+        ? !!outletData.subscription_end_date
+        : true,
     };
 
     // Check if all required fields are valid
-    const isValid = Object.values(requiredFields).every(field => field === true);
+    const isValid = Object.values(requiredFields).every(
+      (field) => field === true
+    );
     setIsFormValid(isValid);
     return isValid;
   };
 
   const resetForm = () => {
-    setOutletData(prev => ({
+    setOutletData((prev) => ({
       ...prev,
       // Reset other fields but keep the image
-      name: '',
-      outlet_type: '',
+      name: "",
+      outlet_type: "",
       // ... other fields
-      image: prev.image // Preserve the image
+      image: prev.image, // Preserve the image
     }));
   };
 
-  const [openingHour, setOpeningHour] = useState('');
-  const [openingMinute, setOpeningMinute] = useState('');
-  const [openingPeriod, setOpeningPeriod] = useState('AM');
-  const [closingHour, setClosingHour] = useState('');
-  const [closingMinute, setClosingMinute] = useState('');
-  const [closingPeriod, setClosingPeriod] = useState('AM');
+  const [openingHour, setOpeningHour] = useState("");
+  const [openingMinute, setOpeningMinute] = useState("");
+  const [openingPeriod, setOpeningPeriod] = useState("AM");
+  const [closingHour, setClosingHour] = useState("");
+  const [closingMinute, setClosingMinute] = useState("");
+  const [closingPeriod, setClosingPeriod] = useState("AM");
 
   const handleOpeningTimeChange = (type, value) => {
-    if (type === 'hour') setOpeningHour(value);
-    if (type === 'minute') setOpeningMinute(value);
-    if (type === 'period') setOpeningPeriod(value);
-    const hour = type === 'hour' ? value : openingHour;
-    const minute = type === 'minute' ? value : openingMinute;
-    const period = type === 'period' ? value : openingPeriod;
+    if (type === "hour") setOpeningHour(value);
+    if (type === "minute") setOpeningMinute(value);
+    if (type === "period") setOpeningPeriod(value);
+    const hour = type === "hour" ? value : openingHour;
+    const minute = type === "minute" ? value : openingMinute;
+    const period = type === "period" ? value : openingPeriod;
     if (hour && minute && period) {
-      setOutletData(prev => ({
+      setOutletData((prev) => ({
         ...prev,
-        opening_time: `${hour}:${minute} ${period}`
+        opening_time: `${hour}:${minute} ${period}`,
       }));
     }
   };
 
   const handleClosingTimeChange = (type, value) => {
-    if (type === 'hour') setClosingHour(value);
-    if (type === 'minute') setClosingMinute(value);
-    if (type === 'period') setClosingPeriod(value);
-    const hour = type === 'hour' ? value : closingHour;
-    const minute = type === 'minute' ? value : closingMinute;
-    const period = type === 'period' ? value : closingPeriod;
+    if (type === "hour") setClosingHour(value);
+    if (type === "minute") setClosingMinute(value);
+    if (type === "period") setClosingPeriod(value);
+    const hour = type === "hour" ? value : closingHour;
+    const minute = type === "minute" ? value : closingMinute;
+    const period = type === "period" ? value : closingPeriod;
     if (hour && minute && period) {
-      setOutletData(prev => ({
+      setOutletData((prev) => ({
         ...prev,
-        closing_time: `${hour}:${minute} ${period}`
+        closing_time: `${hour}:${minute} ${period}`,
       }));
     }
   };
@@ -705,11 +748,11 @@ function CreateOutlet() {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
-            <button 
+            <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
             >
@@ -718,8 +761,8 @@ function CreateOutlet() {
             </button>
 
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
-                Create Outlet
-              </h1>
+              Create Outlet
+            </h1>
 
             <div className="relative">
               <button
@@ -729,9 +772,11 @@ function CreateOutlet() {
                   inline-flex items-center gap-2 px-4 py-2 
                   text-sm font-medium text-white rounded-full
                   transition shadow-sm
-                  ${!isFormValid || isLoading 
-                    ? 'bg-gray-400 cursor-not-allowed opacity-50' 
-                    : 'bg-success-500 hover:bg-success-600'}
+                  ${
+                    !isFormValid || isLoading
+                      ? "bg-gray-400 cursor-not-allowed opacity-50"
+                      : "bg-success-500 hover:bg-success-600"
+                  }
                 `}
                 title={!isFormValid ? "Please fill all required fields" : ""}
               >
@@ -745,42 +790,54 @@ function CreateOutlet() {
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
           <section className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               Basic Information
             </h2>
             <ImageUploader
-                    maxImages={1}
-                    onImagesChange={handleImagesChange}
-                    existingImages={outletData.image ? [{ url: outletData.image }] : []}
-                    label="Outlet Image"
-                    className="w-full"
-                    isOutletImage={true}
-                    preserveImageOnValidation={true}
-                  />
+              maxImages={1}
+              onImagesChange={handleImagesChange}
+              existingImages={
+                outletData.image ? [{ url: outletData.image }] : []
+              }
+              label="Outlet Image"
+              className="w-full"
+              isOutletImage={true}
+              preserveImageOnValidation={true}
+            />
 
             <div className="grid grid-cols-1 gap-6">
-            
-            <div className="relative">
-                  
-                </div>
+              <div className="relative"></div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <div className="relative">
-                
                   <TextInput
                     label="Outlet Name"
                     name="name"
                     value={outletData.name}
                     onChange={handleInputChange}
-                    onFocus={() => handleFocus('name')}
+                    onFocus={() => handleFocus("name")}
                     placeholder="Enter Outlet Name"
                     required={true}
                     validationType="simple"
                     validationRules={validationRules.name.simple}
                     className={`
                       focus:border-brand-500 focus:ring-brand-500
-                      ${validationStates.name ? 'border-error-500' : 'border-gray-300'}
+                      ${
+                        validationStates.name
+                          ? "border-error-500"
+                          : "border-gray-300"
+                      }
                     `}
                   />
                 </div>
@@ -788,14 +845,18 @@ function CreateOutlet() {
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     <span className="text-error-600">*</span> Select Owners
                   </label>
-                  
+
                   <div className="relative" ref={dropdownRef}>
                     <div
                       onClick={handleOwnerClick}
                       className={`
                         w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
                         focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer
-                        ${validationStates.owner ? 'border-error-500' : 'border-gray-300'}
+                        ${
+                          validationStates.owner
+                            ? "border-error-500"
+                            : "border-gray-300"
+                        }
                       `}
                       role="combobox"
                       aria-expanded={isDropdownOpen}
@@ -808,8 +869,18 @@ function CreateOutlet() {
                               {outletData.owner_id.length} Owner Selected
                             </div>
                           </div>
-                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                          <svg
+                            className="w-5 h-5 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
+                            />
                           </svg>
                         </div>
                       ) : (
@@ -818,24 +889,26 @@ function CreateOutlet() {
                     </div>
 
                     {isDropdownOpen && (
-                      <div 
+                      <div
                         className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                         style={{
-                          position: 'absolute',
-                          width: '100%',
-                          minWidth: '300px',
+                          position: "absolute",
+                          width: "100%",
+                          minWidth: "300px",
                           zIndex: 9999,
-                          maxHeight: '350px',
-                          overflowY: 'auto'
+                          maxHeight: "350px",
+                          overflowY: "auto",
                         }}
                       >
                         {outletData.owner_id.length > 0 && (
                           <div className="p-2 border-b bg-gray-50">
                             <div className="flex flex-wrap gap-2">
-                              {outletData.owner_id.map(id => {
-                                const owner = allOwners.find(o => o.user_id === id);
+                              {outletData.owner_id.map((id) => {
+                                const owner = allOwners.find(
+                                  (o) => o.user_id === id
+                                );
                                 return owner ? (
-                                  <div 
+                                  <div
                                     key={owner.user_id}
                                     className="inline-flex items-center gap-1 px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-sm"
                                   >
@@ -843,9 +916,11 @@ function CreateOutlet() {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setOutletData(prev => ({
+                                        setOutletData((prev) => ({
                                           ...prev,
-                                          owner_id: prev.owner_id.filter(ownerId => ownerId !== id)
+                                          owner_id: prev.owner_id.filter(
+                                            (ownerId) => ownerId !== id
+                                          ),
                                         }));
                                       }}
                                       className="ml-1 text-brand-500 hover:text-brand-700"
@@ -861,8 +936,7 @@ function CreateOutlet() {
 
                         <div className="sticky top-0 p-2 border-b bg-white">
                           <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                            </span>
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
                             <input
                               type="text"
                               className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -881,9 +955,10 @@ function CreateOutlet() {
                                 key={owner.user_id}
                                 className={`
                                   p-3 cursor-pointer hover:bg-gray-50
-                                  ${outletData.owner_id.includes(owner.user_id)
-                                    ? 'bg-brand-50 border-l-4 border-brand-500' 
-                                    : 'border-l-4 border-transparent'
+                                  ${
+                                    outletData.owner_id.includes(owner.user_id)
+                                      ? "bg-brand-50 border-l-4 border-brand-500"
+                                      : "border-l-4 border-transparent"
                                   }
                                 `}
                               >
@@ -891,14 +966,18 @@ function CreateOutlet() {
                                   <div className="flex items-center gap-3">
                                     <input
                                       type="checkbox"
-                                      checked={outletData.owner_id.includes(owner.user_id)}
+                                      checked={outletData.owner_id.includes(
+                                        owner.user_id
+                                      )}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        setOutletData(prev => ({
+                                        setOutletData((prev) => ({
                                           ...prev,
-                                          owner_id: e.target.checked 
+                                          owner_id: e.target.checked
                                             ? [...prev.owner_id, owner.user_id]
-                                            : prev.owner_id.filter(id => id !== owner.user_id)
+                                            : prev.owner_id.filter(
+                                                (id) => id !== owner.user_id
+                                              ),
                                         }));
                                       }}
                                       className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
@@ -917,7 +996,9 @@ function CreateOutlet() {
                             ))
                           ) : (
                             <div className="p-4 text-center text-sm text-gray-500">
-                              {allOwners.length === 0 ? 'No owners available' : `No owners found matching "${searchTerm}"`}
+                              {allOwners.length === 0
+                                ? "No owners available"
+                                : `No owners found matching "${searchTerm}"`}
                             </div>
                           )}
                         </div>
@@ -934,16 +1015,20 @@ function CreateOutlet() {
                     value={outletData.mobile}
                     onChange={handleInputChange}
                     onFocus={() => {
-                      handleFocus('mobile');
+                      handleFocus("mobile");
                       // Clear API error when user starts typing again
-                      setApiErrors(prev => ({ ...prev, mobile: '' }));
+                      setApiErrors((prev) => ({ ...prev, mobile: "" }));
                     }}
                     required={true}
                     maxLength={10}
                     placeholder="Enter 10 digit mobile number"
                     className={`
                       focus:border-brand-500 focus:ring-brand-500
-                      ${(validationStates.mobile || apiErrors.mobile) ? 'border-error-500' : 'border-gray-300'}
+                      ${
+                        validationStates.mobile || apiErrors.mobile
+                          ? "border-error-500"
+                          : "border-gray-300"
+                      }
                     `}
                   />
                   {(validationStates.mobile || apiErrors.mobile) && (
@@ -968,13 +1053,17 @@ function CreateOutlet() {
                     name="upi_id"
                     value={outletData.upi_id}
                     onChange={handleInputChange}
-                    onFocus={() => handleFocus('upi')}
+                    onFocus={() => handleFocus("upi")}
                     required={true}
                     validationRules={validationRules.upi}
                     placeholder="username@bankname"
                     className={`
                       focus:border-brand-500 focus:ring-brand-500
-                      ${validationStates.upi ? 'border-error-500' : 'border-gray-300'}
+                      ${
+                        validationStates.upi
+                          ? "border-error-500"
+                          : "border-gray-300"
+                      }
                     `}
                   />
                   {validationStates.upi && (
@@ -989,12 +1078,16 @@ function CreateOutlet() {
                   name="outlet_type"
                   value={outletData.outlet_type}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('outlet_type')}
-                  error={validationStates.outlet_type && !outletData.outlet_type}
+                  onFocus={() => handleFocus("outlet_type")}
+                  error={
+                    validationStates.outlet_type && !outletData.outlet_type
+                  }
                   required
                   options={Object.entries(outletTypes).map(([key, value]) => ({
                     value: key,
-                    label: value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, ' ')
+                    label:
+                      value.charAt(0).toUpperCase() +
+                      value.slice(1).replace(/_/g, " "),
                   }))}
                   placeholder="Select Outlet Type"
                 />
@@ -1004,12 +1097,12 @@ function CreateOutlet() {
                   name="veg_nonveg"
                   value={outletData.veg_nonveg}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('food_type')}
+                  onFocus={() => handleFocus("food_type")}
                   error={validationStates.food_type && !outletData.veg_nonveg}
                   required
                   options={[
-                    { value: 'veg', label: 'Veg' },
-                    { value: 'nonveg', label: 'Non-Veg' }
+                    { value: "veg", label: "Veg" },
+                    { value: "nonveg", label: "Non-Veg" },
                   ]}
                   placeholder="Select Food Type"
                 />
@@ -1019,31 +1112,36 @@ function CreateOutlet() {
                   name="outlet_mode"
                   value={outletData.outlet_mode}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('outlet_mode')}
-                  error={validationStates.outlet_mode && !outletData.outlet_mode}
+                  onFocus={() => handleFocus("outlet_mode")}
+                  error={
+                    validationStates.outlet_mode && !outletData.outlet_mode
+                  }
                   required
                   options={[
-                    { value: 'offline', label: 'Offline' },
-                    { value: 'online', label: 'Online' }
+                    { value: "offline", label: "Offline" },
+                    { value: "online", label: "Online" },
                   ]}
                   placeholder="Select Outlet Mode"
                 />
                 <CustomSelectInput
                   label="Subscription Plan"
                   name="subscription_id"
-                  value={outletData.subscription_id || ''}
+                  value={outletData.subscription_id || ""}
                   onChange={handleInputChange}
                   required
-                  options={subscriptions.map(sub => ({
+                  options={subscriptions.map((sub) => ({
                     value: sub.subscription_id.toString(),
-                    label: `${sub.name} - ₹${sub.price} (${sub.features?.length || 0} features)`
+                    label: `${sub.name} - ₹${sub.price} (${
+                      sub.features?.length || 0
+                    } features)`,
                   }))}
                   placeholder="Select Subscription Plan"
                 />
                 {outletData.subscription_id && (
                   <div className="relative">
                     <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      <span className="text-error-600">*</span> Subscription End Date
+                      <span className="text-error-600">*</span> Subscription End
+                      Date
                     </label>
                     <input
                       type="date"
@@ -1052,42 +1150,52 @@ function CreateOutlet() {
                       onChange={handleInputChange}
                       required
                       className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                      min={new Date().toISOString().split('T')[0]}
+                      min={new Date().toISOString().split("T")[0]}
                     />
                   </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">     
-              <div className="sm:col-span-1">
-                <Textarea
-                  label="Address"
-                  name="address"
-                  value={outletData.address}
-                  onChange={handleInputChange}
-                  onFocus={() => handleFocus('address')}
-                  placeholder="Enter Address"
-                  required
-                  rows={3}
-                />
-                {validationStates.address && (
-                  <p className="text-error-500 text-sm mt-1">
-                    {!outletData.address
-                      ? "Address is required"
-                      : outletData.address.length < 5
-                      ? "Minimum 5 characters required"
-                      : "Address must not exceed 50 characters"}
-                  </p>
-                )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="sm:col-span-1">
+                  <Textarea
+                    label="Address"
+                    name="address"
+                    value={outletData.address}
+                    onChange={handleInputChange}
+                    onFocus={() => handleFocus("address")}
+                    placeholder="Enter Address"
+                    required
+                    rows={3}
+                  />
+                  {validationStates.address && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {!outletData.address
+                        ? "Address is required"
+                        : outletData.address.length < 5
+                        ? "Minimum 5 characters required"
+                        : "Address must not exceed 50 characters"}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div> 
             </div>
           </section>
 
           <section className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
               </svg>
               Business Details
             </h2>
@@ -1100,7 +1208,7 @@ function CreateOutlet() {
                   type="number"
                   value={outletData.service_charges}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('service_charges')}
+                  onFocus={() => handleFocus("service_charges")}
                   placeholder="Enter Service Charges"
                   className="focus:border-brand-500 focus:ring-brand-500 border-gray-300"
                 />
@@ -1113,7 +1221,7 @@ function CreateOutlet() {
                   type="number"
                   value={outletData.gst}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('gst')}
+                  onFocus={() => handleFocus("gst")}
                   placeholder="Enter GST"
                   className="focus:border-brand-500 focus:ring-brand-500 border-gray-300"
                 />
@@ -1129,36 +1237,47 @@ function CreateOutlet() {
                   <select
                     className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     value={openingHour}
-                    onChange={e => handleOpeningTimeChange('hour', e.target.value)}
+                    onChange={(e) =>
+                      handleOpeningTimeChange("hour", e.target.value)
+                    }
                   >
                     <option value="">HH</option>
                     {[...Array(12)].map((_, i) => {
-                      const val = (i + 1).toString().padStart(2, '0');
-                      return <option key={val} value={val}>{val}</option>;
+                      const val = (i + 1).toString().padStart(2, "0");
+                      return (
+                        <option key={val} value={val}>
+                          {val}
+                        </option>
+                      );
                     })}
                   </select>
                   {/* Minute Dropdown */}
                   <select
                     className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     value={openingMinute}
-                    onChange={e => handleOpeningTimeChange('minute', e.target.value)}
+                    onChange={(e) =>
+                      handleOpeningTimeChange("minute", e.target.value)
+                    }
                   >
                     <option value="">MM</option>
-                    {['00', '15', '30', '45'].map(min => (
-                      <option key={min} value={min}>{min}</option>
+                    {["00", "15", "30", "45"].map((min) => (
+                      <option key={min} value={min}>
+                        {min}
+                      </option>
                     ))}
                   </select>
                   {/* AM/PM Dropdown */}
                   <select
                     className="w-20 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     value={openingPeriod}
-                    onChange={e => handleOpeningTimeChange('period', e.target.value)}
+                    onChange={(e) =>
+                      handleOpeningTimeChange("period", e.target.value)
+                    }
                   >
                     <option value="AM">AM</option>
                     <option value="PM">PM</option>
                   </select>
                 </div>
-              
               </div>
               {/* Closing Time */}
               <div className="mb-4">
@@ -1170,36 +1289,47 @@ function CreateOutlet() {
                   <select
                     className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     value={closingHour}
-                    onChange={e => handleClosingTimeChange('hour', e.target.value)}
+                    onChange={(e) =>
+                      handleClosingTimeChange("hour", e.target.value)
+                    }
                   >
                     <option value="">HH</option>
                     {[...Array(12)].map((_, i) => {
-                      const val = (i + 1).toString().padStart(2, '0');
-                      return <option key={val} value={val}>{val}</option>;
+                      const val = (i + 1).toString().padStart(2, "0");
+                      return (
+                        <option key={val} value={val}>
+                          {val}
+                        </option>
+                      );
                     })}
                   </select>
                   {/* Minute Dropdown */}
                   <select
                     className="w-16 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     value={closingMinute}
-                    onChange={e => handleClosingTimeChange('minute', e.target.value)}
+                    onChange={(e) =>
+                      handleClosingTimeChange("minute", e.target.value)
+                    }
                   >
                     <option value="">MM</option>
-                    {['00', '15', '30', '45'].map(min => (
-                      <option key={min} value={min}>{min}</option>
+                    {["00", "15", "30", "45"].map((min) => (
+                      <option key={min} value={min}>
+                        {min}
+                      </option>
                     ))}
                   </select>
                   {/* AM/PM Dropdown */}
                   <select
                     className="w-20 h-12 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     value={closingPeriod}
-                    onChange={e => handleClosingTimeChange('period', e.target.value)}
+                    onChange={(e) =>
+                      handleClosingTimeChange("period", e.target.value)
+                    }
                   >
                     <option value="AM">AM</option>
                     <option value="PM">PM</option>
                   </select>
                 </div>
-               
               </div>
 
               <TextInput
@@ -1221,9 +1351,11 @@ function CreateOutlet() {
               />
               {validationStates.gstnumber && (
                 <p className="text-error-500 text-sm mt-1">
-                  {!outletData.gstnumber ? 'GST Number is required' :
-                    !isGSTNumberValid(outletData.gstnumber) ? 'GST Number must be a 15-digit alphanumeric code' :
-                    ''}
+                  {!outletData.gstnumber
+                    ? "GST Number is required"
+                    : !isGSTNumberValid(outletData.gstnumber)
+                    ? "GST Number must be a 15-digit alphanumeric code"
+                    : ""}
                 </p>
               )}
             </div>
@@ -1231,8 +1363,18 @@ function CreateOutlet() {
 
           <section className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                />
               </svg>
               Social Media
             </h2>
@@ -1245,16 +1387,21 @@ function CreateOutlet() {
                   type="url"
                   value={outletData.website}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('website')}
+                  onFocus={() => handleFocus("website")}
                   placeholder="https://example.com"
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.website ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      validationStates.website
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {validationStates.website && (
                   <p className="text-error-500 text-sm mt-1">
-                    Please enter a valid website URL starting with http:// or https://
+                    Please enter a valid website URL starting with http:// or
+                    https://
                   </p>
                 )}
               </div>
@@ -1266,12 +1413,16 @@ function CreateOutlet() {
                   type="tel"
                   value={outletData.whatsapp}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('whatsapp')}
+                  onFocus={() => handleFocus("whatsapp")}
                   placeholder="Enter 10 digit mobile number"
                   maxLength={10}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.whatsapp ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      validationStates.whatsapp
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {validationStates.whatsapp && (
@@ -1288,10 +1439,14 @@ function CreateOutlet() {
                   type="url"
                   value={outletData.facebook}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('facebook')}
+                  onFocus={() => handleFocus("facebook")}
                   placeholder="https://facebook.com/yourpage"
                   className={`                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.facebook ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      validationStates.facebook
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {validationStates.facebook && (
@@ -1308,11 +1463,15 @@ function CreateOutlet() {
                   type="url"
                   value={outletData.instagram}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('instagram')}
+                  onFocus={() => handleFocus("instagram")}
                   placeholder="https://instagram.com/yourhandle"
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.instagram ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      validationStates.instagram
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {validationStates.instagram && (
@@ -1329,10 +1488,14 @@ function CreateOutlet() {
                   type="url"
                   value={outletData.google_business_link}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('google_business_link')}
+                  onFocus={() => handleFocus("google_business_link")}
                   placeholder="https://business.google.com/yourpage"
                   className={`                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.google_business_link ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      validationStates.google_business_link
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {validationStates.google_business_link && (
@@ -1349,10 +1512,14 @@ function CreateOutlet() {
                   type="url"
                   value={outletData.google_review}
                   onChange={handleInputChange}
-                  onFocus={() => handleFocus('google_review')}
+                  onFocus={() => handleFocus("google_review")}
                   placeholder="https://g.page/r/yourreviewpage"
                   className={`                    focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.google_review ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      validationStates.google_review
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {validationStates.google_review && (
@@ -1370,5 +1537,3 @@ function CreateOutlet() {
 }
 
 export default CreateOutlet;
-
-

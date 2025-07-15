@@ -429,10 +429,8 @@ function CreateOwner() {
                   </p>
                 )}
               </div>
-            </div>
-
-            {/* Address */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+               {/* Address */}
+           
               <div className="sm:col-span-1">
                 <Textarea
                   label="Address"
@@ -452,7 +450,10 @@ function CreateOwner() {
                   </p>
                 )}
               </div>
+           
             </div>
+
+           
 
             {/* Functionalities */}
             {/* <div>

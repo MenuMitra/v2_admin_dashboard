@@ -246,7 +246,9 @@ function CreatePartner() {
                   required
                 />
                 {emailError && (
-                  <div className="text-error-500 text-sm mt-1">{emailError}</div>
+                  <div className="text-error-500 text-sm mt-1">
+                    {emailError}
+                  </div>
                 )}
               </div>
 
@@ -268,22 +270,20 @@ function CreatePartner() {
                 required
                 maxLength="12"
               />
+
+              <div className="sm:col-span-1">
+                <Textarea
+                  label="Address"
+                  name="address"
+                  value={partnerDetails.address}
+                  onChange={handleChange}
+                  placeholder="Enter address"
+                  rows={3}
+                  required
+                />
+              </div>
             </div>
 
-            {/* Address */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              <div className="sm:col-span-1">
-            <Textarea
-              label="Address"
-              name="address"
-              value={partnerDetails.address}
-              onChange={handleChange}
-              placeholder="Enter address"
-              rows={3}
-              required
-            />
-            </div>
-            </div>
             {/* Functionalities */}
             <div>
               <label className={labelStyles}>

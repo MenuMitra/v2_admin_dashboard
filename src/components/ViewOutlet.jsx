@@ -15,8 +15,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
-import DeleteConfirmModal from './common/DeleteConfirmModal/DeleteConfirmModal';
-import Modal from './common/Modal';
+import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
+import Modal from "./common/Modal";
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 
@@ -290,14 +290,18 @@ function ViewOutlet() {
                   to={`/categories/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <span className="text-sm font-medium text-gray-800">Categories</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    Categories
+                  </span>
                 </Link>
 
                 <Link
                   to={`/menus/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <span className="text-sm font-medium text-gray-800">Menus</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    Menus
+                  </span>
                 </Link>
               </div>
             </div>
@@ -313,28 +317,36 @@ function ViewOutlet() {
                   to={`/managers/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <span className="text-sm font-medium text-gray-800">Managers</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    Managers
+                  </span>
                 </Link>
 
                 <Link
                   to={`/chefs/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <span className="text-sm font-medium text-gray-800">Chefs</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    Chefs
+                  </span>
                 </Link>
 
                 <Link
                   to={`/captains/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <span className="text-sm font-medium text-gray-800">Captains</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    Captains
+                  </span>
                 </Link>
 
                 <Link
                   to={`/waiters/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <span className="text-sm font-medium text-gray-800">Waiters</span>
+                  <span className="text-sm font-medium text-gray-800">
+                    Waiters
+                  </span>
                 </Link>
               </div>
             </div>

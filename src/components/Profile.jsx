@@ -1,9 +1,9 @@
-import React from 'react';
-import { useAdmin } from '../hooks/useAdmin';
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
-import Breadcrumb from './Breadcrumb';
+import React from "react";
+import { useAdmin } from "../hooks/useAdmin";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "./Breadcrumb";
 
 function Profile() {
   const { adminData } = useAdmin();
@@ -11,8 +11,8 @@ function Profile() {
 
   // Add breadcrumb items configuration
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Profile' }
+    { label: "Home", path: "/home" },
+    { label: "Profile" },
   ];
 
   // Early return if no admin data
@@ -38,7 +38,7 @@ function Profile() {
           <div className="flex items-center px-6 mb-3">
             {/* Left Side - Back Button */}
             <div className="flex items-center gap-2">
-              <button 
+              <button
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
@@ -61,7 +61,6 @@ function Profile() {
           {/* Personal Information Section */}
           <div className="rounded-2xl dark:border-gray-800 lg:p-6">
             <div>
-
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
                 <InfoField label="Name" value={adminData.name} />
                 <InfoField label="Email address" value={adminData.email} />
@@ -78,10 +77,10 @@ function Profile() {
 
 // Helper Component
 const InfoField = ({ label, value }) => (
-  <div>
-  <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-    {value || 'N/A'}
-  </p>
+  <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+    <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+      {value || "N/A"}
+    </p>
     <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
       {label}
     </p>

@@ -118,17 +118,25 @@ function DataTable({
   const safeData = Array.isArray(data) ? data : [];
 
   // Ensure columns always has 6 items
+  // Center align columns by default unless specified
   const paddedColumns =
     columns.length < 6
       ? [
-          ...columns,
+          ...columns.map((col) => ({
+            ...col,
+            textAlign: col.textAlign || "center",
+          })),
           ...Array(6 - columns.length).fill({
             field: "",
             header: "",
             sortable: false,
+            textAlign: "center",
           }),
         ]
-      : columns;
+      : columns.map((col) => ({
+          ...col,
+          textAlign: col.textAlign || "center",
+        }));
 
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
@@ -266,37 +274,37 @@ function DataTable({
     const pages = [];
     if (totalPages <= 3) {
       for (let i = 1; i <= totalPages; i++) {
-      pages.push(
-        <li key={i}>
-          <button
-            onClick={() => handlePageChange(i)}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
-              currentPage === i
-                ? "bg-brand-500 text-white"
-                : `text-gray-700 hover:bg-brand-500 hover:text-white ${
-                    darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
-                  }`
-            }`}
-          >
-            {i}
-          </button>
-        </li>
-      );
-    }
+        pages.push(
+          <li key={i}>
+            <button
+              onClick={() => handlePageChange(i)}
+              className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
+                currentPage === i
+                  ? "bg-brand-500 text-white"
+                  : `text-gray-700 hover:bg-brand-500 hover:text-white ${
+                      darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
+                    }`
+              }`}
+            >
+              {i}
+            </button>
+          </li>
+        );
+      }
     } else {
       // Show ellipsis if needed
       if (currentPage > 2) {
         pages.push(
-        <li key="start-ellipsis">
+          <li key="start-ellipsis">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700">
-            ...
-          </span>
-        </li>
-      );
-    }
+              ...
+            </span>
+          </li>
+        );
+      }
       // Show previous page if not on first page
       if (currentPage > 1) {
-      pages.push(
+        pages.push(
           <li key={currentPage - 1}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
@@ -339,11 +347,11 @@ function DataTable({
         pages.push(
           <li key="end-ellipsis">
             <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700">
-            ...
-          </span>
-        </li>
-      );
-    }
+              ...
+            </span>
+          </li>
+        );
+      }
     }
     return pages;
   };
@@ -617,12 +625,18 @@ function DataTable({
               {/* Left: Stats as badges */}
               {counts && (
                 <div className="flex items-center gap-2 text-sm flex-wrap">
-                  <span className="font-medium text-gray-800 dark:text-white/90">Total: {counts.total}</span>
+                  <span className="font-medium text-gray-800 dark:text-white/90">
+                    Total: {counts.total}
+                  </span>
                   {counts.active !== null && (
-                    <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">Active: {counts.active}</span>
+                    <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">
+                      Active: {counts.active}
+                    </span>
                   )}
                   {counts.inactive !== null && (
-                    <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">Inactive: {counts.inactive}</span>
+                    <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">
+                      Inactive: {counts.inactive}
+                    </span>
                   )}
                 </div>
               )}
@@ -651,7 +665,7 @@ function DataTable({
                     {enableAccountTypeFilter && (
                       <div className="relative w-40 mr-2">
                         <select
-                          value={accountType || 'all'}
+                          value={accountType || "all"}
                           onChange={onAccountTypeChange || (() => {})}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
@@ -665,7 +679,7 @@ function DataTable({
                     {enableOpenCloseStatusFilter && (
                       <div className="relative w-40">
                         <select
-                          value={openCloseStatus || 'all'}
+                          value={openCloseStatus || "all"}
                           onChange={onOpenCloseStatusChange || (() => {})}
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
@@ -719,9 +733,9 @@ function DataTable({
                     className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Reload data"
                   >
-                    <FontAwesomeIcon 
-                      icon={faRotate} 
-                      className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`}
+                    <FontAwesomeIcon
+                      icon={faRotate}
+                      className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
                     />
                   </button>
                 )}
@@ -836,18 +850,21 @@ function DataTable({
                 {paddedColumns.map((column, idx) => (
                   <th
                     key={column.field || idx}
-                    className={`${
-                      column.field === "selection" ? "px-2" : "px-6"
-                    } py-2.5 ${column.textAlign ? `text-${column.textAlign}` : "text-left"} ${
-                      enableSort && column.sortable
-                        ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                        : ""
-                    }`}
+                    className={`
+                      ${column.field === "selection" ? "px-2" : "px-6"}
+                      py-2.5
+                      text-center
+                      ${
+                        enableSort && column.sortable
+                          ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                          : ""
+                      }
+                    `}
                     onClick={() =>
                       column.sortable ? handleSort(column.field) : null
                     }
                   >
-                    <div className={`flex items-center ${column.textAlign === "center" ? "justify-center w-full" : "gap-1"}`}>
+                    <div className="flex items-center justify-center w-full">
                       <p
                         className={`font-semibold text-gray-700 text-theme-xs text-center ${
                           darkMode ? "dark:text-white/90" : ""
@@ -900,18 +917,22 @@ function DataTable({
                     {paddedColumns.map((column, idx) => (
                       <td
                         key={column.field || idx}
-                        className={`${
-                          column.field === "selection" ? "px-2" : "px-6"
-                        } py-2.5 text-center ${
-                          // Add whitespace-nowrap and overflow handling for name column
-                          column.field === "name" || column.field === "outlet_name" ? 
-                          "whitespace-nowrap" : ""
-                        }`}
+                        className={`
+                          ${column.field === "selection" ? "px-2" : "px-6"}
+                          py-2.5
+                          text-center
+                          ${
+                            column.field === "name" ||
+                            column.field === "outlet_name"
+                              ? "whitespace-nowrap"
+                              : ""
+                          }
+                        `}
                       >
                         {column.render && column.field ? (
                           column.render(item[column.field], item)
                         ) : column.field === statusField && column.field ? (
-                          <div className="flex items-center">
+                          <div className="flex items-center justify-center">
                             {renderStatus(item[column.field])}
                           </div>
                         ) : column.field ? (
@@ -919,8 +940,10 @@ function DataTable({
                             className={`text-gray-500 text-theme-sm ${
                               darkMode ? "dark:text-gray-400" : ""
                             } ${
-                              // Add overflow classes to the text element as well
-                              column.field === "name" || column.field === "outlet_name"
+                              column.field === "name" ||
+                              column.field === "outlet_name"
+                                ? "whitespace-nowrap"
+                                : ""
                             }`}
                           >
                             {item[column.field]}
@@ -1069,7 +1092,7 @@ DataTable.propTypes = {
       field: PropTypes.string.isRequired,
       header: PropTypes.string.isRequired,
       sortable: PropTypes.bool,
-      textAlign: PropTypes.oneOf(['left', 'center', 'right']),  // New prop
+      textAlign: PropTypes.oneOf(["left", "center", "right"]), // New prop
       render: PropTypes.func,
     })
   ).isRequired,

@@ -1,16 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPlus, faPenToSquare, faTrash } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import { useAdmin } from '../../../hooks/useAdmin';
-import DataTable from '../../common/DataTable';
-import Breadcrumb from '../../Breadcrumb';
-import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
-import Modal from '../../common/Modal';
-import { API_CONFIG } from '../../../config/appConfig';
-import { toastController } from '../../../utils/toastController';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faEye,
+  faPlus,
+  faPenToSquare,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import { useAdmin } from "../../../hooks/useAdmin";
+import DataTable from "../../common/DataTable";
+import Breadcrumb from "../../Breadcrumb";
+import DeleteConfirmModal from "../../common/DeleteConfirmModal/DeleteConfirmModal";
+import Modal from "../../common/Modal";
+import { API_CONFIG } from "../../../config/appConfig";
+import { toastController } from "../../../utils/toastController";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -19,55 +24,65 @@ function Roles() {
   const { adminData } = useAdmin();
   const [roles, setRoles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
+  const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newRoleName, setNewRoleName] = useState('');
+  const [newRoleName, setNewRoleName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
-  const [editRoleName, setEditRoleName] = useState('');
+  const [editRoleName, setEditRoleName] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingRole, setDeletingRole] = useState(null);
   const navigate = useNavigate();
 
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Access Control', path: '/dashboard' },
-    { label: 'Roles', path: '/roles' }
+    { label: "Home", path: "/home" },
+    { label: "Access Control", path: "/dashboard" },
+    { label: "Roles", path: "/roles" },
   ];
 
-  const fetchRoles = async () => {
+  const fetchRoles = async (isReload = false) => {
     try {
-      setIsLoading(true);
-      
+      if (isReload) {
+        setIsReloading(true);
+      } else {
+        setIsLoading(true);
+      }
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await toastController.promise(
-        axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/roles`,
-          {
-            headers: {
-              'Authorization': token,
-              'Content-Type': 'application/json'
-            }
-          }
-        ),
+        axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/roles`, {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }),
         {
-          loading: 'Loading roles...',
-          success: 'Roles loaded successfully!',
-          error: 'Failed to load roles'
+          loading: "Loading roles...",
+          success: "Roles loaded successfully!",
+          error: "Failed to load roles",
         }
       );
 
       setRoles(response.data);
     } catch (err) {
-      console.error('Error fetching roles:', err);
+      console.error("Error fetching roles:", err);
     } finally {
-      setIsLoading(false);
+      if (isReload) {
+        setIsReloading(false);
+      } else {
+        setIsLoading(false);
+      }
     }
+  };
+
+  // For DataTable reload button
+  const reloadFetchRoles = async () => {
+    await fetchRoles(true);
   };
 
   useEffect(() => {
@@ -76,7 +91,7 @@ function Roles() {
 
   const handleCreateRole = async () => {
     if (!newRoleName.trim()) {
-      toastController.error('Please enter a role name');
+      toastController.error("Please enter a role name");
       return;
     }
 
@@ -84,36 +99,36 @@ function Roles() {
       setIsSubmitting(true);
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await toastController.promise(
         axios.post(
           `${BASE_URL}/${API_VERSION}/admin/create_ubac_role`,
-          { 
-            role_name: newRoleName, 
-            user_id: adminData.user_id, 
-            app_source: "admin_app" 
+          {
+            role_name: newRoleName,
+            user_id: adminData.user_id,
+            app_source: "admin_app",
           },
           {
             headers: {
-              'Authorization': token,
-              'Content-Type': 'application/json'
-            }
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
           }
         ),
         {
-          loading: 'Creating role...',
-          success: 'Role created successfully!',
-          error: 'Failed to create role'
+          loading: "Creating role...",
+          success: "Role created successfully!",
+          error: "Failed to create role",
         }
       );
 
       await fetchRoles();
       setIsModalOpen(false);
-      setNewRoleName('');
+      setNewRoleName("");
     } catch (err) {
-      console.error('Error creating role:', err);
+      console.error("Error creating role:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -121,7 +136,7 @@ function Roles() {
 
   const handleUpdateRole = async () => {
     if (!editRoleName.trim() || !editingRole) {
-      toastController.error('Please enter a role name');
+      toastController.error("Please enter a role name");
       return;
     }
 
@@ -129,7 +144,7 @@ function Roles() {
       setIsSubmitting(true);
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await toastController.promise(
@@ -139,28 +154,28 @@ function Roles() {
             role_id: editingRole.role_id,
             role_name: editRoleName,
             user_id: adminData.user_id,
-            app_source: "admin_app"
+            app_source: "admin_app",
           },
           {
             headers: {
-              'Authorization': token,
-              'Content-Type': 'application/json'
-            }
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
           }
         ),
         {
-          loading: 'Updating role...',
-          success: 'Role updated successfully!',
-          error: 'Failed to update role'
+          loading: "Updating role...",
+          success: "Role updated successfully!",
+          error: "Failed to update role",
         }
       );
 
       await fetchRoles();
       setIsEditModalOpen(false);
       setEditingRole(null);
-      setEditRoleName('');
+      setEditRoleName("");
     } catch (err) {
-      console.error('Error updating role:', err);
+      console.error("Error updating role:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -171,7 +186,7 @@ function Roles() {
       setIsSubmitting(true);
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await toastController.promise(
@@ -180,19 +195,19 @@ function Roles() {
           {
             role_id: deletingRole.role_id,
             user_id: adminData.user_id,
-            app_source: "admin_app"
+            app_source: "admin_app",
           },
           {
             headers: {
-              'Authorization': token,
-              'Content-Type': 'application/json'
-            }
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
           }
         ),
         {
-          loading: 'Deleting role...',
-          success: 'Role deleted successfully!',
-          error: 'Failed to delete role'
+          loading: "Deleting role...",
+          success: "Role deleted successfully!",
+          error: "Failed to delete role",
         }
       );
 
@@ -200,7 +215,7 @@ function Roles() {
       setIsDeleteModalOpen(false);
       setDeletingRole(null);
     } catch (err) {
-      console.error('Error deleting role:', err);
+      console.error("Error deleting role:", err);
     } finally {
       setIsSubmitting(false);
     }
@@ -209,8 +224,8 @@ function Roles() {
   // Define columns for DataTable
   const columns = [
     {
-      field: 'role_name',
-      header: 'Role',
+      field: "role_name",
+      header: "Role",
       sortable: true,
       headerClassName: "text-center",
       render: (value) => (
@@ -219,23 +234,25 @@ function Roles() {
             {value}
           </span>
         </div>
-      )
+      ),
     },
     {
-      field: 'actions',
-      header: 'Actions',
+      field: "actions",
+      header: "Actions",
       sortable: false,
       headerClassName: "text-center",
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
           <button
-            onClick={() => navigate(`/role-functionalities-mapping/${row.role_id}`)}
+            onClick={() =>
+              navigate(`/role-functionalities-mapping/${row.role_id}`)
+            }
             className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
             title="View Details"
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
-          
+
           <button
             onClick={() => {
               setEditingRole(row);
@@ -259,8 +276,8 @@ function Roles() {
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
           </button>
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   if (isLoading) {
@@ -291,17 +308,19 @@ function Roles() {
           position: "right",
           showIconOnly: false,
           disabled: false,
-          tooltip: "Create a new role"
+          tooltip: "Create a new role",
         }}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
         searchPlaceholder="Search roles"
         enableSort={true}
         enablePagination={true}
-        enableSearch={false}
+        enableSearch={true}
         enableStatusFilter={false}
-        showSearch={false}
+        showSearch={true}
         itemsPerPage={50}
+        onReload={reloadFetchRoles}
+        isLoading={isReloading}
       />
 
       {/* Create Role Modal */}
@@ -309,7 +328,7 @@ function Roles() {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setNewRoleName('');
+          setNewRoleName("");
         }}
         title="Create New Role"
         type="default"
@@ -317,8 +336,8 @@ function Roles() {
       >
         <div className="w-full">
           <div className="mb-6">
-            <label 
-              htmlFor="roleName" 
+            <label
+              htmlFor="roleName"
               className="block text-theme-sm font-medium text-left text-gray-700 mb-2"
             >
               Role Name <span className="text-error-500">*</span>
@@ -338,7 +357,7 @@ function Roles() {
               <button
                 onClick={() => {
                   setIsModalOpen(false);
-                  setNewRoleName('');
+                  setNewRoleName("");
                 }}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
                 disabled={isSubmitting}
@@ -351,13 +370,14 @@ function Roles() {
                 onClick={handleCreateRole}
                 disabled={!newRoleName.trim() || isSubmitting}
                 className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
-                  ${!newRoleName.trim() || isSubmitting
-                    ? 'bg-success-500 cursor-not-allowed'
-                    : 'bg-success-500 hover:bg-success-600'
+                  ${
+                    !newRoleName.trim() || isSubmitting
+                      ? "bg-success-500 cursor-not-allowed"
+                      : "bg-success-500 hover:bg-success-600"
                   }`}
               >
                 <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-                {isSubmitting ? 'Creating...' : 'Create'}
+                {isSubmitting ? "Creating..." : "Create"}
               </button>
             </div>
           </div>
@@ -370,7 +390,7 @@ function Roles() {
         onClose={() => {
           setIsEditModalOpen(false);
           setEditingRole(null);
-          setEditRoleName('');
+          setEditRoleName("");
         }}
         title="Edit Role"
         type="default"
@@ -378,8 +398,8 @@ function Roles() {
       >
         <div className="w-full">
           <div className="mb-6">
-            <label 
-              htmlFor="editRoleName" 
+            <label
+              htmlFor="editRoleName"
               className="block text-theme-sm font-medium text-left text-gray-700 mb-2"
             >
               Role Name <span className="text-error-500">*</span>
@@ -399,7 +419,7 @@ function Roles() {
               onClick={() => {
                 setIsEditModalOpen(false);
                 setEditingRole(null);
-                setEditRoleName('');
+                setEditRoleName("");
               }}
               className="px-4 py-2 text-theme-sm font-medium text-gray-700 rounded-full border border-gray-300 hover:bg-gray-50"
             >
@@ -409,13 +429,14 @@ function Roles() {
               onClick={handleUpdateRole}
               disabled={!editRoleName.trim() || isSubmitting}
               className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
-                ${!editRoleName.trim() || isSubmitting
-                  ? 'bg-warning-500 cursor-not-allowed'
-                  : 'bg-warning-500 hover:bg-warning-600'
+                ${
+                  !editRoleName.trim() || isSubmitting
+                    ? "bg-warning-500 cursor-not-allowed"
+                    : "bg-warning-500 hover:bg-warning-600"
                 }`}
             >
               <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-              {isSubmitting ? 'Updating...' : 'Update'}
+              {isSubmitting ? "Updating..." : "Update"}
             </button>
           </div>
         </div>

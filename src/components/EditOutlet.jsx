@@ -91,6 +91,8 @@ function EditOutlet() {
 
   // Add new state for subscriptions
   const [subscriptions, setSubscriptions] = useState([]);
+  // Add state for subscription_end_date
+  const [subscriptionEndDate, setSubscriptionEndDate] = useState("");
 
   // Add essential validation helper functions
   const isNameValid = (name) => name?.length >= 3 && name?.length <= 50;
@@ -320,9 +322,9 @@ function EditOutlet() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: 'Edit Outlet' }
+    { label: "Home", path: "/home" },
+    { label: "Outlets", path: "/outlets" },
+    { label: "Edit Outlet" },
   ];
 
   // Show loading state while fetching data
@@ -405,6 +407,27 @@ function EditOutlet() {
     return `${hour}:${minute}:00 ${period}`;
   }
 
+  // Helper to format date as 'DD MMM YYYY'
+  function formatDateToDDMMMYYYY(dateStr) {
+    if (!dateStr) return "";
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const [year, month, day] = dateStr.split("-");
+    return `${day} ${months[parseInt(month, 10) - 1]} ${year}`;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -464,6 +487,12 @@ function EditOutlet() {
         return;
       }
 
+      // Add validation for subscription_end_date if subscription is selected
+      if (outletData.subscription_id && !subscriptionEndDate) {
+        toastController.error("Please select a subscription end date");
+        return;
+      }
+
       // Prepare API data with new_owner_ids as array
       const apiData = {
         outlet_id: parseInt(outletId),
@@ -493,9 +522,22 @@ function EditOutlet() {
           ? parseInt(outletData.subscription_id)
           : undefined,
         app_source: "admin_app",
-        opening_time: to12HourTime(openingHour, openingMinute, openingPeriod),
-        closing_time: to12HourTime(closingHour, closingMinute, closingPeriod),
       };
+
+      // When constructing the payload for saving, format opening_time and closing_time as 'YYYY-MM-DD HH:mm:00 AM/PM'
+      const currentDate =
+        outletData?.date || new Date().toISOString().split("T")[0];
+      if (openingHour && openingMinute && openingPeriod) {
+        apiData.opening_time = `${currentDate} ${openingHour}:${openingMinute}:00 ${openingPeriod}`;
+      }
+      if (closingHour && closingMinute && closingPeriod) {
+        apiData.closing_time = `${currentDate} ${closingHour}:${closingMinute}:00 ${closingPeriod}`;
+      }
+
+      if (outletData.subscription_id && subscriptionEndDate) {
+        apiData.subscription_end_date =
+          formatDateToDDMMMYYYY(subscriptionEndDate);
+      }
 
       const response = await axios.patch(
         `${BASE_URL}/${API_VERSION}/common/update_outlet`,
@@ -877,30 +919,47 @@ function EditOutlet() {
                   }))}
                   placeholder="Select Subscription Plan"
                 />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">     
-              <div className="sm:col-span-1">
-                <Textarea
-                  label="Address"
-                  name="address"
-                  value={outletData.address}
-                  onChange={handleInputChange}
-                  placeholder="Enter Address"
-                  required
-                  rows={3}
-                />
-                {validationStates.address && (
-                  <p className="text-error-500 text-sm mt-1">
-                    {!outletData.address
-                      ? "Address is required"
-                      : outletData.address.length < 5
-                      ? "Minimum 5 characters required"
-                      : "Address must not exceed 50 characters"}
-                  </p>
+                {outletData.subscription_id && (
+                  <div className="mt-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                      <span className="text-error-600">*</span> Subscription End
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      name="subscription_end_date"
+                      value={subscriptionEndDate}
+                      onChange={(e) => setSubscriptionEndDate(e.target.value)}
+                      required
+                      min={new Date().toISOString().split("T")[0]}
+                      className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    />
+                  </div>
                 )}
               </div>
-            </div>  
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div className="sm:col-span-1">
+                  <Textarea
+                    label="Address"
+                    name="address"
+                    value={outletData.address}
+                    onChange={handleInputChange}
+                    placeholder="Enter Address"
+                    required
+                    rows={3}
+                  />
+                  {validationStates.address && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {!outletData.address
+                        ? "Address is required"
+                        : outletData.address.length < 5
+                        ? "Minimum 5 characters required"
+                        : "Address must not exceed 50 characters"}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           </section>
 
