@@ -1,39 +1,19 @@
-import React, { useCallback, useState, useEffect } from "react";
-import { useAuth } from "../../hooks/useAuth";
-import { useAdmin } from "../../hooks/useAdmin";
-import axios from "axios";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faArrowLeft,
-  faSpinner,
   faEye,
-  faCrown,
-  faUser,
-  faUtensils,
-  faStore,
-  faQuestionCircle,
-  faKitchenSet,
   faSort,
   faSortUp,
   faSortDown,
-  faChevronLeft,
-  faChevronRight,
-  faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
-import { API_CONFIG } from "../../config/appConfig";
+import { useTickets } from "../../lib/react-query/hooks/useTickets";
 
 function Tickets() {
-  const { getToken } = useAuth();
-  const { adminData } = useAdmin();
+  const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
-  const [error, setError] = useState(null);
-  const [outlets, setOutlets] = useState([]);
   const [selectedOutlet, setSelectedOutlet] = useState(null);
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [sortField, setSortField] = useState(null);
@@ -41,98 +21,20 @@ function Tickets() {
   const [sortCount, setSortCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
-  const navigate = useNavigate();
-  const { API_VERSION, BASE_URL } = API_CONFIG;
 
-  // Modify useEffect to fetch tickets on component mount
-  useEffect(() => {
-    // fetchOutlets();
-    fetchTickets(); // Call fetchTickets without outletId
-  }, []);
+  const {
+    tickets,
+    isLoadingTickets,
+    ticketsError,
+    refetchTickets,
+    outlets,
+    isLoadingOutlets,
+  } = useTickets(selectedOutlet);
 
-  const fetchOutlets = async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
-        {
-          user_id: adminData?.user_id,
-          app_source: "admin_app",
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-        }
-      );
-
-      if (response.data.data) {
-        setOutlets(response.data.data);
-      } else {
-        setError("Failed to fetch outlets");
-      }
-    } catch (error) {
-      console.error("Failed to fetch outlets:", error);
-      setError(error.response?.data?.msg || "Failed to fetch outlets");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Modify fetchTickets to make outlet_id optional
-  const fetchTickets = async (outletId = null, isReload = false) => {
-    if (isReload) {
-      setIsReloading(true);
-    } else {
-      setLoading(true);
-    }
-    setError(null);
-
-    try {
-      const requestBody = {
-        user_id: adminData?.user_id,
-        app_source: "admin_app",
-      };
-
-      // Only add outlet_id if it exists
-      if (outletId) {
-        requestBody.outlet_id = outletId;
-      }
-
-      const response = await axios.post(
-        "https://men4u.xyz/v2/common/ticket_list",
-        requestBody,
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-        }
-      );
-
-      if (response.data.tickets) {
-        setTickets(response.data.tickets);
-        setFilteredTickets(response.data.tickets);
-      } else {
-        setError("Failed to fetch tickets");
-      }
-    } catch (error) {
-      console.error("Failed to fetch tickets:", error);
-      setError(error.response?.data?.msg || "Failed to fetch tickets");
-    } finally {
-      if (isReload) {
-        setIsReloading(false);
-      } else {
-        setLoading(false);
-      }
-    }
-  };
-
-  // For DataTable reload button
-  const reloadFetchTickets = async () => {
-    await fetchTickets(null, true);
-  };
+  // Initialize filteredTickets when tickets change
+  React.useEffect(() => {
+    setFilteredTickets(tickets);
+  }, [tickets]);
 
   const handleSearch = (searchTerm) => {
     setSearchInput(searchTerm);
@@ -143,7 +45,6 @@ function Tickets() {
 
     const searchLower = searchTerm.toLowerCase().trim();
     const filtered = tickets.filter((ticket) => {
-      // Add all searchable fields here
       const searchableFields = [
         ticket.ticket_number,
         ticket.title,
@@ -153,19 +54,13 @@ function Tickets() {
       ];
 
       return searchableFields.some((field) =>
-        String(field || "")
-          .toLowerCase()
-          .includes(searchLower)
+        String(field || "").toLowerCase().includes(searchLower)
       );
     });
 
     setFilteredTickets(filtered);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
-
-  const handleBack = useCallback(() => {
-    window.history.back();
-  }, []);
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -209,17 +104,13 @@ function Tickets() {
       let aValue = a[sortField] || "";
       let bValue = b[sortField] || "";
 
-      // Handle different types of sorting
       if (sortField === "ticket_number") {
-        // Numeric sorting
         aValue = parseInt(aValue) || 0;
         bValue = parseInt(bValue) || 0;
       } else if (sortField === "created_on") {
-        // Date sorting
         aValue = new Date(aValue).getTime() || 0;
         bValue = new Date(bValue).getTime() || 0;
       } else {
-        // String sorting
         aValue = String(aValue).toLowerCase();
         bValue = String(bValue).toLowerCase();
       }
@@ -239,90 +130,21 @@ function Tickets() {
       );
     }
     return sortOrder === "asc" ? (
-      <FontAwesomeIcon
-        icon={faSortUp}
-        className="ml-1 text-brand-500 w-4 h-4"
-      />
+      <FontAwesomeIcon icon={faSortUp} className="ml-1 text-brand-500 w-4 h-4" />
     ) : (
-      <FontAwesomeIcon
-        icon={faSortDown}
-        className="ml-1 text-brand-500 w-4 h-4"
-      />
+      <FontAwesomeIcon icon={faSortDown} className="ml-1 text-brand-500 w-4 h-4" />
     );
   };
 
-  // Add these pagination helper functions
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = getSortedTickets().slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const currentItems = getSortedTickets().slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(getSortedTickets().length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  const renderPaginationNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 7; // Show max 7 page numbers
-    let startPage = 1;
-    let endPage = totalPages;
-
-    if (totalPages > maxVisiblePages) {
-      const middlePage = Math.floor(maxVisiblePages / 2);
-      if (currentPage <= middlePage) {
-        endPage = maxVisiblePages;
-      } else if (currentPage + middlePage >= totalPages) {
-        startPage = totalPages - maxVisiblePages + 1;
-      } else {
-        startPage = currentPage - middlePage;
-        endPage = currentPage + middlePage;
-      }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <li key={i}>
-          <button
-            onClick={() => handlePageChange(i)}
-            className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
-              currentPage === i
-                ? "bg-brand-500 text-white"
-                : "text-gray-700 hover:bg-brand-500 hover:text-white dark:text-gray-400 dark:hover:text-white"
-            }`}
-          >
-            {i}
-          </button>
-        </li>
-      );
-    }
-
-    // Add ellipsis if needed
-    if (startPage > 1) {
-      pages.unshift(
-        <li key="start-ellipsis">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
-            ...
-          </span>
-        </li>
-      );
-    }
-    if (endPage < totalPages) {
-      pages.push(
-        <li key="end-ellipsis">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 dark:text-gray-400">
-            ...
-          </span>
-        </li>
-      );
-    }
-
-    return pages;
-  };
-
-  // Define columns for DataTable
   const columns = [
     { field: "ticket_number", header: "Ticket Number", sortable: true },
     { field: "title", header: "Title", sortable: true },
@@ -331,9 +153,7 @@ function Tickets() {
       header: "Status",
       sortable: true,
       render: (value) => (
-        <span
-          className={`px-2 py-1 text-xs rounded-full ${getStatusColor(value)}`}
-        >
+        <span className={`px-2 py-1 text-xs rounded-full ${getStatusColor(value)}`}>
           {value?.toUpperCase() || "Unknown"}
         </span>
       ),
@@ -355,13 +175,10 @@ function Tickets() {
     },
   ];
 
-  // Modify handleOutletChange to handle null/empty outlet selection
   const handleOutletChange = (outletId) => {
     setSelectedOutlet(outletId);
-    fetchTickets(outletId); // This will work with both null and valid outletId
   };
 
-  // Add breadcrumb items configuration
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
     { label: "Tickets" },
@@ -369,14 +186,13 @@ function Tickets() {
 
   return (
     <div className="container mx-auto flex-grows">
-      {/* Add Breadcrumb component */}
       <Breadcrumb items={breadcrumbItems} />
 
       <DataTable
         data={filteredTickets}
         columns={columns}
         title="Tickets"
-        onBackClick={handleBack}
+        onBackClick={() => navigate(-1)}
         showBackButton={true}
         showCreateButton={false}
         enableSearch={true}
@@ -390,15 +206,13 @@ function Tickets() {
         outlets={outlets}
         selectedOutlet={selectedOutlet}
         onOutletChange={handleOutletChange}
-        isLoading={loading}
+        isLoading={isLoadingTickets}
         counts={{
           total: tickets.length,
-          active: tickets.filter((t) => t.status?.toLowerCase() === "open")
-            .length,
-          inactive: tickets.filter((t) => t.status?.toLowerCase() === "closed")
-            .length,
+          active: tickets.filter((t) => t.status?.toLowerCase() === "open").length,
+          inactive: tickets.filter((t) => t.status?.toLowerCase() === "closed").length,
         }}
-        error={error}
+        error={ticketsError}
         emptyStateMessage={
           !searchInput
             ? "No tickets found"
@@ -422,8 +236,8 @@ function Tickets() {
           setCurrentPage(1);
         }}
         statusField="status"
-        onReload={reloadFetchTickets}
-        isReloading={isReloading}
+        onReload={refetchTickets}
+        isReloading={isLoadingTickets}
       />
     </div>
   );

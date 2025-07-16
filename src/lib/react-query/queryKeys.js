@@ -87,4 +87,10 @@ export const queryKeys = {
     list: () => [...queryKeys.functionalities.all, 'list'],
     detail: (id) => [...queryKeys.functionalities.all, 'detail', id],
   },
+
+  tickets: {
+    all: ['tickets'],
+    list: () => [...queryKeys.tickets.all, 'list'],
+    detail: (id) => [...queryKeys.tickets.all, 'detail', id],
+  },
 }; 
