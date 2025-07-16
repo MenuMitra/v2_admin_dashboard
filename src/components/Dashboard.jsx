@@ -1,43 +1,48 @@
-import React, { useState, useEffect } from "react";
-import { useAuth } from "../hooks/useAuth";
-import { useAdmin } from "../hooks/useAdmin";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserTie,
   faUserGroup,
   faUsers,
-  faUserGear,
   faStore,
   faEye,
   faPenToSquare,
   faCircleCheck,
   faCircleXmark,
+  faRotate,
+  faExpand,
+  faCompress,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "./common/DataTable";
-import { API_CONFIG } from "../config/appConfig";
-import ApexCharts from "react-apexcharts";
-import { faRotate, faExpand, faCompress } from "@fortawesome/free-solid-svg-icons";
 import { useFullscreen } from "./FullscreenContext";
+import { useDashboard } from "../lib/react-query/hooks/useDashboard";
 
 function Dashboard() {
-  const { getToken, isAuthenticated, logout } = useAuth();
-  const { adminData } = useAdmin();
   const navigate = useNavigate();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
-  const [data, setData] = useState({
-    outlet_data: [],
-    counts: {
-      customer_count: 0,
-      owner_count: 0,
-      outlet_count: 0,
-      partner_count: 0,
-      guest_count: 0,
-    },
-  });
+  const { isFullscreen, setIsFullscreen } = useFullscreen();
 
-  // Add search state
+  // State for filters and search
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  // Queries
+  const { 
+    data: dashboardData = { outlet_data: [], counts: {} },
+    isLoading: isDashboardLoading,
+    error: dashboardError,
+  } = useDashboard().useDashboardData();
+
+  const {
+    data: cardData = {
+      total_live_outlets: 0,
+      total_outlets: 0,
+      total_orders: 0,
+      total_earning: 0,
+    },
+    isLoading: isCardLoading,
+    refetch: refetchCardData,
+  } = useDashboard().useCardData();
 
   // Define columns for the DataTable
   const columns = [
@@ -135,109 +140,7 @@ function Dashboard() {
     },
   ];
 
-  const [statusFilter, setStatusFilter] = useState("all"); // "all", "active", "inactive"
-  const outlets = data.outlet_data || [];
-
-  const [cardData, setCardData] = useState({
-    total_live_outlets: 0,
-    total_outlets: 0,
-    total_orders: 0,
-    total_earning: 0,
-  });
-  const [cardLoading, setCardLoading] = useState(false);
-  const { isFullscreen, setIsFullscreen } = useFullscreen();
-
-  // Fetch card data (simulate or use real API)
-  const fetchCardData = async () => {
-    setCardLoading(true);
-    try {
-      // Replace with your real API call if needed
-      const token = getToken();
-      const response = await fetch(`${BASE_URL}/${API_VERSION}/admin/admin_home`, {
-        method: "GET",
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      });
-      const jsonData = await response.json();
-      setCardData({
-        total_live_outlets: jsonData.counts?.live_outlet_count ?? 0,
-        total_outlets: jsonData.counts?.outlet_count ?? 0,
-        total_orders: jsonData.counts?.total_order_count ?? 0,
-        total_earning: jsonData.counts?.total_earning_count ??0,
-      });
-    } catch (e) {
-      // fallback or error handling
-    } finally {
-      setCardLoading(false);
-    }
-  };
-
-  // Auto-refresh every 10 minutes
-  useEffect(() => {
-    fetchCardData();
-    const interval = setInterval(fetchCardData, 10 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // ApexChart options
-  const chartOptions = {
-    chart: { type: "donut", toolbar: { show: false } },
-    labels: ["Life Outlets", "Outlets", "Orders"],
-    legend: { show: true, position: "bottom" },
-    dataLabels: { enabled: true },
-    colors: ["#6366f1", "#22c55e", "#f59e42"],
-  };
-  const chartSeries = [
-    cardData.total_live_outlets,
-    cardData.total_outlets,
-    cardData.total_orders,
-    cardData.total_earning,
-  ];
-
-  // Fullscreen styles
-  const fullscreenClass = isFullscreen
-    ? "fixed inset-0 z-50 bg-white p-8 flex flex-col justify-center items-center shadow-2xl"
-    : "";
-
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const token = getToken();
-        if (!token) {
-          throw new Error("No authentication token available");
-        }
-
-        const response = await fetch(`${BASE_URL}/${API_VERSION}/admin/admin_home`, {
-          method: "GET",
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (response.status === 401) {
-          navigate("/");
-          logout();
-        }
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch dashboard data");
-        }
-
-        const jsonData = await response.json();
-        setData(jsonData);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      }
-    };
-
-    if (isAuthenticated()) {
-      fetchDashboardData();
-    }
-  }, []);
-
+  // Navigation handlers
   const handleEditClick = (outlet) => {
     navigate(`/edit-outlet/${outlet.outlet_id}`);
   };
@@ -245,6 +148,11 @@ function Dashboard() {
   const handleViewClick = (outlet) => {
     navigate(`/view-outlet/${outlet.outlet_id}`);
   };
+
+  // Fullscreen styles
+  const fullscreenClass = isFullscreen
+    ? "fixed inset-0 z-50 bg-white p-8 flex flex-col justify-center items-center shadow-2xl"
+    : "";
 
   return (
     <div className="p-0">
@@ -273,24 +181,13 @@ function Dashboard() {
           {/* Right: Icons (top-right in fullscreen) */}
           <div className={isFullscreen ? "absolute top-6 right-6 flex flex-col items-end gap-4" : "flex flex-col items-end gap-4"} style={isFullscreen ? {zIndex: 100} : {}}>
             <div className="flex items-center gap-3">
-              <button onClick={fetchCardData} disabled={cardLoading} title="Reload" className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50">
-                <FontAwesomeIcon icon={faRotate} className={`w-4 h-4 ${cardLoading ? "animate-spin" : ""}`} />
+              <button onClick={() => refetchCardData()} disabled={isCardLoading} title="Reload" className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50">
+                <FontAwesomeIcon icon={faRotate} className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`} />
               </button>
               <button onClick={() => setIsFullscreen((f) => !f)} title={isFullscreen ? "Minimize" : "Fullscreen"} className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50">
                 <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} className="w-4 h-4" style={isFullscreen ? { transform: "rotate(0deg)" } : {}} />
               </button>
             </div>
-            {/* Chart is commented out */}
-            {/* {isFullscreen && (
-              <div className="flex justify-center items-center flex-1">
-                <ApexCharts
-                  options={chartOptions}
-                  series={chartSeries}
-                  type="donut"
-                  width={500}
-                />
-              </div>
-            )} */}
           </div>
         </div>
       </div>
@@ -313,7 +210,7 @@ function Dashboard() {
                   </div>
                   <div>
                     <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {data.counts?.owner_count || 0}
+                      {dashboardData.counts?.owner_count || 0}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Total Owners
@@ -337,7 +234,7 @@ function Dashboard() {
                   </div>
                   <div>
                     <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {data.counts?.partner_count || 0}
+                      {dashboardData.counts?.partner_count || 0}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Total Partners
@@ -361,7 +258,7 @@ function Dashboard() {
                   </div>
                   <div>
                     <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {data.counts?.outlet_count || 0}
+                      {dashboardData.counts?.outlet_count || 0}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Total Outlets
@@ -385,7 +282,7 @@ function Dashboard() {
                   </div>
                   <div>
                     <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {data.counts?.customer_count || 0}
+                      {dashboardData.counts?.customer_count || 0}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Total Customers
@@ -396,19 +293,19 @@ function Dashboard() {
             </Link>
           </div>
 
-          {/* Replace Table Section with DataTable */}
+          {/* DataTable Section */}
           {/* <div className="mt-6">
             <DataTable
-              data={outlets}
+              data={dashboardData.outlet_data}
               columns={columns}
               dashboardTitle="All Outlets"
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
               searchPlaceholder="Search"
               counts={{
-                total: outlets.length,
-                active: outlets.filter((outlet) => outlet.is_active === 1).length,
-                inactive: outlets.filter((outlet) => outlet.is_active === 0).length,
+                total: dashboardData.outlet_data.length,
+                active: dashboardData.outlet_data.filter((outlet) => outlet.is_active === 1).length,
+                inactive: dashboardData.outlet_data.filter((outlet) => outlet.is_active === 0).length,
               }}
               showBackButton={false}
               createButton={{
@@ -423,9 +320,8 @@ function Dashboard() {
               enableStatusFilter={true}
               statusFilter={statusFilter}
               onStatusFilterChange={(value) => setStatusFilter(value)}
-              // onItemsPerPageChange={(value) => {
-              //   console.log('Items per page changed to:', value);
-              // }}
+              isLoading={isDashboardLoading}
+              error={dashboardError}
             />
           </div> */}
         </>

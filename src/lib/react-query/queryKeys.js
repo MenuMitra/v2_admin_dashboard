@@ -14,6 +14,7 @@ export const queryKeys = {
   // Dashboard related queries
   dashboard: {
     all: ['dashboard'],
+    home: () => [...queryKeys.dashboard.all, 'home'],
     stats: () => [...queryKeys.dashboard.all, 'stats'],
     overview: () => [...queryKeys.dashboard.all, 'overview'],
   },
