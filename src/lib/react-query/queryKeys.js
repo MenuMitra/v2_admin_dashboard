@@ -81,4 +81,10 @@ export const queryKeys = {
     detail: (id) => [...queryKeys.roles.all, 'detail', id],
     functionalities: (id) => [...queryKeys.roles.all, 'functionalities', id],
   },
+
+  functionalities: {
+    all: ['functionalities'],
+    list: () => [...queryKeys.functionalities.all, 'list'],
+    detail: (id) => [...queryKeys.functionalities.all, 'detail', id],
+  },
 }; 
