@@ -145,4 +145,10 @@ export const queryKeys = {
     detail: (outletId, userId) => [...queryKeys.chefs.all, 'detail', outletId, userId],
     bulk: (outletId) => [...queryKeys.chefs.all, 'bulk', outletId],
   },
+
+  captains: {
+    root: ['captains'],
+    list: (outletId) => [...queryKeys.captains.root, 'list', outletId],
+    details: (outletId, userId) => [...queryKeys.captains.root, 'details', outletId, userId],
+  },
 }; 

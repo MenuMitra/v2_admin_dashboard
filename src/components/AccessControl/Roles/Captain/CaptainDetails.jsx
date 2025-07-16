@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import axios from "axios";
@@ -12,27 +13,27 @@ import Breadcrumb from "../../../Breadcrumb";
 import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
 import { API_CONFIG } from "../../../../config/appConfig";
+import { queryKeys } from "../../../../lib/react-query/queryKeys";
 
 function CaptainDetails() {
   const { outletId, userId } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const [loading, setLoading] = useState(true);
-  const [captainData, setCaptainData] = useState(null);
-  const [error, setError] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [outletName, setOutletName] = useState('');
-
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
-  useEffect(() => {
-    fetchCaptainDetails();
-  }, [outletId, userId]);
+  // Local state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const fetchCaptainDetails = async () => {
-    setLoading(true);
-    try {
+  // Fetch captain details query
+  const {
+    data: captainResponse,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: queryKeys.captains.details(outletId, userId),
+    queryFn: async () => {
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/common/captain_view`,
         {
@@ -47,23 +48,15 @@ function CaptainDetails() {
           },
         }
       );
-      setCaptainData(response.data.data);
-      setOutletName(response.data.data.outlet_name);
-    } catch (err) {
-      setError(err.response?.data?.msg || "Failed to fetch captain details");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return response.data;
+    },
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId) && Boolean(userId)
+  });
 
-  const handleDelete = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await axios.delete(`${BASE_URL}/${API_VERSION}/common/captain_delete`, {
+  // Delete captain mutation
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return axios.delete(`${BASE_URL}/${API_VERSION}/common/captain_delete`, {
         data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -71,36 +64,51 @@ function CaptainDetails() {
           app_source: "admin_app"
         },
         headers: {
-          Authorization: token,
+          Authorization: getToken(),
           "Content-Type": "application/json"
         },
       });
+    },
+    onSuccess: () => {
       toastController.success("Captain deleted successfully");
+      queryClient.invalidateQueries(queryKeys.captains.list(outletId));
       navigate(`/view-outlet/${outletId}`);
-    } catch (err) {
-      toastController.error(err.response?.data?.msg || "Failed to delete captain");
+    },
+    onError: (error) => {
+      toastController.error(error.response?.data?.msg || "Failed to delete captain");
     }
-  };
+  });
 
-  const breadcrumbItems = [
+  // Memoized values
+  const captainData = React.useMemo(() => 
+    captainResponse?.data || null,
+    [captainResponse]
+  );
+
+  const outletName = React.useMemo(() => 
+    captainData?.outlet_name || '',
+    [captainData]
+  );
+
+  // Memoized breadcrumb items
+  const breadcrumbItems = React.useMemo(() => [
     { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: "Captains", path: `/captains/${outletId}` },
     { label: "Captain Details" }
-  ];
+  ], [outletName, outletId]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin text-brand-500">
-          <FontAwesomeIcon icon={faSpinner} className="w-8 h-8" />
-        </div>
-      </div>
-    );
-  }
+  // Memoized handlers
+  const handleDelete = React.useCallback(() => {
+    deleteMutation.mutate();
+    setShowDeleteModal(false);
+  }, [deleteMutation]);
 
-  const renderCaptainDetails = () => {
+  // Memoized render functions
+  const renderCaptainDetails = React.useCallback(() => {
+    if (!captainData) return null;
+
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         <div>
@@ -161,9 +169,9 @@ function CaptainDetails() {
         </div>
       </div>
     );
-  };
+  }, [captainData]);
 
-  const renderFunctionalities = () => {
+  const renderFunctionalities = React.useCallback(() => {
     if (!captainData?.functionalities?.length) return null;
 
     return (
@@ -181,7 +189,25 @@ function CaptainDetails() {
         </div>
       </div>
     );
-  };
+  }, [captainData]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin text-brand-500">
+          <FontAwesomeIcon icon={faSpinner} className="w-8 h-8" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-error-500 text-center p-4">
+        {error.response?.data?.msg || "Failed to fetch captain details"}
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -248,14 +274,8 @@ function CaptainDetails() {
 
         {/* Content Section */}
         <div className="p-6">
-          {error ? (
-            <div className="text-error-500 text-center">{error}</div>
-          ) : (
-            <>
-              {renderCaptainDetails()}
-              {renderFunctionalities()}
-            </>
-          )}
+          {renderCaptainDetails()}
+          {renderFunctionalities()}
         </div>
       </div>
 
@@ -263,10 +283,8 @@ function CaptainDetails() {
       <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onDelete={() => {
-          handleDelete();
-          setShowDeleteModal(false);
-        }}
+        onDelete={handleDelete}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

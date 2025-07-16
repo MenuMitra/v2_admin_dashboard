@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,30 +18,30 @@ import DataTable from '../../../common/DataTable';
 import DeleteConfirmModal from '../../../common/DeleteConfirmModal/DeleteConfirmModal';
 import { toastController } from "../../../../utils/toastController";
 import { API_CONFIG } from "../../../../config/appConfig";
+import { queryKeys } from "../../../../lib/react-query/queryKeys";
 
 function Captains() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { outletId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
-  const [captains, setCaptains] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+
+  // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [captainToDelete, setCaptainToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
-  const [outletName, setOutletName] = useState('');
 
-  useEffect(() => {
-    if (adminData?.user_id && outletId) {
-      fetchCaptains();
-    }
-  }, [adminData?.user_id, outletId]);
-
-  const fetchCaptains = async () => {
-    try {
+  // Fetch captains query
+  const {
+    data: captainsResponse,
+    isLoading,
+  } = useQuery({
+    queryKey: queryKeys.captains.list(outletId),
+    queryFn: async () => {
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/common/captain_listview`,
         {
@@ -55,71 +56,116 @@ function Captains() {
           },
         }
       );
+      return response.data;
+    },
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId)
+  });
 
-      setCaptains(response.data.data || []);
-      
-      if (response.data.data && response.data.data.length > 0) {
-        setOutletName(response.data.data[0].outlet_name);
-      }
-      
-      setIsLoading(false);
-    } catch {
-      toastController.error("outlet has no captain");
-      setIsLoading(false);
+  // Delete captain mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (userId) => {
+      return axios.delete(`${BASE_URL}/${API_VERSION}/common/captain_delete`, {
+        data: {
+          update_user_id: adminData.user_id,
+          outlet_id: outletId,
+          user_id: userId.toString(),
+          app_source: "admin_app",
+        },
+        headers: {
+          Authorization: getToken(),
+          "Content-Type": "application/json",
+        },
+      });
+    },
+    onSuccess: () => {
+      toastController.success("Captain deleted successfully");
+      setShowDeleteModal(false);
+      setCaptainToDelete(null);
+      queryClient.invalidateQueries(queryKeys.captains.list(outletId));
+    },
+    onError: (error) => {
+      toastController.error(error.response?.data?.detail || "Failed to delete captain");
     }
-  };
+  });
 
-  const handleViewCaptain = (user_id) => {
-    navigate(`/captain-details/${outletId}/${user_id}`);
-  };
-
-  const handleEditCaptain = (user_id) => {
-    navigate(`/edit-captain/${outletId}/${user_id}`);
-  };
-
-  const handleDeleteCaptain = async () => {
-    try {
-      await toastController.promise(
-        axios.delete(`${BASE_URL}/${API_VERSION}/common/captain_delete`, {
-          data: {
-            update_user_id: adminData.user_id,
-            outlet_id: outletId,
-            user_id: captainToDelete.toString(),
-            app_source: "admin_app",
-          },
+  // Bulk action mutation
+  const bulkActionMutation = useMutation({
+    mutationFn: async ({ action, selectedIds }) => {
+      return axios.post(
+        `${BASE_URL}/${API_VERSION}/common/bulk_captain_action`,
+        {
+          user_id: adminData.user_id,
+          action: action,
+          app_source: "admin_app",
+          captain_ids: selectedIds
+        },
+        {
           headers: {
             Authorization: getToken(),
             "Content-Type": "application/json",
           },
-        }),
-        {
-          loading: "Deleting captain...",
-          success: "Captain deleted successfully",
-          error: "Failed to delete captain"
         }
       );
-
-      setShowDeleteModal(false);
-      setCaptainToDelete(null);
-      fetchCaptains();
-    } catch (error) {
-      toastController.error(error.response?.data?.detail || "Failed to delete captain");
+    },
+    onSuccess: (_, variables) => {
+      toastController.success(`Successfully ${variables.action}d selected captains`);
+      setSelectedItems([]);
+      queryClient.invalidateQueries(queryKeys.captains.list(outletId));
+    },
+    onError: (error, variables) => {
+      toastController.error(
+        error.response?.data?.detail || 
+        `Failed to perform ${variables.action} action on selected captains`
+      );
     }
-  };
+  });
 
-  const openDeleteModal = (user_id) => {
-    setCaptainToDelete(user_id);
-    setShowDeleteModal(true);
-  };
+  // Memoized values
+  const captains = React.useMemo(() => 
+    captainsResponse?.data || [],
+    [captainsResponse]
+  );
 
-  const breadcrumbItems = [
+  const outletName = React.useMemo(() => 
+    captains[0]?.outlet_name || '',
+    [captains]
+  );
+
+  const breadcrumbItems = React.useMemo(() => [
     { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Captains' }
-  ];
+  ], [outletName, outletId]);
 
-  const columns = [
+  // Memoized handlers
+  const handleViewCaptain = React.useCallback((user_id) => {
+    navigate(`/captain-details/${outletId}/${user_id}`);
+  }, [navigate, outletId]);
+
+  const handleEditCaptain = React.useCallback((user_id) => {
+    navigate(`/edit-captain/${outletId}/${user_id}`);
+  }, [navigate, outletId]);
+
+  const handleDeleteCaptain = React.useCallback(() => {
+    if (captainToDelete) {
+      deleteMutation.mutate(captainToDelete);
+    }
+  }, [captainToDelete, deleteMutation]);
+
+  const handleBulkAction = React.useCallback((action, selectedIds) => {
+    bulkActionMutation.mutate({ action, selectedIds });
+  }, [bulkActionMutation]);
+
+  // Memoized counts
+  const counts = React.useMemo(() => ({
+    total: captains.length,
+    active: captains.filter((captain) => captain.is_active).length,
+    inactive: captains.filter((captain) => !captain.is_active).length
+  }), [captains]);
+
+  // Column definition
+  const columns = React.useMemo(() => [
     {
       field: "name",
       header: "Name",
@@ -140,11 +186,6 @@ function Captains() {
       header: "Email",
       sortable: true,
     },
-    // {
-    //   field: "created_on",
-    //   header: "Created On",
-    //   sortable: true,
-    // },
     {
       field: "is_active",
       header: "Status",
@@ -154,7 +195,6 @@ function Captains() {
           value ? 'text-success-700' : 'text-error-700'
         }`}>
           <FontAwesomeIcon icon={value ? faCircleCheck : faCircleXmark} className="w-3.5 h-3.5" />
-          {/* {value ? 'Active' : 'Inactive'} */}
         </div>
       ),
     },
@@ -179,7 +219,10 @@ function Captains() {
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
           <button
-            onClick={() => openDeleteModal(captain.user_id)}
+            onClick={() => {
+              setCaptainToDelete(captain.user_id);
+              setShowDeleteModal(true);
+            }}
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
             title="Delete Captain"
           >
@@ -188,64 +231,7 @@ function Captains() {
         </div>
       ),
     },
-  ];
-
-  const getTotalCount = () => captains.length;
-  const getActiveCount = () => captains.filter((captain) => captain.is_active).length;
-  const getInactiveCount = () => captains.filter((captain) => !captain.is_active).length;
-
-  const handleBulkAction = async (action, selectedIds) => {
-    try {
-      const actionMessages = {
-        active: {
-          loading: "Activating selected captains...",
-          success: "Successfully activated selected captains",
-          error: "Failed to activate captains"
-        },
-        inactive: {
-          loading: "Deactivating selected captains...",
-          success: "Successfully deactivated selected captains",
-          error: "Failed to deactivate captains"
-        },
-        delete: {
-          loading: "Deleting selected captains...",
-          success: "Successfully deleted selected captains",
-          error: "Failed to delete captains"
-        }
-      };
-
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/bulk_captain_action`,
-          {
-            user_id: adminData.user_id,
-            action: action,
-            app_source: "admin_app",
-            captain_ids: selectedIds
-          },
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        actionMessages[action]
-      );
-
-      fetchCaptains();
-      
-      setSelectedItems([]);
-      
-      toastController.success(response.data.detail);
-      
-    } catch (error) {
-      toastController.error(
-        error.response?.data?.detail || 
-        `Failed to perform ${action} action on selected captains`
-      );
-    }
-  };
+  ], [handleViewCaptain, handleEditCaptain]);
 
   if (isLoading) {
     return (
@@ -276,11 +262,7 @@ function Captains() {
         onBulkAction={handleBulkAction}
         
         title="Captains"
-        counts={{
-          total: getTotalCount(),
-          active: getActiveCount(),
-          inactive: getInactiveCount()
-        }}
+        counts={counts}
         showBackButton={true}
         showSearch={true}
         searchPlaceholder="Search captains..."
@@ -306,6 +288,7 @@ function Captains() {
           setCaptainToDelete(null);
         }}
         onDelete={handleDeleteCaptain}
+        isLoading={deleteMutation.isPending}
       />
     </>
   );
