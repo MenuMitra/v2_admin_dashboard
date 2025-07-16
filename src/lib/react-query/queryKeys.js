@@ -60,4 +60,11 @@ export const queryKeys = {
     list: () => [...queryKeys.partners.all, 'list'],
     detail: (id) => [...queryKeys.partners.all, 'detail', id],
   },
+
+  // Feature related queries
+  features: {
+    all: ['features'],
+    list: () => [...queryKeys.features.all, 'list'],
+    detail: (id) => [...queryKeys.features.all, 'detail', id],
+  },
 }; 

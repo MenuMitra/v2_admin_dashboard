@@ -1,58 +1,91 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPenToSquare,
   faPlus,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import Modal from "../common/Modal";
-import { API_CONFIG } from "../../config/appConfig";
+import { useFeatures } from "../../lib/react-query/hooks/useFeatures";
 import { toastController } from "../../utils/toastController";
 
 function Features() {
   const navigate = useNavigate();
-  const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const [features, setFeatures] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isReloading, setIsReloading] = useState(false); // <-- Add reload state
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newFeatureName, setNewFeatureName] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingFeature, setEditingFeature] = useState(null);
   const [editFeatureName, setEditFeatureName] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingFeature, setDeletingFeature] = useState(null);
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+
+  const {
+    features,
+    isLoading,
+    error,
+    refetch,
+    createFeatureMutation,
+    updateFeatureMutation,
+    deleteFeatureMutation,
+    isCoreFeature,
+    CORE_FEATURES,
+  } = useFeatures();
+
+  const handleCreateFeature = async () => {
+    if (!newFeatureName.trim()) {
+      toastController.error("Please enter a feature name");
+      return;
+    }
+
+    try {
+      await createFeatureMutation.mutateAsync(newFeatureName);
+      setIsModalOpen(false);
+      setNewFeatureName("");
+    } catch {
+      // Error handling is done in the mutation
+    }
+  };
+
+  const handleEditFeature = async () => {
+    if (!editFeatureName.trim() || !editingFeature) {
+      toastController.error("Please enter a feature name");
+      return;
+    }
+
+    try {
+      await updateFeatureMutation.mutateAsync({
+        featureId: editingFeature.feature_id,
+        name: editFeatureName,
+      });
+      setIsEditModalOpen(false);
+      setEditingFeature(null);
+      setEditFeatureName("");
+    } catch {
+      // Error handling is done in the mutation
+    }
+  };
+
+  const handleDeleteFeature = async () => {
+    try {
+      await deleteFeatureMutation.mutateAsync(deletingFeature.feature_id);
+      setIsDeleteModalOpen(false);
+      setDeletingFeature(null);
+    } catch {
+      // Error handling is done in the mutation
+    }
+  };
 
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
     { label: "Features", path: "/features" },
   ];
-
-  // Add core features list
-  const CORE_FEATURES = [
-    "user_app",
-    "owner_app",
-    "pos_app",
-    "admin_app",
-    "waiter_app",
-    "captain_app",
-    "cds_app",
-    "kds_app",
-  ];
-
-  // Function to check if a feature is a core feature
-  const isCoreFeature = (featureName) => CORE_FEATURES.includes(featureName);
 
   // Define columns for DataTable
   const columns = [
@@ -124,207 +157,23 @@ function Features() {
     },
   ];
 
-  const handleCreateFeature = async () => {
-    if (!newFeatureName.trim()) {
-      toastController.error("Please enter a feature name");
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/create_feature`,
-          {
-            name: newFeatureName.toLowerCase().replace(/\s+/g, "_"),
-            user_id: adminData.user_id,
-            app_source: "admin_app",
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        {
-          loading: "Creating feature...",
-          success: "Feature created successfully!",
-          error: "Failed to create feature",
-        }
-      );
-
-      // Reset form and close modal
-      setNewFeatureName("");
-      setIsModalOpen(false);
-
-      // Refresh features list
-      fetchFeatures();
-    } catch (error) {
-      console.error("Error creating feature:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const fetchFeatures = async (isReload = false) => {
-    try {
-      if (isReload) {
-        setIsReloading(true);
-      } else {
-        setIsLoading(true);
-      }
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_features`,
-          {
-            user_id: adminData.user_id,
-            app_source: "admin_app",
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        {
-          loading: "Loading features...",
-          success: "Features loaded successfully!",
-          error: "Failed to load features",
-        }
-      );
-
-      if (response.data.detail === "Feature list fetched successfully") {
-        setFeatures(response.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching features:", error);
-      toastController.error(
-        error.response?.data?.detail || "Failed to fetch features"
-      );
-    } finally {
-      if (isReload) {
-        setIsReloading(false);
-      } else {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  const handleEditFeature = async () => {
-    if (!editFeatureName.trim() || !editingFeature) {
-      toastController.error("Please enter a feature name");
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await toastController.promise(
-        axios.put(
-          `${BASE_URL}/${API_VERSION}/admin/update_feature`,
-          {
-            feature_id: editingFeature.feature_id,
-            name: editFeatureName.toLowerCase().replace(/\s+/g, "_"),
-            user_id: adminData.user_id,
-            app_source: "admin_app",
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        {
-          loading: "Updating feature...",
-          success: "Feature updated successfully!",
-          error: "Failed to update feature",
-        }
-      );
-
-      setIsEditModalOpen(false);
-      setEditingFeature(null);
-      setEditFeatureName("");
-      fetchFeatures();
-    } catch (error) {
-      console.error("Error updating feature:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDeleteFeature = async () => {
-    try {
-      setIsSubmitting(true);
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/delete_feature`,
-          {
-            feature_id: deletingFeature.feature_id,
-            user_id: adminData.user_id,
-            app_source: "admin_app",
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        {
-          loading: "Deleting feature...",
-          success: "Feature deleted successfully!",
-          error: "Failed to delete feature",
-        }
-      );
-
-      setIsDeleteModalOpen(false);
-      setDeletingFeature(null);
-      fetchFeatures();
-    } catch (error) {
-      console.error("Error deleting feature:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Add reloadFetchFeatures function for DataTable reload
-  const reloadFetchFeatures = async () => {
-    await fetchFeatures(true); // pass true to indicate reload
-  };
-
-  useEffect(() => {
-    if (adminData?.user_id) {
-      fetchFeatures();
-    }
-  }, [adminData?.user_id]);
-
-  // Remove the full-page spinner. Instead, show spinner only in DataTable reload button.
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
+
+      {error && (
+        <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
+          {error}
+        </div>
+      )}
 
       {/* Add warning message for core features */}
       <div className="mb-4 p-4 bg-warning-50 border border-warning-200 rounded-lg">
@@ -385,8 +234,8 @@ function Features() {
           disabled: false,
           tooltip: "Create a new feature",
         }}
-        onReload={reloadFetchFeatures}
-        isLoading={isReloading} // pass reload state for spinner in reload button
+        onReload={refetch}
+        isLoading={createFeatureMutation.isLoading || updateFeatureMutation.isLoading || deleteFeatureMutation.isLoading}
       />
 
       {/* Create Feature Modal */}
@@ -414,14 +263,8 @@ function Features() {
               value={newFeatureName}
               onChange={(e) => {
                 const value = e.target.value;
-                if (
-                  CORE_FEATURES.includes(
-                    value.toLowerCase().replace(/\s+/g, "_")
-                  )
-                ) {
-                  toastController.error(
-                    "This name is reserved for core system features"
-                  );
+                if (CORE_FEATURES.includes(value.toLowerCase().replace(/\s+/g, "_"))) {
+                  toastController.error("This name is reserved for core system features");
                   return;
                 }
                 setNewFeatureName(value);
@@ -430,8 +273,7 @@ function Features() {
               placeholder="Enter feature name"
             />
             <p className="mt-2 text-xs text-gray-500">
-              Note: Feature names that match core system features are not
-              allowed.
+              Note: Feature names that match core system features are not allowed.
             </p>
           </div>
 
@@ -443,7 +285,7 @@ function Features() {
                   setNewFeatureName("");
                 }}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
-                disabled={isSubmitting}
+                disabled={createFeatureMutation.isLoading}
               >
                 Cancel
               </button>
@@ -451,16 +293,16 @@ function Features() {
             <div>
               <button
                 onClick={handleCreateFeature}
-                disabled={!newFeatureName.trim() || isSubmitting}
+                disabled={!newFeatureName.trim() || createFeatureMutation.isLoading}
                 className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
                   ${
-                    !newFeatureName.trim() || isSubmitting
+                    !newFeatureName.trim() || createFeatureMutation.isLoading
                       ? "bg-success-500 cursor-not-allowed"
                       : "bg-success-500 hover:bg-success-600"
                   }`}
               >
                 <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-                {isSubmitting ? "Creating..." : "Create"}
+                {createFeatureMutation.isLoading ? "Creating..." : "Create"}
               </button>
             </div>
           </div>
@@ -510,16 +352,16 @@ function Features() {
             </button>
             <button
               onClick={handleEditFeature}
-              disabled={!editFeatureName.trim() || isSubmitting}
+              disabled={!editFeatureName.trim() || updateFeatureMutation.isLoading}
               className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
                 ${
-                  !editFeatureName.trim() || isSubmitting
+                  !editFeatureName.trim() || updateFeatureMutation.isLoading
                     ? "bg-warning-500 cursor-not-allowed"
                     : "bg-warning-500 hover:bg-warning-600"
                 }`}
             >
               <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-              {isSubmitting ? "Updating..." : "Update"}
+              {updateFeatureMutation.isLoading ? "Updating..." : "Update"}
             </button>
           </div>
         </div>
