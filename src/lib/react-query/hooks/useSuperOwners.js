@@ -3,13 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { toastController } from '../../../utils/toastController';
-
-// Query keys for super owners
-export const superOwnerKeys = {
-  all: ['superOwners'],
-  list: () => [...superOwnerKeys.all, 'list'],
-  details: (id) => [...superOwnerKeys.all, 'details', id],
-};
+import { queryKeys } from '../queryKeys';
 
 export const useSuperOwners = () => {
   const { getToken } = useAuth();
@@ -23,7 +17,7 @@ export const useSuperOwners = () => {
     error,
     refetch,
   } = useQuery({
-    queryKey: superOwnerKeys.list(),
+    queryKey: queryKeys.superOwners.list(),
     queryFn: async () => {
       const token = getToken();
       if (!token) {
@@ -52,7 +46,7 @@ export const useSuperOwners = () => {
   // Fetch super owner details
   const useOwnerDetails = (superOwnerId) => {
     return useQuery({
-      queryKey: superOwnerKeys.details(superOwnerId),
+      queryKey: queryKeys.superOwners.detail(superOwnerId),
       queryFn: async () => {
         const token = getToken();
         if (!token) {
@@ -108,7 +102,7 @@ export const useSuperOwners = () => {
     },
     onSuccess: () => {
       // Invalidate and refetch super owners list
-      queryClient.invalidateQueries({ queryKey: superOwnerKeys.list() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.superOwners.list() });
       toastController.success('Super owner deleted successfully');
     },
     onError: (error) => {
