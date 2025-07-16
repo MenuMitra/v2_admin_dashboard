@@ -67,4 +67,11 @@ export const queryKeys = {
     list: () => [...queryKeys.features.all, 'list'],
     detail: (id) => [...queryKeys.features.all, 'detail', id],
   },
+
+  // Subscription related queries
+  subscriptions: {
+    all: ['subscriptions'],
+    list: () => [...queryKeys.subscriptions.all, 'list'],
+    detail: (id) => [...queryKeys.subscriptions.all, 'detail', id],
+  },
 }; 

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
@@ -8,25 +7,26 @@ import {
   faPlus,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import DataTable from "../common/DataTable";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import Breadcrumb from "../Breadcrumb";
-import { API_CONFIG } from "../../config/appConfig";
-import { toastController } from "../../utils/toastController";
+import { useSubscriptions } from "../../lib/react-query/hooks/useSubscriptions";
 
 function Subscriptions() {
   const navigate = useNavigate();
-  const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const [subscriptions, setSubscriptions] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
   const [searchTerm, setSearchTerm] = useState("");
-  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
+
+  const {
+    subscriptions,
+    isLoading,
+    error,
+    refetch,
+    deleteSubscriptionMutation,
+  } = useSubscriptions();
 
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
@@ -88,74 +88,11 @@ function Subscriptions() {
     },
   ];
 
-  const fetchSubscriptions = async () => {
-    try {
-      setIsLoading(true);
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data.detail === "Subscription list fetched successfully") {
-        setSubscriptions(response.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching subscriptions:", error);
-      toastController.error(
-        error.response?.data?.detail || "Failed to fetch subscriptions"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Add a reload-only fetch function
-  const reloadfetchSubscriptions = async () => {
-    setIsReloading(true);
-    try {
-      const token = getToken();
-      if (!token) return;
-      const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.data.detail === "Subscription list fetched successfully") {
-        setSubscriptions(response.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching subscriptions:", error);
-      // Optionally show a toast or set error state
-    } finally {
-      setIsReloading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSubscriptions();
-  }, []);
-
   const handleView = (subscription) => {
-    // Navigate to view subscription page
     navigate(`/view-subscription/${subscription.subscription_id}`);
   };
 
   const handleEdit = (subscription) => {
-    // Navigate to edit subscription page
     navigate(`/edit-subscription/${subscription.subscription_id}`);
   };
 
@@ -167,38 +104,11 @@ function Subscriptions() {
   const confirmDelete = async () => {
     if (!selectedSubscription) return;
     try {
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/delete_subscription`,
-          {
-            subscription_id: selectedSubscription.subscription_id,
-            user_id: adminData.user_id,
-            app_source: "admin_app",
-          },
-          {
-            headers: {
-              Authorization: getToken(),
-            },
-          }
-        ),
-        {
-          loading: "Deleting subscription...",
-          success: "Subscription deleted successfully!",
-          error: "Failed to delete subscription",
-        }
-      );
-
-      if (response.data.detail === "Subscription deleted successfully") {
-        setShowDeleteModal(false);
-        fetchSubscriptions();
-      }
-    } catch (error) {
-      console.error("Error deleting subscription:", error);
-      toastController.error(
-        error.response?.data?.detail || "Failed to delete subscription"
-      );
-    } finally {
+      await deleteSubscriptionMutation.mutateAsync(selectedSubscription.subscription_id);
+      setShowDeleteModal(false);
       setSelectedSubscription(null);
+    } catch {
+      // Error handling is done in the mutation
     }
   };
 
@@ -213,6 +123,12 @@ function Subscriptions() {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
+
+      {error && (
+        <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
+          {error}
+        </div>
+      )}
 
       <DataTable
         data={subscriptions}
@@ -241,8 +157,8 @@ function Subscriptions() {
           disabled: false,
           tooltip: "Create a new subscription",
         }}
-        onReload={reloadfetchSubscriptions}
-        isLoading={isReloading}
+        onReload={refetch}
+        isLoading={deleteSubscriptionMutation.isLoading}
       />
 
       {/* Delete Confirmation Modal using DeleteConfirmModal */}
