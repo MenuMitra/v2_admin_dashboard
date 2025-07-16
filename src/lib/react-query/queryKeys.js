@@ -100,4 +100,12 @@ export const queryKeys = {
     detail: (id) => [...queryKeys.notifications.all, 'detail', id],
     roles: (outletId) => [...queryKeys.notifications.all, 'roles', outletId],
   },
+
+  stats: {
+    all: ['stats'],
+    apiUsage: (filters) => [...queryKeys.stats.all, 'api-usage', filters],
+    dbTables: () => [...queryKeys.stats.all, 'db-tables'],
+    appUsage: (filters) => [...queryKeys.stats.all, 'app-usage', filters],
+    appSources: () => [...queryKeys.stats.all, 'app-sources'],
+  },
 }; 
