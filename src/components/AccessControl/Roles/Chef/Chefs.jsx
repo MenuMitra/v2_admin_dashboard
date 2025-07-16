@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,30 +18,32 @@ import DataTable from '../../../common/DataTable';
 import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
 import { API_CONFIG } from "../../../../config/appConfig";
+import { queryKeys } from "../../../../lib/react-query/queryKeys";
 
 function Chefs() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { outletId } = useParams();
   const navigate = useNavigate();
-  const {BASE_URL, API_VERSION} = API_CONFIG;
-  const [chefs, setChefs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
+  // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [chefToDelete, setChefToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
-  const [outletName, setOutletName] = useState('');
 
-  useEffect(() => {
-    if (adminData?.user_id && outletId) {
-      fetchChefs();
-    }
-  }, [adminData?.user_id, outletId]);
-
-  const fetchChefs = async () => {
-    try {
+  // Fetch chefs query
+  const {
+    data: response,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: queryKeys.chefs.list(outletId),
+    queryFn: async () => {
+      const token = getToken();
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/common/chef_listview`,
         {
@@ -50,127 +53,128 @@ function Chefs() {
         },
         {
           headers: {
-            Authorization: getToken(),
+            Authorization: token,
             "Content-Type": "application/json",
           },
         }
       );
+      return response.data;
+    },
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId)
+  });
 
-      setChefs(response.data.detail || []);
-      
-      if (response.data.detail && response.data.detail.length > 0) {
-        setOutletName(response.data.detail[0].outlet_name);
-      }
-      
-      setIsLoading(false);
-    } catch {
-      toastController.error("outlet has no chef");
-      setIsLoading(false);
-    }
-  };
-
-  const handleViewChef = (user_id) => {
-    navigate(`/chef-details/${outletId}/${user_id}`);
-  };
-
-  const handleEditChef = (user_id) => {
-    navigate(`/edit-chef/${outletId}/${user_id}`);
-  };
-
-  const handleDeleteChef = async () => {
-    try {
-      await toastController.promise(
-        axios.delete(`${BASE_URL}/${API_VERSION}/common/chef_delete`, {
-          data: {
-            update_user_id: adminData.user_id,
-            outlet_id: outletId,
-            user_id: chefToDelete.toString(),
-            app_source: "admin_app",
-          },
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
-          },
-        }),
-        {
-          loading: "Deleting chef...",
-          success: "Chef deleted successfully",
-          error: "Failed to delete chef"
-        }
-      );
-
+  // Delete chef mutation
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const token = getToken();
+      return axios.delete(`${BASE_URL}/${API_VERSION}/common/chef_delete`, {
+        data: {
+          update_user_id: adminData.user_id,
+          outlet_id: outletId,
+          user_id: chefToDelete.toString(),
+          app_source: "admin_app",
+        },
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      });
+    },
+    onSuccess: () => {
+      toastController.success("Chef deleted successfully");
       setShowDeleteModal(false);
       setChefToDelete(null);
-      fetchChefs();
-    } catch (error) {
+      queryClient.invalidateQueries(queryKeys.chefs.list(outletId));
+    },
+    onError: (error) => {
       toastController.error(error.response?.data?.msg || "Failed to delete chef");
     }
-  };
+  });
 
-  const openDeleteModal = (user_id) => {
-    setChefToDelete(user_id);
-    setShowDeleteModal(true);
-  };
-
-  const handleBulkAction = async (action, selectedIds) => {
-    try {
-      const actionMessages = {
-        active: {
-          loading: "Activating selected chefs...",
-          success: "Successfully activated selected chefs",
-          error: "Failed to activate chefs"
+  // Bulk action mutation
+  const bulkActionMutation = useMutation({
+    mutationFn: async ({ action, selectedIds }) => {
+      const token = getToken();
+      return axios.post(
+        `${BASE_URL}/${API_VERSION}/common/bulk_chef_action`,
+        {
+          user_id: adminData.user_id,
+          action: action,
+          app_source: "admin_app",
+          chef_ids: selectedIds
         },
-        inactive: {
-          loading: "Deactivating selected chefs...",
-          success: "Successfully deactivated selected chefs",
-          error: "Failed to deactivate chefs"
-        },
-        delete: {
-          loading: "Deleting selected chefs...",
-          success: "Successfully deleted selected chefs",
-          error: "Failed to delete chefs"
-        }
-      };
-
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/bulk_chef_action`,
-          {
-            user_id: adminData.user_id,
-            action: action,
-            app_source: "admin_app",
-            chef_ids: selectedIds
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
           },
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        actionMessages[action]
+        }
       );
-
-      fetchChefs();
+    },
+    onSuccess: (_, variables) => {
+      const actionMessages = {
+        active: "Successfully activated selected chefs",
+        inactive: "Successfully deactivated selected chefs",
+        delete: "Successfully deleted selected chefs"
+      };
+      toastController.success(actionMessages[variables.action]);
       setSelectedItems([]);
-      toastController.success(response.data.detail);
-      
-    } catch (error) {
+      queryClient.invalidateQueries(queryKeys.chefs.list(outletId));
+    },
+    onError: (error, variables) => {
       toastController.error(
         error.response?.data?.detail || 
-        `Failed to perform ${action} action on selected chefs`
+        `Failed to perform ${variables.action} action on selected chefs`
       );
     }
-  };
+  });
 
-  const breadcrumbItems = [
+  // Memoized values
+  const chefs = React.useMemo(() => response?.detail || [], [response]);
+  const outletName = React.useMemo(() => 
+    chefs.length > 0 ? chefs[0].outlet_name : '',
+    [chefs]
+  );
+
+  // Memoized counts
+  const counts = React.useMemo(() => ({
+    total: chefs.length,
+    active: chefs.filter((chef) => chef.is_active).length,
+    inactive: chefs.filter((chef) => !chef.is_active).length
+  }), [chefs]);
+
+  // Memoized breadcrumb items
+  const breadcrumbItems = React.useMemo(() => [
     { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Chefs' }
-  ];
+  ], [outletName, outletId]);
 
-  const columns = [
+  // Memoized handlers
+  const handleViewChef = React.useCallback((user_id) => {
+    navigate(`/chef-details/${outletId}/${user_id}`);
+  }, [navigate, outletId]);
+
+  const handleEditChef = React.useCallback((user_id) => {
+    navigate(`/edit-chef/${outletId}/${user_id}`);
+  }, [navigate, outletId]);
+
+  const openDeleteModal = React.useCallback((user_id) => {
+    setChefToDelete(user_id);
+    setShowDeleteModal(true);
+  }, []);
+
+  const handleDeleteChef = React.useCallback(() => {
+    deleteMutation.mutate();
+  }, [deleteMutation]);
+
+  const handleBulkAction = React.useCallback((action, selectedIds) => {
+    bulkActionMutation.mutate({ action, selectedIds });
+  }, [bulkActionMutation]);
+
+  // Memoized columns configuration
+  const columns = React.useMemo(() => [
     {
       field: "name",
       header: "Name",
@@ -236,16 +240,20 @@ function Chefs() {
         </div>
       ),
     },
-  ];
-
-  const getTotalCount = () => chefs.length;
-  const getActiveCount = () => chefs.filter((chef) => chef.is_active).length;
-  const getInactiveCount = () => chefs.filter((chef) => !chef.is_active).length;
+  ], [handleViewChef, handleEditChef, openDeleteModal]);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-error-500 text-center p-4">
+        {error.response?.data?.msg || "Failed to load chefs"}
       </div>
     );
   }
@@ -273,11 +281,7 @@ function Chefs() {
         
         // Header props
         title="Chefs"
-        counts={{
-          total: getTotalCount(),
-          active: getActiveCount(),
-          inactive: getInactiveCount()
-        }}
+        counts={counts}
         showBackButton={true}
         showSearch={true}
         searchPlaceholder="Search chefs..."
@@ -304,6 +308,7 @@ function Chefs() {
           setChefToDelete(null);
         }}
         onDelete={handleDeleteChef}
+        isLoading={deleteMutation.isPending}
       />
     </>
   );

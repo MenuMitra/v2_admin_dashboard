@@ -138,4 +138,11 @@ export const queryKeys = {
     list: (outletId) => [...queryKeys.managers.all, 'list', outletId],
     detail: (outletId, userId) => [...queryKeys.managers.all, 'detail', outletId, userId],
   },
+
+  chefs: {
+    all: ['chefs'],
+    list: (outletId) => [...queryKeys.chefs.all, 'list', outletId],
+    detail: (outletId, userId) => [...queryKeys.chefs.all, 'detail', outletId, userId],
+    bulk: (outletId) => [...queryKeys.chefs.all, 'bulk', outletId],
+  },
 }; 
