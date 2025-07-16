@@ -1,8 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { useAdmin } from "../hooks/useAdmin";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -24,19 +21,20 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import Breadcrumb from "./Breadcrumb";
-import { API_CONFIG } from "../config/appConfig";
-import { toastController } from "../utils/toastController";
+import { useOwnerDetails } from "../lib/react-query/hooks/useOwnerDetails";
 
 function OwnerDetails() {
-  const { getToken } = useAuth();
-  const { adminData } = useAdmin();
   const { ownerId } = useParams();
   const navigate = useNavigate();
-  const [ownerData, setOwnerData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const {
+    ownerData,
+    isLoading,
+    error,
+    deleteOwner,
+    isDeleting,
+  } = useOwnerDetails(ownerId);
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
@@ -45,84 +43,23 @@ function OwnerDetails() {
     { label: "Owner Details", path: `/owner-details/${ownerId}` },
   ];
 
-  useEffect(() => {
-    if (adminData?.user_id && ownerId) {
-      fetchOwnerDetails();
-    }
-  }, [adminData?.user_id, ownerId]);
-
-  const fetchOwnerDetails = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/view_owner`,
-          {
-            user_id: adminData.user_id,
-            owner_id: parseInt(ownerId),
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        {
-          loading: 'Loading owner details...',
-          success: 'Owner details loaded successfully!',
-          error: 'Failed to load owner details'
-        }
-      );
-
-      setOwnerData(response.data);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching owner details:", error);
-      setIsLoading(false);
-    }
-  };
-
   const handleDeleteOwner = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await toastController.promise(
-        axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_owner`, {
-          data: {
-            owner_id: parseInt(ownerId),
-            user_id: adminData.user_id,
-          },
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }),
-        {
-          loading: 'Deleting owner...',
-          success: 'Owner deleted successfully!',
-          error: 'Failed to delete owner'
-        }
-      );
-
-      navigate(-1);
-    } catch (error) {
-      console.error("Error deleting owner:", error);
-      // toastController.error("Failed to delete owner: " + error.message);
-    }
+    await deleteOwner();
+    navigate(-1);
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="text-center text-error-500">Error loading owner details</div>
       </div>
     );
   }
