@@ -364,7 +364,7 @@ function EditPartner() {
                 value={partnerDetails.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
-                required
+                // required
                 error={validationErrors.email}
               />
 
@@ -373,9 +373,9 @@ function EditPartner() {
                 name="dob"
                 value={partnerDetails.dob}
                 onChange={handleChange}
-                required
+                // required
                 placeholder="Select date of birth"
-                error={validationErrors.dob}
+                // error={validationErrors.dob}
               />
 
               <TextInput
@@ -412,7 +412,7 @@ function EditPartner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
-                  required
+                  // required
                 />
               </div>
             </div>

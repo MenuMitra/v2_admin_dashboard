@@ -497,6 +497,7 @@ function CreateOutlet() {
         veg_nonveg: outletData.veg_nonveg,
         upi_id: outletData.upi_id,
         subscription_id: outletData.subscription_id, // <-- added
+        subscription_end_date:outletData.subscription_end_date,
       };
 
       if (outletData.service_charges !== "") {
@@ -506,11 +507,7 @@ function CreateOutlet() {
         payload.gst = outletData.gst.toString();
       }
 
-      if (outletData.subscription_id && outletData.subscription_end_date) {
-        payload.subscription_end_date = formatDateToDDMMMYYYY(
-          outletData.subscription_end_date
-        );
-      }
+     
 
       const optionalFields = [
         "fssainumber",
@@ -744,6 +741,19 @@ function CreateOutlet() {
       }));
     }
   };
+
+  const [tenure, setTenure] = useState("");
+  const [calculatedEndDate, setCalculatedEndDate] = useState("");
+
+  // Reset tenure and end date when subscription changes
+  useEffect(() => {
+    setTenure("");
+    setCalculatedEndDate("");
+    setOutletData((prev) => ({
+      ...prev,
+      subscription_end_date: "",
+    }));
+  }, [outletData.subscription_id]);
 
   return (
     <>
@@ -1163,18 +1173,103 @@ function CreateOutlet() {
                 {outletData.subscription_id && (
                   <div className="relative">
                     <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      <span className="text-error-600">*</span> Subscription End
-                      Date
+                      <span className="text-error-600">*</span> Tenure (Months)
                     </label>
-                    <input
-                      type="date"
-                      name="subscription_end_date"
-                      value={outletData.subscription_end_date}
-                      onChange={handleInputChange}
+                    <select
+                      name="tenure"
+                      value={tenure || ""}
+                      onChange={(e) => {
+                        const months = parseInt(e.target.value, 10);
+                        setTenure(e.target.value);
+                        if (!months) {
+                          setCalculatedEndDate("");
+                          setOutletData((prev) => ({
+                            ...prev,
+                            subscription_end_date: "",
+                          }));
+                          return;
+                        }
+                        const today = new Date();
+                        // Calculate the target month and year
+                        let targetMonth = today.getMonth() + months;
+                        let targetYear = today.getFullYear();
+                        while (targetMonth > 11) {
+                          targetMonth -= 12;
+                          targetYear += 1;
+                        }
+                        // Get the last day of the target month
+                        const lastDayOfTargetMonth = new Date(
+                          targetYear,
+                          targetMonth + 1,
+                          0
+                        ).getDate();
+                        // Use the same day if possible, otherwise use the last day of the month
+                        const targetDay = Math.min(
+                          today.getDate(),
+                          lastDayOfTargetMonth
+                        );
+                        const endDate = new Date(
+                          targetYear,
+                          targetMonth,
+                          targetDay
+                        );
+                        if (isNaN(endDate.getTime())) {
+                          setCalculatedEndDate("");
+                          setOutletData((prev) => ({
+                            ...prev,
+                            subscription_end_date: "",
+                          }));
+                          return;
+                        }
+                        const day = String(endDate.getDate()).padStart(2, "0");
+                        const monthNames = [
+                          "Jan",
+                          "Feb",
+                          "Mar",
+                          "Apr",
+                          "May",
+                          "Jun",
+                          "Jul",
+                          "Aug",
+                          "Sep",
+                          "Oct",
+                          "Nov",
+                          "Dec",
+                        ];
+                        const monthIdx = endDate.getMonth();
+                        const month = monthNames[monthIdx];
+                        const year = endDate.getFullYear();
+                        const formatted = `${day} ${month} ${year}`;
+                        setCalculatedEndDate(formatted);
+                        setOutletData((prev) => ({
+                          ...prev,
+                          subscription_end_date: formatted,
+                        }));
+                      }}
                       required
                       className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                      min={new Date().toISOString().split("T")[0]}
-                    />
+                    >
+                      <option value="">Select tenure</option>
+                      <option value="1">1 Month</option>
+                      <option value="2">2 Months</option>
+                      <option value="3">3 Months</option>
+                      <option value="6">6 Months</option>
+                      <option value="9">9 Months</option>
+                      <option value="12">12 Months</option>
+                    </select>
+                    {/* {calculatedEndDate && (
+                      <div className="mt-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                          Subscription End Date
+                        </label>
+                        <input
+                          type="text"
+                          value={calculatedEndDate}
+                          readOnly
+                          className="w-full px-3 py-2 border rounded-lg shadow-sm bg-gray-100"
+                        />
+                      </div>
+                    )} */}
                   </div>
                 )}
               </div>
@@ -1307,7 +1402,7 @@ function CreateOutlet() {
                 {/* Closing Time */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                     Closing Time
+                    Closing Time
                   </label>
                   <div className="flex gap-2">
                     {/* Hour Dropdown */}
