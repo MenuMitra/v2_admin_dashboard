@@ -48,6 +48,12 @@ export const queryKeys = {
     detail: (id) => [...queryKeys.admins.all, 'detail', id],
   },
 
+  admin: {
+    all: ['admin'],
+    list: () => [...queryKeys.admin.all, 'list'],
+    detail: (id) => [...queryKeys.admin.all, 'detail', id],
+  },
+
   // Super Owner related queries
   superOwners: {
     all: ['superOwners'],
