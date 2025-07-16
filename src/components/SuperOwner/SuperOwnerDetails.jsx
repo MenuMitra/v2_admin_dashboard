@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../../hooks/useAuth';
-import Breadcrumb from '../Breadcrumb';
-import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
-import { useAdmin } from '../../hooks/useAdmin';
+import Breadcrumb from '../Breadcrumb';
+import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
+import { useSuperOwnerDetails } from '../../lib/react-query/hooks/useSuperOwnerDetails';
+
 function SuperOwnerDetails() {
-  const location = useLocation();
+  const { superOwnerId } = useParams();
   const navigate = useNavigate();
-  const { getToken } = useAuth();
-  const { adminData } = useAdmin();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { 
-    superOwnerData, 
-    assignedOutlets, 
-    assignedFunctionalities,
-    totalOutlets,
-    totalFunctionalities 
-  } = location.state || {};
+
+  const {
+    superOwnerDetails,
+    isLoading,
+    error,
+    deleteSuperOwner,
+    isDeleting
+  } = useSuperOwnerDetails(superOwnerId);
 
   // Add breadcrumb items
   const breadcrumbItems = [
@@ -28,7 +26,36 @@ function SuperOwnerDetails() {
     { label: 'Details' }
   ];
 
-  if (!superOwnerData) {
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handleDelete = async () => {
+    await deleteSuperOwner();
+    setIsModalOpen(false);
+    navigate('/super-owners');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <Breadcrumb items={breadcrumbItems} />
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          Error loading super owner details
+        </div>
+      </div>
+    );
+  }
+
+  if (!superOwnerDetails?.superOwnerData) {
     return (
       <div className="p-6">
         <Breadcrumb items={breadcrumbItems} />
@@ -39,40 +66,13 @@ function SuperOwnerDetails() {
     );
   }
 
-  const handleBack = () => {
-    navigate(-1);
-  };
-
-  const handleDelete = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      await axios.delete(
-        'https://men4u.xyz/v2/admin/delete_super_owner',
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json',
-          },
-          data: {
-            user_id: adminData.user_id, // You might want to get this from adminData
-            super_owner_id: superOwnerData.super_owner_id,
-            app_source: 'admin_app'
-          }
-        }
-      );
-
-      // Close modal and navigate back to list
-      setIsModalOpen(false);
-      navigate('/super-owners');
-    } catch (error) {
-      console.error('Error deleting super owner:', error);
-      alert('Failed to delete super owner');
-    }
-  };
+  const { 
+    superOwnerData, 
+    assignedOutlets, 
+    assignedFunctionalities,
+    totalOutlets,
+    totalFunctionalities 
+  } = superOwnerDetails;
 
   return (
     <>
@@ -118,6 +118,7 @@ function SuperOwnerDetails() {
                 <button
                   onClick={() => setIsModalOpen(true)}
                   className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 hover:bg-error-600 shadow-theme-xs"
+                  disabled={isDeleting}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -184,7 +185,6 @@ function SuperOwnerDetails() {
               ))}
             </div>
           </div>
-          
 
           {/* Status Information Section */}
           <div className="mt-8">
@@ -227,7 +227,7 @@ function SuperOwnerDetails() {
         onClose={() => setIsModalOpen(false)}
         onDelete={handleDelete}
         title="Confirm Delete"
-        message="Are you sure you ?."
+        message="Are you sure you want to delete this super owner?"
       />
     </>
   );

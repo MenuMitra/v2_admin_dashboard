@@ -59,6 +59,8 @@ export const queryKeys = {
     all: ['superOwners'],
     list: () => [...queryKeys.superOwners.all, 'list'],
     detail: (id) => [...queryKeys.superOwners.all, 'detail', id],
+    outlets: (id) => [...queryKeys.superOwners.all, 'outlets', id],
+    functionalities: (id) => [...queryKeys.superOwners.all, 'functionalities', id],
   },
 
   // Partner related queries

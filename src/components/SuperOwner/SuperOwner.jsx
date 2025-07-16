@@ -14,9 +14,18 @@ import DataTable from '../common/DataTable';
 import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
 import { useSuperOwners } from '../../lib/react-query/hooks/useSuperOwners';
 import { toastController } from '../../utils/toastController';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../../lib/react-query/queryKeys';
+import { useAuth } from '../../hooks/useAuth';
+import { useAdmin } from '../../hooks/useAdmin';
+import axios from 'axios';
 
 function SuperOwner() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { getToken } = useAuth();
+  const { adminData } = useAdmin();
+  
   const { 
     superOwners, 
     isLoading, 
@@ -33,23 +42,33 @@ function SuperOwner() {
   const [statusFilter, setStatusFilter] = useState('all');
 
   const handleViewDetails = async (superOwnerId) => {
-    try {
-      const data = await fetchSuperOwnerDetails(superOwnerId);
-      if (data) {
-        navigate(`/super-owner-details/${superOwnerId}`, { 
-          state: { 
-            superOwnerData: data.super_owner,
-            assignedOutlets: data.assigned_outlets,
-            assignedFunctionalities: data.assigned_functionalities,
-            totalOutlets: data.total_outlets,
-            totalFunctionalities: data.total_functionalities
-          } 
-        });
-      }
-    } catch (err) {
-      console.error('Error fetching super owner details:', err);
-      toastController.error('Failed to fetch super owner details');
-    }
+    // Prefetch the details before navigation
+    await queryClient.prefetchQuery({
+      queryKey: queryKeys.superOwners.detail(superOwnerId),
+      queryFn: async () => {
+        const token = getToken();
+        if (!token) throw new Error("No authentication token available");
+
+        const response = await axios.post(
+          'https://men4u.xyz/v2/admin/view_super_owner',
+          {
+            user_id: adminData.user_id,
+            super_owner_id: parseInt(superOwnerId),
+            app_source: 'admin_app'
+          },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        return response.data;
+      },
+    });
+
+    // Navigate after prefetching
+    navigate(`/super-owner-details/${superOwnerId}`);
   };
 
   const handleEditOwner = (superOwnerId) => {
