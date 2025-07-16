@@ -42,7 +42,7 @@ function Roles() {
 
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
-    { label: "Access Control", path: "/dashboard" },
+    { label: "Access Control", path: "/home" },
     { label: "Roles", path: "/roles" },
   ];
 

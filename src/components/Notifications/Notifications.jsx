@@ -197,7 +197,7 @@ const Notifications = () => {
         showBackButton={true}
         showSearch={true}
         searchPlaceholder="Search"
-        onBackClick={() => navigate("/dashboard")}
+        onBackClick={() => navigate("/home")}
         createButton={{
           show: true,
           label: "Create",
