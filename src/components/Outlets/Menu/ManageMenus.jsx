@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
+import { queryKeys } from '../../../lib/react-query/queryKeys';
+import { toastController } from '../../../utils/toastController';
 import DataTable from '../../common/DataTable';
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -20,34 +23,32 @@ function ManageMenus() {
   const { outletId } = useParams();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
-  const [menuData, setMenuData] = useState([]);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
-  const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [outletName, setOutletName] = useState('');
 
-  // Move breadcrumbItems inside the render since it needs menuData
-  const getBreadcrumbItems = () => [
-    { label: 'Home', path: '/home' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: outletName, path: `/view-outlet/${outletId}` },
-    { label: 'Menus' },
-  ];
-
-  // Add this normalization function near the top of ManageMenus component
-  const normaliseData = (menus) =>
+  // Normalize data helper
+  const normaliseData = React.useCallback((menus) =>
     menus.map((menu) => ({
       ...menu,
-      user_id: menu.menu_id,   // Add user_id for DataTable selection
-    }));
+      user_id: menu.menu_id,
+    })),
+  []);
 
-  // Move fetchMenus outside of useEffect
-  const fetchMenus = async () => {
-    try {
+  // Fetch menus query
+  const {
+    data: menuResponse,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: queryKeys.menus.list(outletId),
+    queryFn: async () => {
       const token = getToken();
       const response = await axios.post(
         'https://men4u.xyz/v2/common/menu_list',
@@ -63,82 +64,16 @@ function ManageMenus() {
           },
         }
       );
-      // Normalize data before setting state
-      const menuList = response.data.detail || [];
-      
-      // Set outlet name from the first menu item if available
-      if (menuList.length > 0) {
-        setOutletName(menuList[0].outlet_name);
-      }
-      
-      setMenuData(normaliseData(menuList));
-    } catch {
-      // error intentionally ignored
-    } finally {
-      // setLoading(false); // Removed loading and error state
-    }
-  };
+      return response.data;
+    },
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId)
+  });
 
-  // Update useEffect to use the moved fetchMenus function
-  useEffect(() => {
-    if (adminData?.user_id && outletId) {
-      fetchMenus();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminData?.user_id, outletId]);
-
-  // Update getFilteredData to include search filtering
-  const getFilteredData = () => {
-    if (!menuData.length) return [];
-
-    return menuData.filter((item) => {
-      // First apply status filter
-      if (statusFilter !== "all") {
-        const isActive = item.is_active === 1;
-        if (statusFilter === "active" && !isActive) return false;
-        if (statusFilter === "inactive" && isActive) return false;
-      }
-
-      // Then apply search filter
-      if (searchTerm) {
-        const searchFields = ['name', 'category_name', 'food_type']; // Add fields you want to search
-        return searchFields.some(field => 
-          item[field]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-
-      return true;
-    });
-  };
-
-  // Update useEffect to include searchTerm dependency
-  useEffect(() => {
-    const filtered = getFilteredData();
-    setFilteredData(filtered);
-  }, [statusFilter, menuData, searchTerm]);
-
-  // Action handlers with correct dynamic routes
-  const handleView = (row) => {
-    navigate(`/menu-details/${row.outlet_id}/${row.menu_id}`);
-  };
-  const handleEdit = (row) => {
-    navigate(`/edit-menu/${row.outlet_id}/${row.menu_id}`);
-  };
-  const handleDelete = (row) => {
-    setSelectedMenu(row);
-    setShowDeleteModal(true);
-  };
-  const handleCreateMenu = () => {
-    navigate(`/create-menu/${outletId}`, {
-      state: { outletName: outletName }
-    });
-  };
-
-  // Add handleDeleteConfirm function
-  const handleDeleteConfirm = async () => {
-    try {
+  // Delete menu mutation
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
       const token = getToken();
-      await axios.delete('https://men4u.xyz/v2/common/menu_delete', {
+      return axios.delete('https://men4u.xyz/v2/common/menu_delete', {
         data: {
           outlet_id: Number(outletId),
           user_id: adminData?.user_id,
@@ -146,28 +81,31 @@ function ManageMenus() {
           app_source: 'admin_app'
         },
         headers: {
-          Authorization: `${token}`,
+          Authorization: token,
           'Content-Type': 'application/json',
         },
       });
-
+    },
+    onSuccess: () => {
+      toastController.success('Menu deleted successfully');
       setShowDeleteModal(false);
       setSelectedMenu(null);
-      await fetchMenus(); // Immediately fetch updated data
-    } catch {
-      // error intentionally ignored
+      queryClient.invalidateQueries(queryKeys.menus.list(outletId));
+    },
+    onError: (error) => {
+      toastController.error(error.response?.data?.message || 'Failed to delete menu');
     }
-  };
+  });
 
-  // Update the handleBulkAction function to use the normalized IDs
-  const handleBulkAction = async (action, selectedIds) => {
-    try {
+  // Bulk action mutation
+  const bulkActionMutation = useMutation({
+    mutationFn: async ({ action, selectedIds }) => {
       const token = getToken();
       const selectedMenuIds = menuData
         .filter(menu => selectedIds.includes(menu.user_id))
         .map(menu => menu.menu_id);
 
-      const response = await axios.post(
+      return axios.post(
         'https://men4u.xyz/v2/common/bulk_menu_action',
         {
           user_id: adminData?.user_id,
@@ -183,15 +121,97 @@ function ManageMenus() {
           },
         }
       );
-
-      if (response.status === 200) {
-        setSelectedItems([]); // Clear selections
-        await fetchMenus(); // Immediately fetch updated data
-      }
-    } catch {
-      // error intentionally ignored
+    },
+    onSuccess: () => {
+      toastController.success('Bulk action completed successfully');
+      setSelectedItems([]);
+      queryClient.invalidateQueries(queryKeys.menus.list(outletId));
+    },
+    onError: (error) => {
+      toastController.error(error.response?.data?.message || 'Failed to perform bulk action');
     }
-  };
+  });
+
+  // Memoized data processing
+  const menuData = React.useMemo(() => 
+    normaliseData(menuResponse?.detail || []),
+    [menuResponse, normaliseData]
+  );
+
+  const outletName = React.useMemo(() => 
+    menuData[0]?.outlet_name || '',
+    [menuData]
+  );
+
+  // Memoized filtered data
+  const filteredData = React.useMemo(() => {
+    if (!menuData.length) return [];
+
+    return menuData.filter((item) => {
+      if (statusFilter !== "all") {
+        const isActive = item.is_active === 1;
+        if (statusFilter === "active" && !isActive) return false;
+        if (statusFilter === "inactive" && isActive) return false;
+      }
+
+      if (searchTerm) {
+        const searchFields = ['name', 'category_name', 'food_type'];
+        return searchFields.some(field => 
+          item[field]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+
+      return true;
+    });
+  }, [menuData, statusFilter, searchTerm]);
+
+  // Memoized breadcrumb items
+  const breadcrumbItems = React.useMemo(() => [
+    { label: 'Home', path: '/home' },
+    { label: 'Outlets', path: '/outlets' },
+    { label: outletName, path: `/view-outlet/${outletId}` },
+    { label: 'Menus' },
+  ], [outletName, outletId]);
+
+  // Handlers
+  const handleView = React.useCallback((row) => {
+    navigate(`/menu-details/${row.outlet_id}/${row.menu_id}`);
+  }, [navigate]);
+
+  const handleEdit = React.useCallback((row) => {
+    navigate(`/edit-menu/${row.outlet_id}/${row.menu_id}`);
+  }, [navigate]);
+
+  const handleDelete = React.useCallback((row) => {
+    setSelectedMenu(row);
+    setShowDeleteModal(true);
+  }, []);
+
+  const handleCreateMenu = React.useCallback(() => {
+    navigate(`/create-menu/${outletId}`, {
+      state: { outletName }
+    });
+  }, [navigate, outletId, outletName]);
+
+  const handleDeleteConfirm = React.useCallback(() => {
+    deleteMutation.mutate();
+  }, [deleteMutation]);
+
+  const handleBulkAction = React.useCallback((action, selectedIds) => {
+    bulkActionMutation.mutate({ action, selectedIds });
+  }, [bulkActionMutation]);
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" />
+    </div>;
+  }
+
+  if (error) {
+    return <div className="text-error-500 text-center p-4">
+      {error.response?.data?.message || "Failed to load menus"}
+    </div>;
+  }
 
   // Define columns for DataTable
   const columns = [
@@ -287,9 +307,8 @@ function ManageMenus() {
 
   return (
     <div>
-      {/* Breadcrumb */}
       <div className="mb-6">
-        <Breadcrumb items={getBreadcrumbItems()} />
+        <Breadcrumb items={breadcrumbItems} />
       </div>
       <DataTable
         data={filteredData}
@@ -347,7 +366,6 @@ function ManageMenus() {
         onSearchChange={(value) => setSearchTerm(value)}
       />
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
@@ -355,6 +373,7 @@ function ManageMenus() {
           setSelectedMenu(null);
         }}
         onDelete={handleDeleteConfirm}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );

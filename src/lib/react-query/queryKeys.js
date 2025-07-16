@@ -125,4 +125,11 @@ export const queryKeys = {
     detail: (id) => [...queryKeys.categories.all, 'detail', id],
     bulkAction: (outletId) => [...queryKeys.categories.all, 'bulk-action', outletId],
   },
+
+  menus: {
+    all: ['menus'],
+    list: (outletId) => [...queryKeys.menus.all, 'list', outletId],
+    detail: (outletId, menuId) => [...queryKeys.menus.all, 'detail', outletId, menuId],
+    bulk: (outletId) => [...queryKeys.menus.all, 'bulk', outletId],
+  }
 }; 
