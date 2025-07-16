@@ -41,9 +41,9 @@ function EditSubscription() {
   });
 
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Subscriptions', path: '/subscriptions' },
-    { label: 'Edit Subscription' }
+    { label: "Home", path: "/home" },
+    { label: "Subscriptions", path: "/subscriptions" },
+    { label: "Edit Subscription" },
   ];
 
   // Fetch subscription details
@@ -245,7 +245,9 @@ function EditSubscription() {
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>{isLoading ? "Updating..." : "Save"}</span>
+              <span className="hidden sm:inline">
+                {isLoading ? "Updating..." : "Save"}
+              </span>
             </button>
           </div>
         </div>

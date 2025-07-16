@@ -93,6 +93,15 @@ function EditOutlet() {
   const [subscriptions, setSubscriptions] = useState([]);
   // Add state for subscription_end_date
   const [subscriptionEndDate, setSubscriptionEndDate] = useState("");
+  const [tenure, setTenure] = useState("");
+  const [calculatedEndDate, setCalculatedEndDate] = useState("");
+
+  // Reset tenure and end date when subscription changes
+  useEffect(() => {
+    setTenure("");
+    setCalculatedEndDate("");
+    setSubscriptionEndDate("");
+  }, [outletData.subscription_id]);
 
   // Add essential validation helper functions
   const isNameValid = (name) => name?.length >= 3 && name?.length <= 50;
@@ -435,7 +444,7 @@ function EditOutlet() {
     const requiredFields = {
       name: isNameValid(outletData.name),
       mobile:
-      outletData.mobile?.length === 10 && /^[6-9]/.test(outletData.mobile),
+        outletData.mobile?.length === 10 && /^[6-9]/.test(outletData.mobile),
       owner_ids: outletData.owner_ids?.length > 0,
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
@@ -488,8 +497,10 @@ function EditOutlet() {
       }
 
       // Add validation for subscription_end_date if subscription is selected
-      if (outletData.subscription_id && !subscriptionEndDate) {
-        toastController.error("Please select a subscription end date");
+      if (outletData.subscription_id && !outletData.subscription_end_date) {
+        toastController.error(
+          "Please select a subscription tenure to set the end date."
+        );
         return;
       }
 
@@ -521,6 +532,7 @@ function EditOutlet() {
         subscription_id: outletData.subscription_id
           ? parseInt(outletData.subscription_id)
           : undefined,
+        subscription_end_date: outletData.subscription_end_date,
         app_source: "admin_app",
       };
 
@@ -534,10 +546,6 @@ function EditOutlet() {
         apiData.closing_time = `${currentDate} ${closingHour}:${closingMinute}:00 ${closingPeriod}`;
       }
 
-      if (outletData.subscription_id && subscriptionEndDate) {
-        apiData.subscription_end_date =
-          formatDateToDDMMMYYYY(subscriptionEndDate);
-      }
 
       const response = await axios.patch(
         `${BASE_URL}/${API_VERSION}/common/update_outlet`,
@@ -922,21 +930,106 @@ function EditOutlet() {
                 {outletData.subscription_id && (
                   <div className="mt-2">
                     <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      <span className="text-error-600">*</span> Subscription End
-                      Date
+                      <span className="text-error-600">*</span> Tenure (Months)
                     </label>
-                    <input
-                      type="date"
-                      name="subscription_end_date"
-                      value={subscriptionEndDate}
-                      onChange={(e) => setSubscriptionEndDate(e.target.value)}
+                    <select
+                      name="tenure"
+                      value={tenure || ""}
+                      onChange={(e) => {
+                        const months = parseInt(e.target.value, 10);
+                        setTenure(e.target.value);
+                        if (!months) {
+                          setCalculatedEndDate("");
+                          setSubscriptionEndDate("");
+                          setOutletData((prev) => ({
+                            ...prev,
+                            subscription_end_date: "",
+                          }));
+                          return;
+                        }
+                        const today = new Date();
+                        let targetMonth = today.getMonth() + months;
+                        let targetYear = today.getFullYear();
+                        while (targetMonth > 11) {
+                          targetMonth -= 12;
+                          targetYear += 1;
+                        }
+                        const lastDayOfTargetMonth = new Date(
+                          targetYear,
+                          targetMonth + 1,
+                          0
+                        ).getDate();
+                        const targetDay = Math.min(
+                          today.getDate(),
+                          lastDayOfTargetMonth
+                        );
+                        const endDate = new Date(
+                          targetYear,
+                          targetMonth,
+                          targetDay
+                        );
+                        if (isNaN(endDate.getTime())) {
+                          setCalculatedEndDate("");
+                          setSubscriptionEndDate("");
+                          setOutletData((prev) => ({
+                            ...prev,
+                            subscription_end_date: "",
+                          }));
+                          return;
+                        }
+                        const day = String(endDate.getDate()).padStart(2, "0");
+                        const monthNames = [
+                          "Jan",
+                          "Feb",
+                          "Mar",
+                          "Apr",
+                          "May",
+                          "Jun",
+                          "Jul",
+                          "Aug",
+                          "Sep",
+                          "Oct",
+                          "Nov",
+                          "Dec",
+                        ];
+                        const monthIdx = endDate.getMonth();
+                        const month = monthNames[monthIdx];
+                        const year = endDate.getFullYear();
+                        const formatted = `${day} ${month} ${year}`;
+                        setCalculatedEndDate(formatted);
+                        setSubscriptionEndDate(formatted);
+                        setOutletData((prev) => ({
+                          ...prev,
+                          subscription_end_date: formatted,
+                        }));
+                      }}
                       required
-                      min={new Date().toISOString().split("T")[0]}
                       className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    />
+                    >
+                      <option value="">Select tenure</option>
+                      <option value="1">1 Month</option>
+                      <option value="2">2 Months</option>
+                      <option value="3">3 Months</option>
+                      <option value="6">6 Months</option>
+                      <option value="9">9 Months</option>
+                      <option value="12">12 Months</option>
+                    </select>
+                    {/* {calculatedEndDate && (
+                      <div className="mt-2">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                          Subscription End Date
+                        </label>
+                        <input
+                          type="text"
+                          value={calculatedEndDate}
+                          readOnly
+                          className="w-full px-3 py-2 border rounded-lg shadow-sm bg-gray-100"
+                        />
+                      </div>
+                    )} */}
                   </div>
                 )}
-                
+
                 <div className="sm:col-span-1">
                   <Textarea
                     label="Address"
