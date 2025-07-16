@@ -151,4 +151,10 @@ export const queryKeys = {
     list: (outletId) => [...queryKeys.captains.root, 'list', outletId],
     details: (outletId, userId) => [...queryKeys.captains.root, 'details', outletId, userId],
   },
+
+  waiters: {
+    root: ['waiters'],
+    list: (outletId) => [...queryKeys.waiters.root, 'list', outletId],
+    details: (outletId, userId) => [...queryKeys.waiters.root, 'details', outletId, userId],
+  },
 }; 

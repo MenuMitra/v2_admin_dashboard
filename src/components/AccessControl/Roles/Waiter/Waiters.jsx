@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { API_CONFIG } from "../../../../config/appConfig";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +18,7 @@ import Breadcrumb from '../../../Breadcrumb';
 import DataTable from '../../../common/DataTable';
 import DeleteConfirmModal from '../../../common/DeleteConfirmModal/DeleteConfirmModal';
 import { toastController } from "../../../../utils/toastController";
+import { queryKeys } from "../../../../lib/react-query/queryKeys";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -25,24 +27,23 @@ function Waiters() {
   const { adminData } = useAdmin();
   const { outletId } = useParams();
   const navigate = useNavigate();
-  
-  const [waiters, setWaiters] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [waiterToDelete, setWaiterToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
-  const [outletName, setOutletName] = useState('');
 
-  useEffect(() => {
-    if (adminData?.user_id && outletId) {
-      fetchWaiters();
-    }
-  }, [adminData?.user_id, outletId]);
-
-  const fetchWaiters = async () => {
-    try {
+  // Fetch waiters query
+  const {
+    data: waitersResponse,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: queryKeys.waiters.list(outletId),
+    queryFn: async () => {
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/common/waiter_listview`,
         {
@@ -57,36 +58,19 @@ function Waiters() {
           },
         }
       );
+      return response.data;
+    },
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId)
+  });
 
-      setWaiters(response.data.data || []);
-      
-      if (response.data.data && response.data.data.length > 0) {
-        setOutletName(response.data.data[0].outlet_name);
-      }
-      
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching waiters:", error);
-      toastController.error(error.response?.data?.msg || "outlet has no waiter");
-      setIsLoading(false);
-    }
-  };
-
-  const handleViewWaiter = (user_id) => {
-    navigate(`/waiter-details/${outletId}/${user_id}`);
-  };
-
-  const handleEditWaiter = (user_id) => {
-    navigate(`/edit-waiter/${outletId}/${user_id}`);
-  };
-
-  const handleDeleteWaiter = async () => {
-    try {
-      await axios.delete(`${BASE_URL}/${API_VERSION}/common/waiter_delete`, {
+  // Delete waiter mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (userId) => {
+      return axios.delete(`${BASE_URL}/${API_VERSION}/common/waiter_delete`, {
         data: {
           update_user_id: adminData.user_id,
           outlet_id: outletId,
-          user_id: waiterToDelete.toString(),
+          user_id: userId.toString(),
           app_source: "admin_app",
         },
         headers: {
@@ -94,29 +78,97 @@ function Waiters() {
           "Content-Type": "application/json",
         },
       });
-
+    },
+    onSuccess: () => {
       toastController.success("Waiter deleted successfully");
       setShowDeleteModal(false);
       setWaiterToDelete(null);
-      fetchWaiters();
-    } catch (error) {
+      queryClient.invalidateQueries(queryKeys.waiters.list(outletId));
+    },
+    onError: (error) => {
       toastController.error(error.response?.data?.msg || "Failed to delete waiter");
     }
-  };
+  });
 
-  const openDeleteModal = (user_id) => {
-    setWaiterToDelete(user_id);
-    setShowDeleteModal(true);
-  };
+  // Bulk action mutation
+  const bulkActionMutation = useMutation({
+    mutationFn: async ({ action, selectedIds }) => {
+      return axios.post(
+        `${BASE_URL}/${API_VERSION}/common/bulk_waiter_action`,
+        {
+          user_id: adminData.user_id,
+          action: action,
+          app_source: "admin_app",
+          waiter_ids: selectedIds
+        },
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    },
+    onSuccess: (_, variables) => {
+      toastController.success(`Successfully ${variables.action}d selected waiters`);
+      setSelectedItems([]);
+      queryClient.invalidateQueries(queryKeys.waiters.list(outletId));
+    },
+    onError: (error, variables) => {
+      toastController.error(
+        error.response?.data?.detail || 
+        `Failed to perform ${variables.action} action on selected waiters`
+      );
+    }
+  });
 
-  const breadcrumbItems = [
+  // Memoized values
+  const waiters = React.useMemo(() => 
+    waitersResponse?.data || [],
+    [waitersResponse]
+  );
+
+  const outletName = React.useMemo(() => 
+    waiters[0]?.outlet_name || '',
+    [waiters]
+  );
+
+  // Memoized breadcrumb items
+  const breadcrumbItems = React.useMemo(() => [
     { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Waiters' }
-  ];
+  ], [outletName, outletId]);
 
-  const columns = [
+  // Memoized handlers
+  const handleViewWaiter = React.useCallback((user_id) => {
+    navigate(`/waiter-details/${outletId}/${user_id}`);
+  }, [navigate, outletId]);
+
+  const handleEditWaiter = React.useCallback((user_id) => {
+    navigate(`/edit-waiter/${outletId}/${user_id}`);
+  }, [navigate, outletId]);
+
+  const handleDeleteWaiter = React.useCallback(() => {
+    if (waiterToDelete) {
+      deleteMutation.mutate(waiterToDelete);
+    }
+  }, [waiterToDelete, deleteMutation]);
+
+  const handleBulkAction = React.useCallback((action, selectedIds) => {
+    bulkActionMutation.mutate({ action, selectedIds });
+  }, [bulkActionMutation]);
+
+  // Memoized counts
+  const counts = React.useMemo(() => ({
+    total: waiters.length,
+    active: waiters.filter((waiter) => waiter.is_active).length,
+    inactive: waiters.filter((waiter) => !waiter.is_active).length
+  }), [waiters]);
+
+  // Column definition
+  const columns = React.useMemo(() => [
     {
       field: "name",
       header: "Name",
@@ -173,7 +225,10 @@ function Waiters() {
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
           <button
-            onClick={() => openDeleteModal(waiter.user_id)}
+            onClick={() => {
+              setWaiterToDelete(waiter.user_id);
+              setShowDeleteModal(true);
+            }}
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
             title="Delete Waiter"
           >
@@ -182,67 +237,20 @@ function Waiters() {
         </div>
       ),
     },
-  ];
-
-  const getTotalCount = () => waiters.length;
-  const getActiveCount = () => waiters.filter((waiter) => waiter.is_active).length;
-  const getInactiveCount = () => waiters.filter((waiter) => !waiter.is_active).length;
-
-  const handleBulkAction = async (action, selectedIds) => {
-    try {
-      const actionMessages = {
-        active: {
-          loading: "Activating selected waiters...",
-          success: "Successfully activated selected waiters",
-          error: "Failed to activate waiters"
-        },
-        inactive: {
-          loading: "Deactivating selected waiters...",
-          success: "Successfully deactivated selected waiters",
-          error: "Failed to deactivate waiters"
-        },
-        delete: {
-          loading: "Deleting selected waiters...",
-          success: "Successfully deleted selected waiters",
-          error: "Failed to delete waiters"
-        }
-      };
-
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/bulk_waiter_action`,
-          {
-            user_id: adminData.user_id,
-            action: action,
-            app_source: "admin_app",
-            waiter_ids: selectedIds
-          },
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        actionMessages[action]
-      );
-
-      fetchWaiters();
-      setSelectedItems([]);
-      toastController.success(response.data.detail);
-      
-    } catch (error) {
-      toastController.error(
-        error.response?.data?.detail || 
-        `Failed to perform ${action} action on selected waiters`
-      );
-    }
-  };
+  ], [handleViewWaiter, handleEditWaiter]);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-error-500 text-center p-4">
+        {error.response?.data?.msg || "Failed to load waiters"}
       </div>
     );
   }
@@ -268,11 +276,7 @@ function Waiters() {
         onBulkAction={handleBulkAction}
         
         title="Waiters"
-        counts={{
-          total: getTotalCount(),
-          active: getActiveCount(),
-          inactive: getInactiveCount()
-        }}
+        counts={counts}
         showBackButton={true}
         showSearch={true}
         searchPlaceholder="Search waiters..."
@@ -300,6 +304,7 @@ function Waiters() {
           setWaiterToDelete(null);
         }}
         onDelete={handleDeleteWaiter}
+        isLoading={deleteMutation.isPending}
       />
     </>
   );

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { API_CONFIG } from "../../../../config/appConfig";
@@ -12,6 +13,7 @@ import {
 import Breadcrumb from "../../../Breadcrumb";
 import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
+import { queryKeys } from "../../../../lib/react-query/queryKeys";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -20,19 +22,19 @@ function WaiterDetails() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const [loading, setLoading] = useState(true);
-  const [waiterData, setWaiterData] = useState(null);
-  const [error, setError] = useState(null);
+  const queryClient = useQueryClient();
+
+  // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [outletName, setOutletName] = useState('');
 
-  useEffect(() => {
-    fetchWaiterDetails();
-  }, [outletId, userId]);
-
-  const fetchWaiterDetails = async () => {
-    setLoading(true);
-    try {
+  // Fetch waiter details query
+  const {
+    data: waiterResponse,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: queryKeys.waiters.details(outletId, userId),
+    queryFn: async () => {
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/common/waiter_view`,
         {
@@ -47,23 +49,15 @@ function WaiterDetails() {
           },
         }
       );
-      setWaiterData(response.data.data);
-      setOutletName(response.data.data.outlet_name);
-    } catch (err) {
-      setError(err.response?.data?.msg || "Failed to fetch waiter details");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return response.data;
+    },
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId) && Boolean(userId)
+  });
 
-  const handleDelete = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await axios.delete(`${BASE_URL}/${API_VERSION}/common/waiter_delete`, {
+  // Delete waiter mutation
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return axios.delete(`${BASE_URL}/${API_VERSION}/common/waiter_delete`, {
         data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -71,36 +65,51 @@ function WaiterDetails() {
           app_source: "admin_app"
         },
         headers: {
-          Authorization: token,
+          Authorization: getToken(),
           "Content-Type": "application/json"
         },
       });
+    },
+    onSuccess: () => {
       toastController.success("Waiter deleted successfully");
+      queryClient.invalidateQueries(queryKeys.waiters.list(outletId));
       navigate(`/view-outlet/${outletId}`);
-    } catch (err) {
-      toastController.error(err.response?.data?.msg || "Failed to delete waiter");
+    },
+    onError: (error) => {
+      toastController.error(error.response?.data?.msg || "Failed to delete waiter");
     }
-  };
+  });
 
-  const breadcrumbItems = [
+  // Memoized values
+  const waiterData = React.useMemo(() => 
+    waiterResponse?.data || null,
+    [waiterResponse]
+  );
+
+  const outletName = React.useMemo(() => 
+    waiterData?.outlet_name || '',
+    [waiterData]
+  );
+
+  // Memoized breadcrumb items
+  const breadcrumbItems = React.useMemo(() => [
     { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: "Waiters", path: `/waiters/${outletId}` },
     { label: "Waiter Details" }
-  ];
+  ], [outletName, outletId]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin text-brand-500">
-          <FontAwesomeIcon icon={faSpinner} className="w-8 h-8" />
-        </div>
-      </div>
-    );
-  }
+  // Memoized handlers
+  const handleDelete = React.useCallback(() => {
+    deleteMutation.mutate();
+    setShowDeleteModal(false);
+  }, [deleteMutation]);
 
-  const renderWaiterDetails = () => {
+  // Memoized render functions
+  const renderWaiterDetails = React.useCallback(() => {
+    if (!waiterData) return null;
+
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         <div>
@@ -161,9 +170,9 @@ function WaiterDetails() {
         </div>
       </div>
     );
-  };
+  }, [waiterData]);
 
-  const renderFunctionalities = () => {
+  const renderFunctionalities = React.useCallback(() => {
     if (!waiterData?.functionalities?.length) return null;
 
     return (
@@ -181,7 +190,25 @@ function WaiterDetails() {
         </div>
       </div>
     );
-  };
+  }, [waiterData]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin text-brand-500">
+          <FontAwesomeIcon icon={faSpinner} className="w-8 h-8" />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-error-500 text-center p-4">
+        {error.response?.data?.msg || "Failed to fetch waiter details"}
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -224,14 +251,8 @@ function WaiterDetails() {
 
         {/* Content Section */}
         <div className="p-6">
-          {error ? (
-            <div className="text-error-500 text-center">{error}</div>
-          ) : (
-            <>
-              {renderWaiterDetails()}
-              {renderFunctionalities()}
-            </>
-          )}
+          {renderWaiterDetails()}
+          {renderFunctionalities()}
         </div>
       </div>
 
@@ -239,10 +260,8 @@ function WaiterDetails() {
       <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onDelete={() => {
-          handleDelete();
-          setShowDeleteModal(false);
-        }}
+        onDelete={handleDelete}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );
