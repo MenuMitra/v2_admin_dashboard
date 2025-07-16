@@ -117,4 +117,11 @@ export const queryKeys = {
     appUsage: (filters) => [...queryKeys.stats.all, 'app-usage', filters],
     appSources: () => [...queryKeys.stats.all, 'app-sources'],
   },
+
+  categories: {
+    all: ['categories'],
+    list: (outletId) => [...queryKeys.categories.all, 'list', outletId],
+    detail: (id) => [...queryKeys.categories.all, 'detail', id],
+    bulkAction: (outletId) => [...queryKeys.categories.all, 'bulk-action', outletId],
+  },
 }; 
