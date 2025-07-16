@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -9,29 +9,38 @@ import {
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
-import Modal from "../common/Modal";
 import { API_CONFIG } from "../../config/appConfig";
 import { toastController } from "../../utils/toastController";
 import DeleteConfirmModal from '../../components/common/DeleteConfirmModal';
+import { useAdmins } from "../../lib/react-query/hooks/useAdmins";
 
 function Admins() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const navigate = useNavigate();
-  const [admins, setAdmins] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedAdmins, setSelectedAdmins] = useState([]);
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+
+  // Replace axios calls with TanStack Query hook
+  const {
+    admins,
+    isLoading,
+    error,
+    deleteAdmin,
+    isDeleting,
+    deleteError,
+    bulkAction,
+    isBulkActioning,
+    bulkActionError,
+    refetch: reloadfetchAdmins
+  } = useAdmins(getToken());
 
   // Replace single number with array of protected mobile numbers
   const PROTECTED_MOBILES = [
@@ -39,27 +48,14 @@ function Admins() {
     "9767637798",
     "8600704616",
     "8000000000",
-    // Add more numbers here as needed
-    // '1234567890',
-    // '9876543210',
   ];
 
   // Format date helper function
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ];
     const month = months[date.getMonth()];
     const day = date.getDate().toString().padStart(2, "0");
@@ -67,156 +63,56 @@ function Admins() {
     return `${day} ${month} ${year}`;
   };
 
-  // Add this breadcrumb items configuration
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
     { label: "Admins", path: "/admins" },
   ];
 
-  useEffect(() => {
-    fetchAdmins();
-  }, []);
-
-  const fetchAdmins = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/list_admins`,
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data.status === "success") {
-        setAdmins(response.data.data);
-      } else {
-        throw new Error("Failed to fetch admins");
-      }
-    } catch (err) {
-      setError(err.response?.data?.detail || "Failed to fetch admins");
-      console.error("Error fetching admins:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleDeleteAdmin = async () => {
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/delete_admin`,
+      await deleteAdmin(
+        { adminId: adminToDelete, userId: adminData.user_id },
         {
-          admin_id: adminToDelete,
-          user_id: adminData.user_id,
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
+          onSuccess: (data) => {
+            setShowDeleteModal(false);
+            setAdminToDelete(null);
+            toastController.success(data.detail || "Admin deleted successfully");
+          },
+          onError: (err) => {
+            toastController.error(err.response?.data?.detail || "Failed to delete admin");
           },
         }
       );
-
-      if (response.data.detail === "Admin deleted successfully") {
-        setShowDeleteModal(false);
-        setAdminToDelete(null);
-        // Show success toast
-        toastController.success(response.data.detail);
-        // Refresh the admins list
-        await fetchAdmins();
-      } else {
-        throw new Error("Failed to delete admin");
-      }
     } catch (err) {
-      // Show error toast
-      toastController.error(
-        err.response?.data?.detail || "Failed to delete admin"
-      );
       console.error("Error deleting admin:", err);
     }
   };
 
-  // Modify handleBulkAction to remove delete case
   const handleBulkAction = async (action, selectedIds) => {
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const endpoint = `${BASE_URL}/${API_VERSION}/common/bulk_admin_action`;
-
-      // Normalize the payload to match API requirements
-      const payload = {
-        user_ids: selectedIds, // admin_ids -> user_ids
-        action: action, // directly use "active" or "inactive"
-        app_source: "admin_app",
-      };
-
-      const response = await axios.post(endpoint, payload, {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.data.detail) {
-        await fetchAdmins();
-        setSelectedAdmins([]);
-      } else {
-        throw new Error(`Failed to ${action} admins`);
-      }
+      await bulkAction(
+        { userIds: selectedIds, action },
+        {
+          onSuccess: (data) => {
+            setSelectedAdmins([]);
+            toastController.success(data.detail || `Bulk ${action} successful`);
+          },
+          onError: (err) => {
+            toastController.error(err.response?.data?.detail || `Failed to ${action} admins`);
+          },
+        }
+      );
     } catch (err) {
-      setError(err.response?.data?.detail || `Failed to ${action} admins`);
       console.error(`Error performing bulk ${action}:`, err);
     }
   };
 
-  // Add selection change handler
   const handleSelectionChange = (selectedIds) => {
-    // Filter out protected admins from selection
     const filteredSelection = selectedIds.filter((id) => {
       const admin = admins.find((a) => a.user_id === id);
       return admin && !PROTECTED_MOBILES.includes(admin.mobile);
     });
     setSelectedAdmins(filteredSelection);
-  };
-
-  // Add a reload-only fetch function
-  const reloadfetchAdmins = async () => {
-    try {
-      setError(null);
-      const token = getToken();
-      if (!token) return;
-      const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/list_admins`,
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (response.data.status === "success") {
-        setAdmins(response.data.data);
-      }
-    } catch (err) {
-      setError(err.response?.data?.detail || "Failed to fetch admins");
-    }
   };
 
   // Define columns for DataTable
@@ -252,7 +148,6 @@ function Admins() {
       header: "Actions",
       sortable: false,
       render: (_, admin) => {
-        // Check if the admin's mobile number is in the protected list
         if (PROTECTED_MOBILES.includes(admin.mobile)) {
           return (
             <div className="flex items-center justify-center gap-2">
@@ -299,7 +194,6 @@ function Admins() {
     },
   ];
 
-  // Add this helper function before the return statement
   const getFilteredData = () => {
     const filtered = admins.filter((admin) => {
       if (statusFilter === "all") return true;
@@ -310,9 +204,7 @@ function Admins() {
     if (filtered.length === 0) {
       return {
         data: [],
-        message: `No ${
-          statusFilter === "all" ? "" : statusFilter
-        } admins found.`,
+        message: `No ${statusFilter === "all" ? "" : statusFilter} admins found.`,
       };
     }
 
@@ -327,17 +219,13 @@ function Admins() {
     );
   }
 
-  // Calculate counts
-  const activesCount = admins.filter((admin) => admin.is_active).length;
-  const inactivesCount = admins.filter((admin) => !admin.is_active).length;
-
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
 
       {error && (
         <div className="mb-4 p-4 text-theme-sm text-red-500 bg-red-50 rounded-lg">
-          {error}
+          {error.message || "Failed to fetch admins"}
         </div>
       )}
 
