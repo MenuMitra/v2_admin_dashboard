@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,24 +15,27 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import DataTable from "./common/DataTable";
 import Modal from "./common/Modal";
-import { API_CONFIG} from "../config/appConfig";
-import { toastController } from "../utils/toastController";
 import DeleteConfirmModal from './common/DeleteConfirmModal/DeleteConfirmModal';
-
-
-
+import { useOutlets } from "../lib/react-query/hooks/useOutlets";
 
 function Outlets() {
-  const { getToken } = useAuth();
+  const navigate = useNavigate();
   const { adminData } = useAdmin();
-  const [outletData, setOutletData] = useState([]);
-  // Removed error state; errors are now handled by toastController.error
+  const {
+    outlets,
+    isLoading,
+    error,
+    deleteOutlet,
+    isDeleting,
+    bulkAction,
+    isBulkActioning,
+  } = useOutlets();
+
+  // UI State
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState([]);
-  const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [outletToDelete, setOutletToDelete] = useState(null);
-  // Removed unused sortField, setSortField, sortOrder, setSortOrder, sortCount, setSortCount
   const [selectedOutlets, setSelectedOutlets] = useState([]);
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -45,90 +47,11 @@ function Outlets() {
   const [accountType, setAccountType] = useState("all");
   const [openCloseStatus, setOpenCloseStatus] = useState("all");
 
-  const { BASE_URL, API_VERSION } = API_CONFIG;
-
-  // Transform outlet data to match UI structure
-  const transformOutletData = (outlets) => {
-    return outlets.map((outlet) => ({
-      id: outlet.outlet_id,
-      user_id: outlet.outlet_id,
-      name: outlet.outlet_name,
-      code: outlet.outlet_code,
-      mobile: outlet.mobile,
-      status: getOutletStatus(outlet.outlet_status, outlet.is_open),
-      isOpen: outlet.is_open,
-      outletStatus: outlet.outlet_status,
-      image: [{}],
-      accountType: outlet.account_type,
-      ownerCount: outlet.owner_count,
-      total_order_count: outlet.total_order_count,
-      total_cooking_count: outlet.total_cooking_count,
-      total_paid_count: outlet.total_paid_count,
-      total_cancel_count: outlet.total_cancel_count,
-      total_placed_count: outlet.total_placed_count,
-      total_menu: outlet.total_menu,
-      total_category: outlet.total_category,
-    }));
-  };
-
-  // Helper function to determine status
-  const getOutletStatus = (outlet_status, is_open) => {
-    if (outlet_status === 1 && is_open === 1) return "success";
-    if (outlet_status === 1 && is_open === 0) return "pending";
-    return "failed";
-  };
-
-  // Fetch outlets from API
-  const fetchOutlets = async () => {
-    try {
-      // setError removed; handled by toastController.error
-
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
-          {
-            user_id: adminData?.user_id,
-            app_source: "admin_app",
-          },
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        {
-          loading: 'Loading outlets...',
-          success: 'Successfully loaded outlets!',
-          error: 'Failed to load outlets'
-        }
-      );
-
-      if (response.data.detail === "Successfully retrieved outlets") {
-        const transformedData = transformOutletData(response.data.data);
-        setOutletData(transformedData);
-        setFilteredData(transformedData);
-      }
-    } catch (err) {
-      const errorMsg = err.response?.data?.message || "Failed to fetch outlets";
-      // setError removed; handled by toastController.error
-      toastController.error(errorMsg);
-      console.error("Error fetching outlets:", err);
-    }
-  };
-
-  // Call API when component mounts
-  useEffect(() => {
-    if (adminData?.user_id) {
-      fetchOutlets();
-    }
-  }, [adminData?.user_id]);
-
   // Update the filtering logic to handle both search and status filters
   const getFilteredData = () => {
-    if (!outletData.length) return [];
+    if (!outlets.length) return [];
 
-    return outletData.filter((item) => {
+    return outlets.filter((item) => {
       // Status filter
       if (statusFilter !== "all") {
         const isActive = item.outletStatus === 1;
@@ -154,14 +77,13 @@ function Outlets() {
     });
   };
 
-  // Update the useEffect for filtering
+  // Update filtered data when filters or data changes
   useEffect(() => {
     const filtered = getFilteredData();
     setFilteredData(filtered);
-    // setCurrentPage(1); // Reset to first page when filters change
-  }, [searchQuery, statusFilter, accountType, openCloseStatus, outletData]);
+  }, [searchQuery, statusFilter, accountType, openCloseStatus, outlets]);
 
-  // Add this function to handle view button click
+  // Navigation handlers
   const handleViewOutlet = (outletId) => {
     navigate(`/view-outlet/${outletId}`);
   };
@@ -176,43 +98,74 @@ function Outlets() {
   };
 
   const handleDeleteOutlet = async () => {
-    try {
-      const response = await toastController.promise(
-        axios.delete(
-          `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-            data: {
-              outlet_id: outletToDelete.id,
-              user_id: adminData?.user_id,
-            },
-          }
-        ),
-        {
-          loading: 'Deleting outlet...',
-          success: 'Outlet deleted successfully!',
-          error: 'Failed to delete outlet'
-        }
-      );
+    await deleteOutlet(outletToDelete.id);
+    setShowDeleteModal(false);
+    setOutletToDelete(null);
+  };
 
-      if (response.data.detail === "Outlet deleted successfully") {
-        setShowDeleteModal(false);
-        fetchOutlets();
-      }
+  // Add this function to handle bulk actions
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      const { title, message } = getConfirmationDetails(action);
+      setConfirmModal({
+        isOpen: true,
+        action,
+        title,
+        message,
+      });
+      setSelectedOutlets(selectedIds.filter((id) => id !== null));
     } catch (err) {
-      console.error("Error deleting outlet:", err);
+      console.error("Error preparing bulk action:", err);
     }
+  };
+
+  // Add this function to get confirmation details
+  const getConfirmationDetails = (action) => {
+    switch (action) {
+      case "active":
+        return {
+          title: "Confirm Activation",
+          message: `Are you sure you want to activate ${selectedOutlets.length} selected outlet(s)?`,
+        };
+      case "inactive":
+        return {
+          title: "Confirm Deactivation",
+          message: `Are you sure you want to deactivate ${selectedOutlets.length} selected outlet(s)?`,
+        };
+      case "delete":
+        return {
+          title: "Confirm Delete",
+          message: `Are you sure you want to delete ${selectedOutlets.length} selected outlet(s)? This action cannot be undone.`,
+        };
+      default:
+        return { title: "", message: "" };
+    }
+  };
+
+  // Add this function to execute bulk actions
+  const executeBulkAction = async (action) => {
+    const validOutletIds = selectedOutlets.filter(
+      (id) => id !== null && id !== undefined
+    );
+
+    if (validOutletIds.length === 0) {
+      return;
+    }
+
+    await bulkAction({ action, outletIds: validOutletIds });
+    setSelectedOutlets([]);
+    setConfirmModal({
+      isOpen: false,
+      action: null,
+      title: "",
+      message: "",
+    });
   };
 
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
     { label: "Outlets" },
   ];
-
-  // Removed unused getSortedOutlets
 
   // Define columns for DataTable
   const columns = [
@@ -318,12 +271,6 @@ function Outlets() {
       sortable: true,
       render: (value) => (
         <div className="flex items-center justify-center gap-2">
-          {/* <FontAwesomeIcon
-            icon={value === 1 ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value === 1 ? "text-success-500" : "text-error-500"
-            }`}
-          /> */}
           <span
             className={`text-sm font-medium ${
               value === 1 ? "text-success-500" : "text-error-500"
@@ -337,7 +284,7 @@ function Outlets() {
     {
       field: "actions",
       header: "Actions",
-      textAlign: "center", // Add this property
+      textAlign: "center",
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
           <button
@@ -366,108 +313,6 @@ function Outlets() {
     },
   ];
 
-  // Add this function to handle bulk actions
-  const handleBulkAction = async (action, selectedIds) => {
-    try {
-      // Show confirmation modal first
-      const { title, message } = getConfirmationDetails(action);
-      setConfirmModal({
-        isOpen: true,
-        action,
-        title,
-        message,
-      });
-
-      // Store selected IDs for use after confirmation
-      setSelectedOutlets(selectedIds.filter((id) => id !== null));
-    } catch (err) {
-      const errorMsg = err.response?.data?.detail || `Failed to ${action} outlets`;
-      // setError removed; handled by toastController.error
-      toastController.error(errorMsg);
-      console.error("Error performing bulk action:", err);
-    }
-  };
-
-  // Add this function to get confirmation details
-  const getConfirmationDetails = (action) => {
-    switch (action) {
-      case "active":
-        return {
-          title: "Confirm Activation",
-          message: `Are you sure you want to activate ${selectedOutlets.length} selected outlet(s)?`,
-        };
-      case "inactive":
-        return {
-          title: "Confirm Deactivation",
-          message: `Are you sure you want to deactivate ${selectedOutlets.length} selected outlet(s)?`,
-        };
-      case "delete":
-        return {
-          title: "Confirm Delete",
-          message: `Are you sure you want to delete ${selectedOutlets.length} selected outlet(s)? This action cannot be undone.`,
-        };
-      default:
-        return { title: "", message: "" };
-    }
-  };
-
-  // Add this function to execute bulk actions
-  const executeBulkAction = async (action) => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const validOutletIds = selectedOutlets.filter(
-        (id) => id !== null && id !== undefined
-      );
-
-      if (validOutletIds.length === 0) {
-        throw new Error("No valid outlet IDs selected");
-      }
-
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/bulk_outlet_action`,
-          {
-            user_id: adminData.user_id,
-            action: action,
-            app_source: "admin_app",
-            outlet_ids: validOutletIds,
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        {
-          loading: `${action === 'delete' ? 'Deleting' : action === 'active' ? 'Activating' : 'Deactivating'} outlets...`,
-          success: `Successfully ${action === 'delete' ? 'deleted' : action === 'active' ? 'activated' : 'deactivated'} outlets!`,
-          error: `Failed to ${action} outlets`
-        }
-      );
-
-      if (response && response.status === 200) {
-        setSelectedOutlets([]);
-        setConfirmModal({
-          isOpen: false,
-          action: null,
-          title: "",
-          message: "",
-        });
-        await fetchOutlets();
-      }
-    } catch (err) {
-      const errorMsg = err.response?.data?.detail || `Failed to ${action} outlets`;
-      // setError removed; handled by toastController.error
-      toastController.error(errorMsg);
-      console.error("Error performing bulk action:", err);
-    }
-  };
-
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
@@ -477,14 +322,13 @@ function Outlets() {
         columns={columns}
         title="Outlets"
         counts={{
-          total: outletData.length,
-          active: outletData.filter((outlet) => outlet.outletStatus === 1).length,
-          inactive: outletData.filter((outlet) => outlet.outletStatus === 0).length,
+          total: outlets.length,
+          active: outlets.filter((outlet) => outlet.outletStatus === 1).length,
+          inactive: outlets.filter((outlet) => outlet.outletStatus === 0).length,
         }}
         searchTerm={searchQuery}
         onSearchChange={(value) => {
           setSearchQuery(value);
-          // setCurrentPage(1); // Reset page when search changes
         }}
         createButton={{
           show: true,
@@ -511,7 +355,6 @@ function Outlets() {
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
-          // setCurrentPage(1); // Reset page when status filter changes
         }}
         enableAccountTypeFilter={true}
         enableOpenCloseStatusFilter={true}
@@ -520,7 +363,7 @@ function Outlets() {
         openCloseStatus={openCloseStatus}
         onOpenCloseStatusChange={e => setOpenCloseStatus(e.target.value)}
         statusField="outletStatus"
-        onReload={fetchOutlets}
+        onReload={() => queryClient.invalidateQueries(queryKeys.outlets.list())}
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;
           return statusFilter === "active" ? 
@@ -534,6 +377,7 @@ function Outlets() {
             ? `No ${statusFilter} outlets found.`
             : "No outlets available."
         }
+        isLoading={isLoading || isDeleting || isBulkActioning}
       />
 
       {/* Modal for active/inactive actions only */}

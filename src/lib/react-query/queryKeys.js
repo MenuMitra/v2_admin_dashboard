@@ -23,7 +23,7 @@ export const queryKeys = {
     all: ['outlets'],
     list: () => [...queryKeys.outlets.all, 'list'],
     detail: (id) => [...queryKeys.outlets.all, 'detail', id],
-    stats: (id) => [...queryKeys.outlets.all, 'stats', id],
+    bulkAction: () => [...queryKeys.outlets.all, 'bulk-action'],
   },
 
   // Owner related queries
