@@ -40,11 +40,9 @@ export const useSuperOwnerDetails = (superOwnerId) => {
       return response.data;
     },
     enabled: Boolean(superOwnerId && adminData?.user_id),
-    staleTime: 5 * 60 * 1000, // 5 minutes stale time
-    cacheTime: 10 * 60 * 1000, // 10 minutes cache time
-    // Since this is a POST request, we need to be explicit about caching
+    // Let it use the global defaults from queryClient.js
     meta: {
-      cacheStrategy: 'post-cache',
+      cacheStrategy: 'post-cache', // Only add this to handle POST request caching
     }
   });
 

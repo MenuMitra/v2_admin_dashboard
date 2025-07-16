@@ -31,7 +31,6 @@ function SuperOwner() {
     isLoading, 
     error, 
     refetch, 
-    fetchSuperOwnerDetails, 
     deleteMutation 
   } = useSuperOwners();
   
@@ -41,33 +40,8 @@ function SuperOwner() {
   const [ownerToDelete, setOwnerToDelete] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const handleViewDetails = async (superOwnerId) => {
-    // Prefetch the details before navigation
-    await queryClient.prefetchQuery({
-      queryKey: queryKeys.superOwners.detail(superOwnerId),
-      queryFn: async () => {
-        const token = getToken();
-        if (!token) throw new Error("No authentication token available");
-
-        const response = await axios.post(
-          'https://men4u.xyz/v2/admin/view_super_owner',
-          {
-            user_id: adminData.user_id,
-            super_owner_id: parseInt(superOwnerId),
-            app_source: 'admin_app'
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        return response.data;
-      },
-    });
-
-    // Navigate after prefetching
+  const handleViewDetails = (superOwnerId) => {
+    // Simply navigate to the details page
     navigate(`/super-owner-details/${superOwnerId}`);
   };
 
