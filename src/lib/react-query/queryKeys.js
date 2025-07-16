@@ -131,5 +131,11 @@ export const queryKeys = {
     list: (outletId) => [...queryKeys.menus.all, 'list', outletId],
     detail: (outletId, menuId) => [...queryKeys.menus.all, 'detail', outletId, menuId],
     bulk: (outletId) => [...queryKeys.menus.all, 'bulk', outletId],
-  }
+  },
+
+  managers: {
+    all: ['managers'],
+    list: (outletId) => [...queryKeys.managers.all, 'list', outletId],
+    detail: (outletId, userId) => [...queryKeys.managers.all, 'detail', outletId, userId],
+  },
 }; 
