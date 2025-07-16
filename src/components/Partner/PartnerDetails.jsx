@@ -1,8 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAdmin } from '../../hooks/useAdmin';
-import { useAuth } from '../../hooks/useAuth';
-import axios from 'axios';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -12,79 +9,25 @@ import {
   faPenToSquare
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
+import { usePartnerDetails } from '../../lib/react-query/hooks/usePartnerDetails';
 
 function PartnerDetails() { 
   const { partnerId } = useParams();
   const navigate = useNavigate();
-  const { adminData } = useAdmin();
-  const { getToken } = useAuth();
-  const [partner, setPartner] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  useEffect(() => {
-    if (adminData?.user_id && partnerId) {
-      fetchPartnerDetails();
-    }
-  }, [adminData?.user_id, partnerId]);
+  const {
+    partner,
+    isLoading,
+    error,
+    deletePartner,
+    isDeleting
+  } = usePartnerDetails(partnerId);
 
-  const fetchPartnerDetails = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      const response = await axios.post(
-        'https://men4u.xyz/v2/admin/view_partner',
-        {
-          partner_id: Number(partnerId),
-          user_id: adminData.user_id
-        },
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      setPartner(response.data);
-    } catch (err) {
-      setError('Failed to fetch partner details');
-      console.error('Error fetching partner details:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Delete handler using the same API as Partners.jsx
   const handleDelete = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-      await axios.delete('https://men4u.xyz/v2/admin/delete_partner', {
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
-        data: {
-          partner_id: Number(partnerId),
-          user_id: adminData.user_id,
-        },
-      });
-      setIsDeleteModalOpen(false);
-      navigate(-1);
-    } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to delete partner');
-      console.error('Error deleting partner:', err);
-    }
+    await deletePartner();
+    setIsDeleteModalOpen(false);
+    navigate(-1);
   };
 
   if (isLoading) {
@@ -98,7 +41,7 @@ function PartnerDetails() {
   if (error) {
     return (
       <div className="p-4 text-center text-red-500">
-        {error}
+        {error?.message || 'Failed to fetch partner details'}
       </div>
     );
   }
@@ -149,6 +92,7 @@ function PartnerDetails() {
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+                disabled={isDeleting}
               >
                 <svg
                   className="w-4 h-4"
@@ -274,20 +218,6 @@ function PartnerDetails() {
                   </div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Active Status</p>
                 </div>
-
-                {/* <div>
-                  <h4 className="text-xl font-normal text-gray-800 dark:text-white/90">
-                    {partner.is_staff === 1 ? 'Yes' : 'No'}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Staff Status</p>
-                </div> */}
-
-                {/* <div>
-                  <h4 className="text-xl font-normal text-gray-800 dark:text-white/90">
-                    {partner.is_superuser === 1 ? 'Yes' : 'No'}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Superuser Status</p>
-                </div> */}
               </div>
             </div>
 
@@ -351,6 +281,8 @@ function PartnerDetails() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onDelete={handleDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this partner?"
       />
     </>
   );
