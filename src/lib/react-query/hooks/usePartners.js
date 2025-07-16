@@ -1,0 +1,85 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+import { useAuth } from '../../../hooks/useAuth';
+import { useAdmin } from '../../../hooks/useAdmin';
+import { toastController } from '../../../utils/toastController';
+import { queryKeys } from '../queryKeys';
+
+export const usePartners = () => {
+  const { getToken } = useAuth();
+  const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
+
+  // Fetch partners list
+  const {
+    data: partners = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.partners.list(),
+    queryFn: async () => {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.get(
+        `https://men4u.xyz/v2/admin/listview_partner/${adminData.user_id}`,
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      return response.data;
+    },
+    enabled: !!adminData?.user_id,
+  });
+
+  // Delete partner mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (partnerId) => {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      await axios.delete('https://men4u.xyz/v2/admin/delete_partner', {
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
+        data: {
+          partner_id: partnerId,
+          user_id: adminData.user_id,
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(queryKeys.partners.list());
+      toastController.success('Partner deleted successfully');
+    },
+    onError: (err) => {
+      toastController.error(err.response?.data?.detail || 'Failed to delete partner');
+    },
+  });
+
+  // Calculate counts
+  const counts = {
+    total: partners.length,
+    active: partners.filter((partner) => partner.is_active === 1).length,
+    inactive: partners.filter((partner) => partner.is_active === 0).length,
+  };
+
+  return {
+    partners,
+    isLoading,
+    error,
+    refetch,
+    deleteMutation,
+    counts,
+  };
+}; 

@@ -53,4 +53,11 @@ export const queryKeys = {
     list: () => [...queryKeys.superOwners.all, 'list'],
     detail: (id) => [...queryKeys.superOwners.all, 'detail', id],
   },
+
+  // Partner related queries
+  partners: {
+    all: ['partners'],
+    list: () => [...queryKeys.partners.all, 'list'],
+    detail: (id) => [...queryKeys.partners.all, 'detail', id],
+  },
 }; 
