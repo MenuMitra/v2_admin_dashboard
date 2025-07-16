@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
@@ -14,26 +15,26 @@ import Breadcrumb from "../../../Breadcrumb";
 import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
 import { API_CONFIG } from "../../../../config/appConfig";
+import { queryKeys } from "../../../../lib/react-query/queryKeys";
 
 function ManagerDetails() {
   const { outletId, userId } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const [loading, setLoading] = useState(true);
-  const [managerData, setManagerData] = useState(null);
-  const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [outletName, setOutletName] = useState('');
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
-  useEffect(() => {
-    fetchManagerDetails();
-  }, [outletId, userId]);
-
-  const fetchManagerDetails = async () => {
-    setLoading(true);
-    try {
+  // Fetch manager details query
+  const {
+    data: response,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: queryKeys.managers.detail(outletId, userId),
+    queryFn: async () => {
+      const token = getToken();
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/common/manager_view`,
         {
@@ -44,27 +45,20 @@ function ManagerDetails() {
         },
         {
           headers: {
-            Authorization: getToken(),
+            Authorization: token,
           },
         }
       );
-      setManagerData(response.data.detail);
-      setOutletName(response.data.detail.outlet_name);
-    } catch (err) {
-      setError(err.response?.data?.msg || "Failed to fetch manager details");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return response.data;
+    },
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId) && Boolean(userId)
+  });
 
-  const handleDelete = async () => {
-    try {
+  // Delete manager mutation
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
       const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await axios.delete(`${BASE_URL}/${API_VERSION}/common/manager_delete`, {
+      return axios.delete(`${BASE_URL}/${API_VERSION}/common/manager_delete`, {
         data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -76,22 +70,36 @@ function ManagerDetails() {
           "Content-Type": "application/json"
         },
       });
+    },
+    onSuccess: () => {
       toastController.success("Manager deleted successfully");
+      queryClient.invalidateQueries(queryKeys.managers.all);
       navigate(`/view-outlet/${outletId}`);
-    } catch (err) {
-      toastController.error(err.response?.data?.msg || "Failed to delete manager");
+    },
+    onError: (error) => {
+      toastController.error(error.response?.data?.msg || "Failed to delete manager");
     }
-  };
+  });
 
-  const breadcrumbItems = [
+  // Memoized values
+  const managerData = React.useMemo(() => response?.detail || null, [response]);
+  const outletName = React.useMemo(() => managerData?.outlet_name || '', [managerData]);
+
+  // Memoized breadcrumb items
+  const breadcrumbItems = React.useMemo(() => [
     { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
     { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: "Managers", path: `/managers/${outletId}` },
     { label: "Manager Details" }
-  ];
+  ], [outletName, outletId]);
 
-  if (loading) {
+  // Memoized handlers
+  const handleDelete = React.useCallback(() => {
+    deleteMutation.mutate();
+  }, [deleteMutation]);
+
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin text-brand-500">
@@ -226,7 +234,9 @@ function ManagerDetails() {
         {/* Content Section */}
         <div className="p-6">
           {error ? (
-            <div className="text-error-500 text-center">{error}</div>
+            <div className="text-error-500 text-center">
+              {error.response?.data?.msg || "Failed to fetch manager details"}
+            </div>
           ) : (
             <>
               {renderManagerDetails()}
@@ -241,6 +251,7 @@ function ManagerDetails() {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onDelete={handleDelete}
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );
