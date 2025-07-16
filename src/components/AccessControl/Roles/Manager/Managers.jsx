@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -24,30 +25,27 @@ function Managers() {
   const { outletId } = useParams();
   const navigate = useNavigate();
   const { BASE_URL, API_VERSION } = API_CONFIG;
-  
-  const [managers, setManagers] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+
+  // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [managerToDelete, setManagerToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
-  const [outletName, setOutletName] = useState('');
 
-  useEffect(() => {
-    if (adminData?.user_id && outletId) {
-      fetchManagers();
-    }
-  }, [adminData?.user_id, outletId]);
-
-  const fetchManagers = async () => {
-    try {
+  // Query: Fetch managers
+  const {
+    data: managerResponse,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: ["managers", outletId, adminData?.user_id],
+    queryFn: async () => {
       const token = getToken();
       if (!token) {
-        toastController.error("No authentication token available");
-        return;
+        throw new Error("No authentication token available");
       }
-
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/common/manager_listview`,
         {
@@ -61,37 +59,23 @@ function Managers() {
           },
         }
       );
+      return response.data.detail || [];
+    },
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId)
+  });
 
-      setManagers(response.data.detail || []);
-      
-      if (response.data.detail && response.data.detail.length > 0) {
-        setOutletName(response.data.detail[0].outlet_name);
-      }
-      
-    } catch (err) {
-      toastController.error(err.response?.data?.msg || "outlet has no manager");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Memoize managers and outletName
+  const managers = React.useMemo(() => managerResponse || [], [managerResponse]);
+  const outletName = React.useMemo(() => managers[0]?.outlet_name || '', [managers]);
 
-  const handleViewManager = (user_id) => {
-    navigate(`/manager-details/${outletId}/${user_id}`);
-  };
-
-  const handleEditManager = (user_id) => {
-    navigate(`/edit-manager/${outletId}/${user_id}`);
-  };
-
-  const handleDeleteManager = async () => {
-    try {
+  // Delete manager mutation
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
       const token = getToken();
       if (!token) {
-        toastController.error("No authentication token available");
-        return;
+        throw new Error("No authentication token available");
       }
-
-      await axios.delete(`${BASE_URL}/${API_VERSION}/common/manager_delete`, {
+      return axios.delete(`${BASE_URL}/${API_VERSION}/common/manager_delete`, {
         data: {
           update_user_id: adminData.user_id,
           outlet_id: outletId,
@@ -102,29 +86,87 @@ function Managers() {
           "Content-Type": "application/json",
         },
       });
-
+    },
+    onSuccess: () => {
       toastController.success("Manager deleted successfully");
       setShowDeleteModal(false);
       setManagerToDelete(null);
-      fetchManagers();
-    } catch (err) {
+      queryClient.invalidateQueries(["managers", outletId, adminData?.user_id]);
+    },
+    onError: (err) => {
       toastController.error(err.response?.data?.msg || "Failed to delete manager");
     }
-  };
+  });
 
-  const openDeleteModal = (user_id) => {
+  // Bulk action mutation
+  const bulkActionMutation = useMutation({
+    mutationFn: async ({ action, selectedIds }) => {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+      return axios.post(
+        `${BASE_URL}/${API_VERSION}/common/bulk_manager_action`,
+        {
+          user_id: adminData.user_id,
+          action: action,
+          app_source: "admin_app",
+          manager_ids: selectedIds
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    },
+    onSuccess: (_, { action }) => {
+      const actionMessages = {
+        active: "Successfully activated selected managers",
+        inactive: "Successfully deactivated selected managers",
+        delete: "Successfully deleted selected managers"
+      };
+      toastController.success(actionMessages[action] || "Bulk action completed");
+      queryClient.invalidateQueries(["managers", outletId, adminData?.user_id]);
+      setSelectedItems([]);
+    },
+    onError: (err, { action }) => {
+      const actionMessages = {
+        active: "Failed to activate managers",
+        inactive: "Failed to deactivate managers",
+        delete: "Failed to delete managers"
+      };
+      toastController.error(
+        err.response?.data?.detail || actionMessages[action] || "Failed to perform bulk action"
+      );
+    }
+  });
+
+  // Handlers
+  const handleViewManager = React.useCallback((user_id) => {
+    navigate(`/manager-details/${outletId}/${user_id}`);
+  }, [navigate, outletId]);
+
+  const handleEditManager = React.useCallback((user_id) => {
+    navigate(`/edit-manager/${outletId}/${user_id}`);
+  }, [navigate, outletId]);
+
+  const openDeleteModal = React.useCallback((user_id) => {
     setManagerToDelete(user_id);
     setShowDeleteModal(true);
-  };
+  }, []);
 
-  const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: 'Managers' }
-  ];
+  const handleDeleteManager = React.useCallback(() => {
+    deleteMutation.mutate();
+  }, [deleteMutation]);
 
-  const columns = [
+  const handleBulkAction = React.useCallback((action, selectedIds) => {
+    bulkActionMutation.mutate({ action, selectedIds });
+  }, [bulkActionMutation]);
+
+  // DataTable columns
+  const columns = React.useMemo(() => [
     {
       field: "name",
       header: "Name",
@@ -190,72 +232,32 @@ function Managers() {
         </div>
       ),
     },
-  ];
+  ], [handleViewManager, handleEditManager, openDeleteModal]);
 
-  const getTotalCount = () => managers.length;
-  const getActiveCount = () => managers.filter((manager) => manager.is_active).length;
-  const getInactiveCount = () => managers.filter((manager) => !manager.is_active).length;
+  // Counts
+  const getTotalCount = React.useCallback(() => managers.length, [managers]);
+  const getActiveCount = React.useCallback(() => managers.filter((manager) => manager.is_active).length, [managers]);
+  const getInactiveCount = React.useCallback(() => managers.filter((manager) => !manager.is_active).length, [managers]);
 
-  const handleBulkAction = async (action, selectedIds) => {
-    try {
-      const token = getToken();
-      if (!token) {
-        toastController.error("No authentication token available");
-        return;
-      }
-
-      const actionMessages = {
-        active: {
-          loading: "Activating selected managers...",
-          success: "Successfully activated selected managers",
-          error: "Failed to activate managers"
-        },
-        inactive: {
-          loading: "Deactivating selected managers...",
-          success: "Successfully deactivated selected managers",
-          error: "Failed to deactivate managers"
-        },
-        delete: {
-          loading: "Deleting selected managers...",
-          success: "Successfully deleted selected managers",
-          error: "Failed to delete managers"
-        }
-      };
-
-      await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/bulk_manager_action`,
-          {
-            user_id: adminData.user_id,
-            action: action,
-            app_source: "admin_app",
-            manager_ids: selectedIds
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        actionMessages[action]
-      );
-
-      await fetchManagers();
-      setSelectedItems([]);
-      
-    } catch (err) {
-      toastController.error(
-        err.response?.data?.detail || 
-        `Failed to perform ${action} action on selected managers`
-      );
-    }
-  };
+  const breadcrumbItems = React.useMemo(() => [
+    { label: 'Home', path: '/home' },
+    { label: 'Outlets', path: '/outlets' },
+    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: 'Managers' }
+  ], [outletName, outletId]);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-error-500 text-center p-4">
+        {error.response?.data?.msg || "Failed to load managers"}
       </div>
     );
   }
@@ -274,12 +276,10 @@ function Managers() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         darkMode={true}
-        
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
-        
         title="Managers"
         counts={{
           total: getTotalCount(),
@@ -300,12 +300,10 @@ function Managers() {
           className: "bg-success-500 hover:bg-success-600",
           position: "right"
         }}
-        
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
       />
-
       <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
@@ -313,6 +311,7 @@ function Managers() {
           setManagerToDelete(null);
         }}
         onDelete={handleDeleteManager}
+        isLoading={deleteMutation.isPending}
       />
     </>
   );
