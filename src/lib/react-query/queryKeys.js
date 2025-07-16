@@ -93,4 +93,11 @@ export const queryKeys = {
     list: () => [...queryKeys.tickets.all, 'list'],
     detail: (id) => [...queryKeys.tickets.all, 'detail', id],
   },
+
+  notifications: {
+    all: ['notifications'],
+    list: () => [...queryKeys.notifications.all, 'list'],
+    detail: (id) => [...queryKeys.notifications.all, 'detail', id],
+    roles: (outletId) => [...queryKeys.notifications.all, 'roles', outletId],
+  },
 }; 
