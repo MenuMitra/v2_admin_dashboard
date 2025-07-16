@@ -13,10 +13,18 @@ import Breadcrumb from '../Breadcrumb';
 import DataTable from '../common/DataTable';
 import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
 import { useSuperOwners } from '../../lib/react-query/hooks/useSuperOwners';
+import { toastController } from '../../utils/toastController';
 
 function SuperOwner() {
   const navigate = useNavigate();
-  const { superOwners, isLoading, error, refetch, useOwnerDetails, deleteMutation } = useSuperOwners();
+  const { 
+    superOwners, 
+    isLoading, 
+    error, 
+    refetch, 
+    fetchSuperOwnerDetails, 
+    deleteMutation 
+  } = useSuperOwners();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItems, setSelectedItems] = useState([]);
@@ -26,20 +34,21 @@ function SuperOwner() {
 
   const handleViewDetails = async (superOwnerId) => {
     try {
-      const { data } = useOwnerDetails(superOwnerId);
+      const data = await fetchSuperOwnerDetails(superOwnerId);
       if (data) {
         navigate(`/super-owner-details/${superOwnerId}`, { 
           state: { 
-            superOwnerData: data.superOwnerData,
-            assignedOutlets: data.assignedOutlets,
-            assignedFunctionalities: data.assignedFunctionalities,
-            totalOutlets: data.totalOutlets,
-            totalFunctionalities: data.totalFunctionalities
+            superOwnerData: data.super_owner,
+            assignedOutlets: data.assigned_outlets,
+            assignedFunctionalities: data.assigned_functionalities,
+            totalOutlets: data.total_outlets,
+            totalFunctionalities: data.total_functionalities
           } 
         });
       }
     } catch (err) {
       console.error('Error fetching super owner details:', err);
+      toastController.error('Failed to fetch super owner details');
     }
   };
 
