@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
@@ -14,6 +15,7 @@ import {
   faLink,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { queryKeys } from '../lib/react-query/queryKeys';
 import Breadcrumb from "./Breadcrumb";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import Modal from "./common/Modal";
@@ -33,150 +35,122 @@ function ViewOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { outletId } = useParams();
-  const [outletData, setOutletData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+
+  // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const { BASE_URL, API_VERSION } = API_CONFIG;
-
-  const fetchOutletDetails = async () => {
-    try {
-      setLoading(true);
-
-      const response = await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/view_outlet`,
-          {
-            outlet_id: outletId,
-            user_id: adminData?.user_id,
-            app_source: "admin_app",
-          },
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-          }
-        ),
+  // Fetch outlet details query
+  const {
+    data: outletResponse,
+    isLoading,
+    error
+  } = useQuery({
+    queryKey: queryKeys.outlets.detail(outletId),
+    queryFn: async () => {
+      const response = await axios.post(
+        `${BASE_URL}/${API_VERSION}/common/view_outlet`,
         {
-          loading: "Loading outlet details...",
-          success: "Outlet details loaded successfully!",
-          error: "Failed to load outlet details",
-        }
-      );
-
-      if (response.data.detail === "Successfully retrieved outlet details") {
-        setOutletData(response.data.data);
-      }
-    } catch (err) {
-      console.error("Error fetching outlet details:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (adminData?.user_id && outletId) {
-      fetchOutletDetails();
-    }
-  }, [adminData?.user_id, outletId]);
-
-  // Add breadcrumb items
-  const breadcrumbItems = [
-    { label: "Home", path: "/Home" },
-    { label: "Outlets", path: "/outlets" },
-    { label: outletData?.name || "View Outlet" },
-  ];
-
-  // Add these handler functions
-  const handleEdit = () => {
-    navigate(`/edit-outlet/${outletId}`);
-  };
-
-  const handleDelete = async () => {
-    setShowDeleteModal(true);
-  };
-
-  const confirmDelete = async () => {
-    try {
-      setLoading(true);
-      await toastController.promise(
-        axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_outlet`, {
+          outlet_id: outletId,
+          user_id: adminData?.user_id,
+          app_source: "admin_app",
+        },
+        {
           headers: {
             Authorization: getToken(),
             "Content-Type": "application/json",
           },
-          data: {
-            outlet_id: outletId,
-            user_id: adminData?.user_id,
-          },
-        }),
-        {
-          loading: "Deleting outlet...",
-          success: "Outlet deleted successfully!",
-          error: "Failed to delete outlet",
         }
       );
+      return response.data;
+    },
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId),
+    staleTime: 30000, // Data considered fresh for 30 seconds
+    cacheTime: 300000, // Cache kept for 5 minutes
+  });
 
+  // Memoize the outlet data to prevent unnecessary re-renders
+  const outletData = React.useMemo(() => 
+    outletResponse?.data || null,
+    [outletResponse]
+  );
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_outlet`, {
+        headers: {
+          Authorization: getToken(),
+          "Content-Type": "application/json",
+        },
+        data: {
+          outlet_id: outletId,
+          user_id: adminData?.user_id,
+        },
+      });
+    },
+    onSuccess: () => {
       setShowDeleteModal(false);
+      queryClient.invalidateQueries(queryKeys.outlets.all);
       navigate("/outlets");
-    } catch (err) {
-      console.error("Error deleting outlet:", err);
-    } finally {
-      setLoading(false);
+    },
+    onError: (error) => {
+      toastController.error(error.response?.data?.message || "Failed to delete outlet");
     }
-  };
+  });
 
-  const handleOwnerClick = (ownerId) => {
-    navigate(`/owner-details/${ownerId}`);
-  };
-
-  const handleBulkUpload = async () => {
-    try {
-      if (!selectedFile) {
-        toastController.error("Please select a file to upload");
-        return;
-      }
-
-      setLoading(true);
-      const formData = new FormData();
-      formData.append("outlet_id", outletId);
-      formData.append("user_id", adminData?.user_id);
-      formData.append("app_source", "admin_app");
-      formData.append("file", selectedFile);
-
-      await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/bulk_upload_file`,
-          formData,
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        ),
+  // Bulk upload mutation
+  const bulkUploadMutation = useMutation({
+    mutationFn: async (formData) => {
+      return axios.post(
+        `${BASE_URL}/${API_VERSION}/common/bulk_upload_file`,
+        formData,
         {
-          loading: "Uploading menu data...",
-          success: "Menu data uploaded successfully!",
-          error: "Failed to upload menu data",
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
-
+    },
+    onSuccess: () => {
       setShowBulkUploadModal(false);
       setSelectedFile(null);
-      fetchOutletDetails();
-    } catch (err) {
-      console.error("Error uploading file:", err);
-    } finally {
-      setLoading(false);
+      queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
+      toastController.success("Menu data uploaded successfully!");
+    },
+    onError: (error) => {
+      toastController.error(error.response?.data?.message || "Failed to upload menu data");
     }
+  });
+
+  // Handlers
+  const handleDelete = () => setShowDeleteModal(true);
+  const confirmDelete = () => deleteMutation.mutate();
+  const handleEdit = () => navigate(`/edit-outlet/${outletId}`);
+  const handleOwnerClick = (ownerId) => navigate(`/owner-details/${ownerId}`);
+
+  const handleBulkUpload = () => {
+    if (!selectedFile) {
+      toastController.error("Please select a file to upload");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("outlet_id", outletId);
+    formData.append("user_id", adminData?.user_id);
+    formData.append("app_source", "admin_app");
+    formData.append("file", selectedFile);
+
+    bulkUploadMutation.mutate(formData);
   };
 
+  // Rest of the handlers remain the same
   const handleDownloadTemplate = async () => {
     setIsDownloading(true);
     try {
@@ -207,6 +181,30 @@ function ViewOutlet() {
     }
   };
 
+  // Memoize breadcrumb items
+  const breadcrumbItems = React.useMemo(() => [
+    { label: "Home", path: "/Home" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletData?.name || "View Outlet" },
+  ], [outletData?.name]);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-error-500 text-center p-4">
+        {error.response?.data?.message || "Failed to load outlet details"}
+      </div>
+    );
+  }
+
+  // Rest of your JSX remains the same, just use the loading states from mutations where needed
   return (
     <>
       {/* Breadcrumb - Moved outside the card */}
@@ -960,7 +958,8 @@ function ViewOutlet() {
         onClose={() => setShowDeleteModal(false)}
         onDelete={confirmDelete}
         title="Confirm Delete"
-        message="Are you sure ?"
+        message="Are you sure you want to delete this outlet?"
+        isLoading={deleteMutation.isPending}
       />
 
       {/* Bulk Upload Modal */}
@@ -981,24 +980,24 @@ function ViewOutlet() {
                 setSelectedFile(null);
               }}
               className="inline-flex items-center gap-2 rounded-full border border-gray-300 text-black px-6 py-3 text-sm font-semibold transition hover:bg-gray-600"
-              disabled={loading}
+              disabled={bulkUploadMutation.isPending}
             >
               Cancel
             </button>
             <button
               onClick={handleBulkUpload}
-              disabled={!selectedFile || loading}
+              disabled={!selectedFile || bulkUploadMutation.isPending}
               className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition ${
-                selectedFile && !loading
+                selectedFile && !bulkUploadMutation.isPending
                   ? "bg-success-500 hover:bg-success-600"
                   : "bg-success-500 opacity-50 cursor-not-allowed"
               }`}
             >
               <FontAwesomeIcon
-                icon={loading ? faSpinner : faUpload}
-                className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                icon={bulkUploadMutation.isPending ? faSpinner : faUpload}
+                className={`w-4 h-4 ${bulkUploadMutation.isPending ? "animate-spin" : ""}`}
               />
-              {loading ? "Uploading..." : "Upload"}
+              {bulkUploadMutation.isPending ? "Uploading..." : "Upload"}
             </button>
           </div>
         }

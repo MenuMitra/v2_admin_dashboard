@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,16 +14,13 @@ import {
 import Breadcrumb from './Breadcrumb';
 import TablesViewHeader from './common/TablesViewHeader';
 import DataTable from './common/DataTable';
-import Modal from './common/Modal';
 import DeleteConfirmModal from './common/DeleteConfirmModal/DeleteConfirmModal';
-import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
+import { useOwners } from "../lib/react-query/hooks/useOwners";
 
 function Owners() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const [owners, setOwners] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState(null);
@@ -33,45 +29,19 @@ function Owners() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const { BASE_URL, API_VERSION } = API_CONFIG;
-
-  useEffect(() => {
-    if (adminData?.user_id) {
-      fetchOwners();
-    }
-  }, [adminData?.user_id]);
-
-  const fetchOwners = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await toastController.promise(
-        axios.get(
-          `${BASE_URL}/${API_VERSION}/common/listview_owner/${adminData.user_id}`,
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
-        {
-          loading: 'Loading owners...',
-          success: 'Owners loaded successfully!',
-          error: 'Failed to load owners'
-        }
-      );
-
-      setOwners(response.data);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching owners:", error);
-      setIsLoading(false);
-    }
-  };
+  // Replace axios calls with TanStack Query hook
+  const {
+    owners,
+    isLoading,
+    error,
+    deleteOwner,
+    isDeleting,
+    deleteError,
+    bulkAction,
+    isBulkActioning,
+    bulkActionError,
+    refetch: fetchOwners
+  } = useOwners(getToken(), adminData?.user_id);
 
   const handleViewOwner = (owner_id) => {
     navigate(`/owner-details/${owner_id}`);
@@ -83,32 +53,19 @@ function Owners() {
 
   const handleDeleteOwner = async () => {
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await toastController.promise(
-        axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_owner`, {
-          data: {
-            owner_id: ownerToDelete,
-            user_id: adminData.user_id,
-          },
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }),
+      await deleteOwner(
+        { ownerId: ownerToDelete, userId: adminData.user_id },
         {
-          loading: 'Deleting owner...',
-          success: 'Owner deleted successfully!',
-          error: 'Failed to delete owner'
+          onSuccess: () => {
+            setShowDeleteModal(false);
+            setOwnerToDelete(null);
+            toastController.success('Owner deleted successfully!');
+          },
+          onError: (err) => {
+            toastController.error(err.response?.data?.detail || 'Failed to delete owner');
+          },
         }
       );
-
-      setShowDeleteModal(false);
-      setOwnerToDelete(null);
-      fetchOwners();
     } catch (error) {
       console.error("Error deleting owner:", error);
     }
@@ -141,7 +98,6 @@ function Owners() {
         </p>
       ),
     },
-    
     {
       field: "mobile",
       header: "Mobile",
@@ -224,36 +180,18 @@ function Owners() {
 
   const handleBulkAction = async (action, selectedIds) => {
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/bulk_owner_action`,
-          {
-            user_id: adminData.user_id,
-            action: action,
-            app_source: "admin_app",
-            owner_ids: selectedIds
-          },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
+      await bulkAction(
+        { userIds: selectedIds, action, userId: adminData.user_id },
         {
-          loading: 'Processing bulk action...',
-          success: 'Bulk action completed successfully!',
-          error: 'Failed to process bulk action'
+          onSuccess: () => {
+            setSelectedItems([]);
+            toastController.success('Bulk action completed successfully!');
+          },
+          onError: (err) => {
+            toastController.error(err.response?.data?.detail || 'Failed to process bulk action');
+          },
         }
       );
-
-      setSelectedItems([]);
-      fetchOwners();
     } catch (error) {
       console.error("Error performing bulk action:", error);
     }
@@ -261,8 +199,18 @@ function Owners() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify- min-h-screen">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-error-500">
+          {error.message || 'Failed to load owners'}
+        </div>
       </div>
     );
   }
@@ -313,7 +261,6 @@ function Owners() {
         }}
         
         // Add status filter props
-      
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {

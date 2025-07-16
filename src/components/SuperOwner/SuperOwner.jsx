@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faPlus,
@@ -14,123 +12,37 @@ import {
 import Breadcrumb from '../Breadcrumb';
 import DataTable from '../common/DataTable';
 import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
+import { useSuperOwners } from '../../lib/react-query/hooks/useSuperOwners';
+import { toastController } from '../../utils/toastController';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../../lib/react-query/queryKeys';
+import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
+import axios from 'axios';
 
 function SuperOwner() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const navigate = useNavigate();
-  const [superOwners, setSuperOwners] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  
+  const { 
+    superOwners, 
+    isLoading, 
+    error, 
+    refetch, 
+    deleteMutation 
+  } = useSuperOwners();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItems, setSelectedItems] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState(null);
-  // Removed confirmModal state as it's not used for single delete
   const [statusFilter, setStatusFilter] = useState('all');
 
-  useEffect(() => {
-    fetchSuperOwners();
-  }, []);
-
-  // ---------------------------------------------------------------------------
-  // Data normalisation for the generic <DataTable/>
-  //
-  // • The reusable DataTable component identifies (and therefore selects /
-  //   toggles) each row by the value of a property named `user_id`.
-  //
-  // • The "listview_super_owner" API, however, returns the primary key for each
-  //   record as `super_owner_id`.
-  //
-  // • If we pass the raw API response directly to DataTable the `user_id`
-  //   field is missing, so every row appears to have the same identifier
-  //   (undefined).  When you tick any checkbox the table thinks you are
-  //   selecting the same row repeatedly and ends up toggling ALL rows at once.
-  //
-  // • To avoid changing the DataTable (or every other screen that already uses
-  //   it) we add a tiny mapping layer here: for every super-owner record we
-  //   copy its `super_owner_id` into a new `user_id` property.  The original
-  //   `super_owner_id` remains intact for view / edit / delete handlers.
-  // ---------------------------------------------------------------------------
-  const normaliseData = (owners) =>
-    owners.map((owner) => ({
-      ...owner,
-      user_id: owner.super_owner_id,   // Add user_id for DataTable selection
-    }));
-
-  // Fetch super owners list from API
-  const fetchSuperOwners = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      // Call the super owner list API
-      const response = await axios.post(
-        'https://men4u.xyz/v2/admin/listview_super_owner',
-        { 
-          app_source: 'admin_app'  // Required by API
-        },
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      // Process response and update state
-      if (response.data?.super_owners) {
-        // Normalize data to add user_id before setting state
-        setSuperOwners(normaliseData(response.data.super_owners));
-      }
-    } catch (error) {
-      console.error('Error fetching super owners:', error);
-      setError('Failed to fetch super owners list');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleViewDetails = async (superOwnerId) => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      const response = await axios.post(
-        'https://men4u.xyz/v2/admin/view_super_owner',
-        {
-          user_id: adminData?.user_id,
-          super_owner_id: superOwnerId,
-          app_source: 'admin_app'
-        },
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      if (response.data?.super_owner) {
-        navigate(`/super-owner-details/${superOwnerId}`, { 
-          state: { 
-            superOwnerData: response.data.super_owner,
-            assignedOutlets: response.data.assigned_outlets,
-            assignedFunctionalities: response.data.assigned_functionalities,
-            totalOutlets: response.data.total_outlets,
-            totalFunctionalities: response.data.total_functionalities
-          } 
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching super owner details:', error);
-      setError('Failed to fetch super owner details');
-    }
+  const handleViewDetails = (superOwnerId) => {
+    // Simply navigate to the details page
+    navigate(`/super-owner-details/${superOwnerId}`);
   };
 
   const handleEditOwner = (superOwnerId) => {
@@ -144,33 +56,15 @@ function SuperOwner() {
 
   const handleDeleteOwner = async () => {
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      await axios.delete('https://men4u.xyz/v2/admin/delete_super_owner', {
-        data: {
-          super_owner_id: ownerToDelete,
-          app_source: 'admin_app',
-          user_id: adminData?.user_id
-        },
-        headers: {
-          Authorization: token,
-          'Content-Type': 'application/json',
-        },
-      });
-
+      await deleteMutation.mutateAsync(ownerToDelete);
       setShowDeleteModal(false);
       setOwnerToDelete(null);
-      fetchSuperOwners(); // Refresh the list
-    } catch (error) {
-      console.error('Error deleting super owner:', error);
-      setError('Failed to delete super owner');
+    } catch (err) {
+      // Error handling is done in the mutation
+      setShowDeleteModal(false);
+      setOwnerToDelete(null);
     }
   };
-
-  // handleBulkAction can be left as is if used by DataTable, but confirmModal logic is removed
 
   const breadcrumbItems = [
     { label: 'Home', path: '/home' },
@@ -276,9 +170,8 @@ function SuperOwner() {
   ];
 
   const getTotalCount = () => superOwners.length;
-  // Removed getActiveCount and getInactiveCount as they are not used in the DataTable counts
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
@@ -307,12 +200,11 @@ function SuperOwner() {
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
-        onBulkAction={() => {}} // Removed bulk action as it's not used
+        onBulkAction={() => {}}
         
         title="Super Owners"
         counts={{
           total: getTotalCount(),
-          // Removed active and inactive counts from DataTable
         }}
         showBackButton={true}
         showSearch={true}
@@ -326,13 +218,13 @@ function SuperOwner() {
           className: "bg-success-500 hover:bg-success-600",
           position: "right"
         }}
-        error={error}
+        error={error?.message}
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
         }}
-        onReload={fetchSuperOwners}
+        onReload={refetch}
       />
 
       <DeleteConfirmModal 

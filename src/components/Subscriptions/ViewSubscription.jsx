@@ -1,22 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../../hooks/useAuth';
-import { useAdmin } from '../../hooks/useAdmin';
-import { toastController } from '../../utils/toastController';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";  
 import Breadcrumb from '../Breadcrumb';
 import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
+import { useSubscriptionDetails } from '../../lib/react-query/hooks/useSubscriptionDetails';
 
 function ViewSubscription() {
-  const [subscription, setSubscription] = useState(null);
-  const [loading, setLoading] = useState(true);
   const { subscriptionId } = useParams();
-  const { getToken } = useAuth();
-  const { adminData } = useAdmin();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const {
+    subscription,
+    isLoading,
+    error,
+    deleteSubscription,
+    isDeleting
+  } = useSubscriptionDetails(subscriptionId);
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
@@ -25,89 +26,26 @@ function ViewSubscription() {
     { label: "Subscription Details", path: `/view-subscription/${subscriptionId}` },
   ];
 
-  useEffect(() => {
-    let isSubscribed = true;
-
-    const fetchSubscription = async () => {
-      try {
-        const response = await toastController.promise(
-          axios.post(
-            'https://men4u.xyz/v2/admin/view_subscription',
-            {
-              subscription_id: Number(subscriptionId),
-              user_id: adminData?.user_id,
-              app_source: 'admin_app'
-            },
-            {
-              headers: {
-                Authorization: getToken()
-              }
-            }
-          ),
-          {
-            loading: 'Loading subscription details...',
-            success: 'Subscription details loaded successfully!',
-            error: 'Failed to load subscription details'
-          }
-        );
-        if (isSubscribed) {
-          setSubscription(response.data.data);
-          setLoading(false);
-        }
-      } catch (error) {
-        if (isSubscribed) {
-          toastController.error(error.response?.data?.detail || 'Failed to fetch subscription details');
-          setLoading(false);
-        }
-      }
-    };
-
-    if (adminData?.user_id && subscriptionId) {
-      fetchSubscription();
-    }
-
-    return () => {
-      isSubscribed = false;
-    };
-  }, [subscriptionId]);
-
-  // Delete handler using the same API as Subscriptions.jsx
   const handleDelete = async () => {
-    try {
-      const response = await toastController.promise(
-        axios.post(
-          'https://men4u.xyz/v2/admin/delete_subscription',
-          {
-            subscription_id: Number(subscriptionId),
-            user_id: adminData.user_id,
-            app_source: 'admin_app',
-          },
-          {
-            headers: {
-              Authorization: getToken(),
-            },
-          }
-        ),
-        {
-          loading: 'Deleting subscription...',
-          success: 'Subscription deleted successfully!',
-          error: 'Failed to delete subscription',
-        }
-      );
-      if (response.data.detail === 'Subscription deleted successfully') {
-        setIsDeleteModalOpen(false);
-        navigate(-1);
-      }
-    } catch (error) {
-      toastController.error(error.response?.data?.detail || 'Failed to delete subscription');
-      console.error('Error deleting subscription:', error);
-    }
+    await deleteSubscription();
+    setIsDeleteModalOpen(false);
+    navigate(-1);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-lg text-gray-600 dark:text-gray-400">
+          {error.message || 'Failed to fetch subscription details'}
+        </div>
       </div>
     );
   }
@@ -171,6 +109,7 @@ function ViewSubscription() {
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+                disabled={isDeleting}
               >
                 <svg
                   className="w-4 h-4"
@@ -250,6 +189,8 @@ function ViewSubscription() {
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onDelete={handleDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this subscription?"
       />
     </>
   );

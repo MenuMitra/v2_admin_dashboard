@@ -1,9 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import { useAdmin } from "../../hooks/useAdmin";
-import { API_CONFIG } from "../../config/appConfig";
-import axios from "axios";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -14,27 +10,22 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
-import { toastController } from "../../utils/toastController";
-
-const { BASE_URL, API_VERSION } = API_CONFIG;
-
-// Add protected mobiles array to match Admins.jsx
-const PROTECTED_MOBILES = [
-  "8806431723",
-  "9767637798",
-  "8600704616",
-  // Add more numbers here as needed
-];
+import { useAdminDetails } from "../../lib/react-query/hooks/useAdminDetails";
 
 function AdminDetails() {
   const { adminId } = useParams();
   const navigate = useNavigate();
-  const { getToken } = useAuth();
-  const { adminData } = useAdmin();
-  const [admin, setAdmin] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const {
+    admin,
+    isLoading,
+    error,
+    deleteAdmin,
+    isDeleting,
+    formatDate,
+    PROTECTED_MOBILES,
+  } = useAdminDetails(adminId);
 
   // Breadcrumb configuration
   const breadcrumbItems = [
@@ -43,131 +34,14 @@ function AdminDetails() {
     { label: "Admin Details", path: `/admin-details/${adminId}` },
   ];
 
-  // Format date helper function
-  const formatDate = (dateString) => {
-    if (!dateString) {
-      return "-"; // or any default value you prefer
-    }
-
-    const date = new Date(dateString);
-
-    // Check for invalid date
-    if (isNaN(date.getTime())) {
-      return "Invalid Date";
-    }
-
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const month = months[date.getMonth()];
-    const day = date.getDate().toString().padStart(2, "0");
-    const year = date.getFullYear();
-
-    let hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, "0");
-    const ampm = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12;
-    hours = hours ? hours : 12; // convert 0 to 12
-
-    return `${day} ${month} ${year} ${hours}:${minutes} ${ampm}`;
-  };
-
-  useEffect(() => {
-    fetchAdminDetails();
-  }, [adminId]);
-
-  const fetchAdminDetails = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/view_admin`,
-        { admin_id: parseInt(adminId) },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setAdmin(response.data);
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.detail ||
-        err.message ||
-        "Failed to fetch admin details";
-      setError(errorMessage);
-      toastController.error(errorMessage);
-      console.error("Error fetching admin details:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Add delete handler
+  // Handle delete with mutation
   const handleDeleteAdmin = async () => {
-    try {
-      // Check if admin is protected
-      if (admin && PROTECTED_MOBILES.includes(admin.mobile)) {
-        const errorMsg = "Cannot delete protected admin";
-        setError(errorMsg);
-        toastController.error(errorMsg);
-        setShowDeleteModal(false);
-        return;
-      }
-
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/delete_admin`,
-        {
-          admin_id: parseInt(adminId),
-          user_id: adminData.user_id,
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data.detail === "Admin deleted successfully") {
-        toastController.success("Admin deleted successfully");
+    deleteAdmin(null, {
+      onSuccess: () => {
         navigate("/admins");
-      } else {
-        throw new Error("Failed to delete admin");
-      }
-    } catch (err) {
-      const errorMessage =
-        err.response?.data?.detail || "Failed to delete admin";
-      setError(errorMessage);
-      toastController.error(errorMessage);
-      console.error("Error deleting admin:", err);
-    } finally {
-      setShowDeleteModal(false);
-    }
+      },
+    });
+    setShowDeleteModal(false);
   };
 
   if (isLoading) {
@@ -195,7 +69,7 @@ function AdminDetails() {
 
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
-          {/* Header Section - Matching OwnerDetails.jsx style */}
+          {/* Header Section */}
           <div className="flex items-center px-6 mb-3">
             {/* Left Side - Back Button */}
             <div className="flex items-center gap-2">
@@ -227,7 +101,8 @@ function AdminDetails() {
                   </button>
                   <button
                     onClick={() => setShowDeleteModal(true)}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+                    disabled={isDeleting}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600 disabled:opacity-50"
                   >
                     <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
                     <span className="hidden sm:inline">Delete</span>
@@ -238,10 +113,10 @@ function AdminDetails() {
           </div>
         </div>
 
-        {/* Existing content */}
+        {/* Admin Details Content */}
         <div className="p-6">
           {/* Admin Details Card */}
-          <div className="bg-white rounded-2xl  overflow-hidden dark:border-gray-800 dark:bg-gray-900">
+          <div className="bg-white rounded-2xl overflow-hidden dark:border-gray-800 dark:bg-gray-900">
             {/* Basic Info Section */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">

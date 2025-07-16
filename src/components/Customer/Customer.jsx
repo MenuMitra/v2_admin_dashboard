@@ -1,8 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useAuth } from "../../hooks/useAuth";
-import { useAdmin } from "../../hooks/useAdmin";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
@@ -14,91 +11,34 @@ import {
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
-import { API_CONFIG } from "../../config/appConfig";
+import { useCustomers } from "../../lib/react-query/hooks/useCustomers";
 
 function Customer() {
-  const { getToken } = useAuth();
-  const { adminData } = useAdmin();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
-  const [error, setError] = useState(null);
-  const [selectedOutlet] = useState("");
-  const [outletName, setOutletName] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [outletName, setOutletName] = useState("");
 
-  const { BASE_URL, API_VERSION } = API_CONFIG;
-
-  // Add new state for modal
+  // Add state for modal
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
     customerId: null,
   });
 
-  // Keep only this one useEffect that handles everything
-  useEffect(() => {
-    fetchCustomers(selectedOutlet);
-  }, [selectedOutlet, statusFilter]); // This will handle both initial load and all subsequent changes
-
-  // Modify fetchCustomers to handle all cases
-  const fetchCustomers = async (outlet_id = null, isReload = false) => {
-    try {
-      if (isReload) {
-        setIsReloading(true);
-      } else {
-        setLoading(true);
-      }
-      setError(null); // Clear any previous errors
-
-      const requestData = {
-        user_id: adminData?.user_id,
-        app_source: "admin_app",
-      };
-
-      // Only add outlet_id if it's provided and not empty
-      if (outlet_id && outlet_id !== "") {
-        requestData.outlet_id = outlet_id;
-      }
-
-      // Only add status filter if it's not 'all'
-      if (statusFilter !== "all") {
-        requestData.is_active = statusFilter === "active" ? 1 : 0;
-      }
-
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/customer_listview`,
-        requestData,
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-        }
-      );
-
-      setCustomers(response.data.customers || []);
-      setOutletName(response.data.outlet_name || "");
-    } catch (err) {
-      setError(err.response?.data?.msg || "");
-    } finally {
-      if (isReload) {
-        setIsReloading(false);
-      } else {
-        setLoading(false);
-      }
-    }
-  };
-
-  // For DataTable reload button
-  const reloadFetchCustomers = async () => {
-    await fetchCustomers(null, true);
-  };
+  const {
+    customers,
+    isLoading,
+    error,
+    refetch,
+    deleteCustomer,
+    isDeleting,
+    bulkAction,
+    isBulkActioning,
+  } = useCustomers(statusFilter);
 
   const handleDeleteCustomer = async (customer_id) => {
-    // Open delete confirmation modal
     setDeleteModal({
       isOpen: true,
       customerId: customer_id,
@@ -107,56 +47,13 @@ function Customer() {
 
   const confirmDelete = async () => {
     const customer_id = deleteModal.customerId;
-    try {
-      setLoading(true);
-      await axios.delete(`${BASE_URL}/${API_VERSION}/admin/customer_delete`, {
-        headers: {
-          Authorization: getToken(),
-        },
-        data: {
-          user_id: adminData?.user_id,
-          customer_id: customer_id,
-          app_source: "admin_app",
-        },
-      });
-
-      setDeleteModal({ isOpen: false, customerId: null });
-      fetchCustomers(selectedOutlet);
-    } catch (err) {
-      setError(err.response?.data?.msg || "Failed to delete customer");
-    } finally {
-      setLoading(false);
-    }
+    await deleteCustomer(customer_id);
+    setDeleteModal({ isOpen: false, customerId: null });
   };
 
   const handleBulkAction = async (action, selectedIds) => {
-    try {
-      setLoading(true);
-      await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/bulk_customer_action`,
-        {
-          user_id: adminData.user_id,
-          action: action,
-          app_source: "admin_app",
-          customer_ids: selectedIds,
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      fetchCustomers(selectedOutlet);
-      setSelectedItems([]);
-    } catch (error) {
-      setError(
-        error.response?.data?.detail || `Failed to perform ${action} action`
-      );
-    } finally {
-      setLoading(false);
-    }
+    await bulkAction({ action, customerIds: selectedIds });
+    setSelectedItems([]);
   };
 
   const handleStatusFilterChange = (status) => {
@@ -228,8 +125,7 @@ function Customer() {
     },
   ];
 
-  // Update columns to include the view action
-  if (loading && !customers.length) {
+  if (isLoading && !customers.length) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -277,16 +173,16 @@ function Customer() {
         enableStatusFilter={true}
         onStatusFilterChange={handleStatusFilterChange}
         statusFilter={statusFilter}
-        isLoading={loading}
+        isLoading={isLoading}
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
-        onReload={reloadFetchCustomers}
-        isReloading={isReloading}
+        onReload={refetch}
+        isReloading={isLoading}
       />
 
-      {/* Add Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
       <DeleteConfirmModal
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, customerId: null })}

@@ -1,182 +1,62 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
   faPenToSquare,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
-import { useAuth } from "../../../hooks/useAuth";
 import DataTable from "../../common/DataTable";
 import Modal from "../../common/Modal";
 import Breadcrumb from "../../Breadcrumb";
-import { API_CONFIG } from "../../../config/appConfig";
 import DeleteConfirmModal from "../../common/DeleteConfirmModal/DeleteConfirmModal";
+import { useFunctionalities } from "../../../lib/react-query/hooks/useFunctionalities";
 
 function Functionalities() {
-  const { getToken } = useAuth();
-  const [functionalities, setFunctionalities] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
-  const [error, setError] = useState(null);
+  const {
+    functionalities,
+    isLoading,
+    error,
+    createFunctionality,
+    isCreating,
+    updateFunctionality,
+    isUpdating,
+    deleteFunctionality,
+    isDeleting,
+    refetchFunctionalities,
+  } = useFunctionalities();
+
+  // UI State
   const [searchTerm, setSearchTerm] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newFunctionalityName, setNewFunctionalityName] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingFunctionality, setEditingFunctionality] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingFunctionality, setDeletingFunctionality] = useState(null);
 
-  const { BASE_URL, API_VERSION } = API_CONFIG;
-
-  useEffect(() => {
-    fetchFunctionalities();
-  }, []);
-
-  const fetchFunctionalities = async (isReload = false) => {
-    try {
-      if (isReload) {
-        setIsReloading(true);
-      } else {
-        setIsLoading(true);
-      }
-      setError(null);
-
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setFunctionalities(response.data);
-    } catch (err) {
-      setError(err.response?.data?.detail || "Failed to fetch functionalities");
-      console.error("Error fetching functionalities:", err);
-    } finally {
-      if (isReload) {
-        setIsReloading(false);
-      } else {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  // For DataTable reload button
-  const reloadFunctionalities = async () => {
-    await fetchFunctionalities(true);
-  };
-
   const handleCreateFunctionality = async () => {
-    try {
-      setIsCreating(true);
-      setError(null);
+    if (!newFunctionalityName.trim()) return;
 
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/create_ubac_functionality`,
-        {
-          functionality_name: newFunctionalityName,
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Refresh functionalities list
-      fetchFunctionalities();
-      setShowCreateModal(false);
-      setNewFunctionalityName("");
-    } catch (err) {
-      setError(err.response?.data?.detail || "Failed to create functionality");
-      console.error("Error creating functionality:", err);
-    } finally {
-      setIsCreating(false);
-    }
+    await createFunctionality(newFunctionalityName);
+    setShowCreateModal(false);
+    setNewFunctionalityName("");
   };
 
   const handleEditFunctionality = async () => {
-    try {
-      setIsEditing(true);
-      setError(null);
+    if (!editingFunctionality?.functionality_name.trim()) return;
 
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await axios.put(
-        `${BASE_URL}/${API_VERSION}/admin/update_ubac_functionality`,
-        {
-          functionality_id: editingFunctionality.functionality_id,
-          functionality_name: editingFunctionality.functionality_name,
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Refresh functionalities list
-      fetchFunctionalities();
-      setShowEditModal(false);
-      setEditingFunctionality(null);
-    } catch (err) {
-      setError(err.response?.data?.detail || "Failed to update functionality");
-      console.error("Error updating functionality:", err);
-    } finally {
-      setIsEditing(false);
-    }
+    await updateFunctionality({
+      functionalityId: editingFunctionality.functionality_id,
+      functionalityName: editingFunctionality.functionality_name,
+    });
+    setShowEditModal(false);
+    setEditingFunctionality(null);
   };
 
   const handleDeleteFunctionality = async () => {
-    try {
-      setError(null);
-
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await axios.delete(
-        `${BASE_URL}/${API_VERSION}/admin/delete_ubac_functionality/${deletingFunctionality.functionality_id}`,
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Refresh functionalities list
-      fetchFunctionalities();
-      setShowDeleteModal(false);
-      setDeletingFunctionality(null);
-    } catch (err) {
-      setError(err.response?.data?.detail || "Failed to delete functionality");
-      console.error("Error deleting functionality:", err);
-    } finally {
-      // No loading state needed
-    }
+    await deleteFunctionality(deletingFunctionality.functionality_id);
+    setShowDeleteModal(false);
+    setDeletingFunctionality(null);
   };
 
   // Define columns for DataTable
@@ -220,7 +100,6 @@ function Functionalities() {
     },
   ];
 
-  // Add this breadcrumb configuration
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
     { label: "Access Control", path: "/dashboard" },
@@ -237,7 +116,6 @@ function Functionalities() {
 
   return (
     <>
-      {/* Replace the manual breadcrumb with */}
       <Breadcrumb items={breadcrumbItems} />
 
       {error && (
@@ -271,8 +149,8 @@ function Functionalities() {
         onBackClick={() => window.history.back()}
         showBackButton={true}
         backButtonLabel="Back"
-        onReload={reloadFunctionalities}
-        isLoading={isReloading}
+        onReload={refetchFunctionalities}
+        isLoading={isLoading || isCreating || isUpdating || isDeleting}
       />
 
       {showCreateModal && (
@@ -281,7 +159,6 @@ function Functionalities() {
           onClose={() => {
             setShowCreateModal(false);
             setNewFunctionalityName("");
-            setError(null);
           }}
           title="Add New Functionality"
           size="small"
@@ -317,7 +194,6 @@ function Functionalities() {
                 onClick={() => {
                   setShowCreateModal(false);
                   setNewFunctionalityName("");
-                  setError(null);
                 }}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
                 disabled={isCreating}
@@ -331,13 +207,7 @@ function Functionalities() {
                 disabled={isCreating || !newFunctionalityName.trim()}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-success-500 shadow-theme-xs hover:bg-success-600 disabled:opacity-50"
               >
-                {isCreating ? (
-                  <>
-                    <span>Creating...</span>
-                  </>
-                ) : (
-                  "Create"
-                )}
+                {isCreating ? "Creating..." : "Create"}
               </button>
             </div>
           </div>
@@ -350,7 +220,6 @@ function Functionalities() {
           onClose={() => {
             setShowEditModal(false);
             setEditingFunctionality(null);
-            setError(null);
           }}
           title="Edit Functionality"
           type="default"
@@ -398,43 +267,17 @@ function Functionalities() {
               <button
                 onClick={handleEditFunctionality}
                 disabled={
-                  !editingFunctionality?.functionality_name.trim() || isEditing
+                  !editingFunctionality?.functionality_name.trim() || isUpdating
                 }
                 className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
                   ${
                     !editingFunctionality?.functionality_name.trim() ||
-                    isEditing
+                    isUpdating
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-success-500 hover:bg-success-600"
                   }`}
               >
-                {isEditing ? (
-                  <>
-                    <svg
-                      className="animate-spin h-4 w-4 text-white"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    <span>Updating...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Update</span>
-                  </>
-                )}
+                {isUpdating ? "Updating..." : "Update"}
               </button>
             </div>
           </div>
@@ -446,7 +289,6 @@ function Functionalities() {
         onClose={() => {
           setShowDeleteModal(false);
           setDeletingFunctionality(null);
-          setError(null);
         }}
         onDelete={handleDeleteFunctionality}
       />

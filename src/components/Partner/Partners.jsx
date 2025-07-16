@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
@@ -10,133 +10,41 @@ import {
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAdmin } from "../../hooks/useAdmin";
-import { useAuth } from "../../hooks/useAuth";
-import axios from "axios";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import { usePartners } from "../../lib/react-query/hooks/usePartners";
 
 function Partners() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
-  const { getToken } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [partners, setPartners] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isReloading, setIsReloading] = useState(false); // For reload button spinner
-  const [error, setError] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [partnerToDelete, setPartnerToDelete] = useState(null);
 
-  // Add status filter state
-  const [statusFilter, setStatusFilter] = useState("all");
-
-  useEffect(() => {
-    if (adminData?.user_id) {
-      fetchPartners();
-    }
-  }, [adminData?.user_id]);
-
-  const fetchPartners = async (isReload = false) => {
-    try {
-      if (isReload) {
-        setIsReloading(true);
-      } else {
-        setIsLoading(true);
-      }
-      setError(null);
-
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get(
-        `https://men4u.xyz/v2/admin/listview_partner/${adminData.user_id}`,
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setPartners(response.data);
-
-      // Calculate stats from the response
-      // const total = response.data.length;
-      // const active = response.data.filter(
-      //   (partner) => partner.is_active === 1
-      // ).length;
-
-      // setStats({
-      //   total,
-      //   active,
-      //   inactive,
-      // });
-    } catch (err) {
-      setError("Failed to fetch partners");
-      console.error("Error fetching partners:", err);
-    } finally {
-      if (isReload) {
-        setIsReloading(false);
-      } else {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  // For DataTable reload button
-  const reloadFetchPartners = async () => {
-    await fetchPartners(true);
-  };
+  const {
+    partners,
+    isLoading,
+    error,
+    refetch,
+    deleteMutation,
+    counts,
+  } = usePartners();
 
   const handleDelete = async () => {
     try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await axios.delete("https://men4u.xyz/v2/admin/delete_partner", {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-        data: {
-          partner_id: partnerToDelete.user_id,
-          user_id: adminData.user_id,
-        },
-      });
-
+      await deleteMutation.mutateAsync(partnerToDelete.user_id);
       setIsDeleteModalOpen(false);
       setPartnerToDelete(null);
-      fetchPartners(); // Refresh the list
     } catch (err) {
-      setError(err.response?.data?.detail || "Failed to delete partner");
-      console.error("Error deleting partner:", err);
+      // Error handling is done in the mutation
     }
   };
 
   const handleBulkAction = async (action) => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      // Show confirmation modal first
-      // const { title, message } = getConfirmationDetails(action);
-      // setConfirmModal({
-      //   isOpen: true,
-      //   action,
-      //   title,
-      //   message,
-      // });
-    } catch (err) {
-      setError(err.response?.data?.detail || `Failed to ${action} partners`);
-      console.error("Error performing bulk action:", err);
-    }
+    // Implement bulk actions if needed
+    console.log('Bulk action:', action);
   };
 
   // Define columns for DataTable
@@ -206,7 +114,6 @@ function Partners() {
     },
   ];
 
-  // Add this breadcrumb configuration
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
     { label: "Partners", path: "/partners" },
@@ -222,7 +129,6 @@ function Partners() {
 
   return (
     <>
-      {/* Replace the manual breadcrumb with */}
       <Breadcrumb items={breadcrumbItems} />
 
       {error && (
@@ -241,12 +147,7 @@ function Partners() {
         title="Partners"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        counts={{
-          total: partners.length,
-          active: partners.filter((partner) => partner.is_active === 1).length,
-          inactive: partners.filter((partner) => partner.is_active === 0)
-            .length,
-        }}
+        counts={counts}
         createButton={{
           label: "Create",
           onClick: () => navigate("/create-partner"),
@@ -271,11 +172,10 @@ function Partners() {
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
         }}
-        onReload={reloadFetchPartners}
-        isLoading={isReloading}
+        onReload={refetch}
+        isLoading={deleteMutation.isLoading}
       />
 
-      {/* Use reusable DeleteConfirmModal for single delete */}
       <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -283,10 +183,6 @@ function Partners() {
         title="Confirm Delete"
         message="Are you sure ?"
       />
-
-      {/* The Modal component was removed from imports, so it's removed here. */}
-      {/* If you need a confirmation modal, you'll need to re-add it or use a different component. */}
-      {/* For now, I'm removing the Modal component as it's no longer imported. */}
     </>
   );
 }
