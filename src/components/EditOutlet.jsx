@@ -536,16 +536,13 @@ function EditOutlet() {
         app_source: "admin_app",
       };
 
-      // When constructing the payload for saving, format opening_time and closing_time as 'YYYY-MM-DD HH:mm:00 AM/PM'
-      const currentDate =
-        outletData?.date || new Date().toISOString().split("T")[0];
+      // When constructing the payload for saving, format opening_time and closing_time as 'HH:mm:00 AM/PM'
       if (openingHour && openingMinute && openingPeriod) {
-        apiData.opening_time = `${currentDate} ${openingHour}:${openingMinute}:00 ${openingPeriod}`;
+        apiData.opening_time = `${openingHour}:${openingMinute}:00 ${openingPeriod}`;
       }
       if (closingHour && closingMinute && closingPeriod) {
-        apiData.closing_time = `${currentDate} ${closingHour}:${closingMinute}:00 ${closingPeriod}`;
+        apiData.closing_time = `${closingHour}:${closingMinute}:00 ${closingPeriod}`;
       }
-
 
       const response = await axios.patch(
         `${BASE_URL}/${API_VERSION}/common/update_outlet`,
@@ -1024,8 +1021,8 @@ function EditOutlet() {
                           value={calculatedEndDate}
                           readOnly
                           className="w-full px-3 py-2 border rounded-lg shadow-sm bg-gray-100"
-                        />
-                      </div>
+                />
+              </div>
                     )} */}
                   </div>
                 )}

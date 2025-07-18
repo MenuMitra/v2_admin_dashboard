@@ -9,7 +9,7 @@ import {
   faPenToSquare,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
-import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
+import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import { useAdminDetails } from "../../lib/react-query/hooks/useAdminDetails";
 
 function AdminDetails() {
