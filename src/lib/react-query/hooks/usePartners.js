@@ -55,6 +55,7 @@ export const usePartners = () => {
         data: {
           partner_id: partnerId,
           user_id: adminData.user_id,
+          app_source: "admin",
         },
       });
     },

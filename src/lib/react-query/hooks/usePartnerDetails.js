@@ -25,7 +25,8 @@ export const usePartnerDetails = (partnerId) => {
         'https://men4u.xyz/v2/admin/view_partner',
         {
           partner_id: Number(partnerId),
-          user_id: adminData.user_id
+          user_id: adminData.user_id,
+          app_source: "admin",
         },
         {
           headers: {
@@ -58,6 +59,7 @@ export const usePartnerDetails = (partnerId) => {
           data: {
             partner_id: Number(partnerId),
             user_id: adminData.user_id,
+            app_source: "admin",
           },
         }),
         {

@@ -95,6 +95,7 @@ function EditPartner() {
         {
           partner_id: Number(partnerId),
           user_id: adminData.user_id,
+          app_source: "admin",
         },
         {
           headers: {
