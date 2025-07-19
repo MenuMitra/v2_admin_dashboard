@@ -36,6 +36,7 @@ function EditPartner() {
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
+  const [roles, setRoles] = useState([]);
 
   const [partnerDetails, setPartnerDetails] = useState({
     name: "",
@@ -46,6 +47,7 @@ function EditPartner() {
     address: "",
     is_active: 0,
     functionality_ids: [],
+    role: "",
   });
 
   useEffect(() => {
@@ -56,6 +58,7 @@ function EditPartner() {
 
   useEffect(() => {
     fetchFunctionalities();
+    fetchRoles();
   }, []);
 
   const fetchFunctionalities = async () => {
@@ -79,6 +82,22 @@ function EditPartner() {
     } catch (err) {
       console.error("Error fetching functionalities:", err);
       setError("Failed to load functionalities");
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get(
+        "https://men4u.xyz/v2/common/get_list/roles",
+        {
+          headers: {
+            Authorization: getToken(),
+          },
+        }
+      );
+      setRoles(response.data);
+    } catch (err) {
+      setError("Failed to load roles");
     }
   };
 
@@ -119,6 +138,7 @@ function EditPartner() {
         address: response.data.address,
         is_active: response.data.is_active,
         functionality_ids: funcIds,
+        role: response.data.role || "",
       });
       setIsLoading(false);
     } catch (err) {
@@ -248,6 +268,8 @@ function EditPartner() {
         address: partnerDetails.address,
         functionality_ids: selectedFunctionalities,
         is_active: Number(partnerDetails.is_active),
+        role: partnerDetails.role,
+        app_source: "admin",
       };
 
       console.log("Updating partner with data:", requestData);
@@ -402,6 +424,20 @@ function EditPartner() {
                   { value: 0, label: "Inactive" },
                 ]}
                 placeholder="Select Status"
+              />
+
+              {/* Role */}
+              <SelectInput
+                label="Role"
+                name="role"
+                value={partnerDetails.role}
+                onChange={handleChange}
+                required
+                options={roles.map((role) => ({
+                  value: role.role_name,
+                  label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1),
+                }))}
+                placeholder="Select Role"
               />
 
               {/* Address */}
