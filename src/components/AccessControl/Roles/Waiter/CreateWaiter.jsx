@@ -227,6 +227,18 @@ function CreateWaiter() {
 
     setIsLoading(true);
 
+    // Format dob to "DD MMM YYYY" if present
+    let formattedDob = waiterData.dob;
+    if (waiterData.dob) {
+      const dateObj = new Date(waiterData.dob);
+      if (!isNaN(dateObj)) {
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = dateObj.toLocaleString('en-US', { month: 'short' });
+        const year = dateObj.getFullYear();
+        formattedDob = `${day} ${month} ${year}`;
+      }
+    }
+
     try {
       const payload = {
         user_id: adminData.user_id,
@@ -236,7 +248,7 @@ function CreateWaiter() {
         email: waiterData.email,
         address: waiterData.address,
         aadhar_number: waiterData.aadhar_number,
-        dob: waiterData.dob,
+        dob: formattedDob, // <-- use formatted dob here
         functionality_ids: waiterData.functionality_ids,
         app_source: "admin_app"
       };
