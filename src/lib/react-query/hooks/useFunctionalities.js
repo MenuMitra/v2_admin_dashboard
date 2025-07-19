@@ -42,6 +42,7 @@ export const useFunctionalities = () => {
         `${BASE_URL}/${API_VERSION}/admin/create_ubac_functionality`,
         {
           functionality_name: functionalityName,
+          app_source: "admin",
         },
         {
           headers: {

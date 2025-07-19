@@ -51,7 +51,8 @@ function AddRoleAssignFunctionalities() {
           `${BASE_URL}/${API_VERSION}/common/create_ubac_user_functionalities`,
           {
             functionality_id: parseInt(selectedFunctionality),
-            user_id: parseInt(user_id)
+            user_id: parseInt(user_id),
+            app_source: "admin",
           },
           {
             headers: {

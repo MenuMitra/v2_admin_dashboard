@@ -65,7 +65,8 @@ function RoleFunctionalitiesMapping() {
 
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/listview_ubac_role_functionality_mapping`,
-        { role_id: parseInt(roleId) },
+        { role_id: parseInt(roleId),
+          app_source: "admin", },
         {
           headers: {
             Authorization: token,
@@ -132,6 +133,7 @@ function RoleFunctionalitiesMapping() {
         {
           functionality_ids: selectedFunctionalities,
           role_id: parseInt(roleId), // Using roleId as user_id
+          app_source: "admin",
         },
         {
           headers: {
