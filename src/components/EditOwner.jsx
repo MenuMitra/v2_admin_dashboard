@@ -97,7 +97,8 @@ function EditOwner() {
         `${BASE_URL}/${API_VERSION}/common/view_owner`,
         {
           owner_id: Number(ownerId),
-          user_id: adminData.user_id
+          user_id: adminData.user_id,
+          app_source: "admin",
         },
         {
           headers: {
@@ -245,7 +246,8 @@ function EditOwner() {
           email: ownerData.email,
           account_type: ownerData.account_type,
           functionality_ids: ownerData.functionality_ids,
-          is_active: Number(ownerData.is_active)
+          is_active: Number(ownerData.is_active),
+          app_source: "admin",
         },
         {
           headers: {

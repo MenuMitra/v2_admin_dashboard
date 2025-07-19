@@ -260,6 +260,7 @@ function CreateOwner() {
         aadhar_number: ownerData.aadhar_number,
         dob: ownerData.dob,
         // functionality_ids: ownerData.functionality_ids,
+        app_source: "admin",
       };
 
       await toastController.promise(

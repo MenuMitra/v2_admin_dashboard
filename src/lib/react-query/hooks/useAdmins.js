@@ -34,6 +34,7 @@ export function useAdmins(token) {
         {
           admin_id: adminId,
           user_id: userId,
+          app_source: "admin",
         },
         {
           headers: {

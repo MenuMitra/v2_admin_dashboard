@@ -32,6 +32,7 @@ export const useOwnerDetails = (ownerId) => {
           {
             user_id: adminData.user_id,
             owner_id: parseInt(ownerId),
+            app_source: "admin",
           },
           {
             headers: {
@@ -65,6 +66,7 @@ export const useOwnerDetails = (ownerId) => {
           data: {
             owner_id: parseInt(ownerId),
             user_id: adminData.user_id,
+            app_source: "admin",
           },
           headers: {
             Authorization: token,
