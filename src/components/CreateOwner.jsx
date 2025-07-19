@@ -140,6 +140,29 @@ function CreateOwner() {
       } else {
         setValidationStates((prev) => ({ ...prev, [name]: false }));
       }
+    } else if (name === "name") {
+      // Allow only alphabets and spaces
+      const filteredValue = value.replace(/[^A-Za-z\s]/g, "");
+      setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
+
+      // Validate name
+      if (!filteredValue.trim()) {
+        setValidationStates(prev => ({
+          ...prev,
+          nameMessage: "Name is required"
+        }));
+      } else if (filteredValue.length < 2) {
+        setValidationStates(prev => ({
+          ...prev,
+          nameMessage: "Minimum 2 characters required"
+        }));
+      } else {
+        setValidationStates(prev => ({
+          ...prev,
+          nameMessage: ""
+        }));
+      }
+      return;
     } else if (name === "mobile") {
       const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
@@ -223,15 +246,13 @@ function CreateOwner() {
   };
 
   const isFormValid = () => {
-    // Check if all required fields are filled and valid
     return (
-      ownerData.name?.trim() &&
-      ownerData.mobile?.trim() &&
-      ownerData.aadhar_number?.trim() &&
-      validationStates.name &&
-      validationStates.mobile &&
-      validationStates.aadhar_number &&
-      validationStates.address
+      ownerData.name?.trim() &&  // Name is required
+      ownerData.mobile?.trim() && // Mobile is required
+      ownerData.aadhar_number?.trim() && // Aadhar is required
+      validationStates.mobile && // Mobile validation
+      validationStates.aadhar_number && // Aadhar validation
+      !validationStates.nameMessage // No name validation errors
     );
   };
 
@@ -251,6 +272,13 @@ function CreateOwner() {
         throw new Error("No authentication token available");
       }
 
+      // Format date as DD MMM YYYY
+      const formattedDate = ownerData.dob ? new Date(ownerData.dob).toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }) : '';
+
       const payload = {
         user_id: adminData.user_id,
         name: ownerData.name,
@@ -258,8 +286,7 @@ function CreateOwner() {
         email: ownerData.email,
         address: ownerData.address,
         aadhar_number: ownerData.aadhar_number,
-        dob: ownerData.dob,
-        // functionality_ids: ownerData.functionality_ids,
+        dob: formattedDate,
         app_source: "admin",
       };
 
