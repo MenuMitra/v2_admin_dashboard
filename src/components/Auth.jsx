@@ -311,6 +311,17 @@ function Auth() {
                             {loading ? "Sending OTP..." : "Get OTP"}
                           </button>
                         </div>
+
+                        <div className="flex justify-center mb-0">
+                          <a
+                            href="https://www.shekru.com"
+                            target="_blank"
+                            className="text-sm text-gray-500 dark:text-gray-400"
+                          >
+                            <span className="text-brand-500">Powered by</span>{" "}
+                            Shekru Labs
+                          </a>
+                        </div>
                         <div className="flex justify-center pt-0">
                           <p
                             className="text-sm text-gray-500 dark:text-gray-400"

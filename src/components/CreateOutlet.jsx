@@ -497,7 +497,7 @@ function CreateOutlet() {
         veg_nonveg: outletData.veg_nonveg,
         upi_id: outletData.upi_id,
         subscription_id: outletData.subscription_id, // <-- added
-        subscription_end_date:outletData.subscription_end_date,
+        subscription_end_date: outletData.subscription_end_date,
       };
 
       if (outletData.service_charges !== "") {
@@ -506,8 +506,6 @@ function CreateOutlet() {
       if (outletData.gst !== "") {
         payload.gst = outletData.gst.toString();
       }
-
-     
 
       const optionalFields = [
         "fssainumber",
@@ -1267,8 +1265,8 @@ function CreateOutlet() {
                           value={calculatedEndDate}
                           readOnly
                           className="w-full px-3 py-2 border rounded-lg shadow-sm bg-gray-100"
-                        />
-                      </div>
+                    />
+                  </div>
                     )} */}
                   </div>
                 )}

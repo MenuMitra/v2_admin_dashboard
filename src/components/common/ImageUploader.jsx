@@ -137,8 +137,8 @@ const ImageUploader = ({
           <label
             htmlFor="dropzone-file"
             className={`
-              flex flex-col items-center justify-center  h-64 
-              border-2 border-dashed rounded-lg cursor-pointer 
+            flex flex-col items-center justify-center  h-64 
+            border-2 border-dashed rounded-lg cursor-pointer 
               ${
                 dragActive
                   ? "border-brand-500 bg-brand-50"
@@ -149,10 +149,10 @@ const ImageUploader = ({
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }
-              dark:hover:bg-gray-800 dark:bg-gray-700 
-              dark:border-gray-600 dark:hover:border-gray-500 
-              dark:hover:bg-gray-600 transition-all duration-200
-            `}
+            dark:hover:bg-gray-800 dark:bg-gray-700 
+            dark:border-gray-600 dark:hover:border-gray-500 
+            dark:hover:bg-gray-600 transition-all duration-200
+          `}
             onDragEnter={(e) => images.length < maxImages && handleDrag(e)}
             onDragLeave={(e) => images.length < maxImages && handleDrag(e)}
             onDragOver={(e) => images.length < maxImages && handleDrag(e)}

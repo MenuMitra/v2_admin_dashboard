@@ -235,7 +235,11 @@ function Features() {
           tooltip: "Create a new feature",
         }}
         onReload={refetch}
-        isLoading={createFeatureMutation.isLoading || updateFeatureMutation.isLoading || deleteFeatureMutation.isLoading}
+        isLoading={
+          createFeatureMutation.isLoading ||
+          updateFeatureMutation.isLoading ||
+          deleteFeatureMutation.isLoading
+        }
       />
 
       {/* Create Feature Modal */}
@@ -263,8 +267,14 @@ function Features() {
               value={newFeatureName}
               onChange={(e) => {
                 const value = e.target.value;
-                if (CORE_FEATURES.includes(value.toLowerCase().replace(/\s+/g, "_"))) {
-                  toastController.error("This name is reserved for core system features");
+                if (
+                  CORE_FEATURES.includes(
+                    value.toLowerCase().replace(/\s+/g, "_")
+                  )
+                ) {
+                  toastController.error(
+                    "This name is reserved for core system features"
+                  );
                   return;
                 }
                 setNewFeatureName(value);
@@ -273,7 +283,8 @@ function Features() {
               placeholder="Enter feature name"
             />
             <p className="mt-2 text-xs text-gray-500">
-              Note: Feature names that match core system features are not allowed.
+              Note: Feature names that match core system features are not
+              allowed.
             </p>
           </div>
 
@@ -293,7 +304,9 @@ function Features() {
             <div>
               <button
                 onClick={handleCreateFeature}
-                disabled={!newFeatureName.trim() || createFeatureMutation.isLoading}
+                disabled={
+                  !newFeatureName.trim() || createFeatureMutation.isLoading
+                }
                 className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
                   ${
                     !newFeatureName.trim() || createFeatureMutation.isLoading
@@ -352,7 +365,9 @@ function Features() {
             </button>
             <button
               onClick={handleEditFeature}
-              disabled={!editFeatureName.trim() || updateFeatureMutation.isLoading}
+              disabled={
+                !editFeatureName.trim() || updateFeatureMutation.isLoading
+              }
               className={`inline-flex items-center gap-2 px-4 py-2 text-theme-sm font-medium text-white rounded-full transition-colors duration-200
                 ${
                   !editFeatureName.trim() || updateFeatureMutation.isLoading
