@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
@@ -15,9 +15,11 @@ import {
   Textarea,
   Checkbox,
   labelStyles,
+  SelectInput,
 } from "./forms/FormElements.jsx";
 import Breadcrumb from "./Breadcrumb";
 import { API_CONFIG } from "../config/appConfig";
+import MultiSelectDropdown from './common/MultiSelectDropdown';
 
 function CreateOwner() {
   const navigate = useNavigate();
@@ -28,6 +30,9 @@ function CreateOwner() {
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const { BASE_URL, API_VERSION } = API_CONFIG;
+  const [outlets, setOutlets] = useState([]);
+  const [selectedOutlets, setSelectedOutlets] = useState([]);
+
   const [ownerData, setOwnerData] = useState({
     name: "",
     mobile: "",
@@ -35,8 +40,11 @@ function CreateOwner() {
     dob: "",
     aadhar_number: "",
     address: "",
-    // functionality_ids: [],
+    outlet_ids: [], // Add outlet_ids
+    account_type: "live", // Default to live
+    is_active: 1, // Default to active
   });
+
   const [validationStates, setValidationStates] = useState({
     name: true,
     email: true,
@@ -57,6 +65,7 @@ function CreateOwner() {
 
   useEffect(() => {
     fetchFunctionalities();
+    fetchOutlets(); // Add fetchOutlets
   }, []);
 
   const fetchFunctionalities = async () => {
@@ -81,6 +90,45 @@ function CreateOwner() {
       setError(errorMsg);
       toastController.error(errorMsg);
     }
+  };
+
+  // Add fetchOutlets function
+  const fetchOutlets = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/common/get_list/outlets`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.data.detail === "Successfully retrieved outlets") {
+        const outletArray = Object.entries(response.data.outlet_list).map(([name, id]) => ({
+          outlet_name: name,
+          outlet_id: id
+        }));
+        setOutlets(outletArray);
+      }
+    } catch (err) {
+      console.error("Error fetching outlets:", err);
+      setError("Failed to load outlets");
+    }
+  };
+
+  // Add handleOutletChange function
+  const handleOutletChange = (newOutletIds) => {
+    setSelectedOutlets(newOutletIds);
+    setOwnerData(prev => ({
+      ...prev,
+      outlet_ids: newOutletIds
+    }));
   };
 
   const isMobileValid = (mobile) => {
@@ -245,17 +293,20 @@ function CreateOwner() {
     }));
   };
 
+  // Modify isFormValid to include outlet validation
   const isFormValid = () => {
     return (
-      ownerData.name?.trim() &&  // Name is required
-      ownerData.mobile?.trim() && // Mobile is required
-      ownerData.aadhar_number?.trim() && // Aadhar is required
-      validationStates.mobile && // Mobile validation
-      validationStates.aadhar_number && // Aadhar validation
-      !validationStates.nameMessage // No name validation errors
+      ownerData.name?.trim() &&
+      ownerData.mobile?.trim() &&
+      ownerData.aadhar_number?.trim() &&
+      ownerData.outlet_ids.length > 0 && // Add outlet validation
+      !validationStates.nameMessage &&
+      validationStates.mobile &&
+      validationStates.aadhar_number
     );
   };
 
+  // Modify handleSubmit to include outlet_ids
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitAttempted(true);
@@ -287,6 +338,9 @@ function CreateOwner() {
         address: ownerData.address,
         aadhar_number: ownerData.aadhar_number,
         dob: formattedDate,
+        outlet_ids: ownerData.outlet_ids, // Add outlet_ids to payload
+        account_type: ownerData.account_type,
+        is_active: ownerData.is_active,
         app_source: "admin",
       };
 
@@ -481,48 +535,78 @@ function CreateOwner() {
            
             </div>
 
-           
+            {/* Add Account Type */}
+            <SelectInput
+              label="Account Type"
+              name="account_type"
+              value={ownerData.account_type}
+              onChange={handleChange}
+              required
+              options={[
+                { value: 'live', label: 'Live' },
+                { value: 'test', label: 'Test' }
+              ]}
+              placeholder="Select Account Type"
+            />
 
-            {/* Functionalities */}
-            {/* <div>
-              <label className={labelStyles}>
-                Functionalities
-              </label>
-              <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
-                <div className="flex flex-wrap gap-4">
-                  {functionalities.map((func) => (
-                    <div
-                      key={func.functionality_id}
-                      className="min-w-[200px] flex-1"
-                    >
-                      <Checkbox
-                        label={func.functionality_name}
-                        value={func.functionality_id}
-                        checked={selectedFunctionalities.includes(
-                          func.functionality_id
-                        )}
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-                          setSelectedFunctionalities((prev) =>
-                            e.target.checked
-                              ? [...prev, value]
-                              : prev.filter((id) => id !== value)
-                          );
-                          setOwnerData((prev) => ({
-                            ...prev,
-                            functionality_ids: e.target.checked
-                              ? [...prev.functionality_ids, value]
-                              : prev.functionality_ids.filter(
-                                  (id) => id !== value
-                                ),
-                          }));
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
+            {/* Add Owner Status */}
+            <SelectInput
+              label="Owner Status"
+              name="is_active"
+              value={ownerData.is_active}
+              onChange={handleChange}
+              required
+              options={[
+                { value: 1, label: 'Active' },
+                { value: 0, label: 'Inactive' }
+              ]}
+              placeholder="Select Status"
+            />
+
+            {/* Address and Outlets Section */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+              {/* Address */}
+              <div className="sm:col-span-1 xl:col-span-2">
+                <Textarea
+                  label="Address"
+                  name="address"
+                  value={ownerData.address}
+                  onChange={handleChange}
+                  placeholder="Enter complete address"
+                  rows={3}
+                />
+                {validationStates.address && (
+                  <p className="text-error-500 text-sm -mt-1">
+                    {!ownerData.address
+                      ? ""
+                      : ownerData.address.length < 5
+                      ? "Minimum 5 characters required"
+                      : "Address must not exceed 50 characters"}
+                  </p>
+                )}
               </div>
-            </div> */}
+
+              {/* Outlets Dropdown */}
+              <div className="sm:col-span-1 xl:col-span-2 flex flex-col">
+                <MultiSelectDropdown
+                  label="Select Outlets"
+                  options={outlets}
+                  selectedValues={selectedOutlets}
+                  onChange={handleOutletChange}
+                  displayKey="outlet_name"
+                  valueKey="outlet_id"
+                  searchKeys={['outlet_name']}
+                  required={true}
+                  placeholder="Select outlets"
+                  searchPlaceholder="Search outlets..."
+                />
+              </div>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="text-error-500 text-sm mt-2">{error}</div>
+            )}
           </form>
         </div>
       </div>
