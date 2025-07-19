@@ -78,7 +78,8 @@ function EditAdmin() {
         mobile: response.data.mobile,
         email: response.data.email,
         is_active: response.data.is_active,
-        role: 'admin'
+        role: 'admin',
+        app_source: "admin"
       });
     } catch (error) {
       toastController.error(error.response?.data?.detail || 'Failed to fetch admin details');

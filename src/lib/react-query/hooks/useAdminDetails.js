@@ -58,7 +58,7 @@ export const useAdminDetails = (adminId) => {
 
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/view_admin`,
-        { admin_id: parseInt(adminId) },
+        { admin_id: parseInt(adminId),app_source: "admin" },
         {
           headers: {
             Authorization: token,
