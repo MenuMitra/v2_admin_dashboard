@@ -123,9 +123,11 @@ function Waiters() {
   });
 
   // Memoized values
-  const waiters = React.useMemo(() => 
-    waitersResponse?.data || [],
-    [waitersResponse]
+  const waiters = React.useMemo(() =>
+    error && error.response?.data?.detail === "Outlet has no waiters"
+      ? []
+      : (waitersResponse?.data || []),
+    [waitersResponse, error]
   );
 
   const outletName = React.useMemo(() => 
@@ -248,11 +250,15 @@ function Waiters() {
   }
 
   if (error) {
-    return (
-      <div className="text-error-500 text-center p-4">
-        {error.response?.data?.msg || "Failed to load waiters"}
-      </div>
-    );
+    // If the error is "Outlet has no waiters", treat as empty data
+    const noWaiters = error.response?.data?.detail === "Outlet has no waiters";
+    if (!noWaiters) {
+      return (
+        <div className="text-error-500 text-center p-4">
+          {error.response?.data?.msg || error.response?.data?.detail || "Failed to load waiters"}
+        </div>
+      );
+    }
   }
 
   return (
