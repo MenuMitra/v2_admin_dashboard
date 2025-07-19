@@ -236,7 +236,8 @@ function EditAdmin() {
             email: adminDetails.email,
             mobile: adminDetails.mobile,
             is_active: adminDetails.is_active ? 1 : 0,
-            role: adminDetails.role
+            role: adminDetails.role,
+            app_source: "admin"
           },
           {
             headers: {
