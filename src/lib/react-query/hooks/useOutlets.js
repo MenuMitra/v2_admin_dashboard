@@ -87,6 +87,7 @@ export const useOutlets = () => {
           data: {
             outlet_id: outletId,
             user_id: adminData?.user_id,
+            app_source: "admin",
           },
         }
       );
