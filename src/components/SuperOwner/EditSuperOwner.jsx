@@ -230,6 +230,7 @@ function EditSuperOwner() {
           ...superOwnerDetails,
           super_owner_id: parseInt(superOwnerId),
           outlet_ids: selectedOutlets,
+          app_source: "admin",
         },
         {
           headers: {
