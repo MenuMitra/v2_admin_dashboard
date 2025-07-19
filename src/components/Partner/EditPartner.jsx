@@ -17,6 +17,7 @@ import {
   labelStyles,
 } from "../forms/FormElements.jsx";
 import Breadcrumb from "../Breadcrumb";
+import MultiSelectDropdown from "../common/MultiSelectDropdown";
 import {
   isNameValid,
   isEmailValid,
@@ -37,6 +38,8 @@ function EditPartner() {
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
   const [roles, setRoles] = useState([]);
+  const [outlets, setOutlets] = useState([]);
+  const [selectedOutlets, setSelectedOutlets] = useState([]);
 
   const [partnerDetails, setPartnerDetails] = useState({
     name: "",
@@ -48,6 +51,7 @@ function EditPartner() {
     is_active: 0,
     functionality_ids: [],
     role: "",
+    outlet_ids: [],
   });
 
   useEffect(() => {
@@ -59,6 +63,7 @@ function EditPartner() {
   useEffect(() => {
     fetchFunctionalities();
     fetchRoles();
+    fetchOutlets();
   }, []);
 
   const fetchFunctionalities = async () => {
@@ -101,6 +106,36 @@ function EditPartner() {
     }
   };
 
+  const fetchOutlets = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.get(
+        "https://men4u.xyz/v2/common/get_list/outlets",
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.data.detail === "Successfully retrieved outlets") {
+        const outletArray = Object.entries(response.data.outlet_list).map(([name, id]) => ({
+          outlet_name: name,
+          outlet_id: id
+        }));
+        setOutlets(outletArray);
+      }
+    } catch (err) {
+      console.error("Error fetching outlets:", err);
+      setError("Failed to load outlets");
+    }
+  };
+
+  // Modify fetchPartnerDetails to include outlet_ids
   const fetchPartnerDetails = async () => {
     try {
       setIsLoading(true);
@@ -129,6 +164,10 @@ function EditPartner() {
       );
       setSelectedFunctionalities(funcIds);
 
+      // Add outlet_ids handling
+      const outletIds = response.data.outlets?.map(outlet => outlet.outlet_id) || [];
+      setSelectedOutlets(outletIds);
+
       setPartnerDetails({
         name: response.data.name,
         email: response.data.email,
@@ -139,6 +178,7 @@ function EditPartner() {
         is_active: response.data.is_active,
         functionality_ids: funcIds,
         role: response.data.role || "",
+        outlet_ids: outletIds, // Add this line
       });
       setIsLoading(false);
     } catch (err) {
@@ -234,6 +274,16 @@ function EditPartner() {
     return Object.keys(errors).length === 0;
   };
 
+  // Add handleOutletChange function
+  const handleOutletChange = (newOutletIds) => {
+    setSelectedOutlets(newOutletIds);
+    setPartnerDetails(prev => ({
+      ...prev,
+      outlet_ids: newOutletIds
+    }));
+  };
+
+  // Modify handleSubmit to include outlet_ids
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -257,26 +307,17 @@ function EditPartner() {
         })
         .replace(/ /g, " ");
 
-      const requestData = {
-        update_user_id: adminData?.user_id,
-        user_id: Number(partnerId),
-        name: partnerDetails.name,
-        mobile: partnerDetails.mobile,
-        email: partnerDetails.email,
-        dob: formattedDate,
-        aadhar_number: partnerDetails.aadhar_number,
-        address: partnerDetails.address,
-        functionality_ids: selectedFunctionalities,
-        is_active: Number(partnerDetails.is_active),
-        role: partnerDetails.role,
-        app_source: "admin",
-      };
-
-      console.log("Updating partner with data:", requestData);
-
       const response = await axios.patch(
         "https://men4u.xyz/v2/admin/update_partner",
-        requestData,
+        {
+          ...partnerDetails,
+          partner_id: Number(partnerId),
+          user_id: adminData.user_id,
+          dob: formattedDate,
+          functionality_ids: selectedFunctionalities,
+          outlet_ids: selectedOutlets, // Add this line
+          app_source: "admin",
+        },
         {
           headers: {
             Authorization: token,
@@ -357,6 +398,22 @@ function EditPartner() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {/* Add MultiSelectDropdown for outlets before other form fields */}
+              <div className="sm:col-span-2">
+                <MultiSelectDropdown
+                  label="Select Outlets"
+                  options={outlets}
+                  selectedValues={selectedOutlets}
+                  onChange={handleOutletChange}
+                  displayKey="outlet_name"
+                  valueKey="outlet_id"
+                  searchKeys={['outlet_name']}
+                  required={true}
+                  placeholder="Select outlets"
+                  searchPlaceholder="Search outlets..."
+                />
+              </div>
+
               <TextInput
                 label="Full Name"
                 name="name"
