@@ -19,6 +19,7 @@ const INITIAL_CUSTOMER_STATE = {
   mobile: "",
   role: "",
   is_active: true,
+  outlet_id: "", // <-- Add this line
 };
 
 function EditCustomer() {
@@ -38,6 +39,7 @@ function EditCustomer() {
     role: true
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
+  const [outlets, setOutlets] = useState([]); // <-- Add this line
 
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -60,7 +62,7 @@ function EditCustomer() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [customerResponse, rolesResponse] = await Promise.all([
+      const [customerResponse, rolesResponse, outletsResponse] = await Promise.all([
         axios.post(
           `${BASE_URL}/${API_VERSION}/admin/customer_view`,
           {
@@ -74,6 +76,9 @@ function EditCustomer() {
         axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/roles`, {
           headers: { Authorization: getToken() },
         }),
+        axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/outlets`, { // <-- Add this block
+          headers: { Authorization: getToken() },
+        }),
       ]);
 
       const { customer_details } = customerResponse.data;
@@ -82,8 +87,17 @@ function EditCustomer() {
         mobile: customer_details.mobile || "",
         role: customer_details.role || "",
         is_active: customer_details.is_active === 1,
+        outlet_id: customer_details.outlet_id || "", // <-- Add this line
       });
       setRoles(rolesResponse.data);
+      setOutlets(
+        outletsResponse.data && outletsResponse.data.outlet_list
+          ? Object.entries(outletsResponse.data.outlet_list).map(([name, id]) => ({
+              id,
+              name,
+            }))
+          : []
+      );
     } catch (error) {
       toastController.error(
         error.response?.data?.msg || "Failed to fetch data"
@@ -139,6 +153,7 @@ function EditCustomer() {
             mobile: customerData.mobile,
             role: customerData.role,
             is_active: customerData.is_active ? 1 : 0,
+            outlet_id: customerData.outlet_id, // <-- Add this line
             app_source: "admin_app"
           },
           {
@@ -198,6 +213,12 @@ function EditCustomer() {
       setValidationStates(prev => ({
         ...prev,
         role: !!value
+      }));
+    }
+    else if (name === 'outlet_id') { // <-- Add this block
+      setCustomerData(prev => ({
+        ...prev,
+        [name]: value
       }));
     }
     else {
@@ -323,6 +344,21 @@ function EditCustomer() {
                 }))
               ]}
             />
+
+<SelectInput
+  label="Outlet"
+  name="outlet_id"
+  value={customerData.outlet_id}
+  onChange={handleInputChange}
+  required
+  options={[
+    { value: "", label: "Select Outlet" },
+    ...outlets.map(outlet => ({
+      value: outlet.id,
+      label: outlet.name
+    }))
+  ]}
+/>
 
             <SelectInput
               label="Status"
