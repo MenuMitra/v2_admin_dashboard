@@ -70,6 +70,7 @@ export const useFunctionalities = () => {
         {
           functionality_id: functionalityId,
           functionality_name: functionalityName,
+          app_source: "admin",
         },
         {
           headers: {
