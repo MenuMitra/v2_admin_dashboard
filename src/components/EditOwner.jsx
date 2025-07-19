@@ -15,6 +15,7 @@ import {
 } from './forms/FormElements.jsx';
 import Breadcrumb from './Breadcrumb';
 import { API_CONFIG } from "../config/appConfig";
+import MultiSelectDropdown from './common/MultiSelectDropdown';
 
 function EditOwner() {
   const { getToken } = useAuth();
@@ -27,6 +28,8 @@ function EditOwner() {
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [roles, setRoles] = useState([]); // 1. Add roles state
+  const [outlets, setOutlets] = useState([]);
+  const [selectedOutlets, setSelectedOutlets] = useState([]);
   const [ownerData, setOwnerData] = useState({
     name: '',
     email: '',
@@ -38,6 +41,7 @@ function EditOwner() {
     is_active: 0,
     functionality_ids: [],
     role: '', // 2. Add role to ownerData
+    outlet_ids: [], // Add outlet_ids to ownerData
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
@@ -64,6 +68,7 @@ function EditOwner() {
   useEffect(() => {
     fetchFunctionalities();
     fetchRoles(); // 3. Fetch roles on mount
+    fetchOutlets(); // Add fetchOutlets to initial fetch
   }, []);
 
   // 4. Fetch roles function (same as EditCaptain.jsx)
@@ -105,6 +110,35 @@ function EditOwner() {
     }
   };
 
+  const fetchOutlets = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/common/get_list/outlets`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.data.detail === "Successfully retrieved outlets") {
+        const outletArray = Object.entries(response.data.outlet_list).map(([name, id]) => ({
+          outlet_name: name,
+          outlet_id: id
+        }));
+        setOutlets(outletArray);
+      }
+    } catch (err) {
+      console.error("Error fetching outlets:", err);
+      setError("Failed to load outlets");
+    }
+  };
+
   const fetchOwnerDetails = async () => {
     try {
       setIsLoading(true);
@@ -131,6 +165,10 @@ function EditOwner() {
       const funcIds = response.data.functionalities.map(f => f.functionality_id);
       setSelectedFunctionalities(funcIds);
 
+      // Add outlet_ids handling
+      const outletIds = response.data.outlets?.map(outlet => outlet.outlet_id) || [];
+      setSelectedOutlets(outletIds);
+
       setOwnerData({
         name: response.data.name,
         email: response.data.email,
@@ -142,6 +180,7 @@ function EditOwner() {
         is_active: response.data.is_active,
         functionality_ids: funcIds,
         role: response.data.role || '', // 5. Set role from response
+        outlet_ids: outletIds, // Add outlet_ids
       });
       setIsLoading(false);
     } catch (err) {
@@ -177,7 +216,7 @@ function EditOwner() {
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
 
     if (name === 'mobile') {
       // Only allow numbers, max 10 digits
@@ -227,10 +266,16 @@ function EditOwner() {
         role: value
       }));
     }
+    else if (name === 'is_active') {
+      setOwnerData(prev => ({
+        ...prev,
+        [name]: Number(value)
+      }));
+    }
     else {
       setOwnerData(prev => ({
         ...prev,
-        [name]: name === 'is_active' ? Number(value) : value
+        [name]: value
       }));
     }
   };
@@ -244,6 +289,7 @@ function EditOwner() {
       ownerData.account_type &&
       ownerData.functionality_ids.length > 0 &&
       ownerData.role && // 7. Add role to validation
+      ownerData.outlet_ids.length > 0 && // Add validation for outlets
       validationStates.name &&
       validationStates.mobile &&
       validationStates.aadhar_number
@@ -276,6 +322,7 @@ function EditOwner() {
           functionality_ids: ownerData.functionality_ids,
           is_active: Number(ownerData.is_active),
           role: ownerData.role, // 6. Add role to payload
+          outlet_ids: ownerData.outlet_ids, // Add outlet_ids to payload
           app_source: "admin",
         },
         {
@@ -295,6 +342,14 @@ function EditOwner() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleOutletChange = (newOutletIds) => {
+    setSelectedOutlets(newOutletIds);
+    setOwnerData(prev => ({
+      ...prev,
+      outlet_ids: newOutletIds
+    }));
   };
 
   if (isLoading) {
@@ -476,9 +531,10 @@ function EditOwner() {
               />
             </div>
 
-            {/* Address */}
+            {/* Address and Outlets Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              <div className="sm:col-span-1">
+              {/* Address */}
+              <div className="sm:col-span-1 xl:col-span-2">
                 <Textarea
                   label="Address"
                   name="address"
@@ -496,6 +552,22 @@ function EditOwner() {
                       : "Address must not exceed 50 characters"}
                   </p>
                 )}
+              </div>
+
+              {/* Outlets Dropdown */}
+              <div className="sm:col-span-1 xl:col-span-2 flex flex-col">
+                <MultiSelectDropdown
+                  label="Select Outlets"
+                  options={outlets}
+                  selectedValues={selectedOutlets}
+                  onChange={handleOutletChange}
+                  displayKey="outlet_name"
+                  valueKey="outlet_id"
+                  searchKeys={['outlet_name']}
+                  required={true}
+                  placeholder="Select outlets"
+                  searchPlaceholder="Search outlets..."
+                />
               </div>
             </div>
 

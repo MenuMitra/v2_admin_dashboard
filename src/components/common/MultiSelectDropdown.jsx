@@ -18,7 +18,6 @@ const MultiSelectDropdown = ({
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
 
-  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -30,14 +29,12 @@ const MultiSelectDropdown = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Filter options based on search term
   const filteredOptions = options.filter(option => {
     return searchKeys.some(key => 
       option[key]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
 
-  // Handle selection
   const handleSelect = (value) => {
     const newSelectedValues = selectedValues.includes(value)
       ? selectedValues.filter(v => v !== value)
@@ -45,14 +42,13 @@ const MultiSelectDropdown = ({
     onChange(newSelectedValues);
   };
 
-  // Get display text for selected items
   const getSelectedText = () => {
     if (selectedValues.length === 0) return placeholder;
     return `${selectedValues.length} Item${selectedValues.length > 1 ? 's' : ''} Selected`;
   };
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative w-full h-full flex flex-col" ref={dropdownRef}>
       {/* Label */}
       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
         {required && <span className="text-error-600 text-red-500 mr-1">*</span>}
@@ -63,17 +59,17 @@ const MultiSelectDropdown = ({
       <div
         onClick={() => setIsOpen(!isOpen)}
         className="w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
-                   focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+                   focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer min-h-[42px]"
         role="combobox"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
         <div className="flex items-center justify-between">
-          <span className={`${selectedValues.length === 0 ? 'text-gray-500' : 'text-gray-900'}`}>
+          <span className={`${selectedValues.length === 0 ? 'text-gray-500' : 'text-gray-900'} truncate`}>
             {getSelectedText()}
           </span>
           <svg
-            className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
+            className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'transform rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -93,13 +89,13 @@ const MultiSelectDropdown = ({
                 key={value}
                 className="inline-flex items-center gap-1 px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-sm"
               >
-                <span>{option[displayKey]}</span>
+                <span className="truncate max-w-[150px]">{option[displayKey]}</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSelect(value);
                   }}
-                  className="ml-1 text-brand-500 hover:text-brand-700"
+                  className="ml-1 text-brand-500 hover:text-brand-700 flex-shrink-0"
                 >
                   ×
                 </button>
@@ -112,19 +108,18 @@ const MultiSelectDropdown = ({
       {/* Dropdown Panel */}
       {isOpen && (
         <div 
-          className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
+          className="absolute left-0 right-0 mt-[17px] bg-white border rounded-lg shadow-xl z-50"
           style={{
             width: '100%',
-            minWidth: '300px',
+            minWidth: '250px',
             maxHeight: '350px',
-            overflowY: 'auto',
           }}
         >
           {/* Search Bar */}
-          <div className="sticky top-0 p-2 border-b bg-white">
+          <div className="sticky top-0 p-2 border-b bg-white z-10">
             <input
               type="text"
-              className="w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
               placeholder={searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -134,7 +129,7 @@ const MultiSelectDropdown = ({
           </div>
 
           {/* Options List */}
-          <div className="overflow-y-auto" style={{ maxHeight: 'calc(350px - 60px)' }}>
+          <div className="overflow-y-auto" style={{ maxHeight: 'calc(350px - 57px)' }}>
             {filteredOptions.length === 0 ? (
               <div className="p-3 text-center text-gray-500">
                 No results found
@@ -157,14 +152,14 @@ const MultiSelectDropdown = ({
                       checked={selectedValues.includes(option[valueKey])}
                       onChange={() => handleSelect(option[valueKey])}
                       onClick={(e) => e.stopPropagation()}
-                      className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded flex-shrink-0"
                     />
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 truncate">
                         {option[displayKey]}
                       </div>
                       {option.secondary && (
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-gray-500 truncate">
                           {option.secondary}
                         </div>
                       )}
