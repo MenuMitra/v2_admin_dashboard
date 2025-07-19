@@ -142,6 +142,18 @@ function EditChef() {
     setSubmitting(true);
     setError(null);
 
+    // Format dob to "DD MMM YYYY" if present
+    let formattedDob = chefData.dob;
+    if (chefData.dob) {
+      const dateObj = new Date(chefData.dob);
+      if (!isNaN(dateObj)) {
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const month = dateObj.toLocaleString('en-US', { month: 'short' });
+        const year = dateObj.getFullYear();
+        formattedDob = `${day} ${month} ${year}`;
+      }
+    }
+
     try {
       await toastController.promise(
         axios.patch(
@@ -151,6 +163,7 @@ function EditChef() {
             user_id: Number(userId),
             outlet_id: Number(outletId),
             ...chefData,
+            dob: formattedDob, // <-- use formatted dob here
             app_source: "admin_app"
           },
           {
