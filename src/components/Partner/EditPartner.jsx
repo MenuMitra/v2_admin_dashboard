@@ -17,7 +17,7 @@ import {
   labelStyles,
 } from "../forms/FormElements.jsx";
 import Breadcrumb from "../Breadcrumb";
-import MultiSelectDropdown from "../common/MultiSelectDropdown";
+// import MultiSelectDropdown from "../common/MultiSelectDropdown";
 import {
   isNameValid,
   isEmailValid,
@@ -38,8 +38,8 @@ function EditPartner() {
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
   const [roles, setRoles] = useState([]);
-  const [outlets, setOutlets] = useState([]);
-  const [selectedOutlets, setSelectedOutlets] = useState([]);
+  // const [outlets, setOutlets] = useState([]);
+  // const [selectedOutlets, setSelectedOutlets] = useState([]);
 
   const [partnerDetails, setPartnerDetails] = useState({
     name: "",
@@ -51,7 +51,7 @@ function EditPartner() {
     is_active: 0,
     functionality_ids: [],
     role: "",
-    outlet_ids: [],
+    // outlet_ids: [],
   });
 
   useEffect(() => {
@@ -63,7 +63,7 @@ function EditPartner() {
   useEffect(() => {
     fetchFunctionalities();
     fetchRoles();
-    fetchOutlets();
+    // fetchOutlets();
   }, []);
 
   const fetchFunctionalities = async () => {
@@ -102,10 +102,13 @@ function EditPartner() {
       );
       setRoles(response.data);
     } catch (err) {
+      console.error("Error fetching roles:", err);
       setError("Failed to load roles");
     }
   };
 
+  // Comment out fetchOutlets function
+  /*
   const fetchOutlets = async () => {
     try {
       const token = getToken();
@@ -134,8 +137,9 @@ function EditPartner() {
       setError("Failed to load outlets");
     }
   };
+  */
 
-  // Modify fetchPartnerDetails to include outlet_ids
+  // Modify fetchPartnerDetails to remove outlet handling
   const fetchPartnerDetails = async () => {
     try {
       setIsLoading(true);
@@ -164,9 +168,9 @@ function EditPartner() {
       );
       setSelectedFunctionalities(funcIds);
 
-      // Add outlet_ids handling
-      const outletIds = response.data.outlets?.map(outlet => outlet.outlet_id) || [];
-      setSelectedOutlets(outletIds);
+      // Remove outlet_ids handling
+      // const outletIds = response.data.outlets?.map(outlet => outlet.outlet_id) || [];
+      // setSelectedOutlets(outletIds);
 
       setPartnerDetails({
         name: response.data.name,
@@ -178,7 +182,7 @@ function EditPartner() {
         is_active: response.data.is_active,
         functionality_ids: funcIds,
         role: response.data.role || "",
-        outlet_ids: outletIds, // Add this line
+        // outlet_ids: outletIds,
       });
       setIsLoading(false);
     } catch (err) {
@@ -275,6 +279,8 @@ function EditPartner() {
   };
 
   // Add handleOutletChange function
+  // Comment out handleOutletChange function
+  /*
   const handleOutletChange = (newOutletIds) => {
     setSelectedOutlets(newOutletIds);
     setPartnerDetails(prev => ({
@@ -282,8 +288,9 @@ function EditPartner() {
       outlet_ids: newOutletIds
     }));
   };
+  */
 
-  // Modify handleSubmit to include outlet_ids
+  // Modify handleSubmit to remove outlet_ids
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -315,7 +322,7 @@ function EditPartner() {
           user_id: adminData.user_id,
           dob: formattedDate,
           functionality_ids: selectedFunctionalities,
-          outlet_ids: selectedOutlets, // Add this line
+          // outlet_ids: selectedOutlets,
           app_source: "admin",
         },
         {
@@ -398,22 +405,6 @@ function EditPartner() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {/* Add MultiSelectDropdown for outlets before other form fields */}
-              <div className="sm:col-span-2">
-                <MultiSelectDropdown
-                  label="Select Outlets"
-                  options={outlets}
-                  selectedValues={selectedOutlets}
-                  onChange={handleOutletChange}
-                  displayKey="outlet_name"
-                  valueKey="outlet_id"
-                  searchKeys={['outlet_name']}
-                  required={true}
-                  placeholder="Select outlets"
-                  searchPlaceholder="Search outlets..."
-                />
-              </div>
-
               <TextInput
                 label="Full Name"
                 name="name"
@@ -444,7 +435,6 @@ function EditPartner() {
                 value={partnerDetails.email}
                 onChange={handleChange}
                 placeholder="Enter email address"
-                // required
                 error={validationErrors.email}
               />
 
@@ -453,9 +443,7 @@ function EditPartner() {
                 name="dob"
                 value={partnerDetails.dob}
                 onChange={handleChange}
-                // required
                 placeholder="Select date of birth"
-                // error={validationErrors.dob}
               />
 
               <TextInput
@@ -506,12 +494,11 @@ function EditPartner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
-                  // required
                 />
               </div>
             </div>
 
-            {/* Functionalities */}
+            {/* Functionalities Section */}
             <div>
               <label className={labelStyles}>
                 <span className="text-error-600 text-red-500 mr-1">*</span>
@@ -551,39 +538,27 @@ function EditPartner() {
                   ))}
                 </div>
               </div>
-
-              {/* Selected Functionalities Tags */}
-              {/* {selectedFunctionalities.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {selectedFunctionalities.map(id => {
-                    const func = functionalities.find(f => f.functionality_id === id);
-                    return (
-                      <span
-                        key={id}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      >
-                        {func?.functionality_name}
-                        <button
-                          type="button"
-                          className="ml-1 inline-flex items-center justify-center"
-                          onClick={() => {
-                            setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
-                            setPartnerDetails(prev => ({
-                              ...prev,
-                              functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
-                            }));
-                          }}
-                        >
-                          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )} */}
             </div>
+
+            {/* Outlets Section - Commented out for now */}
+            {/*
+            <div>
+              <div className="mt-2">
+                <MultiSelectDropdown
+                  label="Select Outlets"
+                  options={outlets}
+                  selectedValues={selectedOutlets}
+                  onChange={handleOutletChange}
+                  displayKey="outlet_name"
+                  valueKey="outlet_id"
+                  searchKeys={['outlet_name']}
+                  required={true}
+                  placeholder="Select outlets"
+                  searchPlaceholder="Search outlets..."
+                />
+              </div>
+            </div>
+            */}
 
             {/* Error Message */}
             {error && (
