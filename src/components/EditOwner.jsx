@@ -26,6 +26,7 @@ function EditOwner() {
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
+  const [roles, setRoles] = useState([]); // 1. Add roles state
   const [ownerData, setOwnerData] = useState({
     name: '',
     email: '',
@@ -35,7 +36,8 @@ function EditOwner() {
     address: '',
     account_type: '',
     is_active: 0,
-    functionality_ids: []
+    functionality_ids: [],
+    role: '', // 2. Add role to ownerData
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
@@ -61,7 +63,25 @@ function EditOwner() {
 
   useEffect(() => {
     fetchFunctionalities();
+    fetchRoles(); // 3. Fetch roles on mount
   }, []);
+
+  // 4. Fetch roles function (same as EditCaptain.jsx)
+  const fetchRoles = async () => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/${API_VERSION}/common/get_list/roles`,
+        {
+          headers: {
+            Authorization: getToken(),
+          },
+        }
+      );
+      setRoles(response.data);
+    } catch (err) {
+      setError('Failed to load roles');
+    }
+  };
 
   const fetchFunctionalities = async () => {
     try {
@@ -120,7 +140,8 @@ function EditOwner() {
         address: response.data.address,
         account_type: response.data.account_type,
         is_active: response.data.is_active,
-        functionality_ids: funcIds
+        functionality_ids: funcIds,
+        role: response.data.role || '', // 5. Set role from response
       });
       setIsLoading(false);
     } catch (err) {
@@ -200,6 +221,12 @@ function EditOwner() {
       setOwnerData(prev => ({ ...prev, [name]: value }));
       return;
     } 
+    else if (name === 'role') {
+      setOwnerData(prev => ({
+        ...prev,
+        role: value
+      }));
+    }
     else {
       setOwnerData(prev => ({
         ...prev,
@@ -216,6 +243,7 @@ function EditOwner() {
       ownerData.aadhar_number?.trim() &&
       ownerData.account_type &&
       ownerData.functionality_ids.length > 0 &&
+      ownerData.role && // 7. Add role to validation
       validationStates.name &&
       validationStates.mobile &&
       validationStates.aadhar_number
@@ -247,6 +275,7 @@ function EditOwner() {
           account_type: ownerData.account_type,
           functionality_ids: ownerData.functionality_ids,
           is_active: Number(ownerData.is_active),
+          role: ownerData.role, // 6. Add role to payload
           app_source: "admin",
         },
         {
@@ -430,6 +459,20 @@ function EditOwner() {
                   { value: 'test', label: 'Test' }
                 ]}
                 placeholder="Select Account Type"
+              />
+
+              {/* Role - Added to the grid */}
+              <SelectInput
+                label="Role"
+                name="role"
+                value={ownerData.role}
+                onChange={handleChange}
+                required
+                options={roles.map(role => ({
+                  value: role.role_name,
+                  label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
+                }))}
+                placeholder="Select Role"
               />
             </div>
 
