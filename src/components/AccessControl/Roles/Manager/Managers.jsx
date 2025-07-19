@@ -51,6 +51,7 @@ function Managers() {
         {
           outlet_id: outletId,
           user_id: adminData.user_id,
+          app_source: "admin",
         },
         {
           headers: {
@@ -80,6 +81,7 @@ function Managers() {
           update_user_id: adminData.user_id,
           outlet_id: outletId,
           user_id: managerToDelete.toString(),
+          app_source: "admin",
         },
         headers: {
           Authorization: token,
