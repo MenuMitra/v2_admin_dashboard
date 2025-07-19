@@ -30,7 +30,8 @@ function TicketDetails() {
     try {
       const response = await axios.post(
         "https://men4u.xyz/v2/common/ticket_view",
-        { ticket_id: ticketId },
+        { ticket_id: ticketId,
+          app_source: "admin", },
         {
           headers: {
             Authorization: getToken(),
@@ -70,6 +71,7 @@ function TicketDetails() {
           user_id: String(adminData?.user_id), // Convert to string
           message: message.trim(),
           flag: "1", // For admin messages
+          app_source: "admin",
         },
         {
           headers: {
@@ -102,6 +104,7 @@ function TicketDetails() {
           ticket_id: ticketId,
           user_id: adminData?.user_id,
           ticket_status: "resolved",
+          app_source: "admin",
         },
         {
           headers: {

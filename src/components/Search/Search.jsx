@@ -52,6 +52,7 @@ const Search = () => {
         `${BASE_URL}/${API_VERSION}/admin/search`,
         {
           search: searchType,
+          app_source: "admin",
           value: value,
           ...(selectedRole && selectedRole !== 'All Roles' && { role: selectedRole.toLowerCase() })
         },
