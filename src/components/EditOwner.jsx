@@ -30,6 +30,8 @@ function EditOwner() {
   const [roles, setRoles] = useState([]); // 1. Add roles state
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlets, setSelectedOutlets] = useState([]);
+  const [originalRole, setOriginalRole] = useState(''); // Add state for original role
+  const [staffOutletId, setStaffOutletId] = useState(''); // Add state for staff outlet
   const [ownerData, setOwnerData] = useState({
     name: '',
     email: '',
@@ -168,6 +170,9 @@ function EditOwner() {
       // Add outlet_ids handling
       const outletIds = response.data.outlets?.map(outlet => outlet.outlet_id) || [];
       setSelectedOutlets(outletIds);
+      
+      // Store original role
+      setOriginalRole(response.data.role || '');
 
       setOwnerData({
         name: response.data.name,
@@ -179,8 +184,8 @@ function EditOwner() {
         account_type: response.data.account_type,
         is_active: response.data.is_active,
         functionality_ids: funcIds,
-        role: response.data.role || '', // 5. Set role from response
-        outlet_ids: outletIds, // Add outlet_ids
+        role: response.data.role || '',
+        outlet_ids: outletIds,
       });
       setIsLoading(false);
     } catch (err) {
@@ -280,6 +285,19 @@ function EditOwner() {
     }
   };
 
+  const handleStaffOutletChange = (e) => {
+    const value = e.target.value;
+    setStaffOutletId(value);
+    // Keep selectedOutlets in sync for API payload
+    setSelectedOutlets(value ? [Number(value)] : []);
+    setOwnerData(prev => ({
+      ...prev,
+      outlet_ids: value ? [Number(value)] : []
+    }));
+  };
+
+  const isOwnerRole = ownerData.role === 'owner';
+
   const isFormValid = () => {
     // Check if all required fields are filled and valid
     return (
@@ -307,6 +325,18 @@ function EditOwner() {
         throw new Error('No authentication token available');
       }
 
+      // Prepare outlet data based on role
+      const outletData = isOwnerRole
+        ? { outlet_ids: ownerData.outlet_ids }
+        : { staff_outlet_id: Number(staffOutletId) };
+
+      // Validate staff outlet selection
+      if (!isOwnerRole && !staffOutletId) {
+        setError('Please select a staff outlet');
+        setIsLoading(false);
+        return;
+      }
+
       const response = await axios.patch(
         `${BASE_URL}/${API_VERSION}/common/update_owner`,
         {
@@ -321,8 +351,8 @@ function EditOwner() {
           account_type: ownerData.account_type,
           functionality_ids: ownerData.functionality_ids,
           is_active: Number(ownerData.is_active),
-          role: ownerData.role, // 6. Add role to payload
-          outlet_ids: ownerData.outlet_ids, // Add outlet_ids to payload
+          role: ownerData.role,
+          ...outletData,
           app_source: "admin",
         },
         {
@@ -529,6 +559,13 @@ function EditOwner() {
                 }))}
                 placeholder="Select Role"
               />
+              {ownerData.role !== originalRole && (
+                <div className="col-span-full">
+                  <p className="text-warning-500 text-sm bg-warning-50 p-2 rounded">
+                    Note: When changing role, only the first selected outlet will be assigned as the staff outlet.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Address and Outlets Section */}
@@ -554,20 +591,42 @@ function EditOwner() {
                 )}
               </div>
 
-              {/* Outlets Dropdown */}
+              {/* Outlets Selection based on role */}
               <div className="sm:col-span-1 xl:col-span-2 flex flex-col">
-                <MultiSelectDropdown
-                  label="Select Outlets"
-                  options={outlets}
-                  selectedValues={selectedOutlets}
-                  onChange={handleOutletChange}
-                  displayKey="outlet_name"
-                  valueKey="outlet_id"
-                  searchKeys={['outlet_name']}
-                  required={true}
-                  placeholder="Select outlets"
-                  searchPlaceholder="Search outlets..."
-                />
+                {isOwnerRole ? (
+                  /* Multi-select dropdown for owner role */
+                  <MultiSelectDropdown
+                    label="Select Outlets"
+                    options={outlets}
+                    selectedValues={selectedOutlets}
+                    onChange={handleOutletChange}
+                    displayKey="outlet_name"
+                    valueKey="outlet_id"
+                    searchKeys={['outlet_name']}
+                    required={true}
+                    placeholder="Select outlets"
+                    searchPlaceholder="Search outlets..."
+                  />
+                ) : (
+                  /* Single-select dropdown for staff roles */
+                  <div>
+                    <SelectInput
+                      label="Select Staff Outlet"
+                      name="staff_outlet"
+                      value={staffOutletId}
+                      onChange={handleStaffOutletChange}
+                      required={true}
+                      options={outlets.map(outlet => ({
+                        value: outlet.outlet_id.toString(),
+                        label: outlet.outlet_name
+                      }))}
+                      placeholder="Select single outlet"
+                    />
+                    <p className="text-sm text-gray-500 mt-1">
+                      As a staff member, you can only be assigned to one outlet
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
