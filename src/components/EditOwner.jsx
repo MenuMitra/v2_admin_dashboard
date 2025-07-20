@@ -16,6 +16,7 @@ import {
 import Breadcrumb from './Breadcrumb';
 import { API_CONFIG } from "../config/appConfig";
 import MultiSelectDropdown from './common/MultiSelectDropdown';
+import { toastController } from '../utils/toastController';
 
 function EditOwner() {
   const { getToken } = useAuth();
@@ -223,6 +224,15 @@ function EditOwner() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    if (name === 'role' && value !== originalRole) {
+      toastController.info('When changing role, only one outlet can be assigned as staff outlet');
+      setOwnerData(prev => ({
+        ...prev,
+        role: value
+      }));
+      return;
+    }
+
     if (name === 'mobile') {
       // Only allow numbers, max 10 digits
       let numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
@@ -265,12 +275,6 @@ function EditOwner() {
       setOwnerData(prev => ({ ...prev, [name]: value }));
       return;
     } 
-    else if (name === 'role') {
-      setOwnerData(prev => ({
-        ...prev,
-        role: value
-      }));
-    }
     else if (name === 'is_active') {
       setOwnerData(prev => ({
         ...prev,
@@ -559,13 +563,7 @@ function EditOwner() {
                 }))}
                 placeholder="Select Role"
               />
-              {ownerData.role !== originalRole && (
-                <div className="col-span-full">
-                  <p className="text-warning-500 text-sm bg-warning-50 p-2 rounded">
-                    Note: When changing role, only the first selected outlet will be assigned as the staff outlet.
-                  </p>
-                </div>
-              )}
+              
             </div>
 
             {/* Address and Outlets Section */}
@@ -609,23 +607,18 @@ function EditOwner() {
                   />
                 ) : (
                   /* Single-select dropdown for staff roles */
-                  <div>
-                    <SelectInput
-                      label="Select Staff Outlet"
-                      name="staff_outlet"
-                      value={staffOutletId}
-                      onChange={handleStaffOutletChange}
-                      required={true}
-                      options={outlets.map(outlet => ({
-                        value: outlet.outlet_id.toString(),
-                        label: outlet.outlet_name
-                      }))}
-                      placeholder="Select single outlet"
-                    />
-                    <p className="text-sm text-gray-500 mt-1">
-                      As a staff member, you can only be assigned to one outlet
-                    </p>
-                  </div>
+                  <SelectInput
+                    label="Select Staff Outlet"
+                    name="staff_outlet"
+                    value={staffOutletId}
+                    onChange={handleStaffOutletChange}
+                    required={true}
+                    options={outlets.map(outlet => ({
+                      value: outlet.outlet_id.toString(),
+                      label: outlet.outlet_name
+                    }))}
+                    placeholder="Select single outlet"
+                  />
                 )}
               </div>
             </div>
