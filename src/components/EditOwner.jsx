@@ -334,8 +334,9 @@ function EditOwner() {
         ? { outlet_ids: ownerData.outlet_ids }
         : { staff_outlet_id: Number(staffOutletId) };
 
-      // Validate staff outlet selection
-      if (!isOwnerRole && !staffOutletId) {
+      // Validate staff outlet selection for roles that need it
+      const rolesRequiringOutlet = ['captain', 'waiter', 'chef', 'manager'];
+      if (rolesRequiringOutlet.includes(ownerData.role) && !staffOutletId) {
         setError('Please select a staff outlet');
         setIsLoading(false);
         return;
@@ -368,7 +369,31 @@ function EditOwner() {
       );
 
       if (response.data.detail === "Owner updated successfully") {
-        navigate(-1);
+        // Handle navigation based on role
+        const roleNavigationMap = {
+          // Staff roles that require outlet_id
+          captain: `/captain-details/${staffOutletId}/${ownerId}`,
+          waiter: `/waiter-details/${staffOutletId}/${ownerId}`,
+          chef: `/chef-details/${staffOutletId}/${ownerId}`,
+          manager: `/manager-details/${staffOutletId}/${ownerId}`,
+          
+          // Roles with their own details pages
+          owner: -1, // Navigate back for owner role
+          partner: `/partner-details/${ownerId}`,
+          customer: `/customer-details/${ownerId}`,
+        };
+
+        const navigationPath = roleNavigationMap[ownerData.role];
+        
+        if (navigationPath === -1) {
+          navigate(-1);
+        } else if (navigationPath) {
+          navigate(navigationPath);
+        } else {
+          // If role not found in map, show warning and navigate to home
+          toastController.warning(`No specific view found for role: ${ownerData.role}`);
+          navigate('/home');
+        }
       }
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to update owner');
