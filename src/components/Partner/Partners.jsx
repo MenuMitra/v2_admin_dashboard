@@ -14,6 +14,7 @@ import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import { usePartners } from "../../lib/react-query/hooks/usePartners";
+import { toastController } from "../../utils/toastController";
 
 function Partners() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ function Partners() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [partnerToDelete, setPartnerToDelete] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   const {
     partners,
@@ -29,6 +31,7 @@ function Partners() {
     error,
     refetch,
     deleteMutation,
+    bulkAction,
     counts,
   } = usePartners();
 
@@ -37,14 +40,33 @@ function Partners() {
       await deleteMutation.mutateAsync(partnerToDelete.user_id);
       setIsDeleteModalOpen(false);
       setPartnerToDelete(null);
-    } catch (err) {
-      // Error handling is done in the mutation
+    } catch (error) {
+      toastController.error(error.response?.data?.detail || 'Failed to delete partner');
     }
   };
 
-  const handleBulkAction = async (action) => {
-    // Implement bulk actions if needed
-    console.log('Bulk action:', action);
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      // Convert normalized IDs back to partner IDs
+      const partner_ids = selectedIds.map(id => {
+        const partner = partners.find(p => p.user_id === id);
+        return partner.user_id;
+      });
+
+      const payload = {
+        user_id: adminData.user_id,
+        action: action,
+        app_source: "pos_app",
+        partner_ids: partner_ids
+      };
+
+      await bulkAction.mutateAsync(payload);
+      setSelectedItems([]);
+      toastController.success('Bulk action completed successfully!');
+    } catch (error) {
+      console.error("Error performing bulk action:", error);
+      toastController.error(error.response?.data?.detail || 'Failed to process bulk action');
+    }
   };
 
   // Define columns for DataTable
@@ -165,15 +187,17 @@ function Partners() {
         showBackButton={true}
         backButtonLabel="Back"
         enableSelection={true}
-        onSelectionChange={() => {}}
+        onSelectionChange={setSelectedItems}
+        selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
+        idField="user_id"
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
         }}
         onReload={refetch}
-        isLoading={deleteMutation.isLoading}
+        isLoading={isLoading || deleteMutation.isLoading || bulkAction.isLoading}
       />
 
       <DeleteConfirmModal

@@ -1,0 +1,136 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Bulk Action Implementation Patterns
+
+## Standard Bulk Action Structure
+
+### 1. Data Normalization ⚠️
+```javascript
+// ✅ CORRECT Pattern - Always normalize IDs
+const normalizedData = useMemo(() => {
+  return data.map(item => ({
+    ...item,
+    id: item.entity_id // Normalize ID field for selection
+  }));
+}, [data]);
+
+// 🚫 WRONG - Using raw data without normalization
+const data = items.map(item => item); // Missing ID normalization
+```
+
+### 2. Bulk Action Handler Pattern
+```javascript
+// ✅ CORRECT Implementation
+const handleBulkAction = async (action, selectedIds) => {
+  try {
+    // Convert normalized IDs back to entity IDs
+    const entityIds = selectedIds.map(id => {
+      const entity = entities.find(e => e.id === id);
+      return entity.entity_id;
+    });
+
+    const payload = {
+      user_id: adminData.user_id,
+      action: action,
+      app_source: "pos_app",
+      entity_ids: entityIds
+    };
+
+    await bulkAction.mutateAsync(payload);
+    setSelectedItems([]);
+    toastController.success('Bulk action completed successfully!');
+  } catch (error) {
+    toastController.error(error.response?.data?.detail || 'Failed to process bulk action');
+  }
+};
+```
+
+### 3. API Integration Pattern
+```javascript
+// ✅ CORRECT Pattern in hooks file
+const bulkAction = useMutation({
+  mutationFn: async (payload) => {
+    const response = await axios.post(
+      'https://men4u.xyz/v2/common/bulk_entity_action',
+      payload,
+      {
+        headers: {
+          Authorization: getToken()  // ✅ CORRECT: getToken() includes Bearer
+        }
+      }
+    );
+    return response.data;
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.entity.list() });
+    refetch(); // Explicitly refetch to ensure latest data
+  }
+});
+```
+
+## DataTable Integration
+
+### 1. Component Setup
+```javascript
+<DataTable
+  data={normalizedData}
+  enableSelection={true}
+  onSelectionChange={setSelectedItems}
+  selectedItems={selectedItems}
+  onBulkAction={handleBulkAction}
+  idField="id"  // Use normalized id field
+/>
+```
+
+### 2. Selection State Management
+```javascript
+const [selectedItems, setSelectedItems] = useState([]);
+// Reset selection after successful bulk action
+setSelectedItems([]);
+```
+
+## Best Practices
+
+### 1. ID Handling
+- Always normalize IDs for consistent selection
+- Convert back to entity IDs when making API calls
+- Use proper type conversion if needed (parseInt, etc.)
+
+### 2. Error Handling
+- Implement proper error handling
+- Show user-friendly error messages
+- Log errors for debugging
+
+### 3. State Management
+- Reset selection after successful action
+- Update UI immediately after action
+- Handle loading states
+
+### 4. API Payload
+- Follow consistent payload structure
+- Include required metadata (user_id, app_source)
+- Validate IDs before sending
+
+## Common Pitfalls to Avoid
+
+1. ⚠️ ID Mismatch
+   - Always verify ID mapping
+   - Ensure proper type conversion
+   - Validate ID existence
+
+2. ⚠️ State Inconsistency
+   - Reset selection after action
+   - Update cache properly
+   - Handle partial success/failure
+
+3. ⚠️ Error Handling
+   - Handle network errors
+   - Show user feedback
+   - Maintain data consistency
+
+## Updates
+Last Updated: 2024-03-20
+Version: 1.0.0

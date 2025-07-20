@@ -68,6 +68,36 @@ export const usePartners = () => {
     },
   });
 
+  // Bulk action mutation
+  const bulkAction = useMutation({
+    mutationFn: async (payload) => {
+      const token = getToken();
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await axios.post(
+        'https://men4u.xyz/v2/common/bulk_partner_action',
+        payload,
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(queryKeys.partners.list());
+      refetch();
+      toastController.success('Bulk action completed successfully');
+    },
+    onError: (err) => {
+      toastController.error(err.response?.data?.detail || 'Failed to process bulk action');
+    }
+  });
+
   // Calculate counts
   const counts = {
     total: partners.length,
@@ -81,6 +111,9 @@ export const usePartners = () => {
     error,
     refetch,
     deleteMutation,
+    bulkAction,
+    isBulkActioning: bulkAction.isLoading,
+    bulkActionError: bulkAction.error,
     counts,
   };
 }; 
