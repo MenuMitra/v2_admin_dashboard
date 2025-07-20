@@ -88,7 +88,9 @@ export const useSuperOwners = () => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [queryKeys.superOwners] });
+      // Invalidate and refetch to get latest data
+      queryClient.invalidateQueries({ queryKey: queryKeys.superOwners.list() });
+      refetch(); // Explicitly refetch to ensure we have latest data
     }
   });
 

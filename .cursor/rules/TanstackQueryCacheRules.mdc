@@ -1,0 +1,126 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Tanstack Query Cache Rules
+
+## Cache Invalidation Rules
+
+### 1. Mutation Success Handling ⚠️
+```javascript
+// ✅ CORRECT Pattern - Always invalidate and refetch after mutations
+const mutation = useMutation({
+  mutationFn: async (payload) => {
+    // mutation logic
+  },
+  onSuccess: () => {
+    // 1. Invalidate the specific query
+    queryClient.invalidateQueries({ queryKey: queryKeys.entity.list() });
+    // 2. Explicitly refetch to ensure latest data
+    refetch();
+  }
+});
+
+// 🚫 WRONG Pattern - Missing refetch
+const mutation = useMutation({
+  mutationFn: async (payload) => {
+    // mutation logic
+  },
+  onSuccess: () => {
+    // Only invalidating without refetch might lead to stale data
+    queryClient.invalidateQueries({ queryKey: queryKeys.entity.list() });
+  }
+});
+```
+
+### 2. Query Key Structure
+```javascript
+// ✅ CORRECT Pattern
+export const queryKeys = {
+  entity: {
+    all: ['entity'],
+    list: () => [...queryKeys.entity.all, 'list'],
+    details: (id) => [...queryKeys.entity.all, 'details', id]
+  }
+};
+
+// Use in mutations
+onSuccess: () => {
+  queryClient.invalidateQueries({ queryKey: queryKeys.entity.list() });
+}
+```
+
+### 3. Bulk Actions
+```javascript
+// ✅ CORRECT Pattern for bulk actions
+const bulkAction = useMutation({
+  mutationFn: async (payload) => {
+    // bulk action logic
+  },
+  onSuccess: () => {
+    // 1. Invalidate the list query
+    queryClient.invalidateQueries({ queryKey: queryKeys.entity.list() });
+    // 2. Explicitly refetch to ensure we have latest data
+    refetch();
+  }
+});
+```
+
+## Best Practices
+
+### 1. Query Configuration
+- Always specify `staleTime` and `cacheTime` based on data volatility
+- Use `enabled` flag for dependent queries
+- Implement proper error boundaries
+
+### 2. Mutation Patterns
+- Always handle `onSuccess` and `onError`
+- Invalidate relevant queries after successful mutations
+- Explicitly refetch after bulk operations
+- Use optimistic updates for better UX when appropriate
+
+### 3. Cache Management
+- Keep query keys consistent and hierarchical
+- Use proper query key factories
+- Invalidate specific queries instead of broad cache clearing
+- Consider using `setQueryData` for immediate updates
+
+### 4. Error Handling
+```javascript
+// ✅ CORRECT Pattern
+const mutation = useMutation({
+  mutationFn: async (payload) => {
+    // mutation logic
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.entity.list() });
+    refetch();
+    toastController.success('Operation successful');
+  },
+  onError: (error) => {
+    toastController.error(error.response?.data?.detail || 'Operation failed');
+  }
+});
+```
+
+## Common Pitfalls to Avoid
+
+1. ⚠️ Forgetting to Refetch
+   - Always pair `invalidateQueries` with `refetch` for bulk operations
+   - Ensures UI is updated with latest data
+
+2. ⚠️ Over-invalidation
+   - Don't invalidate all queries unnecessarily
+   - Target specific query keys that are affected
+
+3. ⚠️ Missing Error Handling
+   - Always implement proper error handling
+   - Use toast notifications for user feedback
+
+## Updates
+Last Updated: 2024-03-20
+Version: 1.0.0
+
+Note: These rules ensure consistent data handling across the application. Always follow these patterns for predictable cache behavior.
+
