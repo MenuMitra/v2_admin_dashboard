@@ -15,7 +15,7 @@ export const useAuth = () => {
   const logout = useCallback(() => {
     setAuthData(null);
     localStorage.removeItem('auth');
-    navigate('/login');
+    navigate('/');
   }, [navigate]); // Only depends on navigate
 
   // Move interceptor after logout definition
@@ -25,7 +25,7 @@ export const useAuth = () => {
       (error) => {
         if (error.response?.status === 401) {
           // Check if we're not already on login page to prevent loops
-          if (window.location.pathname !== '/login') {
+          if (window.location.pathname !== '/') {
             toastController.error('Session expired. Please login again.');
             logout();
           }

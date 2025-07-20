@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -31,7 +31,8 @@ function SuperOwner() {
     isLoading, 
     error, 
     refetch, 
-    deleteMutation 
+    deleteMutation,
+    bulkAction
   } = useSuperOwners();
   
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,6 +40,14 @@ function SuperOwner() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+
+  // Normalize the data for selection handling
+  const normalizedSuperOwners = useMemo(() => {
+    return superOwners.map(owner => ({
+      ...owner,
+      id: owner.super_owner_id // Normalize id field for selection
+    }));
+  }, [superOwners]);
 
   const handleViewDetails = (superOwnerId) => {
     // Simply navigate to the details page
@@ -63,6 +72,30 @@ function SuperOwner() {
       // Error handling is done in the mutation
       setShowDeleteModal(false);
       setOwnerToDelete(null);
+    }
+  };
+
+  const handleBulkAction = async (action, selectedIds) => {
+    try {
+      // Convert the normalized ids back to super_owner_ids
+      const super_owner_ids = selectedIds.map(id => {
+        const superOwner = superOwners.find(owner => owner.super_owner_id === id);
+        return superOwner.super_owner_id;
+      });
+
+      const payload = {
+        user_id: adminData.user_id,
+        action: action,
+        app_source: "pos_app",
+        super_owner_ids: super_owner_ids
+      };
+
+      await bulkAction.mutateAsync(payload);
+      setSelectedItems([]);
+      toastController.success('Bulk action completed successfully!');
+    } catch (error) {
+      console.error("Error performing bulk action:", error);
+      toastController.error(error.response?.data?.detail || 'Failed to process bulk action');
     }
   };
 
@@ -183,7 +216,8 @@ function SuperOwner() {
     <>
       <Breadcrumb items={breadcrumbItems} />
       <DataTable
-        data={superOwners.filter(owner => {
+        // Use normalized data instead of direct superOwners
+        data={normalizedSuperOwners.filter(owner => {
           if (statusFilter === 'all') return true;
           const isActive = owner.is_active === true;
           return statusFilter === 'active' ? isActive : !isActive;
@@ -200,7 +234,8 @@ function SuperOwner() {
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
-        onBulkAction={() => {}}
+        onBulkAction={handleBulkAction}
+        idField="id" // Use the normalized id field for selection
         
         title="Super Owners"
         counts={{
@@ -225,6 +260,7 @@ function SuperOwner() {
           setStatusFilter(value);
         }}
         onReload={refetch}
+        idField="super_owner_id"
       />
 
       <DeleteConfirmModal 

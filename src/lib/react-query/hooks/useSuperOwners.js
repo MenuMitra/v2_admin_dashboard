@@ -97,12 +97,32 @@ export const useSuperOwners = () => {
     },
   });
 
+  const bulkAction = useMutation({
+    mutationFn: async (payload) => {
+      const response = await axios.post(
+        'https://men4u.xyz/v2/common/bulk_super_owner_action',
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`
+          }
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [queryKeys.superOwners] });
+    }
+  });
+
   return {
     superOwners,
     isLoading,
     error,
     refetch,
-    fetchSuperOwnerDetails,
     deleteMutation,
+    bulkAction,  // This should be the mutation object
+    isBulkActioning: bulkAction.isLoading,
+    bulkActionError: bulkAction.error
   };
 }; 
