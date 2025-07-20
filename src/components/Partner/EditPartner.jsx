@@ -26,6 +26,7 @@ import {
   isAadharValid,
   isAddressValid,
 } from "../../utils/validations";
+import { toastController } from "../../utils/toastController";
 
 function EditPartner() {
   const navigate = useNavigate();
@@ -38,8 +39,7 @@ function EditPartner() {
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [validationErrors, setValidationErrors] = useState({});
   const [roles, setRoles] = useState([]);
-  // const [outlets, setOutlets] = useState([]);
-  // const [selectedOutlets, setSelectedOutlets] = useState([]);
+  const [outlets, setOutlets] = useState([]);
 
   const [partnerDetails, setPartnerDetails] = useState({
     name: "",
@@ -51,7 +51,7 @@ function EditPartner() {
     is_active: 0,
     functionality_ids: [],
     role: "",
-    // outlet_ids: [],
+    outlet_id: "", // Add outlet_id field
   });
 
   useEffect(() => {
@@ -63,7 +63,7 @@ function EditPartner() {
   useEffect(() => {
     fetchFunctionalities();
     fetchRoles();
-    // fetchOutlets();
+    fetchOutlets();
   }, []);
 
   const fetchFunctionalities = async () => {
@@ -107,8 +107,7 @@ function EditPartner() {
     }
   };
 
-  // Comment out fetchOutlets function
-  /*
+  // Uncomment and modify fetchOutlets function
   const fetchOutlets = async () => {
     try {
       const token = getToken();
@@ -137,9 +136,8 @@ function EditPartner() {
       setError("Failed to load outlets");
     }
   };
-  */
 
-  // Modify fetchPartnerDetails to remove outlet handling
+  // Modify fetchPartnerDetails to include outlet_id
   const fetchPartnerDetails = async () => {
     try {
       setIsLoading(true);
@@ -151,7 +149,7 @@ function EditPartner() {
       const response = await axios.post(
         "https://men4u.xyz/v2/admin/view_partner",
         {
-          partner_id: Number(partnerId),
+          partner_id: Number(partnerId), // Changed back to partner_id to match usePartnerDetails.js
           user_id: adminData.user_id,
           app_source: "admin",
         },
@@ -168,10 +166,6 @@ function EditPartner() {
       );
       setSelectedFunctionalities(funcIds);
 
-      // Remove outlet_ids handling
-      // const outletIds = response.data.outlets?.map(outlet => outlet.outlet_id) || [];
-      // setSelectedOutlets(outletIds);
-
       setPartnerDetails({
         name: response.data.name,
         email: response.data.email,
@@ -182,7 +176,7 @@ function EditPartner() {
         is_active: response.data.is_active,
         functionality_ids: funcIds,
         role: response.data.role || "",
-        // outlet_ids: outletIds,
+        outlet_id: response.data.outlet_id || "",
       });
       setIsLoading(false);
     } catch (err) {
@@ -290,7 +284,7 @@ function EditPartner() {
   };
   */
 
-  // Modify handleSubmit to remove outlet_ids
+  // Modify handleSubmit with correct payload
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -317,12 +311,18 @@ function EditPartner() {
       const response = await axios.patch(
         "https://men4u.xyz/v2/admin/update_partner",
         {
-          ...partnerDetails,
-          partner_id: Number(partnerId),
-          user_id: adminData.user_id,
+          name: partnerDetails.name,
+          email: partnerDetails.email,
+          mobile: partnerDetails.mobile,
           dob: formattedDate,
+          aadhar_number: partnerDetails.aadhar_number,
+          address: partnerDetails.address,
+          is_active: partnerDetails.is_active,
           functionality_ids: selectedFunctionalities,
-          // outlet_ids: selectedOutlets,
+          role: partnerDetails.role,
+          user_id: Number(partnerId),
+          update_user_id: adminData.user_id,
+          outlet_id: Number(partnerDetails.outlet_id),
           app_source: "admin",
         },
         {
@@ -334,7 +334,28 @@ function EditPartner() {
       );
 
       if (response.data.detail === "Partner updated successfully") {
-        navigate("/partners");
+        // Handle navigation based on role
+        const roleNavigationMap = {
+          // Staff roles that require outlet_id
+          captain: `/captain-details/${partnerDetails.outlet_id}/${partnerId}`,
+          waiter: `/waiter-details/${partnerDetails.outlet_id}/${partnerId}`,
+          chef: `/chef-details/${partnerDetails.outlet_id}/${partnerId}`,
+          manager: `/manager-details/${partnerDetails.outlet_id}/${partnerId}`,
+          
+          // Roles with their own details pages
+          owner: `/owner-details/${partnerId}`,
+          partner: `/partner-details/${partnerId}`,
+          customer: `/customer-details/${partnerId}`,
+        };
+
+        const navigationPath = roleNavigationMap[partnerDetails.role];
+        if (navigationPath) {
+          navigate(navigationPath);
+        } else {
+          // If role not found in map, show warning and navigate to partners list
+          toastController.warning(`No specific view found for role: ${partnerDetails.role}`);
+          navigate('/partners');
+        }
       }
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to update partner");
@@ -496,6 +517,23 @@ function EditPartner() {
                   rows={3}
                 />
               </div>
+
+              {/* Add Outlet Selection to Form */}
+              <SelectInput
+                label="Outlet"
+                name="outlet_id"
+                value={partnerDetails.outlet_id}
+                onChange={handleChange}
+                required
+                options={[
+                  { value: "", label: "Select Outlet" },
+                  ...outlets.map(outlet => ({
+                    value: outlet.outlet_id,
+                    label: outlet.outlet_name
+                  }))
+                ]}
+                placeholder="Select Outlet"
+              />
             </div>
 
             {/* Functionalities Section */}
