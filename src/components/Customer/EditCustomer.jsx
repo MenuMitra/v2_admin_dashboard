@@ -19,7 +19,7 @@ const INITIAL_CUSTOMER_STATE = {
   mobile: "",
   role: "",
   is_active: true,
-  outlet_id: "", // <-- Add this line
+  outlet_id: "",
 };
 
 function EditCustomer() {
@@ -32,6 +32,7 @@ function EditCustomer() {
   const [isSaving, setIsSaving] = useState(false);
   const [roles, setRoles] = useState([]);
   const [customerData, setCustomerData] = useState(INITIAL_CUSTOMER_STATE);
+  const [originalRole, setOriginalRole] = useState(''); // Add state for original role
   const [validationStates, setValidationStates] = useState({
     name: true,
     mobile: true,
@@ -39,7 +40,7 @@ function EditCustomer() {
     role: true
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
-  const [outlets, setOutlets] = useState([]); // <-- Add this line
+  const [outlets, setOutlets] = useState([]);
 
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -76,18 +77,20 @@ function EditCustomer() {
         axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/roles`, {
           headers: { Authorization: getToken() },
         }),
-        axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/outlets`, { // <-- Add this block
+        axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/outlets`, {
           headers: { Authorization: getToken() },
         }),
       ]);
 
       const { customer_details } = customerResponse.data;
+      const role = customer_details.role || "";
+      setOriginalRole(role); // Store original role
       setCustomerData({
         name: customer_details.name || "",
         mobile: customer_details.mobile || "",
-        role: customer_details.role || "",
+        role: role,
         is_active: customer_details.is_active === 1,
-        outlet_id: customer_details.outlet_id || "", // <-- Add this line
+        outlet_id: customer_details.outlet_id || "",
       });
       setRoles(rolesResponse.data);
       setOutlets(
@@ -199,6 +202,23 @@ function EditCustomer() {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     
+    if (name === 'role') {
+      if (value !== 'customer' && originalRole === 'customer') {
+        toastController.info('As a staff member, you can only be assigned to one outlet');
+      }
+      setCustomerData(prev => ({
+        ...prev,
+        [name]: value,
+        // Reset outlet_id when switching from customer to other roles
+        outlet_id: value !== 'customer' ? '' : prev.outlet_id
+      }));
+      setValidationStates(prev => ({
+        ...prev,
+        role: !!value
+      }));
+      return;
+    }
+
     if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
@@ -226,17 +246,7 @@ function EditCustomer() {
         [name]: value === "1"
       }));
     }
-    else if (name === 'role') {
-      setCustomerData(prev => ({
-        ...prev,
-        [name]: value
-      }));
-      setValidationStates(prev => ({
-        ...prev,
-        role: !!value
-      }));
-    }
-    else if (name === 'outlet_id') { // <-- Add this block
+    else if (name === 'outlet_id') {
       setCustomerData(prev => ({
         ...prev,
         [name]: value
@@ -366,20 +376,24 @@ function EditCustomer() {
               ]}
             />
 
-<SelectInput
-  label="Outlet"
-  name="outlet_id"
-  value={customerData.outlet_id}
-  onChange={handleInputChange}
-  required
-  options={[
-    { value: "", label: "Select Outlet" },
-    ...outlets.map(outlet => ({
-      value: outlet.id,
-      label: outlet.name
-    }))
-  ]}
-/>
+            {/* Conditional Outlet Selection */}
+            {customerData.role && (
+              <SelectInput
+                label="Outlet"
+                name="outlet_id"
+                value={customerData.outlet_id}
+                onChange={handleInputChange}
+                required={customerData.role !== 'customer'}
+                options={[
+                  { value: "", label: "Select Outlet" },
+                  ...outlets.map(outlet => ({
+                    value: outlet.id,
+                    label: outlet.name
+                  }))
+                ]}
+                disabled={customerData.role === 'customer'}
+              />
+            )}
 
             <SelectInput
               label="Status"
