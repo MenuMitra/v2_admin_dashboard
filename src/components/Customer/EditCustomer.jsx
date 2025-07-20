@@ -143,31 +143,52 @@ function EditCustomer() {
 
     try {
       setIsSaving(true);
-      await toastController.promise(
-        axios.patch(
-          `${BASE_URL}/${API_VERSION}/admin/customer_update`,
-          {
-            user_id: adminData?.user_id,
-            customer_id: Number(customerId),
-            name: customerData.name,
-            mobile: customerData.mobile,
-            role: customerData.role,
-            is_active: customerData.is_active ? 1 : 0,
-            outlet_id: customerData.outlet_id, // <-- Add this line
-            app_source: "admin_app"
-          },
-          {
-            headers: { Authorization: getToken() },
-          }
-        ),
+      const response = await axios.patch(
+        `${BASE_URL}/${API_VERSION}/admin/customer_update`,
         {
-          loading: "Updating customer...",
-          success: "Customer updated successfully",
-          error: (err) => err.response?.data?.msg || "Failed to update customer"
+          user_id: adminData?.user_id,
+          customer_id: Number(customerId),
+          name: customerData.name,
+          mobile: customerData.mobile,
+          role: customerData.role,
+          is_active: customerData.is_active ? 1 : 0,
+          outlet_id: customerData.outlet_id,
+          app_source: "admin_app"
+        },
+        {
+          headers: { Authorization: getToken() },
         }
       );
 
-      navigate(-1);
+      await toastController.promise(Promise.resolve(response), {
+        loading: "Updating customer...",
+        success: "Customer updated successfully",
+        error: (err) => err.response?.data?.msg || "Failed to update customer"
+      });
+
+      // Handle navigation based on role
+      const roleNavigationMap = {
+        // Staff roles that require outlet_id
+        captain: `/captain-details/${customerData.outlet_id}/${customerId}`,
+        waiter: `/waiter-details/${customerData.outlet_id}/${customerId}`,
+        chef: `/chef-details/${customerData.outlet_id}/${customerId}`,
+        manager: `/manager-details/${customerData.outlet_id}/${customerId}`,
+        
+        // Roles with their own details pages
+        owner: `/owner-details/${customerId}`,
+        partner: `/partner-details/${customerId}`,
+        customer: `/customer-details/${customerId}`,
+      };
+
+      const navigationPath = roleNavigationMap[customerData.role];
+      if (navigationPath) {
+        navigate(navigationPath);
+      } else {
+        // If role not found in map, show warning and navigate back
+        toastController.warning(`No specific view found for role: ${customerData.role}`);
+        navigate(-1);
+      }
+
     } catch (error) {
       console.error('Error updating customer:', error);
     } finally {
