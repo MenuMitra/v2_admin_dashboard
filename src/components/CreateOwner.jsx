@@ -532,8 +532,29 @@ function CreateOwner() {
                   </p>
                 )}
               </div>
+              <div className="sm:col-span-1">
+                {/*Outlets Section */}
+            
+
+{/* Outlets Dropdown */}
+<div className="sm:col-span-1 xl:col-span-2 flex flex-col">
+  <MultiSelectDropdown
+    label="Select Outlets"
+    options={outlets}
+    selectedValues={selectedOutlets}
+    onChange={handleOutletChange}
+    displayKey="outlet_name"
+    valueKey="outlet_id"
+    searchKeys={['outlet_name']}
+    required={true}
+    placeholder="Select outlets"
+    searchPlaceholder="Search outlets..."
+  />
+</div>
+</div>
+              </div>
            
-            </div>
+            
 
             {/* Add Account Type */}
             <SelectInput
@@ -563,45 +584,7 @@ function CreateOwner() {
               placeholder="Select Status"
             />
 
-            {/* Address and Outlets Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              {/* Address */}
-              <div className="sm:col-span-1 xl:col-span-2">
-                <Textarea
-                  label="Address"
-                  name="address"
-                  value={ownerData.address}
-                  onChange={handleChange}
-                  placeholder="Enter complete address"
-                  rows={3}
-                />
-                {validationStates.address && (
-                  <p className="text-error-500 text-sm -mt-1">
-                    {!ownerData.address
-                      ? ""
-                      : ownerData.address.length < 5
-                      ? "Minimum 5 characters required"
-                      : "Address must not exceed 50 characters"}
-                  </p>
-                )}
-              </div>
-
-              {/* Outlets Dropdown */}
-              <div className="sm:col-span-1 xl:col-span-2 flex flex-col">
-                <MultiSelectDropdown
-                  label="Select Outlets"
-                  options={outlets}
-                  selectedValues={selectedOutlets}
-                  onChange={handleOutletChange}
-                  displayKey="outlet_name"
-                  valueKey="outlet_id"
-                  searchKeys={['outlet_name']}
-                  required={true}
-                  placeholder="Select outlets"
-                  searchPlaceholder="Search outlets..."
-                />
-              </div>
-            </div>
+              
 
             {/* Error Message */}
             {error && (
