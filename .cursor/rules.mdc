@@ -1,0 +1,160 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# MenuMitra Admin Dashboard - Cursor IDE Rules
+
+## ⚠️ CRITICAL: API Authentication Rule ⚠️
+
+### Bearer Token Rule
+NEVER add 'Bearer' prefix when using `getToken()` as it already includes the Bearer prefix.
+
+```javascript
+// 🚫 WRONG - NEVER DO THIS
+headers: {
+  Authorization: `Bearer ${getToken()}`  // Creates "Bearer Bearer token..."
+}
+
+// ✅ CORRECT - ALWAYS DO THIS
+headers: {
+  Authorization: getToken()  // Correctly formatted as "Bearer token..."
+}
+
+// 🚫 WRONG RESULT
+"Bearer Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+// ✅ CORRECT RESULT
+"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
+
+### Common Token Issues
+1. Double Bearer Prefix
+   - Always use `getToken()` directly
+   - Never manually add 'Bearer'
+   - Check network requests to verify token format
+
+2. Token Implementation
+   ```javascript
+   // ✅ CORRECT Implementation in API calls
+   const apiCall = async () => {
+     const response = await axios.post(url, data, {
+       headers: {
+         Authorization: getToken()  // Correct
+       }
+     });
+   };
+   ```
+
+## Project Structure
+```
+menumitra_v2_admin_dashboard/
+├── .cursor/                  # Cursor IDE specific configurations
+│   ├── rules.mdc            # This file
+│   └── settings.json        # Cursor settings
+├── src/
+│   ├── assets/              # Static assets (images, fonts, etc.)
+│   ├── components/          # React components
+│   ├── contexts/            # React contexts
+│   ├── hooks/              # Custom hooks
+│   ├── lib/                # Library configurations
+│   │   └── react-query/    # React Query configurations
+│   ├── utils/              # Utility functions
+│   └── styles/             # Global styles
+└── public/                 # Public assets
+```
+
+## Code Style Guidelines
+
+### API Integration Pattern
+```javascript
+// ✅ CORRECT API Integration Pattern
+const customHook = () => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const response = await axios.post(
+        'https://men4u.xyz/v2/endpoint',
+        payload,
+        {
+          headers: {
+            Authorization: getToken()  // ✅ CORRECT
+          }
+        }
+      );
+      return response.data;
+    }
+  });
+};
+```
+
+### Component Structure
+```javascript
+// ✅ CORRECT Import Order
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+// Third-party libraries
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// Components
+import DataTable from '../common/DataTable';
+// Hooks
+import { useAuth } from '../../hooks/useAuth';
+// Utils
+import { toastController } from '../../utils/toastController';
+```
+
+### Hook Usage
+```javascript
+// ✅ CORRECT Custom Hook Pattern
+const { data, isLoading, error, mutate } = useCustomHook({
+  onSuccess: () => {
+    toastController.success('Operation successful');
+  },
+  onError: (err) => {
+    toastController.error(err.response?.data?.detail || 'Operation failed');
+  }
+});
+```
+
+## Best Practices
+
+### 1. State Management
+- Use React Query for server state
+- Use Context for global UI state
+- Use local state for component-specific state
+
+### 2. Error Handling
+- Always use try-catch for async operations
+- Use error boundaries for component errors
+- Implement proper loading states
+
+### 3. Performance
+- Implement proper memoization with useMemo and useCallback
+- Use virtualization for long lists
+- Optimize re-renders
+
+### 4. Security
+- Never expose sensitive data in logs
+- Use environment variables for sensitive values
+- Implement proper role-based access control
+- Always use proper token handling (refer to Bearer Token Rule)
+
+## Cursor IDE Specific
+
+### 1. File Naming
+- Components: PascalCase.jsx
+- Hooks: useCustomHook.js
+- Utils: camelCase.js
+
+### 2. Recommended Extensions
+- ESLint
+- Prettier
+- TailwindCSS IntelliSense
+
+## Updates
+Last Updated: 2024-03-20
+Version: 1.0.1
+
+Note: The Bearer token rule is a critical requirement. Always review API calls to ensure correct token usage.
+
+
+
