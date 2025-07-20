@@ -44,29 +44,6 @@ export const useSuperOwners = () => {
     enabled: Boolean(adminData?.user_id),
   });
 
-  // Details query function
-  const fetchSuperOwnerDetails = async (superOwnerId) => {
-    const token = getToken();
-    if (!token) throw new Error("No authentication token available");
-
-    const response = await axios.post(
-      'https://men4u.xyz/v2/admin/view_super_owner',
-      {
-        user_id: adminData.user_id,
-        super_owner_id: parseInt(superOwnerId),
-        app_source: 'admin_app'
-      },
-      {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    return response.data;
-  };
-
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (superOwnerId) => {
@@ -104,7 +81,7 @@ export const useSuperOwners = () => {
         payload,
         {
           headers: {
-            Authorization: `Bearer ${getToken()}`
+            Authorization: getToken()
           }
         }
       );
@@ -121,7 +98,7 @@ export const useSuperOwners = () => {
     error,
     refetch,
     deleteMutation,
-    bulkAction,  // This should be the mutation object
+    bulkAction,
     isBulkActioning: bulkAction.isLoading,
     bulkActionError: bulkAction.error
   };
