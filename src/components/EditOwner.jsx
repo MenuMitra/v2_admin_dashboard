@@ -330,9 +330,16 @@ function EditOwner() {
       }
 
       // Prepare outlet data based on role
-      const outletData = isOwnerRole
-        ? { outlet_ids: ownerData.outlet_ids }
-        : { staff_outlet_id: Number(staffOutletId) };
+      let outletData = {};
+      if (ownerData.role === 'owner') {
+        outletData = { outlet_ids: ownerData.outlet_ids };
+      } else if (ownerData.role === 'customer') {
+        // Customer role doesn't need any outlet data
+        outletData = {};
+      } else {
+        // All other staff roles need staff_outlet_id
+        outletData = { staff_outlet_id: Number(staffOutletId) };
+      }
 
       // Validate staff outlet selection for roles that need it
       const rolesRequiringOutlet = ['captain', 'waiter', 'chef', 'manager'];
