@@ -163,7 +163,7 @@ function CreateSubscription() {
 
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <button 
               onClick={() => navigate(-1)}
@@ -183,7 +183,7 @@ function CreateSubscription() {
               className={`
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
-                bg-brand-500 hover:bg-brand-600 
+                bg-success-500 hover:bg-success-600 
                 transition shadow-sm
                 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
               `}
@@ -289,7 +289,7 @@ function CreateSubscription() {
                         : 'text-gray-700 dark:text-gray-300'
                       }
                     `}>
-                      {feature.name.split('_').join(' ')}
+                      {feature.name.split('_').join(' ').toUpperCase()}
                     </span>
                   </div>
                 </div>
