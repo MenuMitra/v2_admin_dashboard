@@ -502,33 +502,6 @@ function CreateOwner() {
                   </p>
                 )}
               </div>
-
-              <SelectInput
-                label="Account Type"
-                name="account_type"
-                value={ownerData.account_type}
-                onChange={handleChange}
-                required
-                options={[
-                  { value: 'live', label: 'Live' },
-                  { value: 'test', label: 'Test' }
-                ]}
-                placeholder="Select Account Type"
-              />
-
-              <SelectInput
-                label="Owner Status"
-                name="is_active"
-                value={ownerData.is_active}
-                onChange={handleChange}
-                required
-                options={[
-                  { value: 1, label: 'Active' },
-                  { value: 0, label: 'Inactive' }
-                ]}
-                placeholder="Select Status"
-              />
-
               <div className="flex flex-col">
                 <MultiSelectDropdown
                   label="Select Outlets"
@@ -542,8 +515,36 @@ function CreateOwner() {
                   searchPlaceholder="Search outlets..."
                 />
               </div>
-            </div>
+<div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
+              <SelectInput
+                label="Account Type"
+                name="account_type"
+                value={ownerData.account_type}
+                onChange={handleChange}
+                required
+                options={[
+                  { value: 'live', label: 'Live' },
+                  { value: 'test', label: 'Test' }
+                ]}
+                placeholder="Select Account Type"
+              /> <SelectInput
+                label="Owner Status"
+                name="is_active"
+                value={ownerData.is_active}
+                onChange={handleChange}
+                required
+                options={[
+                  { value: 1, label: 'Active' },
+                  { value: 0, label: 'Inactive' }
+                ]}
+                placeholder="Select Status"
+              />
+              </div>
+             
 
+              
+            </div>
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
             {/* Address Field - Outside Grid */}
             <div className="mt-6">
               <Textarea
@@ -563,6 +564,7 @@ function CreateOwner() {
                     : "Address must not exceed 50 characters"}
                 </p>
               )}
+            </div>
             </div>
 
             {/* Error Message */}
