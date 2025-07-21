@@ -44,21 +44,29 @@ function Chefs() {
     queryKey: queryKeys.chefs.list(outletId),
     queryFn: async () => {
       const token = getToken();
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/chef_listview`,
-        {
-          outlet_id: outletId,
-          user_id: adminData.user_id,
-          app_source: "admin_app"
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/${API_VERSION}/common/chef_listview`,
+          {
+            outlet_id: outletId,
+            user_id: adminData.user_id,
+            app_source: "admin_app"
           },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        return response.data;
+      } catch (error) {
+        // If the error is "Outlet has no chef", return an empty array instead of throwing
+        if (error.response?.data?.detail === "Outlet has no chef") {
+          return { detail: [] };
         }
-      );
-      return response.data;
+        throw error; // Throw other errors to be handled by error boundary
+      }
     },
     enabled: Boolean(adminData?.user_id) && Boolean(outletId)
   });
@@ -130,11 +138,17 @@ function Chefs() {
   });
 
   // Memoized values
-  const chefs = React.useMemo(() => response?.detail || [], [response]);
-  const outletName = React.useMemo(() => 
-    chefs.length > 0 ? chefs[0].outlet_name : '',
-    [chefs]
-  );
+  const chefs = React.useMemo(() => {
+    if (Array.isArray(response?.detail)) {
+      return response.detail;
+    }
+    return [];
+  }, [response]);
+
+  const outletName = React.useMemo(() => {
+    // Try to get outlet name from first chef, if not available use 'Outlet'
+    return chefs.length > 0 ? chefs[0].outlet_name : 'Outlet';
+  }, [chefs]);
 
   // Memoized counts
   const counts = React.useMemo(() => ({
@@ -250,7 +264,8 @@ function Chefs() {
     );
   }
 
-  if (error) {
+  // Only show error for actual errors, not for "no chef" case
+  if (error && error.response?.data?.detail !== "Outlet has no chef") {
     return (
       <div className="text-error-500 text-center p-4">
         {error.response?.data?.msg || "Failed to load chefs"}
@@ -281,7 +296,11 @@ function Chefs() {
         
         // Header props
         title="Chefs"
-        counts={counts}
+        counts={{
+          total: chefs.length,
+          active: chefs.filter((chef) => chef.is_active).length,
+          inactive: chefs.filter((chef) => !chef.is_active).length
+        }}
         showBackButton={true}
         showSearch={true}
         searchPlaceholder="Search chefs..."
@@ -299,6 +318,9 @@ function Chefs() {
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
+        
+        // Add empty state message
+        emptyStateMessage="No chefs found. Create a new chef to get started!"
       />
 
       <DeleteConfirmModal
