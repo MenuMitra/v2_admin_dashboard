@@ -302,6 +302,7 @@ function EditOwner() {
 
   const isOwnerRole = ownerData.role === 'owner';
 
+  // Modify isFormValid to remove outlet validation
   const isFormValid = () => {
     // Check if all required fields are filled and valid
     return (
@@ -310,14 +311,15 @@ function EditOwner() {
       ownerData.aadhar_number?.trim() &&
       ownerData.account_type &&
       ownerData.functionality_ids.length > 0 &&
-      ownerData.role && // 7. Add role to validation
-      ownerData.outlet_ids.length > 0 && // Add validation for outlets
+      ownerData.role && // Keep role validation
+      // Remove outlet_ids validation
       validationStates.name &&
       validationStates.mobile &&
       validationStates.aadhar_number
     );
   };
 
+  // Modify handleSubmit to conditionally include role
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -331,42 +333,41 @@ function EditOwner() {
 
       // Prepare outlet data based on role
       let outletData = {};
-      if (ownerData.role === 'owner') {
+      if (ownerData.role === 'owner' && ownerData.outlet_ids.length > 0) {
         outletData = { outlet_ids: ownerData.outlet_ids };
       } else if (ownerData.role === 'customer') {
         // Customer role doesn't need any outlet data
         outletData = {};
-      } else {
-        // All other staff roles need staff_outlet_id
+      } else if (staffOutletId) {
+        // Only include staff_outlet_id if it's selected
         outletData = { staff_outlet_id: Number(staffOutletId) };
       }
 
-      // Validate staff outlet selection for roles that need it
-      const rolesRequiringOutlet = ['captain', 'waiter', 'chef', 'manager'];
-      if (rolesRequiringOutlet.includes(ownerData.role) && !staffOutletId) {
-        setError('Please select a staff outlet');
-        setIsLoading(false);
-        return;
+      // Create base payload
+      const basePayload = {
+        update_user_id: adminData.user_id,
+        user_id: parseInt(ownerId),
+        name: ownerData.name,
+        mobile: ownerData.mobile,
+        address: ownerData.address,
+        aadhar_number: ownerData.aadhar_number,
+        dob: ownerData.dob,
+        email: ownerData.email,
+        account_type: ownerData.account_type,
+        functionality_ids: ownerData.functionality_ids,
+        is_active: Number(ownerData.is_active),
+        app_source: "admin",
+        ...outletData,
+      };
+
+      // Only add role to payload if it has changed
+      if (ownerData.role !== originalRole) {
+        basePayload.role = ownerData.role;
       }
 
       const response = await axios.patch(
         `${BASE_URL}/${API_VERSION}/common/update_owner`,
-        {
-          update_user_id: adminData.user_id,
-          user_id: parseInt(ownerId),
-          name: ownerData.name,
-          mobile: ownerData.mobile,
-          address: ownerData.address,
-          aadhar_number: ownerData.aadhar_number,
-          dob: ownerData.dob,
-          email: ownerData.email,
-          account_type: ownerData.account_type,
-          functionality_ids: ownerData.functionality_ids,
-          is_active: Number(ownerData.is_active),
-          role: ownerData.role,
-          ...outletData,
-          app_source: "admin",
-        },
+        basePayload,
         {
           headers: {
             Authorization: token,
@@ -633,7 +634,7 @@ function EditOwner() {
                     displayKey="outlet_name"
                     valueKey="outlet_id"
                     searchKeys={['outlet_name']}
-                    required={true}
+                    // Remove required={true}
                     placeholder="Select outlets"
                     searchPlaceholder="Search outlets..."
                   />
@@ -644,7 +645,7 @@ function EditOwner() {
                     name="staff_outlet"
                     value={staffOutletId}
                     onChange={handleStaffOutletChange}
-                    required={true}
+                    // Remove required={true}
                     options={outlets.map(outlet => ({
                       value: outlet.outlet_id.toString(),
                       label: outlet.outlet_name
