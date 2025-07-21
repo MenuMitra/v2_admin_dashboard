@@ -46,21 +46,36 @@ function Managers() {
       if (!token) {
         throw new Error("No authentication token available");
       }
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/manager_listview`,
-        {
-          outlet_id: outletId,
-          user_id: adminData.user_id,
-          app_source: "admin",
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
+      try {
+        const response = await axios.post(
+          `${BASE_URL}/${API_VERSION}/common/manager_listview`,
+          {
+            outlet_id: outletId,
+            user_id: adminData.user_id,
+            app_source: "admin",
           },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        
+        // If the response indicates no managers, return an empty array
+        if (response.data.detail === "outlet has no manager") {
+          return [];
         }
-      );
-      return response.data.detail || [];
+        
+        // Otherwise return the manager list
+        return response.data.detail || [];
+      } catch (err) {
+        // If the error is "outlet has no manager", return empty array instead of throwing
+        if (err.response?.data?.detail === "outlet has no manager") {
+          return [];
+        }
+        throw err;
+      }
     },
     enabled: Boolean(adminData?.user_id) && Boolean(outletId)
   });
@@ -256,7 +271,8 @@ function Managers() {
     );
   }
 
-  if (error) {
+  // Only show error if it's not the "no manager" case
+  if (error && error.response?.data?.detail !== "outlet has no manager") {
     return (
       <div className="text-error-500 text-center p-4">
         {error.response?.data?.msg || "Failed to load managers"}
