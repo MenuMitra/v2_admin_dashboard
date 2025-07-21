@@ -758,7 +758,7 @@ function CreateOutlet() {
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="px-6 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => navigate(-1)}
@@ -795,8 +795,8 @@ function CreateOutlet() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-8">
-          <section className="bg-white p-6 rounded-lg shadow">
+        <form onSubmit={handleSubmit} className="p-8"><div className=" border-b border-gray-200 dark:border-gray-800 pb-5">
+          <section className="bg-white rounded-lg shadow ">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg
                 className="w-5 h-5 mr-2"
@@ -1272,9 +1272,10 @@ function CreateOutlet() {
                 )}
               </div>
             </div>
-          </section>
+          </section></div>
 
-          <section className="bg-white p-6 rounded-lg shadow">
+          <section className="bg-white p-2 rounded-lg shadow mt-5">
+          <div className=" border-b border-gray-200 dark:border-gray-800 pb-5">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg
                 className="w-5 h-5 mr-2"
@@ -1450,10 +1451,10 @@ function CreateOutlet() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div></div>
           </section>
 
-          <section className="bg-white p-6 rounded-lg shadow">
+          <section className="bg-white p-2 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg
                 className="w-5 h-5 mr-2"
