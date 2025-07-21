@@ -138,7 +138,7 @@ function ViewSubscription() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <div className="p-3 rounded-lg">
-                  <div className="text-base font-medium text-gray-900">{subscription.name}</div>
+                  <div className="text-base font-medium text-gray-900">{subscription.name.toUpperCase()}</div>
                   <div className="text-sm text-gray-500 mb-1">Name</div>
                 </div>
                 <div className="p-3 rounded-lg">
@@ -174,7 +174,7 @@ function ViewSubscription() {
                         />
                       </svg>
                       <span className="text-gray-900 capitalize">
-                        {feature.name.replace(/_/g, ' ')}
+                        {feature.name.replace(/_/g, ' ').toUpperCase()}
                       </span>
                     </div>
                   </div>

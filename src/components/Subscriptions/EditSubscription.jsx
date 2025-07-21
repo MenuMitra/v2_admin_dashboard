@@ -257,19 +257,7 @@ function EditSubscription() {
           {/* Basic Information Section */}
           <section className="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
             <h2 className="text-lg font-medium text-gray-800 dark:text-white/90 mb-4 flex items-center">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+              
               Basic Information
             </h2>
 
@@ -304,19 +292,6 @@ function EditSubscription() {
           <section className="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-gray-800 dark:text-white/90 flex items-center">
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                  />
-                </svg>
                 Features
                 <span className="text-error-600 ml-1">*</span>
               </h2>
