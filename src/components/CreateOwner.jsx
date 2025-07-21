@@ -293,20 +293,20 @@ function CreateOwner() {
     }));
   };
 
-  // Modify isFormValid to include outlet validation
+  // Modify isFormValid to remove outlet validation
   const isFormValid = () => {
     return (
       ownerData.name?.trim() &&
       ownerData.mobile?.trim() &&
       ownerData.aadhar_number?.trim() &&
-      ownerData.outlet_ids.length > 0 && // Add outlet validation
+      // Remove outlet_ids validation
       !validationStates.nameMessage &&
       validationStates.mobile &&
       validationStates.aadhar_number
     );
   };
 
-  // Modify handleSubmit to include outlet_ids
+  // Modify handleSubmit to make outlet_ids optional in payload
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitAttempted(true);
@@ -338,7 +338,8 @@ function CreateOwner() {
         address: ownerData.address,
         aadhar_number: ownerData.aadhar_number,
         dob: formattedDate,
-        outlet_ids: ownerData.outlet_ids, // Add outlet_ids to payload
+        // Only include outlet_ids if there are selected outlets
+        ...(ownerData.outlet_ids.length > 0 && { outlet_ids: ownerData.outlet_ids }),
         account_type: ownerData.account_type,
         is_active: ownerData.is_active,
         app_source: "admin",
@@ -546,7 +547,7 @@ function CreateOwner() {
     displayKey="outlet_name"
     valueKey="outlet_id"
     searchKeys={['outlet_name']}
-    required={true}
+    // Remove required={true}
     placeholder="Select outlets"
     searchPlaceholder="Search outlets..."
   />
