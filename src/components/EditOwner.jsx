@@ -553,7 +553,21 @@ function EditOwner() {
                     {validationStates.aadharMessage}
                   </p>
                 )}
-              </div>
+              </div> {/* Role - Added to the grid */}
+              <SelectInput
+                label="Role"
+                name="role"
+                value={ownerData.role}
+                onChange={handleChange}
+                required
+                options={roles.map(role => ({
+                  value: role.role_name,
+                  label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
+                }))}
+                placeholder="Select Role"
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
 
               {/* Owner Status - Added to the grid */}
               <SelectInput
@@ -569,6 +583,8 @@ function EditOwner() {
                 placeholder="Select Status"
               />
 
+              
+
               {/* Account Type - Modified for live/test options */}
               <SelectInput
                 label="Account Type"
@@ -583,24 +599,13 @@ function EditOwner() {
                 placeholder="Select Account Type"
               />
 
-              {/* Role - Added to the grid */}
-              <SelectInput
-                label="Role"
-                name="role"
-                value={ownerData.role}
-                onChange={handleChange}
-                required
-                options={roles.map(role => ({
-                  value: role.role_name,
-                  label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
-                }))}
-                placeholder="Select Role"
-              />
+              </div>
+             
               
             </div>
 
             {/* Address and Outlets Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-4">
               {/* Address */}
               <div className="sm:col-span-1 xl:col-span-2">
                 <Textarea
@@ -622,6 +627,7 @@ function EditOwner() {
                 )}
               </div>
 
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
               {/* Outlets Selection based on role */}
               <div className="sm:col-span-1 xl:col-span-2 flex flex-col">
                 {isOwnerRole ? (
@@ -653,6 +659,7 @@ function EditOwner() {
                     placeholder="Select single outlet"
                   />
                 )}
+              </div>
               </div>
             </div>
 
