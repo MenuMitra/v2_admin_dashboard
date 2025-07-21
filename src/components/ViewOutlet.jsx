@@ -277,7 +277,7 @@ function ViewOutlet() {
                 </h2>
                 <button
                   onClick={() => setShowBulkUploadModal(true)}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 hover:bg-brand-600 shadow-theme-xs"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font- transition rounded-full border-brand-500 border-2 text-dark shadow-theme-xs"
                 >
                   <FontAwesomeIcon icon={faUpload} className="w-4 h-4" />
                   <span>Bulk Upload</span>
