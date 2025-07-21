@@ -130,7 +130,7 @@ function CreatePartner() {
         aadhar_number: partnerDetails.aadhar_number,
         address: partnerDetails.address,
         functionality_ids: partnerDetails.functionality_ids,
-        "app_soure" : "admin_app"
+        app_soure : "admin_app"
       };
 
       const response = await axios.post(
