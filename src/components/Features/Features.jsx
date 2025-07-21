@@ -110,7 +110,7 @@ function Features() {
       render: (value) => (
         <div className="flex items-center justify-center">
           <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90 capitalize">
-            {value.split("_").join(" ")}
+            {value.split("_").join(" ").toUpperCase()}
           </span>
         </div>
       ),

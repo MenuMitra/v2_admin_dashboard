@@ -41,7 +41,7 @@ function Subscriptions() {
       sortable: true,
       render: (value) => (
         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-          {value}
+          {value.toUpperCase()}
         </p>
       ),
     },
