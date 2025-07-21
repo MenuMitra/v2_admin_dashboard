@@ -424,7 +424,7 @@ function CreateOwner() {
         {/* Form Content */}
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
+            {/* Basic Information - First Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <TextInput
                 label="Full Name"
@@ -437,12 +437,7 @@ function CreateOwner() {
                 onValidation={handleValidation("name")}
                 isSubmitAttempted={isSubmitAttempted}
               />
-              {validationStates.name && validationStates.nameMessage && (
-                <p className="text-error-500 text-sm -mt-1">
-                  {validationStates.nameMessage}
-                </p>
-              )}
-
+              
               <div className="relative">
                 <TextInput
                   label="Mobile Number"
@@ -455,11 +450,7 @@ function CreateOwner() {
                   maxLength={10}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      !validationStates.mobile
-                        ? "border-error-500"
-                        : "border-gray-300"
-                    }
+                    ${!validationStates.mobile ? "border-error-500" : "border-gray-300"}
                   `}
                 />
                 {!validationStates.mobile && (
@@ -487,7 +478,10 @@ function CreateOwner() {
                 onChange={handleChange}
                 placeholder="Select Date of birth"
               />
+            </div>
 
+            {/* Second Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <div className="relative">
                 <TextInput
                   label="Aadhar Number"
@@ -499,11 +493,7 @@ function CreateOwner() {
                   maxLength={12}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      !validationStates.aadhar_number
-                        ? "border-error-500"
-                        : "border-gray-300"
-                    }
+                    ${!validationStates.aadhar_number ? "border-error-500" : "border-gray-300"}
                   `}
                 />
                 {!validationStates.aadhar_number && (
@@ -512,80 +502,68 @@ function CreateOwner() {
                   </p>
                 )}
               </div>
-               {/* Address */}
-           
-              <div className="sm:col-span-1">
-                <Textarea
-                  label="Address"
-                  name="address"
-                  value={ownerData.address}
-                  onChange={handleChange}
-                  placeholder="Enter address"
-                  rows={3}
+
+              <SelectInput
+                label="Account Type"
+                name="account_type"
+                value={ownerData.account_type}
+                onChange={handleChange}
+                required
+                options={[
+                  { value: 'live', label: 'Live' },
+                  { value: 'test', label: 'Test' }
+                ]}
+                placeholder="Select Account Type"
+              />
+
+              <SelectInput
+                label="Owner Status"
+                name="is_active"
+                value={ownerData.is_active}
+                onChange={handleChange}
+                required
+                options={[
+                  { value: 1, label: 'Active' },
+                  { value: 0, label: 'Inactive' }
+                ]}
+                placeholder="Select Status"
+              />
+
+              <div className="flex flex-col">
+                <MultiSelectDropdown
+                  label="Select Outlets"
+                  options={outlets}
+                  selectedValues={selectedOutlets}
+                  onChange={handleOutletChange}
+                  displayKey="outlet_name"
+                  valueKey="outlet_id"
+                  searchKeys={['outlet_name']}
+                  placeholder="Select outlets"
+                  searchPlaceholder="Search outlets..."
                 />
-                {validationStates.address && (
-                  <p className="text-error-500 text-sm -mt-1">
-                    {!ownerData.address
-                      ? ""
-                      : ownerData.address.length < 5
-                      ? "Minimum 5 characters required"
-                      : "Address must not exceed 50 characters"}
-                  </p>
-                )}
               </div>
-              <div className="sm:col-span-1">
-                {/*Outlets Section */}
-            
+            </div>
 
-{/* Outlets Dropdown */}
-<div className="sm:col-span-1 xl:col-span-2 flex flex-col">
-  <MultiSelectDropdown
-    label="Select Outlets"
-    options={outlets}
-    selectedValues={selectedOutlets}
-    onChange={handleOutletChange}
-    displayKey="outlet_name"
-    valueKey="outlet_id"
-    searchKeys={['outlet_name']}
-    // Remove required={true}
-    placeholder="Select outlets"
-    searchPlaceholder="Search outlets..."
-  />
-</div>
-</div>
-              </div>
-           
-            
-
-            {/* Add Account Type */}
-            <SelectInput
-              label="Account Type"
-              name="account_type"
-              value={ownerData.account_type}
-              onChange={handleChange}
-              required
-              options={[
-                { value: 'live', label: 'Live' },
-                { value: 'test', label: 'Test' }
-              ]}
-              placeholder="Select Account Type"
-            />
-
-            {/* Add Owner Status */}
-            <SelectInput
-              label="Owner Status"
-              name="is_active"
-              value={ownerData.is_active}
-              onChange={handleChange}
-              required
-              options={[
-                { value: 1, label: 'Active' },
-                { value: 0, label: 'Inactive' }
-              ]}
-              placeholder="Select Status"
-            />
-
-              
+            {/* Address Field - Outside Grid */}
+            <div className="mt-6">
+              <Textarea
+                label="Address"
+                name="address"
+                value={ownerData.address}
+                onChange={handleChange}
+                placeholder="Enter address"
+                rows={3}
+              />
+              {validationStates.address && (
+                <p className="text-error-500 text-sm mt-1">
+                  {!ownerData.address
+                    ? ""
+                    : ownerData.address.length < 5
+                    ? "Minimum 5 characters required"
+                    : "Address must not exceed 50 characters"}
+                </p>
+              )}
+            </div>
 
             {/* Error Message */}
             {error && (
