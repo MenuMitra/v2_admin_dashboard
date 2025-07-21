@@ -1,0 +1,311 @@
+---
+title: Spec-Driven Development Rules
+---
+
+# Spec-Driven Development Rules
+
+## Overview
+
+Spec-driven development is a methodology where we create detailed specifications before writing any code. This ensures:
+- Clear understanding of requirements
+- Consistent implementation
+- Easier maintenance
+- Better collaboration between team members
+
+## Component Specifications
+
+### Component Spec Template
+```jsx
+/**
+ * Component Specification: UserManagement
+ * 
+ * Purpose:
+ * Provides an interface for administrators to view, create, edit, and delete user accounts.
+ * 
+ * Props:
+ * - initialFilter: Object - Initial filter values for the user list
+ * - onUserCreated: Function - Callback when a user is successfully created
+ * - onUserUpdated: Function - Callback when a user is successfully updated
+ * - onUserDeleted: Function - Callback when a user is successfully deleted
+ * 
+ * State:
+ * - users: Array - List of user objects from the API
+ * - isLoading: Boolean - Whether data is being loaded
+ * - filters: Object - Current filter values
+ * - pagination: Object - Current pagination state
+ * - selectedUser: Object|null - Currently selected user for editing
+ * - isCreating: Boolean - Whether the create modal is open
+ * - isEditing: Boolean - Whether the edit modal is open
+ * - isDeleting: Boolean - Whether the delete confirmation is open
+ * 
+ * API Dependencies:
+ * - GET /users - Fetch users with pagination and filtering
+ * - POST /users - Create new user
+ * - PUT /users/:id - Update existing user
+ * - DELETE /users/:id - Delete user
+ * 
+ * Component Dependencies:
+ * - DataTable - For displaying user list
+ * - UserForm - For create/edit forms
+ * - DeleteConfirmModal - For delete confirmation
+ * 
+ * Behavior:
+ * 1. On mount, load users from API with default filters
+ * 2. Support filtering by name, email, role, status
+ * 3. Support sorting by any column
+ * 4. Pagination with server-side implementation
+ * 5. Create user opens modal form, submits to API on save
+ * 6. Edit user opens modal form with pre-filled data, submits to API on save
+ * 7. Delete user shows confirmation dialog, deletes on confirm
+ * 8. All operations show appropriate loading states and error messages
+ */
+```
+
+### Feature Specification Example
+```jsx
+/**
+ * Feature Specification: Role-Based Access Control
+ * 
+ * Overview:
+ * Implement a comprehensive role-based access control system that restricts
+ * access to features based on user roles and permissions.
+ * 
+ * Components:
+ * 1. RoleManagement - UI for managing roles and permissions
+ * 2. RoleFunctionalitiesMapping - UI for mapping roles to functionalities
+ * 3. PrivateRoute - Route wrapper for access control
+ * 
+ * Data Models:
+ * - Role: { id, name, description, is_active, created_at, updated_at }
+ * - Functionality: { id, name, description, module, is_active }
+ * - RoleFunctionalityMapping: { role_id, functionality_id, access_level }
+ * 
+ * API Endpoints:
+ * - GET /roles - List all roles
+ * - POST /roles - Create role
+ * - PUT /roles/:id - Update role
+ * - DELETE /roles/:id - Delete role
+ * - GET /functionalities - List all functionalities
+ * - POST /roles/:id/functionalities - Assign functionalities to role
+ * - GET /roles/:id/functionalities - Get functionalities for a role
+ * 
+ * Implementation Details:
+ * 1. Create roles management interface
+ * 2. Create functionalities management interface
+ * 3. Create role-functionality mapping interface
+ * 4. Implement PrivateRoute component that checks user permissions
+ * 5. Add permission checks to all actions in the system
+ * 6. Update user management to assign roles to users
+ * 
+ * Testing Criteria:
+ * 1. Users can only access routes they have permission for
+ * 2. UI elements are conditionally rendered based on permissions
+ * 3. API calls are blocked if user lacks permission
+ * 4. Admin can create, update, and delete roles
+ * 5. Admin can assign functionalities to roles
+ */
+```
+
+## API Integration Specifications
+
+### API Integration Spec Template
+```jsx
+/**
+ * API Integration Specification: User Management
+ * 
+ * Endpoints:
+ * 
+ * 1. GET /users
+ *    - Purpose: Retrieve paginated list of users
+ *    - Query Parameters:
+ *      - page: number (default: 1)
+ *      - limit: number (default: 50)
+ *      - search: string (optional)
+ *      - status: string (optional, 'active' or 'inactive')
+ *      - role: string (optional)
+ *    - Response: {
+ *        data: Array<User>,
+ *        meta: {
+ *          total: number,
+ *          page: number,
+ *          limit: number,
+ *          totalPages: number
+ *        }
+ *      }
+ *    - Error Handling:
+ *      - 401: Redirect to login
+ *      - 403: Show permission error
+ *      - 500: Show server error message
+ * 
+ * 2. POST /users
+ *    - Purpose: Create new user
+ *    - Request Body: {
+ *        name: string,
+ *        email: string,
+ *        role: string,
+ *        password: string (optional, system-generated if empty),
+ *        status: boolean (default: true)
+ *      }
+ *    - Response: { 
+ *        user: User,
+ *        message: string 
+ *      }
+ *    - Validation:
+ *      - name: Required, min 3 chars
+ *      - email: Required, valid email format, unique
+ *      - role: Required, must exist in system
+ *    - Error Handling:
+ *      - 400: Show validation errors
+ *      - 401: Redirect to login
+ *      - 403: Show permission error
+ *      - 409: Show conflict error (email already exists)
+ *      - 500: Show server error message
+ * 
+ * 3. PUT /users/:id
+ *    - Purpose: Update existing user
+ *    - URL Parameters:
+ *      - id: string (user ID)
+ *    - Request Body: {
+ *        name: string (optional),
+ *        email: string (optional),
+ *        role: string (optional),
+ *        status: boolean (optional)
+ *      }
+ *    - Response: { 
+ *        user: User,
+ *        message: string 
+ *      }
+ *    - Validation: Same as POST
+ *    - Error Handling: Same as POST, plus:
+ *      - 404: Show not found error
+ * 
+ * 4. DELETE /users/:id
+ *    - Purpose: Delete user
+ *    - URL Parameters:
+ *      - id: string (user ID)
+ *    - Response: { 
+ *        message: string 
+ *      }
+ *    - Error Handling: Same as PUT
+ */
+```
+
+## React Query Hook Specifications
+
+### Query Hook Spec Template
+```jsx
+/**
+ * React Query Hook Specification: useUsers
+ * 
+ * Purpose:
+ * Provide data access and mutation capabilities for user management.
+ * 
+ * Exports:
+ * - useUsers(filters, pagination) - Hook for fetching users list
+ * - useUser(id) - Hook for fetching a single user
+ * - useCreateUser() - Hook for creating a user
+ * - useUpdateUser() - Hook for updating a user
+ * - useDeleteUser() - Hook for deleting a user
+ * 
+ * Query Keys:
+ * - users.all: ['users']
+ * - users.list: () => [...users.all, 'list'] 
+ * - users.detail: (id) => [...users.all, 'detail', id]
+ * 
+ * Implementation Details:
+ * 
+ * 1. useUsers(filters = {}, pagination = { page: 1, limit: 50 })
+ *    - Returns: { data, isLoading, error, refetch }
+ *    - Data structure: { 
+ *        data: Array<User>, 
+ *        meta: { 
+ *          total, page, limit, totalPages 
+ *        } 
+ *      }
+ *    - Error handling: Shows toast error message
+ *    - Caching: 5 minutes stale time
+ * 
+ * 2. useUser(id)
+ *    - Returns: { data, isLoading, error, refetch }
+ *    - Data structure: User
+ *    - Enabled only when id is provided
+ *    - Error handling: Shows toast error message
+ * 
+ * 3. useCreateUser()
+ *    - Returns: { mutate, isLoading, error }
+ *    - mutate(userData): Promise
+ *    - On success: 
+ *      - Shows success toast
+ *      - Invalidates users list query
+ *    - On error: Shows toast error message
+ * 
+ * 4. useUpdateUser()
+ *    - Returns: { mutate, isLoading, error }
+ *    - mutate({ id, data }): Promise
+ *    - On success:
+ *      - Shows success toast
+ *      - Invalidates users list query and specific user query
+ *    - On error: Shows toast error message
+ * 
+ * 5. useDeleteUser()
+ *    - Returns: { mutate, isLoading, error }
+ *    - mutate(id): Promise
+ *    - On success:
+ *      - Shows success toast
+ *      - Invalidates users list query
+ *    - On error: Shows toast error message
+ * 
+ * Usage example:
+ * 
+ * function UserList() {
+ *   const [filters, setFilters] = useState({});
+ *   const [pagination, setPagination] = useState({ page: 1, limit: 50 });
+ *   const { data, isLoading } = useUsers(filters, pagination);
+ *   const { mutate: deleteUser } = useDeleteUser();
+ *   
+ *   // Component logic...
+ * }
+ */
+```
+
+## Implementation Steps
+
+### 1. Create Feature Specification
+Start by creating a comprehensive feature specification document that outlines:
+- Purpose and overview
+- Data models
+- API requirements
+- UI components
+- Business logic
+- Edge cases and error handling
+
+### 2. Review and Approve Specification
+Have team members review the specification to ensure:
+- Requirements are clear
+- Edge cases are covered
+- Technical approach is sound
+- Implementation is feasible
+
+### 3. Break Down Into Tasks
+Divide the specification into smaller, manageable tasks:
+- API implementation
+- Data models
+- UI components
+- Integration testing
+
+### 4. Implement Following Specification
+Use the specification as a guide during implementation:
+- Reference it regularly to ensure all requirements are met
+- Update it if requirements change
+- Use it as documentation for future reference
+
+### 5. Test Against Specification
+Ensure all implementation meets the specification:
+- Test all functionality
+- Verify edge cases
+- Check error handling
+- Validate performance requirements
+
+## Updates
+Last Updated: 2024-07-10
+Version: 1.0.0

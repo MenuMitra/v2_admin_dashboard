@@ -1,0 +1,188 @@
+---
+title: Cursor AI Efficiency Rules
+---
+
+# Cursor AI Efficiency Rules
+
+## Prompt Engineering
+
+### Effective AI Prompting
+```
+// ✅ CORRECT - Specific, detailed prompts with clear context
+// When asking Cursor AI to generate or modify code:
+
+"Create a DataTable component for displaying user data with the following requirements:
+- Columns: ID, Name, Email, Role, Status
+- Support for sorting, filtering, and pagination
+- Include action buttons for edit and delete
+- Match our existing UI style from other components
+- Use React Query for data fetching
+- Use proper error handling with toastController"
+
+// 🚫 WRONG - Vague, ambiguous prompts
+"Create a table component"
+```
+
+### Project Context Prompting
+```
+// ✅ CORRECT - Provide project context
+"Given our existing MenuMitra admin dashboard architecture with React Query 
+for server state and context for global state, create a hook for managing user 
+preferences that follows our existing patterns."
+
+// ✅ CORRECT - Reference existing code patterns
+"Please implement this feature following the pattern used in src/components/Outlets/Menu/CreateMenu.jsx"
+```
+
+### Iterative Refinement
+```
+// ✅ CORRECT - Iterative prompting approach
+// Step 1: First create basic structure
+"Create a basic form component for adding a new restaurant with fields for name, address, and contact"
+
+// Step 2: Add validation
+"Now add form validation using the validation patterns from our utils/validations.js file"
+
+// Step 3: Add API integration
+"Now integrate this form with our API using a React Query mutation following our existing patterns"
+```
+
+## Cursor AI Features
+
+### Code Generation
+
+#### Component Generation
+```
+// ✅ CORRECT - Complete component generation prompt
+"Generate a complete React functional component for a Modal that:
+- Takes title, isOpen, onClose, and children props
+- Has a close button in the header
+- Renders children in the body
+- Has confirm and cancel buttons in the footer
+- Uses our existing design patterns and styling conventions
+- Properly handles accessibility attributes"
+```
+
+#### Hook Generation
+```
+// ✅ CORRECT - Custom hook generation prompt
+"Create a custom hook called useNotification that:
+- Manages a list of notifications
+- Provides add, remove, and clear functions
+- Automatically removes notifications after a configurable timeout
+- Follows our project's existing hook patterns"
+```
+
+### Code Transformation
+
+#### Refactoring Prompts
+```
+// ✅ CORRECT - Specific refactoring prompt
+"Refactor this code to use React Query for data fetching instead of the current useState and useEffect approach. 
+Follow our existing React Query pattern with proper error handling and loading states."
+
+// ✅ CORRECT - Performance optimization prompt
+"Optimize this component by:
+1. Memoizing expensive calculations with useMemo
+2. Preventing unnecessary re-renders with useCallback for handlers
+3. Extracting pure components and using React.memo where appropriate"
+```
+
+#### Migration Prompts
+```
+// ✅ CORRECT - Migration prompt
+"Convert this class component to a functional component using hooks, 
+maintaining the same behavior and functionality."
+
+// ✅ CORRECT - API update prompt
+"Update this code to use the new API structure where endpoints now require pagination 
+parameters and return paginated responses."
+```
+
+### Code Analysis
+
+#### Bug Finding
+```
+// ✅ CORRECT - Bug hunting prompt
+"Review this code for potential bugs, focusing on:
+- Missing dependency arrays in useEffect hooks
+- Proper error handling in async functions
+- Race conditions in state updates
+- Proper cleanup in useEffect"
+
+// ✅ CORRECT - Performance issue identification
+"Identify potential performance issues in this component, 
+such as unnecessary re-renders or expensive operations in render cycles"
+```
+
+#### Code Review
+```
+// ✅ CORRECT - Code review prompt
+"Review this pull request for:
+- Adherence to our project code style
+- Potential bugs or edge cases
+- Performance issues
+- Security concerns
+- Accessibility compliance"
+```
+
+## Specialized Features
+
+### Using Inline Files
+```
+// ✅ CORRECT - Using inline files for context
+// When you need to reference multiple files for context:
+
+"Given these file contents:
+- src/hooks/useAuth.js for authentication patterns
+- src/components/common/Modal.jsx for UI patterns
+- src/utils/validationPatterns.js for form validation
+
+Create a new component for user registration that follows these patterns"
+```
+
+### Chain of Thought Prompting
+```
+// ✅ CORRECT - Chain of thought for complex problems
+"Let's solve this step by step:
+1. First, we need to understand the current data structure
+2. Then, identify what transformation we need to apply
+3. Design a solution that handles edge cases
+4. Implement the solution with proper error handling
+5. Add tests to verify correctness"
+```
+
+### Documentation Generation
+```
+// ✅ CORRECT - Documentation prompt
+"Generate comprehensive JSDoc comments for this function, including:
+- Description of its purpose
+- Parameter descriptions with types
+- Return value description
+- Example usage
+- Potential exceptions that might be thrown"
+```
+
+## Best Practices
+
+### Code Standards
+- Always ensure generated code follows project coding standards
+- Verify proper error handling in all async operations
+- Check for proper cleanup in components with subscriptions or timers
+- Ensure consistent naming conventions
+
+### Performance
+- Use memoization (useMemo, useCallback) for expensive operations
+- Implement virtualization for long lists
+- Properly structure React Query for optimal caching
+- Use proper loading states and skeleton loaders
+
+### Security
+- Never expose sensitive information in client code
+- Properly sanitize user inputs
+- Use secure authentication practices
+- Validate all incoming data
+
+## Updates
+Last Updated: 2024-07-10
+Version: 1.0.0
