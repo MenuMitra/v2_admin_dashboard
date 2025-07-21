@@ -13,6 +13,12 @@ import {
   faDownload,
   faSpinner,
   faLink,
+  faList,
+  faUtensils,
+  faUserTie,
+  faUserCog,
+  faUserFriends,
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { queryKeys } from '../lib/react-query/queryKeys';
@@ -289,6 +295,7 @@ function ViewOutlet() {
                   to={`/categories/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
+                  <FontAwesomeIcon icon={faList} className="w-5 h-5 mr-2 text-gray-800" />
                   <span className="text-sm font-medium text-gray-800">
                     Categories
                   </span>
@@ -298,6 +305,7 @@ function ViewOutlet() {
                   to={`/menus/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
+                  <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 mr-2 text-gray-800" />
                   <span className="text-sm font-medium text-gray-800">
                     Menus
                   </span>
@@ -316,6 +324,7 @@ function ViewOutlet() {
                   to={`/managers/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
+                  <FontAwesomeIcon icon={faUserTie} className="w-5 h-5 mr-2 text-gray-800" />
                   <span className="text-sm font-medium text-gray-800">
                     Managers
                   </span>
@@ -325,6 +334,7 @@ function ViewOutlet() {
                   to={`/chefs/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
+                  <FontAwesomeIcon icon={faUserCog} className="w-5 h-5 mr-2 text-gray-800" />
                   <span className="text-sm font-medium text-gray-800">
                     Chefs
                   </span>
@@ -334,6 +344,7 @@ function ViewOutlet() {
                   to={`/captains/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
+                  <FontAwesomeIcon icon={faUserFriends} className="w-5 h-5 mr-2 text-gray-800" />
                   <span className="text-sm font-medium text-gray-800">
                     Captains
                   </span>
@@ -343,6 +354,7 @@ function ViewOutlet() {
                   to={`/waiters/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
+                  <FontAwesomeIcon icon={faUser} className="w-5 h-5 mr-2 text-gray-800" />
                   <span className="text-sm font-medium text-gray-800">
                     Waiters
                   </span>
