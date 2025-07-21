@@ -296,7 +296,7 @@ function ViewOutlet() {
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon icon={faList} className="w-5 h-5 mr-2 text-gray-800" />
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-md font-medium text-gray-800">
                     Categories
                   </span>
                 </Link>
@@ -306,7 +306,7 @@ function ViewOutlet() {
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 mr-2 text-gray-800" />
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-md font-medium text-gray-800">
                     Menus
                   </span>
                 </Link>
@@ -325,7 +325,7 @@ function ViewOutlet() {
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon icon={faUserTie} className="w-5 h-5 mr-2 text-gray-800" />
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-md font-medium text-gray-800">
                     Managers
                   </span>
                 </Link>
@@ -335,7 +335,7 @@ function ViewOutlet() {
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon icon={faUserCog} className="w-5 h-5 mr-2 text-gray-800" />
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-md font-medium text-gray-800">
                     Chefs
                   </span>
                 </Link>
@@ -345,7 +345,7 @@ function ViewOutlet() {
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon icon={faUserFriends} className="w-5 h-5 mr-2 text-gray-800" />
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-md font-medium text-gray-800">
                     Captains
                   </span>
                 </Link>
@@ -355,7 +355,7 @@ function ViewOutlet() {
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon icon={faUser} className="w-5 h-5 mr-2 text-gray-800" />
-                  <span className="text-sm font-medium text-gray-800">
+                  <span className="text-md font-medium text-gray-800">
                     Waiters
                   </span>
                 </Link>
