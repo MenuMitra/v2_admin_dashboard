@@ -6,6 +6,7 @@ import axios from "axios";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 
 
 function CreateSuperOwner() {
@@ -350,6 +351,7 @@ function CreateSuperOwner() {
                                 {outlet.outlet_name}
                               </h4>
                               <p className="text-sm text-gray-500 mt-1">
+                              <FontAwesomeIcon icon={faLocationDot} className="w-4 h-4 mr-1" />
                                 {outlet.address}
                               </p>
                             </div>
