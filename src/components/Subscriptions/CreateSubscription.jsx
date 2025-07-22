@@ -67,7 +67,15 @@ function CreateSubscription() {
 
       if (response.data.detail === "Feature list fetched successfully") {
         // Filter out 'admin_app' feature
-        setFeatures(response.data.data.filter((f) => f.name !== "admin_app"));
+        const filtered = response.data.data.filter(
+          (f) => f.name !== "admin_app"
+        );
+        setFeatures(filtered);
+        // Check all checkboxes by default
+        setFormData((prev) => ({
+          ...prev,
+          feature_ids: filtered.map((f) => f.feature_id),
+        }));
       }
     } catch (error) {
       console.error("Error fetching features:", error);

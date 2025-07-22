@@ -83,6 +83,13 @@ function CreateManager() {
         }
       );
       setFunctionalities(response.data);
+      // Always check all checkboxes by default
+      const allIds = response.data.map((f) => f.functionality_id);
+      setSelectedFunctionalities(allIds);
+      setManagerData((prev) => ({
+        ...prev,
+        functionality_ids: allIds,
+      }));
     } catch (err) {
       const errorMsg =
         err.response?.data?.detail ||
@@ -431,7 +438,7 @@ function CreateManager() {
                     </p>
                   )}
               </div>
-               {/* Address */}
+              {/* Address */}
               <div className="sm:col-span-1">
                 <Textarea
                   label="Address"
@@ -444,8 +451,6 @@ function CreateManager() {
               </div>
             </div>
 
-            
-            
             {/* Functionalities */}
             <div>
               <label className={labelStyles}>Functionalities</label>
@@ -461,7 +466,9 @@ function CreateManager() {
                         <Checkbox
                           label=""
                           value={func.functionality_id}
-                          checked={selectedFunctionalities.includes(func.functionality_id)}
+                          checked={selectedFunctionalities.includes(
+                            func.functionality_id
+                          )}
                           onChange={(e) => {
                             const value = Number(e.target.value);
                             setSelectedFunctionalities((prev) =>
@@ -473,7 +480,9 @@ function CreateManager() {
                               ...prev,
                               functionality_ids: e.target.checked
                                 ? [...prev.functionality_ids, value]
-                                : prev.functionality_ids.filter((id) => id !== value),
+                                : prev.functionality_ids.filter(
+                                    (id) => id !== value
+                                  ),
                             }));
                           }}
                         />

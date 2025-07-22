@@ -27,7 +27,7 @@ function Dashboard() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   // Queries
-  const { 
+  const {
     data: dashboardData = { outlet_data: [], counts: {} },
     isLoading: isDashboardLoading,
     error: dashboardError,
@@ -157,35 +157,99 @@ function Dashboard() {
   return (
     <div className="p-0">
       {/* Full-width Card with Chart and Counts */}
-      <div className={`col-span-12 mb-6 ${fullscreenClass}`} style={isFullscreen ? { borderRadius: 16, border: "1px solid #e5e7eb", background: "#fff", position: "fixed", inset: 0, zIndex: 50, margin: 0, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", minWidth: "100vw" } : { borderRadius: 16, border: "1px solid #e5e7eb", background: "#fff", position: "relative" }}>
-        <div className={`w-full flex ${isFullscreen ? "flex-row items-center justify-center h-full" : "flex-col md:flex-row items-center justify-between"} gap-6 px-6 pb-6 pt-6`} style={isFullscreen ? {height: "100vh", position: "relative"} : {}}>
+      <div
+        className={`col-span-12 mb-6 ${fullscreenClass}`}
+        style={
+          isFullscreen
+            ? {
+                borderRadius: 16,
+                border: "1px solid #e5e7eb",
+                background: "#fff",
+                position: "fixed",
+                inset: 0,
+                zIndex: 50,
+                margin: 0,
+                padding: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: "100vh",
+                minWidth: "100vw",
+              }
+            : {
+                borderRadius: 16,
+                border: "1px solid #e5e7eb",
+                background: "#fff",
+                position: "relative",
+              }
+        }
+      >
+        <div
+          className={`w-full flex ${
+            isFullscreen
+              ? "flex-row items-center justify-center h-full"
+              : "flex-col md:flex-row items-center justify-between"
+          } gap-6 px-6 pb-6 pt-6`}
+          style={isFullscreen ? { height: "100vh", position: "relative" } : {}}
+        >
           {/* Counts: Always centered horizontally and vertically */}
           <div className="flex flex-row items-center justify-center w-full h-full gap-6">
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-black">{cardData.total_live_outlets}</span>
+              <span className="text-2xl font-bold text-black">
+                {cardData.total_live_outlets}
+              </span>
               <span className="text-xs text-gray-500">Total Live Outlets</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-black">{cardData.total_outlets}</span>
+              <span className="text-2xl font-bold text-black">
+                {cardData.total_outlets}
+              </span>
               <span className="text-xs text-gray-500">Total Outlets</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-black">{cardData.total_orders}</span>
+              <span className="text-2xl font-bold text-black">
+                {cardData.total_orders}
+              </span>
               <span className="text-xs text-gray-500">Total Orders</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-black">{cardData.total_earning}</span>
+              <span className="text-2xl font-bold text-black">
+                {cardData.total_earning}
+              </span>
               <span className="text-xs text-gray-500">Total Earning</span>
             </div>
           </div>
           {/* Right: Icons (top-right in fullscreen) */}
-          <div className={isFullscreen ? "absolute top-6 right-6 flex flex-col items-end gap-4" : "flex flex-col items-end gap-4"} style={isFullscreen ? {zIndex: 100} : {}}>
+          <div
+            className={
+              isFullscreen
+                ? "absolute top-6 right-6 flex flex-col items-end gap-4"
+                : "flex flex-col items-end gap-4"
+            }
+            style={isFullscreen ? { zIndex: 100 } : {}}
+          >
             <div className="flex items-center gap-3">
-              <button onClick={() => refetchCardData()} disabled={isCardLoading} title="Reload" className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50">
-                <FontAwesomeIcon icon={faRotate} className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`} />
+              <button
+                onClick={() => refetchCardData()}
+                disabled={isCardLoading}
+                title="Reload"
+                className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`}
+                />
               </button>
-              <button onClick={() => setIsFullscreen((f) => !f)} title={isFullscreen ? "Minimize" : "Fullscreen"} className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50">
-                <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} className="w-4 h-4" style={isFullscreen ? { transform: "rotate(0deg)" } : {}} />
+              <button
+                onClick={() => setIsFullscreen((f) => !f)}
+                title={isFullscreen ? "Minimize" : "Fullscreen"}
+                className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50"
+              >
+                <FontAwesomeIcon
+                  icon={isFullscreen ? faCompress : faExpand}
+                  className="w-4 h-4"
+                  style={isFullscreen ? { transform: "rotate(0deg)" } : {}}
+                />
               </button>
             </div>
           </div>

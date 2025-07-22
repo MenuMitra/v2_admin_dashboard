@@ -72,14 +72,13 @@ function EditSubscription() {
 
       if (response.data.detail === "Subscription fetched successfully") {
         const subscription = response.data.data;
-        setFormData({
+        setFormData((prev) => ({
+          ...prev,
           name: subscription.name,
           price: subscription.price,
           subscription_end_date: subscription.subscription_end_date,
-          feature_ids: subscription.features.map(
-            (feature) => feature.feature_id
-          ),
-        });
+          // feature_ids will be set after features are fetched
+        }));
       }
     } catch (error) {
       console.error("Error fetching subscription details:", error);
@@ -115,7 +114,15 @@ function EditSubscription() {
 
       if (response.data.detail === "Feature list fetched successfully") {
         // Filter out 'admin_app' feature
-        setFeatures(response.data.data.filter((f) => f.name !== "admin_app"));
+        const filteredFeatures = response.data.data.filter(
+          (f) => f.name !== "admin_app"
+        );
+        setFeatures(filteredFeatures);
+        // Always select all features by default when editing
+        setFormData((prev) => ({
+          ...prev,
+          feature_ids: filteredFeatures.map((f) => f.feature_id),
+        }));
       }
     } catch (error) {
       console.error("Error fetching features:", error);
@@ -257,7 +264,6 @@ function EditSubscription() {
           {/* Basic Information Section */}
           <section className="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
             <h2 className="text-lg font-medium text-gray-800 dark:text-white/90 mb-4 flex items-center">
-              
               Basic Information
             </h2>
 

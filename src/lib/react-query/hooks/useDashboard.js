@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '../../../hooks/useAuth';
-import { API_CONFIG } from '../../../config/appConfig';
-import { queryKeys } from '../queryKeys';
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../../../hooks/useAuth";
+import { API_CONFIG } from "../../../config/appConfig";
+import { queryKeys } from "../queryKeys";
 
 export const useDashboard = () => {
   const { getToken, logout } = useAuth();
@@ -14,13 +14,16 @@ export const useDashboard = () => {
       throw new Error("No authentication token available");
     }
 
-    const response = await fetch(`${BASE_URL}/${API_VERSION}/admin/admin_home`, {
-      method: "GET",
-      headers: {
-        Authorization: token,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${BASE_URL}/${API_VERSION}/admin/admin_home`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (response.status === 401) {
       logout();
@@ -57,12 +60,19 @@ export const useDashboard = () => {
     return useQuery({
       queryKey: queryKeys.dashboard.home(),
       queryFn: fetchDashboardData,
-      select: (data) => ({
-        total_live_outlets: data.counts?.live_outlet_count || 0,
-        total_outlets: data.counts?.outlet_count || 0,
-        total_orders: data.counts?.total_order_count || 0,
-        total_earning: data.counts?.total_earning_count || 0,
-      }),
+      select: (data) => {
+        // Prefer metrics if available, fallback to counts for backward compatibility
+        const metrics = data.metrics || {};
+        const counts = data.counts || {};
+        return {
+          total_live_outlets:
+            metrics.total_live_outlets ?? counts.live_outlet_count ?? 0,
+          total_outlets: metrics.total_outlets ?? counts.outlet_count ?? 0,
+          total_orders: metrics.total_orders ?? counts.total_order_count ?? 0,
+          total_earning:
+            metrics.total_earning ?? counts.total_earning_count ?? 0,
+        };
+      },
       refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
     });
   };
@@ -71,4 +81,4 @@ export const useDashboard = () => {
     useDashboardData,
     useCardData,
   };
-}; 
+};

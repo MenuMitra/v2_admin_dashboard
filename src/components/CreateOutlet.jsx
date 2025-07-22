@@ -236,7 +236,6 @@ function CreateOutlet() {
       name: isNameValid(outletData.name),
       mobile:
         outletData.mobile.length === 10 && /^[6-9]/.test(outletData.mobile),
-      owner: outletData.owner_id.length > 0,
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
@@ -487,7 +486,10 @@ function CreateOutlet() {
       const currentDate = new Date().toISOString().split("T")[0];
 
       const payload = {
-        owner_ids: outletData.owner_id,
+        // Only include owner_ids if at least one owner is selected
+        ...(outletData.owner_id.length > 0
+          ? { owner_ids: outletData.owner_id }
+          : {}),
         user_id: adminData.user_id.toString(),
         name: outletData.name,
         mobile: outletData.mobile,
@@ -673,7 +675,6 @@ function CreateOutlet() {
       name: isNameValid(outletData.name),
       mobile:
         outletData.mobile.length === 10 && /^[6-9]/.test(outletData.mobile),
-      owner: outletData.owner_id.length > 0,
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
@@ -852,7 +853,7 @@ function CreateOutlet() {
                   </div>
                   <div className="relative">
                     <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      <span className="text-error-600">*</span> Select Owners
+                      Select Owners
                     </label>
 
                     <div className="relative" ref={dropdownRef}>

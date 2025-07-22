@@ -80,7 +80,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
             onClick={() => setSidebarToggle(!sidebarToggle)}
           >
             <FontAwesomeIcon
-              icon={sidebarToggle ? faXmark : faBars}
+              icon={sidebarToggle ? faBars : faBars}
               className="h-5 w-5"
             />
           </button>

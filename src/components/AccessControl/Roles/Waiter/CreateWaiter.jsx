@@ -23,7 +23,7 @@ function CreateWaiter() {
   const { outletId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const outletName = location.state?.outletName || 'Outlet';
+  const outletName = location.state?.outletName || "Outlet";
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -42,16 +42,16 @@ function CreateWaiter() {
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
-    nameMessage: '',
+    nameMessage: "",
     email: true,
     mobile: true,
-    mobileMessage: '',
+    mobileMessage: "",
     aadhar_number: true,
-    aadharMessage: '',
+    aadharMessage: "",
     address: true,
-    addressMessage: '',
+    addressMessage: "",
     functionalities: true,
-    functionalitiesMessage: ''
+    functionalitiesMessage: "",
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const nameRegex = /^[A-Za-z ]+$/;
@@ -61,7 +61,7 @@ function CreateWaiter() {
     { label: "Outlets", path: "/outlets" },
     { label: outletName, path: `/view-outlet/${outletId}` },
     { label: "Waiters", path: `/waiters/${outletId}` },
-    { label: "Create Waiter" }
+    { label: "Create Waiter" },
   ];
 
   useEffect(() => {
@@ -81,102 +81,150 @@ function CreateWaiter() {
         {
           headers: {
             Authorization: token,
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
         }
       );
       setFunctionalities(response.data);
+      // Always check all checkboxes by default
+      const allIds = response.data.map((f) => f.functionality_id);
+      setSelectedFunctionalities(allIds);
+      setWaiterData((prev) => ({
+        ...prev,
+        functionality_ids: allIds,
+      }));
     } catch (err) {
-      const errorMsg = err.response?.data?.msg || "Failed to load functionalities";
+      const errorMsg =
+        err.response?.data?.msg || "Failed to load functionalities";
       setError(errorMsg);
       toastController.error(errorMsg);
     }
   };
 
   const isMobileValid = (mobile) => {
-    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
-    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    if (!mobile)
+      return { isValid: false, message: "Mobile number is required" };
+    const numbersOnly = mobile.replace(/[^0-9]/g, "");
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
-      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+
+    if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+      return {
+        isValid: false,
+        message: "Mobile number must start with 6, 7, 8, or 9",
+      };
     }
-    
+
     if (numbersOnly.length !== 10) {
-      return { isValid: false, message: 'Mobile number must be 10 digits' };
+      return { isValid: false, message: "Mobile number must be 10 digits" };
     }
-    
-    return { isValid: true, message: '' };
+
+    return { isValid: true, message: "" };
   };
 
   const isAadharValid = (aadhar) => {
-    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
-    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (!aadhar)
+      return { isValid: false, message: "Aadhar number is required" };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, "");
     if (numbersOnly.length !== 12) {
-      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+      return {
+        isValid: false,
+        message: "Aadhar number must be exactly 12 digits",
+      };
     }
-    return { isValid: true, message: '' };
+    return { isValid: true, message: "" };
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'name') {
+    if (name === "name") {
       if (!value.trim()) {
-        setValidationStates(prev => ({ ...prev, name: false, nameMessage: '' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          name: false,
+          nameMessage: "",
+        }));
       } else if (!nameRegex.test(value)) {
-        setValidationStates(prev => ({ ...prev, name: false, nameMessage: 'Name must contain only alphabets and spaces' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          name: false,
+          nameMessage: "Name must contain only alphabets and spaces",
+        }));
       } else {
-        setValidationStates(prev => ({ ...prev, name: true, nameMessage: '' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          name: true,
+          nameMessage: "",
+        }));
       }
-      setWaiterData(prev => ({ ...prev, name: value }));
-    }
-    else if (name === 'mobile') {
-      const numbersOnly = value.replace(/[^0-9]/g, '');
+      setWaiterData((prev) => ({ ...prev, name: value }));
+    } else if (name === "mobile") {
+      const numbersOnly = value.replace(/[^0-9]/g, "");
       if (numbersOnly.length > 0) {
         const firstDigit = numbersOnly.charAt(0);
-        if (['0','1','2','3','4','5'].includes(firstDigit)) {
-          setValidationStates(prev => ({
+        if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+          setValidationStates((prev) => ({
             ...prev,
             mobile: false,
-            mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+            mobileMessage: "Mobile number must start with 6, 7, 8, or 9",
           }));
           return;
         }
       }
       const trimmedNumber = numbersOnly.slice(0, 10);
       const { isValid, message } = isMobileValid(trimmedNumber);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         mobile: isValid,
-        mobileMessage: message
+        mobileMessage: message,
       }));
-      setWaiterData(prev => ({ ...prev, mobile: trimmedNumber }));
-    }
-    else if (name === 'aadhar_number') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 14);
+      setWaiterData((prev) => ({ ...prev, mobile: trimmedNumber }));
+    } else if (name === "aadhar_number") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 14);
       if (!numbersOnly) {
-        setValidationStates(prev => ({ ...prev, aadhar_number: false, aadharMessage: 'Aadhar number is required' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: false,
+          aadharMessage: "Aadhar number is required",
+        }));
       } else if (numbersOnly.length < 12) {
-        setValidationStates(prev => ({ ...prev, aadhar_number: false, aadharMessage: 'Aadhar number must be at least 12 digits' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: false,
+          aadharMessage: "Aadhar number must be at least 12 digits",
+        }));
       } else if (numbersOnly.length > 14) {
-        setValidationStates(prev => ({ ...prev, aadhar_number: false, aadharMessage: 'Aadhar number cannot exceed 14 digits' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: false,
+          aadharMessage: "Aadhar number cannot exceed 14 digits",
+        }));
       } else {
-        setValidationStates(prev => ({ ...prev, aadhar_number: true, aadharMessage: '' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: true,
+          aadharMessage: "",
+        }));
       }
-      setWaiterData(prev => ({ ...prev, aadhar_number: numbersOnly }));
-    }
-    else if (name === 'address') {
+      setWaiterData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
+    } else if (name === "address") {
       if (value && value.trim().length > 0 && value.trim().length < 5) {
-        setValidationStates(prev => ({ ...prev, address: false, addressMessage: 'Address must be at least 5 characters' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          address: false,
+          addressMessage: "Address must be at least 5 characters",
+        }));
       } else {
-        setValidationStates(prev => ({ ...prev, address: true, addressMessage: '' }));
+        setValidationStates((prev) => ({
+          ...prev,
+          address: true,
+          addressMessage: "",
+        }));
       }
-      setWaiterData(prev => ({ ...prev, address: value }));
-    }
-    else {
-      setWaiterData(prev => ({
+      setWaiterData((prev) => ({ ...prev, address: value }));
+    } else {
+      setWaiterData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -209,10 +257,18 @@ function CreateWaiter() {
     setIsSubmitAttempted(true);
     let valid = isFormValid();
     if (selectedFunctionalities.length === 0) {
-      setValidationStates(prev => ({ ...prev, functionalities: false, functionalitiesMessage: 'At least one functionality must be selected' }));
+      setValidationStates((prev) => ({
+        ...prev,
+        functionalities: false,
+        functionalitiesMessage: "At least one functionality must be selected",
+      }));
       valid = false;
     } else {
-      setValidationStates(prev => ({ ...prev, functionalities: true, functionalitiesMessage: '' }));
+      setValidationStates((prev) => ({
+        ...prev,
+        functionalities: true,
+        functionalitiesMessage: "",
+      }));
     }
     if (!valid) {
       toastController.error("Please fill all required fields correctly");
@@ -232,8 +288,8 @@ function CreateWaiter() {
     if (waiterData.dob) {
       const dateObj = new Date(waiterData.dob);
       if (!isNaN(dateObj)) {
-        const day = String(dateObj.getDate()).padStart(2, '0');
-        const month = dateObj.toLocaleString('en-US', { month: 'short' });
+        const day = String(dateObj.getDate()).padStart(2, "0");
+        const month = dateObj.toLocaleString("en-US", { month: "short" });
         const year = dateObj.getFullYear();
         formattedDob = `${day} ${month} ${year}`;
       }
@@ -250,24 +306,23 @@ function CreateWaiter() {
         aadhar_number: waiterData.aadhar_number,
         dob: formattedDob, // <-- use formatted dob here
         functionality_ids: waiterData.functionality_ids,
-        app_source: "admin_app"
+        app_source: "admin_app",
       };
 
       await toastController.promise(
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/common/waiter_create`,
-          payload,
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        ),
+        axios.post(`${BASE_URL}/${API_VERSION}/common/waiter_create`, payload, {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }),
         {
           loading: "Creating waiter...",
           success: "Waiter created successfully!",
-          error: (err) => err.response?.data?.detail || err.response?.data?.msg || "Failed to create waiter"
+          error: (err) =>
+            err.response?.data?.detail ||
+            err.response?.data?.msg ||
+            "Failed to create waiter",
         }
       );
 
@@ -312,9 +367,11 @@ function CreateWaiter() {
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 transition shadow-sm
-                ${isLoading || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-success-500 hover:bg-success-600"}
+                ${
+                  isLoading || !isFormValid()
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-success-500 hover:bg-success-600"
+                }
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -356,7 +413,11 @@ function CreateWaiter() {
                   maxLength={10}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      !validationStates.mobile
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {!validationStates.mobile && validationStates.mobileMessage && (
@@ -396,39 +457,41 @@ function CreateWaiter() {
                   maxLength={14}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      !validationStates.aadhar_number
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
-                {!validationStates.aadhar_number && validationStates.aadharMessage && (
-                  <p className="text-error-500 text-sm mt-1">
-                    {validationStates.aadharMessage}
-                  </p>
-                )}
+                {!validationStates.aadhar_number &&
+                  validationStates.aadharMessage && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {validationStates.aadharMessage}
+                    </p>
+                  )}
               </div>
               <div className="sm:col-span-1">
-            <Textarea
-              label="Address"
-              name="address"
-              value={waiterData.address}
-              onChange={handleChange}
-              placeholder="Enter complete address"
-              rows={3}
-            />
-            {!validationStates.address && validationStates.addressMessage && (
-              <p className="text-error-500 text-sm mt-1">
-                {validationStates.addressMessage}
-              </p>
-            )}
-          </div>
+                <Textarea
+                  label="Address"
+                  name="address"
+                  value={waiterData.address}
+                  onChange={handleChange}
+                  placeholder="Enter complete address"
+                  rows={3}
+                />
+                {!validationStates.address &&
+                  validationStates.addressMessage && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {validationStates.addressMessage}
+                    </p>
+                  )}
+              </div>
             </div>
-            
-           
 
             {/* Functionalities */}
             <div>
-              <label className={labelStyles}>
-                Functionalities
-              </label>
+              <label className={labelStyles}>Functionalities</label>
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
                 <div className="flex flex-wrap gap-4">
                   {functionalities.map((func) => (
@@ -441,7 +504,9 @@ function CreateWaiter() {
                         <Checkbox
                           label=""
                           value={func.functionality_id}
-                          checked={selectedFunctionalities.includes(func.functionality_id)}
+                          checked={selectedFunctionalities.includes(
+                            func.functionality_id
+                          )}
                           onChange={(e) => {
                             const value = Number(e.target.value);
                             setSelectedFunctionalities((prev) =>
@@ -453,7 +518,9 @@ function CreateWaiter() {
                               ...prev,
                               functionality_ids: e.target.checked
                                 ? [...prev.functionality_ids, value]
-                                : prev.functionality_ids.filter((id) => id !== value),
+                                : prev.functionality_ids.filter(
+                                    (id) => id !== value
+                                  ),
                             }));
                           }}
                         />
@@ -461,11 +528,12 @@ function CreateWaiter() {
                     </div>
                   ))}
                 </div>
-                {!validationStates.functionalities && validationStates.functionalitiesMessage && (
-                  <p className="text-error-500 text-sm mt-1">
-                    {validationStates.functionalitiesMessage}
-                  </p>
-                )}
+                {!validationStates.functionalities &&
+                  validationStates.functionalitiesMessage && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {validationStates.functionalitiesMessage}
+                    </p>
+                  )}
               </div>
             </div>
           </form>

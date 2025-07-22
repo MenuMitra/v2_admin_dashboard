@@ -6,6 +6,7 @@ import grid01 from "../assets/images/shape/grid-01.svg";
 import { toastController } from "../utils/toastController";
 import { API_CONFIG } from "../config/appConfig";
 import { useAuth } from "../hooks/useAuth";
+import YouTubePlayer from "./YouTubePlayer";
 
 function Auth() {
   const [mobile, setMobile] = useState("");
@@ -230,27 +231,7 @@ function Auth() {
               {!isOtpSent && (
                 <div>
                   <div className="pb-10 size-full">
-                    {/* <iframe
-                      src="https://www.youtube.com/embed/j2e2stCcICo?autoplay=1&mute=1&loop=1&playlist=j2e2stCcICo"
-                      title="MenuMitra Intro Video | Restaurant POS made easy | Shekru Labs India Pvt. Ltd"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      allowFullScreen
-                      className="rounded-lg "
-                    /> */}
-
-                    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-                      <div class="overflow-hidden rounded-lg aspect-video">
-                        <iframe
-                          src="https://www.youtube.com/embed/j2e2stCcICo?autoplay=1&mute=1&loop=1&playlist=j2e2stCcICo"
-                          title="YouTube video"
-                          frameborder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowfullscreen=""
-                          class="w-full h-full"
-                        ></iframe>
-                      </div>
-                    </div>
+                    <YouTubePlayer videoId="j2e2stCcICo" />
                   </div>
                   <div className="mb-5 sm:mb-8">
                     <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
@@ -323,9 +304,7 @@ function Auth() {
                           </a>
                         </div>
                         <div className="flex justify-center pt-0">
-                          <p
-                            className="text-sm text-gray-500 dark:text-gray-400"
-                          >
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
                             Version 2.0
                           </p>
                         </div>
@@ -339,27 +318,7 @@ function Auth() {
                 <div>
                   <div className="mb-5 sm:mb-8">
                     <div className="pb-10 size-full">
-                      {/* <iframe
-                      src="https://www.youtube.com/embed/j2e2stCcICo?autoplay=1&mute=1&loop=1&playlist=j2e2stCcICo"
-                      title="MenuMitra Intro Video | Restaurant POS made easy | Shekru Labs India Pvt. Ltd"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      referrerPolicy="strict-origin-when-cross-origin"
-                      allowFullScreen
-                      className="rounded-lg "
-                    /> */}
-
-                      <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-                        <div class="overflow-hidden rounded-lg aspect-video">
-                          <iframe
-                            src="https://www.youtube.com/embed/j2e2stCcICo?autoplay=1&mute=1&loop=1&playlist=j2e2stCcICo"
-                            title="YouTube video"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen=""
-                            class="w-full h-full"
-                          ></iframe>
-                        </div>
-                      </div>
+                      <YouTubePlayer videoId="j2e2stCcICo" />
                     </div>
                     <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
                       Verify OTP

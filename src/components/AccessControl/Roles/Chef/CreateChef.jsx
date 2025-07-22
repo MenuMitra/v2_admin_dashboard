@@ -74,6 +74,13 @@ function CreateChef() {
         }
       );
       setFunctionalities(response.data);
+      // Always check all checkboxes by default
+      const allIds = response.data.map((f) => f.functionality_id);
+      setSelectedFunctionalities(allIds);
+      setChefData((prev) => ({
+        ...prev,
+        functionality_ids: allIds,
+      }));
     } catch (err) {
       const errorMsg =
         err.response?.data?.detail || "Failed to load functionalities";

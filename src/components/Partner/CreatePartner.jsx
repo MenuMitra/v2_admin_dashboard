@@ -59,6 +59,13 @@ function CreatePartner() {
       );
 
       setFunctionalities(response.data);
+      // Set all checkboxes checked by default
+      const allIds = response.data.map((f) => f.functionality_id);
+      setSelectedFunctionalities(allIds);
+      setPartnerDetails((prev) => ({
+        ...prev,
+        functionality_ids: allIds,
+      }));
     } catch (err) {
       console.error("Error fetching functionalities:", err);
       setError("Failed to load functionalities");

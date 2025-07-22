@@ -482,7 +482,7 @@ function EditSuperOwner() {
                     <h3 className="text-sm font-semibold">Select Outlets</h3>
                     <div className="flex flex-wrap gap-3">
                       {/* Open/Close Filter */}
-                      {/* <div className="relative w-40">
+                      <div className="relative w-40">
                         <select
                           value={openCloseStatus}
                           onChange={(e) => setOpenCloseStatus(e.target.value)}
@@ -492,9 +492,9 @@ function EditSuperOwner() {
                           <option value="open">Open</option>
                           <option value="close">Close</option>
                         </select>
-                      </div> */}
+                      </div>
                       {/* Active/Inactive Filter */}
-                      {/* <div className="relative w-40">
+                      <div className="relative w-40">
                         <select
                           value={activeStatus}
                           onChange={(e) => setActiveStatus(e.target.value)}
@@ -504,7 +504,7 @@ function EditSuperOwner() {
                           <option value="active">Active</option>
                           <option value="inactive">Inactive</option>
                         </select>
-                      </div> */}
+                      </div>
                       {/* Search Bar */}
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
