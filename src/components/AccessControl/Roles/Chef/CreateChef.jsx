@@ -74,12 +74,11 @@ function CreateChef() {
         }
       );
       setFunctionalities(response.data);
-      // Always check all checkboxes by default
-      const allIds = response.data.map((f) => f.functionality_id);
-      setSelectedFunctionalities(allIds);
+      // Do NOT check all checkboxes by default
+      setSelectedFunctionalities([]);
       setChefData((prev) => ({
         ...prev,
-        functionality_ids: allIds,
+        functionality_ids: [],
       }));
     } catch (err) {
       const errorMsg =
@@ -383,7 +382,38 @@ function CreateChef() {
 
             {/* Functionalities */}
             <div>
-              <label className={labelStyles}>Functionalities</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className={labelStyles}>Functionalities</label>
+                {/* Check All Checkbox */}
+                <label className="flex items-center gap-2 font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={
+                      functionalities.length > 0 &&
+                      selectedFunctionalities.length === functionalities.length
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const allIds = functionalities.map(
+                          (f) => f.functionality_id
+                        );
+                        setSelectedFunctionalities(allIds);
+                        setChefData((prev) => ({
+                          ...prev,
+                          functionality_ids: allIds,
+                        }));
+                      } else {
+                        setSelectedFunctionalities([]);
+                        setChefData((prev) => ({
+                          ...prev,
+                          functionality_ids: [],
+                        }));
+                      }
+                    }}
+                  />
+                  Check All
+                </label>
+              </div>
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
                 <div className="flex flex-wrap gap-4">
                   {functionalities.map((func) => (

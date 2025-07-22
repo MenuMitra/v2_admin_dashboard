@@ -301,9 +301,35 @@ function EditSubscription() {
                 Features
                 <span className="text-error-600 ml-1">*</span>
               </h2>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                Selected: {formData.feature_ids.length}
-              </span>
+              <div className="flex items-center gap-6">
+                <label className="flex items-center gap-2 font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={
+                      features.length > 0 &&
+                      formData.feature_ids.length === features.length
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const allIds = features.map((f) => f.feature_id);
+                        setFormData((prev) => ({
+                          ...prev,
+                          feature_ids: allIds,
+                        }));
+                      } else {
+                        setFormData((prev) => ({
+                          ...prev,
+                          feature_ids: [],
+                        }));
+                      }
+                    }}
+                  />
+                  Check All
+                </label>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Selected: {formData.feature_ids.length}
+                </span>
+              </div>
             </div>
 
             <div

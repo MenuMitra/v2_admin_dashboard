@@ -9,6 +9,14 @@ import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
+// Utility function to convert a string to title case
+function toTitleCase(str) {
+  return str.replace(
+    /\w\S*/g,
+    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  );
+}
+
 function CreateSuperOwner() {
   const { getToken, isAuthenticated } = useAuth();
   const { adminData } = useAdmin();
@@ -485,27 +493,57 @@ function CreateSuperOwner() {
                                   icon={faLocationDot}
                                   className="w-4 h-4 mr-1"
                                 />
-                                {outlet.address}
+                                {toTitleCase(outlet.address)}
                               </p>
                             </div>
                           </div>
-                          {selectedOutlets.includes(outlet.outlet_id) && (
-                            <div className="text-blue-600">
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </div>
-                          )}
+                          <div className="flex flex-col items-end gap-2 min-w-[70px]">
+                            <span
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100`}
+                              style={{
+                                color:
+                                  outlet.outlet_status === 1 ||
+                                  outlet.outlet_status === "1"
+                                    ? "#16a34a" // Tailwind green-600
+                                    : "#dc2626", // Tailwind red-600
+                              }}
+                            >
+                              {outlet.outlet_status === 1 ||
+                              outlet.outlet_status === "1"
+                                ? "Active"
+                                : "Inactive"}
+                            </span>
+                            <span
+                              className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100"
+                              style={{
+                                color:
+                                  outlet.is_open === 1 || outlet.is_open === "1"
+                                    ? "#2563eb" // Tailwind blue-600
+                                    : "#6b7280", // Tailwind gray-500
+                              }}
+                            >
+                              {outlet.is_open === 1 || outlet.is_open === "1"
+                                ? "Open"
+                                : "Close"}
+                            </span>
+                            {selectedOutlets.includes(outlet.outlet_id) && (
+                              <div className="text-blue-600">
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}

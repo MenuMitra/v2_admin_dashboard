@@ -84,12 +84,11 @@ function EditPartner() {
       );
 
       setFunctionalities(response.data);
-      // Always check all checkboxes by default
-      const allIds = response.data.map((f) => f.functionality_id);
-      setSelectedFunctionalities(allIds);
+      // Do NOT check all checkboxes by default
+      setSelectedFunctionalities([]);
       setPartnerDetails((prev) => ({
         ...prev,
-        functionality_ids: allIds,
+        functionality_ids: [],
       }));
     } catch (err) {
       console.error("Error fetching functionalities:", err);
@@ -256,19 +255,10 @@ function EditPartner() {
   const validateForm = () => {
     const errors = {};
     const nameValidation = isNameValid(partnerDetails.name);
-    const emailValidation = isEmailValid(partnerDetails.email);
     const mobileValidation = isMobileValid(partnerDetails.mobile);
-    const dobValidation = isDobValid(partnerDetails.dob);
-    const aadharValidation = isAadharValid(partnerDetails.aadhar_number);
-    const addressValidation = isAddressValid(partnerDetails.address);
 
     if (!nameValidation.isValid) errors.name = nameValidation.message;
-    if (!emailValidation.isValid) errors.email = emailValidation.message;
     if (!mobileValidation.isValid) errors.mobile = mobileValidation.message;
-    if (!dobValidation.isValid) errors.dob = dobValidation.message;
-    if (!aadharValidation.isValid)
-      errors.aadhar_number = aadharValidation.message;
-    if (!addressValidation.isValid) errors.address = addressValidation.message;
 
     // Mobile validation
     if (!partnerDetails.mobile) {
@@ -484,7 +474,6 @@ function EditPartner() {
                 value={partnerDetails.aadhar_number}
                 onChange={handleChange}
                 placeholder="Enter 12-digit Aadhar number"
-                required
                 maxLength="12"
                 error={validationErrors.aadhar_number}
               />
@@ -551,10 +540,41 @@ function EditPartner() {
 
             {/* Functionalities Section */}
             <div>
-              <label className={labelStyles}>
-                <span className="text-error-600 text-red-500 mr-1">*</span>
-                Functionalities
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className={labelStyles}>
+                  <span className="text-error-600 text-red-500 mr-1">*</span>
+                  Functionalities
+                </label>
+                {/* Check All Checkbox */}
+                <label className="flex items-center gap-2 font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={
+                      functionalities.length > 0 &&
+                      selectedFunctionalities.length === functionalities.length
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const allIds = functionalities.map(
+                          (f) => f.functionality_id
+                        );
+                        setSelectedFunctionalities(allIds);
+                        setPartnerDetails((prev) => ({
+                          ...prev,
+                          functionality_ids: allIds,
+                        }));
+                      } else {
+                        setSelectedFunctionalities([]);
+                        setPartnerDetails((prev) => ({
+                          ...prev,
+                          functionality_ids: [],
+                        }));
+                      }
+                    }}
+                  />
+                  Check All
+                </label>
+              </div>
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
                 <div className="flex flex-wrap gap-4">
                   {functionalities.map((func) => (
@@ -563,7 +583,6 @@ function EditPartner() {
                       className="min-w-[200px] flex-1"
                     >
                       <label className="flex items-center justify-between gap-2 cursor-pointer select-none">
-                        <span>{func.functionality_name}</span>
                         <Checkbox
                           label=""
                           value={func.functionality_id}
@@ -587,6 +606,7 @@ function EditPartner() {
                             }));
                           }}
                         />
+                        <span>{func.functionality_name}</span>
                       </label>
                     </div>
                   ))}

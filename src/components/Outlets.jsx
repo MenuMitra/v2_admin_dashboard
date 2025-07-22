@@ -236,13 +236,26 @@ function Outlets() {
     // },
     {
       field: "last_order_date",
-      header: "Last order date time",
+      header: "Last Order",
       sortable: true,
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">
-          {value ?? 0}
-        </span>
-      ),
+      render: (value) => {
+        let formatted = "";
+        if (value) {
+          const date = new Date(value);
+          if (!isNaN(date)) {
+            formatted = date.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            });
+          }
+        }
+        return (
+          <span className="text-gray-700 font-medium text-xs flex justify-center">
+            {formatted || "-"}
+          </span>
+        );
+      },
     },
     {
       field: "accountType",
