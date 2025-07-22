@@ -261,15 +261,9 @@ const SelectInput = React.forwardRef(({
   );
 });
 
-// Checkbox Component
-const Checkbox = React.forwardRef(({
-  label,
-  checked,
-  onChange,
-  ...props
-}, ref) => {
+const Checkbox = React.forwardRef(({ label, checked, onChange, ...props }, ref) => {
   return (
-    <label className="inline-flex items-center">
+    <label className="inline-flex items-center cursor-pointer">
       <input
         ref={ref}
         type="checkbox"
@@ -286,6 +280,7 @@ const Checkbox = React.forwardRef(({
     </label>
   );
 });
+
 
 // Date Input Component
 const DateInput = React.forwardRef(({

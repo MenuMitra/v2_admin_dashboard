@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import DataTable from "./common/DataTable";
 import Modal from "./common/Modal";
-import DeleteConfirmModal from './common/DeleteConfirmModal/DeleteConfirmModal';
+import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import { useOutlets } from "../lib/react-query/hooks/useOutlets";
 
 function Outlets() {
@@ -60,7 +60,8 @@ function Outlets() {
       }
       // Account Type filter
       if (accountType !== "all") {
-        if ((item.accountType || '').toLowerCase() !== accountType) return false;
+        if ((item.accountType || "").toLowerCase() !== accountType)
+          return false;
       }
       // Open/Close filter
       if (openCloseStatus !== "all") {
@@ -177,9 +178,7 @@ function Outlets() {
         <div className="flex flex-col items-start">
           <p className="text-sm font-medium text-gray-800 dark:text-white/90">
             {value}
-          <span className="pl-2 text-xs text-gray-500">
-            ({row.code})
-          </span>
+            <span className="pl-2 text-xs text-gray-500">({row.code})</span>
           </p>
         </div>
       ),
@@ -212,7 +211,9 @@ function Outlets() {
       sortable: true,
       textAlign: "center",
       render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
+        <span className="text-gray-700 font-medium text-xs flex justify-center">
+          {(value ?? 0).toLocaleString()}
+        </span>
       ),
     },
     {
@@ -220,23 +221,27 @@ function Outlets() {
       header: "Total Paid",
       sortable: true,
       render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
+        <span className="text-gray-700 font-medium text-xs flex justify-center">
+          {(value ?? 0).toLocaleString()}
+        </span>
       ),
     },
+    // {
+    //   field: "total_cancel_count",
+    //   header: "Total Cancelled ",
+    //   sortable: true,
+    //   render: (value) => (
+    //     <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
+    //   ),
+    // },
     {
-      field: "total_cancel_count",
-      header: "Total Cancelled ",
+      field: "last_order_date",
+      header: "Last order date time",
       sortable: true,
       render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
-      ),
-    },
-    {
-      field: "total_menu",
-      header: "Total Menus",
-      sortable: true,
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">{value ?? 0}</span>
+        <span className="text-gray-700 font-medium text-xs flex justify-center">
+          {value ?? 0}
+        </span>
       ),
     },
     {
@@ -244,11 +249,13 @@ function Outlets() {
       header: "Acc. Type",
       sortable: true,
       render: (value) => (
-        <span className={`text-sm font-medium ${
-          value?.toLowerCase() === "live"
-            ? "text-success-500"
-            : "text-warning-500"
-        }`}>
+        <span
+          className={`text-sm font-medium ${
+            value?.toLowerCase() === "live"
+              ? "text-success-500"
+              : "text-warning-500"
+          }`}
+        >
           {value?.toLowerCase() === "live" ? "Live" : "Test"}
         </span>
       ),
@@ -258,9 +265,11 @@ function Outlets() {
       header: "Open \n Close",
       sortable: true,
       render: (value) => (
-        <span className={`text-sm font-medium ${
-          value === 1 ? "text-success-500" : "text-error-500"
-        }`}>
+        <span
+          className={`text-sm font-medium ${
+            value === 1 ? "text-success-500" : "text-error-500"
+          }`}
+        >
           {value === 1 ? "Open" : "Close"}
         </span>
       ),
@@ -316,7 +325,7 @@ function Outlets() {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-     
+
       <DataTable
         data={filteredData}
         columns={columns}
@@ -324,7 +333,8 @@ function Outlets() {
         counts={{
           total: outlets.length,
           active: outlets.filter((outlet) => outlet.outletStatus === 1).length,
-          inactive: outlets.filter((outlet) => outlet.outletStatus === 0).length,
+          inactive: outlets.filter((outlet) => outlet.outletStatus === 0)
+            .length,
         }}
         searchTerm={searchQuery}
         onSearchChange={(value) => {
@@ -359,16 +369,16 @@ function Outlets() {
         enableAccountTypeFilter={true}
         enableOpenCloseStatusFilter={true}
         accountType={accountType}
-        onAccountTypeChange={e => setAccountType(e.target.value)}
+        onAccountTypeChange={(e) => setAccountType(e.target.value)}
         openCloseStatus={openCloseStatus}
-        onOpenCloseStatusChange={e => setOpenCloseStatus(e.target.value)}
+        onOpenCloseStatusChange={(e) => setOpenCloseStatus(e.target.value)}
         statusField="outletStatus"
         onReload={() => queryClient.invalidateQueries(queryKeys.outlets.list())}
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;
-          return statusFilter === "active" ? 
-            item.outletStatus === 1 : 
-            item.outletStatus === 0;
+          return statusFilter === "active"
+            ? item.outletStatus === 1
+            : item.outletStatus === 0;
         }}
         emptyStateMessage={
           searchQuery
@@ -381,7 +391,7 @@ function Outlets() {
       />
 
       {/* Modal for active/inactive actions only */}
-      {confirmModal.isOpen && confirmModal.action !== 'delete' && (
+      {confirmModal.isOpen && confirmModal.action !== "delete" && (
         <Modal
           isOpen={confirmModal.isOpen}
           onClose={() =>
@@ -425,7 +435,7 @@ function Outlets() {
 
       {/* DeleteConfirmModal for bulk delete only */}
       <DeleteConfirmModal
-        isOpen={confirmModal.isOpen && confirmModal.action === 'delete'}
+        isOpen={confirmModal.isOpen && confirmModal.action === "delete"}
         onClose={() =>
           setConfirmModal({
             isOpen: false,
@@ -434,7 +444,7 @@ function Outlets() {
             message: "",
           })
         }
-        onDelete={() => executeBulkAction('delete')}
+        onDelete={() => executeBulkAction("delete")}
       />
 
       {/* Delete Modal using DeleteConfirmModal */}

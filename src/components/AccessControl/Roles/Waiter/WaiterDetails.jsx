@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { API_CONFIG } from "../../../../config/appConfig";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
+import {
   faChevronLeft as faBack,
-  faSpinner
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
@@ -31,7 +31,7 @@ function WaiterDetails() {
   const {
     data: waiterResponse,
     isLoading,
-    error
+    error,
   } = useQuery({
     queryKey: queryKeys.waiters.details(outletId, userId),
     queryFn: async () => {
@@ -41,7 +41,7 @@ function WaiterDetails() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -51,7 +51,8 @@ function WaiterDetails() {
       );
       return response.data;
     },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId) && Boolean(userId)
+    enabled:
+      Boolean(adminData?.user_id) && Boolean(outletId) && Boolean(userId),
   });
 
   // Delete waiter mutation
@@ -62,11 +63,11 @@ function WaiterDetails() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         headers: {
           Authorization: getToken(),
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
       });
     },
@@ -76,29 +77,75 @@ function WaiterDetails() {
       navigate(`/view-outlet/${outletId}`);
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.msg || "Failed to delete waiter");
-    }
+      toastController.error(
+        error.response?.data?.msg || "Failed to delete waiter"
+      );
+    },
   });
 
+  // Update waiter mutation
+  const updateMutation = useMutation({
+    mutationFn: async (updatedData) => {
+      return axios.put(
+        `${BASE_URL}/${API_VERSION}/common/waiter_update`,
+        {
+          ...updatedData,
+          update_user_id: adminData?.user_id,
+          user_id: Number(userId),
+          outlet_id: Number(outletId),
+          app_source: "admin_app",
+        },
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    },
+    onSuccess: () => {
+      // Invalidate waiter details and list queries to refresh data
+      queryClient.invalidateQueries(
+        queryKeys.waiters.details(outletId, userId)
+      );
+      queryClient.invalidateQueries(queryKeys.waiters.list(outletId));
+      // Optionally, show a toast or perform other actions
+      toastController.success("Waiter updated successfully");
+    },
+    onError: (error) => {
+      toastController.error(
+        error.response?.data?.msg || "Failed to update waiter"
+      );
+    },
+  });
+
+  // Function to call for updating waiter details
+  const handleUpdate = (updatedData) => {
+    updateMutation.mutate(updatedData);
+  };
+
   // Memoized values
-  const waiterData = React.useMemo(() => 
-    waiterResponse?.data || null,
+  const waiterData = React.useMemo(
+    () => waiterResponse?.data || null,
     [waiterResponse]
   );
 
-  const outletName = React.useMemo(() => 
-    waiterData?.outlet_name || '',
+  const outletName = React.useMemo(
+    () => waiterData?.outlet_name || "",
     [waiterData]
   );
 
   // Memoized breadcrumb items
-  const breadcrumbItems = React.useMemo(() => [
-    { label: "Home", path: "/Home" },
-    { label: "Outlets", path: "/outlets" },
-    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: "Waiters", path: `/waiters/${outletId}` },
-    { label: "Waiter Details" }
-  ], [outletName, outletId]);
+  const breadcrumbItems = React.useMemo(
+    () => [
+      { label: "Home", path: "/Home" },
+      { label: "Outlets", path: "/outlets" },
+      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
+      { label: "Waiters", path: `/waiters/${outletId}` },
+      { label: "Waiter Details" },
+    ],
+    [outletName, outletId]
+  );
 
   // Memoized handlers
   const handleDelete = React.useCallback(() => {
@@ -112,62 +159,103 @@ function WaiterDetails() {
 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div>
-          <p className="text-gray-900">{waiterData?.name || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{waiterData?.mobile || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{waiterData?.email || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{waiterData?.aadhar_number || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{waiterData?.dob || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{waiterData?.address || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-        </div>
-
-        <div>
-          <p className={`text-gray-900 ${waiterData?.is_active === 1 ? 'text-success-600' : 'text-error-600'}`}>
-            {waiterData?.is_active === 1 ? 'Active' : 'Inactive'}
-          </p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{waiterData?.created_by || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{waiterData?.created_on || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Created On</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{waiterData?.updated_by || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Updated By</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{waiterData?.updated_on || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Updated On</label>
-        </div>
+        {waiterData?.name && (
+          <div>
+            <p className="text-gray-900">{waiterData.name}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+          </div>
+        )}
+        {waiterData?.mobile && (
+          <div>
+            <p className="text-gray-900">{waiterData.mobile}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mobile
+            </label>
+          </div>
+        )}
+        {waiterData?.email && (
+          <div>
+            <p className="text-gray-900">{waiterData.email}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+          </div>
+        )}
+        {waiterData?.aadhar_number && (
+          <div>
+            <p className="text-gray-900">{waiterData.aadhar_number}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Aadhar Number
+            </label>
+          </div>
+        )}
+        {waiterData?.dob && (
+          <div>
+            <p className="text-gray-900">{waiterData.dob}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Date of Birth
+            </label>
+          </div>
+        )}
+        {waiterData?.address && (
+          <div>
+            <p className="text-gray-900">{waiterData.address}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address
+            </label>
+          </div>
+        )}
+        {waiterData?.is_active !== null &&
+          waiterData?.is_active !== undefined && (
+            <div>
+              <p
+                className={`text-gray-900 ${
+                  waiterData.is_active === 1
+                    ? "text-success-600"
+                    : "text-error-600"
+                }`}
+              >
+                {waiterData.is_active === 1 ? "Active" : "Inactive"}
+              </p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
+            </div>
+          )}
+        {waiterData?.created_by && (
+          <div>
+            <p className="text-gray-900">{waiterData.created_by}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Created By
+            </label>
+          </div>
+        )}
+        {waiterData?.created_on && (
+          <div>
+            <p className="text-gray-900">{waiterData.created_on}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Created On
+            </label>
+          </div>
+        )}
+        {waiterData?.updated_by && (
+          <div>
+            <p className="text-gray-900">{waiterData.updated_by}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Updated By
+            </label>
+          </div>
+        )}
+        {waiterData?.updated_on && (
+          <div>
+            <p className="text-gray-900">{waiterData.updated_on}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Updated On
+            </label>
+          </div>
+        )}
       </div>
     );
   }, [waiterData]);
@@ -177,7 +265,9 @@ function WaiterDetails() {
 
     return (
       <div className="mt-8">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Functionalities</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Functionalities
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {waiterData.functionalities.map((func) => (
             <div
@@ -213,7 +303,7 @@ function WaiterDetails() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={breadcrumbItems} />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         {/* Header Section */}
         <div className="overflow-hidden pt-4">
@@ -235,14 +325,38 @@ function WaiterDetails() {
                 onClick={() => navigate(`/edit-waiter/${outletId}/${userId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                  />
+                </svg>
                 <span className="hidden sm:inline">Edit</span>
               </button>
               <button
                 onClick={() => setShowDeleteModal(true)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
                 <span className="hidden sm:inline">Delete</span>
               </button>
             </div>

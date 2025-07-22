@@ -28,13 +28,8 @@ function OwnerDetails() {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const {
-    ownerData,
-    isLoading,
-    error,
-    deleteOwner,
-    isDeleting,
-  } = useOwnerDetails(ownerId);
+  const { ownerData, isLoading, error, deleteOwner, isDeleting } =
+    useOwnerDetails(ownerId);
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
@@ -59,7 +54,9 @@ function OwnerDetails() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="text-center text-error-500">Error loading owner details</div>
+        <div className="text-center text-error-500">
+          Error loading owner details
+        </div>
       </div>
     );
   }
@@ -75,7 +72,7 @@ function OwnerDetails() {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
           {/* Header Section - Matching DataTable.jsx style */}
@@ -142,11 +139,12 @@ function OwnerDetails() {
           {/* Content Section */}
           <div className="px-6 py-4">
             {/* Personal Information Card */}
-              <h2 className="text-base font-medium mb-4 text-gray-800">
-                Personal Information
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {/* Name */}
+            <h2 className="text-base font-medium mb-4 text-gray-800">
+              Personal Information
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {/* Name */}
+              {ownerData.name && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -155,12 +153,16 @@ function OwnerDetails() {
                     />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{ownerData.name}</div>
+                    <div className="text-base font-medium">
+                      {ownerData.name}
+                    </div>
                     <div className="text-sm text-gray-500">Name</div>
                   </div>
                 </div>
+              )}
 
-                {/* Email */}
+              {/* Email */}
+              {ownerData.email && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -169,12 +171,16 @@ function OwnerDetails() {
                     />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{ownerData.email}</div>
+                    <div className="text-base font-medium">
+                      {ownerData.email}
+                    </div>
                     <div className="text-sm text-gray-500">Email</div>
                   </div>
                 </div>
+              )}
 
-                {/* Mobile */}
+              {/* Mobile */}
+              {ownerData.mobile && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -189,8 +195,10 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Mobile</div>
                   </div>
                 </div>
+              )}
 
-                {/* Date of Birth */}
+              {/* Date of Birth */}
+              {ownerData.dob && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -203,8 +211,10 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Date of Birth</div>
                   </div>
                 </div>
+              )}
 
-                {/* Aadhar Number */}
+              {/* Aadhar Number */}
+              {ownerData.aadhar_number && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -219,7 +229,10 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Aadhar Number</div>
                   </div>
                 </div>
+              )}
 
+              {/* Address */}
+              {ownerData.address && (
                 <div className="mt-3 flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -234,16 +247,17 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Address</div>
                   </div>
                 </div>
-              </div>
-            
+              )}
+            </div>
 
             {/* Account Information Card */}
-            
-              <h2 className="text-base font-medium mb-4 text-gray-800">
-                Account Information
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {/* Role */}
+
+            <h2 className="text-base font-medium mb-4 text-gray-800">
+              Account Information
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {/* Role */}
+              {ownerData.role && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -252,12 +266,16 @@ function OwnerDetails() {
                     />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{ownerData.role}</div>
+                    <div className="text-base font-medium">
+                      {ownerData.role}
+                    </div>
                     <div className="text-sm text-gray-500">Role</div>
                   </div>
                 </div>
+              )}
 
-                {/* Account Type */}
+              {/* Account Type */}
+              {ownerData.account_type && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -272,44 +290,51 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Account Type</div>
                   </div>
                 </div>
+              )}
 
-                {/* Account Status */}
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faUserCheck}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="mt-1 flex items-center gap-2">
+              {/* Account Status */}
+              {ownerData.is_active !== null &&
+                ownerData.is_active !== undefined && (
+                  <div className="flex items-center p-3 rounded-lg">
+                    <div className="w-8 h-8 flex items-center justify-center">
                       <FontAwesomeIcon
-                        icon={
-                          ownerData.is_active === 1
-                            ? faCircleCheck
-                            : faCircleXmark
-                        }
-                        className={`w-5 h-5 ${
-                          ownerData.is_active === 1
-                            ? "text-success-500"
-                            : "text-error-500"
-                        }`}
+                        icon={faUserCheck}
+                        className="w-5 h-5 text-gray-400"
                       />
-                      <span
-                        className={`text-base font-medium ${
-                          ownerData.is_active === 1
-                            ? "text-success-700"
-                            : "text-error-700"
-                        }`}
-                      >
-                        {ownerData.is_active === 1 ? "Active" : "Inactive"}
-                      </span>
                     </div>
-                    <div className="text-sm text-gray-500">Account Status</div>
+                    <div className="ml-3">
+                      <div className="mt-1 flex items-center gap-2">
+                        <FontAwesomeIcon
+                          icon={
+                            ownerData.is_active === 1
+                              ? faCircleCheck
+                              : faCircleXmark
+                          }
+                          className={`w-5 h-5 ${
+                            ownerData.is_active === 1
+                              ? "text-success-500"
+                              : "text-error-500"
+                          }`}
+                        />
+                        <span
+                          className={`text-base font-medium ${
+                            ownerData.is_active === 1
+                              ? "text-success-700"
+                              : "text-error-700"
+                          }`}
+                        >
+                          {ownerData.is_active === 1 ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Account Status
+                      </div>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Created On */}
+              {/* Created On */}
+              {ownerData.created_on && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -324,6 +349,9 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Created On</div>
                   </div>
                 </div>
+              )}
+              {/* Created By */}
+              {ownerData.created_by && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -338,8 +366,10 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Created By</div>
                   </div>
                 </div>
+              )}
 
-                {/* Updated On */}
+              {/* Updated On */}
+              {ownerData.updated_on && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -354,6 +384,9 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Updated On</div>
                   </div>
                 </div>
+              )}
+              {/* Updated By */}
+              {ownerData.updated_by && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
@@ -368,8 +401,8 @@ function OwnerDetails() {
                     <div className="text-sm text-gray-500">Updated By</div>
                   </div>
                 </div>
-              </div>
-            
+              )}
+            </div>
 
             {/* Add new Outlets section */}
             {ownerData?.outlets && ownerData.outlets.length > 0 && (
@@ -381,11 +414,14 @@ function OwnerDetails() {
                   {ownerData.outlets.map((outlet) => (
                     <div
                       key={outlet.outlet_id}
-                      onClick={() => navigate(`/view-outlet/${outlet.outlet_id}`)}
+                      onClick={() =>
+                        navigate(`/view-outlet/${outlet.outlet_id}`)
+                      }
                       className="group flex items-center p-4 rounded-xl border border-gray-200 
                         hover:border-brand-500 hover:shadow-md transition-all duration-200 cursor-pointer"
                     >
-                      <div className="w-10 h-10 flex items-center justify-center rounded-lg 
+                      <div
+                        className="w-10 h-10 flex items-center justify-center rounded-lg 
                         bg-gray-100 group-hover:bg-brand-50"
                       >
                         <FontAwesomeIcon
@@ -394,7 +430,8 @@ function OwnerDetails() {
                         />
                       </div>
                       <div className="ml-4 flex-1">
-                        <div className="text-base font-medium text-gray-900 group-hover:text-brand-600 
+                        <div
+                          className="text-base font-medium text-gray-900 group-hover:text-brand-600 
                           flex items-center justify-between"
                         >
                           {outlet.name}
@@ -411,27 +448,31 @@ function OwnerDetails() {
             )}
 
             {/* Add new Functionalities section */}
-            {ownerData?.functionalities && ownerData.functionalities.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-base font-medium mb-4 text-gray-800">
-                  Access Functionalities
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {ownerData.functionalities.map((func) => (
-                    <div
-                      key={func.functionality_id}
-                      className="inline-flex items-center px-3 py-1.5 rounded-full text-sm
+            {ownerData?.functionalities &&
+              ownerData.functionalities.length > 0 && (
+                <div className="mt-8">
+                  <h2 className="text-base font-medium mb-4 text-gray-800">
+                    Access Functionalities
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    {ownerData.functionalities.map((func) => (
+                      <div
+                        key={func.functionality_id}
+                        className="inline-flex items-center px-3 py-1.5 rounded-full text-sm
                         bg-gray-100 text-gray-700 border border-gray-200"
-                    >
-                      {func.functionality_name.split('_').map(word => 
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                      ).join(' ')}
-                    </div>
-                  ))}
+                      >
+                        {func.functionality_name
+                          .split("_")
+                          .map(
+                            (word) =>
+                              word.charAt(0).toUpperCase() + word.slice(1)
+                          )
+                          .join(" ")}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-
+              )}
           </div>
         </div>
 

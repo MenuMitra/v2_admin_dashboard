@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
@@ -18,10 +18,10 @@ import {
   faUserTie,
   faUserCog,
   faUserFriends,
-  faUser
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { queryKeys } from '../lib/react-query/queryKeys';
+import { queryKeys } from "../lib/react-query/queryKeys";
 import Breadcrumb from "./Breadcrumb";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import Modal from "./common/Modal";
@@ -55,7 +55,7 @@ function ViewOutlet() {
   const {
     data: outletResponse,
     isLoading,
-    error
+    error,
   } = useQuery({
     queryKey: queryKeys.outlets.detail(outletId),
     queryFn: async () => {
@@ -81,8 +81,8 @@ function ViewOutlet() {
   });
 
   // Memoize the outlet data to prevent unnecessary re-renders
-  const outletData = React.useMemo(() => 
-    outletResponse?.data || null,
+  const outletData = React.useMemo(
+    () => outletResponse?.data || null,
     [outletResponse]
   );
 
@@ -107,8 +107,10 @@ function ViewOutlet() {
       navigate("/outlets");
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.message || "Failed to delete outlet");
-    }
+      toastController.error(
+        error.response?.data?.message || "Failed to delete outlet"
+      );
+    },
   });
 
   // Bulk upload mutation
@@ -132,8 +134,10 @@ function ViewOutlet() {
       toastController.success("Menu data uploaded successfully!");
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.message || "Failed to upload menu data");
-    }
+      toastController.error(
+        error.response?.data?.message || "Failed to upload menu data"
+      );
+    },
   });
 
   // Handlers
@@ -189,11 +193,14 @@ function ViewOutlet() {
   };
 
   // Memoize breadcrumb items
-  const breadcrumbItems = React.useMemo(() => [
-    { label: "Home", path: "/Home" },
-    { label: "Outlets", path: "/outlets" },
-    { label: outletData?.name || "View Outlet" },
-  ], [outletData?.name]);
+  const breadcrumbItems = React.useMemo(
+    () => [
+      { label: "Home", path: "/Home" },
+      { label: "Outlets", path: "/outlets" },
+      { label: outletData?.name || "View Outlet" },
+    ],
+    [outletData?.name]
+  );
 
   if (isLoading) {
     return (
@@ -295,7 +302,10 @@ function ViewOutlet() {
                   to={`/categories/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <FontAwesomeIcon icon={faList} className="w-5 h-5 mr-2 text-gray-800" />
+                  <FontAwesomeIcon
+                    icon={faList}
+                    className="w-5 h-5 mr-2 text-gray-800"
+                  />
                   <span className="text-md font-medium text-gray-800">
                     Categories
                   </span>
@@ -305,7 +315,10 @@ function ViewOutlet() {
                   to={`/menus/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 mr-2 text-gray-800" />
+                  <FontAwesomeIcon
+                    icon={faUtensils}
+                    className="w-5 h-5 mr-2 text-gray-800"
+                  />
                   <span className="text-md font-medium text-gray-800">
                     Menus
                   </span>
@@ -324,7 +337,10 @@ function ViewOutlet() {
                   to={`/managers/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <FontAwesomeIcon icon={faUserTie} className="w-5 h-5 mr-2 text-gray-800" />
+                  <FontAwesomeIcon
+                    icon={faUserTie}
+                    className="w-5 h-5 mr-2 text-gray-800"
+                  />
                   <span className="text-md font-medium text-gray-800">
                     Managers
                   </span>
@@ -334,7 +350,10 @@ function ViewOutlet() {
                   to={`/chefs/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <FontAwesomeIcon icon={faUserCog} className="w-5 h-5 mr-2 text-gray-800" />
+                  <FontAwesomeIcon
+                    icon={faUserCog}
+                    className="w-5 h-5 mr-2 text-gray-800"
+                  />
                   <span className="text-md font-medium text-gray-800">
                     Chefs
                   </span>
@@ -344,7 +363,10 @@ function ViewOutlet() {
                   to={`/captains/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <FontAwesomeIcon icon={faUserFriends} className="w-5 h-5 mr-2 text-gray-800" />
+                  <FontAwesomeIcon
+                    icon={faUserFriends}
+                    className="w-5 h-5 mr-2 text-gray-800"
+                  />
                   <span className="text-md font-medium text-gray-800">
                     Captains
                   </span>
@@ -354,7 +376,10 @@ function ViewOutlet() {
                   to={`/waiters/${outletId}`}
                   className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
-                  <FontAwesomeIcon icon={faUser} className="w-5 h-5 mr-2 text-gray-800" />
+                  <FontAwesomeIcon
+                    icon={faUser}
+                    className="w-5 h-5 mr-2 text-gray-800"
+                  />
                   <span className="text-md font-medium text-gray-800">
                     Waiters
                   </span>
@@ -407,83 +432,92 @@ function ViewOutlet() {
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                      {toTitleCase(outletData?.name)}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Outlet Name
-                    </p>
+            {/* Outlet Name */}
+            {outletData?.name && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {toTitleCase(outletData.name)}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Outlet Name
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                      {outletData?.mobile}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Mobile Number
-                    </p>
+            )}
+            {/* Mobile Number */}
+            {outletData?.mobile && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletData.mobile}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Mobile Number
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                      {outletData?.address}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Address
-                    </p>
+            )}
+            {/* Address */}
+            {outletData?.address && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletData.address}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Address
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                      {outletData?.whatsapp || "-"}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      WhatsApp
-                    </p>
+            )}
+            {/* WhatsApp */}
+            {outletData?.whatsapp && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletData.whatsapp}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        WhatsApp
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                      {outletData?.outlet_mode
-                        ? outletData.outlet_mode.charAt(0).toUpperCase() +
-                          outletData.outlet_mode.slice(1)
-                        : "-"}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Outlet Mode
-                    </p>
+            )}
+            {/* Outlet Mode */}
+            {outletData?.outlet_mode && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletData.outlet_mode.charAt(0).toUpperCase() +
+                          outletData.outlet_mode.slice(1)}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Outlet Mode
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Business Details section with divider */}
@@ -494,130 +528,143 @@ function ViewOutlet() {
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.veg_nonveg
-                          ? outletData.veg_nonveg.charAt(0).toUpperCase() +
-                            outletData.veg_nonveg.slice(1)
-                          : "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Food Type
-                      </p>
+              {/* Food Type */}
+              {outletData?.veg_nonveg && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.veg_nonveg.charAt(0).toUpperCase() +
+                            outletData.veg_nonveg.slice(1)}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Food Type
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.service_charges != null
-                          ? `${outletData.service_charges}%`
-                          : "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Service Charges
-                      </p>
+              )}
+              {/* Service Charges */}
+              {outletData?.service_charges != null && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {`${outletData.service_charges}%`}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Service Charges
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.gst != null ? `${outletData.gst}%` : "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        GST
-                      </p>
+              )}
+              {/* GST */}
+              {outletData?.gst != null && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {`${outletData.gst}%`}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          GST
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.opening_time || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Opening Hours
-                      </p>
+              )}
+              {/* Opening Hours */}
+              {outletData?.opening_time && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.opening_time}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Opening Hours
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.closing_time || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Closing Hours
-                      </p>
+              )}
+              {/* Closing Hours */}
+              {outletData?.closing_time && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.closing_time}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Closing Hours
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.fssainumber || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        FSSAI Number
-                      </p>
+              )}
+              {/* FSSAI Number */}
+              {outletData?.fssainumber && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.fssainumber}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          FSSAI Number
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.gstnumber || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        GST Number
-                      </p>
+              )}
+              {/* GST Number */}
+              {outletData?.gstnumber && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.gstnumber}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          GST Number
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.upi_id || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        UPI ID
-                      </p>
+              )}
+              {/* UPI ID */}
+              {outletData?.upi_id && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.upi_id}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          UPI ID
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -825,68 +872,75 @@ function ViewOutlet() {
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.created_on || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Created On
-                      </p>
+              {/* Created On */}
+              {outletData?.created_on && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.created_on}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Created On
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.created_by || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Created By
-                      </p>
+              )}
+              {/* Created By */}
+              {outletData?.created_by && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.created_by}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Created By
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.updated_on || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Updated On
-                      </p>
+              )}
+              {/* Updated On */}
+              {outletData?.updated_on && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.updated_on}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Updated On
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.updated_by
-                          ? outletData.updated_by.charAt(0).toUpperCase() +
-                            outletData.updated_by.slice(1)
-                          : "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Updated By
-                      </p>
+              )}
+              {/* Updated By */}
+              {outletData?.updated_by && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.updated_by.charAt(0).toUpperCase() +
+                            outletData.updated_by.slice(1)}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Updated By
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
@@ -898,69 +952,80 @@ function ViewOutlet() {
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details?.name || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Plan Name
-                      </p>
+              {/* Plan Name */}
+              {outletData?.subscription_details?.name && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.subscription_details.name}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Plan Name
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details?.price
-                          ? `₹${outletData.subscription_details.price}`
-                          : "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Plan Price
-                      </p>
+              )}
+              {/* Plan Price */}
+              {outletData?.subscription_details?.price && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {`₹${outletData.subscription_details.price}`}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Plan Price
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details
-                          ?.subscription_start_date || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Start Date
-                      </p>
+              )}
+              {/* Start Date */}
+              {outletData?.subscription_details?.subscription_start_date && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {
+                            outletData.subscription_details
+                              .subscription_start_date
+                          }
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Start Date
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.subscription_details
-                          ?.subscription_end_date || "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        End Date
-                      </p>
+              )}
+              {/* End Date */}
+              {outletData?.subscription_details?.subscription_end_date && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {
+                            outletData.subscription_details
+                              .subscription_end_date
+                          }
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          End Date
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -1008,7 +1073,9 @@ function ViewOutlet() {
             >
               <FontAwesomeIcon
                 icon={bulkUploadMutation.isPending ? faSpinner : faUpload}
-                className={`w-4 h-4 ${bulkUploadMutation.isPending ? "animate-spin" : ""}`}
+                className={`w-4 h-4 ${
+                  bulkUploadMutation.isPending ? "animate-spin" : ""
+                }`}
               />
               {bulkUploadMutation.isPending ? "Uploading..." : "Upload"}
             </button>

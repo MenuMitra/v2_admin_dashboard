@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
   faChevronLeft as faBack,
+  faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 
 function EditSuperOwner() {
@@ -33,6 +34,36 @@ function EditSuperOwner() {
   const [selectedOutlets, setSelectedOutlets] = useState([]);
   // Add state for field errors
   const [fieldErrors, setFieldErrors] = useState({});
+  // Search state for filtering outlets by location
+  const [searchTerm, setSearchTerm] = useState("");
+  // Filters state
+  const [openCloseStatus, setOpenCloseStatus] = useState("all");
+  const [activeStatus, setActiveStatus] = useState("all");
+  // Filter outlets by location (address), open/close, and active/inactive
+  const filteredOutlets = outlets.filter((outlet) => {
+    // Location filter
+    const matchesLocation =
+      outlet.address &&
+      outlet.address.toLowerCase().includes(searchTerm.toLowerCase());
+    // Open/Close filter (if outlet.open_close_status exists)
+    const matchesOpenClose =
+      openCloseStatus === "all" ||
+      (outlet.open_close_status &&
+        outlet.open_close_status.toLowerCase() === openCloseStatus);
+    // Active/Inactive filter (if outlet.is_active exists)
+    const matchesActive =
+      activeStatus === "all" ||
+      (typeof outlet.is_active !== "undefined" &&
+        ((activeStatus === "active" &&
+          (outlet.is_active === true ||
+            outlet.is_active === 1 ||
+            outlet.is_active === "1")) ||
+          (activeStatus === "inactive" &&
+            (outlet.is_active === false ||
+              outlet.is_active === 0 ||
+              outlet.is_active === "0"))));
+    return matchesLocation && matchesOpenClose && matchesActive;
+  });
 
   const fetchSuperOwnerDetails = async () => {
     try {
@@ -447,9 +478,53 @@ function EditSuperOwner() {
 
                 {/* Outlets Grid */}
                 <div className="mb-6">
-                  <h3 className="text-sm font-semibold mb-4">Select Outlets</h3>
+                  <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
+                    <h3 className="text-sm font-semibold">Select Outlets</h3>
+                    <div className="flex flex-wrap gap-3">
+                      {/* Open/Close Filter */}
+                      {/* <div className="relative w-40">
+                        <select
+                          value={openCloseStatus}
+                          onChange={(e) => setOpenCloseStatus(e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">Open/Close</option>
+                          <option value="open">Open</option>
+                          <option value="close">Close</option>
+                        </select>
+                      </div> */}
+                      {/* Active/Inactive Filter */}
+                      {/* <div className="relative w-40">
+                        <select
+                          value={activeStatus}
+                          onChange={(e) => setActiveStatus(e.target.value)}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">All Status</option>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </select>
+                      </div> */}
+                      {/* Search Bar */}
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                          <FontAwesomeIcon
+                            icon={faMagnifyingGlass}
+                            className="w-4 h-4"
+                          />
+                        </span>
+                        <input
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Search location"
+                          className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                    {outlets.map((outlet) => (
+                    {filteredOutlets.map((outlet) => (
                       <div
                         key={outlet.outlet_id}
                         onClick={() => handleOutletSelect(outlet.outlet_id)}

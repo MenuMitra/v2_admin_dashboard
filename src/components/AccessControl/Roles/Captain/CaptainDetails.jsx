@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
+import {
   faChevronLeft as faBack,
-  faSpinner
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
@@ -30,7 +30,7 @@ function CaptainDetails() {
   const {
     data: captainResponse,
     isLoading,
-    error
+    error,
   } = useQuery({
     queryKey: queryKeys.captains.details(outletId, userId),
     queryFn: async () => {
@@ -40,7 +40,7 @@ function CaptainDetails() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -50,7 +50,8 @@ function CaptainDetails() {
       );
       return response.data;
     },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId) && Boolean(userId)
+    enabled:
+      Boolean(adminData?.user_id) && Boolean(outletId) && Boolean(userId),
   });
 
   // Delete captain mutation
@@ -61,11 +62,11 @@ function CaptainDetails() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         headers: {
           Authorization: getToken(),
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
       });
     },
@@ -75,29 +76,34 @@ function CaptainDetails() {
       navigate(`/view-outlet/${outletId}`);
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.msg || "Failed to delete captain");
-    }
+      toastController.error(
+        error.response?.data?.msg || "Failed to delete captain"
+      );
+    },
   });
 
   // Memoized values
-  const captainData = React.useMemo(() => 
-    captainResponse?.data || null,
+  const captainData = React.useMemo(
+    () => captainResponse?.data || null,
     [captainResponse]
   );
 
-  const outletName = React.useMemo(() => 
-    captainData?.outlet_name || '',
+  const outletName = React.useMemo(
+    () => captainData?.outlet_name || "",
     [captainData]
   );
 
   // Memoized breadcrumb items
-  const breadcrumbItems = React.useMemo(() => [
-    { label: "Home", path: "/Home" },
-    { label: "Outlets", path: "/outlets" },
-    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: "Captains", path: `/captains/${outletId}` },
-    { label: "Captain Details" }
-  ], [outletName, outletId]);
+  const breadcrumbItems = React.useMemo(
+    () => [
+      { label: "Home", path: "/Home" },
+      { label: "Outlets", path: "/outlets" },
+      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
+      { label: "Captains", path: `/captains/${outletId}` },
+      { label: "Captain Details" },
+    ],
+    [outletName, outletId]
+  );
 
   // Memoized handlers
   const handleDelete = React.useCallback(() => {
@@ -111,62 +117,103 @@ function CaptainDetails() {
 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div>
-          <p className="text-gray-900">{captainData?.name || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{captainData?.mobile || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{captainData?.email || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{captainData?.aadhar_number || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{captainData?.dob || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{captainData?.address || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-        </div>
-
-        <div>
-          <p className={`text-gray-900 ${captainData?.is_active === 1 ? 'text-success-600' : 'text-error-600'}`}>
-            {captainData?.is_active === 1 ? 'Active' : 'Inactive'}
-          </p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{captainData?.created_by || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{captainData?.created_on || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Created On</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{captainData?.updated_by || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Updated By</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{captainData?.updated_on || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Updated On</label>
-        </div>
+        {captainData?.name && (
+          <div>
+            <p className="text-gray-900">{captainData.name}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+          </div>
+        )}
+        {captainData?.mobile && (
+          <div>
+            <p className="text-gray-900">{captainData.mobile}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mobile
+            </label>
+          </div>
+        )}
+        {captainData?.email && (
+          <div>
+            <p className="text-gray-900">{captainData.email}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+          </div>
+        )}
+        {captainData?.aadhar_number && (
+          <div>
+            <p className="text-gray-900">{captainData.aadhar_number}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Aadhar Number
+            </label>
+          </div>
+        )}
+        {captainData?.dob && (
+          <div>
+            <p className="text-gray-900">{captainData.dob}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Date of Birth
+            </label>
+          </div>
+        )}
+        {captainData?.address && (
+          <div>
+            <p className="text-gray-900">{captainData.address}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address
+            </label>
+          </div>
+        )}
+        {captainData?.is_active !== null &&
+          captainData?.is_active !== undefined && (
+            <div>
+              <p
+                className={`text-gray-900 ${
+                  captainData.is_active === 1
+                    ? "text-success-600"
+                    : "text-error-600"
+                }`}
+              >
+                {captainData.is_active === 1 ? "Active" : "Inactive"}
+              </p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
+            </div>
+          )}
+        {captainData?.created_by && (
+          <div>
+            <p className="text-gray-900">{captainData.created_by}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Created By
+            </label>
+          </div>
+        )}
+        {captainData?.created_on && (
+          <div>
+            <p className="text-gray-900">{captainData.created_on}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Created On
+            </label>
+          </div>
+        )}
+        {captainData?.updated_by && (
+          <div>
+            <p className="text-gray-900">{captainData.updated_by}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Updated By
+            </label>
+          </div>
+        )}
+        {captainData?.updated_on && (
+          <div>
+            <p className="text-gray-900">{captainData.updated_on}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Updated On
+            </label>
+          </div>
+        )}
       </div>
     );
   }, [captainData]);
@@ -176,7 +223,9 @@ function CaptainDetails() {
 
     return (
       <div className="mt-8">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Functionalities</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Functionalities
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {captainData.functionalities.map((func) => (
             <div
@@ -212,7 +261,7 @@ function CaptainDetails() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={breadcrumbItems} />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         {/* Header Section */}
         <div className="overflow-hidden pt-4">

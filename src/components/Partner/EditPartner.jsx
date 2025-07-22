@@ -125,10 +125,12 @@ function EditPartner() {
       );
 
       if (response.data.detail === "Successfully retrieved outlets") {
-        const outletArray = Object.entries(response.data.outlet_list).map(([name, id]) => ({
-          outlet_name: name,
-          outlet_id: id
-        }));
+        const outletArray = Object.entries(response.data.outlet_list).map(
+          ([name, id]) => ({
+            outlet_name: name,
+            outlet_id: id,
+          })
+        );
         setOutlets(outletArray);
       }
     } catch (err) {
@@ -341,7 +343,7 @@ function EditPartner() {
           waiter: `/waiter-details/${partnerDetails.outlet_id}/${partnerId}`,
           chef: `/chef-details/${partnerDetails.outlet_id}/${partnerId}`,
           manager: `/manager-details/${partnerDetails.outlet_id}/${partnerId}`,
-          
+
           // Roles with their own details pages
           owner: `/owner-details/${partnerId}`,
           partner: `/partner-details/${partnerId}`,
@@ -353,8 +355,10 @@ function EditPartner() {
           navigate(navigationPath);
         } else {
           // If role not found in map, show warning and navigate to partners list
-          toastController.warning(`No specific view found for role: ${partnerDetails.role}`);
-          navigate('/partners');
+          toastController.warning(
+            `No specific view found for role: ${partnerDetails.role}`
+          );
+          navigate("/partners");
         }
       }
     } catch (err) {
@@ -501,7 +505,9 @@ function EditPartner() {
                 required
                 options={roles.map((role) => ({
                   value: role.role_name,
-                  label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1),
+                  label:
+                    role.role_name.charAt(0).toUpperCase() +
+                    role.role_name.slice(1),
                 }))}
                 placeholder="Select Role"
               />
@@ -527,10 +533,10 @@ function EditPartner() {
                 required
                 options={[
                   { value: "", label: "Select Outlet" },
-                  ...outlets.map(outlet => ({
+                  ...outlets.map((outlet) => ({
                     value: outlet.outlet_id,
-                    label: outlet.outlet_name
-                  }))
+                    label: outlet.outlet_name,
+                  })),
                 ]}
                 placeholder="Select Outlet"
               />
@@ -549,29 +555,32 @@ function EditPartner() {
                       key={func.functionality_id}
                       className="min-w-[200px] flex-1"
                     >
-                      <Checkbox
-                        label={func.functionality_name}
-                        value={func.functionality_id}
-                        checked={selectedFunctionalities.includes(
-                          func.functionality_id
-                        )}
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-                          setSelectedFunctionalities((prev) =>
-                            e.target.checked
-                              ? [...prev, value]
-                              : prev.filter((id) => id !== value)
-                          );
-                          setPartnerDetails((prev) => ({
-                            ...prev,
-                            functionality_ids: e.target.checked
-                              ? [...prev.functionality_ids, value]
-                              : prev.functionality_ids.filter(
-                                  (id) => id !== value
-                                ),
-                          }));
-                        }}
-                      />
+                      <label className="flex items-center justify-between gap-2 cursor-pointer select-none">
+                        <span>{func.functionality_name}</span>
+                        <Checkbox
+                          label=""
+                          value={func.functionality_id}
+                          checked={selectedFunctionalities.includes(
+                            func.functionality_id
+                          )}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            setSelectedFunctionalities((prev) =>
+                              e.target.checked
+                                ? [...prev, value]
+                                : prev.filter((id) => id !== value)
+                            );
+                            setPartnerDetails((prev) => ({
+                              ...prev,
+                              functionality_ids: e.target.checked
+                                ? [...prev.functionality_ids, value]
+                                : prev.functionality_ids.filter(
+                                    (id) => id !== value
+                                  ),
+                            }));
+                          }}
+                        />
+                      </label>
                     </div>
                   ))}
                 </div>

@@ -207,6 +207,19 @@ const Sidebar = ({ sidebarToggle = false }) => {
           "/categories/",
           "/category-details/",
           "/edit-category/",
+          // Add manager, chef, captain, waiter sub-routes
+          "/managers/",
+          "/edit-manager/",
+          "/manager-details/",
+          "/chefs/",
+          "/edit-chef/",
+          "/chef-details/",
+          "/captains/",
+          "/edit-captain/",
+          "/captain-details/",
+          "/waiters/",
+          "/edit-waiter/",
+          "/waiter-details/",
         ],
         admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
         "super-owners": [
@@ -222,8 +235,21 @@ const Sidebar = ({ sidebarToggle = false }) => {
           "/edit-template/",
         ],
         // Special case for Access Control section
-        roles: ["/roles", "/add-role-assign-functionalities/"],
+        roles: [
+          "/roles",
+          "/add-role-assign-functionalities/",
+          "/role-details",
+          "/role-functionalities-mapping",
+        ],
         functionalities: ["/functionalities", "/assign-functionality-role/"],
+        subscriptions: [
+          "/subscriptions",
+          "/create-subscription",
+          "/edit-subscription/",
+          "/view-subscription/",
+        ],
+        tickets: ["/tickets", "/ticket-details", "/ticket-details/"],
+        customer: ["/customer", "/customer-details", "/edit-customer"],
       };
 
       // Special case for Access Control section

@@ -436,29 +436,28 @@ function CreateWaiter() {
                       key={func.functionality_id}
                       className="min-w-[200px] flex-1"
                     >
-                      <Checkbox
-                        label={func.functionality_name}
-                        value={func.functionality_id}
-                        checked={selectedFunctionalities.includes(
-                          func.functionality_id
-                        )}
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-                          setSelectedFunctionalities((prev) =>
-                            e.target.checked
-                              ? [...prev, value]
-                              : prev.filter((id) => id !== value)
-                          );
-                          setWaiterData((prev) => ({
-                            ...prev,
-                            functionality_ids: e.target.checked
-                              ? [...prev.functionality_ids, value]
-                              : prev.functionality_ids.filter(
-                                  (id) => id !== value
-                                ),
-                          }));
-                        }}
-                      />
+                      <label className="flex items-center justify-between gap-2 cursor-pointer select-none">
+                        <span>{func.functionality_name}</span>
+                        <Checkbox
+                          label=""
+                          value={func.functionality_id}
+                          checked={selectedFunctionalities.includes(func.functionality_id)}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            setSelectedFunctionalities((prev) =>
+                              e.target.checked
+                                ? [...prev, value]
+                                : prev.filter((id) => id !== value)
+                            );
+                            setWaiterData((prev) => ({
+                              ...prev,
+                              functionality_ids: e.target.checked
+                                ? [...prev.functionality_ids, value]
+                                : prev.functionality_ids.filter((id) => id !== value),
+                            }));
+                          }}
+                        />
+                      </label>
                     </div>
                   ))}
                 </div>

@@ -112,62 +112,72 @@ function ManagerDetails() {
   const renderManagerDetails = () => {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div>
-          <p className="text-gray-900">{managerData?.name || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{managerData?.mobile || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{managerData?.email || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{managerData?.aadhar_number || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{managerData?.dob || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{managerData?.address || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-        </div>
-
-        <div>
-          <p className={`text-gray-900 ${managerData?.is_active ? 'text-success-600' : 'text-error-600'}`}>
-            {managerData?.is_active ? 'Active' : 'Inactive'}
-          </p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{managerData?.created_by || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{managerData?.created_on || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Created On</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{managerData?.updated_by || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Updated By</label>
-        </div>
-
-        <div>
-          <p className="text-gray-900">{managerData?.updated_on || '-'}</p>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Updated On</label>
-        </div>
+        {managerData?.name && (
+          <div>
+            <p className="text-gray-900">{managerData.name}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          </div>
+        )}
+        {managerData?.mobile && (
+          <div>
+            <p className="text-gray-900">{managerData.mobile}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
+          </div>
+        )}
+        {managerData?.email && (
+          <div>
+            <p className="text-gray-900">{managerData.email}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          </div>
+        )}
+        {managerData?.aadhar_number && (
+          <div>
+            <p className="text-gray-900">{managerData.aadhar_number}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
+          </div>
+        )}
+        {managerData?.dob && (
+          <div>
+            <p className="text-gray-900">{managerData.dob}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+          </div>
+        )}
+        {managerData?.address && (
+          <div>
+            <p className="text-gray-900">{managerData.address}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+          </div>
+        )}
+        {managerData?.is_active !== null && managerData?.is_active !== undefined && (
+          <div>
+            <p className={`text-gray-900 ${managerData.is_active ? 'text-success-600' : 'text-error-600'}`}>{managerData.is_active ? 'Active' : 'Inactive'}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          </div>
+        )}
+        {managerData?.created_by && (
+          <div>
+            <p className="text-gray-900">{managerData.created_by}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
+          </div>
+        )}
+        {managerData?.created_on && (
+          <div>
+            <p className="text-gray-900">{managerData.created_on}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Created On</label>
+          </div>
+        )}
+        {managerData?.updated_by && (
+          <div>
+            <p className="text-gray-900">{managerData.updated_by}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Updated By</label>
+          </div>
+        )}
+        {managerData?.updated_on && (
+          <div>
+            <p className="text-gray-900">{managerData.updated_on}</p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Updated On</label>
+          </div>
+        )}
       </div>
     );
   };

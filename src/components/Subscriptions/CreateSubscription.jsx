@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft as faBack, faSave } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../../hooks/useAuth';
-import { useAdmin } from '../../hooks/useAdmin';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faChevronLeft as faBack,
+  faSave,
+} from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
 import {
   TextInput,
   SelectInput,
   DateInput,
   Checkbox,
-  labelStyles
-} from '../forms/FormElements';
-import Breadcrumb from '../Breadcrumb';
-import { API_CONFIG } from '../../config/appConfig';
-import { toastController } from '../../utils/toastController';
+  labelStyles,
+} from "../forms/FormElements";
+import Breadcrumb from "../Breadcrumb";
+import { API_CONFIG } from "../../config/appConfig";
+import { toastController } from "../../utils/toastController";
 
 function CreateSubscription() {
   const navigate = useNavigate();
@@ -24,51 +27,51 @@ function CreateSubscription() {
   const [isLoading, setIsLoading] = useState(false);
   const [features, setFeatures] = useState([]);
   const [formData, setFormData] = useState({
-    name: '',
-    price: '',
+    name: "",
+    price: "",
     // subscription_end_date: '',
-    feature_ids: []
+    feature_ids: [],
   });
   const [validationStates, setValidationStates] = useState({
     name: false,
     price: false,
     // subscription_end_date: false,
-    feature_ids: false
+    feature_ids: false,
   });
 
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Subscriptions', path: '/subscriptions' },
-    { label: 'Create Subscription' }
+    { label: "Home", path: "/home" },
+    { label: "Subscriptions", path: "/subscriptions" },
+    { label: "Create Subscription" },
   ];
 
   // Fetch available features
   const fetchFeatures = async () => {
     try {
       const token = getToken();
-      if (!token) throw new Error('No authentication token available');
+      if (!token) throw new Error("No authentication token available");
 
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/list_features`,
         {
           user_id: adminData.user_id,
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
-          }
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (response.data.detail === "Feature list fetched successfully") {
         // Filter out 'admin_app' feature
-        setFeatures(response.data.data.filter(f => f.name !== 'admin_app'));
+        setFeatures(response.data.data.filter((f) => f.name !== "admin_app"));
       }
     } catch (error) {
-      console.error('Error fetching features:', error);
-      toastController.error('Failed to fetch features');
+      console.error("Error fetching features:", error);
+      toastController.error("Failed to fetch features");
     }
   };
 
@@ -78,56 +81,59 @@ function CreateSubscription() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    setValidationStates(prev => ({
+    setValidationStates((prev) => ({
       ...prev,
-      [name]: false
+      [name]: false,
     }));
   };
 
   const handleFeatureChange = (featureId) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const newFeatureIds = prev.feature_ids.includes(featureId)
-        ? prev.feature_ids.filter(id => id !== featureId)
+        ? prev.feature_ids.filter((id) => id !== featureId)
         : [...prev.feature_ids, featureId];
-      
+
       return {
         ...prev,
-        feature_ids: newFeatureIds
+        feature_ids: newFeatureIds,
       };
     });
-    setValidationStates(prev => ({
+    setValidationStates((prev) => ({
       ...prev,
-      feature_ids: false
+      feature_ids: false,
     }));
   };
 
   const validateForm = () => {
     const newValidationStates = {
       name: !formData.name.trim(),
-      price: !formData.price || isNaN(formData.price) || parseFloat(formData.price) <= 0,
+      price:
+        !formData.price ||
+        isNaN(formData.price) ||
+        parseFloat(formData.price) <= 0,
       // subscription_end_date: !formData.subscription_end_date,
-      feature_ids: formData.feature_ids.length === 0
+      feature_ids: formData.feature_ids.length === 0,
     };
 
     setValidationStates(newValidationStates);
-    return !Object.values(newValidationStates).some(state => state);
+    return !Object.values(newValidationStates).some((state) => state);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      toastController.error('Please fill all required fields correctly');
+      toastController.error("Please fill all required fields correctly");
       return;
     }
 
     try {
       setIsLoading(true);
       const token = getToken();
-      if (!token) throw new Error('No authentication token available');
+      if (!token) throw new Error("No authentication token available");
 
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/create_subscription`,
@@ -135,23 +141,25 @@ function CreateSubscription() {
           ...formData,
           price: parseFloat(formData.price),
           user_id: adminData.user_id,
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: {
-            'Authorization': token,
-            'Content-Type': 'application/json'
-          }
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
         }
       );
 
       if (response.data.detail === "Subscription created successfully") {
-        toastController.success('Subscription created successfully');
-        navigate('/subscriptions');
+        toastController.success("Subscription created successfully");
+        navigate("/subscriptions");
       }
     } catch (error) {
-      console.error('Error creating subscription:', error);
-      toastController.error(error.response?.data?.detail || 'Failed to create subscription');
+      console.error("Error creating subscription:", error);
+      toastController.error(
+        error.response?.data?.detail || "Failed to create subscription"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -165,7 +173,7 @@ function CreateSubscription() {
         {/* Header */}
         <div className="px-6 py-4">
           <div className="flex items-center justify-between">
-            <button 
+            <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
             >
@@ -185,11 +193,11 @@ function CreateSubscription() {
                 text-sm font-medium text-white rounded-full
                 bg-success-500 hover:bg-success-600 
                 transition shadow-sm
-                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>{isLoading ? 'Creating...' : 'Create'}</span>
+              <span>{isLoading ? "Creating..." : "Create"}</span>
             </button>
           </div>
         </div>
@@ -199,8 +207,18 @@ function CreateSubscription() {
           {/* Basic Information Section */}
           <section className="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
             <h2 className="text-lg font-medium text-gray-800 dark:text-white/90 mb-4 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               Basic Information
             </h2>
@@ -246,8 +264,18 @@ function CreateSubscription() {
           <section className="bg-white p-6 rounded-lg shadow dark:bg-gray-800">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-gray-800 dark:text-white/90 flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                  />
                 </svg>
                 Features
                 <span className="text-error-600 ml-1">*</span>
@@ -256,44 +284,56 @@ function CreateSubscription() {
                 Selected: {formData.feature_ids.length}
               </span>
             </div>
-            
-            <div className={`
+
+            <div
+              className={`
               grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4
-            `}>
-              {features.map(feature => (
-                <div 
-                  key={feature.feature_id}
-                  onClick={() => handleFeatureChange(feature.feature_id)}
-                  className={`
-                    bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm 
-                    border cursor-pointer select-none
-                    ${formData.feature_ids.includes(feature.feature_id) 
-                      ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/10' 
-                      : 'border-gray-200 dark:border-gray-700 hover:border-brand-500/50 dark:hover:border-brand-500/50'
-                    }
-                    transition-all duration-200 ease-in-out
-                  `}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Checkbox
-                      checked={formData.feature_ids.includes(feature.feature_id)}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        handleFeatureChange(feature.feature_id);
-                      }}
-                    />
-                    <span className={`
-                      text-sm font-medium pl-2
-                      ${formData.feature_ids.includes(feature.feature_id)
-                        ? 'text-brand-700 dark:text-brand-400'
-                        : 'text-gray-700 dark:text-gray-300'
-                      }
-                    `}>
-                      {feature.name.split('_').join(' ').toUpperCase()}
-                    </span>
+            `}
+            >
+              {features.map((feature) => {
+                const isSelected = formData.feature_ids.includes(
+                  feature.feature_id
+                );
+
+                return (
+                  <div
+                    key={feature.feature_id}
+                    onClick={() => handleFeatureChange(feature.feature_id)}
+                    className={`
+        bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm 
+        border cursor-pointer select-none
+        ${
+          isSelected
+            ? "border-brand-500 bg-brand-50 dark:bg-brand-900/10"
+            : "border-gray-200 dark:border-gray-700 hover:border-brand-500/50 dark:hover:border-brand-500/50"
+        }
+        transition-all duration-200 ease-in-out
+      `}
+                  >
+                    <label className="flex items-center space-x-3 w-full cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onClick={(e) => e.stopPropagation()} // 👈 prevent card click conflict
+                        onChange={() => handleFeatureChange(feature.feature_id)}
+                        className="form-checkbox h-5 w-5 rounded border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 cursor-pointer"
+                      />
+                      <span
+                        className={`
+            text-sm font-medium pl-2
+            ${
+              isSelected
+                ? "text-brand-700 dark:text-brand-400"
+                : "text-gray-700 dark:text-gray-300"
+            }
+          `}
+                      >
+                        {feature.name.split("_").join(" ").toUpperCase()}
+                      </span>
+                    </label>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             {validationStates.feature_ids && (
               <p className="mt-2 text-sm text-error-500">

@@ -24,7 +24,7 @@ function CreateChef() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const {BASE_URL, API_VERSION} = API_CONFIG;
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [functionalities, setFunctionalities] = useState([]);
@@ -42,9 +42,9 @@ function CreateChef() {
     name: true,
     email: true,
     mobile: true,
-    mobileMessage: '',
+    mobileMessage: "",
     aadhar_number: true,
-    aadharMessage: ''
+    aadharMessage: "",
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
@@ -83,79 +83,85 @@ function CreateChef() {
   };
 
   const isMobileValid = (mobile) => {
-    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
-    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    if (!mobile)
+      return { isValid: false, message: "Mobile number is required" };
+    const numbersOnly = mobile.replace(/[^0-9]/g, "");
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
-      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+
+    if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+      return {
+        isValid: false,
+        message: "Mobile number must start with 6, 7, 8, or 9",
+      };
     }
-    
+
     if (numbersOnly.length !== 10) {
-      return { isValid: false, message: 'Mobile number must be 10 digits' };
+      return { isValid: false, message: "Mobile number must be 10 digits" };
     }
-    
-    return { isValid: true, message: '' };
+
+    return { isValid: true, message: "" };
   };
 
   const isAadharValid = (aadhar) => {
-    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
-    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (!aadhar)
+      return { isValid: false, message: "Aadhar number is required" };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, "");
     if (numbersOnly.length !== 12) {
-      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+      return {
+        isValid: false,
+        message: "Aadhar number must be exactly 12 digits",
+      };
     }
-    return { isValid: true, message: '' };
+    return { isValid: true, message: "" };
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name === 'mobile') {
-      const numbersOnly = value.replace(/[^0-9]/g, '');
+
+    if (name === "mobile") {
+      const numbersOnly = value.replace(/[^0-9]/g, "");
       // Check first digit - only allow if it's empty or starts with valid digit
       if (numbersOnly.length > 0) {
         const firstDigit = numbersOnly.charAt(0);
-        if (['0','1','2','3','4','5'].includes(firstDigit)) {
-          setValidationStates(prev => ({
+        if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+          setValidationStates((prev) => ({
             ...prev,
             mobile: false,
-            mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+            mobileMessage: "Mobile number must start with 6, 7, 8, or 9",
           }));
           return; // Don't update the value if first digit is invalid
         }
       }
-      
+
       const trimmedNumber = numbersOnly.slice(0, 10);
       const { isValid, message } = isMobileValid(trimmedNumber);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         mobile: isValid,
-        mobileMessage: message
+        mobileMessage: message,
       }));
-      setChefData(prev => ({ ...prev, mobile: trimmedNumber }));
-    } 
-    else if (name === 'aadhar_number') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+      setChefData((prev) => ({ ...prev, mobile: trimmedNumber }));
+    } else if (name === "aadhar_number") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 12);
       const { isValid, message } = isAadharValid(numbersOnly);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         aadhar_number: isValid,
-        aadharMessage: message
+        aadharMessage: message,
       }));
-      setChefData(prev => ({ ...prev, aadhar_number: numbersOnly }));
-    }
-    else {
-      setChefData(prev => ({
+      setChefData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
+    } else {
+      setChefData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
 
   const isFormValid = () => {
     return (
-      chefData.name?.trim() && 
-      chefData.mobile?.trim() && 
+      chefData.name?.trim() &&
+      chefData.mobile?.trim() &&
       chefData.aadhar_number?.trim() &&
       validationStates.name &&
       validationStates.mobile &&
@@ -190,7 +196,7 @@ function CreateChef() {
         aadhar_number: chefData.aadhar_number,
         dob: chefData.dob,
         functionality_ids: chefData.functionality_ids,
-        app_source: "admin_app"
+        app_source: "admin_app",
       };
 
       await toastController.promise(
@@ -203,13 +209,19 @@ function CreateChef() {
         {
           loading: "Creating chef...",
           success: "Chef created successfully!",
-          error: (err) => err.response?.data?.detail || err.response?.data?.msg || "An error occurred while creating chef"
+          error: (err) =>
+            err.response?.data?.detail ||
+            err.response?.data?.msg ||
+            "An error occurred while creating chef",
         }
       );
 
       navigate(-1);
     } catch (err) {
-      const errorMsg = err.response?.data?.detail || err.response?.data?.msg || "An error occurred while creating chef";
+      const errorMsg =
+        err.response?.data?.detail ||
+        err.response?.data?.msg ||
+        "An error occurred while creating chef";
       setError(errorMsg);
     } finally {
       setIsLoading(false);
@@ -251,9 +263,11 @@ function CreateChef() {
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 transition shadow-sm
-                ${isLoading || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-success-500 hover:bg-success-600"}
+                ${
+                  isLoading || !isFormValid()
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-success-500 hover:bg-success-600"
+                }
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -290,7 +304,11 @@ function CreateChef() {
                   maxLength={10}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      !validationStates.mobile
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {!validationStates.mobile && validationStates.mobileMessage && (
@@ -330,34 +348,35 @@ function CreateChef() {
                   maxLength={12}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      !validationStates.aadhar_number
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
-                {!validationStates.aadhar_number && validationStates.aadharMessage && (
-                  <p className="text-error-500 text-sm mt-1">
-                    {validationStates.aadharMessage}
-                  </p>
-                )}
+                {!validationStates.aadhar_number &&
+                  validationStates.aadharMessage && (
+                    <p className="text-error-500 text-sm mt-1">
+                      {validationStates.aadharMessage}
+                    </p>
+                  )}
               </div>
               <div className="sm:col-span-1">
-              <Textarea
-              label="Address"
-              name="address"
-              value={chefData.address}
-              onChange={handleChange}
-              placeholder="Enter complete address"
-              rows={3}
-            />
-              </div> 
+                <Textarea
+                  label="Address"
+                  name="address"
+                  value={chefData.address}
+                  onChange={handleChange}
+                  placeholder="Enter complete address"
+                  rows={3}
+                />
+              </div>
             </div>
-
-           
 
             {/* Functionalities */}
             <div>
-              <label className={labelStyles}>
-                Functionalities
-              </label>
+              <label className={labelStyles}>Functionalities</label>
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
                 <div className="flex flex-wrap gap-4">
                   {functionalities.map((func) => (
@@ -365,29 +384,32 @@ function CreateChef() {
                       key={func.functionality_id}
                       className="min-w-[200px] flex-1"
                     >
-                      <Checkbox
-                        label={func.functionality_name}
-                        value={func.functionality_id}
-                        checked={selectedFunctionalities.includes(
-                          func.functionality_id
-                        )}
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-                          setSelectedFunctionalities((prev) =>
-                            e.target.checked
-                              ? [...prev, value]
-                              : prev.filter((id) => id !== value)
-                          );
-                          setChefData((prev) => ({
-                            ...prev,
-                            functionality_ids: e.target.checked
-                              ? [...prev.functionality_ids, value]
-                              : prev.functionality_ids.filter(
-                                  (id) => id !== value
-                                ),
-                          }));
-                        }}
-                      />
+                      <label className="flex items-center justify-between gap-2 cursor-pointer select-none">
+                        <span>{func.functionality_name}</span>
+                        <Checkbox
+                          label=""
+                          value={func.functionality_id}
+                          checked={selectedFunctionalities.includes(
+                            func.functionality_id
+                          )}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            setSelectedFunctionalities((prev) =>
+                              e.target.checked
+                                ? [...prev, value]
+                                : prev.filter((id) => id !== value)
+                            );
+                            setChefData((prev) => ({
+                              ...prev,
+                              functionality_ids: e.target.checked
+                                ? [...prev.functionality_ids, value]
+                                : prev.functionality_ids.filter(
+                                    (id) => id !== value
+                                  ),
+                            }));
+                          }}
+                        />
+                      </label>
                     </div>
                   ))}
                 </div>

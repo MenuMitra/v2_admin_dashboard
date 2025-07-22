@@ -29,6 +29,7 @@ const transformOutletData = (outlets) => {
     total_placed_count: outlet.total_placed_count,
     total_menu: outlet.total_menu,
     total_category: outlet.total_category,
+    last_order_date: outlet.last_order_date,
   }));
 };
 

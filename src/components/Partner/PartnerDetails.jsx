@@ -1,28 +1,23 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import Breadcrumb from '../Breadcrumb';
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faCircleCheck, 
+import {
+  faCircleCheck,
   faCircleXmark,
   faChevronLeft as faBack,
-  faPenToSquare
+  faPenToSquare,
 } from "@fortawesome/free-solid-svg-icons";
-import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
-import { usePartnerDetails } from '../../lib/react-query/hooks/usePartnerDetails';
+import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import { usePartnerDetails } from "../../lib/react-query/hooks/usePartnerDetails";
 
-function PartnerDetails() { 
+function PartnerDetails() {
   const { partnerId } = useParams();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const {
-    partner,
-    isLoading,
-    error,
-    deletePartner,
-    isDeleting
-  } = usePartnerDetails(partnerId);
+  const { partner, isLoading, error, deletePartner, isDeleting } =
+    usePartnerDetails(partnerId);
 
   const handleDelete = async () => {
     await deletePartner();
@@ -41,16 +36,16 @@ function PartnerDetails() {
   if (error) {
     return (
       <div className="p-4 text-center text-red-500">
-        {error?.message || 'Failed to fetch partner details'}
+        {error?.message || "Failed to fetch partner details"}
       </div>
     );
   }
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Partners', path: '/partners' },
-    { label: 'View', path: '#' }
+    { label: "Home", path: "/home" },
+    { label: "Partners", path: "/partners" },
+    { label: "View", path: "#" },
   ];
 
   return (
@@ -65,7 +60,7 @@ function PartnerDetails() {
           <div className="flex items-center px-6 mb-3">
             {/* Left Side - Back Button */}
             <div className="flex items-center gap-2 order-1">
-              <button 
+              <button
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
@@ -84,7 +79,7 @@ function PartnerDetails() {
               <button
                 onClick={() => navigate(`/edit-partner/${partnerId}`)}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-                style={{ backgroundColor: '#f7941d' }}
+                style={{ backgroundColor: "#f7941d" }}
               >
                 <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit</span>
@@ -122,47 +117,66 @@ function PartnerDetails() {
                 Personal Information
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.name}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Name</p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.email}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Email Address</p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.mobile}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Mobile Number</p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.address}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.dob}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Date of Birth</p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.aadhar_number}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Aadhar Number</p>
-                </div>
+                {partner.name && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.name}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Name
+                    </p>
+                  </div>
+                )}
+                {partner.email && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.email}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Email Address
+                    </p>
+                  </div>
+                )}
+                {partner.mobile && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.mobile}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Mobile Number
+                    </p>
+                  </div>
+                )}
+                {partner.address && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.address}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Address
+                    </p>
+                  </div>
+                )}
+                {partner.dob && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.dob}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Date of Birth
+                    </p>
+                  </div>
+                )}
+                {partner.aadhar_number && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.aadhar_number}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Aadhar Number
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -172,52 +186,80 @@ function PartnerDetails() {
                 Account Information
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.role}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Role</p>
-                </div>
-
+                {partner.role && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.role}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Role
+                    </p>
+                  </div>
+                )}
                 {/* Account Status */}
-                <div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <FontAwesomeIcon
-                      icon={partner.account_status === 1 ? faCircleCheck : faCircleXmark}
-                      className={`w-5 h-5 ${
-                        partner.account_status === 1 ? "text-success-500" : "text-error-500"
-                      }`}
-                    />
-                    <span
-                      className={`text-base font-medium ${
-                        partner.account_status === 1 ? "text-success-700" : "text-error-700"
-                      }`}
-                    >
-                      {partner.account_status === 1 ? "Active" : "Inactive"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Account Status</p>
-                </div>
-
+                {partner.account_status !== null &&
+                  partner.account_status !== undefined && (
+                    <div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <FontAwesomeIcon
+                          icon={
+                            partner.account_status === 1
+                              ? faCircleCheck
+                              : faCircleXmark
+                          }
+                          className={`w-5 h-5 ${
+                            partner.account_status === 1
+                              ? "text-success-500"
+                              : "text-error-500"
+                          }`}
+                        />
+                        <span
+                          className={`text-base font-medium ${
+                            partner.account_status === 1
+                              ? "text-success-700"
+                              : "text-error-700"
+                          }`}
+                        >
+                          {partner.account_status === 1 ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Account Status
+                      </p>
+                    </div>
+                  )}
                 {/* Active Status */}
-                <div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <FontAwesomeIcon
-                      icon={partner.is_active === 1 ? faCircleCheck : faCircleXmark}
-                      className={`w-5 h-5 ${
-                        partner.is_active === 1 ? "text-success-500" : "text-error-500"
-                      }`}
-                    />
-                    <span
-                      className={`text-base font-medium ${
-                        partner.is_active === 1 ? "text-success-700" : "text-error-700"
-                      }`}
-                    >
-                      {partner.is_active === 1 ? "Active" : "Inactive"}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Active Status</p>
-                </div>
+                {partner.is_active !== null &&
+                  partner.is_active !== undefined && (
+                    <div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <FontAwesomeIcon
+                          icon={
+                            partner.is_active === 1
+                              ? faCircleCheck
+                              : faCircleXmark
+                          }
+                          className={`w-5 h-5 ${
+                            partner.is_active === 1
+                              ? "text-success-500"
+                              : "text-error-500"
+                          }`}
+                        />
+                        <span
+                          className={`text-base font-medium ${
+                            partner.is_active === 1
+                              ? "text-success-700"
+                              : "text-error-700"
+                          }`}
+                        >
+                          {partner.is_active === 1 ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Active Status
+                      </p>
+                    </div>
+                  )}
               </div>
             </div>
 
@@ -227,52 +269,67 @@ function PartnerDetails() {
                 Audit Information
               </h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.created_on}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Created On</p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.created_by}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Created By</p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.updated_on}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Updated On</p>
-                </div>
-
-                <div>
-                  <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                    {partner.updated_by}
-                  </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Updated By</p>
-                </div>
+                {partner.created_on && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.created_on}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Created On
+                    </p>
+                  </div>
+                )}
+                {partner.created_by && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.created_by}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Created By
+                    </p>
+                  </div>
+                )}
+                {partner.updated_on && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.updated_on}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Updated On
+                    </p>
+                  </div>
+                )}
+                {partner.updated_by && (
+                  <div>
+                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
+                      {partner.updated_by}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Updated By
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Functionalities */}
-            <div className="p-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
-                Functionalities
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {partner.functionalities.map(func => (
-                  <span 
-                    key={func.functionality_id}
-                    className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                  >
-                    {func.functionality_name.replace(/_/g, ' ').toLowerCase()}
-                  </span>
-                ))}
+            {partner.functionalities && partner.functionalities.length > 0 && (
+              <div className="p-6 border-t">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
+                  Functionalities
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {partner.functionalities.map((func) => (
+                    <span
+                      key={func.functionality_id}
+                      className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                    >
+                      {func.functionality_name.replace(/_/g, " ").toLowerCase()}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </div>
