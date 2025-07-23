@@ -23,7 +23,7 @@ function AddRoleAssignFunctionalities() {
 
   const breadcrumbItems = [
     { label: 'Home', path: '/home' },
-    { label: 'Access Control', path: '/access-control' },
+    // { label: 'Access Control', path: '/access-control' },
     { label: 'Roles', path: '/roles' },
     { label: 'Assign Functionalities' }
   ];

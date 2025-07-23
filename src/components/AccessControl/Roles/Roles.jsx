@@ -15,6 +15,14 @@ import Modal from "../../common/Modal";
 import { toastController } from "../../../utils/toastController";
 import { useRoles } from "../../../lib/react-query/hooks/useRoles";
 
+// Utility function to convert a string to title case
+function toTitleCase(str) {
+  return str.replace(
+    /\w\S*/g,
+    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  );
+}
+
 function Roles() {
   const { adminData } = useAdmin();
   const navigate = useNavigate();
@@ -42,7 +50,7 @@ function Roles() {
 
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
-    { label: "Access Control", path: "/home" },
+    // { label: "Access Control", path: "/home" },
     { label: "Roles", path: "/roles" },
   ];
 
@@ -88,7 +96,7 @@ function Roles() {
       render: (value) => (
         <div className="flex items-center justify-center">
           <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90 capitalize">
-            {value}
+            {toTitleCase(value)}
           </span>
         </div>
       ),

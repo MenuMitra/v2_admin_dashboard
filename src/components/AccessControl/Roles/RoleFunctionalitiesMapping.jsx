@@ -36,7 +36,7 @@ function RoleFunctionalitiesMapping() {
   // Add breadcrumb configuration
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
-    { label: "Access Control", path: "/home" },
+    // { label: "Access Control", path: "/home" },
     { label: "Roles", path: "/roles" },
     { label: "Role Functionalities", path: "#" },
   ];
@@ -65,8 +65,7 @@ function RoleFunctionalitiesMapping() {
 
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/listview_ubac_role_functionality_mapping`,
-        { role_id: parseInt(roleId),
-          app_source: "admin", },
+        { role_id: parseInt(roleId), app_source: "admin" },
         {
           headers: {
             Authorization: token,
@@ -243,8 +242,7 @@ function RoleFunctionalitiesMapping() {
             <div className="flex items-center gap-4 order-3">
               <button
                 onClick={() => {
-                  fetchAllFunctionalities();
-                  setShowEditModal(true);
+                  navigate(`/edit-functionality/${roleId}`);
                 }}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
               >
@@ -279,7 +277,7 @@ function RoleFunctionalitiesMapping() {
                     className="p-4 border border-gray-200 rounded-lg flex items-center gap-3 hover:bg-gray-50 transition-colors duration-200"
                   >
                     <div className="flex-1">
-                      <p className="font-medium text-gray-800 line-clamp-2">
+                      <p className="font-medium text-gray-800 line-clamp-2 flex items-center justify-between">
                         {mapping.functionality_name
                           .split("_")
                           .map(
@@ -287,6 +285,23 @@ function RoleFunctionalitiesMapping() {
                               word.charAt(0).toUpperCase() + word.slice(1)
                           )
                           .join(" ")}
+                        <span className="ml-2 text-black">
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              d="M4 8.5L7 11.5L12 5.5"
+                              stroke="black"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </span>
                       </p>
                       {/* <p className="text-sm text-gray-500 mt-0.5">
                         ID: {mapping.functionality_id}
@@ -370,7 +385,7 @@ function RoleFunctionalitiesMapping() {
                                 className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
                               />
                               <div>
-                                <div className="font-medium text-gray-900">
+                                <div className="font-medium text-gray-900 flex items-center justify-between">
                                   {functionality.functionality_name
                                     .split("_")
                                     .map(
@@ -379,6 +394,27 @@ function RoleFunctionalitiesMapping() {
                                         word.slice(1)
                                     )
                                     .join(" ")}
+                                  {selectedFunctionalities.includes(
+                                    functionality.functionality_id
+                                  ) && (
+                                    <span className="ml-2 text-black">
+                                      <svg
+                                        width="16"
+                                        height="16"
+                                        viewBox="0 0 16 16"
+                                        fill="none"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                      >
+                                        <path
+                                          d="M4 8.5L7 11.5L12 5.5"
+                                          stroke="black"
+                                          strokeWidth="2"
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                        />
+                                      </svg>
+                                    </span>
+                                  )}
                                 </div>
                                 {/* <div className="text-sm text-gray-500">
                                   ID: {functionality.functionality_id}

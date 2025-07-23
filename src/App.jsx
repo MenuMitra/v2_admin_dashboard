@@ -73,6 +73,7 @@ import CreateNotification from "./components/Notifications/CreateNotification";
 import Stats from "./components/Stats/Stats";
 import DBTablesStats from "./components/Stats/DBTablesStats";
 import CombinedStats from "./components/Stats/CombinedStats";
+import EditFunctionality from "./components/AccessControl/Roles/EditFunctionality";
 
 function App() {
   return (
@@ -177,6 +178,10 @@ function App() {
             <Route
               path="/role-functionalities-mapping/:roleId"
               element={<RoleFunctionalitiesMapping />}
+            />
+            <Route
+              path="/edit-functionality/:roleId"
+              element={<EditFunctionality />}
             />
 
             {/* Chef Routes*/}
