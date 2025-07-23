@@ -635,7 +635,7 @@ function EditOutlet() {
                 {/* Select Owner */}
                 <div className="relative">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                   Select Owner(s)
+                    Select Owner(s)
                   </label>
 
                   <div className="relative">
@@ -787,7 +787,14 @@ function EditOutlet() {
                   <ImageUploader
                     maxImages={1}
                     onImagesChange={(images) => {
-                      const base64String = images[0]?.url || null;
+                      let base64String = images[0]?.url || null;
+                      if (
+                        base64String &&
+                        !base64String.startsWith("data:image/")
+                      ) {
+                        // Default to PNG if type is not available
+                        base64String = `data:image/png;base64,${base64String}`;
+                      }
                       setOutletData((prev) => ({
                         ...prev,
                         image: base64String,

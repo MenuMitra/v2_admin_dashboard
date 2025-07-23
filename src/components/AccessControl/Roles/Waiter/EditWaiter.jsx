@@ -144,7 +144,9 @@ function EditWaiter() {
           },
         }
       );
-      setRoles(response.data);
+      setRoles(
+        Array.isArray(response.data.role_list) ? response.data.role_list : []
+      );
     } catch (err) {
       const errorMsg =
         err.response?.data?.detail ||

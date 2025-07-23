@@ -4,7 +4,11 @@ import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack, faSpinner, faSave } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft as faBack,
+  faSpinner,
+  faSave,
+} from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import { TextInput, DateInput, SelectInput } from "../../../forms/FormElements";
 import { API_CONFIG } from "../../../../config/appConfig";
@@ -15,7 +19,7 @@ function EditChef() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  const {BASE_URL, API_VERSION} = API_CONFIG;
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -25,9 +29,9 @@ function EditChef() {
     name: true,
     email: true,
     mobile: true,
-    mobileMessage: '',
+    mobileMessage: "",
     aadhar_number: true,
-    aadharMessage: ''
+    aadharMessage: "",
   });
   const [chefData, setChefData] = useState({
     name: "",
@@ -37,11 +41,11 @@ function EditChef() {
     aadhar_number: "",
     dob: "",
     functionality_ids: [],
-    role: "chef"
+    role: "chef",
   });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [outletName, setOutletName] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [outletName, setOutletName] = useState("");
 
   const dropdownRef = useRef(null);
 
@@ -53,11 +57,11 @@ function EditChef() {
     }
 
     if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isDropdownOpen]);
 
@@ -71,7 +75,7 @@ function EditChef() {
           },
         }
       );
-      setRoles(response.data);
+      setRoles(Array.isArray(response.data.role_list) ? response.data.role_list : []);
     } catch (err) {
       toastController.error("Failed to load roles");
       setError("Failed to load roles");
@@ -88,7 +92,11 @@ function EditChef() {
           },
         }
       );
-      setAvailableFunctionalities(response.data);
+      setAvailableFunctionalities(
+        Array.isArray(response.data.functionalities)
+          ? response.data.functionalities
+          : []
+      );
     } catch (err) {
       toastController.error("Failed to load functionalities");
       setError("Failed to load functionalities");
@@ -96,7 +104,11 @@ function EditChef() {
   };
 
   useEffect(() => {
-    Promise.all([fetchChefDetails(), fetchFunctionalities(), fetchRoles()]).finally(() => {
+    Promise.all([
+      fetchChefDetails(),
+      fetchFunctionalities(),
+      fetchRoles(),
+    ]).finally(() => {
       setLoading(false);
     });
   }, [outletId, userId]);
@@ -109,7 +121,7 @@ function EditChef() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -117,7 +129,7 @@ function EditChef() {
           },
         }
       );
-      
+
       const data = response.data.detail;
       setChefData({
         name: data.name || "",
@@ -126,12 +138,14 @@ function EditChef() {
         address: data.address || "",
         aadhar_number: data.aadhar_number || "",
         dob: data.dob || "",
-        functionality_ids: data.functionalities?.map(f => f.functionality_id) || [],
-        role: data.role || "chef"
+        functionality_ids:
+          data.functionalities?.map((f) => f.functionality_id) || [],
+        role: data.role || "chef",
       });
       setOutletName(data.outlet_name);
     } catch (err) {
-      const errorMsg = err.response?.data?.msg || "Failed to fetch chef details";
+      const errorMsg =
+        err.response?.data?.msg || "Failed to fetch chef details";
       toastController.error(errorMsg);
       setError(errorMsg);
     }
@@ -147,8 +161,8 @@ function EditChef() {
     if (chefData.dob) {
       const dateObj = new Date(chefData.dob);
       if (!isNaN(dateObj)) {
-        const day = String(dateObj.getDate()).padStart(2, '0');
-        const month = dateObj.toLocaleString('en-US', { month: 'short' });
+        const day = String(dateObj.getDate()).padStart(2, "0");
+        const month = dateObj.toLocaleString("en-US", { month: "short" });
         const year = dateObj.getFullYear();
         formattedDob = `${day} ${month} ${year}`;
       }
@@ -164,7 +178,7 @@ function EditChef() {
             outlet_id: Number(outletId),
             ...chefData,
             dob: formattedDob, // <-- use formatted dob here
-            app_source: "admin_app"
+            app_source: "admin_app",
           },
           {
             headers: {
@@ -175,7 +189,10 @@ function EditChef() {
         {
           loading: "Updating chef details...",
           success: "Chef updated successfully",
-          error: (err) => err.response?.data?.detail || err.response?.data?.msg || "An error occurred while updating chef"
+          error: (err) =>
+            err.response?.data?.detail ||
+            err.response?.data?.msg ||
+            "An error occurred while updating chef",
         }
       );
       navigate(`/chef-details/${outletId}/${userId}`);
@@ -185,79 +202,85 @@ function EditChef() {
   };
 
   const isMobileValid = (mobile) => {
-    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
-    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    if (!mobile)
+      return { isValid: false, message: "Mobile number is required" };
+    const numbersOnly = mobile.replace(/[^0-9]/g, "");
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
-      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+
+    if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+      return {
+        isValid: false,
+        message: "Mobile number must start with 6, 7, 8, or 9",
+      };
     }
-    
+
     if (numbersOnly.length !== 10) {
-      return { isValid: false, message: 'Mobile number must be 10 digits' };
+      return { isValid: false, message: "Mobile number must be 10 digits" };
     }
-    
-    return { isValid: true, message: '' };
+
+    return { isValid: true, message: "" };
   };
 
   const isAadharValid = (aadhar) => {
-    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
-    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (!aadhar)
+      return { isValid: false, message: "Aadhar number is required" };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, "");
     if (numbersOnly.length !== 12) {
-      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+      return {
+        isValid: false,
+        message: "Aadhar number must be exactly 12 digits",
+      };
     }
-    return { isValid: true, message: '' };
+    return { isValid: true, message: "" };
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name === 'mobile') {
-      const numbersOnly = value.replace(/[^0-9]/g, '');
+
+    if (name === "mobile") {
+      const numbersOnly = value.replace(/[^0-9]/g, "");
       // Check first digit - only allow if it's empty or starts with valid digit
       if (numbersOnly.length > 0) {
         const firstDigit = numbersOnly.charAt(0);
-        if (['0','1','2','3','4','5'].includes(firstDigit)) {
-          setValidationStates(prev => ({
+        if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+          setValidationStates((prev) => ({
             ...prev,
             mobile: false,
-            mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+            mobileMessage: "Mobile number must start with 6, 7, 8, or 9",
           }));
           return; // Don't update the value if first digit is invalid
         }
       }
-      
+
       const trimmedNumber = numbersOnly.slice(0, 10);
       const { isValid, message } = isMobileValid(trimmedNumber);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         mobile: isValid,
-        mobileMessage: message
+        mobileMessage: message,
       }));
-      setChefData(prev => ({ ...prev, mobile: trimmedNumber }));
-    } 
-    else if (name === 'aadhar_number') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+      setChefData((prev) => ({ ...prev, mobile: trimmedNumber }));
+    } else if (name === "aadhar_number") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 12);
       const { isValid, message } = isAadharValid(numbersOnly);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         aadhar_number: isValid,
-        aadharMessage: message
+        aadharMessage: message,
       }));
-      setChefData(prev => ({ ...prev, aadhar_number: numbersOnly }));
-    }
-    else {
-      setChefData(prev => ({
+      setChefData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
+    } else {
+      setChefData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
 
   const isFormValid = () => {
     return (
-      chefData.name?.trim() && 
-      chefData.mobile?.trim() && 
+      chefData.name?.trim() &&
+      chefData.mobile?.trim() &&
       chefData.aadhar_number?.trim() &&
       validationStates.name &&
       validationStates.mobile &&
@@ -269,13 +292,13 @@ function EditChef() {
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
     { label: "Outlets", path: "/outlets" },
-    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
     { label: "Chefs", path: `/chefs/${outletId}` },
     { label: "Chef Details", path: `/chef-details/${outletId}/${userId}` },
     { label: "Edit Chef" },
   ];
 
-  const filteredFunctionalities = availableFunctionalities.filter(func =>
+  const filteredFunctionalities = availableFunctionalities.filter((func) =>
     func.functionality_name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -292,7 +315,7 @@ function EditChef() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={breadcrumbItems} />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200">
@@ -307,9 +330,7 @@ function EditChef() {
             </button>
 
             {/* Title - Centered between buttons */}
-            <h1 className="text-xl font-semibold text-gray-800">
-              Edit Chef
-            </h1>
+            <h1 className="text-xl font-semibold text-gray-800">Edit Chef</h1>
 
             {/* Save Button */}
             <button
@@ -319,13 +340,15 @@ function EditChef() {
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 transition shadow-sm
-                ${submitting || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-success-500 hover:bg-success-600"}
+                ${
+                  submitting || !isFormValid()
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-success-500 hover:bg-success-600"
+                }
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>{submitting ? 'Saving...' : 'Save'}</span>
+              <span>{submitting ? "Saving..." : "Save"}</span>
             </button>
           </div>
         </div>
@@ -353,7 +376,11 @@ function EditChef() {
                 maxLength={10}
                 className={`
                   focus:border-brand-500 focus:ring-brand-500
-                  ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                  ${
+                    !validationStates.mobile
+                      ? "border-error-500"
+                      : "border-gray-300"
+                  }
                 `}
               />
               {!validationStates.mobile && validationStates.mobileMessage && (
@@ -389,14 +416,19 @@ function EditChef() {
                 maxLength={12}
                 className={`
                   focus:border-brand-500 focus:ring-brand-500
-                  ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                  ${
+                    !validationStates.aadhar_number
+                      ? "border-error-500"
+                      : "border-gray-300"
+                  }
                 `}
               />
-              {!validationStates.aadhar_number && validationStates.aadharMessage && (
-                <p className="text-error-500 text-sm mt-1">
-                  {validationStates.aadharMessage}
-                </p>
-              )}
+              {!validationStates.aadhar_number &&
+                validationStates.aadharMessage && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {validationStates.aadharMessage}
+                  </p>
+                )}
             </div>
 
             <DateInput
@@ -413,9 +445,11 @@ function EditChef() {
               value={chefData.role}
               onChange={handleInputChange}
               required
-              options={roles.map(role => ({
+              options={roles.map((role) => ({
                 value: role.role_name,
-                label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
+                label:
+                  role.role_name.charAt(0).toUpperCase() +
+                  role.role_name.slice(1),
               }))}
               placeholder="Select Role"
             />
@@ -424,7 +458,7 @@ function EditChef() {
               <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                 <span className="text-error-600">*</span> Select Functionalities
               </label>
-              
+
               <div className="relative" ref={dropdownRef}>
                 <div
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -437,11 +471,22 @@ function EditChef() {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-gray-900">
-                          {chefData.functionality_ids.length} Functionality(s) Selected
+                          {chefData.functionality_ids.length} Functionality(s)
+                          Selected
                         </div>
                       </div>
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      <svg
+                        className="w-5 h-5 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M19 9l-7 7-7-7"
+                        />
                       </svg>
                     </div>
                   ) : (
@@ -451,13 +496,13 @@ function EditChef() {
 
                 {/* Dropdown Panel */}
                 {isDropdownOpen && (
-                  <div 
+                  <div
                     className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
                     style={{
-                      width: '100%',
-                      minWidth: '300px',
-                      maxHeight: '350px',
-                      overflowY: 'auto'
+                      width: "100%",
+                      minWidth: "300px",
+                      maxHeight: "350px",
+                      overflowY: "auto",
                     }}
                   >
                     {/* Search Bar */}
@@ -479,33 +524,50 @@ function EditChef() {
                           key={func.functionality_id}
                           className={`
                             p-3 cursor-pointer hover:bg-gray-50
-                            ${chefData.functionality_ids.includes(func.functionality_id)
-                              ? 'bg-brand-50 border-l-4 border-brand-500' 
-                              : 'border-l-4 border-transparent'
+                            ${
+                              chefData.functionality_ids.includes(
+                                func.functionality_id
+                              )
+                                ? "bg-brand-50 border-l-4 border-brand-500"
+                                : "border-l-4 border-transparent"
                             }
                           `}
                           onClick={() => {
-                            const newIds = chefData.functionality_ids.includes(func.functionality_id)
-                              ? chefData.functionality_ids.filter(id => id !== func.functionality_id)
-                              : [...chefData.functionality_ids, func.functionality_id];
-                            
-                            setChefData(prev => ({
+                            const newIds = chefData.functionality_ids.includes(
+                              func.functionality_id
+                            )
+                              ? chefData.functionality_ids.filter(
+                                  (id) => id !== func.functionality_id
+                                )
+                              : [
+                                  ...chefData.functionality_ids,
+                                  func.functionality_id,
+                                ];
+
+                            setChefData((prev) => ({
                               ...prev,
-                              functionality_ids: newIds
+                              functionality_ids: newIds,
                             }));
                           }}
                         >
                           <div className="flex items-center gap-3">
                             <input
                               type="checkbox"
-                              checked={chefData.functionality_ids.includes(func.functionality_id)}
+                              checked={chefData.functionality_ids.includes(
+                                func.functionality_id
+                              )}
                               onChange={(e) => {
                                 e.stopPropagation();
-                                setChefData(prev => ({
+                                setChefData((prev) => ({
                                   ...prev,
                                   functionality_ids: e.target.checked
-                                    ? [...prev.functionality_ids, func.functionality_id]
-                                    : prev.functionality_ids.filter(id => id !== func.functionality_id)
+                                    ? [
+                                        ...prev.functionality_ids,
+                                        func.functionality_id,
+                                      ]
+                                    : prev.functionality_ids.filter(
+                                        (id) => id !== func.functionality_id
+                                      ),
                                 }));
                               }}
                               className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
