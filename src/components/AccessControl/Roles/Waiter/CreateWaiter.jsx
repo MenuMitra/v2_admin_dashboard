@@ -457,7 +457,7 @@ function CreateWaiter() {
                   onChange={handleChange}
                   placeholder="Enter 12-digit Aadhar number"
                   required
-                  maxLength={14}
+                  maxLength={12}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
                     ${

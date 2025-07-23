@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import Breadcrumb from '../Breadcrumb';
-import DataTable from '../common/DataTable';
-import { useNotifications } from '../../lib/react-query/hooks/useNotifications';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "../Breadcrumb";
+import DataTable from "../common/DataTable";
+import { useNotifications } from "../../lib/react-query/hooks/useNotifications";
 
 const Notifications = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [selectedOutlet, setSelectedOutlet] = useState('');
-  const [selectedRole, setSelectedRole] = useState('');
+  const [selectedOutlet, setSelectedOutlet] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
 
   const {
     notifications,
@@ -25,7 +25,7 @@ const Notifications = () => {
 
   const handleOutletChange = (value) => {
     setSelectedOutlet(value);
-    setSelectedRole(''); // Reset role when outlet changes
+    setSelectedRole(""); // Reset role when outlet changes
   };
 
   const handleRoleChange = (value) => {
@@ -34,12 +34,14 @@ const Notifications = () => {
 
   // Filter notifications based on selected outlet and role
   const getFilteredNotifications = () => {
-    return notifications.filter(notification => {
-      const matchesOutlet = !selectedOutlet || 
+    return notifications.filter((notification) => {
+      const matchesOutlet =
+        !selectedOutlet ||
         notification.original_outlet_id === "0" || // Include "All" outlets
         notification.original_outlet_id === selectedOutlet; // Match specific outlet
 
-      const matchesRole = !selectedRole || 
+      const matchesRole =
+        !selectedRole ||
         notification.original_role === "all" || // Include "All" roles
         notification.original_role === selectedRole; // Match specific role
 
@@ -49,12 +51,15 @@ const Notifications = () => {
 
   const columns = [
     {
-      field: 'outlet',
-      header: 'Outlet',
+      field: "outlet",
+      header: "Outlet",
       sortable: true,
       render: (value, row) => (
         <button
-          onClick={() => row.original_outlet_id !== "0" && navigate(`/view-outlet/${row.original_outlet_id}`)}
+          onClick={() =>
+            row.original_outlet_id !== "0" &&
+            navigate(`/view-outlet/${row.original_outlet_id}`)
+          }
           className={`font-medium ${
             row.original_outlet_id !== "0"
               ? "text-brand-500 hover:text-brand-600 hover:underline cursor-pointer"
@@ -66,8 +71,8 @@ const Notifications = () => {
       ),
     },
     {
-      field: 'role',
-      header: 'Role',
+      field: "role",
+      header: "Role",
       sortable: true,
       render: (value) => (
         <span className="capitalize font-medium text-gray-800 dark:text-white/90">
@@ -76,12 +81,15 @@ const Notifications = () => {
       ),
     },
     {
-      field: 'user',
-      header: 'User',
+      field: "user",
+      header: "User",
       sortable: true,
       render: (value, row) => (
         <button
-          onClick={() => row.original_user_id !== "0" && navigate(`/owner-details/${row.original_user_id}`)}
+          onClick={() =>
+            row.original_user_id !== "0" &&
+            navigate(`/owner-details/${row.original_user_id}`)
+          }
           className={`font-medium ${
             row.original_user_id !== "0"
               ? "text-brand-500 hover:text-brand-600 hover:underline cursor-pointer"
@@ -93,8 +101,8 @@ const Notifications = () => {
       ),
     },
     {
-      field: 'title',
-      header: 'Message',
+      field: "title",
+      header: "Message",
       sortable: true,
       render: (value) => (
         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
@@ -103,48 +111,51 @@ const Notifications = () => {
       ),
     },
     {
-      field: 'type',
-      header: 'Type',
+      field: "type",
+      header: "Type",
       sortable: true,
       render: (value) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          value === 'Success' ? 'bg-success-100 text-success-700' :
-          value === 'Info' ? 'bg-info-100 text-info-700' :
-          value === 'Warning' ? 'bg-warning-100 text-warning-700' :
-          'bg-error-100 text-error-700'
-        }`}>
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            value === "Success"
+              ? "bg-success-100 text-success-700"
+              : value === "Info"
+              ? "bg-info-100 text-info-700"
+              : value === "Warning"
+              ? "bg-warning-100 text-warning-700"
+              : "bg-error-100 text-error-700"
+          }`}
+        >
           {value}
         </span>
       ),
     },
     {
-      field: 'success_count',
-      header: 'Success',
+      field: "success_count",
+      header: "Success",
       sortable: true,
       render: (value) => (
-        <span className="font-medium text-success-600">
-          {value}
-        </span>
+        <span className="font-medium text-success-600">{value}</span>
       ),
     },
     {
-      field: 'created_on',
-      header: 'Sent On',
+      field: "created_on",
+      header: "Sent On",
       sortable: true,
       render: (value) => {
         const date = new Date(value);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = date.toLocaleString('en-US', { month: 'short' });
+        const day = date.getDate().toString().padStart(2, "0");
+        const month = date.toLocaleString("en-US", { month: "short" });
         const year = date.getFullYear();
         let hours = date.getHours();
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        const seconds = date.getSeconds().toString().padStart(2, '0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const minutes = date.getMinutes().toString().padStart(2, "0");
+        const seconds = date.getSeconds().toString().padStart(2, "0");
+        const ampm = hours >= 12 ? "PM" : "AM";
         hours = hours % 12;
         hours = hours ? hours : 12;
-        hours = hours.toString().padStart(2, '0');
+        hours = hours.toString().padStart(2, "0");
         const formattedDate = `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${ampm}`;
-        
+
         return (
           <span className="font-medium text-gray-800 dark:text-white/90">
             {formattedDate}
@@ -152,19 +163,42 @@ const Notifications = () => {
         );
       },
     },
+    // Action column
+    {
+      field: "action",
+      header: "Action",
+      sortable: false,
+      render: (_, row) => (
+        <button
+          className="px-3 py-1 text-xs font-medium rounded bg-brand-500 text-white hover:bg-brand-600 transition"
+          onClick={() => handleResend(row)}
+        >
+          Resend
+        </button>
+      ),
+    },
   ];
 
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Notifications' }
+    { label: "Home", path: "/home" },
+    { label: "Notifications" },
   ];
 
   const handleBulkAction = async (action, selectedIds) => {
-    console.log('Bulk action:', action, 'Selected IDs:', selectedIds);
+    console.log("Bulk action:", action, "Selected IDs:", selectedIds);
   };
 
   // Get filtered notifications
   const filteredNotifications = getFilteredNotifications();
+
+  const handleResend = (notification) => {
+    // TODO: Implement resend logic (API call)
+    alert(
+      `Resend notification with ID: ${
+        notification.id || notification.notification_id || ""
+      }`
+    );
+  };
 
   return (
     <>
@@ -185,14 +219,12 @@ const Notifications = () => {
         counts={{
           total: filteredNotifications.length,
           active: null,
-          inactive: null
+          inactive: null,
         }}
-        
         enableSelection={false}
         onBulkAction={handleBulkAction}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
-        
         title="Notifications"
         showBackButton={true}
         showSearch={true}
@@ -204,15 +236,13 @@ const Notifications = () => {
           icon: faPlus,
           onClick: () => navigate("/create-notification"),
           className: "bg-success-500 hover:bg-success-600",
-          position: "right"
+          position: "right",
         }}
-        
         enableStatusFilter={false}
         showOutletSelect={true}
         outlets={outlets}
         selectedOutlet={selectedOutlet}
         onOutletChange={handleOutletChange}
-        
         showRoleSelect={true}
         roles={roles}
         selectedRole={selectedRole}
@@ -224,4 +254,4 @@ const Notifications = () => {
   );
 };
 
-export default Notifications; 
+export default Notifications;

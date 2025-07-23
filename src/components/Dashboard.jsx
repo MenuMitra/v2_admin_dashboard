@@ -196,25 +196,25 @@ function Dashboard() {
           <div className="flex flex-row items-center justify-center w-full h-full gap-6">
             <div className="flex flex-col items-center">
               <span className="text-2xl font-bold text-black">
-                {cardData.total_live_outlets}
+                {cardData.total_live_outlets?.toLocaleString()}
               </span>
               <span className="text-xs text-gray-500">Total Live Outlets</span>
             </div>
             <div className="flex flex-col items-center">
               <span className="text-2xl font-bold text-black">
-                {cardData.total_outlets}
+                {cardData.total_outlets?.toLocaleString()}
               </span>
               <span className="text-xs text-gray-500">Total Outlets</span>
             </div>
             <div className="flex flex-col items-center">
               <span className="text-2xl font-bold text-black">
-                {cardData.total_orders}
+                {cardData.total_orders?.toLocaleString()}
               </span>
               <span className="text-xs text-gray-500">Total Orders</span>
             </div>
             <div className="flex flex-col items-center">
               <span className="text-2xl font-bold text-black">
-                {cardData.total_earning}
+                {cardData.total_earning?.toLocaleString()}
               </span>
               <span className="text-xs text-gray-500">Total Earning</span>
             </div>

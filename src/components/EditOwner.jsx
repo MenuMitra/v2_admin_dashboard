@@ -692,10 +692,41 @@ function EditOwner() {
 
             {/* Functionalities */}
             <div>
-              <label className={labelStyles}>
-                <span className="text-error-600 text-red-500 mr-1">*</span>
-                Functionalities
-              </label>
+              <div className="flex items-center justify-between">
+                <label className={labelStyles}>
+                  <span className="text-error-600 text-red-500 mr-1">*</span>
+                  Functionalities
+                </label>
+                {/* Check All Checkbox on the right */}
+                <label className="flex items-center gap-2 font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={
+                      functionalities.length > 0 &&
+                      selectedFunctionalities.length === functionalities.length
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        const allIds = functionalities.map(
+                          (f) => f.functionality_id
+                        );
+                        setSelectedFunctionalities(allIds);
+                        setOwnerData((prev) => ({
+                          ...prev,
+                          functionality_ids: allIds,
+                        }));
+                      } else {
+                        setSelectedFunctionalities([]);
+                        setOwnerData((prev) => ({
+                          ...prev,
+                          functionality_ids: [],
+                        }));
+                      }
+                    }}
+                  />
+                  Check All
+                </label>
+              </div>
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
                 <div className="flex flex-wrap gap-4">
                   {functionalities.map((func) => (
