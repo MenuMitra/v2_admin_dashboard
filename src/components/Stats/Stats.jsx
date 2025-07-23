@@ -79,12 +79,12 @@ function Stats() {
   const dbColumns = [
     { field: "table_name", header: "Table Name", sortable: true },
     { field: "record_count", header: "Record Count", sortable: true },
-    {
-      field: "last_record_date",
-      header: "Last Record Date",
-      sortable: true,
-      render: renderSmallDate,
-    },
+    // {
+    //   field: "last_record_date",
+    //   header: "Last Record Date",
+    //   sortable: true,
+    //   render: renderSmallDate,
+    // },
   ];
 
   const appUsageColumns = [

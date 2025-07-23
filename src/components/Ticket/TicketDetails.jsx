@@ -30,8 +30,7 @@ function TicketDetails() {
     try {
       const response = await axios.post(
         "https://men4u.xyz/v2/common/ticket_view",
-        { ticket_id: ticketId,
-          app_source: "admin", },
+        { ticket_id: ticketId, app_source: "admin" },
         {
           headers: {
             Authorization: getToken(),
@@ -176,7 +175,12 @@ function TicketDetails() {
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div>
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              {ticket.title}
+              {ticket.title &&
+                ticket.title.replace(
+                  /\w\S*/g,
+                  (txt) =>
+                    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+                )}
             </h3>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Ticket #{ticket.ticket_number}
@@ -224,40 +228,40 @@ function TicketDetails() {
 
         {/* Details Grid */}
         <div className="p-6 flex flex-col sm:flex-row gap-y-6 sm:gap-x-8">
-          {/* Description */}
-          <div className="flex-1 min-w-0">
-            <p className="mt-2 text-gray-900 dark:text-white break-words">
-              {ticket.description}
-            </p>
-            <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Description
-            </h4>
-          </div>
           {/* Status */}
           <div className="flex-1 min-w-0">
-            <p className="mt-2 text-gray-900 dark:text-white capitalize">
-              {ticket.status}
-            </p>
             <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Status
             </h4>
+            <p className="mt-2 text-gray-900 dark:text-white capitalize">
+              {ticket.status}
+            </p>
           </div>
           {/* Created By */}
           <div className="flex-1 min-w-0">
-            <p className="mt-2 text-gray-900 dark:text-white">{`${ticket.user_name} (${ticket.user_role})`}</p>
             <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Created By
             </h4>
+            <p className="mt-2 text-gray-900 dark:text-white">{`${ticket.user_name} (${ticket.user_role})`}</p>
           </div>
           {/* Created On */}
           <div className="flex-1 min-w-0">
-            <p className="mt-2 text-gray-900 dark:text-white">
-              {formatTicketDate(ticket.created_on)}
-            </p>
             <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Created On
             </h4>
+            <p className="mt-2 text-gray-900 dark:text-white">
+              {formatTicketDate(ticket.created_on)}
+            </p>
           </div>
+        </div>
+        {/* Description on its own line */}
+        <div className="px-6 pb-6">
+          <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            Description
+          </h4>
+          <p className="mt-2 text-gray-900 dark:text-white break-words whitespace-pre-line">
+            {ticket.description}
+          </p>
         </div>
       </div>
 

@@ -15,7 +15,7 @@ export const useRoles = () => {
 
   // List Query
   const {
-    data: roles = [],
+    data: rolesData = {},
     isLoading,
     error,
   } = useQuery({
@@ -33,6 +33,14 @@ export const useRoles = () => {
       return response.data;
     },
   });
+
+  // Extract roles and counts
+  const roles = rolesData.role_list || [];
+  const counts = {
+    total: rolesData.total_roles || roles.length,
+    active: null,
+    inactive: null,
+  };
 
   // Create Role Mutation
   const createMutation = useMutation({
@@ -123,6 +131,7 @@ export const useRoles = () => {
     roles,
     isLoading,
     error,
+    counts,
     createRole: createMutation.mutate,
     isCreating: createMutation.isLoading,
     updateRole: updateMutation.mutate,

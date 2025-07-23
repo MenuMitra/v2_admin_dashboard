@@ -1,22 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { useAdmin } from '../hooks/useAdmin';
-import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../hooks/useAuth";
+import { useAdmin } from "../hooks/useAdmin";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faSave,
+  faChevronLeft as faBack,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
   DateInput,
   Textarea,
   Checkbox,
   labelStyles,
-  SelectInput
-} from './forms/FormElements.jsx';
-import Breadcrumb from './Breadcrumb';
+  SelectInput,
+} from "./forms/FormElements.jsx";
+import Breadcrumb from "./Breadcrumb";
 import { API_CONFIG } from "../config/appConfig";
-import MultiSelectDropdown from './common/MultiSelectDropdown';
-import { toastController } from '../utils/toastController';
+import MultiSelectDropdown from "./common/MultiSelectDropdown";
+import { toastController } from "../utils/toastController";
 
 function EditOwner() {
   const { getToken } = useAuth();
@@ -31,28 +34,28 @@ function EditOwner() {
   const [roles, setRoles] = useState([]); // 1. Add roles state
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlets, setSelectedOutlets] = useState([]);
-  const [originalRole, setOriginalRole] = useState(''); // Add state for original role
-  const [staffOutletId, setStaffOutletId] = useState(''); // Add state for staff outlet
+  const [originalRole, setOriginalRole] = useState(""); // Add state for original role
+  const [staffOutletId, setStaffOutletId] = useState(""); // Add state for staff outlet
   const [ownerData, setOwnerData] = useState({
-    name: '',
-    email: '',
-    mobile: '',
-    dob: '',
-    aadhar_number: '',
-    address: '',
-    account_type: '',
+    name: "",
+    email: "",
+    mobile: "",
+    dob: "",
+    aadhar_number: "",
+    address: "",
+    account_type: "",
     is_active: 0,
     functionality_ids: [],
-    role: '', // 2. Add role to ownerData
+    role: "", // 2. Add role to ownerData
     outlet_ids: [], // Add outlet_ids to ownerData
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
     email: true,
     mobile: true,
-    mobileMessage: '',
+    mobileMessage: "",
     aadhar_number: true,
-    aadharMessage: ''
+    aadharMessage: "",
   });
   const [emailError, setEmailError] = useState("");
 
@@ -85,9 +88,11 @@ function EditOwner() {
           },
         }
       );
-      setRoles(response.data);
+      setRoles(
+        Array.isArray(response.data.role_list) ? response.data.role_list : []
+      );
     } catch (err) {
-      setError('Failed to load roles');
+      setError("Failed to load roles");
     }
   };
 
@@ -95,7 +100,7 @@ function EditOwner() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -106,10 +111,14 @@ function EditOwner() {
           },
         }
       );
-      setFunctionalities(response.data);
+      setFunctionalities(
+        Array.isArray(response.data.functionalities)
+          ? response.data.functionalities
+          : []
+      );
     } catch (err) {
-      console.error('Error fetching functionalities:', err);
-      setError('Failed to load functionalities');
+      console.error("Error fetching functionalities:", err);
+      setError("Failed to load functionalities");
     }
   };
 
@@ -130,10 +139,12 @@ function EditOwner() {
       );
 
       if (response.data.detail === "Successfully retrieved outlets") {
-        const outletArray = Object.entries(response.data.outlet_list).map(([name, id]) => ({
-          outlet_name: name,
-          outlet_id: id
-        }));
+        const outletArray = Object.entries(response.data.outlet_list).map(
+          ([name, id]) => ({
+            outlet_name: name,
+            outlet_id: id,
+          })
+        );
         setOutlets(outletArray);
       }
     } catch (err) {
@@ -147,7 +158,7 @@ function EditOwner() {
       setIsLoading(true);
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.post(
@@ -160,20 +171,23 @@ function EditOwner() {
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
-      const funcIds = response.data.functionalities.map(f => f.functionality_id);
+      const funcIds = response.data.functionalities.map(
+        (f) => f.functionality_id
+      );
       setSelectedFunctionalities(funcIds);
 
       // Add outlet_ids handling
-      const outletIds = response.data.outlets?.map(outlet => outlet.outlet_id) || [];
+      const outletIds =
+        response.data.outlets?.map((outlet) => outlet.outlet_id) || [];
       setSelectedOutlets(outletIds);
-      
+
       // Store original role
-      setOriginalRole(response.data.role || '');
+      setOriginalRole(response.data.role || "");
 
       setOwnerData({
         name: response.data.name,
@@ -185,106 +199,115 @@ function EditOwner() {
         account_type: response.data.account_type,
         is_active: response.data.is_active,
         functionality_ids: funcIds,
-        role: response.data.role || '',
+        role: response.data.role || "",
         outlet_ids: outletIds,
       });
       setIsLoading(false);
     } catch (err) {
-      setError('Failed to fetch owner details');
-      console.error('Error fetching owner details:', err);
+      setError("Failed to fetch owner details");
+      console.error("Error fetching owner details:", err);
       setIsLoading(false);
     }
   };
 
   const isMobileValid = (mobile) => {
-    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
-    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    if (!mobile)
+      return { isValid: false, message: "Mobile number is required" };
+    const numbersOnly = mobile.replace(/[^0-9]/g, "");
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
-      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+
+    if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+      return {
+        isValid: false,
+        message: "Mobile number must start with 6, 7, 8, or 9",
+      };
     }
-    
+
     if (numbersOnly.length !== 10) {
-      return { isValid: false, message: 'Mobile number must be 10 digits' };
+      return { isValid: false, message: "Mobile number must be 10 digits" };
     }
-    
-    return { isValid: true, message: '' };
+
+    return { isValid: true, message: "" };
   };
 
   const isAadharValid = (aadhar) => {
-    if (!aadhar) return { isValid: false, message: 'Aadhar number is required' };
-    const numbersOnly = aadhar.replace(/[^0-9]/g, '');
+    if (!aadhar)
+      return { isValid: false, message: "Aadhar number is required" };
+    const numbersOnly = aadhar.replace(/[^0-9]/g, "");
     if (numbersOnly.length !== 12) {
-      return { isValid: false, message: 'Aadhar number must be exactly 12 digits' };
+      return {
+        isValid: false,
+        message: "Aadhar number must be exactly 12 digits",
+      };
     }
-    return { isValid: true, message: '' };
+    return { isValid: true, message: "" };
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === 'role' && value !== originalRole) {
-      toastController.info('When changing role, only one outlet can be assigned as staff outlet');
-      setOwnerData(prev => ({
+    if (name === "role" && value !== originalRole) {
+      toastController.info(
+        "When changing role, only one outlet can be assigned as staff outlet"
+      );
+      setOwnerData((prev) => ({
         ...prev,
-        role: value
+        role: value,
       }));
       return;
     }
 
-    if (name === 'mobile') {
+    if (name === "mobile") {
       // Only allow numbers, max 10 digits
-      let numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+      let numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 10);
       // Prevent first digit from being 0-5
-      if (numbersOnly.length === 1 && ['0','1','2','3','4','5'].includes(numbersOnly.charAt(0))) {
-        setValidationStates(prev => ({
+      if (
+        numbersOnly.length === 1 &&
+        ["0", "1", "2", "3", "4", "5"].includes(numbersOnly.charAt(0))
+      ) {
+        setValidationStates((prev) => ({
           ...prev,
           mobile: false,
-          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+          mobileMessage: "Mobile number must start with 6, 7, 8, or 9",
         }));
-        numbersOnly = '';
+        numbersOnly = "";
       } else {
         const { isValid, message } = isMobileValid(numbersOnly);
-        setValidationStates(prev => ({
+        setValidationStates((prev) => ({
           ...prev,
           mobile: isValid,
-          mobileMessage: message
+          mobileMessage: message,
         }));
       }
-      setOwnerData(prev => ({ ...prev, [name]: numbersOnly }));
+      setOwnerData((prev) => ({ ...prev, [name]: numbersOnly }));
       return;
-    } 
-    else if (name === 'aadhar_number') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 12);
+    } else if (name === "aadhar_number") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 12);
       const { isValid, message } = isAadharValid(numbersOnly);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         aadhar_number: isValid,
-        aadharMessage: message
+        aadharMessage: message,
       }));
-      setOwnerData(prev => ({ ...prev, aadhar_number: numbersOnly }));
-    } 
-    else if (name === 'email') {
+      setOwnerData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
+    } else if (name === "email") {
       const gmailPattern = /^[a-zA-Z0-9._%+-]+@\.com$/;
       if (value && !gmailPattern.test(value)) {
-        setEmailError('Email format is incorrect.');
+        setEmailError("Email format is incorrect.");
       } else {
-        setEmailError('');
+        setEmailError("");
       }
-      setOwnerData(prev => ({ ...prev, [name]: value }));
+      setOwnerData((prev) => ({ ...prev, [name]: value }));
       return;
-    } 
-    else if (name === 'is_active') {
-      setOwnerData(prev => ({
+    } else if (name === "is_active") {
+      setOwnerData((prev) => ({
         ...prev,
-        [name]: Number(value)
+        [name]: Number(value),
       }));
-    }
-    else {
-      setOwnerData(prev => ({
+    } else {
+      setOwnerData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -294,20 +317,20 @@ function EditOwner() {
     setStaffOutletId(value);
     // Keep selectedOutlets in sync for API payload
     setSelectedOutlets(value ? [Number(value)] : []);
-    setOwnerData(prev => ({
+    setOwnerData((prev) => ({
       ...prev,
-      outlet_ids: value ? [Number(value)] : []
+      outlet_ids: value ? [Number(value)] : [],
     }));
   };
 
-  const isOwnerRole = ownerData.role === 'owner';
+  const isOwnerRole = ownerData.role === "owner";
 
   // Modify isFormValid to remove outlet validation
   const isFormValid = () => {
     // Check if all required fields are filled and valid
     return (
-      ownerData.name?.trim() && 
-      ownerData.mobile?.trim() && 
+      ownerData.name?.trim() &&
+      ownerData.mobile?.trim() &&
       ownerData.aadhar_number?.trim() &&
       ownerData.account_type &&
       ownerData.functionality_ids.length > 0 &&
@@ -328,14 +351,14 @@ function EditOwner() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       // Prepare outlet data based on role
       let outletData = {};
-      if (ownerData.role === 'owner' && ownerData.outlet_ids.length > 0) {
+      if (ownerData.role === "owner" && ownerData.outlet_ids.length > 0) {
         outletData = { outlet_ids: ownerData.outlet_ids };
-      } else if (ownerData.role === 'customer') {
+      } else if (ownerData.role === "customer") {
         // Customer role doesn't need any outlet data
         outletData = {};
       } else if (staffOutletId) {
@@ -371,7 +394,7 @@ function EditOwner() {
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
@@ -384,7 +407,7 @@ function EditOwner() {
           waiter: `/waiter-details/${staffOutletId}/${ownerId}`,
           chef: `/chef-details/${staffOutletId}/${ownerId}`,
           manager: `/manager-details/${staffOutletId}/${ownerId}`,
-          
+
           // Roles with their own details pages
           owner: -1, // Navigate back for owner role
           partner: `/partner-details/${ownerId}`,
@@ -392,20 +415,22 @@ function EditOwner() {
         };
 
         const navigationPath = roleNavigationMap[ownerData.role];
-        
+
         if (navigationPath === -1) {
           navigate(-1);
         } else if (navigationPath) {
           navigate(navigationPath);
         } else {
           // If role not found in map, show warning and navigate to home
-          toastController.warning(`No specific view found for role: ${ownerData.role}`);
-          navigate('/home');
+          toastController.warning(
+            `No specific view found for role: ${ownerData.role}`
+          );
+          navigate("/home");
         }
       }
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to update owner');
-      console.error('Error updating owner:', err);
+      setError(err.response?.data?.detail || "Failed to update owner");
+      console.error("Error updating owner:", err);
     } finally {
       setIsLoading(false);
     }
@@ -413,9 +438,9 @@ function EditOwner() {
 
   const handleOutletChange = (newOutletIds) => {
     setSelectedOutlets(newOutletIds);
-    setOwnerData(prev => ({
+    setOwnerData((prev) => ({
       ...prev,
-      outlet_ids: newOutletIds
+      outlet_ids: newOutletIds,
     }));
   };
 
@@ -430,7 +455,7 @@ function EditOwner() {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
@@ -457,9 +482,11 @@ function EditOwner() {
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 transition shadow-sm
-                ${isLoading || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-success-500 hover:bg-success-600"}
+                ${
+                  isLoading || !isFormValid()
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-success-500 hover:bg-success-600"
+                }
               `}
             >
               <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
@@ -481,7 +508,6 @@ function EditOwner() {
                 placeholder="Enter full name"
                 required
               />
-
               <div className="relative">
                 <TextInput
                   label="Mobile Number"
@@ -494,7 +520,11 @@ function EditOwner() {
                   maxLength={10}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      !validationStates.mobile
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {!validationStates.mobile && (
@@ -503,7 +533,6 @@ function EditOwner() {
                   </p>
                 )}
               </div>
-
               <div className="relative">
                 <TextInput
                   label="Email Address"
@@ -521,7 +550,6 @@ function EditOwner() {
                   <p className="text-error-500 text-sm mt-1">{emailError}</p>
                 )}
               </div>
-
               <DateInput
                 label="Date of Birth"
                 name="dob"
@@ -533,7 +561,6 @@ function EditOwner() {
                   border-gray-300
                 `}
               />
-
               <div className="relative">
                 <TextInput
                   label="Aadhar Number"
@@ -545,7 +572,11 @@ function EditOwner() {
                   maxLength={12}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.aadhar_number ? 'border-error-500' : 'border-gray-300'}
+                    ${
+                      !validationStates.aadhar_number
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {!validationStates.aadhar_number && (
@@ -553,55 +584,51 @@ function EditOwner() {
                     {validationStates.aadharMessage}
                   </p>
                 )}
-              </div> {/* Role - Added to the grid */}
+              </div>{" "}
+              {/* Role - Added to the grid */}
               <SelectInput
                 label="Role"
                 name="role"
                 value={ownerData.role}
                 onChange={handleChange}
                 required
-                options={roles.map(role => ({
+                options={roles.map((role) => ({
                   value: role.role_name,
-                  label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
+                  label:
+                    role.role_name.charAt(0).toUpperCase() +
+                    role.role_name.slice(1),
                 }))}
                 placeholder="Select Role"
               />
-
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
+                {/* Owner Status - Added to the grid */}
+                <SelectInput
+                  label="Owner Status"
+                  name="is_active"
+                  value={ownerData.is_active}
+                  onChange={handleChange}
+                  required
+                  options={[
+                    { value: 1, label: "Active" },
+                    { value: 0, label: "Inactive" },
+                  ]}
+                  placeholder="Select Status"
+                />
 
-              {/* Owner Status - Added to the grid */}
-              <SelectInput
-                label="Owner Status"
-                name="is_active"
-                value={ownerData.is_active}
-                onChange={handleChange}
-                required
-                options={[
-                  { value: 1, label: 'Active' },
-                  { value: 0, label: 'Inactive' }
-                ]}
-                placeholder="Select Status"
-              />
-
-              
-
-              {/* Account Type - Modified for live/test options */}
-              <SelectInput
-                label="Account Type"
-                name="account_type"
-                value={ownerData.account_type}
-                onChange={handleChange}
-                required
-                options={[
-                  { value: 'live', label: 'Live' },
-                  { value: 'test', label: 'Test' }
-                ]}
-                placeholder="Select Account Type"
-              />
-
+                {/* Account Type - Modified for live/test options */}
+                <SelectInput
+                  label="Account Type"
+                  name="account_type"
+                  value={ownerData.account_type}
+                  onChange={handleChange}
+                  required
+                  options={[
+                    { value: "live", label: "Live" },
+                    { value: "test", label: "Test" },
+                  ]}
+                  placeholder="Select Account Type"
+                />
               </div>
-             
-              
             </div>
 
             {/* Address and Outlets Section */}
@@ -627,39 +654,39 @@ function EditOwner() {
                 )}
               </div>
 
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
-              {/* Outlets Selection based on role */}
-              <div className="sm:col-span-1 xl:col-span-2 flex flex-col">
-                {isOwnerRole ? (
-                  /* Multi-select dropdown for owner role */
-                  <MultiSelectDropdown
-                    label="Select Outlets"
-                    options={outlets}
-                    selectedValues={selectedOutlets}
-                    onChange={handleOutletChange}
-                    displayKey="outlet_name"
-                    valueKey="outlet_id"
-                    searchKeys={['outlet_name']}
-                    // Remove required={true}
-                    placeholder="Select outlets"
-                    searchPlaceholder="Search outlets..."
-                  />
-                ) : (
-                  /* Single-select dropdown for staff roles */
-                  <SelectInput
-                    label="Select Staff Outlet"
-                    name="staff_outlet"
-                    value={staffOutletId}
-                    onChange={handleStaffOutletChange}
-                    // Remove required={true}
-                    options={outlets.map(outlet => ({
-                      value: outlet.outlet_id.toString(),
-                      label: outlet.outlet_name
-                    }))}
-                    placeholder="Select single outlet"
-                  />
-                )}
-              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
+                {/* Outlets Selection based on role */}
+                <div className="sm:col-span-1 xl:col-span-2 flex flex-col">
+                  {isOwnerRole ? (
+                    /* Multi-select dropdown for owner role */
+                    <MultiSelectDropdown
+                      label="Select Outlets"
+                      options={outlets}
+                      selectedValues={selectedOutlets}
+                      onChange={handleOutletChange}
+                      displayKey="outlet_name"
+                      valueKey="outlet_id"
+                      searchKeys={["outlet_name"]}
+                      // Remove required={true}
+                      placeholder="Select outlets"
+                      searchPlaceholder="Search outlets..."
+                    />
+                  ) : (
+                    /* Single-select dropdown for staff roles */
+                    <SelectInput
+                      label="Select Staff Outlet"
+                      name="staff_outlet"
+                      value={staffOutletId}
+                      onChange={handleStaffOutletChange}
+                      // Remove required={true}
+                      options={outlets.map((outlet) => ({
+                        value: outlet.outlet_id.toString(),
+                        label: outlet.outlet_name,
+                      }))}
+                      placeholder="Select single outlet"
+                    />
+                  )}
+                </div>
               </div>
             </div>
 
@@ -672,23 +699,30 @@ function EditOwner() {
               <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
                 <div className="flex flex-wrap gap-4">
                   {functionalities.map((func) => (
-                    <div key={func.functionality_id} className="min-w-[200px] flex-1">
+                    <div
+                      key={func.functionality_id}
+                      className="min-w-[200px] flex-1"
+                    >
                       <Checkbox
                         label={func.functionality_name}
                         value={func.functionality_id}
-                        checked={selectedFunctionalities.includes(func.functionality_id)}
+                        checked={selectedFunctionalities.includes(
+                          func.functionality_id
+                        )}
                         onChange={(e) => {
                           const value = Number(e.target.value);
-                          setSelectedFunctionalities(prev =>
+                          setSelectedFunctionalities((prev) =>
                             e.target.checked
                               ? [...prev, value]
-                              : prev.filter(id => id !== value)
+                              : prev.filter((id) => id !== value)
                           );
-                          setOwnerData(prev => ({
+                          setOwnerData((prev) => ({
                             ...prev,
                             functionality_ids: e.target.checked
                               ? [...prev.functionality_ids, value]
-                              : prev.functionality_ids.filter(id => id !== value)
+                              : prev.functionality_ids.filter(
+                                  (id) => id !== value
+                                ),
                           }));
                         }}
                       />
@@ -732,9 +766,7 @@ function EditOwner() {
 
             {/* Error Message */}
             {error && (
-              <div className="text-error-500 text-sm mt-2">
-                {error}
-              </div>
+              <div className="text-error-500 text-sm mt-2">{error}</div>
             )}
           </form>
         </div>

@@ -81,7 +81,7 @@ function Outlets() {
   // Update filtered data when filters or data changes
   useEffect(() => {
     const filtered = getFilteredData();
-    setFilteredData(filtered);
+    setFilteredData(filtered); // Only filter, do not sort here
   }, [searchQuery, statusFilter, accountType, openCloseStatus, outlets]);
 
   // Navigation handlers
@@ -366,6 +366,8 @@ function Outlets() {
         searchPlaceholder="Search outlets..."
         darkMode={false}
         enableSort={true}
+        defaultSortField="created_at"
+        defaultSortOrder="desc"
         enablePagination={true}
         enableSearch={true}
         enableSelection={true}

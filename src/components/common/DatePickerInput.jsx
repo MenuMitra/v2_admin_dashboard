@@ -1,6 +1,6 @@
-import React from 'react';
-import Flatpickr from 'react-flatpickr';
-import 'flatpickr/dist/flatpickr.css';
+import React from "react";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/flatpickr.css";
 
 // Add custom styles for the Flatpickr dropdown
 const customStyles = `
@@ -31,53 +31,56 @@ const customStyles = `
   </style>
 `;
 
-const DatePickerInput = ({ 
-  label, 
-  value, 
-  onChange, 
-  name, 
+const DatePickerInput = ({
+  label,
+  value,
+  onChange,
+  name,
   placeholder = "Select date",
   required = false,
   disabled = false,
   className = "",
-  error = ""
+  error = "",
 }) => {
   // Insert custom styles once when component mounts
   React.useEffect(() => {
-    if (!document.getElementById('flatpickr-custom-styles')) {
-      const styleElement = document.createElement('div');
-      styleElement.id = 'flatpickr-custom-styles';
+    if (!document.getElementById("flatpickr-custom-styles")) {
+      const styleElement = document.createElement("div");
+      styleElement.id = "flatpickr-custom-styles";
       styleElement.innerHTML = customStyles;
       document.head.appendChild(styleElement);
     }
   }, []);
 
   // --- Correctly format the display date from a YYYY-MM-DD string ---
-  const formatDisplayDate = (dateString_YYYY_MM_DD) => {
-    if (!dateString_YYYY_MM_DD) return "";
-    const [year, month, day] = dateString_YYYY_MM_DD.split("-");
-    const date = new Date(year, month - 1, day);
-    return date.toLocaleDateString("en-GB", {
+  const formatDisplayDate = (dateString) => {
+    if (!dateString) return "";
+    // Accept both 'YYYY-MM-DD' and 'DD MMM YYYY' for display
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      const [year, month, day] = dateString.split("-");
+      const date = new Date(year, month - 1, day);
+      return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    }
+    return dateString; // fallback for already formatted
+  };
+
+  // --- Emit a clean 'DD MMM YYYY' string on change ---
+  const handleDateChange = (selectedDates) => {
+    if (selectedDates.length === 0) return;
+    const date = selectedDates[0];
+    const formatted = date.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
-  };
-
-  // --- Emit a clean YYYY-MM-DD string on change ---
-  const handleDateChange = (selectedDates) => {
-    if (selectedDates.length === 0) return;
-    const date = selectedDates[0];
-
-    // --- FIX: Construct date string from local parts to avoid timezone shift ---
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-
     const event = {
       target: {
         name,
-        value: `${year}-${month}-${day}`, // Return correct "YYYY-MM-DD"
+        value: formatted, // Send as 'DD MMM YYYY'
       },
     };
     onChange(event);
@@ -97,12 +100,12 @@ const DatePickerInput = ({
           value={value}
           onChange={handleDateChange}
           options={{
-            dateFormat: 'Y-m-d', // This should match the format of our `value` prop
+            dateFormat: "Y-m-d", // This should match the format of our `value` prop
             static: true,
             disableMobile: true,
             allowInput: true,
             disabled,
-            position: 'auto',
+            position: "auto",
             // No UTC or timezone hacks needed anymore
           }}
           placeholder={placeholder}
@@ -113,15 +116,13 @@ const DatePickerInput = ({
             bg-transparent px-4 py-2.5 pr-11 pl-4 text-sm 
             text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden 
             dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30
-            ${error ? 'border-red-500' : ''}
-            ${disabled ? 'cursor-not-allowed opacity-50' : ''}
+            ${error ? "border-red-500" : ""}
+            ${disabled ? "cursor-not-allowed opacity-50" : ""}
           `}
         />
         {/* Display formatted date */}
         {value && (
-          <div className="formatted-date">
-            {formatDisplayDate(value)}
-          </div>
+          <div className="formatted-date">{formatDisplayDate(value)}</div>
         )}
         <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-gray-500 dark:text-gray-400">
           <svg
@@ -140,11 +141,9 @@ const DatePickerInput = ({
           </svg>
         </span>
       </div>
-      {error && (
-        <p className="mt-1 text-xs text-red-500">{error}</p>
-      )}
+      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
     </div>
   );
 };
 
-export default DatePickerInput; 
+export default DatePickerInput;

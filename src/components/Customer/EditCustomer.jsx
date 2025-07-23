@@ -27,17 +27,17 @@ function EditCustomer() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [roles, setRoles] = useState([]);
   const [customerData, setCustomerData] = useState(INITIAL_CUSTOMER_STATE);
-  const [originalRole, setOriginalRole] = useState(''); // Add state for original role
+  const [originalRole, setOriginalRole] = useState(""); // Add state for original role
   const [validationStates, setValidationStates] = useState({
     name: true,
     mobile: true,
-    mobileMessage: '',
-    role: true
+    mobileMessage: "",
+    role: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const [outlets, setOutlets] = useState([]);
@@ -45,42 +45,47 @@ function EditCustomer() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const isMobileValid = (mobile) => {
-    if (!mobile) return { isValid: false, message: 'Mobile number is required' };
-    const numbersOnly = mobile.replace(/[^0-9]/g, '');
+    if (!mobile)
+      return { isValid: false, message: "Mobile number is required" };
+    const numbersOnly = mobile.replace(/[^0-9]/g, "");
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
-      return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
+
+    if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+      return {
+        isValid: false,
+        message: "Mobile number must start with 6, 7, 8, or 9",
+      };
     }
-    
+
     if (numbersOnly.length !== 10) {
-      return { isValid: false, message: 'Mobile number must be 10 digits' };
+      return { isValid: false, message: "Mobile number must be 10 digits" };
     }
-    
-    return { isValid: true, message: '' };
+
+    return { isValid: true, message: "" };
   };
 
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const [customerResponse, rolesResponse, outletsResponse] = await Promise.all([
-        axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/customer_view`,
-          {
-            user_id: Number(customerId),
-            app_source: "admin_app",
-          },
-          {
+      const [customerResponse, rolesResponse, outletsResponse] =
+        await Promise.all([
+          axios.post(
+            `${BASE_URL}/${API_VERSION}/admin/customer_view`,
+            {
+              user_id: Number(customerId),
+              app_source: "admin_app",
+            },
+            {
+              headers: { Authorization: getToken() },
+            }
+          ),
+          axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/roles`, {
             headers: { Authorization: getToken() },
-          }
-        ),
-        axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/roles`, {
-          headers: { Authorization: getToken() },
-        }),
-        axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/outlets`, {
-          headers: { Authorization: getToken() },
-        }),
-      ]);
+          }),
+          axios.get(`${BASE_URL}/${API_VERSION}/common/get_list/outlets`, {
+            headers: { Authorization: getToken() },
+          }),
+        ]);
 
       const { customer_details } = customerResponse.data;
       const role = customer_details.role || "";
@@ -92,13 +97,19 @@ function EditCustomer() {
         is_active: customer_details.is_active === 1,
         outlet_id: customer_details.outlet_id || "",
       });
-      setRoles(rolesResponse.data);
+      setRoles(
+        Array.isArray(rolesResponse.data.role_list)
+          ? rolesResponse.data.role_list
+          : []
+      );
       setOutlets(
         outletsResponse.data && outletsResponse.data.outlet_list
-          ? Object.entries(outletsResponse.data.outlet_list).map(([name, id]) => ({
-              id,
-              name,
-            }))
+          ? Object.entries(outletsResponse.data.outlet_list).map(
+              ([name, id]) => ({
+                id,
+                name,
+              })
+            )
           : []
       );
     } catch (error) {
@@ -126,8 +137,8 @@ function EditCustomer() {
 
   const isFormValid = () => {
     return (
-      customerData.name?.trim() && 
-      customerData.mobile?.trim() && 
+      customerData.name?.trim() &&
+      customerData.mobile?.trim() &&
       customerData.role?.trim() &&
       validationStates.name &&
       validationStates.mobile &&
@@ -156,7 +167,7 @@ function EditCustomer() {
           role: customerData.role,
           is_active: customerData.is_active ? 1 : 0,
           outlet_id: customerData.outlet_id,
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: { Authorization: getToken() },
@@ -166,7 +177,7 @@ function EditCustomer() {
       await toastController.promise(Promise.resolve(response), {
         loading: "Updating customer...",
         success: "Customer updated successfully",
-        error: (err) => err.response?.data?.msg || "Failed to update customer"
+        error: (err) => err.response?.data?.msg || "Failed to update customer",
       });
 
       // Handle navigation based on role
@@ -176,7 +187,7 @@ function EditCustomer() {
         waiter: `/waiter-details/${customerData.outlet_id}/${customerId}`,
         chef: `/chef-details/${customerData.outlet_id}/${customerId}`,
         manager: `/manager-details/${customerData.outlet_id}/${customerId}`,
-        
+
         // Roles with their own details pages
         owner: `/owner-details/${customerId}`,
         partner: `/partner-details/${customerId}`,
@@ -188,12 +199,13 @@ function EditCustomer() {
         navigate(navigationPath);
       } else {
         // If role not found in map, show warning and navigate back
-        toastController.warning(`No specific view found for role: ${customerData.role}`);
+        toastController.warning(
+          `No specific view found for role: ${customerData.role}`
+        );
         navigate(-1);
       }
-
     } catch (error) {
-      console.error('Error updating customer:', error);
+      console.error("Error updating customer:", error);
     } finally {
       setIsSaving(false);
     }
@@ -201,61 +213,60 @@ function EditCustomer() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    if (name === 'role') {
-      if (value !== 'customer' && originalRole === 'customer') {
-        toastController.info('As a staff member, you can only be assigned to one outlet');
+
+    if (name === "role") {
+      if (value !== "customer" && originalRole === "customer") {
+        toastController.info(
+          "As a staff member, you can only be assigned to one outlet"
+        );
       }
-      setCustomerData(prev => ({
+      setCustomerData((prev) => ({
         ...prev,
         [name]: value,
         // Reset outlet_id when switching from customer to other roles
-        outlet_id: value !== 'customer' ? '' : prev.outlet_id
+        outlet_id: value !== "customer" ? "" : prev.outlet_id,
       }));
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
-        role: !!value
+        role: !!value,
       }));
       return;
     }
 
-    if (name === 'mobile') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+    if (name === "mobile") {
+      const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
-      
-      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
-        setValidationStates(prev => ({
+
+      if (firstDigit && ["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+        setValidationStates((prev) => ({
           ...prev,
           mobile: false,
-          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+          mobileMessage: "Mobile number must start with 6, 7, 8, or 9",
         }));
         return;
       }
 
-      setCustomerData(prev => ({ ...prev, [name]: numbersOnly }));
+      setCustomerData((prev) => ({ ...prev, [name]: numbersOnly }));
       const { isValid, message } = isMobileValid(numbersOnly);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         mobile: isValid,
-        mobileMessage: message
+        mobileMessage: message,
       }));
-    } 
-    else if (name === 'is_active') {
-      setCustomerData(prev => ({
+    } else if (name === "is_active") {
+      setCustomerData((prev) => ({
         ...prev,
-        [name]: value === "1"
+        [name]: value === "1",
       }));
-    }
-    else if (name === 'outlet_id') {
-      setCustomerData(prev => ({
+    } else if (name === "outlet_id") {
+      setCustomerData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
-    }
-    else {
-      setCustomerData(prev => ({
+    } else {
+      setCustomerData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -279,7 +290,7 @@ function EditCustomer() {
           { label: "Edit Customer" },
         ]}
       />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         {/* Header */}
         <div className="overflow-hidden pt-4">
@@ -308,13 +319,18 @@ function EditCustomer() {
                   inline-flex items-center gap-2 px-4 py-2 
                   text-sm font-medium text-white rounded-full
                   transition shadow-theme-xs
-                  ${isSaving || !isFormValid() 
-                    ? "bg-gray-400 cursor-not-allowed" 
-                    : "bg-success-500 hover:bg-success-600"}
+                  ${
+                    isSaving || !isFormValid()
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-success-500 hover:bg-success-600"
+                  }
                 `}
               >
                 {isSaving ? (
-                  <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin" />
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    className="w-4 h-4 animate-spin"
+                  />
                 ) : (
                   <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
                 )}
@@ -351,7 +367,11 @@ function EditCustomer() {
                 placeholder="Enter mobile number"
                 className={`
                   focus:border-brand-500 focus:ring-brand-500
-                  ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
+                  ${
+                    !validationStates.mobile
+                      ? "border-error-500"
+                      : "border-gray-300"
+                  }
                 `}
               />
               {!validationStates.mobile && (
@@ -368,30 +388,32 @@ function EditCustomer() {
               onChange={handleInputChange}
               required
               options={[
-                { value: ""},
-                ...roles.map(role => ({
+                { value: "" },
+                ...roles.map((role) => ({
                   value: role.role_name,
-                  label: role.role_name.charAt(0).toUpperCase() + role.role_name.slice(1)
-                }))
+                  label:
+                    role.role_name.charAt(0).toUpperCase() +
+                    role.role_name.slice(1),
+                })),
               ]}
             />
 
             {/* Conditional Outlet Selection */}
-            {customerData.role && (
+            {customerData.role && customerData.role !== "customer" && (
               <SelectInput
                 label="Outlet"
                 name="outlet_id"
                 value={customerData.outlet_id}
                 onChange={handleInputChange}
-                required={customerData.role !== 'customer'}
+                required={true}
                 options={[
                   { value: "", label: "Select Outlet" },
-                  ...outlets.map(outlet => ({
+                  ...outlets.map((outlet) => ({
                     value: outlet.id,
-                    label: outlet.name
-                  }))
+                    label: outlet.name,
+                  })),
                 ]}
-                disabled={customerData.role === 'customer'}
+                disabled={false}
               />
             )}
 

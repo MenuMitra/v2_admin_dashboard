@@ -160,7 +160,17 @@ function PartnerDetails() {
                 {partner.dob && (
                   <div>
                     <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.dob}
+                      {(() => {
+                        const date = new Date(partner.dob);
+                        if (isNaN(date)) return partner.dob;
+                        const day = String(date.getDate()).padStart(2, "0");
+                        const month = String(date.getMonth() + 1).padStart(
+                          2,
+                          "0"
+                        );
+                        const year = date.getFullYear();
+                        return `${day}-${month}-${year}`;
+                      })()}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Date of Birth
@@ -196,38 +206,7 @@ function PartnerDetails() {
                     </p>
                   </div>
                 )}
-                {/* Account Status */}
-                {partner.account_status !== null &&
-                  partner.account_status !== undefined && (
-                    <div>
-                      <div className="mt-1 flex items-center gap-2">
-                        <FontAwesomeIcon
-                          icon={
-                            partner.account_status === 1
-                              ? faCircleCheck
-                              : faCircleXmark
-                          }
-                          className={`w-5 h-5 ${
-                            partner.account_status === 1
-                              ? "text-success-500"
-                              : "text-error-500"
-                          }`}
-                        />
-                        <span
-                          className={`text-base font-medium ${
-                            partner.account_status === 1
-                              ? "text-success-700"
-                              : "text-error-700"
-                          }`}
-                        >
-                          {partner.account_status === 1 ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Account Status
-                      </p>
-                    </div>
-                  )}
+                
                 {/* Active Status */}
                 {partner.is_active !== null &&
                   partner.is_active !== undefined && (

@@ -106,14 +106,9 @@ function DataTable({
   onOpenCloseStatusChange = () => {},
   enableAccountTypeFilter = false,
   enableOpenCloseStatusFilter = false,
+  defaultSortField,
+  defaultSortOrder,
 }) {
-  const [sortField, setSortField] = useState(null);
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [sortCount, setSortCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
-
   // Add data validation at the start of the component
   const safeData = Array.isArray(data) ? data : [];
 
@@ -138,6 +133,17 @@ function DataTable({
           textAlign: col.textAlign || "center",
         }));
 
+  // Set default sortField and sortOrder using props if provided
+  const hasCreatedAt = safeData.length > 0 && safeData[0].created_at;
+  const [sortField, setSortField] = useState(
+    defaultSortField || (hasCreatedAt ? "created_at" : null)
+  );
+  const [sortOrder, setSortOrder] = useState(defaultSortOrder || "desc");
+  const [sortCount, setSortCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
     ------------------------------------------------------------ */
@@ -159,9 +165,16 @@ function DataTable({
         setSortOrder("desc");
         setSortCount(2);
       } else {
-        setSortField(null);
-        setSortOrder("asc");
-        setSortCount(0);
+        // Reset to created_at/desc if available, otherwise clear sort
+        if (hasCreatedAt) {
+          setSortField("created_at");
+          setSortOrder("desc");
+          setSortCount(0);
+        } else {
+          setSortField(null);
+          setSortOrder("asc");
+          setSortCount(0);
+        }
       }
     } else {
       setSortField(field);
@@ -205,6 +218,42 @@ function DataTable({
     // Use safeData instead of data directly
     let processedData = [...safeData];
 
+    // Sort by sortField and sortOrder, or by created_at/desc by default
+    if (enableSort && sortField) {
+      processedData.sort((a, b) => {
+        if (!a || !b) return 0;
+        let aValue = a[sortField];
+        let bValue = b[sortField];
+        // Special handling for status field
+        if (sortField === statusField) {
+          aValue = normalizeStatus(aValue);
+          bValue = normalizeStatus(bValue);
+        }
+        // Date sort for created_at
+        if (sortField === "created_at") {
+          const dateA = new Date(aValue);
+          const dateB = new Date(bValue);
+          return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+        }
+        if (typeof aValue === "number") {
+          return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
+        }
+        aValue = String(aValue ?? "");
+        bValue = String(bValue ?? "");
+        if (sortOrder === "asc") {
+          return aValue.localeCompare(bValue);
+        } else {
+          return bValue.localeCompare(aValue);
+        }
+      });
+    } else if (hasCreatedAt) {
+      processedData.sort((a, b) => {
+        const dateA = new Date(a.created_at);
+        const dateB = new Date(b.created_at);
+        return dateB - dateA; // Newest first
+      });
+    }
+
     // Update status filtering with normalized values
     if (enableStatusFilter && statusFilter !== "all") {
       processedData = processedData.filter((item) => {
@@ -223,35 +272,6 @@ function DataTable({
             value !== undefined &&
             value.toString().toLowerCase().includes(searchTerm.toLowerCase())
         );
-      });
-    }
-
-    // Update sorting with special status field handling
-    if (enableSort && sortField) {
-      processedData.sort((a, b) => {
-        if (!a || !b) return 0; // Add null check for items
-        let aValue = a[sortField];
-        let bValue = b[sortField];
-
-        // Special handling for status field
-        if (sortField === statusField) {
-          aValue = normalizeStatus(aValue);
-          bValue = normalizeStatus(bValue);
-        }
-
-        if (typeof aValue === "number") {
-          return sortOrder === "asc" ? aValue - bValue : bValue - aValue;
-        }
-
-        // Convert to strings for comparison, handling null/undefined
-        aValue = String(aValue ?? "");
-        bValue = String(bValue ?? "");
-
-        if (sortOrder === "asc") {
-          return aValue.localeCompare(bValue);
-        } else {
-          return bValue.localeCompare(aValue);
-        }
       });
     }
 
@@ -1096,12 +1116,198 @@ DataTable.propTypes = {
       render: PropTypes.func,
     })
   ).isRequired,
-  // ... other prop types
+  itemsPerPage: PropTypes.number,
+  itemsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
+  enableSort: PropTypes.bool,
+  enablePagination: PropTypes.bool,
+  enableSearch: PropTypes.bool,
+  searchTerm: PropTypes.string,
+  onSearchChange: PropTypes.func,
+  customRowRender: PropTypes.func,
+  darkMode: PropTypes.bool,
+  title: PropTypes.string,
+  dashboardTitle: PropTypes.string,
+  counts: PropTypes.shape({
+    total: PropTypes.number,
+    active: PropTypes.number,
+    inactive: PropTypes.number,
+  }),
+  onBackClick: PropTypes.func,
+  createButton: PropTypes.shape({
+    show: PropTypes.bool,
+    label: PropTypes.string,
+    icon: PropTypes.object,
+    onClick: PropTypes.func,
+    className: PropTypes.string,
+    position: PropTypes.oneOf(["left", "center", "right"]),
+    showIconOnly: PropTypes.bool,
+    disabled: PropTypes.bool,
+    tooltip: PropTypes.string,
+  }),
+  searchPlaceholder: PropTypes.string,
+  showBackButton: PropTypes.bool,
+  showCreateButton: PropTypes.bool,
+  showSearch: PropTypes.bool,
+  backButtonLabel: PropTypes.string,
+  showHeader: PropTypes.bool,
+  showOutletSelect: PropTypes.bool,
+  outlets: PropTypes.arrayOf(
+    PropTypes.shape({
+      outlet_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      outlet_name: PropTypes.string,
+      outlet_code: PropTypes.string,
+    })
+  ),
+  selectedOutlet: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onOutletChange: PropTypes.func,
+  outletSelectPosition: PropTypes.oneOf(["controls", "left", "right"]),
+  onShowData: PropTypes.func,
+  isLoading: PropTypes.bool,
+  enableSelection: PropTypes.bool,
+  onSelectionChange: PropTypes.func,
+  onBulkAction: PropTypes.func,
+  enableStatusFilter: PropTypes.bool,
+  onStatusFilterChange: PropTypes.func,
+  statusFilter: PropTypes.oneOf(["all", "active", "inactive"]),
+  isItemSelectable: PropTypes.func,
+  bulkActionOptions: PropTypes.arrayOf(
+    PropTypes.shape({
+      key: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      className: PropTypes.string,
+    })
+  ),
+  onItemsPerPageChange: PropTypes.func,
+  emptyStateMessage: PropTypes.string,
+  emptyStateMessageByStatus: PropTypes.object,
+  statusField: PropTypes.string,
+  showRoleSelect: PropTypes.bool,
+  roles: PropTypes.arrayOf(
+    PropTypes.shape({
+      role_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      role_name: PropTypes.string,
+      count: PropTypes.number,
+    })
+  ),
+  selectedRole: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onRoleChange: PropTypes.func,
+  customFilters: PropTypes.arrayOf(
+    PropTypes.shape({
+      type: PropTypes.oneOf(["custom", "select"]).isRequired,
+      label: PropTypes.string.isRequired,
+      placeholder: PropTypes.string,
+      value: PropTypes.any,
+      onChange: PropTypes.func.isRequired,
+      component: PropTypes.node,
+      options: PropTypes.arrayOf(
+        PropTypes.shape({
+          value: PropTypes.any.isRequired,
+          label: PropTypes.string.isRequired,
+        })
+      ),
+    })
+  ),
+  onReload: PropTypes.func,
+  accountType: PropTypes.oneOf(["all", "live", "test"]),
+  onAccountTypeChange: PropTypes.func,
+  openCloseStatus: PropTypes.oneOf(["all", "open", "close"]),
+  onOpenCloseStatusChange: PropTypes.func,
+  enableAccountTypeFilter: PropTypes.bool,
+  enableOpenCloseStatusFilter: PropTypes.bool,
+  defaultSortField: PropTypes.string,
+  defaultSortOrder: PropTypes.oneOf(["asc", "desc"]),
 };
 
 DataTable.defaultProps = {
   data: [],
-  // ... other default props
+  columns: [],
+  itemsPerPage: 50,
+  itemsPerPageOptions: [50, 100, 200],
+  enableSort: true,
+  enablePagination: true,
+  enableSearch: true,
+  searchTerm: "",
+  onSearchChange: () => {},
+  customRowRender: null,
+  darkMode: false,
+  title: "",
+  dashboardTitle: "",
+  counts: {
+    total: 0,
+    active: 0,
+    inactive: 0,
+  },
+  onBackClick: () => {},
+  createButton: {
+    show: true,
+    label: "Create",
+    icon: faPlus,
+    onClick: () => {},
+    className: "bg-success-500 hover:bg-success-600",
+    position: "right",
+    showIconOnly: false,
+    disabled: false,
+    tooltip: "",
+  },
+  searchPlaceholder: "Search",
+  showBackButton: true,
+  showCreateButton: true,
+  showSearch: true,
+  backButtonLabel: "Back",
+  showHeader: true,
+  showOutletSelect: false,
+  outlets: [],
+  selectedOutlet: "",
+  onOutletChange: () => {},
+  outletSelectPosition: "controls",
+  onShowData: () => {},
+  isLoading: false,
+  enableSelection: false,
+  onSelectionChange: () => {},
+  onBulkAction: () => {},
+  enableStatusFilter: true,
+  onStatusFilterChange: () => {},
+  statusFilter: "all",
+  isItemSelectable: () => true,
+  bulkActionOptions: [
+    {
+      key: "active",
+      label: "Active",
+      className: "text-gray-700 hover:bg-gray-100",
+    },
+    {
+      key: "inactive",
+      label: "Inactive",
+      className: "text-gray-700 hover:bg-gray-100",
+    },
+    {
+      key: "delete",
+      label: "Delete",
+      className: "text-error-600 hover:bg-error-50",
+    },
+  ],
+  onItemsPerPageChange: () => {},
+  emptyStateMessage: "No data found.",
+  emptyStateMessageByStatus: {
+    all: "No data found.",
+    active: "No active items found.",
+    inactive: "No inactive items found.",
+  },
+  statusField: "is_active",
+  showRoleSelect: false,
+  roles: [],
+  selectedRole: "",
+  onRoleChange: () => {},
+  customFilters: [],
+  onReload: null,
+  accountType: "all",
+  onAccountTypeChange: () => {},
+  openCloseStatus: "all",
+  onOpenCloseStatusChange: () => {},
+  enableAccountTypeFilter: false,
+  enableOpenCloseStatusFilter: false,
+  defaultSortField: "created_at",
+  defaultSortOrder: "desc",
 };
 
 export default DataTable;

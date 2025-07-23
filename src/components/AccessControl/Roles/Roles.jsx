@@ -36,6 +36,7 @@ function Roles() {
     deleteRole,
     isDeleting,
     refetchRoles,
+    counts,
   } = useRoles();
 
   // UI State
@@ -163,7 +164,7 @@ function Roles() {
         title="Roles"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        counts={null}
+        counts={counts}
         createButton={{
           show: true,
           label: "Create",

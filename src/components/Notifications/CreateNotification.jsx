@@ -103,7 +103,7 @@ function CreateNotification() {
         message: formData.message,
         type: formData.type,
         outlet_id: formData.outlet === 'all' ? '0' : formData.outlet.toString(),
-        role: formData.role === 'all' ? 'all' : formData.role,
+        role: formData.role === 'all' ? '0' : formData.role,
         user_id: formData.user === 'all' ? '0' : formData.user.toString()
       };
 

@@ -13,7 +13,7 @@ export const useFunctionalities = () => {
 
   // List Query
   const {
-    data: functionalities = [],
+    data: functionalitiesData = {},
     isLoading,
     error,
   } = useQuery({
@@ -34,6 +34,14 @@ export const useFunctionalities = () => {
       toastController.error(err.response?.data?.detail || "Failed to fetch functionalities");
     },
   });
+
+  // Extract functionalities and counts
+  const functionalities = functionalitiesData.functionalities || [];
+  const counts = {
+    total: functionalitiesData.total_functionalities || functionalities.length,
+    active: null,
+    inactive: null,
+  };
 
   // Create Functionality Mutation
   const createMutation = useMutation({
@@ -117,6 +125,7 @@ export const useFunctionalities = () => {
     functionalities,
     isLoading,
     error,
+    counts,
     createFunctionality: createMutation.mutate,
     isCreating: createMutation.isLoading,
     updateFunctionality: updateMutation.mutate,

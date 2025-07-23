@@ -83,7 +83,11 @@ function EditPartner() {
         }
       );
 
-      setFunctionalities(response.data);
+      setFunctionalities(
+        Array.isArray(response.data.functionalities)
+          ? response.data.functionalities
+          : []
+      );
       // Do NOT check all checkboxes by default
       setSelectedFunctionalities([]);
       setPartnerDetails((prev) => ({
@@ -106,7 +110,7 @@ function EditPartner() {
           },
         }
       );
-      setRoles(response.data);
+      setRoles(Array.isArray(response.data.role_list) ? response.data.role_list : []);
     } catch (err) {
       console.error("Error fetching roles:", err);
       setError("Failed to load roles");

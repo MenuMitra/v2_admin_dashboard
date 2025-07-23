@@ -58,7 +58,11 @@ function CreatePartner() {
         }
       );
 
-      setFunctionalities(response.data);
+      setFunctionalities(
+        Array.isArray(response.data.functionalities)
+          ? response.data.functionalities
+          : []
+      );
       // Do NOT check all checkboxes by default
       setSelectedFunctionalities([]);
       setPartnerDetails((prev) => ({

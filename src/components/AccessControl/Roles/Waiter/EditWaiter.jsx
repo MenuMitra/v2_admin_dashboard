@@ -120,7 +120,11 @@ function EditWaiter() {
           },
         }
       );
-      setAvailableFunctionalities(response.data);
+      setAvailableFunctionalities(
+        Array.isArray(response.data.functionalities)
+          ? response.data.functionalities
+          : []
+      );
     } catch (err) {
       const errorMsg =
         err.response?.data?.detail ||

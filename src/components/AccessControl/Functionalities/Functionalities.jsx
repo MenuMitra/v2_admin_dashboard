@@ -23,6 +23,7 @@ function Functionalities() {
     deleteFunctionality,
     isDeleting,
     refetchFunctionalities,
+    counts,
   } = useFunctionalities();
 
   // UI State
@@ -127,10 +128,11 @@ function Functionalities() {
       <DataTable
         data={functionalities}
         columns={columns}
+        counts={counts}
         title="Functionalities"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        counts={null}
+        
         createButton={{
           label: "Create",
           onClick: () => setShowCreateModal(true),
