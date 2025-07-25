@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_CONFIG } from "../../../../config/appConfig";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,9 +14,9 @@ import {
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import Breadcrumb from '../../../Breadcrumb';
-import DataTable from '../../../common/DataTable';
-import DeleteConfirmModal from '../../../common/DeleteConfirmModal/DeleteConfirmModal';
+import Breadcrumb from "../../../Breadcrumb";
+import DataTable from "../../../common/DataTable";
+import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
 import { queryKeys } from "../../../../lib/react-query/queryKeys";
 
@@ -34,13 +34,13 @@ function Waiters() {
   const [waiterToDelete, setWaiterToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // Fetch waiters query
   const {
     data: waitersResponse,
     isLoading,
-    error
+    error,
   } = useQuery({
     queryKey: queryKeys.waiters.list(outletId),
     queryFn: async () => {
@@ -49,7 +49,7 @@ function Waiters() {
         {
           user_id: adminData.user_id,
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -60,7 +60,7 @@ function Waiters() {
       );
       return response.data;
     },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId)
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId),
   });
 
   // Delete waiter mutation
@@ -86,8 +86,10 @@ function Waiters() {
       queryClient.invalidateQueries(queryKeys.waiters.list(outletId));
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.msg || "Failed to delete waiter");
-    }
+      toastController.error(
+        error.response?.data?.msg || "Failed to delete waiter"
+      );
+    },
   });
 
   // Bulk action mutation
@@ -99,7 +101,7 @@ function Waiters() {
           user_id: adminData.user_id,
           action: action,
           app_source: "admin_app",
-          waiter_ids: selectedIds
+          waiter_ids: selectedIds,
         },
         {
           headers: {
@@ -110,47 +112,59 @@ function Waiters() {
       );
     },
     onSuccess: (_, variables) => {
-      toastController.success(`Successfully ${variables.action}d selected waiters`);
+      toastController.success(
+        `Successfully ${variables.action}d selected waiters`
+      );
       setSelectedItems([]);
       queryClient.invalidateQueries(queryKeys.waiters.list(outletId));
     },
     onError: (error, variables) => {
       toastController.error(
-        error.response?.data?.detail || 
-        `Failed to perform ${variables.action} action on selected waiters`
+        error.response?.data?.detail ||
+          `Failed to perform ${variables.action} action on selected waiters`
       );
-    }
+    },
   });
 
   // Memoized values
-  const waiters = React.useMemo(() =>
-    error && error.response?.data?.detail === "Outlet has no waiters"
-      ? []
-      : (waitersResponse?.data || []),
+  const waiters = React.useMemo(
+    () =>
+      error && error.response?.data?.detail === "Outlet has no waiters"
+        ? []
+        : waitersResponse?.data || [],
     [waitersResponse, error]
   );
 
-  const outletName = React.useMemo(() => 
-    waiters[0]?.outlet_name || '',
+  const outletName = React.useMemo(
+    () => waiters[0]?.outlet_name || "",
     [waiters]
   );
 
   // Memoized breadcrumb items
-  const breadcrumbItems = React.useMemo(() => [
-    { label: 'Home', path: '/home' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: 'Waiters' }
-  ], [outletName, outletId]);
+  const breadcrumbItems = React.useMemo(
+    () => [
+      { label: "Home", path: "/home" },
+      { label: "Outlets", path: "/outlets" },
+      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
+      { label: "Waiters" },
+    ],
+    [outletName, outletId]
+  );
 
   // Memoized handlers
-  const handleViewWaiter = React.useCallback((user_id) => {
-    navigate(`/waiter-details/${outletId}/${user_id}`);
-  }, [navigate, outletId]);
+  const handleViewWaiter = React.useCallback(
+    (user_id) => {
+      navigate(`/waiter-details/${outletId}/${user_id}`);
+    },
+    [navigate, outletId]
+  );
 
-  const handleEditWaiter = React.useCallback((user_id) => {
-    navigate(`/edit-waiter/${outletId}/${user_id}`);
-  }, [navigate, outletId]);
+  const handleEditWaiter = React.useCallback(
+    (user_id) => {
+      navigate(`/edit-waiter/${outletId}/${user_id}`);
+    },
+    [navigate, outletId]
+  );
 
   const handleDeleteWaiter = React.useCallback(() => {
     if (waiterToDelete) {
@@ -158,88 +172,104 @@ function Waiters() {
     }
   }, [waiterToDelete, deleteMutation]);
 
-  const handleBulkAction = React.useCallback((action, selectedIds) => {
-    bulkActionMutation.mutate({ action, selectedIds });
-  }, [bulkActionMutation]);
+  const handleBulkAction = React.useCallback(
+    (action, selectedIds) => {
+      bulkActionMutation.mutate({ action, selectedIds });
+    },
+    [bulkActionMutation]
+  );
 
   // Memoized counts
-  const counts = React.useMemo(() => ({
-    total: waiters.length,
-    active: waiters.filter((waiter) => waiter.is_active).length,
-    inactive: waiters.filter((waiter) => !waiter.is_active).length
-  }), [waiters]);
+  const counts = React.useMemo(
+    () => ({
+      total: waiters.length,
+      active: waiters.filter((waiter) => waiter.is_active).length,
+      inactive: waiters.filter((waiter) => !waiter.is_active).length,
+    }),
+    [waiters]
+  );
 
   // Column definition
-  const columns = React.useMemo(() => [
-    {
-      field: "name",
-      header: "Name",
-      sortable: true,
-      render: (value) => (
-        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-          {value}
-        </p>
-      ),
-    },
-    {
-      field: "mobile",
-      header: "Mobile",
-      sortable: true,
-    },
-    {
-      field: "email",
-      header: "Email",
-      sortable: true,
-    },
-    {
-      field: "is_active",
-      header: "Status",
-      sortable: true,
-      render: (value) => (
-        <div className="flex items-center justify-center gap-2">
-          <FontAwesomeIcon
-            icon={value ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value ? "text-success-500" : "text-error-500"
-            }`}
-          />
-        </div>
-      )
-    },
-    {
-      field: "actions",
-      header: "Actions",
-      sortable: false,
-      render: (_, waiter) => (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => handleViewWaiter(waiter.user_id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-            title="View Details"
-          >
-            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => handleEditWaiter(waiter.user_id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-            title="Edit Waiter"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => {
-              setWaiterToDelete(waiter.user_id);
-              setShowDeleteModal(true);
-            }}
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-            title="Delete Waiter"
-          >
-            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-          </button>
-        </div>
-      ),
-    },
-  ], [handleViewWaiter, handleEditWaiter]);
+  const columns = React.useMemo(
+    () => [
+      {
+        field: "name",
+        header: "Name",
+        sortable: true,
+        render: (value) => (
+          <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            {value}
+          </p>
+        ),
+      },
+      {
+        field: "mobile",
+        header: "Mobile",
+        sortable: true,
+      },
+      {
+        field: "email",
+        header: "Email",
+        sortable: true,
+      },
+      {
+        field: "is_active",
+        header: "Status",
+        sortable: true,
+        render: (value) => (
+          <div className="flex items-center justify-center gap-2">
+            <FontAwesomeIcon
+              icon={value ? faCircleCheck : faCircleXmark}
+              className={`w-5 h-5 ${
+                value ? "text-success-500" : "text-error-500"
+              }`}
+            />
+          </div>
+        ),
+      },
+      {
+        field: "active_session_count",
+        header: "Active Session",
+        sortable: true,
+        render: (value) =>
+          value !== undefined && value !== null ? value : "-",
+      },
+      {
+        field: "actions",
+        header: "Actions",
+        sortable: false,
+        render: (_, waiter) => (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => handleViewWaiter(waiter.user_id)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+              title="View Details"
+            >
+              <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleEditWaiter(waiter.user_id)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+              title="Edit Waiter"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                setWaiterToDelete(waiter.user_id);
+                setShowDeleteModal(true);
+              }}
+              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+              title="Delete Waiter"
+            >
+              <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [handleViewWaiter, handleEditWaiter]
+  );
 
   if (isLoading) {
     return (
@@ -255,7 +285,9 @@ function Waiters() {
     if (!noWaiters) {
       return (
         <div className="text-error-500 text-center p-4">
-          {error.response?.data?.msg || error.response?.data?.detail || "Failed to load waiters"}
+          {error.response?.data?.msg ||
+            error.response?.data?.detail ||
+            "Failed to load waiters"}
         </div>
       );
     }
@@ -275,12 +307,10 @@ function Waiters() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         darkMode={true}
-        
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
-        
         title="Waiters"
         counts={counts}
         showBackButton={true}
@@ -291,13 +321,13 @@ function Waiters() {
           show: true,
           label: "Create",
           icon: faPlus,
-          onClick: () => navigate(`/create-waiter/${outletId}`, {
-            state: { outletName: outletName }
-          }),
+          onClick: () =>
+            navigate(`/create-waiter/${outletId}`, {
+              state: { outletName: outletName },
+            }),
           className: "bg-success-500 hover:bg-success-600",
-          position: "right"
+          position: "right",
         }}
-        
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}

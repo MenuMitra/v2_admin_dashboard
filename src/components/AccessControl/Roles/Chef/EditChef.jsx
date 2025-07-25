@@ -75,7 +75,9 @@ function EditChef() {
           },
         }
       );
-      setRoles(Array.isArray(response.data.role_list) ? response.data.role_list : []);
+      setRoles(
+        Array.isArray(response.data.role_list) ? response.data.role_list : []
+      );
     } catch (err) {
       toastController.error("Failed to load roles");
       setError("Failed to load roles");

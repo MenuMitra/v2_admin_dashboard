@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,10 +18,13 @@ import {
   faCircleXmark,
   faStore,
   faChevronRight,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import Breadcrumb from "./Breadcrumb";
 import { useOwnerDetails } from "../lib/react-query/hooks/useOwnerDetails";
+import { useAdmin } from "../hooks/useAdmin";
+import { useAuth } from "../hooks/useAuth";
 
 function OwnerDetails() {
   const { ownerId } = useParams();
@@ -30,6 +33,17 @@ function OwnerDetails() {
 
   const { ownerData, isLoading, error, deleteOwner, isDeleting } =
     useOwnerDetails(ownerId);
+
+  // Local state for active sessions
+  const [activeSessions, setActiveSessions] = useState(
+    ownerData?.active_sessions || []
+  );
+  useEffect(() => {
+    setActiveSessions(ownerData?.active_sessions || []);
+  }, [ownerData?.active_sessions]);
+
+  const { adminData } = useAdmin();
+  const { getToken } = useAuth();
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
@@ -68,6 +82,50 @@ function OwnerDetails() {
       </div>
     );
   }
+
+  const handleLogout = async (device_id) => {
+    // Find the session for this device_id to get app_type
+    const session = activeSessions.find((s) => s.device_id === device_id);
+    if (!session) return;
+    try {
+      const res = await fetch("https://men4u.xyz/v2/admin/admin_logout_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: getToken(),
+        },
+        body: JSON.stringify({
+          admin_id: adminData?.user_id,
+          user_id: ownerData.user_id,
+          app_type: session.app_type,
+          device_id: session.device_id,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setActiveSessions((prev) =>
+          prev.filter((s) => s.device_id !== device_id)
+        );
+        if (window.toastController) {
+          window.toastController.success("Logout successful");
+        } else {
+          alert("Logout successful");
+        }
+      } else {
+        if (window.toastController) {
+          window.toastController.error(data.detail || "Logout failed");
+        } else {
+          alert(data.detail || "Logout failed");
+        }
+      }
+    } catch (err) {
+      if (window.toastController) {
+        window.toastController.error("Logout failed");
+      } else {
+        alert("Logout failed");
+      }
+    }
+  };
 
   return (
     <>
@@ -473,6 +531,73 @@ function OwnerDetails() {
                   </div>
                 </div>
               )}
+
+            {/* Active Sessions Section */}
+            {activeSessions && activeSessions.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-base font-medium mb-4 text-gray-800">
+                  Active Sessions
+                </h2>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                    <thead>
+                      <tr>
+                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                          Device ID
+                        </th>
+                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                          Device Model
+                        </th>
+                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                          App Type
+                        </th>
+                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                          Last Activity
+                        </th>
+                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                          Last Login
+                        </th>
+                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                          Action
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {activeSessions.map((session, idx) => (
+                        <tr key={idx} className="border-b last:border-b-0">
+                          <td className="px-4 py-2">
+                            {session.device_id || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {session.device_model || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {session.app_type || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {session.last_activity || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            {session.last_login || "-"}
+                          </td>
+                          <td className="px-4 py-2">
+                            <button
+                              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                              onClick={() => handleLogout(session.device_id)}
+                            >
+                              <FontAwesomeIcon
+                                icon={faTrash}
+                                className="w-4 h-4"
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

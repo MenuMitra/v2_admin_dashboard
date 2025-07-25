@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
+import {
   faChevronLeft as faBack,
   faSpinner,
   faPen as faEdit,
-  faTrash as faDelete
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
@@ -30,7 +30,7 @@ function ManagerDetails() {
   const {
     data: response,
     isLoading,
-    error
+    error,
   } = useQuery({
     queryKey: queryKeys.managers.detail(outletId, userId),
     queryFn: async () => {
@@ -41,7 +41,7 @@ function ManagerDetails() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -51,7 +51,8 @@ function ManagerDetails() {
       );
       return response.data;
     },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId) && Boolean(userId)
+    enabled:
+      Boolean(adminData?.user_id) && Boolean(outletId) && Boolean(userId),
   });
 
   // Delete manager mutation
@@ -63,11 +64,11 @@ function ManagerDetails() {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         headers: {
           Authorization: token,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
       });
     },
@@ -77,27 +78,153 @@ function ManagerDetails() {
       navigate(`/view-outlet/${outletId}`);
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.msg || "Failed to delete manager");
-    }
+      toastController.error(
+        error.response?.data?.msg || "Failed to delete manager"
+      );
+    },
   });
 
   // Memoized values
   const managerData = React.useMemo(() => response?.detail || null, [response]);
-  const outletName = React.useMemo(() => managerData?.outlet_name || '', [managerData]);
+  const outletName = React.useMemo(
+    () => managerData?.outlet_name || "",
+    [managerData]
+  );
 
   // Memoized breadcrumb items
-  const breadcrumbItems = React.useMemo(() => [
-    { label: "Home", path: "/Home" },
-    { label: "Outlets", path: "/outlets" },
-    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: "Managers", path: `/managers/${outletId}` },
-    { label: "Manager Details" }
-  ], [outletName, outletId]);
+  const breadcrumbItems = React.useMemo(
+    () => [
+      { label: "Home", path: "/Home" },
+      { label: "Outlets", path: "/outlets" },
+      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
+      { label: "Managers", path: `/managers/${outletId}` },
+      { label: "Manager Details" },
+    ],
+    [outletName, outletId]
+  );
 
   // Memoized handlers
   const handleDelete = React.useCallback(() => {
     deleteMutation.mutate();
   }, [deleteMutation]);
+
+  const [activeSessions, setActiveSessions] = React.useState(
+    managerData?.active_sessions || []
+  );
+  React.useEffect(() => {
+    setActiveSessions(managerData?.active_sessions || []);
+  }, [managerData?.active_sessions]);
+
+  const handleLogout = async (device_id) => {
+    // Find the session for this device_id to get app_type
+    const session = activeSessions.find((s) => s.device_id === device_id);
+    if (!session) return;
+    try {
+      const res = await fetch("https://men4u.xyz/v2/admin/admin_logout_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: getToken(),
+        },
+        body: JSON.stringify({
+          admin_id: adminData?.user_id,
+          user_id: managerData.user_id,
+          app_type: session.app_type,
+          device_id: session.device_id,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setActiveSessions((prev) =>
+          prev.filter((s) => s.device_id !== device_id)
+        );
+        if (window.toastController) {
+          window.toastController.success("Logout successful");
+        } else {
+          alert("Logout successful");
+        }
+      } else {
+        if (window.toastController) {
+          window.toastController.error(data.detail || "Logout failed");
+        } else {
+          alert(data.detail || "Logout failed");
+        }
+      }
+    } catch (err) {
+      if (window.toastController) {
+        window.toastController.error("Logout failed");
+      } else {
+        alert("Logout failed");
+      }
+    }
+  };
+
+  // Add this render function for active sessions
+  const renderActiveSessions = React.useCallback(() => {
+    if (!activeSessions || activeSessions.length === 0) return null;
+    return (
+      <div className="mt-8">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Active Sessions
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+            <thead>
+              <tr>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Device ID
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Device Model
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  App Type
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Last Activity
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Last Login
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {activeSessions.map((session, idx) => (
+                <tr key={idx} className="border-b last:border-b-0">
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.device_id || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.device_model || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.app_type || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.last_activity || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.last_login || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    <button
+                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                      onClick={() => handleLogout(session.device_id)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }, [activeSessions]);
 
   if (isLoading) {
     return (
@@ -115,67 +242,96 @@ function ManagerDetails() {
         {managerData?.name && (
           <div>
             <p className="text-gray-900">{managerData.name}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
           </div>
         )}
         {managerData?.mobile && (
           <div>
             <p className="text-gray-900">{managerData.mobile}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Mobile
+            </label>
           </div>
         )}
         {managerData?.email && (
           <div>
             <p className="text-gray-900">{managerData.email}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
           </div>
         )}
         {managerData?.aadhar_number && (
           <div>
             <p className="text-gray-900">{managerData.aadhar_number}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Aadhar Number</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Aadhar Number
+            </label>
           </div>
         )}
         {managerData?.dob && (
           <div>
             <p className="text-gray-900">{managerData.dob}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Date of Birth
+            </label>
           </div>
         )}
         {managerData?.address && (
           <div>
             <p className="text-gray-900">{managerData.address}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Address
+            </label>
           </div>
         )}
-        {managerData?.is_active !== null && managerData?.is_active !== undefined && (
-          <div>
-            <p className={`text-gray-900 ${managerData.is_active ? 'text-success-600' : 'text-error-600'}`}>{managerData.is_active ? 'Active' : 'Inactive'}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-          </div>
-        )}
+        {managerData?.is_active !== null &&
+          managerData?.is_active !== undefined && (
+            <div>
+              <p
+                className={`text-gray-900 ${
+                  managerData.is_active ? "text-success-600" : "text-error-600"
+                }`}
+              >
+                {managerData.is_active ? "Active" : "Inactive"}
+              </p>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
+            </div>
+          )}
         {managerData?.created_by && (
           <div>
             <p className="text-gray-900">{managerData.created_by}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Created By</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Created By
+            </label>
           </div>
         )}
         {managerData?.created_on && (
           <div>
             <p className="text-gray-900">{managerData.created_on}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Created On</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Created On
+            </label>
           </div>
         )}
         {managerData?.updated_by && (
           <div>
             <p className="text-gray-900">{managerData.updated_by}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Updated By</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Updated By
+            </label>
           </div>
         )}
         {managerData?.updated_on && (
           <div>
             <p className="text-gray-900">{managerData.updated_on}</p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Updated On</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Updated On
+            </label>
           </div>
         )}
       </div>
@@ -187,7 +343,9 @@ function ManagerDetails() {
 
     return (
       <div className="mt-8">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Functionalities</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Functionalities
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
           {managerData.functionalities.map((func) => (
             <div
@@ -205,7 +363,7 @@ function ManagerDetails() {
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumb items={breadcrumbItems} />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         {/* Header Section */}
         <div className="overflow-hidden pt-4">
@@ -234,7 +392,7 @@ function ManagerDetails() {
                 onClick={() => setShowDeleteModal(true)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
               >
-                <FontAwesomeIcon icon={faDelete} className="w-4 h-4" />
+                <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
                 <span className="hidden sm:inline">Delete</span>
               </button>
             </div>
@@ -251,6 +409,7 @@ function ManagerDetails() {
             <>
               {renderManagerDetails()}
               {renderFunctionalities()}
+              {renderActiveSessions()}
             </>
           )}
         </div>

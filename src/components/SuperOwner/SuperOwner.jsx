@@ -1,51 +1,45 @@
-import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { 
+import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
   faPlus,
   faEye,
   faPenToSquare,
   faTrash,
   faCircleCheck,
   faCircleXmark,
-} from '@fortawesome/free-solid-svg-icons';
-import Breadcrumb from '../Breadcrumb';
-import DataTable from '../common/DataTable';
-import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
-import { useSuperOwners } from '../../lib/react-query/hooks/useSuperOwners';
-import { toastController } from '../../utils/toastController';
-import { useQueryClient } from '@tanstack/react-query';
-import { queryKeys } from '../../lib/react-query/queryKeys';
-import { useAuth } from '../../hooks/useAuth';
-import { useAdmin } from '../../hooks/useAdmin';
-import axios from 'axios';
+} from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "../Breadcrumb";
+import DataTable from "../common/DataTable";
+import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import { useSuperOwners } from "../../lib/react-query/hooks/useSuperOwners";
+import { toastController } from "../../utils/toastController";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "../../lib/react-query/queryKeys";
+import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
+import axios from "axios";
 
 function SuperOwner() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
-  
-  const { 
-    superOwners, 
-    isLoading, 
-    error, 
-    refetch, 
-    deleteMutation,
-    bulkAction
-  } = useSuperOwners();
-  
-  const [searchTerm, setSearchTerm] = useState('');
+
+  const { superOwners, isLoading, error, refetch, deleteMutation, bulkAction } =
+    useSuperOwners();
+
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState(null);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // Normalize the data for selection handling
   const normalizedSuperOwners = useMemo(() => {
-    return superOwners.map(owner => ({
+    return superOwners.map((owner) => ({
       ...owner,
-      id: owner.super_owner_id // Normalize id field for selection
+      id: owner.super_owner_id, // Normalize id field for selection
     }));
   }, [superOwners]);
 
@@ -78,8 +72,10 @@ function SuperOwner() {
   const handleBulkAction = async (action, selectedIds) => {
     try {
       // Convert the normalized ids back to super_owner_ids
-      const super_owner_ids = selectedIds.map(id => {
-        const superOwner = superOwners.find(owner => owner.super_owner_id === id);
+      const super_owner_ids = selectedIds.map((id) => {
+        const superOwner = superOwners.find(
+          (owner) => owner.super_owner_id === id
+        );
         return superOwner.super_owner_id;
       });
 
@@ -87,21 +83,23 @@ function SuperOwner() {
         user_id: adminData.user_id,
         action: action,
         app_source: "pos_app",
-        super_owner_ids: super_owner_ids
+        super_owner_ids: super_owner_ids,
       };
 
       await bulkAction.mutateAsync(payload);
       setSelectedItems([]);
-      toastController.success('Bulk action completed successfully!');
+      toastController.success("Bulk action completed successfully!");
     } catch (error) {
       console.error("Error performing bulk action:", error);
-      toastController.error(error.response?.data?.detail || 'Failed to process bulk action');
+      toastController.error(
+        error.response?.data?.detail || "Failed to process bulk action"
+      );
     }
   };
 
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Super Owners', path: '/super-owners' }
+    { label: "Home", path: "/home" },
+    { label: "Super Owners", path: "/super-owners" },
   ];
 
   const columns = [
@@ -164,10 +162,16 @@ function SuperOwner() {
             className={`text-base font-medium ${
               value ? "text-success-700" : "text-error-700"
             }`}
-          >
-          </span>
+          ></span>
         </div>
       ),
+    },
+    {
+      field: "active_session_count",
+      header: "Active Session",
+      sortable: true,
+      headerClassName: "text-center",
+      render: (value) => (value !== undefined && value !== null ? value : "-"),
     },
     {
       field: "actions",
@@ -217,10 +221,10 @@ function SuperOwner() {
       <Breadcrumb items={breadcrumbItems} />
       <DataTable
         // Use normalized data instead of direct superOwners
-        data={normalizedSuperOwners.filter(owner => {
-          if (statusFilter === 'all') return true;
+        data={normalizedSuperOwners.filter((owner) => {
+          if (statusFilter === "all") return true;
           const isActive = owner.is_active === true;
-          return statusFilter === 'active' ? isActive : !isActive;
+          return statusFilter === "active" ? isActive : !isActive;
         })}
         columns={columns}
         itemsPerPage={10}
@@ -230,13 +234,10 @@ function SuperOwner() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         darkMode={true}
-        
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
-        idField="id" // Use the normalized id field for selection
-        
         title="Super Owners"
         counts={{
           total: getTotalCount(),
@@ -251,7 +252,7 @@ function SuperOwner() {
           icon: faPlus,
           onClick: () => navigate("/create-super-owner"),
           className: "bg-success-500 hover:bg-success-600",
-          position: "right"
+          position: "right",
         }}
         error={error?.message}
         enableStatusFilter={true}
@@ -263,7 +264,7 @@ function SuperOwner() {
         idField="super_owner_id"
       />
 
-      <DeleteConfirmModal 
+      <DeleteConfirmModal
         isOpen={showDeleteModal}
         onClose={() => {
           setShowDeleteModal(false);

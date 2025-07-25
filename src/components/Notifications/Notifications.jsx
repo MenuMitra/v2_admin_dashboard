@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import DataTable from "../common/DataTable";
 import { useNotifications } from "../../lib/react-query/hooks/useNotifications";
@@ -170,10 +170,11 @@ const Notifications = () => {
       sortable: false,
       render: (_, row) => (
         <button
-          className="px-3 py-1 text-xs font-medium rounded bg-brand-500 text-white hover:bg-brand-600 transition"
+          className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
           onClick={() => handleResend(row)}
+          title="Resend"
         >
-          Resend
+          <FontAwesomeIcon icon={faShareFromSquare} className="w-4 h-4" />
         </button>
       ),
     },

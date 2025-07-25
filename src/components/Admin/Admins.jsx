@@ -15,7 +15,7 @@ import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import { API_CONFIG } from "../../config/appConfig";
 import { toastController } from "../../utils/toastController";
-import DeleteConfirmModal from '../../components/common/DeleteConfirmModal';
+import DeleteConfirmModal from "../../components/common/DeleteConfirmModal";
 import { useAdmins } from "../../lib/react-query/hooks/useAdmins";
 
 function Admins() {
@@ -39,7 +39,7 @@ function Admins() {
     bulkAction,
     isBulkActioning,
     bulkActionError,
-    refetch: reloadfetchAdmins
+    refetch: reloadfetchAdmins,
   } = useAdmins(getToken());
 
   // Replace single number with array of protected mobile numbers
@@ -54,8 +54,18 @@ function Admins() {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const months = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
     const month = months[date.getMonth()];
     const day = date.getDate().toString().padStart(2, "0");
@@ -76,10 +86,14 @@ function Admins() {
           onSuccess: (data) => {
             setShowDeleteModal(false);
             setAdminToDelete(null);
-            toastController.success(data.detail || "Admin deleted successfully");
+            toastController.success(
+              data.detail || "Admin deleted successfully"
+            );
           },
           onError: (err) => {
-            toastController.error(err.response?.data?.detail || "Failed to delete admin");
+            toastController.error(
+              err.response?.data?.detail || "Failed to delete admin"
+            );
           },
         }
       );
@@ -98,7 +112,9 @@ function Admins() {
             toastController.success(data.detail || `Bulk ${action} successful`);
           },
           onError: (err) => {
-            toastController.error(err.response?.data?.detail || `Failed to ${action} admins`);
+            toastController.error(
+              err.response?.data?.detail || `Failed to ${action} admins`
+            );
           },
         }
       );
@@ -142,6 +158,12 @@ function Admins() {
       field: "is_active",
       header: "Status",
       sortable: true,
+    },
+    {
+      field: "active_session_count",
+      header: "Active Session",
+      sortable: true,
+      render: (value) => (value !== undefined && value !== null ? value : "-"),
     },
     {
       field: "actions",
@@ -204,7 +226,9 @@ function Admins() {
     if (filtered.length === 0) {
       return {
         data: [],
-        message: `No ${statusFilter === "all" ? "" : statusFilter} admins found.`,
+        message: `No ${
+          statusFilter === "all" ? "" : statusFilter
+        } admins found.`,
       };
     }
 

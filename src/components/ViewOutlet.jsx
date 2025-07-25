@@ -37,6 +37,18 @@ function toTitleCase(str) {
     : "";
 }
 
+// Helper to calculate days since last used
+function getDaysSinceLastUsed(lastUsed) {
+  if (!lastUsed) return null;
+  const lastUsedDate = new Date(lastUsed);
+  const today = new Date();
+  lastUsedDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+  const diffMs = today - lastUsedDate;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  return diffDays;
+}
+
 function ViewOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
@@ -1023,6 +1035,30 @@ function ViewOutlet() {
                         </p>
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
+              {/* Latest Feature Card */}
+              {outletData?.subscription_details?.latest_feature && (
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 flex flex-row justify-between items-center w-auto h-auto min-w-[120px] min-h-[40px]">
+                  {/* Feature Name on the left */}
+                  <div className="font-semibold text-gray-800 text-xs truncate text-left mr-2">
+                    {outletData.subscription_details.latest_feature
+                      .feature_name || "-"}
+                  </div>
+                  {/* Date (day count) on the right */}
+                  <div className="text-gray-700 text-xs text-right">
+                    {(() => {
+                      const lastUsed =
+                        outletData.subscription_details.latest_feature
+                          .last_used;
+                      const days = getDaysSinceLastUsed(lastUsed);
+                      return lastUsed
+                        ? `${lastUsed} (${days !== null ? days : "-"} day${
+                            days === 1 ? "" : "s"
+                          })`
+                        : "-";
+                    })()}
                   </div>
                 </div>
               )}

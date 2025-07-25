@@ -11,10 +11,10 @@ import {
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import Breadcrumb from './Breadcrumb';
-import TablesViewHeader from './common/TablesViewHeader';
-import DataTable from './common/DataTable';
-import DeleteConfirmModal from './common/DeleteConfirmModal/DeleteConfirmModal';
+import Breadcrumb from "./Breadcrumb";
+import TablesViewHeader from "./common/TablesViewHeader";
+import DataTable from "./common/DataTable";
+import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../utils/toastController";
 import { useOwners } from "../lib/react-query/hooks/useOwners";
 
@@ -27,7 +27,7 @@ function Owners() {
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // Replace axios calls with TanStack Query hook
   const {
@@ -40,7 +40,7 @@ function Owners() {
     bulkAction,
     isBulkActioning,
     bulkActionError,
-    refetch: fetchOwners
+    refetch: fetchOwners,
   } = useOwners(getToken(), adminData?.user_id);
 
   const handleViewOwner = (owner_id) => {
@@ -59,10 +59,12 @@ function Owners() {
           onSuccess: () => {
             setShowDeleteModal(false);
             setOwnerToDelete(null);
-            toastController.success('Owner deleted successfully!');
+            toastController.success("Owner deleted successfully!");
           },
           onError: (err) => {
-            toastController.error(err.response?.data?.detail || 'Failed to delete owner');
+            toastController.error(
+              err.response?.data?.detail || "Failed to delete owner"
+            );
           },
         }
       );
@@ -83,8 +85,8 @@ function Owners() {
     owners.filter((owner) => owner.is_active === 0).length;
 
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Owners' }
+    { label: "Home", path: "/home" },
+    { label: "Owners" },
   ];
 
   const columns = [
@@ -128,7 +130,13 @@ function Owners() {
             }`}
           />
         </div>
-      )
+      ),
+    },
+    {
+      field: "active_session_count",
+      header: "Active Session",
+      sortable: true,
+      render: (value) => (value !== undefined && value !== null ? value : "-"),
     },
     {
       field: "account_type",
@@ -137,9 +145,7 @@ function Owners() {
       render: (value) => (
         <span
           className={`inline-block px-2 py-1 text-xs ${
-            value === "live"
-              ? "text-error-600"
-              : "text-success-600"
+            value === "live" ? "text-error-600" : "text-success-600"
           }`}
         >
           {value?.toUpperCase()}
@@ -185,10 +191,12 @@ function Owners() {
         {
           onSuccess: () => {
             setSelectedItems([]);
-            toastController.success('Bulk action completed successfully!');
+            toastController.success("Bulk action completed successfully!");
           },
           onError: (err) => {
-            toastController.error(err.response?.data?.detail || 'Failed to process bulk action');
+            toastController.error(
+              err.response?.data?.detail || "Failed to process bulk action"
+            );
           },
         }
       );
@@ -209,7 +217,7 @@ function Owners() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-error-500">
-          {error.message || 'Failed to load owners'}
+          {error.message || "Failed to load owners"}
         </div>
       </div>
     );
@@ -233,19 +241,17 @@ function Owners() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         darkMode={true}
-        
         // Enable selection and bulk actions
         enableSelection={true}
         onBulkAction={handleBulkAction}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
-        
         // Header props
         title="Owners"
         counts={{
           total: getTotalCount(),
           active: getActiveCount(),
-          inactive: getInactiveCount()
+          inactive: getInactiveCount(),
         }}
         showBackButton={true}
         showSearch={true}
@@ -257,9 +263,8 @@ function Owners() {
           icon: faPlus,
           onClick: () => navigate("/create-owner"),
           className: "bg-success-500 hover:bg-success-600",
-          position: "right"
+          position: "right",
         }}
-        
         // Add status filter props
         enableStatusFilter={true}
         statusFilter={statusFilter}

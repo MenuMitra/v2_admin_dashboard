@@ -356,13 +356,25 @@ function EditOwner() {
 
       // Prepare outlet data based on role
       let outletData = {};
-      if (ownerData.role === "owner" && ownerData.outlet_ids.length > 0) {
-        outletData = { outlet_ids: ownerData.outlet_ids };
+      const staffRoles = ["captain", "waiter", "chef", "manager"];
+      if (ownerData.role === "owner") {
+        if (selectedOutlets.length === 0) {
+          // If no outlets selected for owner, remove all outlets
+          outletData = { remove_all_outlets: true };
+        } else if (ownerData.outlet_ids.length > 0) {
+          outletData = { outlet_ids: ownerData.outlet_ids };
+        } else {
+          outletData = {};
+        }
       } else if (ownerData.role === "customer") {
-        // Customer role doesn't need any outlet data
         outletData = {};
-      } else if (staffOutletId) {
-        // Only include staff_outlet_id if it's selected
+      } else if (staffRoles.includes(ownerData.role)) {
+        // Always require staffOutletId for staff roles
+        if (!staffOutletId) {
+          toastController.error("Please select a staff outlet for this role.");
+          setIsLoading(false);
+          return;
+        }
         outletData = { staff_outlet_id: Number(staffOutletId) };
       }
 

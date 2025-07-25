@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
   faSpinner,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
@@ -26,6 +27,7 @@ function WaiterDetails() {
 
   // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [activeSessions, setActiveSessions] = useState(null);
 
   // Fetch waiter details query
   const {
@@ -134,6 +136,53 @@ function WaiterDetails() {
     () => waiterData?.outlet_name || "",
     [waiterData]
   );
+
+  React.useEffect(() => {
+    setActiveSessions(waiterData?.active_sessions || []);
+  }, [waiterData?.active_sessions]);
+
+  const handleLogout = async (device_id) => {
+    const session = activeSessions.find((s) => s.device_id === device_id);
+    if (!session) return;
+    try {
+      const res = await fetch("https://men4u.xyz/v2/admin/admin_logout_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: getToken(),
+        },
+        body: JSON.stringify({
+          admin_id: adminData?.user_id,
+          user_id: waiterData.user_id,
+          app_type: session.app_type,
+          device_id: session.device_id,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setActiveSessions((prev) =>
+          prev.filter((s) => s.device_id !== device_id)
+        );
+        if (window.toastController) {
+          window.toastController.success("Logout successful");
+        } else {
+          alert("Logout successful");
+        }
+      } else {
+        if (window.toastController) {
+          window.toastController.error(data.detail || "Logout failed");
+        } else {
+          alert(data.detail || "Logout failed");
+        }
+      }
+    } catch (err) {
+      if (window.toastController) {
+        window.toastController.error("Logout failed");
+      } else {
+        alert("Logout failed");
+      }
+    }
+  };
 
   // Memoized breadcrumb items
   const breadcrumbItems = React.useMemo(
@@ -282,6 +331,73 @@ function WaiterDetails() {
     );
   }, [waiterData]);
 
+  // Update renderActiveSessions to use activeSessions and add Logout button
+  const renderActiveSessions = React.useCallback(() => {
+    if (!activeSessions || activeSessions.length === 0) return null;
+    return (
+      <div className="mt-8">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Active Sessions
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+            <thead>
+              <tr>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Device ID
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Device Model
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  App Type
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Last Activity
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Last Login
+                </th>
+                <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {activeSessions.map((session, idx) => (
+                <tr key={idx} className="border-b last:border-b-0">
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.device_id || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.device_model || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.app_type || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.last_activity || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {session.last_login || "-"}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    <button
+                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                      onClick={() => handleLogout(session.device_id)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }, [activeSessions, handleLogout]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -366,6 +482,7 @@ function WaiterDetails() {
         {/* Content Section */}
         <div className="p-6">
           {renderWaiterDetails()}
+          {renderActiveSessions()}
           {renderFunctionalities()}
         </div>
       </div>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,9 +13,9 @@ import {
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import Breadcrumb from '../../../Breadcrumb';
-import DataTable from '../../../common/DataTable';
-import DeleteConfirmModal from '../../../common/DeleteConfirmModal/DeleteConfirmModal';
+import Breadcrumb from "../../../Breadcrumb";
+import DataTable from "../../../common/DataTable";
+import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
 import { API_CONFIG } from "../../../../config/appConfig";
 import { queryKeys } from "../../../../lib/react-query/queryKeys";
@@ -33,13 +33,10 @@ function Captains() {
   const [captainToDelete, setCaptainToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // Fetch captains query
-  const {
-    data: captainsResponse,
-    isLoading,
-  } = useQuery({
+  const { data: captainsResponse, isLoading } = useQuery({
     queryKey: queryKeys.captains.list(outletId),
     queryFn: async () => {
       const response = await axios.post(
@@ -47,7 +44,7 @@ function Captains() {
         {
           user_id: adminData.user_id,
           outlet_id: Number(outletId),
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         {
           headers: {
@@ -58,7 +55,7 @@ function Captains() {
       );
       return response.data;
     },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId)
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId),
   });
 
   // Delete captain mutation
@@ -84,8 +81,10 @@ function Captains() {
       queryClient.invalidateQueries(queryKeys.captains.list(outletId));
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.detail || "Failed to delete captain");
-    }
+      toastController.error(
+        error.response?.data?.detail || "Failed to delete captain"
+      );
+    },
   });
 
   // Bulk action mutation
@@ -97,7 +96,7 @@ function Captains() {
           user_id: adminData.user_id,
           action: action,
           app_source: "admin_app",
-          captain_ids: selectedIds
+          captain_ids: selectedIds,
         },
         {
           headers: {
@@ -108,44 +107,55 @@ function Captains() {
       );
     },
     onSuccess: (_, variables) => {
-      toastController.success(`Successfully ${variables.action}d selected captains`);
+      toastController.success(
+        `Successfully ${variables.action}d selected captains`
+      );
       setSelectedItems([]);
       queryClient.invalidateQueries(queryKeys.captains.list(outletId));
     },
     onError: (error, variables) => {
       toastController.error(
-        error.response?.data?.detail || 
-        `Failed to perform ${variables.action} action on selected captains`
+        error.response?.data?.detail ||
+          `Failed to perform ${variables.action} action on selected captains`
       );
-    }
+    },
   });
 
   // Memoized values
-  const captains = React.useMemo(() => 
-    captainsResponse?.data || [],
+  const captains = React.useMemo(
+    () => captainsResponse?.data || [],
     [captainsResponse]
   );
 
-  const outletName = React.useMemo(() => 
-    captains[0]?.outlet_name || '',
+  const outletName = React.useMemo(
+    () => captains[0]?.outlet_name || "",
     [captains]
   );
 
-  const breadcrumbItems = React.useMemo(() => [
-    { label: 'Home', path: '/home' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: 'Captains' }
-  ], [outletName, outletId]);
+  const breadcrumbItems = React.useMemo(
+    () => [
+      { label: "Home", path: "/home" },
+      { label: "Outlets", path: "/outlets" },
+      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
+      { label: "Captains" },
+    ],
+    [outletName, outletId]
+  );
 
   // Memoized handlers
-  const handleViewCaptain = React.useCallback((user_id) => {
-    navigate(`/captain-details/${outletId}/${user_id}`);
-  }, [navigate, outletId]);
+  const handleViewCaptain = React.useCallback(
+    (user_id) => {
+      navigate(`/captain-details/${outletId}/${user_id}`);
+    },
+    [navigate, outletId]
+  );
 
-  const handleEditCaptain = React.useCallback((user_id) => {
-    navigate(`/edit-captain/${outletId}/${user_id}`);
-  }, [navigate, outletId]);
+  const handleEditCaptain = React.useCallback(
+    (user_id) => {
+      navigate(`/edit-captain/${outletId}/${user_id}`);
+    },
+    [navigate, outletId]
+  );
 
   const handleDeleteCaptain = React.useCallback(() => {
     if (captainToDelete) {
@@ -153,85 +163,106 @@ function Captains() {
     }
   }, [captainToDelete, deleteMutation]);
 
-  const handleBulkAction = React.useCallback((action, selectedIds) => {
-    bulkActionMutation.mutate({ action, selectedIds });
-  }, [bulkActionMutation]);
+  const handleBulkAction = React.useCallback(
+    (action, selectedIds) => {
+      bulkActionMutation.mutate({ action, selectedIds });
+    },
+    [bulkActionMutation]
+  );
 
   // Memoized counts
-  const counts = React.useMemo(() => ({
-    total: captains.length,
-    active: captains.filter((captain) => captain.is_active).length,
-    inactive: captains.filter((captain) => !captain.is_active).length
-  }), [captains]);
+  const counts = React.useMemo(
+    () => ({
+      total: captains.length,
+      active: captains.filter((captain) => captain.is_active).length,
+      inactive: captains.filter((captain) => !captain.is_active).length,
+    }),
+    [captains]
+  );
 
   // Column definition
-  const columns = React.useMemo(() => [
-    {
-      field: "name",
-      header: "Name",
-      sortable: true,
-      render: (value) => (
-        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-          {value}
-        </p>
-      ),
-    },
-    {
-      field: "mobile",
-      header: "Mobile",
-      sortable: true,
-    },
-    {
-      field: "email",
-      header: "Email",
-      sortable: true,
-    },
-    {
-      field: "is_active",
-      header: "Status",
-      sortable: true,
-      render: (value) => (
-        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-          value ? 'text-success-700' : 'text-error-700'
-        }`}>
-          <FontAwesomeIcon icon={value ? faCircleCheck : faCircleXmark} className="w-3.5 h-3.5" />
-        </div>
-      ),
-    },
-    {
-      field: "actions",
-      header: "Actions",
-      sortable: false,
-      render: (_, captain) => (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => handleViewCaptain(captain.user_id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-            title="View Details"
+  const columns = React.useMemo(
+    () => [
+      {
+        field: "name",
+        header: "Name",
+        sortable: true,
+        render: (value) => (
+          <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            {value}
+          </p>
+        ),
+      },
+      {
+        field: "mobile",
+        header: "Mobile",
+        sortable: true,
+      },
+      {
+        field: "email",
+        header: "Email",
+        sortable: true,
+      },
+      {
+        field: "is_active",
+        header: "Status",
+        sortable: true,
+        render: (value) => (
+          <div
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
+              value ? "text-success-700" : "text-error-700"
+            }`}
           >
-            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => handleEditCaptain(captain.user_id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-            title="Edit Captain"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => {
-              setCaptainToDelete(captain.user_id);
-              setShowDeleteModal(true);
-            }}
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-            title="Delete Captain"
-          >
-            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-          </button>
-        </div>
-      ),
-    },
-  ], [handleViewCaptain, handleEditCaptain]);
+            <FontAwesomeIcon
+              icon={value ? faCircleCheck : faCircleXmark}
+              className="w-3.5 h-3.5"
+            />
+          </div>
+        ),
+      },
+      {
+        field: "active_session_count",
+        header: "Active Session",
+        sortable: true,
+        render: (value) =>
+          value !== undefined && value !== null ? value : "-",
+      },
+      {
+        field: "actions",
+        header: "Actions",
+        sortable: false,
+        render: (_, captain) => (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => handleViewCaptain(captain.user_id)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+              title="View Details"
+            >
+              <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleEditCaptain(captain.user_id)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+              title="Edit Captain"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                setCaptainToDelete(captain.user_id);
+                setShowDeleteModal(true);
+              }}
+              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+              title="Delete Captain"
+            >
+              <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [handleViewCaptain, handleEditCaptain]
+  );
 
   if (isLoading) {
     return (
@@ -255,12 +286,10 @@ function Captains() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         darkMode={true}
-        
         enableSelection={true}
         onSelectionChange={setSelectedItems}
         selectedItems={selectedItems}
         onBulkAction={handleBulkAction}
-        
         title="Captains"
         counts={counts}
         showBackButton={true}
@@ -273,9 +302,8 @@ function Captains() {
           icon: faPlus,
           onClick: () => navigate(`/create-captain/${outletId}`),
           className: "bg-success-500 hover:bg-success-600",
-          position: "right"
+          position: "right",
         }}
-        
         enableStatusFilter={true}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}

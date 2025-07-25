@@ -3,7 +3,7 @@ import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -13,9 +13,9 @@ import {
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import Breadcrumb from '../../../Breadcrumb';
-import DataTable from '../../../common/DataTable';
-import DeleteConfirmModal from '../../../common/DeleteConfirmModal/DeleteConfirmModal';
+import Breadcrumb from "../../../Breadcrumb";
+import DataTable from "../../../common/DataTable";
+import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
 import { API_CONFIG } from "../../../../config/appConfig";
 
@@ -32,13 +32,13 @@ function Managers() {
   const [managerToDelete, setManagerToDelete] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // Query: Fetch managers
   const {
     data: managerResponse,
     isLoading,
-    error
+    error,
   } = useQuery({
     queryKey: ["managers", outletId, adminData?.user_id],
     queryFn: async () => {
@@ -61,12 +61,12 @@ function Managers() {
             },
           }
         );
-        
+
         // If the response indicates no managers, return an empty array
         if (response.data.detail === "outlet has no manager") {
           return [];
         }
-        
+
         // Otherwise return the manager list
         return response.data.detail || [];
       } catch (err) {
@@ -77,12 +77,18 @@ function Managers() {
         throw err;
       }
     },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId)
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId),
   });
 
   // Memoize managers and outletName
-  const managers = React.useMemo(() => managerResponse || [], [managerResponse]);
-  const outletName = React.useMemo(() => managers[0]?.outlet_name || '', [managers]);
+  const managers = React.useMemo(
+    () => managerResponse || [],
+    [managerResponse]
+  );
+  const outletName = React.useMemo(
+    () => managers[0]?.outlet_name || "",
+    [managers]
+  );
 
   // Delete manager mutation
   const deleteMutation = useMutation({
@@ -111,8 +117,10 @@ function Managers() {
       queryClient.invalidateQueries(["managers", outletId, adminData?.user_id]);
     },
     onError: (err) => {
-      toastController.error(err.response?.data?.msg || "Failed to delete manager");
-    }
+      toastController.error(
+        err.response?.data?.msg || "Failed to delete manager"
+      );
+    },
   });
 
   // Bulk action mutation
@@ -128,7 +136,7 @@ function Managers() {
           user_id: adminData.user_id,
           action: action,
           app_source: "admin_app",
-          manager_ids: selectedIds
+          manager_ids: selectedIds,
         },
         {
           headers: {
@@ -142,9 +150,11 @@ function Managers() {
       const actionMessages = {
         active: "Successfully activated selected managers",
         inactive: "Successfully deactivated selected managers",
-        delete: "Successfully deleted selected managers"
+        delete: "Successfully deleted selected managers",
       };
-      toastController.success(actionMessages[action] || "Bulk action completed");
+      toastController.success(
+        actionMessages[action] || "Bulk action completed"
+      );
       queryClient.invalidateQueries(["managers", outletId, adminData?.user_id]);
       setSelectedItems([]);
     },
@@ -152,22 +162,30 @@ function Managers() {
       const actionMessages = {
         active: "Failed to activate managers",
         inactive: "Failed to deactivate managers",
-        delete: "Failed to delete managers"
+        delete: "Failed to delete managers",
       };
       toastController.error(
-        err.response?.data?.detail || actionMessages[action] || "Failed to perform bulk action"
+        err.response?.data?.detail ||
+          actionMessages[action] ||
+          "Failed to perform bulk action"
       );
-    }
+    },
   });
 
   // Handlers
-  const handleViewManager = React.useCallback((user_id) => {
-    navigate(`/manager-details/${outletId}/${user_id}`);
-  }, [navigate, outletId]);
+  const handleViewManager = React.useCallback(
+    (user_id) => {
+      navigate(`/manager-details/${outletId}/${user_id}`);
+    },
+    [navigate, outletId]
+  );
 
-  const handleEditManager = React.useCallback((user_id) => {
-    navigate(`/edit-manager/${outletId}/${user_id}`);
-  }, [navigate, outletId]);
+  const handleEditManager = React.useCallback(
+    (user_id) => {
+      navigate(`/edit-manager/${outletId}/${user_id}`);
+    },
+    [navigate, outletId]
+  );
 
   const openDeleteModal = React.useCallback((user_id) => {
     setManagerToDelete(user_id);
@@ -178,90 +196,112 @@ function Managers() {
     deleteMutation.mutate();
   }, [deleteMutation]);
 
-  const handleBulkAction = React.useCallback((action, selectedIds) => {
-    bulkActionMutation.mutate({ action, selectedIds });
-  }, [bulkActionMutation]);
+  const handleBulkAction = React.useCallback(
+    (action, selectedIds) => {
+      bulkActionMutation.mutate({ action, selectedIds });
+    },
+    [bulkActionMutation]
+  );
 
   // DataTable columns
-  const columns = React.useMemo(() => [
-    {
-      field: "name",
-      header: "Name",
-      sortable: true,
-      render: (value) => (
-        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-          {value}
-        </p>
-      ),
-    },
-    {
-      field: "mobile",
-      header: "Mobile",
-      sortable: true,
-    },
-    {
-      field: "email",
-      header: "Email",
-      sortable: true,
-    },
-    {
-      field: "is_active",
-      header: "Status",
-      sortable: true,
-      render: (value) => (
-        <div className="flex items-center justify-center gap-2">
-          <FontAwesomeIcon
-            icon={value ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value ? "text-success-500" : "text-error-500"
-            }`}
-          />
-        </div>
-      )
-    },
-    {
-      field: "actions",
-      header: "Actions",
-      sortable: false,
-      render: (_, manager) => (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            onClick={() => handleViewManager(manager.user_id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-            title="View Details"
-          >
-            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => handleEditManager(manager.user_id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-            title="Edit Manager"
-          >
-            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => openDeleteModal(manager.user_id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-            title="Delete Manager"
-          >
-            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-          </button>
-        </div>
-      ),
-    },
-  ], [handleViewManager, handleEditManager, openDeleteModal]);
+  const columns = React.useMemo(
+    () => [
+      {
+        field: "name",
+        header: "Name",
+        sortable: true,
+        render: (value) => (
+          <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            {value}
+          </p>
+        ),
+      },
+      {
+        field: "mobile",
+        header: "Mobile",
+        sortable: true,
+      },
+      {
+        field: "email",
+        header: "Email",
+        sortable: true,
+      },
+      {
+        field: "is_active",
+        header: "Status",
+        sortable: true,
+        render: (value) => (
+          <div className="flex items-center justify-center gap-2">
+            <FontAwesomeIcon
+              icon={value ? faCircleCheck : faCircleXmark}
+              className={`w-5 h-5 ${
+                value ? "text-success-500" : "text-error-500"
+              }`}
+            />
+          </div>
+        ),
+      },
+      {
+        field: "active_session_count",
+        header: "Active Session",
+        sortable: true,
+        render: (value) =>
+          value !== undefined && value !== null ? value : "-",
+      },
+      {
+        field: "actions",
+        header: "Actions",
+        sortable: false,
+        render: (_, manager) => (
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => handleViewManager(manager.user_id)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+              title="View Details"
+            >
+              <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => handleEditManager(manager.user_id)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+              title="Edit Manager"
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => openDeleteModal(manager.user_id)}
+              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+              title="Delete Manager"
+            >
+              <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [handleViewManager, handleEditManager, openDeleteModal]
+  );
 
   // Counts
   const getTotalCount = React.useCallback(() => managers.length, [managers]);
-  const getActiveCount = React.useCallback(() => managers.filter((manager) => manager.is_active).length, [managers]);
-  const getInactiveCount = React.useCallback(() => managers.filter((manager) => !manager.is_active).length, [managers]);
+  const getActiveCount = React.useCallback(
+    () => managers.filter((manager) => manager.is_active).length,
+    [managers]
+  );
+  const getInactiveCount = React.useCallback(
+    () => managers.filter((manager) => !manager.is_active).length,
+    [managers]
+  );
 
-  const breadcrumbItems = React.useMemo(() => [
-    { label: 'Home', path: '/home' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: outletName || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: 'Managers' }
-  ], [outletName, outletId]);
+  const breadcrumbItems = React.useMemo(
+    () => [
+      { label: "Home", path: "/home" },
+      { label: "Outlets", path: "/outlets" },
+      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
+      { label: "Managers" },
+    ],
+    [outletName, outletId]
+  );
 
   if (isLoading) {
     return (
@@ -302,7 +342,7 @@ function Managers() {
         counts={{
           total: getTotalCount(),
           active: getActiveCount(),
-          inactive: getInactiveCount()
+          inactive: getInactiveCount(),
         }}
         showBackButton={true}
         showSearch={true}
@@ -312,11 +352,12 @@ function Managers() {
           show: true,
           label: "Create",
           icon: faPlus,
-          onClick: () => navigate(`/create-manager/${outletId}`, {
-            state: { outletName: outletName }
-          }),
+          onClick: () =>
+            navigate(`/create-manager/${outletId}`, {
+              state: { outletName: outletName },
+            }),
           className: "bg-success-500 hover:bg-success-600",
-          position: "right"
+          position: "right",
         }}
         enableStatusFilter={true}
         statusFilter={statusFilter}

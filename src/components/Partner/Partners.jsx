@@ -41,15 +41,17 @@ function Partners() {
       setIsDeleteModalOpen(false);
       setPartnerToDelete(null);
     } catch (error) {
-      toastController.error(error.response?.data?.detail || 'Failed to delete partner');
+      toastController.error(
+        error.response?.data?.detail || "Failed to delete partner"
+      );
     }
   };
 
   const handleBulkAction = async (action, selectedIds) => {
     try {
       // Convert normalized IDs back to partner IDs
-      const partner_ids = selectedIds.map(id => {
-        const partner = partners.find(p => p.user_id === id);
+      const partner_ids = selectedIds.map((id) => {
+        const partner = partners.find((p) => p.user_id === id);
         return partner.user_id;
       });
 
@@ -57,15 +59,17 @@ function Partners() {
         user_id: adminData.user_id,
         action: action,
         app_source: "pos_app",
-        partner_ids: partner_ids
+        partner_ids: partner_ids,
       };
 
       await bulkAction.mutateAsync(payload);
       setSelectedItems([]);
-      toastController.success('Bulk action completed successfully!');
+      toastController.success("Bulk action completed successfully!");
     } catch (error) {
       console.error("Error performing bulk action:", error);
-      toastController.error(error.response?.data?.detail || 'Failed to process bulk action');
+      toastController.error(
+        error.response?.data?.detail || "Failed to process bulk action"
+      );
     }
   };
 
@@ -100,6 +104,12 @@ function Partners() {
           ></span>
         </div>
       ),
+    },
+    {
+      field: "active_session_count",
+      header: "Active Session",
+      sortable: true,
+      render: (value) => (value !== undefined && value !== null ? value : "-"),
     },
     {
       field: "actions",
@@ -197,7 +207,9 @@ function Partners() {
           setStatusFilter(value);
         }}
         onReload={refetch}
-        isLoading={isLoading || deleteMutation.isLoading || bulkAction.isLoading}
+        isLoading={
+          isLoading || deleteMutation.isLoading || bulkAction.isLoading
+        }
       />
 
       <DeleteConfirmModal
