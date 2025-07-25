@@ -7,6 +7,7 @@ import {
   faCircleXmark,
   faChevronLeft as faBack,
   faPenToSquare,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import { usePartnerDetails } from "../../lib/react-query/hooks/usePartnerDetails";

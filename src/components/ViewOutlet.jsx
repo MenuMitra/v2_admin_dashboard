@@ -1038,27 +1038,29 @@ function ViewOutlet() {
                   </div>
                 </div>
               )}
-              {/* Latest Feature Card */}
               {outletData?.subscription_details?.latest_feature && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 flex flex-row justify-between items-center w-auto h-auto min-w-[120px] min-h-[40px]">
-                  {/* Feature Name on the left */}
-                  <div className="font-semibold text-gray-800 text-xs truncate text-left mr-2">
-                    {outletData.subscription_details.latest_feature
-                      .feature_name || "-"}
-                  </div>
-                  {/* Date (day count) on the right */}
-                  <div className="text-gray-700 text-xs text-right">
-                    {(() => {
-                      const lastUsed =
-                        outletData.subscription_details.latest_feature
-                          .last_used;
-                      const days = getDaysSinceLastUsed(lastUsed);
-                      return lastUsed
-                        ? `${lastUsed} (${days !== null ? days : "-"} day${
-                            days === 1 ? "" : "s"
-                          })`
-                        : "-";
-                    })()}
+                <div className="col-span-1 w-auto">
+                  <div className="inline-block align-top max-w-max bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-left">
+                    {/* Feature Name */}
+                    <div className="font-semibold text-gray-800 text-[13px] leading-tight">
+                      {outletData.subscription_details.latest_feature
+                        .feature_name || "-"}
+                    </div>
+
+                    {/* Date + Day Count */}
+                    <div className="text-gray-700 text-[12px]">
+                      {(() => {
+                        const lastUsed =
+                          outletData.subscription_details.latest_feature
+                            .last_used;
+                        const days = getDaysSinceLastUsed(lastUsed);
+                        return lastUsed
+                          ? `${lastUsed} (${days !== null ? days : "-"} day${
+                              days === 1 ? "" : "s"
+                            })`
+                          : "-";
+                      })()}
+                    </div>
                   </div>
                 </div>
               )}
