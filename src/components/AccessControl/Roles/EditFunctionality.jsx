@@ -58,9 +58,39 @@ function EditFunctionality() {
           },
         }
       );
-      setAllFunctionalities(response.data);
+
+      // Ensure we have an array of functionalities
+      let functionalities = [];
+      if (response.data) {
+        // Check if data is directly an array
+        if (Array.isArray(response.data)) {
+          functionalities = response.data;
+        }
+        // Check if data is nested in a data property
+        else if (response.data.data && Array.isArray(response.data.data)) {
+          functionalities = response.data.data;
+        }
+        // Check if data is nested in a functionalities property
+        else if (
+          response.data.functionalities &&
+          Array.isArray(response.data.functionalities)
+        ) {
+          functionalities = response.data.functionalities;
+        }
+        // If none of the above, try to convert to array if possible
+        else if (typeof response.data === "object") {
+          functionalities = Object.values(response.data);
+        }
+      }
+
+      console.log("API Response:", response.data);
+      console.log("Processed functionalities:", functionalities);
+
+      setAllFunctionalities(functionalities);
     } catch (err) {
+      console.error("Error fetching functionalities:", err);
       setSaveError("Failed to load functionalities");
+      setAllFunctionalities([]); // Ensure it's an empty array on error
     }
   };
 
@@ -202,10 +232,11 @@ function EditFunctionality() {
                   style={{ maxHeight: "350px", overflowY: "auto" }}
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 p-4">
-                    {allFunctionalities.map((functionality) => (
-                      <div
-                        key={functionality.functionality_id}
-                        className={`
+                    {Array.isArray(allFunctionalities) &&
+                      allFunctionalities.map((functionality) => (
+                        <div
+                          key={functionality.functionality_id}
+                          className={`
                           p-3 cursor-pointer hover:bg-gray-50 border rounded-lg
                           ${
                             selectedFunctionalities.includes(
@@ -215,40 +246,43 @@ function EditFunctionality() {
                               : "border-gray-200"
                           }
                         `}
-                        onClick={() =>
-                          handleFunctionalityToggle(
-                            functionality.functionality_id
-                          )
-                        }
-                      >
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="checkbox"
-                            checked={selectedFunctionalities.includes(
+                          onClick={() =>
+                            handleFunctionalityToggle(
                               functionality.functionality_id
-                            )}
-                            onChange={(e) => {
-                              e.stopPropagation();
-                              handleFunctionalityToggle(
+                            )
+                          }
+                        >
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="checkbox"
+                              checked={selectedFunctionalities.includes(
                                 functionality.functionality_id
-                              );
-                            }}
-                            className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
-                          />
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {functionality.functionality_name
-                                .split("_")
-                                .map(
-                                  (word) =>
-                                    word.charAt(0).toUpperCase() + word.slice(1)
-                                )
-                                .join(" ")}
+                              )}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                handleFunctionalityToggle(
+                                  functionality.functionality_id
+                                );
+                              }}
+                              className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                            />
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {functionality.functionality_name
+                                  ?.split("_")
+                                  ?.map(
+                                    (word) =>
+                                      word.charAt(0).toUpperCase() +
+                                      word.slice(1)
+                                  )
+                                  ?.join(" ") ||
+                                  functionality.functionality_name ||
+                                  "Unknown"}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </div>
               </div>

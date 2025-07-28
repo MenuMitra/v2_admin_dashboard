@@ -1,17 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faChevronLeft } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
-import { useAuth } from '../../hooks/useAuth';
-import { API_CONFIG } from '../../config/appConfig';
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  TextInput,
-  SelectInput,
-  Textarea,
-} from '../forms/FormElements';
-import Breadcrumb from '../Breadcrumb';
-import Modal from '../common/Modal';
+  faPlus,
+  faChevronLeft,
+  faTimes,
+} from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { useAuth } from "../../hooks/useAuth";
+import { API_CONFIG } from "../../config/appConfig";
+import { TextInput, SelectInput, Textarea } from "../forms/FormElements";
+import Breadcrumb from "../Breadcrumb";
+import Modal from "../common/Modal";
 
 function CreateNotification() {
   const navigate = useNavigate();
@@ -22,20 +22,20 @@ function CreateNotification() {
   const [roles, setRoles] = useState([]);
   const [users, setUsers] = useState([]);
   const [formData, setFormData] = useState({
-    message: '',
-    type: 'Info',
-    outlet: 'all',
-    role: 'all',
-    user: 'all'
+    message: "",
+    type: "Info",
+    outlet: "all",
+    role: "all",
+    user: "all",
   });
 
   const [dropdownStates, setDropdownStates] = useState({
     outlet: false,
     role: false,
     user: false,
-    type: false
+    type: false,
   });
-  
+
   const outletDropdownRef = useRef(null);
   const roleDropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
@@ -46,28 +46,40 @@ function CreateNotification() {
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (outletDropdownRef.current && !outletDropdownRef.current.contains(event.target)) {
-        setDropdownStates(prev => ({ ...prev, outlet: false }));
+      if (
+        outletDropdownRef.current &&
+        !outletDropdownRef.current.contains(event.target)
+      ) {
+        setDropdownStates((prev) => ({ ...prev, outlet: false }));
       }
-      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target)) {
-        setDropdownStates(prev => ({ ...prev, role: false }));
+      if (
+        roleDropdownRef.current &&
+        !roleDropdownRef.current.contains(event.target)
+      ) {
+        setDropdownStates((prev) => ({ ...prev, role: false }));
       }
-      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
-        setDropdownStates(prev => ({ ...prev, user: false }));
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target)
+      ) {
+        setDropdownStates((prev) => ({ ...prev, user: false }));
       }
-      if (typeDropdownRef.current && !typeDropdownRef.current.contains(event.target)) {
-        setDropdownStates(prev => ({ ...prev, type: false }));
+      if (
+        typeDropdownRef.current &&
+        !typeDropdownRef.current.contains(event.target)
+      ) {
+        setDropdownStates((prev) => ({ ...prev, type: false }));
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleDropdownClick = (dropdownName) => {
-    setDropdownStates(prev => ({
+    setDropdownStates((prev) => ({
       ...prev,
-      [dropdownName]: !prev[dropdownName]
+      [dropdownName]: !prev[dropdownName],
     }));
   };
 
@@ -79,9 +91,9 @@ function CreateNotification() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -96,15 +108,15 @@ function CreateNotification() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const payload = {
         message: formData.message,
         type: formData.type,
-        outlet_id: formData.outlet === 'all' ? '0' : formData.outlet.toString(),
-        role: formData.role === 'all' ? '0' : formData.role,
-        user_id: formData.user === 'all' ? '0' : formData.user.toString()
+        outlet_id: formData.outlet === "all" ? "0" : formData.outlet.toString(),
+        role: formData.role === "all" ? "0" : formData.role,
+        user_id: formData.user === "all" ? "0" : formData.user.toString(),
       };
 
       const response = await axios.post(
@@ -118,10 +130,10 @@ function CreateNotification() {
       );
 
       if (response.data.notification_id) {
-        navigate('/notifications');
+        navigate("/notifications");
       }
     } catch (error) {
-      console.error('Error creating notification:', error);
+      console.error("Error creating notification:", error);
     } finally {
       setIsLoading(false);
     }
@@ -149,39 +161,39 @@ function CreateNotification() {
 
   const mockData = {
     outlets: [
-      { id: 'all', name: 'Select Outlets' },
-      { id: '1', name: 'Restaurant ABC' },
-      { id: '2', name: 'Café XYZ' },
-      { id: '3', name: 'Bistro 123' },
-      { id: '4', name: 'Food Court Central' }
+      { id: "all", name: "Select Outlets" },
+      { id: "1", name: "Restaurant ABC" },
+      { id: "2", name: "Café XYZ" },
+      { id: "3", name: "Bistro 123" },
+      { id: "4", name: "Food Court Central" },
     ],
     roles: [
-      { id: 'all', name: 'All Roles' },
-      { id: 'manager', name: 'Manager' },
-      { id: 'chef', name: 'Chef' },
-      { id: 'waiter', name: 'Waiter' },
-      { id: 'captain', name: 'Captain' }
+      { id: "all", name: "All Roles" },
+      { id: "manager", name: "Manager" },
+      { id: "chef", name: "Chef" },
+      { id: "waiter", name: "Waiter" },
+      { id: "captain", name: "Captain" },
     ],
     users: [
-      { id: 'all', name: 'All Users' },
-      { id: '1', name: 'John Doe', role: 'Manager' },
-      { id: '2', name: 'Jane Smith', role: 'Chef' },
-      { id: '3', name: 'Mike Johnson', role: 'Waiter' },
-      { id: '4', name: 'Sarah Wilson', role: 'Captain' }
-    ]
+      { id: "all", name: "All Users" },
+      { id: "1", name: "John Doe", role: "Manager" },
+      { id: "2", name: "Jane Smith", role: "Chef" },
+      { id: "3", name: "Mike Johnson", role: "Waiter" },
+      { id: "4", name: "Sarah Wilson", role: "Captain" },
+    ],
   };
 
   const [searchTerms, setSearchTerms] = useState({
-    outlet: '',
-    role: '',
-    user: ''
+    outlet: "",
+    role: "",
+    user: "",
   });
 
   const fetchOutlets = async () => {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -197,7 +209,7 @@ function CreateNotification() {
         setOutlets(response.data.outlet_list);
       }
     } catch (error) {
-      console.error('Error fetching outlets:', error);
+      console.error("Error fetching outlets:", error);
     }
   };
 
@@ -207,19 +219,21 @@ function CreateNotification() {
 
   const getFilteredOutlets = () => {
     if (!outlets || Object.keys(outlets).length === 0) {
-      return [{ outlet_id: 'all', outlet_name: 'All Outlets' }];
+      return [{ outlet_id: "all", outlet_name: "All Outlets" }];
     }
 
     const outletsArray = Object.entries(outlets).map(([name, id]) => ({
       outlet_id: id.toString(),
-      outlet_name: name
+      outlet_name: name,
     }));
 
-    const allOutletsOption = { outlet_id: 'all', outlet_name: 'All Outlets' };
+    const allOutletsOption = { outlet_id: "all", outlet_name: "All Outlets" };
     const allOutlets = [allOutletsOption, ...outletsArray];
-    
-    return allOutlets.filter(outlet =>
-      outlet.outlet_name.toLowerCase().includes(searchTerms.outlet.toLowerCase())
+
+    return allOutlets.filter((outlet) =>
+      outlet.outlet_name
+        .toLowerCase()
+        .includes(searchTerms.outlet.toLowerCase())
     );
   };
 
@@ -227,10 +241,10 @@ function CreateNotification() {
     try {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
-      const payload = selectedRole 
+      const payload = selectedRole
         ? { outlet_id: outletId, role: selectedRole }
         : { outlet_id: outletId };
 
@@ -251,15 +265,15 @@ function CreateNotification() {
           setRoles(response.data.roles || []);
           setUsers([]);
           // Reset role and user selection when outlet changes
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
-            role: 'all',
-            user: 'all'
+            role: "all",
+            user: "all",
           }));
         }
       }
     } catch (error) {
-      console.error('Error fetching filter options:', error);
+      console.error("Error fetching filter options:", error);
       setRoles([]);
       setUsers([]);
     }
@@ -267,7 +281,7 @@ function CreateNotification() {
 
   // Update fetchFilterOptions call when outlet or role changes
   useEffect(() => {
-    if (formData.outlet !== 'all') {
+    if (formData.outlet !== "all") {
       fetchFilterOptions(formData.outlet);
     } else {
       setRoles([]);
@@ -276,7 +290,7 @@ function CreateNotification() {
   }, [formData.outlet]);
 
   useEffect(() => {
-    if (formData.outlet !== 'all' && formData.role !== 'all') {
+    if (formData.outlet !== "all" && formData.role !== "all") {
       fetchFilterOptions(formData.outlet, formData.role);
     } else {
       setUsers([]);
@@ -284,44 +298,47 @@ function CreateNotification() {
   }, [formData.role]);
 
   const getFilteredRoles = () => {
-    const allRolesOption = { role: 'all', name: 'All Roles' };
-    const formattedRoles = roles.map(role => ({
+    const allRolesOption = { role: "all", name: "All Roles" };
+    const formattedRoles = roles.map((role) => ({
       id: role.role,
-      name: role.role.charAt(0).toUpperCase() + role.role.slice(1).replace('_', ' ')
+      name:
+        role.role.charAt(0).toUpperCase() +
+        role.role.slice(1).replace("_", " "),
     }));
-    
+
     const allRoles = [allRolesOption, ...formattedRoles];
-    
-    return allRoles.filter(role =>
+
+    return allRoles.filter((role) =>
       role.name.toLowerCase().includes(searchTerms.role.toLowerCase())
     );
   };
 
   const getFilteredUsers = () => {
-    const allUsersOption = { user_id: 'all', name: 'All Users', role: '' };
-    const formattedUsers = users.map(user => ({
+    const allUsersOption = { user_id: "all", name: "All Users", role: "" };
+    const formattedUsers = users.map((user) => ({
       ...user,
-      user_id: user.user_id.toString()
+      user_id: user.user_id.toString(),
     }));
-    
+
     const allUsers = [allUsersOption, ...formattedUsers];
-    
-    return allUsers.filter(user =>
-      user.name.toLowerCase().includes(searchTerms.user.toLowerCase()) ||
-      user.role?.toLowerCase().includes(searchTerms.user.toLowerCase())
+
+    return allUsers.filter(
+      (user) =>
+        user.name.toLowerCase().includes(searchTerms.user.toLowerCase()) ||
+        user.role?.toLowerCase().includes(searchTerms.user.toLowerCase())
     );
   };
 
   const handleSearchChange = (type, value) => {
-    setSearchTerms(prev => ({
+    setSearchTerms((prev) => ({
       ...prev,
-      [type]: value
+      [type]: value,
     }));
   };
 
   const notificationTypes = [
-    { id: 'Info', name: 'Info' },
-    { id: 'Offer', name: 'Offer' },
+    { id: "Info", name: "Info" },
+    { id: "Offer", name: "Offer" },
     // { id: 'Success', name: 'Success' },
     // { id: 'Warning', name: 'Warning' },
     // { id: 'Danger', name: 'Danger' }
@@ -353,9 +370,11 @@ function CreateNotification() {
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 transition shadow-sm
-                ${isLoading || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-success-500 hover:bg-success-600"}
+                ${
+                  isLoading || !isFormValid()
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-success-500 hover:bg-success-600"
+                }
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -385,30 +404,34 @@ function CreateNotification() {
                 </label>
                 <div className="relative">
                   <div
-                    onClick={() => handleDropdownClick('type')}
+                    onClick={() => handleDropdownClick("type")}
                     className={`
                       w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
                       text-sm font-medium text-gray-700 transition rounded-lg 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
-                      ${dropdownStates.type ? 'border-error-500' : 'border-gray-300'}
+                      ${
+                        dropdownStates.type
+                          ? "border-error-500"
+                          : "border-gray-300"
+                      }
                     `}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
-                        {formData.type || 'Select Type'}
+                        {formData.type || "Select Type"}
                       </div>
                     </div>
                   </div>
 
                   {dropdownStates.type && (
-                    <div 
+                    <div
                       className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
-                        position: 'absolute',
-                        width: '300px',
+                        position: "absolute",
+                        width: "300px",
                         zIndex: 9999,
-                        maxHeight: '350px',
-                        overflowY: 'auto'
+                        maxHeight: "350px",
+                        overflowY: "auto",
                       }}
                     >
                       <div className="overflow-y-auto">
@@ -417,11 +440,20 @@ function CreateNotification() {
                             key={type.id}
                             className={`
                               p-3 cursor-pointer hover:bg-gray-50
-                              ${formData.type === type.id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
+                              ${
+                                formData.type === type.id
+                                  ? "bg-brand-50 border-l-4 border-brand-500"
+                                  : "border-l-4 border-transparent"
+                              }
                             `}
                             onClick={() => {
-                              handleInputChange({ target: { name: 'type', value: type.id } });
-                              setDropdownStates(prev => ({ ...prev, type: false }));
+                              handleInputChange({
+                                target: { name: "type", value: type.id },
+                              });
+                              setDropdownStates((prev) => ({
+                                ...prev,
+                                type: false,
+                              }));
                             }}
                           >
                             <div className="flex items-center justify-between">
@@ -441,52 +473,85 @@ function CreateNotification() {
                 </div>
               </div>
 
-              <div className="relative w-full md:w-auto" ref={outletDropdownRef}>
+              <div
+                className="relative w-full md:w-auto"
+                ref={outletDropdownRef}
+              >
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Outlet
                 </label>
                 <div className="relative">
                   <div
-                    onClick={() => handleDropdownClick('outlet')}
+                    onClick={() => handleDropdownClick("outlet")}
                     className={`
                       w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
                       text-sm font-medium text-gray-700 transition rounded-lg 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
-                      ${dropdownStates.outlet ? 'border-error-500' : 'border-gray-300'}
+                      ${
+                        dropdownStates.outlet
+                          ? "border-error-500"
+                          : "border-gray-300"
+                      }
                     `}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
-                        {formData.outlet === 'all' ? 'All Outlets' : 
-                         Object.entries(outlets).find(([name, id]) => id.toString() === formData.outlet)?.[0] || 'Select Outlet'}
+                        {formData.outlet === "all"
+                          ? "All Outlets"
+                          : Object.entries(outlets).find(
+                              ([name, id]) => id.toString() === formData.outlet
+                            )?.[0] || "Select Outlet"}
                       </div>
                     </div>
                   </div>
 
                   {dropdownStates.outlet && (
-                    <div 
+                    <div
                       className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
-                        position: 'absolute',
-                        width: '300px',
+                        position: "absolute",
+                        width: "300px",
                         zIndex: 9999,
-                        maxHeight: '350px',
-                        overflowY: 'auto'
+                        maxHeight: "350px",
+                        overflowY: "auto",
                       }}
                     >
                       <div className="sticky top-0 p-2 border-b bg-white">
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                          </span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
                           <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Search outlets..."
                             value={searchTerms.outlet}
-                            onChange={(e) => handleSearchChange('outlet', e.target.value)}
+                            onChange={(e) =>
+                              handleSearchChange("outlet", e.target.value)
+                            }
                             onClick={(e) => e.stopPropagation()}
                             autoFocus
                           />
+                          {searchTerms.outlet && (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleSearchChange("outlet", "");
+                                // Keep focus on the search input
+                                const searchInput = e.target
+                                  .closest(".relative")
+                                  .querySelector("input");
+                                if (searchInput) {
+                                  searchInput.focus();
+                                }
+                              }}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                              <FontAwesomeIcon
+                                icon={faTimes}
+                                className="w-4 h-4"
+                              />
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -496,11 +561,23 @@ function CreateNotification() {
                             key={outlet.outlet_id}
                             className={`
                               p-3 cursor-pointer hover:bg-gray-50
-                              ${formData.outlet === outlet.outlet_id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
+                              ${
+                                formData.outlet === outlet.outlet_id
+                                  ? "bg-brand-50 border-l-4 border-brand-500"
+                                  : "border-l-4 border-transparent"
+                              }
                             `}
                             onClick={() => {
-                              handleInputChange({ target: { name: 'outlet', value: outlet.outlet_id } });
-                              setDropdownStates(prev => ({ ...prev, outlet: false }));
+                              handleInputChange({
+                                target: {
+                                  name: "outlet",
+                                  value: outlet.outlet_id,
+                                },
+                              });
+                              setDropdownStates((prev) => ({
+                                ...prev,
+                                outlet: false,
+                              }));
                             }}
                           >
                             <div className="flex items-center justify-between">
@@ -531,47 +608,81 @@ function CreateNotification() {
                 </label>
                 <div className="relative">
                   <div
-                    onClick={() => handleDropdownClick('role')}
+                    onClick={() => handleDropdownClick("role")}
                     className={`
                       w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
                       text-sm font-medium text-gray-700 transition rounded-lg 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
-                      ${dropdownStates.role ? 'border-error-500' : 'border-gray-300'}
+                      ${
+                        dropdownStates.role
+                          ? "border-error-500"
+                          : "border-gray-300"
+                      }
                     `}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
-                        {formData.role === 'all' ? 'All Roles' : 
-                         roles.find(r => r.role === formData.role)?.role.charAt(0).toUpperCase() + 
-                         roles.find(r => r.role === formData.role)?.role.slice(1).replace('_', ' ') || 'Select Role'}
+                        {formData.role === "all"
+                          ? "All Roles"
+                          : roles
+                              .find((r) => r.role === formData.role)
+                              ?.role.charAt(0)
+                              .toUpperCase() +
+                              roles
+                                .find((r) => r.role === formData.role)
+                                ?.role.slice(1)
+                                .replace("_", " ") || "Select Role"}
                       </div>
                     </div>
                   </div>
 
                   {dropdownStates.role && (
-                    <div 
+                    <div
                       className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
-                        position: 'absolute',
-                        width: '300px',
+                        position: "absolute",
+                        width: "300px",
                         zIndex: 9999,
-                        maxHeight: '350px',
-                        overflowY: 'auto'
+                        maxHeight: "350px",
+                        overflowY: "auto",
                       }}
                     >
                       <div className="sticky top-0 p-2 border-b bg-white">
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                          </span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
                           <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Search roles..."
                             value={searchTerms.role}
-                            onChange={(e) => handleSearchChange('role', e.target.value)}
+                            onChange={(e) =>
+                              handleSearchChange("role", e.target.value)
+                            }
                             onClick={(e) => e.stopPropagation()}
                             autoFocus
                           />
+                          {searchTerms.role && (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleSearchChange("role", "");
+                                // Keep focus on the search input
+                                const searchInput = e.target
+                                  .closest(".relative")
+                                  .querySelector("input");
+                                if (searchInput) {
+                                  searchInput.focus();
+                                }
+                              }}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                              <FontAwesomeIcon
+                                icon={faTimes}
+                                className="w-4 h-4"
+                              />
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -581,11 +692,20 @@ function CreateNotification() {
                             key={role.id}
                             className={`
                               p-3 cursor-pointer hover:bg-gray-50
-                              ${formData.role === role.id ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
+                              ${
+                                formData.role === role.id
+                                  ? "bg-brand-50 border-l-4 border-brand-500"
+                                  : "border-l-4 border-transparent"
+                              }
                             `}
                             onClick={() => {
-                              handleInputChange({ target: { name: 'role', value: role.id } });
-                              setDropdownStates(prev => ({ ...prev, role: false }));
+                              handleInputChange({
+                                target: { name: "role", value: role.id },
+                              });
+                              setDropdownStates((prev) => ({
+                                ...prev,
+                                role: false,
+                              }));
                             }}
                           >
                             <div className="flex items-center justify-between">
@@ -616,46 +736,76 @@ function CreateNotification() {
                 </label>
                 <div className="relative">
                   <div
-                    onClick={() => handleDropdownClick('user')}
+                    onClick={() => handleDropdownClick("user")}
                     className={`
                       w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
                       text-sm font-medium text-gray-700 transition rounded-lg 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
-                      ${dropdownStates.user ? 'border-error-500' : 'border-gray-300'}
+                      ${
+                        dropdownStates.user
+                          ? "border-error-500"
+                          : "border-gray-300"
+                      }
                     `}
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="text-gray-900">
-                        {formData.user === 'all' ? 'All Users' : 
-                         users.find(u => u.user_id.toString() === formData.user)?.name || 'Select User'}
+                        {formData.user === "all"
+                          ? "All Users"
+                          : users.find(
+                              (u) => u.user_id.toString() === formData.user
+                            )?.name || "Select User"}
                       </div>
                     </div>
                   </div>
 
                   {dropdownStates.user && (
-                    <div 
+                    <div
                       className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
-                        position: 'absolute',
-                        width: '300px',
+                        position: "absolute",
+                        width: "300px",
                         zIndex: 9999,
-                        maxHeight: '350px',
-                        overflowY: 'auto'
+                        maxHeight: "350px",
+                        overflowY: "auto",
                       }}
                     >
                       <div className="sticky top-0 p-2 border-b bg-white">
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                          </span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
                           <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Search users..."
                             value={searchTerms.user}
-                            onChange={(e) => handleSearchChange('user', e.target.value)}
+                            onChange={(e) =>
+                              handleSearchChange("user", e.target.value)
+                            }
                             onClick={(e) => e.stopPropagation()}
                             autoFocus
                           />
+                          {searchTerms.user && (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleSearchChange("user", "");
+                                // Keep focus on the search input
+                                const searchInput = e.target
+                                  .closest(".relative")
+                                  .querySelector("input");
+                                if (searchInput) {
+                                  searchInput.focus();
+                                }
+                              }}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                              <FontAwesomeIcon
+                                icon={faTimes}
+                                className="w-4 h-4"
+                              />
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -665,11 +815,23 @@ function CreateNotification() {
                             key={user.user_id}
                             className={`
                               p-3 cursor-pointer hover:bg-gray-50
-                              ${formData.user === user.user_id.toString() ? 'bg-brand-50 border-l-4 border-brand-500' : 'border-l-4 border-transparent'}
+                              ${
+                                formData.user === user.user_id.toString()
+                                  ? "bg-brand-50 border-l-4 border-brand-500"
+                                  : "border-l-4 border-transparent"
+                              }
                             `}
                             onClick={() => {
-                              handleInputChange({ target: { name: 'user', value: user.user_id.toString() } });
-                              setDropdownStates(prev => ({ ...prev, user: false }));
+                              handleInputChange({
+                                target: {
+                                  name: "user",
+                                  value: user.user_id.toString(),
+                                },
+                              });
+                              setDropdownStates((prev) => ({
+                                ...prev,
+                                user: false,
+                              }));
                             }}
                           >
                             <div className="flex items-center justify-between">
@@ -678,7 +840,7 @@ function CreateNotification() {
                                   <div className="font-medium text-gray-900">
                                     {user.name}
                                   </div>
-                                  {user.user_id !== 'all' && (
+                                  {user.user_id !== "all" && (
                                     <div className="text-sm text-gray-500">
                                       {user.role}
                                     </div>
@@ -727,7 +889,7 @@ function CreateNotification() {
             >
               Confirm
             </button>
-          </div>
+          </div>,
         ]}
       >
         <div className="text-base font-medium text-gray-700 py-2">

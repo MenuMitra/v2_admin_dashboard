@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
   faPlus,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
@@ -949,12 +950,35 @@ function CreateOutlet() {
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
                               <input
                                 type="text"
-                                className="w-full px-4 py-2 pl-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                 placeholder="Search by name, mobile or email..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 autoFocus
                               />
+                              {searchTerm && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setSearchTerm("");
+                                    // Keep focus on the search input
+                                    const searchInput = e.target
+                                      .closest(".relative")
+                                      .querySelector("input");
+                                    if (searchInput) {
+                                      searchInput.focus();
+                                    }
+                                  }}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                >
+                                  <FontAwesomeIcon
+                                    icon={faTimes}
+                                    className="w-4 h-4"
+                                  />
+                                </button>
+                              )}
                             </div>
                           </div>
 

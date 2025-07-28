@@ -14,6 +14,7 @@ import {
   faCircleXmark,
   faGear,
   faRotate,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
 
@@ -774,7 +775,30 @@ function DataTable({
                       type="text"
                       value={searchTerm}
                       onChange={(e) => onSearchChange(e.target.value)}
+                      ref={(input) => {
+                        if (input) {
+                          input.searchInputRef = input;
+                        }
+                      }}
                     />
+                    {searchTerm && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onSearchChange("");
+                          // Keep focus on the search input
+                          const searchInput = e.target
+                            .closest(".relative")
+                            .querySelector("input");
+                          if (searchInput) {
+                            searchInput.focus();
+                          }
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

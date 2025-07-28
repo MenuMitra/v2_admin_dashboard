@@ -53,23 +53,20 @@ function EditSuperOwner() {
     const matchesLocation =
       outlet.address &&
       outlet.address.toLowerCase().includes(searchTerm.toLowerCase());
-    // Open/Close filter (if outlet.open_close_status exists)
+    // Open/Close filter (using is_open)
     const matchesOpenClose =
       openCloseStatus === "all" ||
-      (outlet.open_close_status &&
-        outlet.open_close_status.toLowerCase() === openCloseStatus);
-    // Active/Inactive filter (if outlet.is_active exists)
+      (openCloseStatus === "open" &&
+        (outlet.is_open === 1 || outlet.is_open === "1")) ||
+      (openCloseStatus === "close" &&
+        (outlet.is_open === 0 || outlet.is_open === "0"));
+    // Active/Inactive filter (using outlet_status)
     const matchesActive =
       activeStatus === "all" ||
-      (typeof outlet.is_active !== "undefined" &&
-        ((activeStatus === "active" &&
-          (outlet.is_active === true ||
-            outlet.is_active === 1 ||
-            outlet.is_active === "1")) ||
-          (activeStatus === "inactive" &&
-            (outlet.is_active === false ||
-              outlet.is_active === 0 ||
-              outlet.is_active === "0"))));
+      (activeStatus === "active" &&
+        (outlet.outlet_status === 1 || outlet.outlet_status === "1")) ||
+      (activeStatus === "inactive" &&
+        (outlet.outlet_status === 0 || outlet.outlet_status === "0"));
     return matchesLocation && matchesOpenClose && matchesActive;
   });
 

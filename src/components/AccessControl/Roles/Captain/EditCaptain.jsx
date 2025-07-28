@@ -8,6 +8,7 @@ import {
   faChevronLeft as faBack,
   faSpinner,
   faSave,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../../Breadcrumb";
 import { TextInput, DateInput, SelectInput } from "../../../forms/FormElements";
@@ -569,14 +570,37 @@ function EditCaptain() {
                   >
                     {/* Search Bar */}
                     <div className="sticky top-0 p-2 border-b bg-white">
-                      <input
-                        type="text"
-                        className="w-full px-4 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
-                        placeholder="Search functionalities..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        autoFocus
-                      />
+                      <div className="relative">
+                        <input
+                          type="text"
+                          className="w-full px-4 py-2 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                          placeholder="Search functionalities..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          autoFocus
+                        />
+                        {searchTerm && (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setSearchTerm("");
+                              // Keep focus on the search input
+                              const searchInput = e.target
+                                .closest(".relative")
+                                .querySelector("input");
+                              if (searchInput) {
+                                searchInput.focus();
+                              }
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                          >
+                            <FontAwesomeIcon
+                              icon={faTimes}
+                              className="w-4 h-4"
+                            />
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Functionalities List */}

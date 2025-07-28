@@ -2,17 +2,26 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faShareFromSquare } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { useAuth } from "../../hooks/useAuth";
+import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
 import DataTable from "../common/DataTable";
 import { useNotifications } from "../../lib/react-query/hooks/useNotifications";
+import { toastController } from "../../utils/toastController";
 
 const Notifications = () => {
   const navigate = useNavigate();
+  const { getToken } = useAuth();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [selectedOutlet, setSelectedOutlet] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
+  const [resendingNotifications, setResendingNotifications] = useState(
+    new Set()
+  );
 
   const {
     notifications,
@@ -168,15 +177,29 @@ const Notifications = () => {
       field: "action",
       header: "Action",
       sortable: false,
-      render: (_, row) => (
-        <button
-          className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
-          onClick={() => handleResend(row)}
-          title="Resend"
-        >
-          <FontAwesomeIcon icon={faShareFromSquare} className="w-4 h-4" />
-        </button>
-      ),
+      render: (_, row) => {
+        const notificationId = row.id || row.notification_id;
+        const isResending = resendingNotifications.has(notificationId);
+
+        return (
+          <button
+            className={`w-8 h-8 flex items-center justify-center text-white rounded-lg shadow-theme-xs transition ${
+              isResending
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-brand-500 hover:bg-brand-600"
+            }`}
+            onClick={() => !isResending && handleResend(row)}
+            title="Resend"
+            disabled={isResending}
+          >
+            {isResending ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : (
+              <FontAwesomeIcon icon={faShareFromSquare} className="w-4 h-4" />
+            )}
+          </button>
+        );
+      },
     },
   ];
 
@@ -192,13 +215,56 @@ const Notifications = () => {
   // Get filtered notifications
   const filteredNotifications = getFilteredNotifications();
 
-  const handleResend = (notification) => {
-    // TODO: Implement resend logic (API call)
-    alert(
-      `Resend notification with ID: ${
-        notification.id || notification.notification_id || ""
-      }`
-    );
+  const handleResend = async (notification) => {
+    const notificationId = notification.id || notification.notification_id;
+
+    if (!notificationId) {
+      toastController.error("Invalid notification ID");
+      return;
+    }
+
+    // Add notification to resending set to show loading state
+    setResendingNotifications((prev) => new Set(prev).add(notificationId));
+
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/${API_VERSION}/common/resend_notification`,
+        {
+          notification_id: notificationId,
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data) {
+        toastController.success("Notification resent successfully!");
+        // Refresh the notifications list to show the new entry
+        refetchNotifications();
+      }
+    } catch (error) {
+      console.error("Error resending notification:", error);
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        "Failed to resend notification";
+      toastController.error(errorMessage);
+    } finally {
+      // Remove notification from resending set
+      setResendingNotifications((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(notificationId);
+        return newSet;
+      });
+    }
   };
 
   return (
