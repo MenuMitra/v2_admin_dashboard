@@ -107,6 +107,9 @@ function DataTable({
   onOpenCloseStatusChange = () => {},
   enableAccountTypeFilter = false,
   enableOpenCloseStatusFilter = false,
+  enableEnquiry = false,
+  enquiryFilter = "all",
+  onEnquiryFilterChange = () => {},
   defaultSortField,
   defaultSortOrder,
 }) {
@@ -649,12 +652,27 @@ function DataTable({
                   <span className="font-medium text-gray-800 dark:text-white/90">
                     Total: {counts.total}
                   </span>
-                  {counts.active !== null && (
+                  {typeof counts.enquiry === "number" && (
+                    <span className="font-medium bg-warning-100 text-warning-700 px-2 py-0.5 rounded">
+                      Enquiry: {counts.enquiry}
+                    </span>
+                  )}
+                  {typeof counts.positive === "number" && (
+                    <span className="font-medium  text-brand-500 px-2 py-0.5 rounded">
+                      Positive: {counts.positive}
+                    </span>
+                  )}
+                  {typeof counts.onboard === "number" && (
+                    <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
+                      Onboard: {counts.onboard}
+                    </span>
+                  )}
+                  {typeof counts.active === "number" && (
                     <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">
                       Active: {counts.active}
                     </span>
                   )}
-                  {counts.inactive !== null && (
+                  {typeof counts.inactive === "number" && (
                     <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">
                       Inactive: {counts.inactive}
                     </span>
@@ -682,6 +700,21 @@ function DataTable({
                         <option value="inactive">Inactive</option>
                       </select>
                     </div>
+                    {/* Enquiry Filter */}
+                    {enableEnquiry && (
+                      <div className="relative w-40 mr-2">
+                        <select
+                          value={enquiryFilter || "all"}
+                          onChange={onEnquiryFilterChange || (() => {})}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">Enquiry Type</option>
+                          <option value="enquiry">Enquiry</option>
+                          <option value="positive">Positive</option>
+                          <option value="onboard">Onboard</option>
+                        </select>
+                      </div>
+                    )}
                     {/* Account Type Filter */}
                     {enableAccountTypeFilter && (
                       <div className="relative w-40 mr-2">
@@ -759,6 +792,21 @@ function DataTable({
                       className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
                     />
                   </button>
+                )}
+                {/* Enquiry Filter only (no status filter) */}
+                {!enableStatusFilter && enableEnquiry && (
+                  <div className="relative w-40 mr-2">
+                    <select
+                      value={enquiryFilter || "Enquiry"}
+                      onChange={(e) => onEnquiryFilterChange(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="Enquiry">Enquiry</option>
+                      <option value="Positive">Positive</option>
+                      <option value="Onboard">Onboard</option>
+                    </select>
+                  </div>
                 )}
                 {/* Search Input */}
                 {showSearch && (
@@ -1190,6 +1238,7 @@ DataTable.propTypes = {
   enableSelection: PropTypes.bool,
   onSelectionChange: PropTypes.func,
   onBulkAction: PropTypes.func,
+
   enableStatusFilter: PropTypes.bool,
   onStatusFilterChange: PropTypes.func,
   statusFilter: PropTypes.oneOf(["all", "active", "inactive"]),
@@ -1240,6 +1289,7 @@ DataTable.propTypes = {
   enableOpenCloseStatusFilter: PropTypes.bool,
   defaultSortField: PropTypes.string,
   defaultSortOrder: PropTypes.oneOf(["asc", "desc"]),
+  enableEnquiry: PropTypes.bool,
 };
 
 DataTable.defaultProps = {
@@ -1332,6 +1382,7 @@ DataTable.defaultProps = {
   enableOpenCloseStatusFilter: false,
   defaultSortField: "created_at",
   defaultSortOrder: "desc",
+  enableEnquiry: false,
 };
 
 export default DataTable;

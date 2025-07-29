@@ -12,7 +12,7 @@ import {
   faUsers,
   faHandshake,
   faSearch,
-  faTicket,
+
   faUser,
   faChevronDown,
   faSignOut,
@@ -24,6 +24,7 @@ import {
   faBell,
   faChartLine,
   faDatabase,
+  faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -115,17 +116,18 @@ const menuData = {
       id: "customer",
       icon: faUser,
     },
-    {
-      title: "Tickets",
-      path: "/tickets",
-      id: "tickets",
-      icon: faTicket,
-    },
+   
     {
       title: "Notifications",
       path: "/notifications",
       id: "notifications",
       icon: faBell,
+    },
+    {
+      title: "Enquiries",
+      path: "/enquiries",
+      id: "enquiries",
+      icon: faEnvelope,
     },
     {
       title: "Stats",
@@ -248,7 +250,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
           "/edit-subscription/",
           "/view-subscription/",
         ],
-        tickets: ["/tickets", "/ticket-details", "/ticket-details/"],
+       
         customer: ["/customer", "/customer-details", "/edit-customer"],
       };
 

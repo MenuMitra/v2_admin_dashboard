@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import EnquiryList from "./components/Enquiry/EnquiryList";
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Auth from "./components/Auth";
 import PrivateRoute from "./components/PrivateRoute";
@@ -18,8 +20,7 @@ import EditPartner from "./components/Partner/EditPartner";
 import CreatePartner from "./components/Partner/CreatePartner";
 import Functionalities from "./components/AccessControl/Functionalities/Functionalities";
 import Roles from "./components/AccessControl/Roles/Roles";
-import Tickets from "./components/Ticket/Tickets";
-import TicketDetails from "./components/Ticket/TicketDetails";
+import ViewEnquiry from "./components/Enquiry/ViewEnquiry";
 import Search from "./components/Search/Search";
 import Customer from "./components/Customer/Customer";
 import CustomerDetails from "./components/Customer/CustomerDetails";
@@ -125,6 +126,11 @@ function App() {
             <Route path="/owner-details/:ownerId" element={<OwnerDetails />} />
             <Route path="/edit-owner/:ownerId" element={<EditOwner />} />
             <Route path="/create-owner" element={<CreateOwner />} />
+
+            {/* Enquiry Routes */}
+            <Route path="/enquiries" element={<EnquiryList />} />
+            <Route
+              path="/view-enquiry/:enquiry_id" element={<ViewEnquiry />}/>
 
             {/* Partner Routes */}
             <Route path="/partners" element={<Partners />} />
@@ -235,12 +241,7 @@ function App() {
               element={<EditWaiter />}
             />
 
-            {/* Tickets Routes */}
-            <Route path="/tickets" element={<Tickets />} />
-            <Route
-              path="/ticket-details/:ticketId"
-              element={<TicketDetails />}
-            />
+           
 
             {/* Search Routes */}
             <Route path="/search" element={<Search />} />
