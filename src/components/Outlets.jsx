@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
@@ -33,7 +33,6 @@ function Outlets() {
 
   // UI State
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [outletToDelete, setOutletToDelete] = useState(null);
   const [selectedOutlets, setSelectedOutlets] = useState([]);
@@ -78,10 +77,9 @@ function Outlets() {
     });
   };
 
-  // Update filtered data when filters or data changes
-  useEffect(() => {
-    const filtered = getFilteredData();
-    setFilteredData(filtered); // Only filter, do not sort here
+  // Use useMemo to prevent infinite re-renders
+  const filteredData = useMemo(() => {
+    return getFilteredData();
   }, [searchQuery, statusFilter, accountType, openCloseStatus, outlets]);
 
   // Navigation handlers

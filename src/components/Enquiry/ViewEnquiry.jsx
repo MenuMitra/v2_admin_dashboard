@@ -28,7 +28,7 @@ function ViewEnquiry() {
 
   useEffect(() => {
     async function fetchEnquiry() {
-      if (!enquiry) setLoading(true); // Only show spinner if no previous data
+      setLoading(true);
       try {
         const token = getToken();
         if (!token) throw new Error("No authentication token available");
@@ -55,8 +55,7 @@ function ViewEnquiry() {
       }
     }
     fetchEnquiry();
-    // eslint-disable-next-line
-  }, [enquiry_id, getToken]);
+  }, [enquiry_id]);
 
   const breadcrumbItems = [
     { label: "Home", path: "/home" },

@@ -109,7 +109,9 @@ function EditOutlet() {
   const isUpiValid = (upi) => /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/.test(upi);
   // Address validation function
   const isAddressValid = (address) => {
-    return address && address.length >= 5 && address.length <= 50;
+    return (
+      address && address.trim().length >= 5 && address.trim().length <= 200
+    );
   };
 
   // Add at the top of the component:
@@ -451,15 +453,27 @@ function EditOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_id: true,
+      subscription_id: !!outletData.subscription_id,
     };
+
+    // Log validation results for debugging
+    console.log("Validation results:", requiredFields);
+    console.log("Outlet data:", outletData);
 
     const fieldsValid = Object.entries(requiredFields).every(
       ([, value]) => value
     );
 
     if (!fieldsValid) {
-      toastController.error("Please fill all required fields correctly");
+      // Show specific validation errors
+      const failedFields = Object.entries(requiredFields)
+        .filter(([, value]) => !value)
+        .map(([field]) => field);
+
+      console.log("Failed validation fields:", failedFields);
+      toastController.error(
+        `Please fix the following fields: ${failedFields.join(", ")}`
+      );
       return;
     }
 
@@ -508,15 +522,17 @@ function EditOutlet() {
       const apiData = {
         outlet_id: parseInt(outletId),
         user_id: parseInt(adminData.user_id),
-        new_owner_ids: outletData.owner_ids,
+        new_owner_ids: outletData.owner_ids || [],
         name: outletData.name,
         outlet_type: outletData.outlet_type,
-        fssainumber: outletData.fssainumber,
-        gstnumber: outletData.gstnumber,
+        fssainumber: outletData.fssainumber || "",
+        gstnumber: outletData.gstnumber || "",
         mobile: outletData.mobile,
         veg_nonveg: outletData.veg_nonveg,
-        service_charges: outletData.service_charges.toString(),
-        gst: outletData.gst.toString(),
+        service_charges: outletData.service_charges
+          ? outletData.service_charges.toString()
+          : "0",
+        gst: outletData.gst ? outletData.gst.toString() : "0",
         address: outletData.address,
         is_open: outletData.is_open ? 1 : 0,
         outlet_status: outletData.outlet_status ? 1 : 0,
@@ -531,8 +547,8 @@ function EditOutlet() {
         image: outletData.image || "",
         subscription_id: outletData.subscription_id
           ? parseInt(outletData.subscription_id)
-          : undefined,
-        subscription_end_date: outletData.subscription_end_date,
+          : null,
+        subscription_end_date: outletData.subscription_end_date || null,
         app_source: "admin_app",
       };
 
@@ -543,6 +559,9 @@ function EditOutlet() {
       if (closingHour && closingMinute && closingPeriod) {
         apiData.closing_time = `${closingHour}:${closingMinute}:00 ${closingPeriod}`;
       }
+
+      // Log the API payload for debugging
+      console.log("API Payload:", JSON.stringify(apiData, null, 2));
 
       const response = await axios.patch(
         `${BASE_URL}/${API_VERSION}/common/update_outlet`,
@@ -556,15 +575,23 @@ function EditOutlet() {
       );
 
       if (response.data.detail === "Outlet information updated successfully") {
+        toastController.success("Outlet updated successfully");
         navigate(-1);
       } else {
         throw new Error("Failed to update outlet");
       }
     } catch (error) {
       console.error("Error updating outlet:", error);
-      toastController.error(
-        error.response?.data?.detail || "Failed to update outlet"
-      );
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+
+      // Show more detailed error message
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to update outlet";
+      toastController.error(errorMessage);
     }
   };
 
@@ -774,13 +801,21 @@ function EditOutlet() {
                                   )}
                                   onChange={(e) => {
                                     e.stopPropagation();
+                                    const newOwnerIds = e.target.checked
+                                      ? [...outletData.owner_ids, owner.user_id]
+                                      : outletData.owner_ids.filter(
+                                          (id) => id !== owner.user_id
+                                        );
+
+                                    console.log(
+                                      "Owner IDs before update:",
+                                      outletData.owner_ids
+                                    );
+                                    console.log("New owner IDs:", newOwnerIds);
+
                                     setOutletData((prev) => ({
                                       ...prev,
-                                      owner_ids: e.target.checked
-                                        ? [...prev.owner_ids, owner.user_id]
-                                        : prev.owner_ids.filter(
-                                            (id) => id !== owner.user_id
-                                          ),
+                                      owner_ids: newOwnerIds,
                                     }));
                                   }}
                                   className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"

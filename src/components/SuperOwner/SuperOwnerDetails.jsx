@@ -21,6 +21,9 @@ function SuperOwnerDetails() {
   const { superOwnerDetails, isLoading, error, deleteSuperOwner, isDeleting } =
     useSuperOwnerDetails(superOwnerId);
 
+  // Local state for active sessions - moved to top to avoid conditional hooks
+  const [activeSessions, setActiveSessions] = useState([]);
+
   // Add breadcrumb items
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
@@ -37,6 +40,13 @@ function SuperOwnerDetails() {
     setIsModalOpen(false);
     navigate("/super-owners");
   };
+
+  // Update active sessions when superOwnerData changes
+  useEffect(() => {
+    if (superOwnerDetails?.superOwnerData?.active_sessions) {
+      setActiveSessions(superOwnerDetails.superOwnerData.active_sessions);
+    }
+  }, [superOwnerDetails?.superOwnerData?.active_sessions]);
 
   if (isLoading) {
     return (
@@ -75,14 +85,6 @@ function SuperOwnerDetails() {
     totalOutlets,
     totalFunctionalities,
   } = superOwnerDetails;
-
-  // Local state for active sessions
-  const [activeSessions, setActiveSessions] = useState(
-    superOwnerData?.active_sessions || []
-  );
-  useEffect(() => {
-    setActiveSessions(superOwnerData?.active_sessions || []);
-  }, [superOwnerData?.active_sessions]);
 
   const handleLogout = async (device_id) => {
     // Find the session for this device_id to get app_type
@@ -380,15 +382,15 @@ function SuperOwnerDetails() {
                           {session.last_login || "-"}
                         </td>
                         <td className="px-4 py-2">
-                        <button
-                              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-                              onClick={() => handleLogout(session.device_id)}
-                            >
-                              <FontAwesomeIcon
-                                icon={faTrash}
-                                className="w-4 h-4"
-                              />
-                            </button>
+                          <button
+                            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                            onClick={() => handleLogout(session.device_id)}
+                          >
+                            <FontAwesomeIcon
+                              icon={faTrash}
+                              className="w-4 h-4"
+                            />
+                          </button>
                         </td>
                       </tr>
                     ))}
