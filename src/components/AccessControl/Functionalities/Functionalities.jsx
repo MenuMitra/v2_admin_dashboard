@@ -74,6 +74,7 @@ function Functionalities() {
       field: "actions",
       header: "Actions",
       sortable: false,
+
       render: (_, functionality) => (
         <div className="flex items-center justify-center gap-2">
           <button
@@ -132,7 +133,6 @@ function Functionalities() {
         title="Functionalities"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        
         createButton={{
           label: "Create",
           onClick: () => setShowCreateModal(true),

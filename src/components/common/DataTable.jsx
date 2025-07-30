@@ -110,8 +110,26 @@ function DataTable({
   enableEnquiry = false,
   enquiryFilter = "all",
   onEnquiryFilterChange = () => {},
+  enableActiveSessionFilter = false,
+  activeSessionFilter = "all",
+  onActiveSessionFilterChange = () => {},
+  enableOutletCountFilter = false,
+  outletCountFilter = "all",
+  onOutletCountFilterChange = () => {},
   defaultSortField,
   defaultSortOrder,
+  enableOutletTypeFilter = false,
+  outletTypeFilter = "all",
+  onOutletTypeFilterChange = () => {},
+  enableOutletModeFilter = false,
+  outletModeFilter = "all",
+  onOutletModeFilterChange = () => {},
+  enableOwnerCountFilter = false,
+  ownerCountFilter = "all",
+  onOwnerCountFilterChange = () => {},
+  enableExecutionTimeFilter = false,
+  executionTimeFilter = "all",
+  onExecutionTimeFilterChange = () => {},
 }) {
   // Add data validation at the start of the component
   const safeData = Array.isArray(data) ? data : [];
@@ -263,6 +281,21 @@ function DataTable({
       processedData = processedData.filter((item) => {
         const isActive = normalizeStatus(item[statusField]);
         return statusFilter === "active" ? isActive : !isActive;
+      });
+    }
+
+    // Update execution time filtering
+    if (enableExecutionTimeFilter && executionTimeFilter !== "all") {
+      processedData = processedData.filter((item) => {
+        const executionTimeStr = item.avg_execution_time || "";
+        // Extract numeric value from strings like "46 milli sec"
+        const match = executionTimeStr.match(/(\d+)/);
+        if (!match) return false;
+
+        const executionTimeMs = parseInt(match[1], 10);
+        const filterThreshold = parseInt(executionTimeFilter, 10);
+
+        return executionTimeMs > filterThreshold;
       });
     }
 
@@ -743,7 +776,123 @@ function DataTable({
                         </select>
                       </div>
                     )}
+                    {/* Active Session Filter */}
+                    {enableActiveSessionFilter && (
+                      <div className="relative w-40">
+                        <select
+                          value={activeSessionFilter || "all"}
+                          onChange={(e) => {
+                            onActiveSessionFilterChange(e.target.value);
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">All Sessions</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="10">10</option>
+                        </select>
+                      </div>
+                    )}
+                    {/* Outlet Count Filter */}
+                    {enableOutletCountFilter && (
+                      <div className="relative w-40">
+                        <select
+                          value={outletCountFilter || "all"}
+                          onChange={(e) => {
+                            onOutletCountFilterChange(e.target.value);
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">All Outlets</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="10">10</option>
+                        </select>
+                      </div>
+                    )}
+                    {/* Outlet Type Filter */}
+                    {enableOutletTypeFilter && (
+                      <div className="relative w-40">
+                        <select
+                          value={outletTypeFilter || "all"}
+                          onChange={(e) => {
+                            onOutletTypeFilterChange(e.target.value);
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">All Types</option>
+                          <option value="cake shop">Cake Shop</option>
+                          <option value="outlet">Outlet</option>
+                        </select>
+                      </div>
+                    )}
+                    {/* Outlet Mode Filter */}
+                    {enableOutletModeFilter && (
+                      <div className="relative w-40">
+                        <select
+                          value={outletModeFilter || "all"}
+                          onChange={(e) => {
+                            onOutletModeFilterChange(e.target.value);
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">All Modes</option>
+                          <option value="online">Online</option>
+                          <option value="offline">Offline</option>
+                        </select>
+                      </div>
+                    )}
+                    {/* Owner Count Filter */}
+                    {enableOwnerCountFilter && (
+                      <div className="relative w-40">
+                        <select
+                          value={ownerCountFilter || "all"}
+                          onChange={(e) => {
+                            onOwnerCountFilterChange(e.target.value);
+                          }}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        >
+                          <option value="all">All Owners</option>
+                          <option value="0">0</option>
+                          <option value="1">1</option>
+                          <option value="2">2</option>
+                          <option value="3">3</option>
+                          <option value="4">4</option>
+                          <option value="5">5</option>
+                          <option value="10">10</option>
+                        </select>
+                      </div>
+                    )}
                   </>
+                )}
+
+                {/* Execution Time Filter - Independent of Status Filter */}
+                {enableExecutionTimeFilter && (
+                  <div className="relative w-40">
+                    <select
+                      value={executionTimeFilter || "all"}
+                      onChange={(e) => {
+                        onExecutionTimeFilterChange(e.target.value);
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">All Execution Time</option>
+                      <option value="5">&gt;5ms</option>
+                      <option value="10">&gt;10ms</option>
+                      <option value="50">&gt;50ms</option>
+                      <option value="100">&gt;100ms</option>
+                      <option value="200">&gt;200ms</option>
+                      <option value="500">&gt;500ms</option>
+                    </select>
+                  </div>
                 )}
 
                 {/* Custom Filters */}
@@ -1290,6 +1439,47 @@ DataTable.propTypes = {
   defaultSortField: PropTypes.string,
   defaultSortOrder: PropTypes.oneOf(["asc", "desc"]),
   enableEnquiry: PropTypes.bool,
+  enableOutletCountFilter: PropTypes.bool,
+  outletCountFilter: PropTypes.oneOf([
+    "all",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "10",
+  ]),
+  onOutletCountFilterChange: PropTypes.func,
+  enableOutletTypeFilter: PropTypes.bool,
+  outletTypeFilter: PropTypes.oneOf(["all", "cake shop", "outlet"]),
+  onOutletTypeFilterChange: PropTypes.func,
+  enableOutletModeFilter: PropTypes.bool,
+  outletModeFilter: PropTypes.oneOf(["all", "online", "offline"]),
+  onOutletModeFilterChange: PropTypes.func,
+  enableOwnerCountFilter: PropTypes.bool,
+  ownerCountFilter: PropTypes.oneOf([
+    "all",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "10",
+  ]),
+  onOwnerCountFilterChange: PropTypes.func,
+  enableExecutionTimeFilter: PropTypes.bool,
+  executionTimeFilter: PropTypes.oneOf([
+    "all",
+    "5",
+    "10",
+    "50",
+    "100",
+    "200",
+    "500",
+  ]),
+  onExecutionTimeFilterChange: PropTypes.func,
 };
 
 DataTable.defaultProps = {
@@ -1383,6 +1573,21 @@ DataTable.defaultProps = {
   defaultSortField: "created_at",
   defaultSortOrder: "desc",
   enableEnquiry: false,
+  enableOutletCountFilter: false,
+  outletCountFilter: "all",
+  onOutletCountFilterChange: () => {},
+  enableOutletTypeFilter: false,
+  outletTypeFilter: "all",
+  onOutletTypeFilterChange: () => {},
+  enableOutletModeFilter: false,
+  outletModeFilter: "all",
+  onOutletModeFilterChange: () => {},
+  enableOwnerCountFilter: false,
+  ownerCountFilter: "all",
+  onOwnerCountFilterChange: () => {},
+  enableExecutionTimeFilter: false,
+  executionTimeFilter: "all",
+  onExecutionTimeFilterChange: () => {},
 };
 
 export default DataTable;

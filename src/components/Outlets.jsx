@@ -45,6 +45,9 @@ function Outlets() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [accountType, setAccountType] = useState("all");
   const [openCloseStatus, setOpenCloseStatus] = useState("all");
+  const [outletTypeFilter, setOutletTypeFilter] = useState("all");
+  const [outletModeFilter, setOutletModeFilter] = useState("all");
+  const [ownerCountFilter, setOwnerCountFilter] = useState("all");
 
   // Update the filtering logic to handle both search and status filters
   const getFilteredData = () => {
@@ -67,6 +70,26 @@ function Outlets() {
         if (openCloseStatus === "open" && item.isOpen !== 1) return false;
         if (openCloseStatus === "close" && item.isOpen !== 0) return false;
       }
+      // Outlet Type filter
+      if (outletTypeFilter !== "all") {
+        const itemOutletType = (item.outlet_type || "").toLowerCase();
+        if (itemOutletType !== outletTypeFilter) return false;
+      }
+      // Outlet Mode filter
+      if (outletModeFilter !== "all") {
+        const itemOutletMode = (item.outlet_mode || "").toLowerCase();
+        if (itemOutletMode !== outletModeFilter) return false;
+      }
+      // Owner Count filter
+      if (ownerCountFilter !== "all") {
+        const ownerCount = item.ownerCount || 0;
+        if (ownerCountFilter === "10") {
+          if (ownerCount < 10) return false;
+        } else {
+          const filterValue = parseInt(ownerCountFilter);
+          if (ownerCount !== filterValue) return false;
+        }
+      }
       // Search filter
       if (searchQuery) {
         return Object.values(item).some((val) =>
@@ -80,7 +103,16 @@ function Outlets() {
   // Use useMemo to prevent infinite re-renders
   const filteredData = useMemo(() => {
     return getFilteredData();
-  }, [searchQuery, statusFilter, accountType, openCloseStatus, outlets]);
+  }, [
+    searchQuery,
+    statusFilter,
+    accountType,
+    openCloseStatus,
+    outletTypeFilter,
+    outletModeFilter,
+    ownerCountFilter,
+    outlets,
+  ]);
 
   // Navigation handlers
   const handleViewOutlet = (outletId) => {
@@ -256,6 +288,26 @@ function Outlets() {
       },
     },
     {
+      field: "outlet_type",
+      header: "Type",
+      sortable: true,
+      render: (value) => (
+        <span className="text-sm font-medium text-gray-700">
+          {value || "-"}
+        </span>
+      ),
+    },
+    {
+      field: "outlet_mode",
+      header: "Mode",
+      sortable: true,
+      render: (value) => (
+        <span className="text-sm font-medium text-gray-700">
+          {value || "-"}
+        </span>
+      ),
+    },
+    {
       field: "accountType",
       header: "Acc. Type",
       sortable: true,
@@ -385,6 +437,15 @@ function Outlets() {
         onAccountTypeChange={(e) => setAccountType(e.target.value)}
         openCloseStatus={openCloseStatus}
         onOpenCloseStatusChange={(e) => setOpenCloseStatus(e.target.value)}
+        enableOutletTypeFilter={true}
+        outletTypeFilter={outletTypeFilter}
+        onOutletTypeFilterChange={(value) => setOutletTypeFilter(value)}
+        enableOutletModeFilter={true}
+        outletModeFilter={outletModeFilter}
+        onOutletModeFilterChange={(value) => setOutletModeFilter(value)}
+        enableOwnerCountFilter={true}
+        ownerCountFilter={ownerCountFilter}
+        onOwnerCountFilterChange={(value) => setOwnerCountFilter(value)}
         statusField="outletStatus"
         onReload={() => queryClient.invalidateQueries(queryKeys.outlets.list())}
         isItemSelectable={(item) => {

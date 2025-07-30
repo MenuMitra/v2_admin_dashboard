@@ -26,6 +26,7 @@ function Admins() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [adminToDelete, setAdminToDelete] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [activeSessionFilter, setActiveSessionFilter] = useState("all");
   const [selectedAdmins, setSelectedAdmins] = useState([]);
 
   // Replace axios calls with TanStack Query hook
@@ -217,18 +218,40 @@ function Admins() {
   ];
 
   const getFilteredData = () => {
+    // console.log("Active Session Filter:", activeSessionFilter); // Debug log
+
     const filtered = admins.filter((admin) => {
-      if (statusFilter === "all") return true;
-      const isActive = admin.is_active === true || admin.is_active === 1;
-      return statusFilter === "active" ? isActive : !isActive;
+      // Status filter
+      if (statusFilter !== "all") {
+        const isActive = admin.is_active === true || admin.is_active === 1;
+        if (statusFilter === "active" && !isActive) return false;
+        if (statusFilter === "inactive" && isActive) return false;
+      }
+
+      // Active Session filter
+      if (activeSessionFilter !== "all") {
+        const sessionCount = admin.active_session_count || 0;
+        console.log(
+          `Admin ${admin.name}: sessionCount = ${sessionCount}, filter = ${activeSessionFilter}`
+        ); // Debug log
+
+        if (activeSessionFilter === "10") {
+          if (sessionCount < 10) return false;
+        } else {
+          const filterValue = parseInt(activeSessionFilter);
+          if (sessionCount !== filterValue) return false;
+        }
+      }
+
+      return true;
     });
+
+    console.log("Filtered results:", filtered.length); // Debug log
 
     if (filtered.length === 0) {
       return {
         data: [],
-        message: `No ${
-          statusFilter === "all" ? "" : statusFilter
-        } admins found.`,
+        message: `No admins found with the selected filters.`,
       };
     }
 
@@ -290,6 +313,12 @@ function Admins() {
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
+        }}
+        enableActiveSessionFilter={true}
+        activeSessionFilter={activeSessionFilter}
+        onActiveSessionFilterChange={(value) => {
+          console.log("Filter change event:", value); // Debug log
+          setActiveSessionFilter(value);
         }}
         itemsPerPage={10}
         enableSelection={true}

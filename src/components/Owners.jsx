@@ -28,6 +28,8 @@ function Owners() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [activeSessionFilter, setActiveSessionFilter] = useState("all");
+  const [outletCountFilter, setOutletCountFilter] = useState("all");
 
   // Replace axios calls with TanStack Query hook
   const {
@@ -76,6 +78,54 @@ function Owners() {
   const openDeleteModal = (owner_id) => {
     setOwnerToDelete(owner_id);
     setShowDeleteModal(true);
+  };
+
+  const getFilteredData = () => {
+    // console.log("Active Session Filter:", activeSessionFilter); // Debug log
+
+    const filtered = owners.filter((owner) => {
+      // Status filter
+      if (statusFilter !== "all") {
+        const isActive = owner.is_active === 1;
+        if (statusFilter === "active" && !isActive) return false;
+        if (statusFilter === "inactive" && isActive) return false;
+      }
+
+      // Active Session filter
+      if (activeSessionFilter !== "all") {
+        const sessionCount = owner.active_session_count || 0;
+        console.log(
+          `Owner ${owner.name}: sessionCount = ${sessionCount}, filter = ${activeSessionFilter}`
+        ); // Debug log
+
+        if (activeSessionFilter === "10") {
+          if (sessionCount < 10) return false;
+        } else {
+          const filterValue = parseInt(activeSessionFilter);
+          if (sessionCount !== filterValue) return false;
+        }
+      }
+
+      // Outlet Count filter
+      if (outletCountFilter !== "all") {
+        const outletCount = owner.outlet_count || 0;
+        console.log(
+          `Owner ${owner.name}: outletCount = ${outletCount}, filter = ${outletCountFilter}`
+        ); // Debug log
+
+        if (outletCountFilter === "10") {
+          if (outletCount < 10) return false;
+        } else {
+          const filterValue = parseInt(outletCountFilter);
+          if (outletCount !== filterValue) return false;
+        }
+      }
+
+      return true;
+    });
+
+    console.log("Filtered results:", filtered.length); // Debug log
+    return filtered;
   };
 
   const getTotalCount = () => owners.length;
@@ -227,7 +277,12 @@ function Owners() {
     <>
       <Breadcrumb items={breadcrumbItems} />
       <DataTable
-        data={owners}
+        data={getFilteredData()}
+        emptyStateMessage={
+          getFilteredData().length === 0
+            ? "No owners found with the selected filters."
+            : "No data found."
+        }
         columns={columns}
         enablePagination={true}
         itemsPerPage={itemsPerPage}
@@ -270,6 +325,18 @@ function Owners() {
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
+        }}
+        enableActiveSessionFilter={true}
+        activeSessionFilter={activeSessionFilter}
+        onActiveSessionFilterChange={(value) => {
+          console.log("Owner filter change event:", value); // Debug log
+          setActiveSessionFilter(value);
+        }}
+        enableOutletCountFilter={true}
+        outletCountFilter={outletCountFilter}
+        onOutletCountFilterChange={(value) => {
+          console.log("Owner outlet count filter change event:", value); // Debug log
+          setOutletCountFilter(value);
         }}
         onReload={fetchOwners}
       />

@@ -5,15 +5,12 @@ import DatePickerInput from "../common/DatePickerInput";
 import { useStats } from "../../lib/react-query/hooks/useStats";
 
 function Stats() {
-  const {
-    useApiUsageStats,
-    useDbTableStats,
-    useAppUsageStats,
-    useAppSources,
-  } = useStats();
+  const { useApiUsageStats, useDbTableStats, useAppUsageStats, useAppSources } =
+    useStats();
 
   // State for filters and search terms
   const [apiUsageStatsSearchTerm, setApiUsageStatsSearchTerm] = useState("");
+  const [executionTimeFilter, setExecutionTimeFilter] = useState("all");
   const [dbSearchTerm, setDbSearchTerm] = useState("");
   const [appUsageSearchTerm, setAppUsageSearchTerm] = useState("");
   const [appUsageAppSource, setAppUsageAppSource] = useState("");
@@ -44,9 +41,7 @@ function Stats() {
     refetch: reloadAppUsage,
   } = useAppUsageStats(appUsagePayload);
 
-  const {
-    data: appSourceOptions = [],
-  } = useAppSources();
+  const { data: appSourceOptions = [] } = useAppSources();
 
   // Helper functions
   function getAppUsageDateString(date) {
@@ -55,6 +50,11 @@ function Stats() {
     const year = date.getFullYear();
     return `${day} ${month} ${year}`;
   }
+
+  // Get API usage stats data
+  const getApiUsageStatsData = () => {
+    return apiUsageStatsData.api_stats || [];
+  };
 
   function renderSmallDate(value) {
     if (!value) return <span className="text-xs">-</span>;
@@ -96,15 +96,24 @@ function Stats() {
   const apiUsageStatsColumns = [
     { field: "api_name", header: "API Name", sortable: true },
     { field: "total_calls", header: "Total Calls", sortable: true },
-    { field: "avg_execution_time", header: "Execution Time", sortable: true },
+    {
+      field: "avg_execution_time",
+      header: "Execution Time",
+      sortable: true,
+      render: (value) => (
+        <span className="text-sm font-medium text-gray-700">
+          {value || "-"}
+        </span>
+      ),
+    },
     { field: "last_accessed", header: "Last Accessed", sortable: true },
   ];
 
   // Filter data
   const allApiDetails = (appUsageData.app_statistics || [])
-    .filter(app => !appUsageAppSource || app.app_source === appUsageAppSource)
-    .flatMap(app =>
-      (app.api_details || []).map(detail => ({
+    .filter((app) => !appUsageAppSource || app.app_source === appUsageAppSource)
+    .flatMap((app) =>
+      (app.api_details || []).map((detail) => ({
         ...detail,
         app_source: app.app_source,
       }))
@@ -129,11 +138,14 @@ function Stats() {
       <div className="mb-6">
         <h2 className="text-sm font-semibold mb-1">API Usage Stats</h2>
         <DataTable
-          data={apiUsageStatsData.api_stats}
+          data={getApiUsageStatsData()}
           columns={apiUsageStatsColumns}
           enableSearch={true}
           enableSort={true}
           enableStatusFilter={false}
+          enableExecutionTimeFilter={true}
+          executionTimeFilter={executionTimeFilter}
+          onExecutionTimeFilterChange={setExecutionTimeFilter}
           counts={null}
           showCreateButton={false}
           createButton={{ show: false, label: "", onClick: () => {} }}
@@ -146,14 +158,22 @@ function Stats() {
           className="compact-table"
           emptyStateMessage="No API usage stats data available."
           customFilters={[]}
-          dashboardTitle={`Total Unique APIs: ${apiUsageStatsData.summary?.total_unique_apis ?? '-'} | Total API Calls: ${apiUsageStatsData.summary?.total_api_calls ?? '-'} | Avg Execution Time: ${apiUsageStatsData.summary?.average_execution_time ?? '-'}`}
+          dashboardTitle={`Total Unique APIs: ${
+            apiUsageStatsData.summary?.total_unique_apis ?? "-"
+          } | Total API Calls: ${
+            apiUsageStatsData.summary?.total_api_calls ?? "-"
+          } | Avg Execution Time: ${
+            apiUsageStatsData.summary?.average_execution_time ?? "-"
+          }`}
           onReload={reloadApiUsageStats}
         />
       </div>
 
       {/* DB Table Stats Section */}
       <div className="mb-6">
-        <h2 className="text-sm font-semibold mb-1">Database Tables Statistics</h2>
+        <h2 className="text-sm font-semibold mb-1">
+          Database Tables Statistics
+        </h2>
         <DataTable
           data={dbStatsData.table_statistics}
           columns={dbColumns}

@@ -1,10 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { API_CONFIG } from '../../../config/appConfig';
-import { queryKeys } from '../queryKeys';
-import { toastController } from '../../../utils/toastController';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { API_CONFIG } from "../../../config/appConfig";
+import { queryKeys } from "../queryKeys";
+import { toastController } from "../../../utils/toastController";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -22,6 +22,8 @@ const transformOutletData = (outlets) => {
     image: [{}],
     accountType: outlet.account_type,
     ownerCount: outlet.owner_count,
+    outlet_type: outlet.outlet_type,
+    outlet_mode: outlet.outlet_mode,
     total_order_count: outlet.total_order_count,
     total_cooking_count: outlet.total_cooking_count,
     total_paid_count: outlet.total_paid_count,
@@ -99,7 +101,9 @@ export const useOutlets = () => {
       toastController.success("Outlet deleted successfully");
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.message || "Failed to delete outlet");
+      toastController.error(
+        error.response?.data?.message || "Failed to delete outlet"
+      );
     },
   });
 
@@ -128,7 +132,9 @@ export const useOutlets = () => {
       toastController.success("Bulk action completed successfully");
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.message || "Failed to perform bulk action");
+      toastController.error(
+        error.response?.data?.message || "Failed to perform bulk action"
+      );
     },
   });
 
@@ -141,4 +147,4 @@ export const useOutlets = () => {
     bulkAction: bulkActionMutation.mutate,
     isBulkActioning: bulkActionMutation.isLoading,
   };
-}; 
+};

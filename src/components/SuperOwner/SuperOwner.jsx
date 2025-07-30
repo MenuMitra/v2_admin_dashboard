@@ -34,6 +34,8 @@ function SuperOwner() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [ownerToDelete, setOwnerToDelete] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [activeSessionFilter, setActiveSessionFilter] = useState("all");
+  const [outletCountFilter, setOutletCountFilter] = useState("all");
 
   // Normalize the data for selection handling
   const normalizedSuperOwners = useMemo(() => {
@@ -206,6 +208,45 @@ function SuperOwner() {
     },
   ];
 
+  const getFilteredData = () => {
+    const filtered = superOwners.filter((owner) => {
+      // Status filter
+      if (statusFilter !== "all") {
+        const isActive = owner.is_active === true;
+        if (statusFilter === "active" && !isActive) return false;
+        if (statusFilter === "inactive" && isActive) return false;
+      }
+
+      // Active Session filter
+      if (activeSessionFilter !== "all") {
+        const sessionCount = owner.active_session_count || 0;
+        if (activeSessionFilter === "10") {
+          if (sessionCount < 10) return false;
+        } else {
+          const filterValue = parseInt(activeSessionFilter);
+          if (sessionCount !== filterValue) return false;
+        }
+      }
+
+      // Outlet Count filter
+      if (outletCountFilter !== "all") {
+        const outletCount = Array.isArray(owner.outlet_ids)
+          ? owner.outlet_ids.length
+          : 0;
+        if (outletCountFilter === "10") {
+          if (outletCount < 10) return false;
+        } else {
+          const filterValue = parseInt(outletCountFilter);
+          if (outletCount !== filterValue) return false;
+        }
+      }
+
+      return true;
+    });
+
+    return filtered;
+  };
+
   const getTotalCount = () => superOwners.length;
 
   if (isLoading) {
@@ -221,11 +262,10 @@ function SuperOwner() {
       <Breadcrumb items={breadcrumbItems} />
       <DataTable
         // Use normalized data instead of direct superOwners
-        data={normalizedSuperOwners.filter((owner) => {
-          if (statusFilter === "all") return true;
-          const isActive = owner.is_active === true;
-          return statusFilter === "active" ? isActive : !isActive;
-        })}
+        data={getFilteredData().map((owner) => ({
+          ...owner,
+          id: owner.super_owner_id, // Normalize id field for selection
+        }))}
         columns={columns}
         itemsPerPage={10}
         enableSort={true}
@@ -259,6 +299,16 @@ function SuperOwner() {
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
+        }}
+        enableActiveSessionFilter={true}
+        activeSessionFilter={activeSessionFilter}
+        onActiveSessionFilterChange={(value) => {
+          setActiveSessionFilter(value);
+        }}
+        enableOutletCountFilter={true}
+        outletCountFilter={outletCountFilter}
+        onOutletCountFilterChange={(value) => {
+          setOutletCountFilter(value);
         }}
         onReload={refetch}
         idField="super_owner_id"
