@@ -977,6 +977,40 @@ function EditOutlet() {
                   ]}
                   placeholder="Select Outlet Mode"
                 />
+
+                <SelectInput
+                  label="Outlet Status"
+                  name="outlet_status"
+                  value={outletData.outlet_status ? "active" : "inactive"}
+                  onChange={(e) => {
+                    setOutletData((prev) => ({
+                      ...prev,
+                      outlet_status: e.target.value === "active",
+                    }));
+                  }}
+                  options={[
+                    { value: "active", label: "Active" },
+                    { value: "inactive", label: "Inactive" },
+                  ]}
+                  placeholder="Select Outlet Status"
+                />
+
+                <SelectInput
+                  label="Open/Close Status"
+                  name="is_open"
+                  value={outletData.is_open ? "open" : "close"}
+                  onChange={(e) => {
+                    setOutletData((prev) => ({
+                      ...prev,
+                      is_open: e.target.value === "open",
+                    }));
+                  }}
+                  options={[
+                    { value: "open", label: "Open" },
+                    { value: "close", label: "Close" },
+                  ]}
+                  placeholder="Select Open/Close Status"
+                />
                 <CustomSelectInput
                   label="Subscription Plan"
                   name="subscription_id"

@@ -12,6 +12,7 @@ const { BASE_URL, API_VERSION } = API_CONFIG;
 const transformOutletData = (outlets) => {
   return outlets.map((outlet) => ({
     id: outlet.outlet_id,
+    outlet_id: outlet.outlet_id, // Keep the original outlet_id field
     user_id: outlet.outlet_id,
     name: outlet.outlet_name,
     code: outlet.outlet_code,

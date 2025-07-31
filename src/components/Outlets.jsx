@@ -10,6 +10,8 @@ import {
   faPlus,
   faXmark,
   faCheck,
+  faToggleOff,
+  faToggleOn,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -17,10 +19,19 @@ import DataTable from "./common/DataTable";
 import Modal from "./common/Modal";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import { useOutlets } from "../lib/react-query/hooks/useOutlets";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { API_CONFIG } from "../config/appConfig";
+import { toastController } from "../utils/toastController";
+import { queryKeys } from "../lib/react-query/queryKeys";
 
 function Outlets() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
+  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { getToken } = useAuth();
+
   const {
     outlets,
     isLoading,
@@ -48,6 +59,106 @@ function Outlets() {
   const [outletTypeFilter, setOutletTypeFilter] = useState("all");
   const [outletModeFilter, setOutletModeFilter] = useState("all");
   const [ownerCountFilter, setOwnerCountFilter] = useState("all");
+
+  // Toggle status mutation
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ outlet_id, type, value }) => {
+      console.log("Mutation payload:", { outlet_id, type, value });
+      const payload = {
+        outlet_id: outlet_id,
+        user_id: adminData?.user_id,
+        app_source: "admin_app",
+        type: type,
+        value: value,
+      };
+      console.log("Full API payload:", payload);
+      return axios.patch(
+        `${BASE_URL}/${API_VERSION}/common/change_outlet_status`,
+        payload,
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    },
+    onMutate: async ({ outlet_id, type, value }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries(queryKeys.outlets.list());
+
+      // Snapshot the previous value
+      const previousOutlets = queryClient.getQueryData(
+        queryKeys.outlets.list()
+      );
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(queryKeys.outlets.list(), (old) => {
+        if (!old) return old;
+        console.log("Optimistically updating outlet data:", {
+          outlet_id,
+          type,
+          value,
+          oldData: old,
+        });
+        return old.map((outlet) => {
+          if (outlet.outlet_id === outlet_id || outlet.id === outlet_id) {
+            const updatedOutlet = { ...outlet };
+            console.log("Updating outlet:", { before: outlet, type, value });
+            switch (type) {
+              case "outlet_status":
+                updatedOutlet.outletStatus = value === "active" ? 1 : 0;
+                break;
+              case "is_open":
+                updatedOutlet.isOpen = value === "open" ? 1 : 0;
+                break;
+              case "account_type":
+                updatedOutlet.accountType = value;
+                break;
+              case "outlet_mode":
+                updatedOutlet.outlet_mode = value;
+                break;
+            }
+            console.log("Updated outlet:", updatedOutlet);
+            return updatedOutlet;
+          }
+          return outlet;
+        });
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousOutlets };
+    },
+    onError: (err, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousOutlets) {
+        queryClient.setQueryData(
+          queryKeys.outlets.list(),
+          context.previousOutlets
+        );
+      }
+      toastController.error(
+        err.response?.data?.message || "Failed to update status"
+      );
+    },
+    onSuccess: (_, variables) => {
+      // Always refetch after error or success to ensure we have the latest data
+      queryClient.invalidateQueries(queryKeys.outlets.list());
+      const successMessages = {
+        outlet_status: "Outlet status updated successfully!",
+        is_open: "Open/Close status updated successfully!",
+        account_type: "Account type updated successfully!",
+        outlet_mode: "Outlet mode updated successfully!",
+      };
+      toastController.success(
+        successMessages[variables.type] || "Status updated successfully!"
+      );
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries(queryKeys.outlets.list());
+    },
+  });
 
   // Update the filtering logic to handle both search and status filters
   const getFilteredData = () => {
@@ -132,6 +243,68 @@ function Outlets() {
     await deleteOutlet(outletToDelete.id);
     setShowDeleteModal(false);
     setOutletToDelete(null);
+  };
+
+  // Toggle handlers for status columns
+  const handleToggleOutletStatus = (outletId, currentStatus) => {
+    console.log("Toggle outlet status:", { outletId, currentStatus });
+    if (!outletId) {
+      console.error("outletId is undefined!");
+      return;
+    }
+    const newValue = currentStatus === 1 ? "inactive" : "active";
+    toggleStatusMutation.mutate({
+      outlet_id: outletId,
+      type: "outlet_status",
+      value: newValue,
+    });
+  };
+
+  const handleToggleOpenStatus = (outletId, currentStatus) => {
+    console.log("Toggle open status:", { outletId, currentStatus });
+    if (!outletId) {
+      console.error("outletId is undefined!");
+      return;
+    }
+    const newValue = currentStatus === 1 ? "close" : "open";
+    toggleStatusMutation.mutate({
+      outlet_id: outletId,
+      type: "is_open",
+      value: newValue,
+    });
+  };
+
+  const handleToggleAccountType = (outletId, currentType) => {
+    console.log("Toggle account type:", { outletId, currentType });
+    if (!outletId) {
+      console.error("outletId is undefined!");
+      return;
+    }
+    const newValue = currentType === "live" ? "test" : "live";
+    console.log("Sending mutation with:", {
+      outlet_id: outletId,
+      type: "account_type",
+      value: newValue,
+    });
+    toggleStatusMutation.mutate({
+      outlet_id: outletId,
+      type: "account_type",
+      value: newValue,
+    });
+  };
+
+  const handleToggleOutletMode = (outletId, currentMode) => {
+    console.log("Toggle outlet mode:", { outletId, currentMode });
+    if (!outletId) {
+      console.error("outletId is undefined!");
+      return;
+    }
+    const newValue = currentMode === "online" ? "offline" : "online";
+    toggleStatusMutation.mutate({
+      outlet_id: outletId,
+      type: "outlet_mode",
+      value: newValue,
+    });
   };
 
   // Add this function to handle bulk actions
@@ -293,7 +466,9 @@ function Outlets() {
       sortable: true,
       render: (value) => (
         <span className="text-sm font-medium text-gray-700">
-          {value || "-"}
+          {value
+            ? value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+            : "-"}
         </span>
       ),
     },
@@ -301,55 +476,115 @@ function Outlets() {
       field: "outlet_mode",
       header: "Mode",
       sortable: true,
-      render: (value) => (
-        <span className="text-sm font-medium text-gray-700">
-          {value || "-"}
-        </span>
+      render: (value, row) => (
+        <button
+          onClick={() => {
+            console.log("Row data for outlet mode:", row);
+            console.log("outlet_id from row:", row.outlet_id);
+            console.log("id from row:", row.id);
+            handleToggleOutletMode(row.outlet_id || row.id, value);
+          }}
+          disabled={toggleStatusMutation.isPending}
+          className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2 ${
+            value === "online"
+              ? "text-brand-500 "
+              : value === "offline"
+              ? "bg-orange-100 text-warning-500 "
+              : "bg-gray-100 text-gray-700 border-gray-200"
+          } ${
+            toggleStatusMutation.isPending
+              ? "opacity-50 cursor-not-allowed"
+              : ""
+          }`}
+        >
+          <FontAwesomeIcon
+            icon={value === "online" ? faToggleOn : faToggleOff}
+            className={`w-4 h-4 ${
+              value === "online" ? "text-brand-500" : "text-warning-500"
+            }`}
+          />
+          {value ? value.charAt(0).toUpperCase() + value.slice(1) : "-"}
+        </button>
       ),
     },
     {
       field: "accountType",
       header: "Acc. Type",
       sortable: true,
-      render: (value) => (
-        <span
-          className={`text-sm font-medium ${
-            value?.toLowerCase() === "live"
-              ? "text-success-500"
-              : "text-warning-500"
-          }`}
-        >
-          {value?.toLowerCase() === "live" ? "Live" : "Test"}
-        </span>
-      ),
+      textAlign: "center",
+      render: (value) => {
+        const isLive = value?.toLowerCase() === "live";
+        return (
+          <div className="text-sm font-medium flex items-center gap-1">
+            {isLive && (
+              <div
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  backgroundColor: "#10b981",
+                  borderRadius: "50%",
+                  animation: "blink 1.5s ease-in-out infinite",
+                  display: "inline-block",
+                  marginRight: "4px",
+                }}
+              ></div>
+            )}
+            <span className={isLive ? "text-success-500" : "text-warning-500"}>
+              {isLive ? "Live" : "Test"}
+            </span>
+          </div>
+        );
+      },
     },
     {
       field: "isOpen",
       header: "Open \n Close",
       sortable: true,
-      render: (value) => (
-        <span
-          className={`text-sm font-medium ${
+      render: (value, row) => (
+        <button
+          onClick={() => {
+            console.log("Row data for open/close:", row);
+            console.log("outlet_id from row:", row.outlet_id);
+            console.log("id from row:", row.id);
+            handleToggleOpenStatus(row.outlet_id || row.id, value);
+          }}
+          disabled={toggleStatusMutation.isPending}
+          className={`text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
             value === 1 ? "text-success-500" : "text-error-500"
+          } ${
+            toggleStatusMutation.isPending
+              ? "opacity-50 cursor-not-allowed"
+              : ""
           }`}
         >
           {value === 1 ? "Open" : "Close"}
-        </span>
+        </button>
       ),
     },
     {
       field: "outletStatus",
       header: "Status",
       sortable: true,
-      render: (value) => (
+      render: (value, row) => (
         <div className="flex items-center justify-center gap-2">
-          <span
-            className={`text-sm font-medium ${
+          <button
+            onClick={() => {
+              console.log("Row data for outlet status:", row);
+              console.log("outlet_id from row:", row.outlet_id);
+              console.log("id from row:", row.id);
+              handleToggleOutletStatus(row.outlet_id || row.id, value);
+            }}
+            disabled={toggleStatusMutation.isPending}
+            className={`text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
               value === 1 ? "text-success-500" : "text-error-500"
+            } ${
+              toggleStatusMutation.isPending
+                ? "opacity-50 cursor-not-allowed"
+                : ""
             }`}
           >
             {value === 1 ? "Active" : "Inactive"}
-          </span>
+          </button>
         </div>
       ),
     },
@@ -387,6 +622,18 @@ function Outlets() {
 
   return (
     <>
+      <style>
+        {`
+          @keyframes blink {
+            0%, 50% {
+              opacity: 1;
+            }
+            51%, 100% {
+              opacity: 0.3;
+            }
+          }
+        `}
+      </style>
       <Breadcrumb items={breadcrumbItems} />
 
       <DataTable
@@ -447,7 +694,10 @@ function Outlets() {
         ownerCountFilter={ownerCountFilter}
         onOwnerCountFilterChange={(value) => setOwnerCountFilter(value)}
         statusField="outletStatus"
-        onReload={() => queryClient.invalidateQueries(queryKeys.outlets.list())}
+        onReload={() => {
+          queryClient.invalidateQueries(queryKeys.outlets.list());
+          console.log("Forcing outlets data refresh");
+        }}
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;
           return statusFilter === "active"
@@ -461,7 +711,12 @@ function Outlets() {
             ? `No ${statusFilter} outlets found.`
             : "No outlets available."
         }
-        isLoading={isLoading || isDeleting || isBulkActioning}
+        isLoading={
+          isLoading ||
+          isDeleting ||
+          isBulkActioning ||
+          toggleStatusMutation.isPending
+        }
       />
 
       {/* Modal for active/inactive actions only */}

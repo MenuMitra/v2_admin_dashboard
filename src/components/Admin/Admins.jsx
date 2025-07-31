@@ -155,16 +155,17 @@ function Admins() {
       header: "Mobile",
       sortable: true,
     },
-    {
-      field: "is_active",
-      header: "Status",
-      sortable: true,
-    },
+    
     {
       field: "active_session_count",
       header: "Active Session",
       sortable: true,
       render: (value) => (value !== undefined && value !== null ? value : "-"),
+    },
+    {
+      field: "is_active",
+      header: "Status",
+      sortable: true,
     },
     {
       field: "actions",

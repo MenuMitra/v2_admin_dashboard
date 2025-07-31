@@ -19,6 +19,8 @@ import {
   faUserCog,
   faUserFriends,
   faUser,
+  faToggleOff,
+  faToggleOn,
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { queryKeys } from "../lib/react-query/queryKeys";
@@ -125,6 +127,45 @@ function ViewOutlet() {
     },
   });
 
+  // Generic toggle mutation for all status changes
+  const toggleStatusMutation = useMutation({
+    mutationFn: async ({ type, value }) => {
+      return axios.patch(
+        `${BASE_URL}/${API_VERSION}/common/change_outlet_status`,
+        {
+          outlet_id: outletId,
+          user_id: adminData?.user_id,
+          app_source: "admin_app",
+          type: type,
+          value: value,
+        },
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
+      const successMessages = {
+        outlet_status: "Outlet status updated successfully!",
+        is_open: "Open/Close status updated successfully!",
+        account_type: "Account type updated successfully!",
+        outlet_mode: "Outlet mode updated successfully!",
+      };
+      toastController.success(
+        successMessages[variables.type] || "Status updated successfully!"
+      );
+    },
+    onError: (error) => {
+      toastController.error(
+        error.response?.data?.message || "Failed to update status"
+      );
+    },
+  });
+
   // Bulk upload mutation
   const bulkUploadMutation = useMutation({
     mutationFn: async (formData) => {
@@ -157,6 +198,28 @@ function ViewOutlet() {
   const confirmDelete = () => deleteMutation.mutate();
   const handleEdit = () => navigate(`/edit-outlet/${outletId}`);
   const handleOwnerClick = (ownerId) => navigate(`/owner-details/${ownerId}`);
+
+  // Toggle handlers
+  const handleToggleOutletStatus = () => {
+    const newValue = outletData?.outlet_status === 1 ? "inactive" : "active";
+    toggleStatusMutation.mutate({ type: "outlet_status", value: newValue });
+  };
+
+  const handleToggleOpenStatus = () => {
+    const newValue = outletData?.is_open === 1 ? "close" : "open";
+    toggleStatusMutation.mutate({ type: "is_open", value: newValue });
+  };
+
+  const handleToggleAccountType = () => {
+    const newValue = outletData?.account_type === "test" ? "live" : "test";
+    toggleStatusMutation.mutate({ type: "account_type", value: newValue });
+  };
+
+  const handleToggleOutletMode = () => {
+    const newValue =
+      outletData?.outlet_mode === "online" ? "offline" : "online";
+    toggleStatusMutation.mutate({ type: "outlet_mode", value: newValue });
+  };
 
   const handleBulkUpload = () => {
     if (!selectedFile) {
@@ -515,10 +578,28 @@ function ViewOutlet() {
             {/* Outlet Mode */}
             {outletData?.outlet_mode && (
               <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <FontAwesomeIcon
+                      icon={
+                        outletData.outlet_mode === "online"
+                          ? faToggleOn
+                          : faToggleOff
+                      }
+                      className={`w-6 h-6 ${
+                        outletData.outlet_mode === "online"
+                          ? "text-brand-500"
+                          : "text-warning-500"
+                      }`}
+                    />
                     <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                      <h4
+                        className={`text-lg font-normal ${
+                          outletData.outlet_mode === "online"
+                            ? "text-brand-500"
+                            : "text-warning-500"
+                        } dark:text-white/90`}
+                      >
                         {outletData.outlet_mode.charAt(0).toUpperCase() +
                           outletData.outlet_mode.slice(1)}
                       </h4>
@@ -527,9 +608,105 @@ function ViewOutlet() {
                       </p>
                     </div>
                   </div>
+                  <div className="flex items-center">
+                    <button
+                      onClick={() => handleToggleOutletMode()}
+                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 shadow-inner ${
+                        outletData?.outlet_mode === "online"
+                          ? "bg-brand-500"
+                          : "bg-gray-300"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
+                          outletData?.outlet_mode === "online"
+                            ? "translate-x-6"
+                            : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
+            {/* Outlet Status */}
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  
+                  <div>
+                    <h4
+                      className={`text-lg font-normal ${
+                        outletData?.outlet_status === 1
+                          ? "text-success-500"
+                          : "text-error-500"
+                      } dark:text-white/90`}
+                    >
+                      {outletData?.outlet_status === 1 ? "Active" : "Inactive"}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Outlet Status
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <button
+                    onClick={() => handleToggleOutletStatus()}
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 shadow-inner ${
+                      outletData?.outlet_status === 1
+                        ? "bg-brand-500"
+                        : "bg-gray-300"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
+                        outletData?.outlet_status === 1
+                          ? "translate-x-6"
+                          : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+            {/* Open/Close Status */}
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                 
+                  <div>
+                    <h4
+                      className={`text-lg font-normal ${
+                        outletData?.is_open === 1
+                          ? "text-success-500"
+                          : "text-error-500"
+                      } dark:text-white/90`}
+                    >
+                      {outletData?.is_open === 1 ? "Open" : "Closed"}
+                    </h4>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Open/Close Status
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <button
+                    onClick={() => handleToggleOpenStatus()}
+                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 shadow-inner ${
+                      outletData?.is_open === 1 ? "bg-brand-500" : "bg-gray-300"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
+                        outletData?.is_open === 1
+                          ? "translate-x-6"
+                          : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Business Details section with divider */}
@@ -693,7 +870,7 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.orders_count ?? "-"}
+                        {outletData?.total_order ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Order Count

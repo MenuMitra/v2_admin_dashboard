@@ -167,21 +167,7 @@ function Owners() {
         </div>
       ),
     },
-    {
-      field: "is_active",
-      header: "Status",
-      sortable: true,
-      render: (value) => (
-        <div className="flex items-center justify-center gap-2">
-          <FontAwesomeIcon
-            icon={value === 1 ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value === 1 ? "text-success-500" : "text-error-500"
-            }`}
-          />
-        </div>
-      ),
-    },
+    
     {
       field: "active_session_count",
       header: "Active Session",
@@ -200,6 +186,21 @@ function Owners() {
         >
           {value?.toUpperCase()}
         </span>
+      ),
+    },
+    {
+      field: "is_active",
+      header: "Status",
+      sortable: true,
+      render: (value) => (
+        <div className="flex items-center justify-center gap-2">
+          <FontAwesomeIcon
+            icon={value === 1 ? faCircleCheck : faCircleXmark}
+            className={`w-5 h-5 ${
+              value === 1 ? "text-success-500" : "text-error-500"
+            }`}
+          />
+        </div>
       ),
     },
     {

@@ -85,6 +85,13 @@ function Partners() {
       header: "Mobile",
       sortable: true,
     },
+   
+    {
+      field: "active_session_count",
+      header: "Active Session",
+      sortable: true,
+      render: (value) => (value !== undefined && value !== null ? value : "-"),
+    },
     {
       field: "is_active",
       header: "Status",
@@ -104,12 +111,6 @@ function Partners() {
           ></span>
         </div>
       ),
-    },
-    {
-      field: "active_session_count",
-      header: "Active Session",
-      sortable: true,
-      render: (value) => (value !== undefined && value !== null ? value : "-"),
     },
     {
       field: "actions",

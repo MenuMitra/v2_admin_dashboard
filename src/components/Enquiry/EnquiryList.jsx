@@ -127,6 +127,13 @@ const EnquiryList = () => {
       sortable: true,
       render: (value) => <span>{value || "-"}</span>,
     },
+    
+    {
+      field: "enquiry_datetime",
+      header: "Enquiry Date",
+      sortable: true,
+      render: (value) => <span>{value || "-"}</span>,
+    },
     {
       field: "enquiry_status",
       header: "Status",
@@ -137,7 +144,7 @@ const EnquiryList = () => {
         let statusClass = "";
         switch (value) {
           case "Enquiry":
-            statusClass = "bg-warning-100 text-warning-700";
+            statusClass = "bg-warning-100 text-warning-500";
             break;
           case "Positive":
             statusClass = "text-brand-500";
@@ -155,12 +162,6 @@ const EnquiryList = () => {
           </span>
         );
       },
-    },
-    {
-      field: "enquiry_datetime",
-      header: "Enquiry Date",
-      sortable: true,
-      render: (value) => <span>{value || "-"}</span>,
     },
     {
       field: "action",

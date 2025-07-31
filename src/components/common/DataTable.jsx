@@ -686,7 +686,7 @@ function DataTable({
                     Total: {counts.total}
                   </span>
                   {typeof counts.enquiry === "number" && (
-                    <span className="font-medium bg-warning-100 text-warning-700 px-2 py-0.5 rounded">
+                    <span className="font-medium bg-warning-100 text-warning-500 px-2 py-0.5 rounded">
                       Enquiry: {counts.enquiry}
                     </span>
                   )}
@@ -708,6 +708,27 @@ function DataTable({
                   {typeof counts.inactive === "number" && (
                     <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">
                       Inactive: {counts.inactive}
+                    </span>
+                  )}
+                  {/* Custom count properties for Stats */}
+                  {typeof counts.total_api_calls === "number" && (
+                    <span className="font-medium  text-brand-500 px-2 py-0.5 rounded">
+                      Total API Calls: {counts.total_api_calls}
+                    </span>
+                  )}
+                  {counts.average_execution_time && (
+                    <span className="font-medium bg-warning-100 text-warning-700 px-2 py-0.5 rounded">
+                      Avg Execution Time: {counts.average_execution_time}
+                    </span>
+                  )}
+                  {typeof counts.tables_with_data === "number" && (
+                    <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
+                      Tables With Data: {counts.tables_with_data}
+                    </span>
+                  )}
+                  {typeof counts.empty_tables === "number" && (
+                    <span className="font-medium bg-error-100 text-error-700 px-2 py-0.5 rounded">
+                      Empty Tables: {counts.empty_tables}
                     </span>
                   )}
                 </div>
@@ -793,7 +814,7 @@ function DataTable({
                           <option value="3">3</option>
                           <option value="4">4</option>
                           <option value="5">5</option>
-                          <option value="10">10</option>
+                          <option value="10">10+</option>
                         </select>
                       </div>
                     )}
@@ -814,7 +835,7 @@ function DataTable({
                           <option value="3">3</option>
                           <option value="4">4</option>
                           <option value="5">5</option>
-                          <option value="10">10</option>
+                          <option value="10">10+</option>
                         </select>
                       </div>
                     )}
@@ -867,7 +888,7 @@ function DataTable({
                           <option value="3">3</option>
                           <option value="4">4</option>
                           <option value="5">5</option>
-                          <option value="10">10</option>
+                          <option value="10">10+</option>
                         </select>
                       </div>
                     )}

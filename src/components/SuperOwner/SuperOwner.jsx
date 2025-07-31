@@ -147,6 +147,14 @@ function SuperOwner() {
       headerClassName: "text-center",
       className: "text-center",
     },
+   
+    {
+      field: "active_session_count",
+      header: "Active Session",
+      sortable: true,
+      headerClassName: "text-center",
+      render: (value) => (value !== undefined && value !== null ? value : "-"),
+    },
     {
       field: "is_active",
       header: "Status",
@@ -167,13 +175,6 @@ function SuperOwner() {
           ></span>
         </div>
       ),
-    },
-    {
-      field: "active_session_count",
-      header: "Active Session",
-      sortable: true,
-      headerClassName: "text-center",
-      render: (value) => (value !== undefined && value !== null ? value : "-"),
     },
     {
       field: "actions",

@@ -146,7 +146,11 @@ function Stats() {
           enableExecutionTimeFilter={true}
           executionTimeFilter={executionTimeFilter}
           onExecutionTimeFilterChange={setExecutionTimeFilter}
-          counts={null}
+          counts={{
+            total: apiUsageStatsData.summary?.total_unique_apis || 0,
+           total_api_calls: apiUsageStatsData.summary?.total_api_calls || 0,
+           average_execution_time: apiUsageStatsData.summary?.average_execution_time || 0,
+          }}
           showCreateButton={false}
           createButton={{ show: false, label: "", onClick: () => {} }}
           showBackButton={false}
@@ -158,13 +162,7 @@ function Stats() {
           className="compact-table"
           emptyStateMessage="No API usage stats data available."
           customFilters={[]}
-          dashboardTitle={`Total Unique APIs: ${
-            apiUsageStatsData.summary?.total_unique_apis ?? "-"
-          } | Total API Calls: ${
-            apiUsageStatsData.summary?.total_api_calls ?? "-"
-          } | Avg Execution Time: ${
-            apiUsageStatsData.summary?.average_execution_time ?? "-"
-          }`}
+          
           onReload={reloadApiUsageStats}
         />
       </div>
@@ -190,9 +188,12 @@ function Stats() {
           showBackButton={false}
           className="compact-table"
           createButton={{ show: false, label: "", onClick: () => {} }}
-          counts={null}
-          dashboardTitle={`Total Records: ${dbStatsData.summary.total_records} | Tables With Data: ${dbStatsData.summary.tables_with_data} | Empty Tables: ${dbStatsData.summary.empty_tables}`}
-          emptyStateMessage="No table statistics available."
+          counts={{
+            total: dbStatsData.summary?.total_records || 0,
+            tables_with_data: dbStatsData.summary?.tables_with_data || 0,
+            empty_tables: dbStatsData.summary?.empty_tables || 0,
+          }}
+          
           onReload={reloadDbTableStats}
         />
       </div>
