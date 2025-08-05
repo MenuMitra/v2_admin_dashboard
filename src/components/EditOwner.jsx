@@ -627,19 +627,7 @@ function EditOwner() {
                   placeholder="Select Status"
                 />
 
-                {/* Account Type - Modified for live/test options */}
-                <SelectInput
-                  label="Account Type"
-                  name="account_type"
-                  value={ownerData.account_type}
-                  onChange={handleChange}
-                  required
-                  options={[
-                    { value: "live", label: "Live" },
-                    { value: "test", label: "Test" },
-                  ]}
-                  placeholder="Select Account Type"
-                />
+                
               </div>
             </div>
 

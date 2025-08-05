@@ -19,7 +19,7 @@ import {
 } from "./forms/FormElements.jsx";
 import Breadcrumb from "./Breadcrumb";
 import { API_CONFIG } from "../config/appConfig";
-import MultiSelectDropdown from './common/MultiSelectDropdown';
+import MultiSelectDropdown from "./common/MultiSelectDropdown";
 
 function CreateOwner() {
   const navigate = useNavigate();
@@ -110,10 +110,12 @@ function CreateOwner() {
       );
 
       if (response.data.detail === "Successfully retrieved outlets") {
-        const outletArray = Object.entries(response.data.outlet_list).map(([name, id]) => ({
-          outlet_name: name,
-          outlet_id: id
-        }));
+        const outletArray = Object.entries(response.data.outlet_list).map(
+          ([name, id]) => ({
+            outlet_name: name,
+            outlet_id: id,
+          })
+        );
         setOutlets(outletArray);
       }
     } catch (err) {
@@ -125,9 +127,9 @@ function CreateOwner() {
   // Add handleOutletChange function
   const handleOutletChange = (newOutletIds) => {
     setSelectedOutlets(newOutletIds);
-    setOwnerData(prev => ({
+    setOwnerData((prev) => ({
       ...prev,
-      outlet_ids: newOutletIds
+      outlet_ids: newOutletIds,
     }));
   };
 
@@ -195,19 +197,19 @@ function CreateOwner() {
 
       // Validate name
       if (!filteredValue.trim()) {
-        setValidationStates(prev => ({
+        setValidationStates((prev) => ({
           ...prev,
-          nameMessage: "Name is required"
+          nameMessage: "Name is required",
         }));
       } else if (filteredValue.length < 2) {
-        setValidationStates(prev => ({
+        setValidationStates((prev) => ({
           ...prev,
-          nameMessage: "Minimum 2 characters required"
+          nameMessage: "Minimum 2 characters required",
         }));
       } else {
-        setValidationStates(prev => ({
+        setValidationStates((prev) => ({
           ...prev,
-          nameMessage: ""
+          nameMessage: "",
         }));
       }
       return;
@@ -324,11 +326,13 @@ function CreateOwner() {
       }
 
       // Format date as DD MMM YYYY
-      const formattedDate = ownerData.dob ? new Date(ownerData.dob).toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-      }) : '';
+      const formattedDate = ownerData.dob
+        ? new Date(ownerData.dob).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "";
 
       const payload = {
         user_id: adminData.user_id,
@@ -339,7 +343,9 @@ function CreateOwner() {
         aadhar_number: ownerData.aadhar_number,
         dob: formattedDate,
         // Only include outlet_ids if there are selected outlets
-        ...(ownerData.outlet_ids.length > 0 && { outlet_ids: ownerData.outlet_ids }),
+        ...(ownerData.outlet_ids.length > 0 && {
+          outlet_ids: ownerData.outlet_ids,
+        }),
         account_type: ownerData.account_type,
         is_active: ownerData.is_active,
         app_source: "admin",
@@ -437,7 +443,7 @@ function CreateOwner() {
                 onValidation={handleValidation("name")}
                 isSubmitAttempted={isSubmitAttempted}
               />
-              
+
               <div className="relative">
                 <TextInput
                   label="Mobile Number"
@@ -450,7 +456,11 @@ function CreateOwner() {
                   maxLength={10}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.mobile ? "border-error-500" : "border-gray-300"}
+                    ${
+                      !validationStates.mobile
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {!validationStates.mobile && (
@@ -493,7 +503,11 @@ function CreateOwner() {
                   maxLength={12}
                   className={`
                     focus:border-brand-500 focus:ring-brand-500
-                    ${!validationStates.aadhar_number ? "border-error-500" : "border-gray-300"}
+                    ${
+                      !validationStates.aadhar_number
+                        ? "border-error-500"
+                        : "border-gray-300"
+                    }
                   `}
                 />
                 {!validationStates.aadhar_number && (
@@ -510,61 +524,48 @@ function CreateOwner() {
                   onChange={handleOutletChange}
                   displayKey="outlet_name"
                   valueKey="outlet_id"
-                  searchKeys={['outlet_name']}
+                  searchKeys={["outlet_name"]}
                   placeholder="Select outlets"
                   searchPlaceholder="Search outlets..."
                 />
               </div>
-<div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
-              <SelectInput
-                label="Account Type"
-                name="account_type"
-                value={ownerData.account_type}
-                onChange={handleChange}
-                required
-                options={[
-                  { value: 'live', label: 'Live' },
-                  { value: 'test', label: 'Test' }
-                ]}
-                placeholder="Select Account Type"
-              /> <SelectInput
-                label="Owner Status"
-                name="is_active"
-                value={ownerData.is_active}
-                onChange={handleChange}
-                required
-                options={[
-                  { value: 1, label: 'Active' },
-                  { value: 0, label: 'Inactive' }
-                ]}
-                placeholder="Select Status"
-              />
+              <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
+                
+                <SelectInput
+                  label="Owner Status"
+                  name="is_active"
+                  value={ownerData.is_active}
+                  onChange={handleChange}
+                  required
+                  options={[
+                    { value: 1, label: "Active" },
+                    { value: 0, label: "Inactive" },
+                  ]}
+                  placeholder="Select Status"
+                />
               </div>
-             
-
-              
             </div>
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-            {/* Address Field - Outside Grid */}
-            <div className="mt-6">
-              <Textarea
-                label="Address"
-                name="address"
-                value={ownerData.address}
-                onChange={handleChange}
-                placeholder="Enter address"
-                rows={3}
-              />
-              {validationStates.address && (
-                <p className="text-error-500 text-sm mt-1">
-                  {!ownerData.address
-                    ? ""
-                    : ownerData.address.length < 5
-                    ? "Minimum 5 characters required"
-                    : "Address must not exceed 50 characters"}
-                </p>
-              )}
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+              {/* Address Field - Outside Grid */}
+              <div className="mt-6">
+                <Textarea
+                  label="Address"
+                  name="address"
+                  value={ownerData.address}
+                  onChange={handleChange}
+                  placeholder="Enter address"
+                  rows={3}
+                />
+                {validationStates.address && (
+                  <p className="text-error-500 text-sm mt-1">
+                    {!ownerData.address
+                      ? ""
+                      : ownerData.address.length < 5
+                      ? "Minimum 5 characters required"
+                      : "Address must not exceed 50 characters"}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Error Message */}

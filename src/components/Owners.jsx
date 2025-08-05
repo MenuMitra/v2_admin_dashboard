@@ -174,20 +174,7 @@ function Owners() {
       sortable: true,
       render: (value) => (value !== undefined && value !== null ? value : "-"),
     },
-    {
-      field: "account_type",
-      header: "Account Type",
-      sortable: true,
-      render: (value) => (
-        <span
-          className={`inline-block px-2 py-1 text-xs ${
-            value === "live" ? "text-error-600" : "text-success-600"
-          }`}
-        >
-          {value?.toUpperCase()}
-        </span>
-      ),
-    },
+
     {
       field: "is_active",
       header: "Status",
