@@ -489,7 +489,7 @@ function Outlets() {
       render: (value) => (
         <span className="text-sm font-medium text-gray-700">
           {value
-            ? value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()
+            ? value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, " ")
             : "-"}
         </span>
       ),

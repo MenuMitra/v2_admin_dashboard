@@ -575,6 +575,26 @@ function ViewOutlet() {
                 </div>
               </div>
             )}
+            {/* Outlet Type */}
+            {outletData?.outlet_type && (
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletData.outlet_type
+                          ? outletData.outlet_type.charAt(0).toUpperCase() +
+                            outletData.outlet_type.slice(1).replace(/_/g, " ")
+                          : "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Outlet Type
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Outlet Mode */}
             {outletData?.outlet_mode && (
               <div>
@@ -633,7 +653,6 @@ function ViewOutlet() {
             <div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  
                   <div>
                     <h4
                       className={`text-lg font-normal ${
@@ -673,7 +692,6 @@ function ViewOutlet() {
             <div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                 
                   <div>
                     <h4
                       className={`text-lg font-normal ${
