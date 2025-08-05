@@ -15,6 +15,15 @@ import {
   faGear,
   faRotate,
   faTimes,
+  faCheck,
+  faXmark,
+  faToggleOn,
+  faToggleOff,
+  faEye,
+  faEyeSlash,
+  faPlay,
+  faPause,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
 
@@ -70,23 +79,7 @@ function DataTable({
   onStatusFilterChange = () => {},
   statusFilter = "all",
   isItemSelectable = () => true,
-  bulkActionOptions = [
-    {
-      key: "active",
-      label: "Active",
-      className: "text-gray-700 hover:bg-gray-100",
-    },
-    {
-      key: "inactive",
-      label: "Inactive",
-      className: "text-gray-700 hover:bg-gray-100",
-    },
-    {
-      key: "delete",
-      label: "Delete",
-      className: "text-error-600 hover:bg-error-50",
-    },
-  ],
+  bulkActionOptions,
   onItemsPerPageChange = () => {},
   emptyStateMessage = "No data found.",
   emptyStateMessageByStatus = {
@@ -622,6 +615,30 @@ function DataTable({
 
   // Add error boundary wrapper
   try {
+    // Set default bulk actions if not provided
+    const defaultBulkActionOptions = [
+      {
+        key: "active",
+        label: "Active",
+        icon: faCheck,
+        className: "text-success-700 hover:bg-gray-100",
+      },
+      {
+        key: "inactive",
+        label: "Inactive",
+        icon: faXmark,
+        className: "text-error-600 hover:bg-gray-100",
+      },
+      {
+        key: "delete",
+        label: "Delete",
+        icon: faTrash,
+        className: "text-error-600 hover:bg-error-50",
+      },
+    ];
+    const resolvedBulkActionOptions =
+      bulkActionOptions || defaultBulkActionOptions;
+
     return (
       <div
         className={`rounded-2xl border border-gray-200 bg-white ${
@@ -1086,7 +1103,7 @@ function DataTable({
                       {isActionDropdownOpen && (
                         <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
                           <ul className="flex flex-col gap-1">
-                            {bulkActionOptions.map((option) => (
+                            {resolvedBulkActionOptions.map((option) => (
                               <li key={option.key}>
                                 <button
                                   onClick={(e) => {
@@ -1095,9 +1112,21 @@ function DataTable({
                                     setSelectedItems([]);
                                     setIsActionDropdownOpen(false);
                                   }}
-                                  className={`w-full text-left flex rounded-lg px-3 py-2 text-sm font-medium ${option.className}`}
+                                  className={`w-full text-left flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${option.className}`}
                                 >
-                                  {option.label}
+                                  {option.customIcon ? (
+                                    option.customIcon
+                                  ) : (
+                                    <>
+                                      {option.icon && (
+                                        <FontAwesomeIcon
+                                          icon={option.icon}
+                                          className="w-4 h-4"
+                                        />
+                                      )}
+                                      {option.label}
+                                    </>
+                                  )}
                                 </button>
                               </li>
                             ))}

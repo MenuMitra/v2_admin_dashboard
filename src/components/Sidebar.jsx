@@ -12,7 +12,6 @@ import {
   faUsers,
   faHandshake,
   faSearch,
-
   faUser,
   faChevronDown,
   faSignOut,
@@ -30,125 +29,92 @@ import {
 // Import your logo images
 import logo from "../assets/images/logo/logo.png";
 
-const menuData = {
-  MENU: [
-    // {
-    //   title: 'Dashboard',
-    //   icon: faGrip,
-    //   items: [
-    //     { name: 'eCommerce', path: '/', id: 'ecommerce' },
-    //     { name: 'Analytics', path: '/analytics', id: 'analytics', pro: true },
-    //     { name: 'Marketing', path: '/marketing', id: 'marketing', pro: true },
-    //     { name: 'CRM', path: '/crm', id: 'crm', pro: true },
-    //     { name: 'Stocks', path: '/stocks', id: 'stocks', pro: true, new: true },
-    //     { name: 'SaaS', path: '/saas', id: 'saas', pro: true, new: true }
-    //   ]
-    // },
-    {
-      title: "Home",
-      path: "/home",
-      id: "home",
-      icon: faHome,
-    },
-    {
-      title: "Admins",
-      path: "/admins",
-      id: "admins",
-      icon: faUser,
-    },
-    {
-      title: "Owners",
-      path: "/owners",
-      id: "owners",
-      icon: faUsers,
-    },
-    {
-      title: "Super Owners",
-      path: "/super-owners",
-      id: "super-owners",
-      icon: faUserShield,
-    },
-    {
-      title: "Partners",
-      path: "/partners",
-      id: "partners",
-      icon: faHandshake,
-    },
-    {
-      title: "Features",
-      path: "/features",
-      id: "features",
-      icon: faMobileScreenButton,
-    },
-    {
-      title: "Subscriptions",
-      path: "/subscriptions",
-      id: "subscriptions",
-      icon: faIndianRupeeSign,
-    },
-    {
-      title: "Outlets",
-      path: "/outlets",
-      id: "outlets",
-      icon: faStore,
-    },
-    {
-      title: "Roles",
-      path: "/roles",
-      id: "roles",
-      icon: faUserShield,
-    },
-    {
-      title: "Functionalities",
-      path: "/functionalities",
-      id: "functionalities",
-      icon: faList,
-    },
-    {
-      title: "Search",
-      path: "/search",
-      id: "search",
-      icon: faSearch,
-    },
-    {
-      title: "Customers",
-      path: "/customer",
-      id: "customer",
-      icon: faUser,
-    },
-   
-    {
-      title: "Notifications",
-      path: "/notifications",
-      id: "notifications",
-      icon: faBell,
-    },
-    {
-      title: "Enquiries",
-      path: "/enquiries",
-      id: "enquiries",
-      icon: faEnvelope,
-    },
-    {
-      title: "Stats",
-      path: "/stats",
-      id: "stats",
-      icon: faChartLine,
-    },
-    // {
-    //   title: "DB Tables Stats",
-    //   path: "/db-tables-stats",
-    //   id: "db-tables-stats",
-    //   icon: faDatabase,
-    // },
-    {
-      title: "My Profile",
-      path: "/profile",
-      id: "profile",
-      icon: faUser,
-    },
-  ],
-};
+// Remove menuData and MenuGroup logic
+// Define menuGroups for visual grouping
+const menuGroups = [
+  {
+    items: [{ title: "Home", path: "/home", id: "home", icon: faHome }],
+  },
+  {
+    items: [
+      { title: "Outlets", path: "/outlets", id: "outlets", icon: faStore },
+      { title: "Admins", path: "/admins", id: "admins", icon: faUser },
+      {
+        title: "Partners",
+        path: "/partners",
+        id: "partners",
+        icon: faHandshake,
+      },
+      { title: "Customers", path: "/customer", id: "customer", icon: faUser },
+    ],
+  },
+  {
+    items: [{ title: "Owners", path: "/owners", id: "owners", icon: faUsers }],
+  },
+  {
+    items: [
+      {
+        title: "Super Owners",
+        path: "/super-owners",
+        id: "super-owners",
+        icon: faUserShield,
+      },
+    ],
+  },
+  {
+    items: [
+      {
+        title: "Subscriptions",
+        path: "/subscriptions",
+        id: "subscriptions",
+        icon: faIndianRupeeSign,
+      },
+      {
+        title: "Features",
+        path: "/features",
+        id: "features",
+        icon: faMobileScreenButton,
+      },
+    ],
+  },
+  {
+    items: [
+      { title: "Roles", path: "/roles", id: "roles", icon: faUserShield },
+      {
+        title: "Functionalities",
+        path: "/functionalities",
+        id: "functionalities",
+        icon: faList,
+      },
+    ],
+  },
+  {
+    items: [{ title: "Search", path: "/search", id: "search", icon: faSearch }],
+  },
+  {
+    items: [
+      {
+        title: "Notifications",
+        path: "/notifications",
+        id: "notifications",
+        icon: faBell,
+      },
+    ],
+  },
+  {
+    items: [
+      {
+        title: "Enquiries",
+        path: "/enquiries",
+        id: "enquiries",
+        icon: faEnvelope,
+      },
+    ],
+  },
+  {
+    items: [{ title: "Stats", path: "/stats", id: "stats", icon: faChartLine }],
+  },
+];
 
 const Sidebar = ({ sidebarToggle = false }) => {
   const location = useLocation();
@@ -250,7 +216,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
           "/edit-subscription/",
           "/view-subscription/",
         ],
-       
+
         customer: ["/customer", "/customer-details", "/edit-customer"],
       };
 
@@ -290,24 +256,18 @@ const Sidebar = ({ sidebarToggle = false }) => {
           <Link
             to={item.path || "#"}
             className={`
-              flex items-center gap-3 rounded-md px-4 py-2.5
-              hover:bg-gray-100 dark:hover:bg-gray-800
-              ${
-                isActive
-                  ? "bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-brand-400"
-                  : ""
-              }
+              flex items-center gap-2 rounded-md px-3 py-2
+              hover:bg-gray-100 
+              ${isActive ? "bg-brand-100 text-brand-600" : ""}
               transition-all duration-300
             `}
           >
             <FontAwesomeIcon
               icon={item.icon}
-              className={`w-5 h-5 ${
-                isActive ? "text-brand-600 dark:text-brand-400" : ""
-              }`}
+              className={`w-4 h-4 ${isActive ? "text-brand-600 " : ""}`}
             />
             <span
-              className={`whitespace-nowrap ${
+              className={`whitespace-nowrap text-sm ${
                 sidebarToggle ? "lg:hidden" : ""
               }`}
             >
@@ -328,20 +288,14 @@ const Sidebar = ({ sidebarToggle = false }) => {
               to={item.path}
               className={`
                 flex items-center gap-3 rounded-md px-4 py-2.5
-                hover:bg-gray-100 dark:hover:bg-gray-800
-                ${
-                  isActive
-                    ? "bg-brand-100 text-brand-600 dark:bg-brand-800 dark:text-brand-400"
-                    : ""
-                }
+                hover:bg-gray-100 
+                ${isActive ? "bg-brand-100 text-brand-600 " : ""}
                 transition-all duration-300
               `}
             >
               <FontAwesomeIcon
                 icon={item.icon}
-                className={`w-5 h-5 ${
-                  isActive ? "text-brand-600 dark:text-brand-400" : ""
-                }`}
+                className={`w-5 h-5 ${isActive ? "text-brand-600 " : ""}`}
               />
               <span
                 className={`whitespace-nowrap ${
@@ -444,25 +398,25 @@ const Sidebar = ({ sidebarToggle = false }) => {
   return (
     <aside
       className={`
-        fixed top-10 left-0 z-50 flex h-screen w-[200px] flex-col 
+        fixed top-10 left-0 z-50 flex h-screen w-[180px] flex-col 
         overflow-y-auto bg-white transition-transform duration-300
-        border-r border-gray-200 dark:border-gray-800 dark:bg-black
+        border-r border-gray-200 
         lg:static lg:translate-x-0
         ${sidebarToggle ? "translate-x-0" : "-translate-x-full"}
-        ${sidebarToggle ? "lg:w-[60px]" : "lg:w-[200px]"}
+        ${sidebarToggle ? "lg:w-[50px]" : "lg:w-[180px]"}
       `}
     >
       {/* Sidebar Header - Desktop */}
       <div
         className={`
-          hidden lg:flex items-center justify-center gap-2 pt-8 pb-7 px-5
+          hidden lg:flex items-center justify-center gap-2 pt-6 pb-5 px-4
           ${sidebarToggle ? "justify-center" : "justify-center"}
         `}
       >
         <div className="flex items-center gap-2">
-          <img className="w-10" src={logo} alt="Logo" />
+          <img className="w-8" src={logo} alt="Logo" />
           <span
-            className={`text-2xl font-semibold text-gray-900 dark:text-white ${
+            className={`text-xl font-semibold text-gray-900  ${
               sidebarToggle ? "lg:hidden" : ""
             }`}
           >
@@ -471,11 +425,20 @@ const Sidebar = ({ sidebarToggle = false }) => {
         </div>
       </div>
       {/* Menu Items */}
-      <div className="block lg:hidden mt-20"></div> {/* Mobile-only spacer */}
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-5 dark:text-white">
+      <div className="block lg:hidden mt-16"></div> {/* Mobile-only spacer */}
+      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4 ">
         <nav>
-          {Object.entries(menuData).map(([groupName, items], idx) => (
-            <MenuGroup key={idx} title={groupName} items={items} />
+          {menuGroups.map((group, idx) => (
+            <React.Fragment key={idx}>
+              <ul className="flex flex-col gap-2">
+                {group.items.map((item, index) => (
+                  <MenuItem key={item.id || index} item={item} />
+                ))}
+              </ul>
+              {idx !== menuGroups.length - 1 && (
+                <hr className="my-2 border-t border-gray-200" />
+              )}
+            </React.Fragment>
           ))}
         </nav>
       </div>

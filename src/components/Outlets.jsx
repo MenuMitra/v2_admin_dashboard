@@ -12,6 +12,8 @@ import {
   faCheck,
   faToggleOff,
   faToggleOn,
+  faPlay,
+  faPause,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -336,6 +338,26 @@ function Outlets() {
           title: "Confirm Deactivation",
           message: `Are you sure you want to deactivate ${selectedOutlets.length} selected outlet(s)?`,
         };
+      case "open":
+        return {
+          title: "Confirm Open",
+          message: `Are you sure you want to open ${selectedOutlets.length} selected outlet(s)?`,
+        };
+      case "close":
+        return {
+          title: "Confirm Close",
+          message: `Are you sure you want to close ${selectedOutlets.length} selected outlet(s)?`,
+        };
+      case "live":
+        return {
+          title: "Confirm Live Mode",
+          message: `Are you sure you want to set ${selectedOutlets.length} selected outlet(s) to live mode?`,
+        };
+      case "test":
+        return {
+          title: "Confirm Test Mode",
+          message: `Are you sure you want to set ${selectedOutlets.length} selected outlet(s) to test mode?`,
+        };
       case "delete":
         return {
           title: "Confirm Delete",
@@ -620,6 +642,63 @@ function Outlets() {
     },
   ];
 
+  // Before return, define the new bulkActionOptions:
+  const bulkActionOptions = [
+    {
+      key: "active",
+      label: "Active",
+      icon: faCheck,
+      className: "text-success-700 hover:bg-gray-100",
+    },
+    {
+      key: "inactive",
+      label: "Inactive",
+      icon: faXmark,
+      className: "text-error-700 hover:bg-gray-100",
+    },
+    {
+      key: "open",
+      label: "Open",
+      icon: faToggleOn,
+      className: "text-success-600 hover:bg-success-50",
+    },
+    {
+      key: "close",
+      label: "Close",
+      icon: faToggleOff,
+      className: "text-error-600 hover:bg-error-50",
+    },
+    {
+      key: "live",
+      label: "Live",
+      icon: faPlay,
+      className: "text-success-600 hover:bg-success-50",
+      customIcon: (
+        <div className="flex items-center gap-2">
+          <div
+            className="w-2 h-2 bg-success-500 rounded-full"
+            style={{
+              animation: "blink 1.5s ease-in-out infinite",
+            }}
+          ></div>
+          <span>Live</span>
+        </div>
+      ),
+    },
+    {
+      key: "test",
+      label: "Test",
+      icon: faPause,
+      className: "text-warning-600 hover:bg-warning-50",
+    },
+    {
+      key: "delete",
+      label: "Delete",
+      icon: faTrash,
+      className: "text-error-600 hover:bg-error-50",
+    },
+  ];
+
   return (
     <>
       <style>
@@ -717,9 +796,10 @@ function Outlets() {
           isBulkActioning ||
           toggleStatusMutation.isPending
         }
+        bulkActionOptions={bulkActionOptions}
       />
 
-      {/* Modal for active/inactive actions only */}
+      {/* Modal for all bulk actions except delete */}
       {confirmModal.isOpen && confirmModal.action !== "delete" && (
         <Modal
           isOpen={confirmModal.isOpen}

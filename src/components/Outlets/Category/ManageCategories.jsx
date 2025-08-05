@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -9,15 +9,15 @@ import {
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { queryKeys } from '../../../lib/react-query/queryKeys';
-import Breadcrumb from '../../Breadcrumb';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { queryKeys } from "../../../lib/react-query/queryKeys";
+import Breadcrumb from "../../Breadcrumb";
 import DataTable from "../../common/DataTable";
-import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
-import CreateCategory from './CreateCategory';
+import DeleteConfirmModal from "../../common/DeleteConfirmModal/DeleteConfirmModal";
+import CreateCategory from "./CreateCategory";
 
 function ManageCategories() {
   const { getToken } = useAuth();
@@ -25,11 +25,11 @@ function ManageCategories() {
   const { outletId } = useParams();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState("all");
 
   // Normalize data helper function
   const normaliseData = (categories) =>
@@ -70,12 +70,12 @@ function ManageCategories() {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const token = getToken();
-      return axios.delete('https://men4u.xyz/v2/common/menu_category_delete', {
+      return axios.delete("https://men4u.xyz/v2/common/menu_category_delete", {
         data: {
           menu_cat_id: categoryToDelete.menu_cat_id,
           outlet_id: categoryToDelete.outlet_id,
           user_id: adminData?.user_id,
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         headers: {
           Authorization: token,
@@ -90,8 +90,11 @@ function ManageCategories() {
       queryClient.invalidateQueries(queryKeys.categories.list(outletId));
     },
     onError: (err) => {
-      console.error("Delete failed:", err.response?.data?.detail || "Failed to delete category");
-    }
+      console.error(
+        "Delete failed:",
+        err.response?.data?.detail || "Failed to delete category"
+      );
+    },
   });
 
   // Bulk action mutation
@@ -99,17 +102,17 @@ function ManageCategories() {
     mutationFn: async ({ action, selectedIds }) => {
       const token = getToken();
       const selectedCategoryIds = categoryData
-        .filter(cat => selectedIds.includes(cat.user_id))
-        .map(cat => cat.menu_cat_id);
+        .filter((cat) => selectedIds.includes(cat.user_id))
+        .map((cat) => cat.menu_cat_id);
 
       return axios.post(
-        'https://men4u.xyz/v2/common/bulk_category_action',
+        "https://men4u.xyz/v2/common/bulk_category_action",
         {
           user_id: adminData?.user_id,
           outlet_id: Number(outletId),
           action: action,
           app_source: "admin_app",
-          menu_cat_ids: selectedCategoryIds
+          menu_cat_ids: selectedCategoryIds,
         },
         {
           headers: {
@@ -124,15 +127,19 @@ function ManageCategories() {
       queryClient.invalidateQueries(queryKeys.categories.list(outletId));
     },
     onError: (err) => {
-      console.error("Bulk action failed:", err.response?.data?.message || 'Failed to perform bulk action');
-    }
+      console.error(
+        "Bulk action failed:",
+        err.response?.data?.message || "Failed to perform bulk action"
+      );
+    },
   });
 
   // Process the category data
   const categoryData = categoryResponse?.data?.menucat_details
     ? normaliseData(
         categoryResponse.data.menucat_details.filter(
-          cat => cat.menu_cat_id && cat.category_name && cat.category_name !== 'all'
+          (cat) =>
+            cat.menu_cat_id && cat.category_name && cat.category_name !== "all"
         )
       )
     : [];
@@ -162,10 +169,13 @@ function ManageCategories() {
 
   // Breadcrumb items
   const breadcrumbItems = [
-    { label: 'Home', path: '/home' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: outletInfo?.outlet_name || 'Loading...', path: `/outlet/${outletId}` },
-    { label: 'Categories' }
+    { label: "Home", path: "/home" },
+    { label: "Outlets", path: "/outlets" },
+    {
+      label: outletInfo?.outlet_name || "Loading...",
+      path: `/outlet/${outletId}`,
+    },
+    { label: "Categories" },
   ];
 
   // Rest of your component remains the same...
@@ -186,10 +196,10 @@ function ManageCategories() {
           </div>
         ) : (
           <div className="col-span-full">
-            <MenuCategoryTable 
-              data={{ menucat_details: categoryData }} 
+            <MenuCategoryTable
+              data={{ menucat_details: categoryData }}
               counts={counts}
-              onDelete={row => {
+              onDelete={(row) => {
                 setCategoryToDelete(row);
                 setShowDeleteModal(true);
               }}
@@ -218,31 +228,45 @@ function ManageCategories() {
   );
 }
 
-function MenuCategoryTable({ 
-  data, 
-  counts, 
-  onDelete, 
-  noDataMessage, 
+function MenuCategoryTable({
+  data,
+  counts,
+  onDelete,
+  noDataMessage,
   onCreateCategory,
   onBulkAction,
   selectedItems,
   onSelectionChange,
   enableStatusFilter,
   statusFilter,
-  onStatusFilterChange
+  onStatusFilterChange,
 }) {
   const navigate = useNavigate();
+
+  // Restrict bulk actions to only Active and Inactive
+  const bulkActionOptions = [
+    {
+      key: "active",
+      label: "Active",
+      className: "text-gray-700 hover:bg-gray-100",
+    },
+    {
+      key: "inactive",
+      label: "Inactive",
+      className: "text-gray-700 hover:bg-gray-100",
+    },
+  ];
 
   // Filter data based on status before rendering
   const filteredData = {
     ...data,
-    menucat_details: data.menucat_details.filter(item => {
+    menucat_details: data.menucat_details.filter((item) => {
       if (!item.menu_cat_id || !item.category_name) return false;
-      if (statusFilter === 'all') return true;
-      if (statusFilter === 'active') return item.is_active === 1;
-      if (statusFilter === 'inactive') return item.is_active === 0;
+      if (statusFilter === "all") return true;
+      if (statusFilter === "active") return item.is_active === 1;
+      if (statusFilter === "inactive") return item.is_active === 0;
       return true;
-    })
+    }),
   };
 
   const handleView = (row) => {
@@ -258,8 +282,8 @@ function MenuCategoryTable({
   // Define columns for the DataTable
   const columns = [
     {
-      field: 'category_name',
-      header: 'Name',
+      field: "category_name",
+      header: "Name",
       sortable: true,
       render: (value) => (
         <div className="flex items-center justify-center gap-3">
@@ -270,8 +294,8 @@ function MenuCategoryTable({
       ),
     },
     {
-      field: 'menu_count',
-      header: 'Menu Items',
+      field: "menu_count",
+      header: "Menu Items",
       sortable: true,
       render: (value) => (
         <span className="inline-flex items-center justify-center rounded-full  px-2.5 py-0.5 text-sm font-medium text-gray-800 dark:bg-gray-800 dark:text-white/90">
@@ -280,8 +304,8 @@ function MenuCategoryTable({
       ),
     },
     {
-      field: 'is_active',
-      header: 'Status',
+      field: "is_active",
+      header: "Status",
       sortable: true,
       render: (value) => (
         <div className="flex items-center justify-center gap-2">
@@ -302,8 +326,8 @@ function MenuCategoryTable({
       ),
     },
     {
-      field: 'actions',
-      header: 'Actions',
+      field: "actions",
+      header: "Actions",
       sortable: false,
       render: (value, row) => (
         <div className="flex items-center justify-center gap-2">
@@ -363,6 +387,7 @@ function MenuCategoryTable({
         icon: faPlus,
       }}
       noDataMessage={noDataMessage}
+      bulkActionOptions={bulkActionOptions}
     />
   );
 }

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { useAuth } from '../../../hooks/useAuth';
-import { queryKeys } from '../../../lib/react-query/queryKeys';
-import { toastController } from '../../../utils/toastController';
-import DataTable from '../../common/DataTable';
-import Breadcrumb from '../../Breadcrumb';
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { useAuth } from "../../../hooks/useAuth";
+import { queryKeys } from "../../../lib/react-query/queryKeys";
+import { toastController } from "../../../utils/toastController";
+import DataTable from "../../common/DataTable";
+import Breadcrumb from "../../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
@@ -17,7 +17,7 @@ import {
   faCircleCheck,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
+import DeleteConfirmModal from "../../common/DeleteConfirmModal/DeleteConfirmModal";
 
 function ManageMenus() {
   const { outletId } = useParams();
@@ -34,67 +34,71 @@ function ManageMenus() {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Normalize data helper
-  const normaliseData = React.useCallback((menus) =>
-    menus.map((menu) => ({
-      ...menu,
-      user_id: menu.menu_id,
-    })),
-  []);
+  const normaliseData = React.useCallback(
+    (menus) =>
+      menus.map((menu) => ({
+        ...menu,
+        user_id: menu.menu_id,
+      })),
+    []
+  );
 
   // Fetch menus query
   const {
     data: menuResponse,
     isLoading,
-    error
+    error,
   } = useQuery({
     queryKey: queryKeys.menus.list(outletId),
     queryFn: async () => {
       const token = getToken();
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/menu_list',
+        "https://men4u.xyz/v2/common/menu_list",
         {
           outlet_id: outletId,
           user_id: adminData?.user_id,
-          app_source: 'admin_app',
+          app_source: "admin_app",
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
       return response.data;
     },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId)
+    enabled: Boolean(adminData?.user_id) && Boolean(outletId),
   });
 
   // Delete menu mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const token = getToken();
-      return axios.delete('https://men4u.xyz/v2/common/menu_delete', {
+      return axios.delete("https://men4u.xyz/v2/common/menu_delete", {
         data: {
           outlet_id: Number(outletId),
           user_id: adminData?.user_id,
           menu_id: selectedMenu.menu_id,
-          app_source: 'admin_app'
+          app_source: "admin_app",
         },
         headers: {
           Authorization: token,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
     },
     onSuccess: () => {
-      toastController.success('Menu deleted successfully');
+      toastController.success("Menu deleted successfully");
       setShowDeleteModal(false);
       setSelectedMenu(null);
       queryClient.invalidateQueries(queryKeys.menus.list(outletId));
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.message || 'Failed to delete menu');
-    }
+      toastController.error(
+        error.response?.data?.message || "Failed to delete menu"
+      );
+    },
   });
 
   // Bulk action mutation
@@ -102,17 +106,17 @@ function ManageMenus() {
     mutationFn: async ({ action, selectedIds }) => {
       const token = getToken();
       const selectedMenuIds = menuData
-        .filter(menu => selectedIds.includes(menu.user_id))
-        .map(menu => menu.menu_id);
+        .filter((menu) => selectedIds.includes(menu.user_id))
+        .map((menu) => menu.menu_id);
 
       return axios.post(
-        'https://men4u.xyz/v2/common/bulk_menu_action',
+        "https://men4u.xyz/v2/common/bulk_menu_action",
         {
           user_id: adminData?.user_id,
           outlet_id: Number(outletId),
           action: action,
           app_source: "admin_app",
-          menu_ids: selectedMenuIds
+          menu_ids: selectedMenuIds,
         },
         {
           headers: {
@@ -123,23 +127,25 @@ function ManageMenus() {
       );
     },
     onSuccess: () => {
-      toastController.success('Bulk action completed successfully');
+      toastController.success("Bulk action completed successfully");
       setSelectedItems([]);
       queryClient.invalidateQueries(queryKeys.menus.list(outletId));
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.message || 'Failed to perform bulk action');
-    }
+      toastController.error(
+        error.response?.data?.message || "Failed to perform bulk action"
+      );
+    },
   });
 
   // Memoized data processing
-  const menuData = React.useMemo(() => 
-    normaliseData(menuResponse?.detail || []),
+  const menuData = React.useMemo(
+    () => normaliseData(menuResponse?.detail || []),
     [menuResponse, normaliseData]
   );
 
-  const outletName = React.useMemo(() => 
-    menuData[0]?.outlet_name || '',
+  const outletName = React.useMemo(
+    () => menuData[0]?.outlet_name || "",
     [menuData]
   );
 
@@ -155,9 +161,12 @@ function ManageMenus() {
       }
 
       if (searchTerm) {
-        const searchFields = ['name', 'category_name', 'food_type'];
-        return searchFields.some(field => 
-          item[field]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        const searchFields = ["name", "category_name", "food_type"];
+        return searchFields.some((field) =>
+          item[field]
+            ?.toString()
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
         );
       }
 
@@ -166,21 +175,30 @@ function ManageMenus() {
   }, [menuData, statusFilter, searchTerm]);
 
   // Memoized breadcrumb items
-  const breadcrumbItems = React.useMemo(() => [
-    { label: 'Home', path: '/home' },
-    { label: 'Outlets', path: '/outlets' },
-    { label: outletName, path: `/view-outlet/${outletId}` },
-    { label: 'Menus' },
-  ], [outletName, outletId]);
+  const breadcrumbItems = React.useMemo(
+    () => [
+      { label: "Home", path: "/home" },
+      { label: "Outlets", path: "/outlets" },
+      { label: outletName, path: `/view-outlet/${outletId}` },
+      { label: "Menus" },
+    ],
+    [outletName, outletId]
+  );
 
   // Handlers
-  const handleView = React.useCallback((row) => {
-    navigate(`/menu-details/${row.outlet_id}/${row.menu_id}`);
-  }, [navigate]);
+  const handleView = React.useCallback(
+    (row) => {
+      navigate(`/menu-details/${row.outlet_id}/${row.menu_id}`);
+    },
+    [navigate]
+  );
 
-  const handleEdit = React.useCallback((row) => {
-    navigate(`/edit-menu/${row.outlet_id}/${row.menu_id}`);
-  }, [navigate]);
+  const handleEdit = React.useCallback(
+    (row) => {
+      navigate(`/edit-menu/${row.outlet_id}/${row.menu_id}`);
+    },
+    [navigate]
+  );
 
   const handleDelete = React.useCallback((row) => {
     setSelectedMenu(row);
@@ -189,7 +207,7 @@ function ManageMenus() {
 
   const handleCreateMenu = React.useCallback(() => {
     navigate(`/create-menu/${outletId}`, {
-      state: { outletName }
+      state: { outletName },
     });
   }, [navigate, outletId, outletName]);
 
@@ -197,40 +215,53 @@ function ManageMenus() {
     deleteMutation.mutate();
   }, [deleteMutation]);
 
-  const handleBulkAction = React.useCallback((action, selectedIds) => {
-    bulkActionMutation.mutate({ action, selectedIds });
-  }, [bulkActionMutation]);
+  const handleBulkAction = React.useCallback(
+    (action, selectedIds) => {
+      bulkActionMutation.mutate({ action, selectedIds });
+    },
+    [bulkActionMutation]
+  );
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-screen">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" />
-    </div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-error-500 text-center p-4">
-      {error.response?.data?.message || "Failed to load menus"}
-    </div>;
+    return (
+      <div className="text-error-500 text-center p-4">
+        {error.response?.data?.message || "Failed to load menus"}
+      </div>
+    );
   }
 
   // Define columns for DataTable
   const columns = [
     {
-      field: 'name',
-      header: 'Name',
+      field: "name",
+      header: "Name",
       sortable: true,
     },
     {
-      field: 'category_name',
-      header: 'Category',
+      field: "category_name",
+      header: "Category",
       sortable: true,
     },
     {
-      field: 'food_type',
-      header: 'Type',
+      field: "food_type",
+      header: "Type",
       sortable: true,
       render: (value) => (
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${value === 'veg' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+        <span
+          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+            value === "veg"
+              ? "bg-green-100 text-green-800"
+              : "bg-red-100 text-red-800"
+          }`}
+        >
           {value?.toUpperCase()}
         </span>
       ),
@@ -242,8 +273,8 @@ function ManageMenus() {
     //   render: (value) => value ? value : '-',
     // },
     {
-      field: 'is_active',
-      header: 'Status',
+      field: "is_active",
+      header: "Status",
       sortable: true,
       render: (value) => (
         <div className="flex items-center justify-center gap-2">
@@ -271,8 +302,8 @@ function ManageMenus() {
     //   ),
     // },
     {
-      field: 'actions',
-      header: 'Actions',
+      field: "actions",
+      header: "Actions",
       sortable: false,
       render: (value, row) => (
         <div className="flex items-center justify-center gap-2">
@@ -305,6 +336,20 @@ function ManageMenus() {
   // Remove the separate selection column definition and let DataTable handle it internally
   const allColumns = [...columns];
 
+  // Before the return, define the allowed bulk actions for menus:
+  const bulkActionOptions = [
+    {
+      key: "active",
+      label: "Active",
+      className: "text-gray-700 hover:bg-gray-100",
+    },
+    {
+      key: "inactive",
+      label: "Inactive",
+      className: "text-gray-700 hover:bg-gray-100",
+    },
+  ];
+
   return (
     <div>
       <div className="mb-6">
@@ -329,7 +374,7 @@ function ManageMenus() {
         emptyStateMessageByStatus={{
           all: "No menus found.",
           active: "No active menus found.",
-          inactive: "No inactive menus found."
+          inactive: "No inactive menus found.",
         }}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
@@ -346,9 +391,9 @@ function ManageMenus() {
         statusField="is_active"
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;
-          return statusFilter === "active" ? 
-            item.is_active === 1 : 
-            item.is_active === 0;
+          return statusFilter === "active"
+            ? item.is_active === 1
+            : item.is_active === 0;
         }}
         createButton={{
           show: true,
@@ -364,6 +409,7 @@ function ManageMenus() {
         }}
         searchTerm={searchTerm}
         onSearchChange={(value) => setSearchTerm(value)}
+        bulkActionOptions={bulkActionOptions}
       />
 
       <DeleteConfirmModal
