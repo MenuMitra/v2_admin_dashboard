@@ -373,163 +373,163 @@ function Dashboard() {
             <div className="flex flex-wrap gap-5">
               <Link
                 to="/home"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-blue-light-500"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg "
               >
-                <FontAwesomeIcon icon={faHome} className="text-white mb-1" />
-                <span className="text-xs font-medium text-white">Home</span>
+                <FontAwesomeIcon icon={faHome} className="text-brand-500 mb-1" />
+                <span className="text-xs font-medium text-dark">Home</span>
               </Link>
 
               <Link
                 to="/admins"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-brand-500 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
-                <FontAwesomeIcon icon={faUser} className="text-white mb-1" />
-                <span className="text-xs font-medium text-white">Admins</span>
+                <FontAwesomeIcon icon={faUser} className="text-brand-500 mb-1" />
+                <span className="text-xs font-medium text-dark">Admins</span>
               </Link>
 
               <Link
                 to="/owners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-success-500 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
-                <FontAwesomeIcon icon={faUsers} className="text-white mb-1" />
-                <span className="text-xs font-medium text-white">Owners</span>
+                <FontAwesomeIcon icon={faUsers} className="text-brand-500 mb-1" />
+                <span className="text-xs font-medium text-dark">Owners</span>
               </Link>
 
               <Link
                 to="/super-owners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-warning-500 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faUserShield}
-                  className="text-white mb-1"
+                  className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-white">
+                <span className="text-xs font-medium text-dark">
                   Super Owners
                 </span>
               </Link>
 
               <Link
                 to="/partners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-gray-500 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faHandshake}
-                  className="text-white mb-1"
+                  className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-white">Partners</span>
+                <span className="text-xs font-medium text-dark">Partners</span>
               </Link>
 
               <Link
                 to="/features"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-theme-pink-500 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faMobileScreenButton}
-                  className="text-white mb-1"
+                  className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-white">Features</span>
+                <span className="text-xs font-medium text-dark">Features</span>
               </Link>
 
               <Link
                 to="/subscriptions"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-orange-500 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faIndianRupeeSign}
-                  className="text-white mb-1"
+                  className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-white">
+                <span className="text-xs font-medium text-dark">
                   Subscriptions
                 </span>
               </Link>
 
               <Link
                 to="/outlets"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-blue-light-600 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
-                <FontAwesomeIcon icon={faStore} className="text-white mb-1" />
-                <span className="text-xs font-medium text-white">Outlets</span>
+                <FontAwesomeIcon icon={faStore} className="text-brand-500 mb-1" />
+                <span className="text-xs font-medium text-dark">Outlets</span>
               </Link>
 
               <Link
                 to="/roles"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-error-500 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faUserShield}
-                  className="text-white mb-1"
+                  className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-white">Roles</span>
+                <span className="text-xs font-medium text-dark">Roles</span>
               </Link>
 
               <Link
                 to="/functionalities"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-gray-600 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
-                <FontAwesomeIcon icon={faList} className="text-white mb-1" />
-                <span className="text-xs font-medium text-white">
+                <FontAwesomeIcon icon={faList} className="text-brand-500 mb-1" />
+                <span className="text-xs font-medium text-dark">
                   Functionalities
                 </span>
               </Link>
 
               <Link
                 to="/search"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-brand-600 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
-                <FontAwesomeIcon icon={faSearch} className="text-white mb-1" />
-                <span className="text-xs font-medium text-white">Search</span>
+                <FontAwesomeIcon icon={faSearch} className="text-brand-500 mb-1" />
+                <span className="text-xs font-medium text-dark">Search</span>
               </Link>
 
               <Link
                 to="/customer"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-success-600 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
-                <FontAwesomeIcon icon={faUser} className="text-white mb-1" />
-                <span className="text-xs font-medium text-white">
+                <FontAwesomeIcon icon={faUser} className="text-brand-500 mb-1" />
+                <span className="text-xs font-medium text-dark">
                   Customers
                 </span>
               </Link>
 
               <Link
                 to="/notifications"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-warning-600 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
-                <FontAwesomeIcon icon={faBell} className="text-white mb-1" />
-                <span className="text-xs font-medium text-white">
+                <FontAwesomeIcon icon={faBell} className="text-brand-500 mb-1" />
+                <span className="text-xs font-medium text-dark">
                   Notifications
                 </span>
               </Link>
 
               <Link
                 to="/enquiries"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-theme-pink-500 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faEnvelope}
-                  className="text-white mb-1"
+                  className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-white">
+                <span className="text-xs font-medium text-dark">
                   Enquiries
                 </span>
               </Link>
 
               <Link
                 to="/stats"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-error-400 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faChartLine}
-                  className="text-white mb-1"
+                  className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-white">Stats</span>
+                <span className="text-xs font-medium text-dark">Stats</span>
               </Link>
 
               <Link
                 to="/profile"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 bg-gray-700 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
               >
-                <FontAwesomeIcon icon={faUser} className="text-white mb-1" />
-                <span className="text-xs font-medium text-white">Profile</span>
+                <FontAwesomeIcon icon={faUser} className="text-brand-500 mb-1" />
+                <span className="text-xs font-medium text-dark">Profile</span>
               </Link>
             </div>
           </div>
