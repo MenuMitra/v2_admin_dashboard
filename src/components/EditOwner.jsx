@@ -291,8 +291,9 @@ function EditOwner() {
       }));
       setOwnerData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
     } else if (name === "email") {
-      const gmailPattern = /^[a-zA-Z0-9._%+-]+@\.com$/;
-      if (value && !gmailPattern.test(value)) {
+      // Basic email pattern: something@domain.tld
+      const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (value && !emailPattern.test(value)) {
         setEmailError("Email format is incorrect.");
       } else {
         setEmailError("");
@@ -332,7 +333,6 @@ function EditOwner() {
       ownerData.name?.trim() &&
       ownerData.mobile?.trim() &&
       ownerData.aadhar_number?.trim() &&
-      ownerData.account_type &&
       ownerData.functionality_ids.length > 0 &&
       ownerData.role && // Keep role validation
       // Remove outlet_ids validation
@@ -343,6 +343,86 @@ function EditOwner() {
   };
 
   // Modify handleSubmit to conditionally include role
+  // Format DOB to DD MMM YYYY for API
+  const formatDobForApi = (dob) => {
+    if (!dob) return "";
+
+    // Already in DD MMM YYYY
+    if (/^\d{2} [A-Za-z]{3} \d{4}$/.test(dob)) return dob;
+
+    // DD-MM-YYYY -> DD MMM YYYY
+    const hyphenDMY = dob.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (hyphenDMY) {
+      const [, d, m, y] = hyphenDMY;
+      const shortMonths = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      const monthIdx = parseInt(m, 10) - 1;
+      const mon = shortMonths[monthIdx] || m;
+      return `${d} ${mon} ${y}`;
+    }
+
+    // YYYY-MM-DD -> DD MMM YYYY
+    const ymd = dob.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (ymd) {
+      const [, y, m, d] = ymd;
+      const shortMonths = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      const monthIdx = parseInt(m, 10) - 1;
+      const mon = shortMonths[monthIdx] || m;
+      return `${d} ${mon} ${y}`;
+    }
+
+    // Try to parse any other supported value
+    const dateObj = new Date(dob);
+    if (!isNaN(dateObj.getTime())) {
+      const d = String(dateObj.getDate()).padStart(2, "0");
+      const shortMonths = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      const mon = shortMonths[dateObj.getMonth()];
+      const y = dateObj.getFullYear();
+      return `${d} ${mon} ${y}`;
+    }
+
+    // Fallback: return as-is (API will validate)
+    return dob;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -379,6 +459,7 @@ function EditOwner() {
       }
 
       // Create base payload
+      const dobForApi = formatDobForApi(ownerData.dob);
       const basePayload = {
         update_user_id: adminData.user_id,
         user_id: parseInt(ownerId),
@@ -386,7 +467,7 @@ function EditOwner() {
         mobile: ownerData.mobile,
         address: ownerData.address,
         aadhar_number: ownerData.aadhar_number,
-        dob: ownerData.dob,
+        dob: dobForApi,
         email: ownerData.email,
         account_type: ownerData.account_type,
         functionality_ids: ownerData.functionality_ids,
@@ -626,8 +707,6 @@ function EditOwner() {
                   ]}
                   placeholder="Select Status"
                 />
-
-                
               </div>
             </div>
 

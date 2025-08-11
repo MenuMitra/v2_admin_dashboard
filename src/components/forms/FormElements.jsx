@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import DatePickerInput from '../common/DatePickerInput';
-import TimePickerInput from '../common/TimePickerInput';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { validateInput } from '../../utils/validationPatterns';
+import React, { useState } from "react";
+import DatePickerInput from "../common/DatePickerInput";
+import TimePickerInput from "../common/TimePickerInput";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { validateInput } from "../../utils/validationPatterns";
 
 // Base input styles
 const baseInputStyles = `
@@ -28,179 +28,186 @@ const RequiredLabel = ({ label }) => (
 );
 
 // Text Input Component
-const TextInput = React.forwardRef(({ 
-  label, 
-  required = false,
-  placeholder = '', 
-  type = 'text',
-  value,
-  onChange,
-  validationType = null,
-  validationRules = {},
-  customValidator = null,
-  onValidation = () => {},
-  isSubmitAttempted = false,
-  className = '',
-  onFocus,
-  errorMessage = '',
-  ...props 
-}, ref) => {
-  const [error, setError] = useState('');
-  
-  const showError = (required && isSubmitAttempted && !value) || error;
+const TextInput = React.forwardRef(
+  (
+    {
+      label,
+      required = false,
+      placeholder = "",
+      type = "text",
+      value,
+      onChange,
+      validationType = null,
+      validationRules = {},
+      customValidator = null,
+      onValidation = () => {},
+      isSubmitAttempted = false,
+      className = "",
+      onFocus,
+      errorMessage = "",
+      ...props
+    },
+    ref
+  ) => {
+    const [error, setError] = useState("");
 
-  const validateInput = (value) => {
-    // Skip validation if field is not required and empty
-    if (!required && !value) {
-      setError('');
+    const showError = (required && isSubmitAttempted && !value) || error;
+
+    const validateInput = (value) => {
+      // Skip validation if field is not required and empty
+      if (!required && !value) {
+        setError("");
+        return true;
+      }
+
+      // Required field validation
+      if (required && !value) {
+        setError("This field is required");
+        return false;
+      }
+
+      // Custom validator function takes precedence
+      if (customValidator) {
+        const { isValid, message } = customValidator(value);
+        setError(message);
+        return isValid;
+      }
+
+      // Validation type specific validation
+      if (validationType) {
+        const { minLength, maxLength, pattern, patternMessage } =
+          validationRules;
+
+        if (minLength && value.length < minLength) {
+          setError(`Minimum ${minLength} characters required`);
+          return false;
+        }
+
+        if (maxLength && value.length > maxLength) {
+          setError(`Maximum ${maxLength} characters allowed`);
+          return false;
+        }
+
+        if (pattern && !pattern.test(value)) {
+          setError(patternMessage || "Invalid format");
+          return false;
+        }
+      }
+
+      setError("");
       return true;
-    }
+    };
 
-    // Required field validation
-    if (required && !value) {
-      setError('This field is required');
-      return false;
-    }
+    const handleChange = (e) => {
+      const newValue = e.target.value;
+      const isValid = validateInput(newValue);
+      onValidation(isValid);
+      onChange?.(e);
+    };
 
-    // Custom validator function takes precedence
-    if (customValidator) {
-      const { isValid, message } = customValidator(value);
-      setError(message);
-      return isValid;
-    }
-
-    // Validation type specific validation
-    if (validationType) {
-      const { minLength, maxLength, pattern, patternMessage } = validationRules;
-      
-      if (minLength && value.length < minLength) {
-        setError(`Minimum ${minLength} characters required`);
-        return false;
-      }
-
-      if (maxLength && value.length > maxLength) {
-        setError(`Maximum ${maxLength} characters allowed`);
-        return false;
-      }
-
-      if (pattern && !pattern.test(value)) {
-        setError(patternMessage || 'Invalid format');
-        return false;
-      }
-    }
-
-    setError('');
-    return true;
-  };
-
-  const handleChange = (e) => {
-    const newValue = e.target.value;
-    const isValid = validateInput(newValue);
-    onValidation(isValid);
-    onChange?.(e);
-  };
-
-  return (
-    <div className="relative">
-      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-        {required && <span className="text-error-600">*</span>} {label}
-      </label>
-      <input
-        ref={ref}
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={handleChange}
-        onFocus={onFocus}
-        required={required}
-        className={`
+    return (
+      <div className="relative">
+        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+          {required && <span className="text-error-600">*</span>} {label}
+        </label>
+        <input
+          ref={ref}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={handleChange}
+          onFocus={onFocus}
+          required={required}
+          className={`
           w-full px-3 py-2 border rounded-lg shadow-sm
           focus:outline-none focus:ring-2 focus:ring-brand-500
           disabled:bg-gray-100 disabled:cursor-not-allowed
           ${className}
-          ${showError ? 'border-error-500 focus:border-error-500' : ''}
+          ${showError ? "border-error-500 focus:border-error-500" : ""}
         `}
-        {...props}
-      />
-      {(error || (errorMessage && showError)) && (
-        <p className="mt-1 text-sm text-error-500">
-          {error || errorMessage}
-        </p>
-      )}
-    </div>
-  );
-});
-
-// Password Input Component
-const PasswordInput = React.forwardRef(({
-  label,
-  placeholder = 'Enter your password',
-  value,
-  onChange,
-  ...props
-}, ref) => {
-  const [showPassword, setShowPassword] = useState(false);
-
-  return (
-    <div>
-      {label && <label className={labelStyles}>{label}</label>}
-      <div className="relative">
-        <input
-          ref={ref}
-          type={showPassword ? 'text' : 'password'}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          className={`${baseInputStyles} pr-11`}
           {...props}
         />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-        >
-          <FontAwesomeIcon 
-            icon={showPassword ? faEye : faEyeSlash} 
-            className="w-5 h-5"
-          />
-        </button>
+        {(error || (errorMessage && showError)) && (
+          <p className="mt-1 text-sm text-error-500">{error || errorMessage}</p>
+        )}
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
+
+// Password Input Component
+const PasswordInput = React.forwardRef(
+  (
+    { label, placeholder = "Enter your password", value, onChange, ...props },
+    ref
+  ) => {
+    const [showPassword, setShowPassword] = useState(false);
+
+    return (
+      <div>
+        {label && <label className={labelStyles}>{label}</label>}
+        <div className="relative">
+          <input
+            ref={ref}
+            type={showPassword ? "text" : "password"}
+            placeholder={placeholder}
+            value={value}
+            onChange={onChange}
+            className={`${baseInputStyles} pr-11`}
+            {...props}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+          >
+            <FontAwesomeIcon
+              icon={showPassword ? faEye : faEyeSlash}
+              className="w-5 h-5"
+            />
+          </button>
+        </div>
+      </div>
+    );
+  }
+);
 
 // Select Input Component
-const SelectInput = React.forwardRef(({
-  label,
-  options = [],
-  value,
-  onChange,
-  placeholder = 'Select Option',
-  required,
-  error,
-  onFocus,
-  errorMessage,
-  ...props
-}, ref) => {
-  return (
-    <div>
-      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-        {required && <span className="text-error-600">*</span>} {label}
-      </label>
-      <div className="relative z-20">
-        <select
-          ref={ref}
-          value={value}
-          onChange={onChange}
-          onFocus={onFocus}
-          className={`
+const SelectInput = React.forwardRef(
+  (
+    {
+      label,
+      options = [],
+      value,
+      onChange,
+      placeholder = "Select Option",
+      required,
+      error,
+      onFocus,
+      errorMessage,
+      ...props
+    },
+    ref
+  ) => {
+    return (
+      <div>
+        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+          {required && <span className="text-error-600">*</span>} {label}
+        </label>
+        <div className="relative z-20">
+          <select
+            ref={ref}
+            value={value}
+            onChange={onChange}
+            onFocus={onFocus}
+            className={`
             w-full px-3 py-2 border rounded-lg shadow-sm
             focus:outline-none focus:ring-2 focus:ring-brand-500
             !appearance-none
             !select-none
             !pr-11
             !bg-transparent
-            ${error ? 'border-error-500' : 'border-gray-300'}
+            ${error ? "border-error-500" : "border-gray-300"}
             dark:border-gray-700
             [appearance:none]
             [-webkit-appearance:none]
@@ -215,347 +222,359 @@ const SelectInput = React.forwardRef(({
             [&::-o-select-arrow]{display:none}
             [&::select-arrow]{display:none}
           `}
-          style={{
-            WebkitAppearance: 'none',
-            MozAppearance: 'none',
-            appearance: 'none',
-            backgroundImage: 'none'
-          }}
-          {...props}
-        >
-          <option value="" className="text-gray-700 dark:bg-gray-900 dark:text-gray-400">
-            {placeholder}
-          </option>
-          {options.map((option, index) => (
-            <option 
-              key={index} 
-              value={option.value}
+            style={{
+              WebkitAppearance: "none",
+              MozAppearance: "none",
+              appearance: "none",
+              backgroundImage: "none",
+            }}
+            {...props}
+          >
+            <option
+              value=""
               className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
             >
-              {option.label}
+              {placeholder}
             </option>
-          ))}
-        </select>
-        <span className="absolute top-1/2 right-4 z-[31] -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none select-none">
-          <svg 
-            className="fill-none stroke-current" 
-            width="16" 
-            height="16" 
-            viewBox="0 0 24 24"
-          >
-            <path 
-              d="M6 9L12 15L18 9" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </svg>
-        </span>
+            {options.map((option, index) => (
+              <option
+                key={index}
+                value={option.value}
+                className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <span className="absolute top-1/2 right-4 z-[31] -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none select-none">
+            <svg
+              className="fill-none stroke-current"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M6 9L12 15L18 9"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        </div>
+        {error && (
+          <p className="text-error-500 text-sm mt-1">
+            {errorMessage || `Please select a ${label.toLowerCase()}`}
+          </p>
+        )}
       </div>
-      {error && (
-        <p className="text-error-500 text-sm mt-1">
-          {errorMessage || `Please select a ${label.toLowerCase()}`}
-        </p>
-      )}
-    </div>
-  );
-});
+    );
+  }
+);
 
-const Checkbox = React.forwardRef(({ label, checked, onChange, ...props }, ref) => {
-  return (
-    <label className="inline-flex items-center cursor-pointer">
-      <input
-        ref={ref}
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="form-checkbox h-5 w-5 rounded border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900"
-        {...props}
-      />
-      {label && (
-        <span className="ml-2 text-sm text-gray-700 dark:text-gray-400">
-          {label}
-        </span>
-      )}
-    </label>
-  );
-});
-
-
-// Date Input Component
-const DateInput = React.forwardRef(({
-  label,
-  required,
-  value,
-  onChange,
-  placeholder = "Select date",
-  disabled = false,
-  className = "",
-  error = "",
-  ...props
-}, ref) => {
-  // Function to format date to DD MMM YYYY
-  const formatDate = (date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return ''; // Invalid date
-    
-    return d.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    }).replace(/ /g, ' '); // Ensure proper spacing
-  };
-
-  // Custom onChange handler to format the date
-  const handleDateChange = (e) => {
-    const inputDate = e.target.value; // This will be in YYYY-MM-DD format from the date input
-    
-    // Create a synthetic event to match the standard onChange format
-    const syntheticEvent = {
-      target: {
-        name: e.target.name,
-        value: formatDate(inputDate) // Convert to DD MMM YYYY format
-      }
-    };
-
-    onChange(syntheticEvent);
-  };
-
-  // Convert DD MMM YYYY to YYYY-MM-DD for the input value
-  const getInputValue = () => {
-    if (!value) return '';
-    
-    // If it's already in YYYY-MM-DD format, return as is
-    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      return value;
-    }
-
-    // Try to parse DD MMM YYYY format
-    const parts = value.split(' ');
-    if (parts.length === 3) {
-      const months = {
-        'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
-        'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
-      };
-      
-      const day = parts[0].padStart(2, '0');
-      const month = months[parts[1]] || '';
-      const year = parts[2];
-
-      if (day && month && year) {
-        return `${year}-${month}-${day}`;
-      }
-    }
-
-    return '';
-  };
-
-  return (
-    <div className="mb-4">
-      {label && (
-        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-          {label} {required && <span className="text-error-600">*</span>}
-        </label>
-      )}
-      <input
-        type="date"
-        ref={ref}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${className}`}
-        {...props}
-      />
-      {error && <p className="text-error-500 text-xs mt-1">{error}</p>}
-    </div>
-  );
-});
-
-// Textarea Component
-const Textarea = React.forwardRef(({
-  label,
-  required,
-  value,
-  onChange,
-  rows = 4,
-  ...props
-}, ref) => {
-  return (
-    <div>
-      {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          {required ? <RequiredLabel label={label} /> : label}
-        </label>
-      )}
-      <textarea
-        ref={ref}
-        value={value}
-        onChange={onChange}
-        rows={rows}
-        required={required}
-        className="w-full h-11 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:outline-none focus:border-blue-500"
-        {...props}
-      />
-    </div>
-  );
-});
-
-
-// Radio Button Component
-const RadioButton = React.forwardRef(({
-  label,
-  checked,
-  value,
-  name,
-  onChange,
-  ...props
-}, ref) => {
-  return (
-    <label className="inline-flex items-center">
-      <input
-        ref={ref}
-        type="radio"
-        checked={checked}
-        value={value}
-        name={name}
-        onChange={onChange}
-        className="form-radio h-5 w-5 border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900"
-        {...props}
-      />
-      {label && (
-        <span className="ml-2 text-sm text-gray-700 dark:text-gray-400">
-          {label}
-        </span>
-      )}
-    </label>
-  );
-});
-
-// Toggle Switch Component
-const ToggleSwitch = React.forwardRef(({
-  label,
-  checked,
-  onChange,
-  ...props
-}, ref) => {
-  return (
-    <label className="inline-flex items-center">
-      <div className="relative inline-block">
+const Checkbox = React.forwardRef(
+  ({ label, checked, onChange, ...props }, ref) => {
+    return (
+      <label className="inline-flex items-center cursor-pointer">
         <input
           ref={ref}
           type="checkbox"
-          className="sr-only"
           checked={checked}
           onChange={onChange}
+          className="form-checkbox h-5 w-5 rounded border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900"
           {...props}
         />
-        <div className={`
-          h-6 w-11 rounded-full transition-colors duration-200 ease-in-out
-          ${checked ? 'bg-brand-500' : 'bg-gray-200 dark:bg-gray-700'}
-        `}>
-          <div className={`
-            h-5 w-5 rounded-full bg-white transition-transform duration-200 ease-in-out
-            ${checked ? 'translate-x-6' : 'translate-x-1'}
-          `}/>
-        </div>
-      </div>
-      {label && (
-        <span className="ml-2 text-sm text-gray-700 dark:text-gray-400">
-          {label}
-        </span>
-      )}
-    </label>
-  );
-});
+        {label && (
+          <span className="ml-2 text-sm text-gray-700 dark:text-gray-400">
+            {label}
+          </span>
+        )}
+      </label>
+    );
+  }
+);
 
-// File Input Component
-const FileInput = React.forwardRef(({
-  label,
-  onChange,
-  accept,
-  multiple = false,
-  ...props
-}, ref) => {
-  return (
-    <div>
-      {label && <label className={labelStyles}>{label}</label>}
-      <div className="relative">
+// Date Input Component
+const DateInput = React.forwardRef(
+  (
+    {
+      label,
+      required,
+      value,
+      onChange,
+      placeholder = "Select date",
+      disabled = false,
+      className = "",
+      error = "",
+      ...props
+    },
+    ref
+  ) => {
+    // Function to format date to DD MMM YYYY
+    const formatDate = (date) => {
+      if (!date) return "";
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return ""; // Invalid date
+
+      return d
+        .toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        })
+        .replace(/ /g, " "); // Ensure proper spacing
+    };
+
+    // Convert controlled value to YYYY-MM-DD for input element
+    const getInputValue = () => {
+      if (!value) return "";
+
+      // Already in YYYY-MM-DD
+      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+
+      // Handle DD MMM YYYY
+      const dmyMatch = value.match(/^(\d{2})\s([A-Za-z]{3})\s(\d{4})$/);
+      if (dmyMatch) {
+        const [, d, mon, y] = dmyMatch;
+        const months = {
+          Jan: "01",
+          Feb: "02",
+          Mar: "03",
+          Apr: "04",
+          May: "05",
+          Jun: "06",
+          Jul: "07",
+          Aug: "08",
+          Sep: "09",
+          Oct: "10",
+          Nov: "11",
+          Dec: "12",
+        };
+        const mm = months[mon] || "";
+        if (mm) return `${y}-${mm}-${d}`;
+      }
+
+      // Handle DD-MM-YYYY
+      const hyphenMatch = value.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+      if (hyphenMatch) {
+        const [, d, m, y] = hyphenMatch;
+        return `${y}-${m}-${d}`;
+      }
+
+      // Try native parse
+      const d = new Date(value);
+      if (!isNaN(d.getTime())) {
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+      }
+
+      return "";
+    };
+
+    // onChange: accept native YYYY-MM-DD, propagate as DD MMM YYYY
+    const handleDateChange = (e) => {
+      const inputDate = e.target.value; // YYYY-MM-DD
+      const formatted = formatDate(inputDate); // DD MMM YYYY
+      const syntheticEvent = {
+        target: {
+          name: e.target.name,
+          value: formatted,
+        },
+      };
+      onChange?.(syntheticEvent);
+    };
+
+    return (
+      <div className="mb-4">
+        {label && (
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+            {label} {required && <span className="text-error-600">*</span>}
+          </label>
+        )}
+        <input
+          type="date"
+          ref={ref}
+          value={getInputValue()}
+          onChange={handleDateChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${className}`}
+          {...props}
+        />
+        {error && <p className="text-error-500 text-xs mt-1">{error}</p>}
+      </div>
+    );
+  }
+);
+
+// Textarea Component
+const Textarea = React.forwardRef(
+  ({ label, required, value, onChange, rows = 4, ...props }, ref) => {
+    return (
+      <div>
+        {label && (
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {required ? <RequiredLabel label={label} /> : label}
+          </label>
+        )}
+        <textarea
+          ref={ref}
+          value={value}
+          onChange={onChange}
+          rows={rows}
+          required={required}
+          className="w-full h-11 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:outline-none focus:border-blue-500"
+          {...props}
+        />
+      </div>
+    );
+  }
+);
+
+// Radio Button Component
+const RadioButton = React.forwardRef(
+  ({ label, checked, value, name, onChange, ...props }, ref) => {
+    return (
+      <label className="inline-flex items-center">
         <input
           ref={ref}
-          type="file"
+          type="radio"
+          checked={checked}
+          value={value}
+          name={name}
           onChange={onChange}
-          accept={accept}
-          multiple={multiple}
-          className={`
+          className="form-radio h-5 w-5 border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900"
+          {...props}
+        />
+        {label && (
+          <span className="ml-2 text-sm text-gray-700 dark:text-gray-400">
+            {label}
+          </span>
+        )}
+      </label>
+    );
+  }
+);
+
+// Toggle Switch Component
+const ToggleSwitch = React.forwardRef(
+  ({ label, checked, onChange, ...props }, ref) => {
+    return (
+      <label className="inline-flex items-center">
+        <div className="relative inline-block">
+          <input
+            ref={ref}
+            type="checkbox"
+            className="sr-only"
+            checked={checked}
+            onChange={onChange}
+            {...props}
+          />
+          <div
+            className={`
+          h-6 w-11 rounded-full transition-colors duration-200 ease-in-out
+          ${checked ? "bg-brand-500" : "bg-gray-200 dark:bg-gray-700"}
+        `}
+          >
+            <div
+              className={`
+            h-5 w-5 rounded-full bg-white transition-transform duration-200 ease-in-out
+            ${checked ? "translate-x-6" : "translate-x-1"}
+          `}
+            />
+          </div>
+        </div>
+        {label && (
+          <span className="ml-2 text-sm text-gray-700 dark:text-gray-400">
+            {label}
+          </span>
+        )}
+      </label>
+    );
+  }
+);
+
+// File Input Component
+const FileInput = React.forwardRef(
+  ({ label, onChange, accept, multiple = false, ...props }, ref) => {
+    return (
+      <div>
+        {label && <label className={labelStyles}>{label}</label>}
+        <div className="relative">
+          <input
+            ref={ref}
+            type="file"
+            onChange={onChange}
+            accept={accept}
+            multiple={multiple}
+            className={`
             file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0
             file:text-sm file:font-medium file:bg-brand-500 file:text-white
             hover:file:bg-brand-600 file:cursor-pointer
             text-sm text-gray-700 dark:text-gray-400
             ${baseInputStyles}
           `}
-          {...props}
-        />
+            {...props}
+          />
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 // Input Group Component
-const InputGroup = React.forwardRef(({
-  label,
-  prefix,
-  suffix,
-  value,
-  onChange,
-  type = 'text',
-  ...props
-}, ref) => {
-  return (
-    <div>
-      {label && <label className={labelStyles}>{label}</label>}
-      <div className="relative flex">
-        {prefix && (
-          <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400">
-            {prefix}
-          </span>
-        )}
-        <input
-          ref={ref}
-          type={type}
-          value={value}
-          onChange={onChange}
-          className={`
+const InputGroup = React.forwardRef(
+  (
+    { label, prefix, suffix, value, onChange, type = "text", ...props },
+    ref
+  ) => {
+    return (
+      <div>
+        {label && <label className={labelStyles}>{label}</label>}
+        <div className="relative flex">
+          {prefix && (
+            <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 text-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400">
+              {prefix}
+            </span>
+          )}
+          <input
+            ref={ref}
+            type={type}
+            value={value}
+            onChange={onChange}
+            className={`
             ${baseInputStyles}
-            ${prefix ? 'rounded-l-none' : ''}
-            ${suffix ? 'rounded-r-none' : ''}
+            ${prefix ? "rounded-l-none" : ""}
+            ${suffix ? "rounded-r-none" : ""}
           `}
-          {...props}
-        />
-        {suffix && (
-          <span className="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-gray-300 bg-gray-50 text-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400">
-            {suffix}
-          </span>
-        )}
+            {...props}
+          />
+          {suffix && (
+            <span className="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-gray-300 bg-gray-50 text-gray-500 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-400">
+              {suffix}
+            </span>
+          )}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 // Add display names for all components
-RadioButton.displayName = 'RadioButton';
-ToggleSwitch.displayName = 'ToggleSwitch';
-FileInput.displayName = 'FileInput';
-InputGroup.displayName = 'InputGroup';
+RadioButton.displayName = "RadioButton";
+ToggleSwitch.displayName = "ToggleSwitch";
+FileInput.displayName = "FileInput";
+InputGroup.displayName = "InputGroup";
 
 // Add display names for better debugging
-TextInput.displayName = 'TextInput';
-PasswordInput.displayName = 'PasswordInput';
-SelectInput.displayName = 'SelectInput';
-Checkbox.displayName = 'Checkbox';
-DateInput.displayName = 'DateInput';
-Textarea.displayName = 'Textarea';
+TextInput.displayName = "TextInput";
+PasswordInput.displayName = "PasswordInput";
+SelectInput.displayName = "SelectInput";
+Checkbox.displayName = "Checkbox";
+DateInput.displayName = "DateInput";
+Textarea.displayName = "Textarea";
 
 // Single consolidated export at the end
 export {
@@ -563,7 +582,7 @@ export {
   baseInputStyles,
   labelStyles,
   RequiredLabel,
-  
+
   // Components
   TextInput,
   PasswordInput,
@@ -575,5 +594,5 @@ export {
   ToggleSwitch,
   FileInput,
   InputGroup,
-  TimePickerInput
-}; 
+  TimePickerInput,
+};

@@ -167,38 +167,69 @@ function EditSubscription() {
   };
 
   const validateForm = () => {
+    // Normalize values
+    const normalizedName = (formData.name || "").trim();
+    const normalizedPrice = Number.parseFloat(formData.price);
+    const hasValidPrice =
+      Number.isFinite(normalizedPrice) && normalizedPrice > 0;
+    const hasFeatures = features.length > 0;
+    const hasSelectedAnyFeature = (formData.feature_ids || []).length > 0;
+
     const newValidationStates = {
-      name: !formData.name.trim(),
-      price:
-        !formData.price ||
-        isNaN(formData.price) ||
-        parseFloat(formData.price) <= 0,
-      subscription_end_date: !formData.subscription_end_date,
-      feature_ids: formData.feature_ids.length === 0,
+      name: normalizedName.length === 0,
+      price: !hasValidPrice,
+      // Not required
+      subscription_end_date: false,
+      feature_ids: hasFeatures ? !hasSelectedAnyFeature : false,
     };
 
+    // Debug in console to spot what's failing
+    console.log("EditSubscription validate:", {
+      formData,
+      featuresCount: features.length,
+      newValidationStates,
+    });
+
     setValidationStates(newValidationStates);
-    return !Object.values(newValidationStates).some((state) => state);
+    const isValid = !Object.values(newValidationStates).some((state) => state);
+
+    if (!isValid) {
+      if (newValidationStates.name) {
+        toastController.error("Plan name is required");
+      } else if (newValidationStates.price) {
+        toastController.error("Please enter a valid price greater than 0");
+      } else if (newValidationStates.feature_ids) {
+        toastController.error("Please select at least one feature");
+      } else {
+        toastController.error("Please fill all required fields correctly");
+      }
+    }
+
+    return isValid;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) {
-      toastController.error("Please fill all required fields correctly");
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       setIsLoading(true);
+      // Build payload explicitly; include optional fields conditionally
+      const payload = {
+        subscription_id: Number(subscriptionId),
+        name: (formData.name || "").trim(),
+        price: Number.parseFloat(formData.price),
+        feature_ids: formData.feature_ids,
+        user_id: adminData.user_id,
+        app_source: "admin_app",
+      };
+      if (formData.subscription_end_date) {
+        payload.subscription_end_date = formData.subscription_end_date;
+      }
+
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/update_subscription`,
-        {
-          subscription_id: Number(subscriptionId),
-          ...formData,
-          price: parseFloat(formData.price),
-          user_id: adminData.user_id,
-          app_source: "admin_app",
-        },
+        payload,
         {
           headers: {
             Authorization: getToken(),
