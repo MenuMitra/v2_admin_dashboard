@@ -867,8 +867,8 @@ function DataTable({
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Types</option>
-                          <option value="cake shop">Cake Shop</option>
                           <option value="outlet">Outlet</option>
+                          <option value="cake_shop">Cake Shop</option>
                         </select>
                       </div>
                     )}
@@ -1502,7 +1502,7 @@ DataTable.propTypes = {
   ]),
   onOutletCountFilterChange: PropTypes.func,
   enableOutletTypeFilter: PropTypes.bool,
-  outletTypeFilter: PropTypes.oneOf(["all", "cake shop", "outlet"]),
+  outletTypeFilter: PropTypes.oneOf(["all", "outlet", "cake_shop"]),
   onOutletTypeFilterChange: PropTypes.func,
   enableOutletModeFilter: PropTypes.bool,
   outletModeFilter: PropTypes.oneOf(["all", "online", "offline"]),
