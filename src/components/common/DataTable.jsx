@@ -700,7 +700,7 @@ function DataTable({
               {counts && (
                 <div className="flex items-center gap-2 text-sm flex-wrap">
                   <span className="font-medium text-gray-800 dark:text-white/90">
-                    Total: {counts.total}
+                    Total: {processedData.length}
                   </span>
                   {typeof counts.enquiry === "number" && (
                     <span className="font-medium bg-warning-100 text-warning-500 px-2 py-0.5 rounded">
@@ -719,12 +719,12 @@ function DataTable({
                   )}
                   {typeof counts.active === "number" && (
                     <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">
-                      Active: {counts.active}
+                      Active: {processedData.filter(item => normalizeStatus(item[statusField])).length}
                     </span>
                   )}
                   {typeof counts.inactive === "number" && (
                     <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">
-                      Inactive: {counts.inactive}
+                      Inactive: {processedData.filter(item => !normalizeStatus(item[statusField])).length}
                     </span>
                   )}
                   {/* Custom count properties for Stats */}

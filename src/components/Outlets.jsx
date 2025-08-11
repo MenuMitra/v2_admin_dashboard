@@ -720,10 +720,9 @@ function Outlets() {
         columns={columns}
         title="Outlets"
         counts={{
-          total: outlets.length,
-          active: outlets.filter((outlet) => outlet.outletStatus === 1).length,
-          inactive: outlets.filter((outlet) => outlet.outletStatus === 0)
-            .length,
+          total: filteredData.length,  // Use filteredData instead of outlets
+          active: filteredData.filter((outlet) => outlet.outletStatus === 1).length,
+          inactive: filteredData.filter((outlet) => outlet.outletStatus === 0).length,
         }}
         searchTerm={searchQuery}
         onSearchChange={(value) => {
