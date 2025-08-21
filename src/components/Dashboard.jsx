@@ -24,6 +24,7 @@ import {
   faBell,
   faChartLine,
   faEnvelope,
+  faShoppingCart,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "./common/DataTable";
 import { useFullscreen } from "./FullscreenContext";
@@ -167,9 +168,9 @@ function Dashboard() {
 
   return (
     <div className="p-0">
-      {/* Full-width Card with Chart and Counts */}
+      {/* Compact Dashboard Card with All Sections */}
       <div
-        className={`col-span-12 mb-6 ${fullscreenClass}`}
+        className={`bg-white rounded-lg border border-gray-200 shadow-sm mb-6 ${fullscreenClass}`}
         style={
           isFullscreen
             ? {
@@ -187,217 +188,213 @@ function Dashboard() {
                 minHeight: "100vh",
                 minWidth: "100vw",
               }
-            : {
-                borderRadius: 16,
-                border: "1px solid #e5e7eb",
-                background: "#fff",
-                position: "relative",
-              }
+            : {}
         }
       >
-        <div
-          className={`w-full flex ${
-            isFullscreen
-              ? "flex-row items-center justify-center h-full"
-              : "flex-col md:flex-row items-center justify-between"
-          } gap-6 px-6 pb-6 pt-6`}
-          style={isFullscreen ? { height: "100vh", position: "relative" } : {}}
-        >
-          {/* Counts: Always centered horizontally and vertically */}
-          <div className="flex flex-row items-center justify-center w-full h-full gap-6">
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-black">
-                {cardData.total_live_outlets?.toLocaleString()}
-              </span>
-              <span className="text-xs text-gray-500">Total Live Outlets</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-black">
-                {cardData.total_outlets?.toLocaleString()}
-              </span>
-              <span className="text-xs text-gray-500">Total Outlets</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-black">
-                {cardData.total_orders?.toLocaleString()}
-              </span>
-              <span className="text-xs text-gray-500">Total Orders</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-black">
-                {cardData.total_earning?.toLocaleString()}
-              </span>
-              <span className="text-xs text-gray-500">Total Earning</span>
-            </div>
+        {/* Fullscreen top-right controls */}
+        {isFullscreen && (
+          <div className="fixed top-4 right-4 z-[60] flex items-center gap-3">
+            <button
+              onClick={() => refetchCardData()}
+              disabled={isCardLoading}
+              title="Reload"
+              className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+            >
+              <FontAwesomeIcon
+                icon={faRotate}
+                className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`}
+              />
+            </button>
+            <button
+              onClick={() => setIsFullscreen((f) => !f)}
+              title={isFullscreen ? "Minimize" : "Fullscreen"}
+              className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+            >
+              <FontAwesomeIcon
+                icon={isFullscreen ? faCompress : faExpand}
+                className="w-4 h-4"
+              />
+            </button>
           </div>
-          {/* Right: Icons (top-right in fullscreen) */}
+        )}
+
+        <div
+          className={`p-6 ${isFullscreen ? "w-full max-w-6xl p-8" : ""}`}
+          style={isFullscreen ? { overflow: "auto" } : {}}
+        >
+          {/* Header with Controls */}
+          {!isFullscreen && (
+            <div className="flex items-center justify-end mb-6">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => refetchCardData()}
+                  disabled={isCardLoading}
+                  title="Reload"
+                  className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+                >
+                  <FontAwesomeIcon
+                    icon={faRotate}
+                    className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`}
+                  />
+                </button>
+                <button
+                  onClick={() => setIsFullscreen((f) => !f)}
+                  title={isFullscreen ? "Minimize" : "Fullscreen"}
+                  className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+                >
+                  <FontAwesomeIcon
+                    icon={isFullscreen ? faCompress : faExpand}
+                    className="w-4 h-4"
+                  />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Dashboard Sections Grid */}
           <div
-            className={
-              isFullscreen
-                ? "absolute top-6 right-6 flex flex-col items-end gap-4"
-                : "flex flex-col items-end gap-4"
-            }
-            style={isFullscreen ? { zIndex: 100 } : {}}
+            className={`flex gap-4 ${
+              isFullscreen ? "flex-row" : "flex-col md:flex-row"
+            } justify-center`}
           >
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => refetchCardData()}
-                disabled={isCardLoading}
-                title="Reload"
-                className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50"
-              >
+            {/* 1. Enquiry Section */}
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex-1">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-gray-700">Enquiry</h3>
                 <FontAwesomeIcon
-                  icon={faRotate}
-                  className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`}
+                  icon={faEnvelope}
+                  className="text-brand-500 text-sm"
                 />
-              </button>
-              <button
-                onClick={() => setIsFullscreen((f) => !f)}
-                title={isFullscreen ? "Minimize" : "Fullscreen"}
-                className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50"
-              >
+              </div>
+              <div className="flex justify-between items-center space-x-4">
+                <div className="text-center flex flex-col items-center">
+                  <div className="font-semibold text-gray-800 text-sm">
+                    {cardData.total_enquiries?.toLocaleString() || "0"}
+                  </div>
+                  <div className="text-xs text-gray-600">Enquiry</div>
+                </div>
+                <div className="text-center flex flex-col items-center">
+                  <div className="font-semibold text-green-600 text-sm">
+                    {cardData.onboard_count?.toLocaleString() || "0"}
+                  </div>
+                  <div className="text-xs text-gray-600">Onboard</div>
+                </div>
+                <div className="text-center flex flex-col items-center">
+                  <div className="font-semibold text-blue-600 text-sm">
+                    {cardData.positive_count?.toLocaleString() || "0"}
+                  </div>
+                  <div className="text-xs text-gray-600">Positive</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Outlet Section */}
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex-1">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-gray-700">Outlets</h3>
                 <FontAwesomeIcon
-                  icon={isFullscreen ? faCompress : faExpand}
-                  className="w-4 h-4"
-                  style={isFullscreen ? { transform: "rotate(0deg)" } : {}}
+                  icon={faStore}
+                  className="text-brand-500 text-sm"
                 />
-              </button>
+              </div>
+              <div className="flex justify-between items-center space-x-4">
+                <div className="text-center flex flex-col items-center">
+                  <div className="font-semibold text-gray-800 text-sm">
+                    {cardData.total_outlets?.toLocaleString() || "0"}
+                  </div>
+                  <div className="text-xs text-gray-600">Total</div>
+                </div>
+                <div className="text-center flex flex-col items-center">
+                  <div className="font-semibold text-green-600 text-sm">
+                    {cardData.total_live_outlets?.toLocaleString() || "0"}
+                  </div>
+                  <div className="text-xs text-gray-600">Live</div>
+                </div>
+                <div className="text-center flex flex-col items-center">
+                  <div className="font-semibold text-red-600 text-sm">
+                    {cardData.total_inactive_outlets?.toLocaleString() || "0"}
+                  </div>
+                  <div className="text-xs text-gray-600">Inactive</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Order Section */}
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex-1">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-gray-700">Orders</h3>
+                <FontAwesomeIcon
+                  icon={faShoppingCart}
+                  className="text-brand-500 text-sm"
+                />
+              </div>
+              <div className="flex justify-between items-center space-x-4">
+                <div className="text-center flex flex-col items-center">
+                  <div className="font-semibold text-blue-600 text-sm">
+                    {cardData.total_orders?.toLocaleString() || "0"}
+                  </div>
+                  <div className="text-xs text-gray-600">Total</div>
+                </div>
+                <div className="text-center flex flex-col items-center">
+                  <div className="font-semibold text-green-600 text-sm">
+                    {cardData.paid_orders?.toLocaleString() || "0"}
+                  </div>
+                  <div className="text-xs text-gray-600">Paid</div>
+                </div>
+                <div className="text-center flex flex-col items-center">
+                  <div className="font-semibold text-orange-600 text-sm">
+                    {cardData.cooking_orders?.toLocaleString() || "0"}
+                  </div>
+                  <div className="text-xs text-gray-600">Cooking</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
       {/* Only show the rest of the dashboard if not fullscreen */}
       {!isFullscreen && (
         <>
-          {/* Stats Section */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-            <Link
-              to="/owners"
-              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUserTie}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {dashboardData.counts?.owner_count || 0}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Total Owners
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              to="/partners"
-              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUserGroup}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {dashboardData.counts?.partner_count || 0}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Total Partners
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              to="/outlets"
-              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faStore}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {dashboardData.counts?.outlet_count || 0}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Total Outlets
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              to="/customer"
-              className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] transition hover:shadow-lg"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/15">
-                    <FontAwesomeIcon
-                      icon={faUsers}
-                      className="h-6 w-6 text-brand-500 dark:text-brand-400"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-800 dark:text-white/90">
-                      {dashboardData.counts?.customer_count || 0}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Total Customers
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-
           {/* Navigation Icons Section */}
           <div className="mt-6">
             <div className="flex flex-wrap gap-5">
               <Link
                 to="/home"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg "
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
-                <FontAwesomeIcon icon={faHome} className="text-brand-500 mb-1" />
+                <FontAwesomeIcon
+                  icon={faHome}
+                  className="text-brand-500 mb-1"
+                />
                 <span className="text-xs font-medium text-dark">Home</span>
               </Link>
 
               <Link
                 to="/admins"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
-                <FontAwesomeIcon icon={faUser} className="text-brand-500 mb-1" />
+                <FontAwesomeIcon
+                  icon={faUser}
+                  className="text-brand-500 mb-1"
+                />
                 <span className="text-xs font-medium text-dark">Admins</span>
               </Link>
 
               <Link
                 to="/owners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
-                <FontAwesomeIcon icon={faUsers} className="text-brand-500 mb-1" />
+                <FontAwesomeIcon
+                  icon={faUsers}
+                  className="text-brand-500 mb-1"
+                />
                 <span className="text-xs font-medium text-dark">Owners</span>
               </Link>
 
               <Link
                 to="/super-owners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faUserShield}
@@ -410,7 +407,7 @@ function Dashboard() {
 
               <Link
                 to="/partners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faHandshake}
@@ -421,7 +418,7 @@ function Dashboard() {
 
               <Link
                 to="/features"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faMobileScreenButton}
@@ -432,7 +429,7 @@ function Dashboard() {
 
               <Link
                 to="/subscriptions"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faIndianRupeeSign}
@@ -445,15 +442,18 @@ function Dashboard() {
 
               <Link
                 to="/outlets"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
-                <FontAwesomeIcon icon={faStore} className="text-brand-500 mb-1" />
+                <FontAwesomeIcon
+                  icon={faStore}
+                  className="text-brand-500 mb-1"
+                />
                 <span className="text-xs font-medium text-dark">Outlets</span>
               </Link>
 
               <Link
                 to="/roles"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faUserShield}
@@ -464,9 +464,12 @@ function Dashboard() {
 
               <Link
                 to="/functionalities"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
-                <FontAwesomeIcon icon={faList} className="text-brand-500 mb-1" />
+                <FontAwesomeIcon
+                  icon={faList}
+                  className="text-brand-500 mb-1"
+                />
                 <span className="text-xs font-medium text-dark">
                   Functionalities
                 </span>
@@ -474,27 +477,34 @@ function Dashboard() {
 
               <Link
                 to="/search"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
-                <FontAwesomeIcon icon={faSearch} className="text-brand-500 mb-1" />
+                <FontAwesomeIcon
+                  icon={faSearch}
+                  className="text-brand-500 mb-1"
+                />
                 <span className="text-xs font-medium text-dark">Search</span>
               </Link>
 
               <Link
                 to="/customer"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
-                <FontAwesomeIcon icon={faUser} className="text-brand-500 mb-1" />
-                <span className="text-xs font-medium text-dark">
-                  Customers
-                </span>
+                <FontAwesomeIcon
+                  icon={faUser}
+                  className="text-brand-500 mb-1"
+                />
+                <span className="text-xs font-medium text-dark">Customers</span>
               </Link>
 
               <Link
                 to="/notifications"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
-                <FontAwesomeIcon icon={faBell} className="text-brand-500 mb-1" />
+                <FontAwesomeIcon
+                  icon={faBell}
+                  className="text-brand-500 mb-1"
+                />
                 <span className="text-xs font-medium text-dark">
                   Notifications
                 </span>
@@ -502,20 +512,18 @@ function Dashboard() {
 
               <Link
                 to="/enquiries"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faEnvelope}
                   className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-dark">
-                  Enquiries
-                </span>
+                <span className="text-xs font-medium text-dark">Enquiries</span>
               </Link>
 
               <Link
                 to="/stats"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faChartLine}
@@ -526,9 +534,12 @@ function Dashboard() {
 
               <Link
                 to="/profile"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
-                <FontAwesomeIcon icon={faUser} className="text-brand-500 mb-1" />
+                <FontAwesomeIcon
+                  icon={faUser}
+                  className="text-brand-500 mb-1"
+                />
                 <span className="text-xs font-medium text-dark">Profile</span>
               </Link>
             </div>
