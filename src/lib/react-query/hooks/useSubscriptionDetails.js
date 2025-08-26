@@ -23,7 +23,7 @@ export const useSubscriptionDetails = (subscriptionId) => {
 
       const response = await toastController.promise(
         axios.post(
-          'https://men4u.xyz/v2/admin/view_subscription',
+          'https://ghanish.in/v2/admin/view_subscription',
           {
             subscription_id: Number(subscriptionId),
             user_id: adminData.user_id,
@@ -58,7 +58,7 @@ export const useSubscriptionDetails = (subscriptionId) => {
 
       const response = await toastController.promise(
         axios.post(
-          'https://men4u.xyz/v2/admin/delete_subscription',
+          'https://ghanish.in/v2/admin/delete_subscription',
           {
             subscription_id: Number(subscriptionId),
             user_id: adminData.user_id,

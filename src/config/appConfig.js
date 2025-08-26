@@ -24,7 +24,7 @@ const getApiBaseUrl = () => {
   // For all domains including localhost, use domain-based logic
   return isMenuMitraDomain() 
     ? 'https://menusmitra.xyz' 
-    : 'https://men4u.xyz';
+    : 'https://ghanish.in';
 };
 
 // API Configuration

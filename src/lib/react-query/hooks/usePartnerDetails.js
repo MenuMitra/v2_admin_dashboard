@@ -22,7 +22,7 @@ export const usePartnerDetails = (partnerId) => {
       if (!token) throw new Error('No authentication token available');
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/admin/view_partner',
+        'https://ghanish.in/v2/admin/view_partner',
         {
           partner_id: Number(partnerId),
           user_id: adminData.user_id,
@@ -51,7 +51,7 @@ export const usePartnerDetails = (partnerId) => {
       if (!token) throw new Error('No authentication token available');
 
       await toastController.promise(
-        axios.delete('https://men4u.xyz/v2/admin/delete_partner', {
+        axios.delete('https://ghanish.in/v2/admin/delete_partner', {
           headers: {
             Authorization: token,
             'Content-Type': 'application/json',
