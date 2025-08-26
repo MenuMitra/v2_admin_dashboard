@@ -53,3 +53,51 @@
   font-size: 11px !important;
   line-height: 1.1 !important;
 }
+
+.social-btn {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;       /* make it circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ddd;   /* light gray border */
+  background: #fff;         /* white background */
+  transition: all 0.25s ease;
+}
+
+.social-btn i {
+  font-size: 28px;          /* icon size */
+}
+
+/* Optional hover effect */
+.social-btn:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  transform: translateY(-2px);
+}
+
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+}
+
+.icon-btn i {
+  font-size: 26px;
+  color: inherit; /* Ensure icons inherit their specific colors */
+}
+
+.icon-btn .ri-facebook-fill { color: #1877F2; }
+.icon-btn .ri-instagram-fill { color: #E4405F; }
+.icon-btn .ri-youtube-fill { color: #FF0000; }
+.icon-btn .ri-google-fill { color: #34A853; }
+
+.icon-btn:hover {
+  opacity: 0.8;
+}
+
+.icon-btn:hover i {
+  color: inherit; /* Prevent any color change on hover */
+}
