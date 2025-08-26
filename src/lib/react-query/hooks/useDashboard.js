@@ -64,13 +64,41 @@ export const useDashboard = () => {
         // Prefer metrics if available, fallback to counts for backward compatibility
         const metrics = data.metrics || {};
         const counts = data.counts || {};
+        const enquiry = data.enquiry_count || {};
+        const orderCount = data.order_count || {};
+
+        const totalOutlets = metrics.total_outlets ?? counts.outlet_count ?? 0;
+        const totalLiveOutlets =
+          metrics.total_live_outlets ?? counts.live_outlet_count ?? 0;
+        const totalInactiveOutlets =
+          metrics.total_inactive_outlets ??
+          counts.inactive_outlet_count ??
+          (totalOutlets && totalLiveOutlets !== undefined
+            ? Math.max(totalOutlets - totalLiveOutlets, 0)
+            : 0);
+
         return {
-          total_live_outlets:
-            metrics.total_live_outlets ?? counts.live_outlet_count ?? 0,
-          total_outlets: metrics.total_outlets ?? counts.outlet_count ?? 0,
-          total_orders: metrics.total_orders ?? counts.total_order_count ?? 0,
+          // Outlets
+          total_outlets: totalOutlets,
+          total_live_outlets: totalLiveOutlets,
+          total_inactive_outlets: totalInactiveOutlets,
+
+          // Orders
+          total_orders:
+            orderCount.total_orders ??
+            metrics.total_orders ??
+            counts.total_order_count ??
+            0,
+          paid_orders: orderCount.total_paid ?? counts.paid_order_count ?? 0,
+          cooking_orders:
+            orderCount.total_cooking ?? counts.cooking_order_count ?? 0,
           total_earning:
             metrics.total_earning ?? counts.total_earning_count ?? 0,
+
+          // Enquiry
+          total_enquiries: enquiry.enquiry ?? counts.enquiry_count ?? 0,
+          positive_count: enquiry.positive ?? counts.positive_count ?? 0,
+          onboard_count: enquiry.onboard ?? counts.onboard_count ?? 0,
         };
       },
       refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes

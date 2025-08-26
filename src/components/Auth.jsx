@@ -145,8 +145,8 @@ function Auth() {
   const handleBackToLogin = (e) => {
     e.preventDefault();
     setIsOtpSent(false);
-    setOtp(["", "", "", ""]); // Reset OTP input
-    setError(""); // Clear any errors
+    setOtp(["", "", "", ""]);
+    setError("");
   };
 
   const handleOtpKeyPress = (e) => {
@@ -199,7 +199,6 @@ function Auth() {
     <>
       <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
         <div className="relative flex flex-col justify-center w-full h-screen dark:bg-gray-900 sm:p-0 lg:flex-row">
-          {/* <!-- Form --> */}
           <div className="flex flex-col flex-1 w-full lg:w-1/2">
             {isOtpSent && (
               <div className="w-full max-w-md pt-10 mx-auto">
@@ -293,26 +292,58 @@ function Auth() {
                           </button>
                         </div>
 
-                        <div className="flex justify-center mb-0">
-                          <a
-                            href="https://www.shekru.com"
-                            target="_blank"
-                            className="text-sm text-gray-500 dark:text-gray-400"
-                          >
-                            <span className="text-brand-500">Powered by</span>{" "}
-                            Shekru Labs
-                          </a>
-                        </div>
-                        <div className="flex justify-center pt-0">
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            Version 2.0
-                          </p>
+                        <div className="flex flex-col items-center gap-3 mt-10">
+                          <div className="flex items-center gap-2">
+                            <img
+                              src={Logo}
+                              alt="MenuMitra"
+                              className="w-12 h-12 object-contain"
+                            />
+                            <span className="text-lg font-normal text-gray-700 dark:text-white">
+                              MenuMitra
+                            </span>
+                          </div>
+ 
+  {/* Fixed Social Icons Section */}
+                          <div className="flex justify-center gap-4 mt-6">
+                            <a 
+                              href="https://www.facebook.com/people/Menu-Mitra/61565082412478/" 
+                              className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
+                            >
+                              <i className="ri-facebook-fill text-2xl" style={{ color: "#1877F2" }}></i>
+                            </a>
+                            <a 
+                              href="https://www.instagram.com/menumitra/" 
+                              className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
+                            >
+                              <i className="ri-instagram-fill text-2xl" style={{ color: "#E4405F" }}></i>
+                            </a>
+                            <a 
+                              href="https://www.youtube.com/@menumitra" 
+                              className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
+                            >
+                              <i className="ri-youtube-fill text-2xl" style={{ color: "#FF0000" }}></i>
+                            </a>
+                            <a 
+                              href="https://www.google.com/@menumitra" 
+                              className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
+                            >
+                              <i className="ri-google-fill text-2xl" style={{ color: "#34A853" }}></i>
+                            </a>
+                          </div>
+
+                          <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
+                            <span className="font-medium">Version 2.0</span>
+                            <span>|</span>
+                            <span>13 Aug 2025</span>
+                          </div>
                         </div>
                       </div>
                     </form>
                   </div>
                 </div>
               )}
+
 
               {isOtpSent && (
                 <div>
@@ -397,7 +428,6 @@ function Auth() {
 
           <div className="relative items-center hidden w-full h-full bg-brand-950 dark:bg-white/5 lg:grid lg:w-1/2">
             <div className="flex items-center justify-center z-1">
-              {/* <!-- ===== Common Grid Shape Start ===== --> */}
               <div className="absolute right-0 top-0 -z-1 w-full max-w-[250px] xl:max-w-[450px]">
                 <img src={grid01} alt="grid" />
               </div>

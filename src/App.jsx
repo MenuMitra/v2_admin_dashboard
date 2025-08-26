@@ -75,6 +75,8 @@ import Stats from "./components/Stats/Stats";
 import DBTablesStats from "./components/Stats/DBTablesStats";
 import CombinedStats from "./components/Stats/CombinedStats";
 import EditFunctionality from "./components/AccessControl/Roles/EditFunctionality";
+import 'remixicon/fonts/remixicon.css';
+
 
 function App() {
   return (
