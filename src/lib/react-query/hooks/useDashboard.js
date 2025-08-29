@@ -101,7 +101,7 @@ export const useDashboard = () => {
           onboard_count: enquiry.onboard ?? counts.onboard_count ?? 0,
         };
       },
-      refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
+      refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
     });
   };
 
