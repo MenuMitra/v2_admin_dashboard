@@ -74,7 +74,7 @@ function EditPartner() {
       }
 
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
+        "https://ghanish.in/v2/admin/get_ubac_functionalities",
         {
           headers: {
             Authorization: token,
@@ -103,7 +103,7 @@ function EditPartner() {
   const fetchRoles = async () => {
     try {
       const response = await axios.get(
-        "https://men4u.xyz/v2/common/get_list/roles",
+        "https://ghanish.in/v2/common/get_list/roles",
         {
           headers: {
             Authorization: getToken(),
@@ -126,7 +126,7 @@ function EditPartner() {
       }
 
       const response = await axios.get(
-        "https://men4u.xyz/v2/common/get_list/outlets",
+        "https://ghanish.in/v2/common/get_list/outlets",
         {
           headers: {
             Authorization: token,
@@ -159,7 +159,7 @@ function EditPartner() {
       }
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/admin/view_partner",
+        "https://ghanish.in/v2/admin/view_partner",
         {
           partner_id: Number(partnerId), // Changed back to partner_id to match usePartnerDetails.js
           user_id: adminData.user_id,
@@ -312,7 +312,7 @@ function EditPartner() {
         .replace(/ /g, " ");
 
       const response = await axios.patch(
-        "https://men4u.xyz/v2/admin/update_partner",
+        "https://ghanish.in/v2/admin/update_partner",
         {
           name: partnerDetails.name,
           email: partnerDetails.email,

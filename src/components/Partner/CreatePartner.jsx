@@ -49,7 +49,7 @@ function CreatePartner() {
       }
 
       const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
+        "https://ghanish.in/v2/admin/get_ubac_functionalities",
         {
           headers: {
             Authorization: token,
@@ -144,7 +144,7 @@ function CreatePartner() {
       };
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/admin/create_partner",
+        "https://ghanish.in/v2/admin/create_partner",
         requestData,
         {
           headers: {

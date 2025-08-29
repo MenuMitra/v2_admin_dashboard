@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-https://men4u.xyz/v2
+https://ghanish.in/v2
 ```
 
 ## Authentication
