@@ -1,9 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { toastController } from '../../../utils/toastController';
-import { queryKeys } from '../queryKeys';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { toastController } from "../../../utils/toastController";
+import { queryKeys } from "../queryKeys";
 
 export const usePartners = () => {
   const { getToken } = useAuth();
@@ -21,7 +21,7 @@ export const usePartners = () => {
     queryFn: async () => {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.get(
@@ -29,7 +29,7 @@ export const usePartners = () => {
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
@@ -44,13 +44,13 @@ export const usePartners = () => {
     mutationFn: async (partnerId) => {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
-      await axios.delete('https://men4u.xyz/v2/admin/delete_partner', {
+      await axios.delete("https://men4u.xyz/v2/admin/delete_partner", {
         headers: {
           Authorization: token,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         data: {
           partner_id: partnerId,
@@ -61,10 +61,12 @@ export const usePartners = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(queryKeys.partners.list());
-      toastController.success('Partner deleted successfully');
+      toastController.success("Partner deleted successfully");
     },
     onError: (err) => {
-      toastController.error(err.response?.data?.detail || 'Failed to delete partner');
+      toastController.error(
+        err.response?.data?.detail || "Failed to delete partner"
+      );
     },
   });
 
@@ -73,17 +75,17 @@ export const usePartners = () => {
     mutationFn: async (payload) => {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/bulk_partner_action',
+        "https://men4u.xyz/v2/common/bulk_partner_action",
         payload,
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       return response.data;
@@ -91,11 +93,13 @@ export const usePartners = () => {
     onSuccess: () => {
       queryClient.invalidateQueries(queryKeys.partners.list());
       refetch();
-      toastController.success('Bulk action completed successfully');
+      toastController.success("Bulk action completed successfully");
     },
     onError: (err) => {
-      toastController.error(err.response?.data?.detail || 'Failed to process bulk action');
-    }
+      toastController.error(
+        err.response?.data?.detail || "Failed to process bulk action"
+      );
+    },
   });
 
   // Calculate counts
@@ -116,4 +120,4 @@ export const usePartners = () => {
     bulkActionError: bulkAction.error,
     counts,
   };
-}; 
+};

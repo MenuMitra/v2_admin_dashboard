@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { queryKeys } from '../queryKeys';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { queryKeys } from "../queryKeys";
 
 export const useCategories = (outletId, userId) => {
   const queryClient = useQueryClient();
@@ -9,7 +9,7 @@ export const useCategories = (outletId, userId) => {
   const categoriesQuery = useQuery({
     queryKey: queryKeys.categories.list(outletId),
     queryFn: async () => {
-      const token = localStorage.getItem('token'); // Or use your auth method
+      const token = localStorage.getItem("token"); // Or use your auth method
       const response = await axios.post(
         "https://men4u.xyz/v2/common/menu_category_list",
         {
@@ -32,13 +32,13 @@ export const useCategories = (outletId, userId) => {
   // Delete category mutation
   const deleteCategoryMutation = useMutation({
     mutationFn: async ({ categoryId, outletId, userId }) => {
-      const token = localStorage.getItem('token');
-      return axios.delete('https://men4u.xyz/v2/common/menu_category_delete', {
+      const token = localStorage.getItem("token");
+      return axios.delete("https://men4u.xyz/v2/common/menu_category_delete", {
         data: {
           menu_cat_id: categoryId,
           outlet_id: outletId,
           user_id: userId,
-          app_source: "admin_app"
+          app_source: "admin_app",
         },
         headers: {
           Authorization: token,
@@ -57,15 +57,15 @@ export const useCategories = (outletId, userId) => {
   // Bulk action mutation
   const bulkActionMutation = useMutation({
     mutationFn: async ({ action, selectedIds, outletId, userId }) => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       return axios.post(
-        'https://men4u.xyz/v2/common/bulk_category_action',
+        "https://men4u.xyz/v2/common/bulk_category_action",
         {
           user_id: userId,
           outlet_id: Number(outletId),
           action: action,
           app_source: "admin_app",
-          menu_cat_ids: selectedIds
+          menu_cat_ids: selectedIds,
         },
         {
           headers: {
@@ -88,4 +88,4 @@ export const useCategories = (outletId, userId) => {
     deleteCategoryMutation,
     bulkActionMutation,
   };
-}; 
+};
