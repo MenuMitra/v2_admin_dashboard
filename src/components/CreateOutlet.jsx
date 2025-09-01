@@ -1186,19 +1186,29 @@ function CreateOutlet() {
                   </div>
 
                   <CustomSelectInput
-                    label="Subscription Plan"
-                    name="subscription_id"
-                    value={outletData.subscription_id || ""}
-                    onChange={handleInputChange}
-                    required
-                    options={subscriptions.map((sub) => ({
-                      value: sub.subscription_id.toString(),
-                      label: `${sub.name} - ₹${sub.price} (${
-                        sub.features?.length || 0
-                      } features)`,
-                    }))}
-                    placeholder="Select Subscription Plan"
-                  />
+  label="Subscription Plan"
+  name="subscription_id"
+  value={outletData?.subscription_id || ""}
+  onChange={handleInputChange}
+  required
+  options={(subscriptions || []).map((sub) => {
+    try {
+      return {
+        value: sub?.subscription_id?.toString() || "",
+        label: `${sub?.name || "Unnamed"} - ₹${sub?.price || 0} (${
+          sub?.features?.length || 0
+        } features)`,
+      };
+    } catch (error) {
+      console.error("Error mapping subscription:", error);
+      return {
+        value: "",
+        label: "Invalid subscription",
+      };
+    }
+  })}
+/>
+
                   {outletData.subscription_id && (
                     <div className="relative">
                       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
