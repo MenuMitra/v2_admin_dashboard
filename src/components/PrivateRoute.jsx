@@ -1,13 +1,12 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import AppLayout from './AppLayout';
+import { useAuth } from '../hooks/useAuth';
 
 const PrivateRoute = () => {
-  // You can add authentication check logic here
-  // const isAuthenticated = // your auth check logic
-  const isAuthenticated = true; // temporary, replace with your actual auth logic
+  const { isAuthenticated } = useAuth();
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated()) {
     return <Navigate to="/" replace />;
   }
 

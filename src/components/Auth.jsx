@@ -15,11 +15,11 @@ function Auth() {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isOtpScreen, setIsOtpScreen] = useState(false);
+  // const [isOtpScreen, setIsOtpScreen] = useState(false); // Unused variable
   const [mobileError, setMobileError] = useState("");
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [countdown, setCountdown] = useState(0);
-  const { getToken } = useAuth();
+  const { getToken, login } = useAuth();
 
   const navigate = useNavigate();
 
@@ -117,12 +117,8 @@ function Auth() {
       );
 
       if (response.data.detail === "Login successful") {
-        const authData = {
-          access_token: response.data.access_token,
-          token_type: response.data.token_type,
-          expires_at: response.data.expires_at || response.data.expires_on,
-        };
-        localStorage.setItem("auth", JSON.stringify(authData));
+        // Use the login function from useAuth hook for consistent token management
+        login(response);
 
         const adminData = {
           user_id: response.data.user_id,
