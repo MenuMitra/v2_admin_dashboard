@@ -63,7 +63,7 @@ export const useAuth = () => {
   };
 
   const getToken = () => {
-    return authData ? `${authData.token_type} ${authData.access_token}` : null;
+    return authData ? `Bearer ${authData.access_token}` : null;
   };
 
   return {

@@ -120,7 +120,7 @@ function Auth() {
         const authData = {
           access_token: response.data.access_token,
           token_type: response.data.token_type,
-          expires_at: response.data.expires_at,
+          expires_at: response.data.expires_at || response.data.expires_on,
         };
         localStorage.setItem("auth", JSON.stringify(authData));
 
