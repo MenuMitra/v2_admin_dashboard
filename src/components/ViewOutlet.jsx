@@ -355,8 +355,30 @@ function ViewOutlet() {
 
         {/* Main Content */}
         <div className="p-4 sm:p-6">
+          {" "}
           {/* Using flex-col by default for mobile and row for larger screens */}
-          <div className="flex flex-col md:flex-row justify-between items-stretch gap-4 md:gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-stretch gap-4 md:gap-6 mt-6">
+            {/* Outlet Image Section */}
+            {outletData?.image && (
+              <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
+                <h2 className="text-lg font-semibold text-gray-800 mb-6">
+                  Outlet Image
+                </h2>
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <img
+                      src={outletData.image}
+                      alt={`${outletData?.name || "Outlet"} image`}
+                      className="w-[252px] h-[252px] sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 xl:w-40 xl:h-40 rounded-lg shadow-lg object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Menu Management Section */}
             <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
@@ -500,7 +522,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6 flex flex-wrap items-center justify-between gap-3 mb-6">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Basic Information
@@ -726,7 +747,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Business Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -874,7 +894,6 @@ function ViewOutlet() {
               )}
             </div>
           </div>
-
           {/* Order section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -915,7 +934,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Manage Staff Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -985,7 +1003,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Manage Outlet Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -1070,7 +1087,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Audit Information section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -1150,7 +1166,6 @@ function ViewOutlet() {
               )}
             </div>
           </div>
-
           {/* Subscription Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
