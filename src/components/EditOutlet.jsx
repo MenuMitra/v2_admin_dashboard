@@ -21,7 +21,6 @@ import Breadcrumb from "./Breadcrumb";
 import ImageUploader from "./common/ImageUploader";
 import { API_CONFIG } from "../config/appConfig";
 import {
-  isValidSocialMediaLinks,
   isMobileValid,
   isWhatsappValid,
 } from "../utils/validations";
@@ -81,11 +80,6 @@ function EditOutlet() {
     outlet_mode: false,
     address: false,
     fssainumber: false,
-    website: false,
-    facebook: false,
-    instagram: false,
-    google_business_link: false,
-    google_review: false,
     whatsapp: false,
     whatsappMessage: "",
   });
@@ -380,24 +374,6 @@ function EditOutlet() {
       } else {
         setValidationStates((prev) => ({ ...prev, [name]: false }));
       }
-    } else if (
-      [
-        "website",
-        "facebook",
-        "instagram",
-        "google_business_link",
-        "google_review",
-      ].includes(name)
-    ) {
-      setOutletData((prev) => ({ ...prev, [name]: value }));
-
-      if (value) {
-        const { isValid, errors } = isValidSocialMediaLinks({ [name]: value });
-        setValidationStates((prev) => ({ ...prev, [name]: !isValid }));
-        if (!isValid) toastController.error(errors[name]);
-      } else {
-        setValidationStates((prev) => ({ ...prev, [name]: false }));
-      }
     } else {
       setOutletData((prev) => ({
         ...prev,
@@ -482,32 +458,6 @@ function EditOutlet() {
         throw new Error("No authentication token available");
       }
 
-      // Validate social media links
-      const socialMediaLinks = {
-        website: outletData.website,
-        facebook: outletData.facebook,
-        instagram: outletData.instagram,
-        google_business_link: outletData.google_business_link,
-        google_review: outletData.google_review,
-      };
-
-      const { isValid: isSocialValid, errors: socialErrors } =
-        isValidSocialMediaLinks(socialMediaLinks);
-
-      if (!isSocialValid) {
-        // Update validation states for all invalid fields
-        const newValidationStates = { ...validationStates };
-        Object.keys(socialErrors).forEach((key) => {
-          newValidationStates[key] = true;
-        });
-        setValidationStates(newValidationStates);
-
-        // Show error messages
-        Object.values(socialErrors).forEach((error) => {
-          toastController.error(error);
-        });
-        return;
-      }
 
 
       // Prepare API data with new_owner_ids as array
@@ -1365,7 +1315,6 @@ function EditOutlet() {
                 value={outletData.website}
                 onChange={handleInputChange}
                 placeholder="https://example.com"
-                className={validationStates.website ? "border-error-500" : ""}
               />
 
               <TextInput
@@ -1375,7 +1324,6 @@ function EditOutlet() {
                 value={outletData.facebook}
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/yourpage"
-                className={validationStates.facebook ? "border-error-500" : ""}
               />
 
               <TextInput
@@ -1385,7 +1333,6 @@ function EditOutlet() {
                 value={outletData.instagram}
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/yourhandle"
-                className={validationStates.instagram ? "border-error-500" : ""}
               />
 
               <TextInput
@@ -1395,11 +1342,6 @@ function EditOutlet() {
                 value={outletData.google_business_link}
                 onChange={handleInputChange}
                 placeholder="https://business.google.com/yourpage"
-                className={
-                  validationStates.google_business_link
-                    ? "border-error-500"
-                    : ""
-                }
               />
 
               <TextInput
@@ -1409,9 +1351,6 @@ function EditOutlet() {
                 value={outletData.google_review}
                 onChange={handleInputChange}
                 placeholder="https://g.page/r/yourreviewpage"
-                className={
-                  validationStates.google_review ? "border-error-500" : ""
-                }
               />
             </div>
           </section>
