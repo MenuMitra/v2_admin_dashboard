@@ -4,9 +4,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCircleCheck,
   faCircleXmark,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import ActiveSessionsTable from "../common/ActiveSessionsTable";
 import { useSuperOwnerDetails } from "../../lib/react-query/hooks/useSuperOwnerDetails";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
@@ -43,10 +45,14 @@ function SuperOwnerDetails() {
 
   // Update active sessions when superOwnerData changes
   useEffect(() => {
-    if (superOwnerDetails?.superOwnerData?.active_sessions) {
-      setActiveSessions(superOwnerDetails.superOwnerData.active_sessions);
+    if (superOwnerDetails?.assignedOutlets) {
+      // Flatten all active sessions from all outlets
+      const allSessions = superOwnerDetails.assignedOutlets.flatMap(outlet => 
+        outlet.active_sessions || []
+      );
+      setActiveSessions(allSessions);
     }
-  }, [superOwnerDetails?.superOwnerData?.active_sessions]);
+  }, [superOwnerDetails?.assignedOutlets]);
 
   if (isLoading) {
     return (
@@ -121,7 +127,7 @@ function SuperOwnerDetails() {
           alert(data.detail || "Logout failed");
         }
       }
-    } catch (err) {
+    } catch {
       if (window.toastController) {
         window.toastController.error("Logout failed");
       } else {
@@ -254,6 +260,22 @@ function SuperOwnerDetails() {
               </div>
             </div>
           </div>
+            <hr />
+
+{/* Active Sessions Section */}
+{activeSessions && activeSessions.length > 0 && (
+  <div className="mt-8 mb-4">
+    <h2 className="text-base font-medium mb-4 text-gray-800">
+      Active Sessions
+    </h2>
+    <ActiveSessionsTable
+      activeSessions={activeSessions}
+      lastLogin={superOwnerData.last_login}
+      onLogout={handleLogout}
+      showAction={true}
+    />
+  </div>
+)}
 
           {/* Assigned Outlets Section */}
           <div className="mb-4">
@@ -334,71 +356,6 @@ function SuperOwnerDetails() {
               </div>
             </div>
           </div>
-
-          {/* Active Sessions Section */}
-          {activeSessions && activeSessions.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-base font-medium mb-4 text-gray-800">
-                Active Sessions
-              </h2>
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                        Device ID
-                      </th>
-                      <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                        Device Model
-                      </th>
-                      <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                        App Type
-                      </th>
-                      <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                        Last Activity
-                      </th>
-                      <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                        Last Login
-                      </th>
-                      <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {activeSessions.map((session, idx) => (
-                      <tr key={idx} className="border-b last:border-b-0">
-                        <td className="px-4 py-2">
-                          {session.device_id || "-"}
-                        </td>
-                        <td className="px-4 py-2">
-                          {session.device_model || "-"}
-                        </td>
-                        <td className="px-4 py-2">{session.app_type || "-"}</td>
-                        <td className="px-4 py-2">
-                          {session.last_activity || "-"}
-                        </td>
-                        <td className="px-4 py-2">
-                          {session.last_login || "-"}
-                        </td>
-                        <td className="px-4 py-2">
-                          <button
-                            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-                            onClick={() => handleLogout(session.device_id)}
-                          >
-                            <FontAwesomeIcon
-                              icon={faTrash}
-                              className="w-4 h-4"
-                            />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
