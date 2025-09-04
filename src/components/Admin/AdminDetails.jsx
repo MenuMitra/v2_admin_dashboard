@@ -268,9 +268,9 @@ function AdminDetails() {
                         <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
                           App Type
                         </th>
-                        {/* <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
+                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
                           Action
-                        </th> */}
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -291,7 +291,7 @@ function AdminDetails() {
                           <td className="px-4 py-2 text-sm text-gray-800">
                             {session.app_type || "-"}
                           </td>
-                          {/* <td className="px-4 py-2 text-sm text-gray-800">
+                          <td className="px-4 py-2 text-sm text-gray-800">
                           <button
                               className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
                               onClick={() => handleLogout(session.device_id)}
@@ -301,7 +301,7 @@ function AdminDetails() {
                                 className="w-4 h-4"
                               />
                             </button>
-                          </td> */}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
