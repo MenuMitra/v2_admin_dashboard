@@ -44,7 +44,7 @@ const ActiveSessionsTable = ({
           {activeSessions.map((session, idx) => (
             <tr key={idx} className="border-b last:border-b-0">
               <td className="px-4 py-2 text-sm text-gray-800">
-                {session.device_model.toUpperCase() || "-"}
+                {session.device_model?.toUpperCase() || "-"}
               </td>
               <td className="px-4 py-2 text-sm text-gray-800">
                 {session.expires_on || "-"}
@@ -56,7 +56,7 @@ const ActiveSessionsTable = ({
                 {lastLogin || "-"}
               </td>
               <td className="px-4 py-2 text-sm text-gray-800">
-                {session.app_type.toUpperCase() || "-"}
+                {session.app_type?.toUpperCase() || "-"}
               </td>
               {showAction && (
                 <td className="px-4 py-2 text-sm text-gray-800">
