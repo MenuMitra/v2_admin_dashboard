@@ -453,7 +453,6 @@ function EditOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_id: !!outletData.subscription_id,
     };
 
     // Log validation results for debugging
@@ -510,13 +509,6 @@ function EditOutlet() {
         return;
       }
 
-      // Add validation for subscription_end_date if subscription is selected
-      if (outletData.subscription_id && !outletData.subscription_end_date) {
-        toastController.error(
-          "Please select a subscription tenure to set the end date."
-        );
-        return;
-      }
 
       // Prepare API data with new_owner_ids as array
       const apiData = {
@@ -1016,7 +1008,6 @@ function EditOutlet() {
   name="subscription_id"
   value={outletData?.subscription_id || ""}
   onChange={handleInputChange}
-  required
   placeholder="Select Subscription Plan"
   options={
     Array.isArray(subscriptions) && subscriptions.length > 0
