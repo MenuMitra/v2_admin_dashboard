@@ -235,12 +235,7 @@ function Roles() {
               <button
                 onClick={handleCreateRole}
                 disabled={!newRoleName.trim() || isCreating}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition-colors duration-200
-                  ${
-                    !newRoleName.trim() || isCreating
-                      ? "bg-success-500 cursor-not-allowed"
-                      : "bg-success-500 hover:bg-success-600"
-                  }`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white rounded-full transition bg-success-500 hover:bg-success-600 disabled:opacity-50 disabled:cursor-not-allowed shadow-theme-xs"
               >
                 <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
                 {isCreating ? "Creating..." : "Create"}
