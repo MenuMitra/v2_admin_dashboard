@@ -10,6 +10,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import ActiveSessionsTable from "../common/ActiveSessionsTable";
 import { useAdminDetails } from "../../lib/react-query/hooks/useAdminDetails";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
@@ -146,7 +147,7 @@ function AdminDetails() {
 
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
-              {admin && !PROTECTED_MOBILES.includes(admin.mobile) && (
+              {admin && !PROTECTED_MOBILES.includes(String(admin.mobile)) && (
                 <>
                   <button
                     onClick={() => navigate(`/edit-admin/${adminId}`)}
@@ -171,7 +172,7 @@ function AdminDetails() {
         </div>
 
         {/* Admin Details Content */}
-        <div className="p-6">
+        <div className="px-4 pb-4">
           {/* Admin Details Card */}
           <div className="bg-white rounded-2xl overflow-hidden dark:border-gray-800 dark:bg-gray-900">
             {/* Basic Info Section */}
@@ -249,64 +250,14 @@ function AdminDetails() {
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
                   Active Sessions
                 </h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Device ID
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Device Model
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          App Type
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Last Activity
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Last Login
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeSessions.map((session, idx) => (
-                        <tr key={idx} className="border-b last:border-b-0">
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.device_id || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.device_model || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.app_type || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.last_activity || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.last_login || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                          <button
-                              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-                              onClick={() => handleLogout(session.device_id)}
-                            >
-                              <FontAwesomeIcon
-                                icon={faTrash}
-                                className="w-4 h-4"
-                              />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <ActiveSessionsTable
+                  activeSessions={activeSessions}
+                  lastLogin={admin.last_login}
+                  onLogout={handleLogout}
+                  showAction={
+                    admin && !PROTECTED_MOBILES.includes(String(admin.mobile))
+                  }
+                />
               </div>
             )}
             {/* Functionalities Section */}

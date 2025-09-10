@@ -225,26 +225,26 @@ function Dashboard() {
           {/* Header with Controls */}
           {!isFullscreen && (
             <div className="flex items-center justify-end mb-6">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => refetchCardData()}
-                  disabled={isCardLoading}
-                  title="Reload"
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => refetchCardData()}
+                disabled={isCardLoading}
+                title="Reload"
                   className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
-                >
-                  <FontAwesomeIcon
-                    icon={faRotate}
-                    className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`}
-                  />
-                </button>
-                <button
-                  onClick={() => setIsFullscreen((f) => !f)}
-                  title={isFullscreen ? "Minimize" : "Fullscreen"}
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`}
+                />
+              </button>
+              <button
+                onClick={() => setIsFullscreen((f) => !f)}
+                title={isFullscreen ? "Minimize" : "Fullscreen"}
                   className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
-                >
-                  <FontAwesomeIcon
-                    icon={isFullscreen ? faCompress : faExpand}
-                    className="w-4 h-4"
+              >
+                <FontAwesomeIcon
+                  icon={isFullscreen ? faCompress : faExpand}
+                  className="w-4 h-4"
                   />
                 </button>
               </div>

@@ -21,7 +21,9 @@ import {
   faUser,
   faToggleOff,
   faToggleOn,
+  faRotate,
 } from "@fortawesome/free-solid-svg-icons";
+import { faAndroid } from "@fortawesome/free-brands-svg-icons";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { queryKeys } from "../lib/react-query/queryKeys";
 import Breadcrumb from "./Breadcrumb";
@@ -70,6 +72,7 @@ function ViewOutlet() {
     data: outletResponse,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.outlets.detail(outletId),
     queryFn: async () => {
@@ -321,20 +324,33 @@ function ViewOutlet() {
             <div className="flex-1 text-center">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 inline-flex items-center">
                 {outletData?.name || "-"}
-                <a
-                  href={`https://testing-menumitra-customer-v2.netlify.app/o${outletData?.outlet_code}/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="View in Customer App"
-                  className="inline-flex items-center justify-center ml-2 w-6 h-6 text-gray-700 transition rounded-full  hover:bg-gray-300"
-                >
-                  <FontAwesomeIcon icon={faLink} className="w-4 h-4" />
-                </a>
               </h2>
             </div>
 
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-theme-xs disabled:opacity-60"
+                title="Reload"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+              </button>
+              <a
+                href={`https://test-menumitra-customer-v2.netlify.app/o${outletData?.outlet_code}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-brand-500 text-brand-500 bg-white hover:bg-brand-50 shadow-theme-xs"
+                title="Open Customer App"
+              >
+                <FontAwesomeIcon icon={faAndroid} className="w-4 h-4" />
+                <span className="hidden sm:inline">Customer App</span>
+              </a>
+
               <button
                 onClick={handleEdit}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 hover:bg-warning-600 shadow-theme-xs"
@@ -354,9 +370,31 @@ function ViewOutlet() {
         </div>
 
         {/* Main Content */}
-        <div className="p-4 sm:p-6">
+        <div className="px-4 pb-4">
+          {" "}
           {/* Using flex-col by default for mobile and row for larger screens */}
-          <div className="flex flex-col md:flex-row justify-between items-stretch gap-4 md:gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 md:gap-6 mt-0">
+            {/* Outlet Image Section */}
+            {outletData?.image && (
+              <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
+                <h2 className="text-lg font-semibold text-gray-800 mb-6">
+                  Outlet Image
+                </h2>
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <img
+                      src={outletData.image}
+                      alt={`${outletData?.name || "Outlet"} image`}
+                      className="w-[252px] h-[252px] sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 xl:w-40 xl:h-40 rounded-lg shadow-lg object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Menu Management Section */}
             <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
@@ -462,7 +500,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Outlet Owners Section */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -500,7 +537,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6 flex flex-wrap items-center justify-between gap-3 mb-6">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Basic Information
@@ -726,7 +762,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Business Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -874,7 +909,6 @@ function ViewOutlet() {
               )}
             </div>
           </div>
-
           {/* Order section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -915,7 +949,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Manage Staff Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -985,7 +1018,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Manage Outlet Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -1070,7 +1102,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Audit Information section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -1150,7 +1181,6 @@ function ViewOutlet() {
               )}
             </div>
           </div>
-
           {/* Subscription Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
