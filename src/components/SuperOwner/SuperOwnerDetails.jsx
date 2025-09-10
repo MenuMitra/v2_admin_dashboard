@@ -229,7 +229,7 @@ function SuperOwnerDetails() {
         </div>
 
         {/* Content Section */}
-        <div className="bg-white p-6">
+        <div className="bg-white px-4 pb-4">
           {/* Basic Information Section */}
           <div className="mb-8">
             <h3 className="text-sm font-semibold mb-4">Basic Information</h3>

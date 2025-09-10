@@ -19,6 +19,7 @@ import {
   faStore,
   faChevronRight,
   faTrash,
+  faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import ActiveSessionsTable from "./common/ActiveSessionsTable";
@@ -32,7 +33,7 @@ function OwnerDetails() {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { ownerData, isLoading, error, deleteOwner } =
+  const { ownerData, isLoading, error, deleteOwner, refetch } =
     useOwnerDetails(ownerId);
 
   // Local state for active sessions
@@ -154,6 +155,18 @@ function OwnerDetails() {
 
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-theme-xs disabled:opacity-60"
+                title="Reload"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+                <span className="hidden sm:inline">Reload</span>
+              </button>
               <button
                 onClick={() => navigate(`/edit-owner/${ownerId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
@@ -505,7 +518,20 @@ function OwnerDetails() {
                 </div>
               </div>
             )}
-
+            {/* Active Sessions Section */}
+            {activeSessions && activeSessions.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-base font-medium mb-4 text-gray-800">
+                  Active Sessions
+                </h2>
+                <ActiveSessionsTable
+                  activeSessions={activeSessions}
+                  lastLogin={ownerData?.last_login}
+                  onLogout={handleLogout}
+                  showAction={true}
+                />
+              </div>
+            )}
             {/* Add new Functionalities section */}
             {ownerData?.functionalities &&
               ownerData.functionalities.length > 0 && (
@@ -532,21 +558,6 @@ function OwnerDetails() {
                   </div>
                 </div>
               )}
-
-            {/* Active Sessions Section */}
-            {activeSessions && activeSessions.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-base font-medium mb-4 text-gray-800">
-                  Active Sessions
-                </h2>
-                <ActiveSessionsTable
-                  activeSessions={activeSessions}
-                  lastLogin={ownerData?.last_login}
-                  onLogout={handleLogout}
-                  showAction={true}
-                />
-              </div>
-            )}
           </div>
         </div>
 

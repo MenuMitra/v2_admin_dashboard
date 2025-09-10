@@ -171,7 +171,7 @@ function PartnerDetails() {
         {partner && (
           <>
             {/* Personal Information */}
-            <div className="p-6">
+            <div className="px-4 pb-4">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
                 Personal Information
               </h2>

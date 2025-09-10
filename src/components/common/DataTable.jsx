@@ -719,12 +719,22 @@ function DataTable({
                   )}
                   {typeof counts.active === "number" && (
                     <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">
-                      Active: {processedData.filter(item => normalizeStatus(item[statusField])).length}
+                      Active:{" "}
+                      {
+                        processedData.filter((item) =>
+                          normalizeStatus(item[statusField])
+                        ).length
+                      }
                     </span>
                   )}
                   {typeof counts.inactive === "number" && (
                     <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">
-                      Inactive: {processedData.filter(item => !normalizeStatus(item[statusField])).length}
+                      Inactive:{" "}
+                      {
+                        processedData.filter(
+                          (item) => !normalizeStatus(item[statusField])
+                        ).length
+                      }
                     </span>
                   )}
                   {/* Custom count properties for Stats */}

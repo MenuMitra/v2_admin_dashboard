@@ -147,7 +147,7 @@ function AdminDetails() {
 
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
-              {admin && !PROTECTED_MOBILES.includes(admin.mobile) && (
+              {admin && !PROTECTED_MOBILES.includes(String(admin.mobile)) && (
                 <>
                   <button
                     onClick={() => navigate(`/edit-admin/${adminId}`)}
@@ -172,7 +172,7 @@ function AdminDetails() {
         </div>
 
         {/* Admin Details Content */}
-        <div className="p-6">
+        <div className="px-4 pb-4">
           {/* Admin Details Card */}
           <div className="bg-white rounded-2xl overflow-hidden dark:border-gray-800 dark:bg-gray-900">
             {/* Basic Info Section */}
@@ -254,7 +254,9 @@ function AdminDetails() {
                   activeSessions={activeSessions}
                   lastLogin={admin.last_login}
                   onLogout={handleLogout}
-                  showAction={true}
+                  showAction={
+                    admin && !PROTECTED_MOBILES.includes(String(admin.mobile))
+                  }
                 />
               </div>
             )}
