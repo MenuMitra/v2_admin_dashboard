@@ -15,11 +15,11 @@ function Auth() {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [verifyLoading, setVerifyLoading] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
-  // const [isOtpScreen, setIsOtpScreen] = useState(false); // Unused variable
+  const [isOtpScreen, setIsOtpScreen] = useState(false);
   const [mobileError, setMobileError] = useState("");
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [countdown, setCountdown] = useState(0);
-  const { getToken, login } = useAuth();
+  const { getToken } = useAuth();
 
   const navigate = useNavigate();
 
@@ -97,46 +97,52 @@ function Auth() {
   };
 
   const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    setVerifyLoading(true);
-    setError("");
+  e.preventDefault();
+  setVerifyLoading(true);
+  setError("");
 
-    const otpString = otp.join("");
+  const otpString = otp.join("");
 
-    try {
-      const response = await toastController.promise(
-        axios.post(`${BASE_URL}/${API_VERSION}/admin/admin_verify_otp`, {
-          mobile,
-          otp: parseInt(otpString),
-        }),
-        {
-          loading: "Verifying OTP...",
-          success: "Login successful!",
-          error: "Incorrect OTP",
-        }
-      );
-
-      if (response.data.detail === "Login successful") {
-        // Use the login function from useAuth hook for consistent token management
-        login(response);
-
-        const adminData = {
-          user_id: response.data.user_id,
-          name: response.data.name,
-          mobile: response.data.mobile,
-          email: response.data.email,
-          role: response.data.role,
-        };
-        localStorage.setItem("adminData", JSON.stringify(adminData));
-        navigate("/home");
+  try {
+    const response = await toastController.promise(
+      axios.post(`${BASE_URL}/${API_VERSION}/admin/admin_verify_otp`, {
+        mobile,
+        otp: parseInt(otpString),
+      }),
+      {
+        loading: "Verifying OTP...",
+        success: "Login successful!",
+        error: "Incorrect OTP",
       }
-    } catch (err) {
-      const errorMsg = err.response?.data?.detail || "Failed to verify OTP";
-      setError(errorMsg);
-    } finally {
-      setVerifyLoading(false);
+    );
+
+    if (response.data.detail === "Login successful") {
+      const authData = {
+        access_token: response.data.access_token,
+        token_type: response.data.token_type,
+        expires_on: response.data.expires_on,
+      };
+      const adminData = {
+        user_id: response.data.user_id,
+        name: response.data.name,
+        mobile: response.data.mobile,
+        email: response.data.email,
+        role: response.data.role,
+      };
+      
+      localStorage.setItem("auth", JSON.stringify(authData));
+      localStorage.setItem("adminData", JSON.stringify(adminData));
+
+      // Use navigate instead of window.location.href
+      navigate("/home", { replace: true });
     }
-  };
+  } catch (err) {
+    const errorMsg = err.response?.data?.detail || "Failed to verify OTP";
+    setError(errorMsg);
+  } finally {
+    setVerifyLoading(false);
+  }
+};
 
   const handleBackToLogin = (e) => {
     e.preventDefault();
@@ -302,31 +308,47 @@ function Auth() {
  
   {/* Fixed Social Icons Section */}
                           <div className="flex justify-center gap-4 mt-6">
-                            <a 
-                              href="https://www.facebook.com/people/Menu-Mitra/61565082412478/" 
-                              className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
-                            >
-                              <i className="ri-facebook-fill text-2xl" style={{ color: "#1877F2" }}></i>
-                            </a>
-                            <a 
-                              href="https://www.instagram.com/menumitra/" 
-                              className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
-                            >
-                              <i className="ri-instagram-fill text-2xl" style={{ color: "#E4405F" }}></i>
-                            </a>
-                            <a 
-                              href="https://www.youtube.com/@menumitra" 
-                              className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
-                            >
-                              <i className="ri-youtube-fill text-2xl" style={{ color: "#FF0000" }}></i>
-                            </a>
-                            <a 
-                              href="https://www.google.com/@menumitra" 
-                              className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
-                            >
-                              <i className="ri-google-fill text-2xl" style={{ color: "#34A853" }}></i>
-                            </a>
-                          </div>
+  <a
+    href="https://www.google.com/people/Menu-Mitra/61565082412478/"
+    className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-white-300 bg-white transition-transform duration-300 hover:-translate-y-2"
+    style={{
+      boxShadow: "0 8px 20px rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.15)"
+    }}
+  >
+    <i className="ri-google-fill text-2xl" style={{ color: "#34A853" }}></i>
+  </a>
+
+  <a
+    href="https://www.facebook.com/menumitra/"
+    className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-white-300 bg-white transition-transform duration-300 hover:-translate-y-2"
+    style={{
+      boxShadow: "0 8px 20px rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.15)"
+    }}
+  >
+    <i className="ri-facebook-fill text-2xl" style={{ color: "#1877F2" }}></i>
+  </a>
+
+  <a
+    href="https://www.youtube.com/@menumitra"
+    className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-white-300 bg-white transition-transform duration-300 hover:-translate-y-2"
+    style={{
+      boxShadow: "0 8px 20px rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.15)"
+    }}
+  >
+    <i className="ri-youtube-fill text-2xl" style={{ color: "#FF0000" }}></i>
+  </a>
+
+  <a
+    href="https://www.instagram.com/@menumitra"
+    className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-white-300 bg-white transition-transform duration-300 hover:-translate-y-2"
+    style={{
+      boxShadow: "0 8px 20px rgba(0,0,0,0.25), 0 4px 6px rgba(0,0,0,0.15)"
+    }}
+  >
+    <i className="ri-instagram-fill text-2xl" style={{ color: "#E4405F" }}></i>
+  </a>
+</div>
+
 
                           <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
                             <span className="font-medium">Version 2.0</span>

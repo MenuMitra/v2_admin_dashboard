@@ -276,35 +276,37 @@ function Stats() {
         />
       </div>
 
-      {/* DB Table Stats Section */}
-      <div className="mb-6">
-        <h2 className="text-sm font-semibold mb-1">
-          Database Tables Statistics
-        </h2>
-        <DataTable
-          data={dbStatsData.table_statistics}
-          columns={dbColumns}
-          enableSearch={true}
-          enableSort={true}
-          searchTerm={dbSearchTerm}
-          onSearchChange={setDbSearchTerm}
-          searchPlaceholder="Search"
-          isLoading={dbIsLoading}
-          error={dbError}
-          itemsPerPage={20}
-          enableStatusFilter={false}
-          showCreateButton={false}
-          showBackButton={false}
-          className="compact-table"
-          createButton={{ show: false, label: "", onClick: () => {} }}
-          counts={{
-            total: dbStatsData.summary?.total_records || 0,
-            tables_with_data: dbStatsData.summary?.tables_with_data || 0,
-            empty_tables: dbStatsData.summary?.empty_tables || 0,
-          }}
-          onReload={reloadDbTableStats}
-        />
-      </div>
+{/* DB Table Stats Section */}
+<div className="mb-6">
+  <h2 className="text-sm font-semibold mb-1">
+    Database Tables Statistics
+  </h2>
+  <div className="mt-2">
+    <DataTable
+      data={dbStatsData.table_statistics}
+      columns={dbColumns}
+      enableSearch={true}
+      enableSort={true}
+      searchTerm={dbSearchTerm}
+      onSearchChange={setDbSearchTerm}
+      searchPlaceholder="Search"
+      isLoading={dbIsLoading}
+      error={dbError}
+      itemsPerPage={20}
+      enableStatusFilter={false}
+      showCreateButton={false}
+      showBackButton={false}
+      className="compact-table"
+      createButton={{ show: false, label: "", onClick: () => {} }}
+      counts={{
+        total: dbStatsData.summary?.total_records || 0,
+        tables_with_data: dbStatsData.summary?.tables_with_data || 0,
+        empty_tables: dbStatsData.summary?.empty_tables || 0,
+      }}
+      onReload={reloadDbTableStats}
+    />
+  </div>
+</div>
 
       {/* App Usage Table Section */}
       <div className="mt-6">
@@ -312,23 +314,27 @@ function Stats() {
           <h2 className="text-sm font-semibold">App Usage</h2>
           <div className="flex gap-2">
             <button
-              onClick={() => reloadAppUsage()}
-              disabled={appUsageIsLoading}
-              className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-            >
-              {appUsageIsLoading ? "Loading..." : "Refresh"}
-            </button>
-            <button
-              onClick={() => {
-                setAppUsagePayload({
-                  start_date: "17 Jul 2025",
-                  end_date: "11 Aug 2025",
-                });
-              }}
-              className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              Test Dates
-            </button>
+  onClick={() => reloadAppUsage()}
+  disabled={appUsageIsLoading}
+  className="px-3 py-1 text-xs bg-blue-500 text-black rounded hover:bg-blue-600 disabled:opacity-50"
+>
+  {appUsageIsLoading ? "Loading..." : "Refresh"}
+</button>
+
+<button
+  onClick={() => {
+    setAppUsagePayload({
+      start_date: "",
+      end_date: "",
+    });
+    reloadApiUsageStats();
+  }}
+  className="px-3 py-1 text-xs bg-green-500 text-black rounded hover:bg-green-600"
+>
+  {appUsageIsLoading ? "Loading..." : "Refresh"}
+  Test Dates
+</button>
+
             <span className="text-xs text-gray-500">
               {appUsagePayload.start_date} - {appUsagePayload.end_date}
             </span>
