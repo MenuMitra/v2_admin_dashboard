@@ -425,23 +425,23 @@ const Sidebar = ({ sidebarToggle = false }) => {
         </div>
       </div>
       {/* Menu Items */}
-      <div className="block lg:hidden mt-16"></div> {/* Mobile-only spacer */}
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4 ">
-        <nav>
-          {menuGroups.map((group, idx) => (
-            <React.Fragment key={idx}>
-              <ul className="flex flex-col gap-2">
-                {group.items.map((item, index) => (
-                  <MenuItem key={item.id || index} item={item} />
-                ))}
-              </ul>
-              {idx !== menuGroups.length - 1 && (
-                <hr className="my-2 border-t border-gray-200" />
-              )}
-            </React.Fragment>
+      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4 pb-10">
+  <nav>
+    {menuGroups.map((group, idx) => (
+      <React.Fragment key={idx}>
+        <ul className="flex flex-col gap-2">
+          {group.items.map((item, index) => (
+            <MenuItem key={item.id || index} item={item} />
           ))}
-        </nav>
-      </div>
+        </ul>
+        {idx !== menuGroups.length - 1 && (
+          <hr className="my-2 border-t border-gray-200" />
+        )}
+      </React.Fragment>
+    ))}
+  </nav>
+</div>
+
     </aside>
   );
 };

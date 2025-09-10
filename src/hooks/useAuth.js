@@ -53,7 +53,7 @@ export const useAuth = () => {
     const newAuthData = {
       access_token: response.data.access_token,
       token_type: response.data.token_type,
-      expires_at: response.data.expires_on || response.data.expires_at, // Handle both field names
+      expires_on: response.data.expires_on || response.data.expires_on, // Handle both field names
     };
     setAuthData(newAuthData);
   };
@@ -63,14 +63,14 @@ export const useAuth = () => {
       return false;
     }
     
-    // If expires_at is not available, consider token valid (for backward compatibility)
-    if (!authData.expires_at) {
+    // If expires_on is not available, consider token valid (for backward compatibility)
+    if (!authData.expires_on) {
       return true;
     }
     
     try {
       // Parse the date string (format: "10 Sep 2025")
-      const expirationDate = new Date(authData.expires_at);
+      const expirationDate = new Date(authData.expires_on);
       const currentDate = new Date();
       
       // Check if the date is valid and not expired

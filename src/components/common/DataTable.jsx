@@ -930,7 +930,7 @@ function DataTable({
                       onChange={(e) => {
                         onExecutionTimeFilterChange(e.target.value);
                       }}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                      className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                     >
                       <option value="all">All Execution Time</option>
                       <option value="5">&gt;5ms</option>
@@ -1015,17 +1015,18 @@ function DataTable({
                       />
                     </span>
                     <input
-                      placeholder={searchPlaceholder}
-                      className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => onSearchChange(e.target.value)}
-                      ref={(input) => {
+                     placeholder={searchPlaceholder}
+                        className="sm:w-[250px] h-10 mr-3 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                           type="text"
+                          value={searchTerm}
+                         onChange={(e) => onSearchChange(e.target.value)}
+                          ref={(input) => {
                         if (input) {
-                          input.searchInputRef = input;
-                        }
-                      }}
-                    />
+                      input.searchInputRef = input;
+                  }
+                }}
+             />
+
                     {searchTerm && (
                       <button
                         onClick={(e) => {

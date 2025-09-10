@@ -158,75 +158,100 @@ function EditOutlet() {
   }, [adminData?.user_id, outletId]);
 
   const fetchOutletData = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/view_outlet`,
-        {
-          outlet_id: outletId,
-          user_id: adminData?.user_id,
-          app_source: "admin_app",
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data.detail === "Successfully retrieved outlet details") {
-        const data = response.data.data;
-
-        // Update form data with fetched data
-        setOutletData({
-          outlet_id: outletId,
-          user_id: adminData?.user_id,
-          owner_ids: data.owners.map((owner) => owner.owner_id),
-          name: data.name,
-          outlet_type: data.outlet_type,
-          fssainumber: data.fssainumber === "None" ? "" : data.fssainumber,
-          gstnumber: data.gstnumber || "",
-          mobile: data.mobile,
-          veg_nonveg: data.veg_nonveg,
-          service_charges: data.service_charges,
-          gst: data.gst,
-          address: data.address,
-          is_open: data.is_open === 1,
-          outlet_status: data.outlet_status === 1,
-          upi_id: data.upi_id,
-          website: data.website || "",
-          whatsapp: data.whatsapp?.replace(/\D/g, "") || "",
-          facebook: data.facebook || "",
-          instagram: data.instagram || "",
-          google_business_link: data.google_business_link || "",
-          google_review: data.google_review || "",
-          email: data.email || "",
-          opening_time: data.opening_time
-            ? data.opening_time.split(" ")[1]
-            : "",
-          closing_time: data.closing_time
-            ? data.closing_time.split(" ")[1]
-            : "",
-          outlet_mode: data.outlet_mode || "",
-          image: data.image,
-          subscription_id:
-            data.subscription_details?.subscription_id?.toString() ||
-            data.subscription_id?.toString() ||
-            "",
-        });
-
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error("Error fetching outlet data:", error);
-      navigate(-1);
+  try {
+    const token = getToken();
+    if (!token) {
+      throw new Error("No authentication token available");
     }
-  };
+
+    const response = await axios.post(
+      `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+      {
+        outlet_id: outletId,
+        user_id: adminData?.user_id,
+        app_source: "admin_app",
+      },
+      {
+        headers: {
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.detail === "Successfully retrieved outlet details") {
+      const data = response.data.data;
+
+      // Ensure subscription_id is a string or null
+      const subscriptionId = data.subscription_details?.subscription_id
+        ? String(data.subscription_details.subscription_id)
+        : data.subscription_id
+        ? String(data.subscription_id)
+        : null;
+
+      setOutletData({
+        outlet_id: outletId,
+        user_id: adminData?.user_id,
+        owner_ids: data.owners?.map((owner) => owner.owner_id) || [],
+        name: data.name || "",
+        outlet_type: data.outlet_type || "",
+        fssainumber: data.fssainumber === "None" ? "" : data.fssainumber || "",
+        gstnumber: data.gstnumber || "",
+        mobile: data.mobile || "",
+        veg_nonveg: data.veg_nonveg || "",
+        service_charges: data.service_charges || "",
+        gst: data.gst || "",
+        address: data.address || "",
+        is_open: data.is_open === 1,
+        outlet_status: data.outlet_status === 1,
+        upi_id: data.upi_id || "",
+        website: data.website || "",
+        whatsapp: data.whatsapp?.replace(/\D/g, "") || "",
+        facebook: data.facebook || "",
+        instagram: data.instagram || "",
+        google_business_link: data.google_business_link || "",
+        google_review: data.google_review || "",
+        email: data.email || "",
+        opening_time: data.opening_time
+          ? data.opening_time.split(" ")[1]
+          : "",
+        closing_time: data.closing_time
+          ? data.closing_time.split(" ")[1]
+          : "",
+        outlet_mode: data.outlet_mode || "",
+        image: data.image || null,
+        subscription_id: subscriptionId,
+        subscription_end_date: data.subscription_details?.subscription_end_date || "",
+      });
+
+      // Set time picker values
+      if (data.opening_time) {
+        const [hour, minute, period] = data.opening_time.split(/[: ]/);
+        setOpeningHour(hour);
+        setOpeningMinute(minute);
+        setOpeningPeriod(period);
+      }
+      if (data.closing_time) {
+        const [hour, minute, period] = data.closing_time.split(/[: ]/);
+        setClosingHour(hour);
+        setClosingMinute(minute);
+        setClosingPeriod(period);
+      }
+
+      // Set subscription end date
+      if (data.subscription_details?.subscription_end_date) {
+        setSubscriptionEndDate(data.subscription_details.subscription_end_date);
+        setCalculatedEndDate(formatDateToDDMMMYYYY(data.subscription_details.subscription_end_date));
+      }
+
+      setIsLoading(false);
+    }
+  } catch (error) {
+    console.error("Error fetching outlet data:", error);
+    toastController.error("Failed to fetch outlet data");
+    navigate(-1);
+  }
+};
 
   const fetchOutletTypes = async () => {
     try {

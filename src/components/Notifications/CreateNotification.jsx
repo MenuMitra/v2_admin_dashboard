@@ -40,13 +40,17 @@ function CreateNotification() {
   const roleDropdownRef = useRef(null);
   const userDropdownRef = useRef(null);
   const typeDropdownRef = useRef(null);
+  const outletTriggerRef = useRef(null);
 
+  const [dropdownStyle, setDropdownStyle] = useState({});
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingSubmitEvent, setPendingSubmitEvent] = useState(null);
 
   useEffect(() => {
     function handleClickOutside(event) {
       if (
+        outletTriggerRef.current &&
+        !outletTriggerRef.current.contains(event.target) &&
         outletDropdownRef.current &&
         !outletDropdownRef.current.contains(event.target)
       ) {
@@ -81,6 +85,20 @@ function CreateNotification() {
       ...prev,
       [dropdownName]: !prev[dropdownName],
     }));
+    if (dropdownName === "outlet" && outletTriggerRef.current) {
+      const rect = outletTriggerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const maxHeight = Math.min(350, spaceBelow - 20); // Subtract 20px for padding/margin
+      setDropdownStyle({
+        position: "absolute",
+        width: "300px",
+        zIndex: 1000,
+        maxHeight: `${maxHeight}px`,
+        overflowY: "auto",
+        top: "100%",
+        left: 0,
+      });
+    }
   };
 
   const breadcrumbItems = [
@@ -139,7 +157,6 @@ function CreateNotification() {
     }
   };
 
-  // Wrap the original handleSubmit to support modal confirmation
   const handleCreateClick = (e) => {
     e.preventDefault();
     setPendingSubmitEvent(e);
@@ -264,7 +281,6 @@ function CreateNotification() {
         } else {
           setRoles(response.data.roles || []);
           setUsers([]);
-          // Reset role and user selection when outlet changes
           setFormData((prev) => ({
             ...prev,
             role: "all",
@@ -279,7 +295,6 @@ function CreateNotification() {
     }
   };
 
-  // Update fetchFilterOptions call when outlet or role changes
   useEffect(() => {
     if (formData.outlet !== "all") {
       fetchFilterOptions(formData.outlet);
@@ -339,9 +354,6 @@ function CreateNotification() {
   const notificationTypes = [
     { id: "Info", name: "Info" },
     { id: "Offer", name: "Offer" },
-    // { id: 'Success', name: 'Success' },
-    // { id: 'Warning', name: 'Warning' },
-    // { id: 'Danger', name: 'Danger' }
   ];
 
   return (
@@ -425,49 +437,46 @@ function CreateNotification() {
 
                   {dropdownStates.type && (
                     <div
-                      className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
+                      className="absolute mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
-                        position: "absolute",
                         width: "300px",
-                        zIndex: 9999,
+                        zIndex: 1000,
                         maxHeight: "350px",
                         overflowY: "auto",
                       }}
                     >
-                      <div className="overflow-y-auto">
-                        {notificationTypes.map((type) => (
-                          <div
-                            key={type.id}
-                            className={`
-                              p-3 cursor-pointer hover:bg-gray-50
-                              ${
-                                formData.type === type.id
-                                  ? "bg-brand-50 border-l-4 border-brand-500"
-                                  : "border-l-4 border-transparent"
-                              }
-                            `}
-                            onClick={() => {
-                              handleInputChange({
-                                target: { name: "type", value: type.id },
-                              });
-                              setDropdownStates((prev) => ({
-                                ...prev,
-                                type: false,
-                              }));
-                            }}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div>
-                                  <div className="font-medium text-gray-900">
-                                    {type.name}
-                                  </div>
+                      {notificationTypes.map((type) => (
+                        <div
+                          key={type.id}
+                          className={`
+                            p-3 cursor-pointer hover:bg-gray-50
+                            ${
+                              formData.type === type.id
+                                ? "bg-brand-50 border-l-4 border-brand-500"
+                                : "border-l-4 border-transparent"
+                            }
+                          `}
+                          onClick={() => {
+                            handleInputChange({
+                              target: { name: "type", value: type.id },
+                            });
+                            setDropdownStates((prev) => ({
+                              ...prev,
+                              type: false,
+                            }));
+                          }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  {type.name}
                                 </div>
                               </div>
                             </div>
                           </div>
-                        ))}
-                      </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -475,7 +484,7 @@ function CreateNotification() {
 
               <div
                 className="relative w-full md:w-auto"
-                ref={outletDropdownRef}
+                ref={outletTriggerRef}
               >
                 <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                   Outlet
@@ -507,18 +516,12 @@ function CreateNotification() {
 
                   {dropdownStates.outlet && (
                     <div
-                      className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
-                      style={{
-                        position: "absolute",
-                        width: "300px",
-                        zIndex: 9999,
-                        maxHeight: "350px",
-                        overflowY: "auto",
-                      }}
+                      ref={outletDropdownRef}
+                      className="bg-white border rounded-lg shadow-xl"
+                      style={dropdownStyle}
                     >
                       <div className="sticky top-0 p-2 border-b bg-white">
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
                           <input
                             type="text"
                             className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -536,20 +539,14 @@ function CreateNotification() {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 handleSearchChange("outlet", "");
-                                // Keep focus on the search input
                                 const searchInput = e.target
                                   .closest(".relative")
                                   .querySelector("input");
-                                if (searchInput) {
-                                  searchInput.focus();
-                                }
+                                if (searchInput) searchInput.focus();
                               }}
                               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                             >
-                              <FontAwesomeIcon
-                                icon={faTimes}
-                                className="w-4 h-4"
-                              />
+                              <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
                             </button>
                           )}
                         </div>
@@ -638,18 +635,16 @@ function CreateNotification() {
 
                   {dropdownStates.role && (
                     <div
-                      className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
+                      className="absolute mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
-                        position: "absolute",
                         width: "300px",
-                        zIndex: 9999,
+                        zIndex: 1000,
                         maxHeight: "350px",
                         overflowY: "auto",
                       }}
                     >
                       <div className="sticky top-0 p-2 border-b bg-white">
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
                           <input
                             type="text"
                             className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -667,20 +662,14 @@ function CreateNotification() {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 handleSearchChange("role", "");
-                                // Keep focus on the search input
                                 const searchInput = e.target
                                   .closest(".relative")
                                   .querySelector("input");
-                                if (searchInput) {
-                                  searchInput.focus();
-                                }
+                                if (searchInput) searchInput.focus();
                               }}
                               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                             >
-                              <FontAwesomeIcon
-                                icon={faTimes}
-                                className="w-4 h-4"
-                              />
+                              <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
                             </button>
                           )}
                         </div>
@@ -761,18 +750,16 @@ function CreateNotification() {
 
                   {dropdownStates.user && (
                     <div
-                      className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
+                      className="absolute mt-1 bg-white border rounded-lg shadow-xl"
                       style={{
-                        position: "absolute",
                         width: "300px",
-                        zIndex: 9999,
+                        zIndex: 1000,
                         maxHeight: "350px",
                         overflowY: "auto",
                       }}
                     >
                       <div className="sticky top-0 p-2 border-b bg-white">
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
                           <input
                             type="text"
                             className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
@@ -790,20 +777,14 @@ function CreateNotification() {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 handleSearchChange("user", "");
-                                // Keep focus on the search input
                                 const searchInput = e.target
                                   .closest(".relative")
                                   .querySelector("input");
-                                if (searchInput) {
-                                  searchInput.focus();
-                                }
+                                if (searchInput) searchInput.focus();
                               }}
                               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                             >
-                              <FontAwesomeIcon
-                                icon={faTimes}
-                                className="w-4 h-4"
-                              />
+                              <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
                             </button>
                           )}
                         </div>
@@ -865,7 +846,6 @@ function CreateNotification() {
         </div>
       </div>
 
-      {/* Confirmation Modal */}
       <Modal
         isOpen={showConfirmModal}
         onClose={handleCancelSend}
