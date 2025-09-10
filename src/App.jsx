@@ -56,6 +56,10 @@ import CaptainDetails from "./components/AccessControl/Roles/Captain/CaptainDeta
 import CreateManager from "./components/AccessControl/Roles/Manager/CreateManager";
 import Managers from "./components/AccessControl/Roles/Manager/Managers";
 import Chefs from "./components/AccessControl/Roles/Chef/Chefs";
+import Staff from "./components/AccessControl/Roles/Staff/Staff";
+import CreateStaff from "./components/AccessControl/Roles/Staff/CreateStaff";
+import StaffDetails from "./components/AccessControl/Roles/Staff/StaffDetails";
+import EditStaff from "./components/AccessControl/Roles/Staff/EditStaff";
 import CreateChef from "./components/AccessControl/Roles/Chef/CreateChef";
 import Captains from "./components/AccessControl/Roles/Captain/Captains";
 import CreateCaptain from "./components/AccessControl/Roles/Captain/CreateCaptain";
@@ -75,8 +79,7 @@ import Stats from "./components/Stats/Stats";
 import DBTablesStats from "./components/Stats/DBTablesStats";
 import CombinedStats from "./components/Stats/CombinedStats";
 import EditFunctionality from "./components/AccessControl/Roles/EditFunctionality";
-import 'remixicon/fonts/remixicon.css';
-
+import "remixicon/fonts/remixicon.css";
 
 function App() {
   return (
@@ -131,8 +134,7 @@ function App() {
 
             {/* Enquiry Routes */}
             <Route path="/enquiries" element={<EnquiryList />} />
-            <Route
-              path="/view-enquiry/:enquiry_id" element={<ViewEnquiry />}/>
+            <Route path="/view-enquiry/:enquiry_id" element={<ViewEnquiry />} />
 
             {/* Partner Routes */}
             <Route path="/partners" element={<Partners />} />
@@ -218,6 +220,18 @@ function App() {
 
             {/* Captain Routes*/}
             <Route path="/captains/:outletId" element={<Captains />} />
+
+            {/* Staff Routes */}
+            <Route path="/staff/:outletId" element={<Staff />} />
+            <Route path="/create-staff/:outletId" element={<CreateStaff />} />
+            <Route
+              path="/staff-details/:outletId/:userId"
+              element={<StaffDetails />}
+            />
+            <Route
+              path="/edit-staff/:outletId/:userId"
+              element={<EditStaff />}
+            />
             <Route
               path="/create-captain/:outletId"
               element={<CreateCaptain />}
@@ -242,8 +256,6 @@ function App() {
               path="/edit-waiter/:outletId/:userId"
               element={<EditWaiter />}
             />
-
-           
 
             {/* Search Routes */}
             <Route path="/search" element={<Search />} />

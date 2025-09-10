@@ -444,57 +444,17 @@ function ViewOutlet() {
               <h2 className="text-lg font-semibold text-gray-800 mb-6">
                 Staff Management
               </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1">
                 <Link
-                  to={`/managers/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-                >
-                  <FontAwesomeIcon
-                    icon={faUserTie}
-                    className="w-5 h-5 mr-2 text-gray-800"
-                  />
-                  <span className="text-md font-medium text-gray-800">
-                    Managers
-                  </span>
-                </Link>
-
-                <Link
-                  to={`/chefs/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-                >
-                  <FontAwesomeIcon
-                    icon={faUserCog}
-                    className="w-5 h-5 mr-2 text-gray-800"
-                  />
-                  <span className="text-md font-medium text-gray-800">
-                    Chefs
-                  </span>
-                </Link>
-
-                <Link
-                  to={`/captains/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                  to={`/staff/${outletId}`}
+                  className="flex items-center justify-center p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon
                     icon={faUserFriends}
                     className="w-5 h-5 mr-2 text-gray-800"
                   />
                   <span className="text-md font-medium text-gray-800">
-                    Captains
-                  </span>
-                </Link>
-
-                <Link
-                  to={`/waiters/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-                >
-                  <FontAwesomeIcon
-                    icon={faUser}
-                    className="w-5 h-5 mr-2 text-gray-800"
-                  />
-                  <span className="text-md font-medium text-gray-800">
-                    Waiters
+                    Staff
                   </span>
                 </Link>
               </div>

@@ -235,7 +235,7 @@ function Stats() {
 
   // Breadcrumb
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
+    { label: "Home", path: "/home" },
     { label: "Stats", path: "/stats" },
     { label: "API Usage & Database Tables" },
   ];
