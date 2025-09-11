@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import EnquiryList from "./components/Enquiry/EnquiryList";
+import BookingEnquiry from "./components/Booking/BookingEnquiry";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Auth from "./components/Auth";
@@ -44,27 +45,14 @@ import CreateCategory from "./components/Outlets/Category/CreateCategory";
 import CreateMenu from "./components/Outlets/Menu/CreateMenu";
 import { ToastProvider } from "./components/common/ToastProvider";
 import RoleDetails from "./components/AccessControl/Roles/RoleDetails";
-import ManagerDetails from "./components/AccessControl/Roles/Manager/ManagerDetails";
-import WaiterDetails from "./components/AccessControl/Roles/Waiter/WaiterDetails";
+
 import EditCustomer from "./components/Customer/EditCustomer";
-import ChefDetails from "./components/AccessControl/Roles/Chef/ChefDetails";
-import EditChef from "./components/AccessControl/Roles/Chef/EditChef";
-import EditManager from "./components/AccessControl/Roles/Manager/EditManager";
-import EditWaiter from "./components/AccessControl/Roles/Waiter/EditWaiter";
-import EditCaptain from "./components/AccessControl/Roles/Captain/EditCaptain";
-import CaptainDetails from "./components/AccessControl/Roles/Captain/CaptainDetails";
-import CreateManager from "./components/AccessControl/Roles/Manager/CreateManager";
-import Managers from "./components/AccessControl/Roles/Manager/Managers";
-import Chefs from "./components/AccessControl/Roles/Chef/Chefs";
+
 import Staff from "./components/AccessControl/Roles/Staff/Staff";
 import CreateStaff from "./components/AccessControl/Roles/Staff/CreateStaff";
 import StaffDetails from "./components/AccessControl/Roles/Staff/StaffDetails";
 import EditStaff from "./components/AccessControl/Roles/Staff/EditStaff";
-import CreateChef from "./components/AccessControl/Roles/Chef/CreateChef";
-import Captains from "./components/AccessControl/Roles/Captain/Captains";
-import CreateCaptain from "./components/AccessControl/Roles/Captain/CreateCaptain";
-import Waiters from "./components/AccessControl/Roles/Waiter/Waiters";
-import CreateWaiter from "./components/AccessControl/Roles/Waiter/CreateWaiter";
+
 import RoleFunctionalitiesMapping from "./components/AccessControl/Roles/RoleFunctionalitiesMapping";
 import Features from "./components/Features/Features";
 import EditFeature from "./components/Features/EditFeature";
@@ -135,6 +123,8 @@ function App() {
             {/* Enquiry Routes */}
             <Route path="/enquiries" element={<EnquiryList />} />
             <Route path="/view-enquiry/:enquiry_id" element={<ViewEnquiry />} />
+            {/* Booking Routes */}
+            <Route path="/bookings" element={<BookingEnquiry />} />
 
             {/* Partner Routes */}
             <Route path="/partners" element={<Partners />} />
@@ -194,33 +184,6 @@ function App() {
               element={<EditFunctionality />}
             />
 
-            {/* Chef Routes*/}
-            <Route path="/chefs/:outletId" element={<Chefs />} />
-            <Route path="/create-chef/:outletId" element={<CreateChef />} />
-            <Route
-              path="/chef-details/:outletId/:userId"
-              element={<ChefDetails />}
-            />
-            <Route path="/edit-chef/:outletId/:userId" element={<EditChef />} />
-
-            {/* Manager Routes*/}
-            <Route path="/managers/:outletId" element={<Managers />} />
-            <Route
-              path="/create-manager/:outletId"
-              element={<CreateManager />}
-            />
-            <Route
-              path="/manager-details/:outletId/:userId"
-              element={<ManagerDetails />}
-            />
-            <Route
-              path="/edit-manager/:outletId/:userId"
-              element={<EditManager />}
-            />
-
-            {/* Captain Routes*/}
-            <Route path="/captains/:outletId" element={<Captains />} />
-
             {/* Staff Routes */}
             <Route path="/staff/:outletId" element={<Staff />} />
             <Route path="/create-staff/:outletId" element={<CreateStaff />} />
@@ -232,30 +195,7 @@ function App() {
               path="/edit-staff/:outletId/:userId"
               element={<EditStaff />}
             />
-            <Route
-              path="/create-captain/:outletId"
-              element={<CreateCaptain />}
-            />
-            <Route
-              path="/captain-details/:outletId/:userId"
-              element={<CaptainDetails />}
-            />
-            <Route
-              path="/edit-captain/:outletId/:userId"
-              element={<EditCaptain />}
-            />
-
-            {/* Waiter Routes*/}
-            <Route path="/waiters/:outletId" element={<Waiters />} />
-            <Route path="/create-waiter/:outletId" element={<CreateWaiter />} />
-            <Route
-              path="/waiter-details/:outletId/:userId"
-              element={<WaiterDetails />}
-            />
-            <Route
-              path="/edit-waiter/:outletId/:userId"
-              element={<EditWaiter />}
-            />
+            {/* End legacy role routes */}
 
             {/* Search Routes */}
             <Route path="/search" element={<Search />} />

@@ -1,0 +1,14 @@
+/* Lato font: change here to swap fonts globally */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;700;900&display=swap');
+
+/* Use a CSS variable for the app font so components and Tailwind overrides can reference it */
+:root {
+  --app-font-family: 'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+}
+
+/* Apply globally */
+html, body, #root {
+  font-family: var(--app-font-family);
+}
+
+

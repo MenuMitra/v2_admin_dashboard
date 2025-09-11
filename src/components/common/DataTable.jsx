@@ -164,9 +164,10 @@ function DataTable({
     ------------------------------------------------------------ */
   useEffect(() => {
     // Go back to page-1 whenever the search term changes
-    // or the parent passes in a new data array.
+    // or the number of items changes (avoid resetting when parent
+    // passes a new array reference with same contents).
     setCurrentPage(1);
-  }, [searchTerm, data]);
+  }, [searchTerm, safeData.length]);
 
   // Sorting Logic
   const handleSort = (field) => {
@@ -1015,17 +1016,17 @@ function DataTable({
                       />
                     </span>
                     <input
-                     placeholder={searchPlaceholder}
-                        className="sm:w-[250px] h-10 mr-3 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
-                           type="text"
-                          value={searchTerm}
-                         onChange={(e) => onSearchChange(e.target.value)}
-                          ref={(input) => {
+                      placeholder={searchPlaceholder}
+                      className="sm:w-[250px] h-10 mr-3 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => onSearchChange(e.target.value)}
+                      ref={(input) => {
                         if (input) {
-                      input.searchInputRef = input;
-                  }
-                }}
-             />
+                          input.searchInputRef = input;
+                        }
+                      }}
+                    />
 
                     {searchTerm && (
                       <button

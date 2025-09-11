@@ -176,7 +176,7 @@ function AdminDetails() {
           {/* Admin Details Card */}
           <div className="bg-white rounded-2xl overflow-hidden dark:border-gray-800 dark:bg-gray-900">
             {/* Basic Info Section */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="px-2 pb-4">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
                 Admin Information
               </h2>
@@ -246,7 +246,7 @@ function AdminDetails() {
 
             {/* Active Sessions Section */}
             {activeSessions && activeSessions.length > 0 && (
-              <div className="p-6">
+              <div className="px-2 pb-4">
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
                   Active Sessions
                 </h3>
@@ -261,7 +261,7 @@ function AdminDetails() {
               </div>
             )}
             {/* Functionalities Section */}
-            <div className="p-6">
+            <div className="px-2 pb-4">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
                 Assigned Functionalities
               </h3>

@@ -33,7 +33,7 @@ function Staff() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["staff", outletId, adminData?.user_id],
     enabled: Boolean(outletId) && Boolean(adminData?.user_id),
     queryFn: async () => {
@@ -183,6 +183,8 @@ function Staff() {
         darkMode={true}
         enableSelection={false}
         title="Staff"
+        isLoading={isLoading || deleteMutation.isLoading}
+        onReload={refetch}
         counts={{ total, active, inactive }}
         showBackButton={true}
         showSearch={true}

@@ -109,6 +109,7 @@ const menuGroups = [
         id: "enquiries",
         icon: faEnvelope,
       },
+      { title: "Bookings", path: "/bookings", id: "bookings", icon: faList },
     ],
   },
   {
@@ -175,19 +176,11 @@ const Sidebar = ({ sidebarToggle = false }) => {
           "/categories/",
           "/category-details/",
           "/edit-category/",
-          // Add manager, chef, captain, waiter sub-routes
-          "/managers/",
-          "/edit-manager/",
-          "/manager-details/",
-          "/chefs/",
-          "/edit-chef/",
-          "/chef-details/",
-          "/captains/",
-          "/edit-captain/",
-          "/captain-details/",
-          "/waiters/",
-          "/edit-waiter/",
-          "/waiter-details/",
+          // Staff sub-routes
+          "/staff/",
+          "/create-staff/",
+          "/edit-staff/",
+          "/staff-details/",
         ],
         admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
         "super-owners": [
@@ -426,22 +419,21 @@ const Sidebar = ({ sidebarToggle = false }) => {
       </div>
       {/* Menu Items */}
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4 pb-10">
-  <nav>
-    {menuGroups.map((group, idx) => (
-      <React.Fragment key={idx}>
-        <ul className="flex flex-col gap-2">
-          {group.items.map((item, index) => (
-            <MenuItem key={item.id || index} item={item} />
+        <nav>
+          {menuGroups.map((group, idx) => (
+            <React.Fragment key={idx}>
+              <ul className="flex flex-col gap-2">
+                {group.items.map((item, index) => (
+                  <MenuItem key={item.id || index} item={item} />
+                ))}
+              </ul>
+              {idx !== menuGroups.length - 1 && (
+                <hr className="my-2 border-t border-gray-200" />
+              )}
+            </React.Fragment>
           ))}
-        </ul>
-        {idx !== menuGroups.length - 1 && (
-          <hr className="my-2 border-t border-gray-200" />
-        )}
-      </React.Fragment>
-    ))}
-  </nav>
-</div>
-
+        </nav>
+      </div>
     </aside>
   );
 };

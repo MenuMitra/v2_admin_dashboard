@@ -47,7 +47,6 @@ function Auth() {
         nextInput.focus();
       }
     }
-
   };
 
   const handleKeyDown = (index, e) => {
@@ -198,75 +197,76 @@ function Auth() {
         <div className="relative flex flex-col justify-start w-full min-h-screen dark:bg-gray-900 sm:p-0 lg:flex-row">
           <div className="flex flex-col flex-1 w-full lg:w-1/2">
             <div className="flex flex-col justify-center items-center flex-1 w-full max-w-md mx-auto">
-              <div className="w-full">
+                <div className="w-full">
                 <div className="rounded-xl p-6 border-2 border-gray-300 dark:border-gray-600 shadow-md mb-4 bg-white dark:bg-gray-800">
                   <div className="flex flex-col items-center gap-1 mb-2">
-                    <img
-                      src={Logo}
-                      alt="MenuMitra"
-                      className="w-14 h-14 object-contain"
-                    />
-                    <div className="text-center">
-                      <div className="text-xl font-semibold text-gray-800 dark:text-white">
-                        MenuMitra
-                      </div>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <img
+                        src={Logo}
+                        alt="MenuMitra"
+                        className="w-14 h-14 object-contain"
+                      />
+                      <div className="text-center">
+                        <div className="text-xl font-semibold text-gray-800 dark:text-white">
+                          MenuMitra
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
                         {!isOtpSent
                           ? "Sign in to continue to your account"
                           : "Verify your mobile number"}
-                      </p>
+                        </p>
+                      </div>
                     </div>
-                  </div>
                   <form onSubmit={!isOtpSent ? handleLogin : handleVerifyOTP}>
-                    <div className="space-y-5">
-                      <div>
-                        <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                          Mobile Number
-                          <span className="text-error-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                            <i
-                              className="fa-solid fa-mobile text-lg"
-                              aria-hidden="true"
-                            ></i>
-                          </span>
-                          <input
-                            type="number"
-                            value={mobile}
-                            onChange={(e) => {
-                              const value = e.target.value;
-                              if (/^\d{0,10}$/.test(value)) {
-                                if (
-                                  value.length > 0 &&
-                                  "012345".includes(value[0])
-                                ) {
-                                  setMobileError(
-                                    "Mobile number must start with 6-9"
-                                  );
-                                  setMobile("");
-                                } else {
-                                  setMobileError("");
-                                  setMobile(value);
+                      <div className="space-y-5">
+                        <div>
+                          <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                            Mobile Number
+                            <span className="text-error-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                              <i
+                                className="fa-solid fa-mobile text-lg"
+                                aria-hidden="true"
+                              ></i>
+                            </span>
+                            <input
+                            type="tel"
+                            inputMode="numeric"
+                              value={mobile}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                if (/^\d{0,10}$/.test(value)) {
+                                  if (
+                                    value.length > 0 &&
+                                    "012345".includes(value[0])
+                                  ) {
+                                    setMobileError(
+                                      "Mobile number must start with 6-9"
+                                    );
+                                    setMobile("");
+                                  } else {
+                                    setMobileError("");
+                                    setMobile(value);
+                                  }
                                 }
-                              }
-                            }}
-                            onKeyPress={handleMobileKeyPress}
-                            placeholder="Enter your mobile number"
+                              }}
+                              onKeyPress={handleMobileKeyPress}
+                              placeholder="Enter your mobile number"
                             disabled={isOtpSent}
                             className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-black bg-transparent px-4 pl-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-black focus:outline-none dark:border-black dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
                               isOtpSent
                                 ? "bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
                                 : ""
                             }`}
-                          />
+                            />
+                          </div>
+                          {mobileError && (
+                            <p className="mt-1 text-sm text-error-500">
+                              {mobileError}
+                            </p>
+                          )}
                         </div>
-                        {mobileError && (
-                          <p className="mt-1 text-sm text-error-500">
-                            {mobileError}
-                          </p>
-                        )}
-                      </div>
 
                       {isOtpSent && (
                         <div>
@@ -298,24 +298,24 @@ function Auth() {
                         </div>
                       )}
 
-                      <div>
-                        <button
-                          type="submit"
+                        <div>
+                          <button
+                            type="submit"
                           disabled={
                             !isOtpSent
                               ? loading || mobile.length !== 10
                               : verifyLoading ||
                                 otp.some((digit) => digit === "")
                           }
-                          className={`flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg shadow-theme-xs ${
+                            className={`flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg shadow-theme-xs ${
                             (!isOtpSent && (loading || mobile.length !== 10)) ||
                             (isOtpSent &&
                               (verifyLoading ||
                                 otp.some((digit) => digit === "")))
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-brand-500 hover:bg-brand-600"
-                          } disabled:opacity-70`}
-                        >
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-brand-500 hover:bg-brand-600"
+                            } disabled:opacity-70`}
+                          >
                           {!isOtpSent
                             ? loading
                               ? "Sending OTP..."
@@ -323,8 +323,8 @@ function Auth() {
                             : verifyLoading
                             ? "Verifying..."
                             : "Verify OTP"}
-                        </button>
-                      </div>
+                          </button>
+                        </div>
 
                       {error && (
                         <div className="mt-4 text-sm text-error-500">
@@ -357,74 +357,74 @@ function Auth() {
                           </div>
                         </div>
                       )}
+                      </div>
+                    </form>
+                  </div>
+                  <div className="flex flex-col items-center gap-3">
+                    {/* Footer links below the card (separate from card) */}
+                    <div className="w-full flex justify-center lg:justify-center">
+                      <nav className="flex gap-10 text-sm text-gray-500 dark:text-gray-400">
+                        <a href="#" className="hover:text-gray-700">
+                          Home
+                        </a>
+                        <a href="#" className="hover:text-gray-700">
+                          Book a demo
+                        </a>
+                        <a href="#" className="hover:text-gray-700">
+                          Contact
+                        </a>
+                        <a href="#" className="hover:text-gray-700">
+                          Support
+                        </a>
+                      </nav>
                     </div>
-                  </form>
-                </div>
-                <div className="flex flex-col items-center gap-3">
-                  {/* Footer links below the card (separate from card) */}
-                  <div className="w-full flex justify-center lg:justify-center">
-                    <nav className="flex gap-10 text-sm text-gray-500 dark:text-gray-400">
-                      <a href="#" className="hover:text-gray-700">
-                        Home
+                    {/* Fixed Social Icons Section */}
+                    <div className="flex justify-center gap-4 mt-6">
+                      <a
+                        href="https://www.facebook.com/people/Menu-Mitra/61565082412478/"
+                        className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
+                      >
+                        <i
+                          className="ri-facebook-fill text-2xl"
+                          style={{ color: "#1877F2" }}
+                        ></i>
                       </a>
-                      <a href="#" className="hover:text-gray-700">
-                        Book a demo
+                      <a
+                        href="https://www.instagram.com/menumitra/"
+                        className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
+                      >
+                        <i
+                          className="ri-instagram-fill text-2xl"
+                          style={{ color: "#E4405F" }}
+                        ></i>
                       </a>
-                      <a href="#" className="hover:text-gray-700">
-                        Contact
+                      <a
+                        href="https://www.youtube.com/@menumitra"
+                        className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
+                      >
+                        <i
+                          className="ri-youtube-fill text-2xl"
+                          style={{ color: "#FF0000" }}
+                        ></i>
                       </a>
-                      <a href="#" className="hover:text-gray-700">
-                        Support
+                      <a
+                        href="https://www.google.com/@menumitra"
+                        className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
+                      >
+                        <i
+                          className="ri-google-fill text-2xl"
+                          style={{ color: "#34A853" }}
+                        ></i>
                       </a>
-                    </nav>
-                  </div>
-                  {/* Fixed Social Icons Section */}
-                  <div className="flex justify-center gap-4 mt-6">
-                    <a
-                      href="https://www.facebook.com/people/Menu-Mitra/61565082412478/"
-                      className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
-                    >
-                      <i
-                        className="ri-facebook-fill text-2xl"
-                        style={{ color: "#1877F2" }}
-                      ></i>
-                    </a>
-                    <a
-                      href="https://www.instagram.com/menumitra/"
-                      className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
-                    >
-                      <i
-                        className="ri-instagram-fill text-2xl"
-                        style={{ color: "#E4405F" }}
-                      ></i>
-                    </a>
-                    <a
-                      href="https://www.youtube.com/@menumitra"
-                      className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
-                    >
-                      <i
-                        className="ri-youtube-fill text-2xl"
-                        style={{ color: "#FF0000" }}
-                      ></i>
-                    </a>
-                    <a
-                      href="https://www.google.com/@menumitra"
-                      className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
-                    >
-                      <i
-                        className="ri-google-fill text-2xl"
-                        style={{ color: "#34A853" }}
-                      ></i>
-                    </a>
-                  </div>
+                    </div>
 
-                  <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Version 2.0</span>
-                    <span>|</span>
-                    <span>13 Aug 2025</span>
+                    <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
+                      <span className="font-medium">Version 2.0</span>
+                      <span>|</span>
+                      <span>13 Aug 2025</span>
+                    </div>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
 
