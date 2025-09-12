@@ -264,7 +264,7 @@ const Search = () => {
                   <select
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full h-10 sm:h-auto text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-10 sm:h-auto px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                   >
                     <option value="">All Roles</option>
                     <option value="super_owner">Super Owner</option>
@@ -282,7 +282,7 @@ const Search = () => {
                   <select
                     value={searchType}
                     onChange={(e) => setSearchType(e.target.value)}
-                    className="w-full h-10 sm:h-auto px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-10 sm:h-auto px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
                   >
                     <option value="name">Name</option>
                     <option value="mobile">Mobile</option>
@@ -294,37 +294,40 @@ const Search = () => {
               {/* Search Input and Button Group */}
               <div className="flex gap-2 sm:gap-4 flex-1">
                 <div className="flex-1 relative">
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchInput}
-                    onChange={handleInputChange}
-                    placeholder={`Search by ${searchType}...`}
-                    className="w-full h-10 sm:h-auto px-3 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    autoFocus
-                  />
-                  {searchInput && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSearchInput("");
-                        // Keep focus on the search input
-                        if (searchInputRef.current) {
-                          searchInputRef.current.focus();
-                        }
-                      }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
-                    </button>
-                  )}
+                  <div className="relative">
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchInput}
+                      onChange={handleInputChange}
+                      placeholder={`Search by ${searchType}...`}
+                      className="w-full h-10 sm:h-auto px-3 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      autoFocus
+                    />
+                    {searchInput && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSearchInput("");
+                          // Keep focus on the search input
+                          if (searchInputRef.current) {
+                            searchInputRef.current.focus();
+                          }
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                        title="Clear search"
+                      >
+                        <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="self-start sm:self-end">
                   <button
                     type="submit"
-                    className="h-10 sm:h-auto px-4 sm:px-6 py-2 text-sm bg-brand-500 text-white rounded-full hover:bg-brand-600 disabled:bg-brand-300 flex items-center gap-2"
+                    className="h-10 sm:h-auto px-4 sm:px-6 py-2 text-sm bg-brand-500 text-white rounded-full hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
                     disabled={loading || !searchInput.trim()}
                   >
                     <span className="hidden sm:inline">

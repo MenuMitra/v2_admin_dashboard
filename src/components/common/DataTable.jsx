@@ -1009,7 +1009,7 @@ function DataTable({
                 {/* Search Input */}
                 {showSearch && (
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
                       <FontAwesomeIcon
                         icon={faMagnifyingGlass}
                         className="w-4 h-4"
@@ -1041,7 +1041,7 @@ function DataTable({
                             searchInput.focus();
                           }
                         }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                       >
                         <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
                       </button>
