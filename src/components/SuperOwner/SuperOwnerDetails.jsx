@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-
   faChevronLeft as faBack,
   faUser,
   faEnvelope,
@@ -16,11 +15,9 @@ import {
   faCalendarCheck,
   faCircleCheck,
   faCircleXmark,
-
   faStore,
   faChevronRight,
   faTrash,
-
   faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
@@ -37,7 +34,6 @@ function SuperOwnerDetails() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-
   const {
     superOwnerDetails,
     isLoading,
@@ -52,7 +48,6 @@ function SuperOwnerDetails() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-
     { label: "Home", path: "/Home" },
     { label: "Super Owners", path: "/super-owners" },
 
@@ -95,7 +90,6 @@ function SuperOwnerDetails() {
   if (error) {
     return (
       <div className="p-6">
-
         <div className="text-center text-error-500">
           Error loading super owner details
         </div>
@@ -106,7 +100,6 @@ function SuperOwnerDetails() {
   if (!superOwnerDetails?.superOwnerData) {
     return (
       <div className="p-6">
-
         <div className="text-center text-gray-500">
           No super owner data found
         </div>
@@ -172,14 +165,12 @@ function SuperOwnerDetails() {
 
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
-
           {/* Header Section - Matching DataTable.jsx style */}
           <div className="flex items-center px-6 mb-3">
             {/* Left Side - Back Button */}
 
             <div className="flex items-center gap-2">
               <button
-
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover shadow-theme-xs"
               >
@@ -193,7 +184,6 @@ function SuperOwnerDetails() {
             <div className="flex-1 text-center text-base sm:text-lg font-semibold text-gray-800">
               Super Owner Details
             </div>
-
 
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
@@ -209,53 +199,50 @@ function SuperOwnerDetails() {
                 />
                 <span className="hidden sm:inline">Reload</span>
               </button>
-                <button
-                  onClick={() =>
-
+              <button
+                onClick={() =>
                   navigate(`/edit-super-owner/${superOwnerData.super_owner_id}`)
-                  }
-
+                }
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
                     d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                    />
-                  </svg>
-                  <span className="hidden sm:inline">Edit</span>
-                </button>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-
+                  />
+                </svg>
+                <span className="hidden sm:inline">Edit</span>
+              </button>
+              <button
+                onClick={() => setIsModalOpen(true)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
-                  <span className="hidden sm:inline">Delete</span>
-                </button>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                <span className="hidden sm:inline">Delete</span>
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Content Section */}
+          {/* Content Section */}
 
           <div className="px-6 py-4">
             {/* Personal Information Card */}
@@ -263,7 +250,6 @@ function SuperOwnerDetails() {
               Personal Information
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-
               {/* Name */}
               {superOwnerData.name && (
                 <div className="flex items-center p-3 rounded-lg">
@@ -275,8 +261,7 @@ function SuperOwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                  {superOwnerData.name}
-
+                      {superOwnerData.name}
                     </div>
                     <div className="text-sm text-gray-500">Name</div>
                   </div>
@@ -291,12 +276,11 @@ function SuperOwnerDetails() {
                       icon={faEnvelope}
                       className="w-5 h-5 text-gray-400"
                     />
-              </div>
+                  </div>
 
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                  {superOwnerData.email}
-
+                      {superOwnerData.email}
                     </div>
                     <div className="text-sm text-gray-500">Email</div>
                   </div>
@@ -311,16 +295,15 @@ function SuperOwnerDetails() {
                       icon={faPhone}
                       className="w-5 h-5 text-gray-400"
                     />
-              </div>
+                  </div>
 
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                  {superOwnerData.mobile}
-              </div>
+                      {superOwnerData.mobile}
+                    </div>
 
                     <div className="text-sm text-gray-500">Mobile</div>
-              </div>
-
+                  </div>
                 </div>
               )}
 
@@ -332,15 +315,14 @@ function SuperOwnerDetails() {
                       icon={faBirthdayCake}
                       className="w-5 h-5 text-gray-400"
                     />
-              </div>
+                  </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
                       {superOwnerData.dob}
-              </div>
+                    </div>
                     <div className="text-sm text-gray-500">Date of Birth</div>
-            </div>
-          </div>
-
+                  </div>
+                </div>
               )}
 
               {/* Aadhar Number */}
@@ -358,9 +340,8 @@ function SuperOwnerDetails() {
                     </div>
                     <div className="text-sm text-gray-500">Aadhar Number</div>
                   </div>
-  </div>
-)}
-
+                </div>
+              )}
 
               {/* Address */}
               {superOwnerData.address && (
@@ -386,7 +367,6 @@ function SuperOwnerDetails() {
               Account Information
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-
               {/* Role */}
               {superOwnerData.role && (
                 <div className="flex items-center p-3 rounded-lg">
@@ -401,9 +381,8 @@ function SuperOwnerDetails() {
                       {superOwnerData.role}
                     </div>
                     <div className="text-sm text-gray-500">Role</div>
-            </div>
-          </div>
-
+                  </div>
+                </div>
               )}
 
               {/* Account Type */}
@@ -418,12 +397,11 @@ function SuperOwnerDetails() {
                   <div className="ml-3">
                     <div className="text-base font-medium">
                       {superOwnerData.account_type?.toUpperCase()}
-                </div>
+                    </div>
 
                     <div className="text-sm text-gray-500">Account Type</div>
-            </div>
-          </div>
-
+                  </div>
+                </div>
               )}
 
               {/* Account Status */}
@@ -437,39 +415,35 @@ function SuperOwnerDetails() {
                       />
                     </div>
                     <div className="ml-3">
-                <div className="mt-1 flex items-center gap-2">
-                  <FontAwesomeIcon
-                    icon={
-
+                      <div className="mt-1 flex items-center gap-2">
+                        <FontAwesomeIcon
+                          icon={
                             superOwnerData.is_active === 1 ||
                             superOwnerData.is_active === true
                               ? faCircleCheck
                               : faCircleXmark
-                    }
-                    className={`w-5 h-5 ${
-
+                          }
+                          className={`w-5 h-5 ${
                             superOwnerData.is_active === 1 ||
                             superOwnerData.is_active === true
-                        ? "text-success-500"
-                        : "text-error-500"
-                    }`}
-                  />
-                  <span
-                    className={`text-base font-medium ${
-
+                              ? "text-success-500"
+                              : "text-error-500"
+                          }`}
+                        />
+                        <span
+                          className={`text-base font-medium ${
                             superOwnerData.is_active === 1 ||
                             superOwnerData.is_active === true
-                        ? "text-success-700"
-                        : "text-error-700"
-                    }`}
-                  >
-
+                              ? "text-success-700"
+                              : "text-error-700"
+                          }`}
+                        >
                           {superOwnerData.is_active === 1 ||
                           superOwnerData.is_active === true
                             ? "Active"
                             : "Inactive"}
-                  </span>
-                </div>
+                        </span>
+                      </div>
 
                       <div className="text-sm text-gray-500">
                         Account Status
@@ -511,8 +485,7 @@ function SuperOwnerDetails() {
                     </div>
                     <div className="text-sm text-gray-500">Created By</div>
                   </div>
-              </div>
-
+                </div>
               )}
 
               {/* Updated On */}
@@ -523,12 +496,11 @@ function SuperOwnerDetails() {
                       icon={faCalendarCheck}
                       className="w-5 h-5 text-gray-400"
                     />
-              </div>
+                  </div>
 
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                  {superOwnerData.updated_on}
-
+                      {superOwnerData.updated_on}
                     </div>
                     <div className="text-sm text-gray-500">Updated On</div>
                   </div>
@@ -549,8 +521,8 @@ function SuperOwnerDetails() {
                       {superOwnerData.updated_by?.toUpperCase()}
                     </div>
                     <div className="text-sm text-gray-500">Updated By</div>
-              </div>
-            </div>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -589,10 +561,9 @@ function SuperOwnerDetails() {
                             icon={faChevronRight}
                             className="w-4 h-4 text-gray-400 group-hover:text-brand-500"
                           />
-          </div>
-        </div>
-      </div>
-
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -637,18 +608,17 @@ function SuperOwnerDetails() {
                 </div>
               </div>
             )}
+          </div>
         </div>
-      </div>
 
-      <DeleteConfirmModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onDelete={handleDelete}
-      />
+        <DeleteConfirmModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onDelete={handleDelete}
+        />
       </div>
     </>
   );
 }
 
 export default SuperOwnerDetails;
-

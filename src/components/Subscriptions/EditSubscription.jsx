@@ -98,6 +98,7 @@ function EditSubscription() {
           {
             user_id: adminData.user_id,
             app_source: "admin_app",
+            "module_id":adminData.module_id,
           },
           {
             headers: {

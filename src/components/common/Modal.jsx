@@ -1,13 +1,13 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 const Modal = ({
   isOpen,
   onClose,
   title,
   children,
-  type = 'default',
-  size = 'default',
+  type = "default",
+  size = "default",
   showCloseButton = true,
   customIcon,
   actionButtons,
@@ -16,43 +16,43 @@ const Modal = ({
 
   // Modal size classes
   const sizeClasses = {
-    default: 'max-w-[600px]',
-    large: 'max-w-[800px]',
-    small: 'max-w-[400px]',
-    fullScreen: 'w-full h-full m-0',
+    default: "max-w-[600px]",
+    large: "max-w-[800px]",
+    small: "max-w-[400px]",
+    fullScreen: "w-full h-full m-0",
   };
 
   // Alert type icons and colors
   const alertStyles = {
     success: {
-      bgColor: 'bg-success-500',
-      hoverBg: 'hover:bg-success-600',
-      iconBg: 'fill-success-50 dark:fill-success-500/15',
-      iconColor: 'fill-success-600 dark:fill-success-500',
+      bgColor: "bg-success-500",
+      hoverBg: "hover:bg-success-600",
+      iconBg: "fill-success-50 dark:fill-success-500/15",
+      iconColor: "fill-success-600 dark:fill-success-500",
     },
     info: {
-      bgColor: 'bg-blue-light-500',
-      hoverBg: 'hover:bg-blue-light-600',
-      iconBg: 'fill-blue-light-50 dark:fill-blue-light-500/15',
-      iconColor: 'fill-blue-light-500',
+      bgColor: "bg-blue-light-500",
+      hoverBg: "hover:bg-blue-light-600",
+      iconBg: "fill-blue-light-50 dark:fill-blue-light-500/15",
+      iconColor: "fill-blue-light-500",
     },
     warning: {
-      bgColor: 'bg-warning-500',
-      hoverBg: 'hover:bg-warning-600',
-      iconBg: 'fill-warning-50 dark:fill-warning-500/15',
-      iconColor: 'fill-warning-600 dark:fill-orange-400',
+      bgColor: "bg-warning-500",
+      hoverBg: "hover:bg-warning-600",
+      iconBg: "fill-warning-50 dark:fill-warning-500/15",
+      iconColor: "fill-warning-600 dark:fill-orange-400",
     },
     error: {
-      bgColor: 'bg-error-500',
-      hoverBg: 'hover:bg-error-600',
-      iconBg: 'fill-error-50 dark:fill-error-500/15',
-      iconColor: 'fill-error-600 dark:fill-error-500',
+      bgColor: "bg-error-500",
+      hoverBg: "hover:bg-error-600",
+      iconBg: "fill-error-50 dark:fill-error-500/15",
+      iconColor: "fill-error-600 dark:fill-error-500",
     },
     default: {
-      bgColor: 'bg-brand-500',
-      hoverBg: 'hover:bg-brand-600',
-      iconBg: '',
-      iconColor: '',
+      bgColor: "bg-brand-500",
+      hoverBg: "hover:bg-brand-600",
+      iconBg: "",
+      iconColor: "",
     },
   };
 
@@ -61,15 +61,15 @@ const Modal = ({
   return (
     <div className="fixed inset-0 flex items-center justify-center p-5 overflow-y-auto modal z-99999">
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 h-full w-full bg-gray-400/50"
         onClick={onClose}
       />
 
       {/* Modal Content */}
-      <div 
+      <div
         className={`relative ${sizeClasses[size]} rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-10`}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Title and Close Button */}
         <div className="flex items-center justify-between mb-4">
@@ -103,7 +103,13 @@ const Modal = ({
 
         <div className="text-center">
           {/* Content */}
-          <div className={type === 'default' ? '' : 'text-sm leading-6 text-gray-500 dark:text-gray-400'}>
+          <div
+            className={
+              type === "default"
+                ? ""
+                : "text-sm leading-6 text-gray-500 dark:text-gray-400"
+            }
+          >
             {children}
           </div>
 
@@ -124,11 +130,11 @@ Modal.propTypes = {
   onClose: PropTypes.func.isRequired,
   title: PropTypes.string,
   children: PropTypes.node.isRequired,
-  type: PropTypes.oneOf(['default', 'success', 'info', 'warning', 'error']),
-  size: PropTypes.oneOf(['default', 'small', 'large', 'fullScreen']),
+  type: PropTypes.oneOf(["default", "success", "info", "warning", "error"]),
+  size: PropTypes.oneOf(["default", "small", "large", "fullScreen"]),
   showCloseButton: PropTypes.bool,
   customIcon: PropTypes.node,
   actionButtons: PropTypes.node,
 };
 
-export default Modal; 
+export default Modal;

@@ -1,10 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { toastController } from '../../../utils/toastController';
-import { queryKeys } from '../queryKeys';
-import { API_CONFIG } from '../../../config/appConfig';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { toastController } from "../../../utils/toastController";
+import { queryKeys } from "../queryKeys";
+import { API_CONFIG } from "../../../config/appConfig";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -36,24 +36,25 @@ export const useFeatures = () => {
     queryFn: async () => {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/list_features`,
         {
           user_id: adminData.user_id,
-          app_source: 'admin_app',
+          app_source: "admin_app",
+          module_id: adminData.module_id,
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
 
-      if (response.data.detail === 'Feature list fetched successfully') {
+      if (response.data.detail === "Feature list fetched successfully") {
         return response.data.data;
       }
       return [];
@@ -66,30 +67,32 @@ export const useFeatures = () => {
     mutationFn: async (featureName) => {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/create_feature`,
         {
-          name: featureName.toLowerCase().replace(/\s+/g, '_'),
+          name: featureName.toLowerCase().replace(/\s+/g, "_"),
           user_id: adminData.user_id,
-          app_source: 'admin_app',
+          app_source: "admin_app",
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries(queryKeys.features.list());
-      toastController.success('Feature created successfully!');
+      toastController.success("Feature created successfully!");
     },
     onError: (err) => {
-      toastController.error(err.response?.data?.detail || 'Failed to create feature');
+      toastController.error(
+        err.response?.data?.detail || "Failed to create feature"
+      );
     },
   });
 
@@ -98,31 +101,33 @@ export const useFeatures = () => {
     mutationFn: async ({ featureId, name }) => {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await axios.put(
         `${BASE_URL}/${API_VERSION}/admin/update_feature`,
         {
           feature_id: featureId,
-          name: name.toLowerCase().replace(/\s+/g, '_'),
+          name: name.toLowerCase().replace(/\s+/g, "_"),
           user_id: adminData.user_id,
-          app_source: 'admin_app',
+          app_source: "admin_app",
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries(queryKeys.features.list());
-      toastController.success('Feature updated successfully!');
+      toastController.success("Feature updated successfully!");
     },
     onError: (err) => {
-      toastController.error(err.response?.data?.detail || 'Failed to update feature');
+      toastController.error(
+        err.response?.data?.detail || "Failed to update feature"
+      );
     },
   });
 
@@ -131,7 +136,7 @@ export const useFeatures = () => {
     mutationFn: async (featureId) => {
       const token = getToken();
       if (!token) {
-        throw new Error('No authentication token available');
+        throw new Error("No authentication token available");
       }
 
       await axios.post(
@@ -139,22 +144,24 @@ export const useFeatures = () => {
         {
           feature_id: featureId,
           user_id: adminData.user_id,
-          app_source: 'admin_app',
+          app_source: "admin_app",
         },
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
     },
     onSuccess: () => {
       queryClient.invalidateQueries(queryKeys.features.list());
-      toastController.success('Feature deleted successfully!');
+      toastController.success("Feature deleted successfully!");
     },
     onError: (err) => {
-      toastController.error(err.response?.data?.detail || 'Failed to delete feature');
+      toastController.error(
+        err.response?.data?.detail || "Failed to delete feature"
+      );
     },
   });
 
@@ -172,4 +179,4 @@ export const useFeatures = () => {
     isCoreFeature,
     CORE_FEATURES,
   };
-}; 
+};

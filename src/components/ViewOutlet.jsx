@@ -915,8 +915,7 @@ function ViewOutlet() {
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Manage Staff Details
               </h2>
-              </div>
-
+            </div>
           </div>
           {/* Manage Outlet Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">

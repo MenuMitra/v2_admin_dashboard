@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 
 // Centralized font control. Change DEFAULT_FONT once to switch the app font.
 const DEFAULT_FONT =
-  "'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji'";
+  "Lato";
 
 function FontProvider({ fontFamily = DEFAULT_FONT, children }) {
   useEffect(() => {

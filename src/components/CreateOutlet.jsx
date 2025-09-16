@@ -8,6 +8,7 @@ import {
   faChevronLeft as faBack,
   faPlus,
   faTimes,
+  faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
@@ -27,6 +28,7 @@ import {
   isWhatsappValid,
 } from "../utils/validations";
 import CustomSelectInput from "./common/CustomSelectInput";
+import SubscriptionPopup from "./Subscriptions/SubscriptionPopup";
 
 function formatDateToDDMMMYYYY(dateStr) {
   if (!dateStr) return "";
@@ -744,6 +746,8 @@ function CreateOutlet() {
 
   const [tenure, setTenure] = useState("");
   const [calculatedEndDate, setCalculatedEndDate] = useState("");
+  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+  const [subscriptionConfig, setSubscriptionConfig] = useState(null);
 
   // Reset tenure and end date when subscription changes
   useEffect(() => {
@@ -754,6 +758,12 @@ function CreateOutlet() {
       subscription_end_date: "",
     }));
   }, [outletData.subscription_id]);
+
+  // Handle subscription configuration save
+  const handleSubscriptionConfigSave = (config) => {
+    setSubscriptionConfig(config);
+    toastController.success("Subscription configuration saved successfully!");
+  };
 
   return (
     <>
@@ -774,7 +784,16 @@ function CreateOutlet() {
               Create Outlet
             </h1>
 
-            <div className="relative">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowSubscriptionPopup(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition shadow-sm"
+                title="Configure Subscription"
+              >
+                <FontAwesomeIcon icon={faCog} className="w-4 h-4" />
+                <span>Subscription</span>
+              </button>
+
               <button
                 onClick={handleSubmit}
                 disabled={!isFormValid || isLoading}
@@ -1185,136 +1204,7 @@ function CreateOutlet() {
                     )}
                   </div>
 
-                  <CustomSelectInput
-  label="Subscription Plan"
-  name="subscription_id"
-  value={outletData?.subscription_id || ""}
-  onChange={handleInputChange}
-  required
-  options={(subscriptions || []).map((sub) => {
-    try {
-      return {
-        value: sub?.subscription_id?.toString() || "",
-        label: `${sub?.name || "Unnamed"} - ₹${sub?.price || 0} (${
-          sub?.features?.length || 0
-        } features)`,
-      };
-    } catch (error) {
-      console.error("Error mapping subscription:", error);
-      return {
-        value: "",
-        label: "Invalid subscription",
-      };
-    }
-  })}
-/>
-
-                  {outletData.subscription_id && (
-                    <div className="relative">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        <span className="text-error-600">*</span> Tenure
-                        (Months)
-                      </label>
-                      <select
-                        name="tenure"
-                        value={tenure || ""}
-                        onChange={(e) => {
-                          const months = parseInt(e.target.value, 10);
-                          setTenure(e.target.value);
-                          if (!months) {
-                            setCalculatedEndDate("");
-                            setOutletData((prev) => ({
-                              ...prev,
-                              subscription_end_date: "",
-                            }));
-                            return;
-                          }
-                          const today = new Date();
-                          // Calculate the target month and year
-                          let targetMonth = today.getMonth() + months;
-                          let targetYear = today.getFullYear();
-                          while (targetMonth > 11) {
-                            targetMonth -= 12;
-                            targetYear += 1;
-                          }
-                          // Get the last day of the target month
-                          const lastDayOfTargetMonth = new Date(
-                            targetYear,
-                            targetMonth + 1,
-                            0
-                          ).getDate();
-                          // Use the same day if possible, otherwise use the last day of the month
-                          const targetDay = Math.min(
-                            today.getDate(),
-                            lastDayOfTargetMonth
-                          );
-                          const endDate = new Date(
-                            targetYear,
-                            targetMonth,
-                            targetDay
-                          );
-                          if (isNaN(endDate.getTime())) {
-                            setCalculatedEndDate("");
-                            setOutletData((prev) => ({
-                              ...prev,
-                              subscription_end_date: "",
-                            }));
-                            return;
-                          }
-                          const day = String(endDate.getDate()).padStart(
-                            2,
-                            "0"
-                          );
-                          const monthNames = [
-                            "Jan",
-                            "Feb",
-                            "Mar",
-                            "Apr",
-                            "May",
-                            "Jun",
-                            "Jul",
-                            "Aug",
-                            "Sep",
-                            "Oct",
-                            "Nov",
-                            "Dec",
-                          ];
-                          const monthIdx = endDate.getMonth();
-                          const month = monthNames[monthIdx];
-                          const year = endDate.getFullYear();
-                          const formatted = `${day} ${month} ${year}`;
-                          setCalculatedEndDate(formatted);
-                          setOutletData((prev) => ({
-                            ...prev,
-                            subscription_end_date: formatted,
-                          }));
-                        }}
-                        required
-                        className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                      >
-                        <option value="">Select tenure</option>
-                        <option value="1">1 Month</option>
-                        <option value="2">2 Months</option>
-                        <option value="3">3 Months</option>
-                        <option value="6">6 Months</option>
-                        <option value="9">9 Months</option>
-                        <option value="12">12 Months</option>
-                      </select>
-                      {/* {calculatedEndDate && (
-                      <div className="mt-2">
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                          Subscription End Date
-                        </label>
-                        <input
-                          type="text"
-                          value={calculatedEndDate}
-                          readOnly
-                          className="w-full px-3 py-2 border rounded-lg shadow-sm bg-gray-100"
-                    />
-                  </div>
-                    )} */}
-                    </div>
-                  )}
+                  {/* Subscription fields removed as per request */}
                 </div>
               </div>
             </section>
@@ -1672,6 +1562,13 @@ function CreateOutlet() {
           </section>
         </form>
       </div>
+
+      {/* Subscription Configuration Popup */}
+      <SubscriptionPopup
+        isOpen={showSubscriptionPopup}
+        onClose={() => setShowSubscriptionPopup(false)}
+        onSave={handleSubscriptionConfigSave}
+      />
     </>
   );
 }
