@@ -88,6 +88,8 @@ function CreateOutlet() {
     image: null,
     subscription_id: "",
     subscription_end_date: "",
+    feature_ids: [],
+    action_ids: [],
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -244,7 +246,7 @@ function CreateOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_end_date: outletData.subscription_id
+      subscription_end_date: outletData.subscription_id && outletData.subscription_id !== ""
         ? !!outletData.subscription_end_date
         : true,
     };
@@ -493,7 +495,7 @@ function CreateOutlet() {
         ...(outletData.owner_id.length > 0
           ? { owner_ids: outletData.owner_id }
           : {}),
-        user_id: adminData.user_id.toString(),
+        user_id: parseInt(adminData.user_id),
         name: outletData.name,
         mobile: outletData.mobile,
         address: outletData.address,
@@ -501,9 +503,23 @@ function CreateOutlet() {
         outlet_mode: outletData.outlet_mode,
         veg_nonveg: outletData.veg_nonveg,
         upi_id: outletData.upi_id,
-        subscription_id: outletData.subscription_id, // <-- added
-        subscription_end_date: outletData.subscription_end_date,
+        
       };
+
+      // Only include subscription fields if subscription is actually configured
+      if (outletData.subscription_id && outletData.subscription_id !== "") {
+        payload.subscription_id = parseInt(outletData.subscription_id);
+        // Include feature and action IDs if subscription is configured
+        if (outletData.feature_ids && outletData.feature_ids.length > 0) {
+          payload.feature_ids = outletData.feature_ids;
+        }
+        if (outletData.action_ids && outletData.action_ids.length > 0) {
+          payload.action_ids = outletData.action_ids;
+        }
+      }
+      if (outletData.subscription_end_date && outletData.subscription_end_date !== "") {
+        payload.subscription_end_date = outletData.subscription_end_date;
+      }
 
       if (outletData.service_charges !== "") {
         payload.service_charges = outletData.service_charges.toString();
@@ -532,13 +548,13 @@ function CreateOutlet() {
       if (outletData.opening_time) {
         const [timeStr, period] = outletData.opening_time.split(" ");
         const [hours, minutes] = timeStr.split(":");
-        payload.opening_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
+        payload.opening_time = `${hours}:${minutes}:00 ${period}`;
       }
 
       if (outletData.closing_time) {
         const [timeStr, period] = outletData.closing_time.split(" ");
         const [hours, minutes] = timeStr.split(":");
-        payload.closing_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
+        payload.closing_time = `${hours}:${minutes}:00 ${period}`;
       }
 
       if (
@@ -552,6 +568,12 @@ function CreateOutlet() {
       console.log("Sending payload:", {
         ...payload,
         image: payload.image ? "base64_string_present" : null,
+      });
+      console.log("Subscription data in payload:", {
+        subscription_id: payload.subscription_id,
+        feature_ids: payload.feature_ids,
+        action_ids: payload.action_ids,
+        subscription_end_date: payload.subscription_end_date,
       });
 
       const response = await toastController.promise(
@@ -683,7 +705,8 @@ function CreateOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_end_date: outletData.subscription_id
+      // Subscription validation: if subscription_id exists, subscription_end_date should exist
+      subscription_end_date: outletData.subscription_id && outletData.subscription_id !== ""
         ? !!outletData.subscription_end_date
         : true,
     };
@@ -753,15 +776,36 @@ function CreateOutlet() {
   useEffect(() => {
     setTenure("");
     setCalculatedEndDate("");
-    setOutletData((prev) => ({
-      ...prev,
-      subscription_end_date: "",
-    }));
+    // Only reset subscription_end_date if subscription_id is being cleared
+    if (!outletData.subscription_id) {
+      setOutletData((prev) => ({
+        ...prev,
+        subscription_end_date: "",
+        feature_ids: [],
+        action_ids: [],
+      }));
+    }
   }, [outletData.subscription_id]);
 
   // Handle subscription configuration save
   const handleSubscriptionConfigSave = (config) => {
+    console.log("Subscription config received:", config);
     setSubscriptionConfig(config);
+    
+    // Update outletData with subscription information
+    setOutletData((prev) => {
+      const updated = {
+        ...prev,
+        subscription_id: config.subscription_id || "",
+        subscription_end_date: config.subscription_end_date || "",
+        // Store feature and action IDs for payload
+        feature_ids: config.features?.map(f => f.feature_id || f.id) || [],
+        action_ids: config.actions?.map(a => a.action_id || a.id) || [],
+      };
+      console.log("Updated outletData with subscription:", updated);
+      return updated;
+    });
+    
     toastController.success("Subscription configuration saved successfully!");
   };
 
@@ -787,11 +831,19 @@ function CreateOutlet() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setShowSubscriptionPopup(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition shadow-sm"
+                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition shadow-sm ${
+                  outletData.subscription_id && outletData.subscription_id !== ""
+                    ? "text-green-700 bg-green-50 border border-green-300 hover:bg-green-100"
+                    : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                }`}
                 title="Configure Subscription"
               >
                 <FontAwesomeIcon icon={faCog} className="w-4 h-4" />
-                <span>Subscription</span>
+                <span>
+                  {outletData.subscription_id && outletData.subscription_id !== ""
+                    ? "Subscription ✓"
+                    : "Subscription"}
+                </span>
               </button>
 
               <button
