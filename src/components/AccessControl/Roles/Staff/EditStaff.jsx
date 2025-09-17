@@ -95,11 +95,53 @@ function EditStaff() {
     (async () => {
       try {
         const token = getToken();
-        const res = await axios.get(
-          `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
-          { headers: { Authorization: token } }
+        const payload = { feature_ids: [1, 2, 3] };
+        const res = await axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/list_actions`,
+          payload,
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
         );
-        setFunctionalities(res.data?.functionalities || []);
+
+        // Normalize possible response shapes
+        let list =
+          res.data?.actions ||
+          res.data?.data ||
+          res.data?.functionalities ||
+          [];
+        if (Array.isArray(list) && list.length > 0 && list[0]?.actions) {
+          const flattened = [];
+          for (const entry of list) {
+            if (Array.isArray(entry.actions)) flattened.push(...entry.actions);
+          }
+          list = flattened;
+        }
+
+        const mapped = (Array.isArray(list) ? list : [])
+          .map((a) => {
+            const action = a || {};
+            return {
+              functionality_id: action.action_id ?? action.id ?? null,
+              functionality_name:
+                action.name ??
+                action.action_name ??
+                action.functionality_name ??
+                "",
+            };
+          })
+          .filter((x) => x.functionality_id !== null);
+
+        const unique = mapped.filter(
+          (item, idx, arr) =>
+            idx ===
+            arr.findIndex((x) => x.functionality_id === item.functionality_id)
+        );
+
+        setFunctionalities(unique);
       } catch (e) {}
     })();
   }, []);
@@ -203,11 +245,10 @@ function EditStaff() {
         outlet_id: Number(outletId),
         is_active: Number(form.is_active) || 0,
         app_source: "admin_app",
-        functionality_ids: selectedFunctionalities,
+
+        action_ids: selectedFunctionalities,
       };
-      if (selectedFunctionalities.length > 0) {
-        payload.functionality_ids = selectedFunctionalities;
-      }
+
       await toastController.promise(
         axios.patch(`${BASE_URL}/${API_VERSION}/common/update_staff`, payload, {
           headers: { Authorization: token },
@@ -219,6 +260,39 @@ function EditStaff() {
             err.response?.data?.detail || "Failed to update staff",
         }
       );
+
+      // After successful update, assign actions if any selected
+      try {
+        if (selectedFunctionalities.length > 0) {
+          const assignPayload = {
+            user_id: Number(userId),
+            action_ids: selectedFunctionalities,
+          };
+          await toastController.promise(
+            axios.post(
+              `${BASE_URL}/${API_VERSION}/admin/user_assign_actions`,
+              assignPayload,
+              {
+                headers: {
+                  Authorization: token,
+                  "Content-Type": "application/json",
+                },
+              }
+            ),
+            {
+              loading: "Assigning actions...",
+              success: "Actions assigned successfully!",
+              error: (err) =>
+                err.response?.data?.detail || "Failed to assign actions",
+            }
+          );
+        }
+      } catch (assignErr) {
+        // show error but do not block navigation
+        toastController.error(
+          assignErr.response?.data?.detail || "Failed to assign actions"
+        );
+      }
       navigate(-1);
     } catch (err) {
       setSaving(false);
@@ -343,7 +417,7 @@ function EditStaff() {
         {functionalities.length > 0 && (
           <div className="mt-6">
             <div className="flex items-center justify-between mb-2">
-              <label className={labelStyles}>Functionalities</label>
+              <label className={labelStyles}>Action</label>
               <label className="flex items-center gap-2 font-medium cursor-pointer">
                 <input
                   type="checkbox"
@@ -370,7 +444,7 @@ function EditStaff() {
                     key={func.functionality_id}
                     className="min-w-[200px] flex-1"
                   >
-                    <label className="flex items-center justify-between gap-2 cursor-pointer select-none">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
                       <Checkbox
                         label=""
                         value={func.functionality_id}

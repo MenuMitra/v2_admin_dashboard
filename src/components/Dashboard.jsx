@@ -416,17 +416,7 @@ function Dashboard() {
                 <span className="text-xs font-medium text-dark">Partners</span>
               </Link>
 
-              <Link
-                to="/features"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faMobileScreenButton}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Features</span>
-              </Link>
-
+             
               <Link
                 to="/subscriptions"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
@@ -451,29 +441,9 @@ function Dashboard() {
                 <span className="text-xs font-medium text-dark">Outlets</span>
               </Link>
 
-              <Link
-                to="/roles"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faUserShield}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Roles</span>
-              </Link>
+             
 
-              <Link
-                to="/functionalities"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faList}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">
-                  Functionalities
-                </span>
-              </Link>
+             
 
               <Link
                 to="/search"

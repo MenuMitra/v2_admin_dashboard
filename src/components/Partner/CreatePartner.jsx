@@ -24,8 +24,7 @@ function CreatePartner() {
   const { getToken } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [functionalities, setFunctionalities] = useState([]);
-  const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
+
   const [partnerDetails, setPartnerDetails] = useState({
     name: "",
     mobile: "",
@@ -33,47 +32,8 @@ function CreatePartner() {
     dob: "",
     aadhar_number: "",
     address: "",
-    functionality_ids: [],
   });
   const [emailError, setEmailError] = useState("");
-
-  useEffect(() => {
-    fetchFunctionalities();
-  }, []);
-
-  const fetchFunctionalities = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get(
-        "https://men4u.xyz/v2/admin/get_ubac_functionalities",
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setFunctionalities(
-        Array.isArray(response.data.functionalities)
-          ? response.data.functionalities
-          : []
-      );
-      // Do NOT check all checkboxes by default
-      setSelectedFunctionalities([]);
-      setPartnerDetails((prev) => ({
-        ...prev,
-        functionality_ids: [],
-      }));
-    } catch (err) {
-      console.error("Error fetching functionalities:", err);
-      setError("Failed to load functionalities");
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -139,7 +99,7 @@ function CreatePartner() {
         dob: formattedDate,
         aadhar_number: partnerDetails.aadhar_number,
         address: partnerDetails.address,
-        functionality_ids: partnerDetails.functionality_ids,
+        // functionality_ids: partnerDetails.functionality_ids,
         app_source: "admin_app",
       };
 
@@ -293,114 +253,6 @@ function CreatePartner() {
                   required
                 />
               </div>
-            </div>
-
-            {/* Functionalities */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className={labelStyles}>
-                  <span className="text-error-600 text-red-500 mr-1">*</span>
-                  Functionalities
-                </label>
-                {/* Check All Checkbox */}
-                <label className="flex items-center gap-2 font-medium cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={
-                      functionalities.length > 0 &&
-                      selectedFunctionalities.length === functionalities.length
-                    }
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        const allIds = functionalities.map(
-                          (f) => f.functionality_id
-                        );
-                        setSelectedFunctionalities(allIds);
-                        setPartnerDetails((prev) => ({
-                          ...prev,
-                          functionality_ids: allIds,
-                        }));
-                      } else {
-                        setSelectedFunctionalities([]);
-                        setPartnerDetails((prev) => ({
-                          ...prev,
-                          functionality_ids: [],
-                        }));
-                      }
-                    }}
-                  />
-                  Check All
-                </label>
-              </div>
-              <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
-                <div className="flex flex-wrap gap-4">
-                  {functionalities.map((func) => (
-                    <div
-                      key={func.functionality_id}
-                      className="min-w-[200px] flex-1"
-                    >
-                      <label className="flex items-center justify-between gap-2 cursor-pointer select-none">
-                        <Checkbox
-                          label=""
-                          value={func.functionality_id}
-                          checked={selectedFunctionalities.includes(
-                            func.functionality_id
-                          )}
-                          onChange={(e) => {
-                            const value = Number(e.target.value);
-                            setSelectedFunctionalities((prev) =>
-                              e.target.checked
-                                ? [...prev, value]
-                                : prev.filter((id) => id !== value)
-                            );
-                            setPartnerDetails((prev) => ({
-                              ...prev,
-                              functionality_ids: e.target.checked
-                                ? [...prev.functionality_ids, value]
-                                : prev.functionality_ids.filter(
-                                    (id) => id !== value
-                                  ),
-                            }));
-                          }}
-                        />
-                        <span>{func.functionality_name}</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Selected Functionalities Tags */}
-              {/* {selectedFunctionalities.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {selectedFunctionalities.map(id => {
-                    const func = functionalities.find(f => f.functionality_id === id);
-                    return (
-                      <span
-                        key={id}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      >
-                        {func?.functionality_name}
-                        <button
-                          type="button"
-                          className="ml-1 inline-flex items-center justify-center"
-                          onClick={() => {
-                            setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
-                            setPartnerDetails(prev => ({
-                              ...prev,
-                              functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
-                            }));
-                          }}
-                        >
-                          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )} */}
             </div>
 
             {/* Error Message */}

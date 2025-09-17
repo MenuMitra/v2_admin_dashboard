@@ -36,6 +36,8 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
   const [startDate, setStartDate] = useState(
     () => new Date().toISOString().split("T")[0]
   );
+  const [planName, setPlanName] = useState("");
+  const [planPrice, setPlanPrice] = useState("");
 
   // Fetch modules on component mount
   useEffect(() => {
@@ -204,8 +206,11 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
         : null;
 
       const createPayload = {
-        name: `${selectedModule.name || "custom"}_auto_${Date.now()}`,
-        price: 0,
+        name:
+          (planName && planName.trim()) ||
+          `${selectedModule.name || "custom"}_auto_${Date.now()}`,
+        price:
+          planPrice !== "" && !isNaN(Number(planPrice)) ? Number(planPrice) : 0,
         // Keep feature_ids for backward compatibility
         feature_ids: selectedFeatures
           .map((f) => f.feature_id || f.id)
@@ -343,182 +348,293 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
       }
     >
       <div className="text-left max-h-[60vh] overflow-y-auto">
-        {/* Step 1: Module Selection */}
-        <div className="mb-6">
-          <h3 className="text-base font-medium text-gray-800 mb-3">
-            1. Select Module
-          </h3>
+        {/* Basic Information Row */}
+        <section className="bg-white p-4 rounded-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">
+                Plan Name
+              </label>
+              <input
+                type="text"
+                value={planName}
+                onChange={(e) => setPlanName(e.target.value)}
+                placeholder="Enter plan name"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">Price</label>
+              <input
+                type="number"
+                step="0.01"
+                value={planPrice}
+                onChange={(e) => setPlanPrice(e.target.value)}
+                placeholder="0"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-gray-600 block mb-1">
+                Tenure (months)
+              </label>
+              <select
+                value={tenureMonths || ""}
+                onChange={(e) =>
+                  setTenureMonths(
+                    e.target.value ? Number(e.target.value) : null
+                  )
+                }
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm"
+              >
+                <option value="">Select months</option>
+                {[1, 2, 3, 6, 9, 12, 24].map((m) => (
+                  <option key={m} value={m}>
+                    {m} month{m > 1 ? "s" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </section>
+        {/* Modules Section */}
+        <section className="bg-white p-4 rounded-lg">
+          <h2 className="text-base font-medium text-gray-800 mb-3 flex items-center">
+            Modules
+          </h2>
           {loading ? (
             <div className="text-center py-4">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
               <p className="mt-2 text-sm text-gray-600">Loading modules...</p>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2">
-              {modules.map((module) => (
-                <button
-                  key={module.module_id}
-                  onClick={() => handleModuleSelect(module)}
-                  className={`px-3 py-2 border-2 rounded-lg text-left transition-all ${
-                    selectedModule?.module_id === module.module_id
-                      ? "border-blue-500 bg-blue-50"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium text-gray-800 text-sm capitalize">
-                        {module.name}
-                      </h4>
-                      {module.description && (
-                        <p className="text-xs text-gray-600 mt-1">
-                          {module.description}
-                        </p>
-                      )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {modules.map((mod) => {
+                const isSelected = selectedModule?.module_id === mod.module_id;
+                return (
+                  <div
+                    key={mod.module_id}
+                    onClick={() => handleModuleSelect(mod)}
+                    className={`
+                      bg-white rounded-lg p-3 shadow-sm border cursor-pointer select-none
+                      ${
+                        isSelected
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-200 hover:border-blue-300"
+                      }
+                      transition-all duration-200 ease-in-out
+                    `}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-800 capitalize">
+                        {mod.name?.split("_").join(" ")}
+                      </span>
+                      <input type="radio" checked={isSelected} readOnly />
                     </div>
-                    {selectedModule?.module_id === module.module_id && (
-                      <FontAwesomeIcon
-                        icon={faCheck}
-                        className="w-4 h-4 text-blue-500"
-                      />
+                    {mod.description && (
+                      <p className="mt-2 text-xs text-gray-500 line-clamp-2">
+                        {mod.description}
+                      </p>
                     )}
                   </div>
-                </button>
-              ))}
+                );
+              })}
             </div>
           )}
-        </div>
+        </section>
 
-        {/* Step 2: Feature Selection */}
+        {/* Features Section */}
         {selectedModule && (
-          <div className="mb-6">
+          <section className="bg-white p-4 rounded-lg mt-4">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-base font-medium text-gray-800">
-                2. Select Features
-              </h3>
-              <button
-                onClick={() => setShowFeatures(!showFeatures)}
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm"
-              >
-                <span>{showFeatures ? "Hide" : "Show"}</span>
-                <FontAwesomeIcon
-                  icon={showFeatures ? faChevronUp : faChevronDown}
-                  className="w-3 h-3"
-                />
-              </button>
+              <h2 className="text-base font-medium text-gray-800 flex items-center">
+                Features <span className="text-red-500 ml-1">*</span>
+              </h2>
+              <div className="flex items-center gap-6">
+                <label className="flex items-center gap-2 font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={
+                      features.length > 0 &&
+                      selectedFeatures.length === features.length
+                    }
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedFeatures(features);
+                      } else {
+                        setSelectedFeatures([]);
+                        setSelectedActions([]);
+                      }
+                    }}
+                  />
+                  Check All
+                </label>
+                <span className="text-xs text-gray-500">
+                  Selected: {selectedFeatures.length}
+                </span>
+              </div>
             </div>
 
-            {showFeatures && (
-              <div className="border border-gray-200 rounded-lg p-3">
-                {loadingFeatures ? (
-                  <div className="text-center py-3">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-2 text-xs text-gray-600">
-                      Loading features...
-                    </p>
-                  </div>
-                ) : features.length > 0 ? (
-                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-                    {features.map((feature) => (
-                      <label
-                        key={feature.feature_id}
-                        className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer"
-                      >
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3`}
+            >
+              {loadingFeatures ? (
+                <div className="text-center py-3 col-span-full">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
+                  <p className="mt-2 text-xs text-gray-600">
+                    Loading features...
+                  </p>
+                </div>
+              ) : features.length === 0 ? (
+                <p className="text-gray-500 text-center py-3 text-sm col-span-full">
+                  No features available for this module
+                </p>
+              ) : (
+                features.map((feature) => {
+                  const isSelected = selectedFeatures.some(
+                    (f) => f.feature_id === feature.feature_id
+                  );
+                  return (
+                    <div
+                      key={feature.feature_id}
+                      onClick={() => handleFeatureToggle(feature)}
+                      className={`
+                        bg-white rounded-lg p-3 shadow-sm border cursor-pointer select-none
+                        ${
+                          isSelected
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 hover:border-blue-300"
+                        }
+                        transition-all duration-200 ease-in-out
+                      `}
+                    >
+                      <label className="flex items-center space-x-3 w-full cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={selectedFeatures.some(
-                            (f) => f.feature_id === feature.feature_id
-                          )}
+                          checked={isSelected}
+                          onClick={(e) => e.stopPropagation()}
                           onChange={() => handleFeatureToggle(feature)}
-                          className="w-3 h-3 text-blue-600 rounded focus:ring-blue-500"
+                          className="form-checkbox h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                         />
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-800 text-sm capitalize">
-                            {feature.name}
-                          </h4>
-                          {feature.description && (
-                            <p className="text-xs text-gray-600">
-                              {feature.description}
-                            </p>
-                          )}
-                        </div>
+                        <span
+                          className={`text-sm font-medium pl-2 capitalize ${
+                            isSelected ? "text-blue-700" : "text-gray-700"
+                          }`}
+                        >
+                          {feature.name?.split("_").join(" ")}
+                        </span>
                       </label>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 text-center py-3 text-sm">
-                    No features available for this module
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </section>
         )}
 
-        {/* Step 3: Action Selection */}
+        {/* Actions Section */}
         {selectedFeatures.length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-base font-medium text-gray-800">
-                3. Select Actions
-              </h3>
-              <button
-                onClick={() => setShowActions(!showActions)}
-                className="flex items-center gap-1 text-blue-600 hover:text-blue-700 text-sm"
-              >
-                <span>{showActions ? "Hide" : "Show"}</span>
-                <FontAwesomeIcon
-                  icon={showActions ? faChevronUp : faChevronDown}
-                  className="w-3 h-3"
-                />
-              </button>
-            </div>
+          <section className="bg-white p-4 rounded-lg mt-4">
+            {(() => {
+              const allActionIds = actions.map((a) => a.action_id);
+              const selectedActionIds = selectedActions.map((a) => a.action_id);
+              const allChecked =
+                allActionIds.length > 0 &&
+                allActionIds.every((id) => selectedActionIds.includes(id));
 
-            {showActions && (
-              <div className="border border-gray-200 rounded-lg p-3">
-                {loadingActions ? (
-                  <div className="text-center py-3">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-2 text-xs text-gray-600">
-                      Loading actions...
-                    </p>
-                  </div>
-                ) : actions.length > 0 ? (
-                  <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-                    {actions.map((action) => (
-                      <label
-                        key={action.action_id}
-                        className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded hover:bg-gray-50 cursor-pointer"
-                      >
+              return (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-base font-medium text-gray-800 flex items-center">
+                      Actions
+                    </h2>
+                    <div className="flex items-center gap-6">
+                      <label className="flex items-center gap-2 font-medium cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={selectedActions.some(
-                            (a) => a.action_id === action.action_id
-                          )}
-                          onChange={() => handleActionToggle(action)}
-                          className="w-3 h-3 text-blue-600 rounded focus:ring-blue-500"
+                          checked={allChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedActions(actions);
+                            } else {
+                              setSelectedActions([]);
+                            }
+                          }}
                         />
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-800 text-sm capitalize">
-                            {action.name}
-                          </h4>
-                          {action.description && (
-                            <p className="text-xs text-gray-600">
-                              {action.description}
-                            </p>
-                          )}
-                        </div>
+                        Check All
                       </label>
-                    ))}
+                      <span className="text-xs text-gray-500">
+                        Selected: {selectedActions.length}
+                      </span>
+                    </div>
                   </div>
-                ) : (
-                  <p className="text-gray-500 text-center py-3 text-sm">
-                    No actions available for selected features
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+
+                  {loadingActions ? (
+                    <div className="text-center py-3">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500 mx-auto"></div>
+                      <p className="mt-2 text-xs text-gray-600">
+                        Loading actions...
+                      </p>
+                    </div>
+                  ) : actions.length === 0 ? (
+                    <p className="text-gray-500 text-center py-3 text-sm">
+                      No actions available for selected features
+                    </p>
+                  ) : (
+                    <div
+                      className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3`}
+                    >
+                      {actions.map((action) => {
+                        const selected = selectedActions.some(
+                          (a) => a.action_id === action.action_id
+                        );
+                        const actionLabel = (
+                          action.name ||
+                          action.action_name ||
+                          `Action ${action.action_id}`
+                        )
+                          .split("_")
+                          .join(" ")
+                          .toUpperCase();
+                        return (
+                          <div
+                            key={action.action_id}
+                            onClick={() => handleActionToggle(action)}
+                            className={`
+                              bg-white rounded-lg p-3 shadow-sm border cursor-pointer select-none
+                              ${
+                                selected
+                                  ? "border-blue-500 bg-blue-50"
+                                  : "border-gray-200 hover:border-blue-300"
+                              }
+                              transition-all duration-200 ease-in-out
+                            `}
+                          >
+                            <label className="flex items-center space-x-3 w-full cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={selected}
+                                onClick={(e) => e.stopPropagation()}
+                                onChange={() => handleActionToggle(action)}
+                                className="form-checkbox h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                              />
+                              <span
+                                className={`text-sm font-medium pl-2 whitespace-normal break-words ${
+                                  selected ? "text-blue-700" : "text-gray-700"
+                                }`}
+                              >
+                                {actionLabel}
+                              </span>
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+          </section>
         )}
 
         {/* Summary */}
@@ -552,39 +668,15 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
           </div>
         )}
 
-        {/* Tenure / Start date selection (used to compute subscription end date) */}
+        {/* Start date selection */}
         <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-800 mb-2">
-            Subscription tenure
-          </h4>
-          <div className="flex items-center gap-3">
-            <select
-              value={tenureMonths || ""}
-              onChange={(e) =>
-                setTenureMonths(e.target.value ? Number(e.target.value) : null)
-              }
-              className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm"
-            >
-              <option value="">Select months</option>
-              {[1, 2, 3, 6, 8, 12, 24].map((m) => (
-                <option key={m} value={m}>
-                  {m} month{m > 1 ? "s" : ""}
-                </option>
-              ))}
-            </select>
-
-            <div>
-              <label className="text-xs text-gray-600 block mb-1">
-                Start date
-              </label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm"
-              />
-            </div>
-          </div>
+          <label className="text-xs text-gray-600 block mb-1">Start date</label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm"
+          />
         </div>
       </div>
     </Modal>

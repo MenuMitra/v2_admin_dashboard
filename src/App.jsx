@@ -54,9 +54,6 @@ import StaffDetails from "./components/AccessControl/Roles/Staff/StaffDetails";
 import EditStaff from "./components/AccessControl/Roles/Staff/EditStaff";
 
 import RoleFunctionalitiesMapping from "./components/AccessControl/Roles/RoleFunctionalitiesMapping";
-import Features from "./components/Features/Features";
-import EditFeature from "./components/Features/EditFeature";
-import ViewFeature from "./components/Features/ViewFeature";
 import Subscriptions from "./components/Subscriptions/Subscriptions";
 import CreateSubscription from "./components/Subscriptions/CreateSubscription";
 import EditSubscription from "./components/Subscriptions/EditSubscription";
@@ -146,10 +143,7 @@ function App() {
               element={<AssignFunctionlaityRole />}
             />
 
-            {/* Features Routes */}
-            <Route path="/features" element={<Features />} />
-            <Route path="/edit-feature/:featureId" element={<EditFeature />} />
-            <Route path="/view-feature/:featureId" element={<ViewFeature />} />
+            {/* Features removed */}
 
             {/* Subscriptions Routes */}
             <Route path="/subscriptions" element={<Subscriptions />} />

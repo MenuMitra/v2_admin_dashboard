@@ -69,25 +69,19 @@ const menuGroups = [
         id: "subscriptions",
         icon: faIndianRupeeSign,
       },
-      {
-        title: "Features",
-        path: "/features",
-        id: "features",
-        icon: faMobileScreenButton,
-      },
     ],
   },
-  {
-    items: [
-      { title: "Roles", path: "/roles", id: "roles", icon: faUserShield },
-      {
-        title: "Functionalities",
-        path: "/functionalities",
-        id: "functionalities",
-        icon: faList,
-      },
-    ],
-  },
+  // {
+  //   items: [
+  //     { title: "Roles", path: "/roles", id: "roles", icon: faUserShield },
+  //     {
+  //       title: "Functionalities",
+  //       path: "/functionalities",
+  //       id: "functionalities",
+  //       icon: faList,
+  //     },
+  //   ],
+  // },
   {
     items: [{ title: "Search", path: "/search", id: "search", icon: faSearch }],
   },

@@ -53,6 +53,33 @@ function StaffDetails() {
     [outletId]
   );
 
+  // Prepare assigned actions for display: prefer `assigned_actions`, fall back to `functionalities`
+  const assignedActions = (() => {
+    if (
+      Array.isArray(data?.assigned_actions) &&
+      data.assigned_actions.length > 0
+    ) {
+      return data.assigned_actions
+        .map((a) => ({
+          id: a.action_id ?? a.actionId ?? null,
+          name: a.action_name ?? a.actionName ?? a.feature_name ?? "",
+        }))
+        .filter((x) => x.id !== null);
+    }
+    if (
+      Array.isArray(data?.functionalities) &&
+      data.functionalities.length > 0
+    ) {
+      return data.functionalities
+        .map((f) => ({
+          id: f.functionality_id ?? f.id ?? null,
+          name: f.functionality_name ?? f.name ?? "",
+        }))
+        .filter((x) => x.id !== null);
+    }
+    return [];
+  })();
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -161,26 +188,23 @@ function StaffDetails() {
               </div>
             </div>
 
-            {Array.isArray(data?.functionalities) &&
-              data.functionalities.length > 0 && (
-                <div className="p-6 border-t">
-                  <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
-                    Functionalities
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    {data.functionalities.map((func) => (
-                      <span
-                        key={func.functionality_id}
-                        className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
-                      >
-                        {String(func.functionality_name)
-                          .replace(/_/g, " ")
-                          .toLowerCase()}
-                      </span>
-                    ))}
-                  </div>
+            {assignedActions.length > 0 && (
+              <div className="p-6 border-t">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
+                  Assigned Actions
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {assignedActions.map((act) => (
+                    <span
+                      key={act.id}
+                      className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm"
+                    >
+                      {String(act.name).replace(/_/g, " ").toLowerCase()}
+                    </span>
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
           </>
         )}
       </div>

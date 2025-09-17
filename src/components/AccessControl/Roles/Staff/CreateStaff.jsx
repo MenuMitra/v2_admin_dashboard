@@ -94,11 +94,57 @@ function CreateStaff() {
     (async () => {
       try {
         const token = getToken();
-        const res = await axios.get(
-          `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
-          { headers: { Authorization: token } }
+        // POST payload as required by the API
+        const payload = { feature_ids: [1, 2, 3] };
+        const res = await axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/list_actions`,
+          payload,
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
         );
-        setFunctionalities(res.data?.functionalities || []);
+
+        // Normalize response shapes similar to other components
+        let list =
+          res.data?.actions ||
+          res.data?.data ||
+          res.data?.functionalities ||
+          [];
+
+        // If the API returned an array of objects each with an `actions` array, flatten
+        if (Array.isArray(list) && list.length > 0 && list[0]?.actions) {
+          const flattened = [];
+          for (const entry of list) {
+            if (Array.isArray(entry.actions)) flattened.push(...entry.actions);
+          }
+          list = flattened;
+        }
+
+        const mapped = (Array.isArray(list) ? list : [])
+          .map((a) => {
+            const action = a || {};
+            return {
+              functionality_id: action.action_id ?? action.id ?? null,
+              functionality_name:
+                action.name ??
+                action.action_name ??
+                action.functionality_name ??
+                "",
+            };
+          })
+          .filter((x) => x.functionality_id !== null);
+
+        // Deduplicate
+        const unique = mapped.filter(
+          (item, idx, arr) =>
+            idx ===
+            arr.findIndex((x) => x.functionality_id === item.functionality_id)
+        );
+
+        setFunctionalities(unique);
       } catch (e) {
         // no-op
       }
@@ -186,11 +232,10 @@ function CreateStaff() {
         aadhar_number: form.aadhar_number,
         outlet_id: Number(outletId),
         app_source: "admin_app",
-        functionality_ids: selectedFunctionalities,
+        // backend supports assigning actions at creation via `action_ids`
+        action_ids: selectedFunctionalities,
       };
-      if (selectedFunctionalities.length > 0) {
-        payload.functionality_ids = selectedFunctionalities;
-      }
+
       await toastController.promise(
         axios.post(`${BASE_URL}/${API_VERSION}/common/create_staff`, payload, {
           headers: { Authorization: token, "Content-Type": "application/json" },
@@ -202,6 +247,8 @@ function CreateStaff() {
             err.response?.data?.detail || "Failed to create staff",
         }
       );
+
+      // backend will assign actions; just navigate back
       navigate(-1);
     } catch (err) {
       setSubmitting(false);
@@ -319,7 +366,7 @@ function CreateStaff() {
         {functionalities.length > 0 && (
           <div className="mt-6">
             <div className="flex items-center justify-between mb-2">
-              <label className={labelStyles}>Functionalities</label>
+              <label className={labelStyles}>Actions</label>
               <label className="flex items-center gap-2 font-medium cursor-pointer">
                 <input
                   type="checkbox"
@@ -336,7 +383,7 @@ function CreateStaff() {
                     key={func.functionality_id}
                     className="min-w-[200px] flex-1"
                   >
-                    <label className="flex items-center justify-between gap-2 cursor-pointer select-none">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
                       <Checkbox
                         label=""
                         value={func.functionality_id}
