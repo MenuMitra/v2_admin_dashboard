@@ -39,7 +39,6 @@ function CreateOwner() {
     aadhar_number: "",
     address: "",
     outlet_ids: [],
-    outlet_id: null,
     account_type: "live",
     is_active: 1,
   });
@@ -97,15 +96,10 @@ function CreateOwner() {
   };
 
   const handleOutletChange = (newOutletIds) => {
-    const firstOutletId =
-      Array.isArray(newOutletIds) && newOutletIds.length > 0
-        ? newOutletIds[0]
-        : null;
     setSelectedOutlets(newOutletIds);
     setOwnerData((prev) => ({
       ...prev,
       outlet_ids: newOutletIds,
-      outlet_id: firstOutletId,
     }));
   };
 
@@ -231,7 +225,8 @@ function CreateOwner() {
       ownerData.name?.trim() &&
       ownerData.mobile?.trim() &&
       ownerData.aadhar_number?.trim() &&
-      ownerData.outlet_id &&
+      ownerData.outlet_ids &&
+      ownerData.outlet_ids.length > 0 &&
       !validationStates.nameMessage &&
       validationStates.mobile &&
       validationStates.aadhar_number
@@ -270,7 +265,7 @@ function CreateOwner() {
         address: ownerData.address,
         aadhar_number: ownerData.aadhar_number,
         dob: formattedDate,
-        outlet_id: ownerData.outlet_id,
+        outlet_ids: ownerData.outlet_ids,
         account_type: ownerData.account_type,
         is_active: ownerData.is_active,
         app_source: "admin",
@@ -445,11 +440,13 @@ function CreateOwner() {
                   placeholder="Select outlets"
                   searchPlaceholder="Search outlets..."
                 />
-                {isSubmitAttempted && !ownerData.outlet_id && (
-                  <p className="text-error-500 text-sm mt-1">
-                    Please select at least one outlet
-                  </p>
-                )}
+                {isSubmitAttempted &&
+                  (!ownerData.outlet_ids ||
+                    ownerData.outlet_ids.length === 0) && (
+                    <p className="text-error-500 text-sm mt-1">
+                      Please select at least one outlet
+                    </p>
+                  )}
               </div>
               <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
                 <SelectInput
