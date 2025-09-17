@@ -17,7 +17,6 @@ import {
   faSignOut,
   faEllipsis,
   faUserShield,
-  faList,
   faIndianRupeeSign,
   faMobileScreenButton,
   faBell,
@@ -71,17 +70,6 @@ const menuGroups = [
       },
     ],
   },
-  // {
-  //   items: [
-  //     { title: "Roles", path: "/roles", id: "roles", icon: faUserShield },
-  //     {
-  //       title: "Functionalities",
-  //       path: "/functionalities",
-  //       id: "functionalities",
-  //       icon: faList,
-  //     },
-  //   ],
-  // },
   {
     items: [{ title: "Search", path: "/search", id: "search", icon: faSearch }],
   },
@@ -103,7 +91,7 @@ const menuGroups = [
         id: "enquiries",
         icon: faEnvelope,
       },
-      { title: "Bookings", path: "/bookings", id: "bookings", icon: faList },
+      { title: "Bookings", path: "/bookings", id: "bookings" },
     ],
   },
   {
@@ -189,14 +177,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
           "/template-details/",
           "/edit-template/",
         ],
-        // Special case for Access Control section
-        roles: [
-          "/roles",
-          "/add-role-assign-functionalities/",
-          "/role-details",
-          "/role-functionalities-mapping",
-        ],
-        functionalities: ["/functionalities", "/assign-functionality-role/"],
         subscriptions: [
           "/subscriptions",
           "/create-subscription",
@@ -206,17 +186,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
 
         customer: ["/customer", "/customer-details", "/edit-customer"],
       };
-
-      // Special case for Access Control section
-      if (item.title === "Access Control") {
-        return Object.keys(routePatterns)
-          .filter((key) => ["roles", "functionalities"].includes(key))
-          .some((key) =>
-            routePatterns[key].some((pattern) =>
-              currentPath.startsWith(pattern)
-            )
-          );
-      }
 
       // For regular menu items
       if (routePatterns[baseRoute]) {

@@ -19,7 +19,6 @@ import Partners from "./components/Partner/Partners";
 import PartnerDetails from "./components/Partner/PartnerDetails";
 import EditPartner from "./components/Partner/EditPartner";
 import CreatePartner from "./components/Partner/CreatePartner";
-import Functionalities from "./components/AccessControl/Functionalities/Functionalities";
 import Roles from "./components/AccessControl/Roles/Roles";
 import ViewEnquiry from "./components/Enquiry/ViewEnquiry";
 import Search from "./components/Search/Search";
@@ -29,8 +28,6 @@ import SuperOwner from "./components/SuperOwner/SuperOwner";
 import CreateSuperOwner from "./components/SuperOwner/CreateSuperOwner";
 import SuperOwnerDetails from "./components/SuperOwner/SuperOwnerDetails";
 import EditSuperOwner from "./components/SuperOwner/EditSuperOwner";
-import AddRoleAssignFunctionalities from "./components/AccessControl/Roles/AddRoleAssignFunctionalities";
-import AssignFunctionlaityRole from "./components/AccessControl/Functionalities/AssignFunctionlaityRole";
 import CreateAdmin from "./components/Admin/CreateAdmin";
 import Admins from "./components/Admin/Admins";
 import AdminDetails from "./components/Admin/AdminDetails";
@@ -53,7 +50,6 @@ import CreateStaff from "./components/AccessControl/Roles/Staff/CreateStaff";
 import StaffDetails from "./components/AccessControl/Roles/Staff/StaffDetails";
 import EditStaff from "./components/AccessControl/Roles/Staff/EditStaff";
 
-import RoleFunctionalitiesMapping from "./components/AccessControl/Roles/RoleFunctionalitiesMapping";
 import Subscriptions from "./components/Subscriptions/Subscriptions";
 import CreateSubscription from "./components/Subscriptions/CreateSubscription";
 import EditSubscription from "./components/Subscriptions/EditSubscription";
@@ -63,7 +59,6 @@ import CreateNotification from "./components/Notifications/CreateNotification";
 import Stats from "./components/Stats/Stats";
 import DBTablesStats from "./components/Stats/DBTablesStats";
 import CombinedStats from "./components/Stats/CombinedStats";
-import EditFunctionality from "./components/AccessControl/Roles/EditFunctionality";
 import "remixicon/fonts/remixicon.css";
 
 function App() {
@@ -132,18 +127,9 @@ function App() {
             <Route path="/edit-partner/:partnerId" element={<EditPartner />} />
             <Route path="/create-partner" element={<CreatePartner />} />
 
-            {/* Functionalities Routes */}
-            <Route path="/functionalities" element={<Functionalities />} />
-            <Route
-              path="/add-role-assign-functionalities/:roleId"
-              element={<AddRoleAssignFunctionalities />}
-            />
-            <Route
-              path="/assign-functionality-role/:functionalityId"
-              element={<AssignFunctionlaityRole />}
-            />
-
-            {/* Features removed */}
+            {/* Roles Routes */}
+            <Route path="/roles" element={<Roles />} />
+            <Route path="/role-details/:userId" element={<RoleDetails />} />
 
             {/* Subscriptions Routes */}
             <Route path="/subscriptions" element={<Subscriptions />} />
@@ -165,17 +151,6 @@ function App() {
             <Route
               path="/create-notification"
               element={<CreateNotification />}
-            />
-            {/* Roles Routes */}
-            <Route path="/roles" element={<Roles />} />
-            <Route path="/role-details/:userId" element={<RoleDetails />} />
-            <Route
-              path="/role-functionalities-mapping/:roleId"
-              element={<RoleFunctionalitiesMapping />}
-            />
-            <Route
-              path="/edit-functionality/:roleId"
-              element={<EditFunctionality />}
             />
 
             {/* Staff Routes */}
