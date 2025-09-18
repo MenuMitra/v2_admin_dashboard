@@ -14,7 +14,18 @@ import Modal from "../common/Modal";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
-const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
+const SubscriptionPopup = ({
+  isOpen,
+  onClose,
+  onSave,
+  initialModuleId,
+  initialFeatureIds,
+  initialActionIds,
+  initialPlanName,
+  initialPrice,
+  initialTenureMonths,
+  primaryButtonLabel,
+}) => {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const [modules, setModules] = useState([]);
@@ -39,9 +50,33 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
   const [planName, setPlanName] = useState("");
   const [planPrice, setPlanPrice] = useState("");
 
-  // Fetch modules on component mount
+  // Derived validation flags
+  const isNameValid = (planName || "").trim().length > 0;
+  const isPriceValid =
+    planPrice !== "" && !isNaN(Number(planPrice)) && Number(planPrice) > 0;
+  const isTenureValid = !!tenureMonths;
+  const isModuleSelected = !!selectedModule;
+  const canAssign =
+    isNameValid && isPriceValid && isTenureValid && isModuleSelected;
+
+  // Fetch modules on open and seed basic fields
   useEffect(() => {
     if (isOpen) {
+      // seed basic inputs
+      if (typeof initialPlanName === "string") setPlanName(initialPlanName);
+      if (
+        initialPrice !== undefined &&
+        initialPrice !== null &&
+        !isNaN(Number(initialPrice))
+      )
+        setPlanPrice(String(initialPrice));
+      if (
+        initialTenureMonths !== undefined &&
+        initialTenureMonths !== null &&
+        !isNaN(Number(initialTenureMonths))
+      )
+        setTenureMonths(Number(initialTenureMonths));
+
       fetchModules();
     }
   }, [isOpen]);
@@ -73,7 +108,13 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
           headers: { Authorization: token },
         }
       );
-      setModules(response.data || []);
+      const list = response.data || [];
+      setModules(list);
+      // Preselect module if provided
+      if (initialModuleId) {
+        const match = list.find((m) => m.module_id === initialModuleId);
+        if (match) setSelectedModule(match);
+      }
     } catch (error) {
       console.error("Error fetching modules:", error);
       toastController.error("Failed to fetch modules");
@@ -93,7 +134,15 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
       );
       const list = response.data?.features || response.data?.data || [];
       setFeatures(list);
-      setSelectedFeatures([]);
+      // Preselect features if provided
+      if (Array.isArray(initialFeatureIds) && initialFeatureIds.length > 0) {
+        const preset = list.filter((f) =>
+          initialFeatureIds.includes(f.feature_id)
+        );
+        setSelectedFeatures(preset);
+      } else {
+        setSelectedFeatures([]);
+      }
       setActions([]);
       setShowFeatures(true);
     } catch (error) {
@@ -140,6 +189,13 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
         : [];
 
       setActions(uniqueActions);
+      // Preselect actions if provided
+      if (Array.isArray(initialActionIds) && initialActionIds.length > 0) {
+        const preset = uniqueActions.filter((a) =>
+          initialActionIds.includes(a.action_id)
+        );
+        setSelectedActions(preset);
+      }
       setShowActions(true);
     } catch (error) {
       console.error("Error fetching actions:", error);
@@ -330,7 +386,7 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
       title="Configure Subscription"
       size="large"
       actionButtons={
-        <div className="flex justify-end gap-3 w-full">
+        <div className="flex justify-between items-center w-full">
           <button
             onClick={handleClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50 transition-colors"
@@ -339,10 +395,12 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
           </button>
           <button
             onClick={handleSave}
-            disabled={!selectedModule}
-            className="px-6 py-2 text-sm font-medium text-white bg-brand-500 rounded-full hover:bg-brand-600"
+            disabled={!canAssign}
+            className={`px-6 py-2 text-sm font-medium text-white bg-brand-500 rounded-full hover:bg-brand-600 ${
+              canAssign ? "" : "opacity-50 cursor-not-allowed"
+            }`}
           >
-            Save Configuration
+            {primaryButtonLabel || "Assign Subscription"}
           </button>
         </div>
       }
@@ -350,10 +408,10 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
       <div className="text-left max-h-[60vh] overflow-y-auto">
         {/* Basic Information Row */}
         <section className="bg-white p-4 rounded-lg">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 xl:grid-cols-3 gap-3">
             <div>
               <label className="text-xs text-gray-600 block mb-1">
-                Plan Name
+                Plan Name <span className="text-error-500">*</span>
               </label>
               <input
                 type="text"
@@ -364,19 +422,21 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
               />
             </div>
             <div>
-              <label className="text-xs text-gray-600 block mb-1">Price</label>
+              <label className="text-xs text-gray-600 block mb-1">
+                Price <span className="text-error-500">*</span>
+              </label>
               <input
                 type="number"
                 step="0.01"
                 value={planPrice}
                 onChange={(e) => setPlanPrice(e.target.value)}
-                placeholder="0"
+                placeholder="Enter price"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm"
               />
             </div>
             <div>
               <label className="text-xs text-gray-600 block mb-1">
-                Tenure (months)
+                Tenure (months) <span className="text-error-500">*</span>
               </label>
               <select
                 value={tenureMonths || ""}
@@ -667,17 +727,6 @@ const SubscriptionPopup = ({ isOpen, onClose, onSave }) => {
             </div>
           </div>
         )}
-
-        {/* Start date selection */}
-        <div className="mt-4">
-          <label className="text-xs text-gray-600 block mb-1">Start date</label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm"
-          />
-        </div>
       </div>
     </Modal>
   );

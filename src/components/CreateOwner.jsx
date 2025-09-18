@@ -225,8 +225,6 @@ function CreateOwner() {
       ownerData.name?.trim() &&
       ownerData.mobile?.trim() &&
       ownerData.aadhar_number?.trim() &&
-      ownerData.outlet_ids &&
-      ownerData.outlet_ids.length > 0 &&
       !validationStates.nameMessage &&
       validationStates.mobile &&
       validationStates.aadhar_number
@@ -265,7 +263,10 @@ function CreateOwner() {
         address: ownerData.address,
         aadhar_number: ownerData.aadhar_number,
         dob: formattedDate,
-        outlet_ids: ownerData.outlet_ids,
+        ...(ownerData.outlet_ids &&
+          ownerData.outlet_ids.length > 0 && {
+            outlet_ids: ownerData.outlet_ids,
+          }),
         account_type: ownerData.account_type,
         is_active: ownerData.is_active,
         app_source: "admin",
@@ -440,13 +441,6 @@ function CreateOwner() {
                   placeholder="Select outlets"
                   searchPlaceholder="Search outlets..."
                 />
-                {isSubmitAttempted &&
-                  (!ownerData.outlet_ids ||
-                    ownerData.outlet_ids.length === 0) && (
-                    <p className="text-error-500 text-sm mt-1">
-                      Please select at least one outlet
-                    </p>
-                  )}
               </div>
               <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
                 <SelectInput

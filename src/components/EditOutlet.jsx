@@ -8,6 +8,7 @@ import {
   faChevronLeft as faBack,
   faSave,
   faTimes,
+  faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
@@ -20,12 +21,10 @@ import {
 import Breadcrumb from "./Breadcrumb";
 import ImageUploader from "./common/ImageUploader";
 import { API_CONFIG } from "../config/appConfig";
-import {
-  isMobileValid,
-  isWhatsappValid,
-} from "../utils/validations";
+import { isMobileValid, isWhatsappValid } from "../utils/validations";
 import { toastController } from "../utils/toastController";
 import CustomSelectInput from "./common/CustomSelectInput";
+import SubscriptionPopup from "./Subscriptions/SubscriptionPopup";
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -61,6 +60,7 @@ function EditOutlet() {
     outlet_mode: "",
     image: null,
     subscription_id: "",
+    subscription_details: null,
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -90,6 +90,11 @@ function EditOutlet() {
   const [subscriptionEndDate, setSubscriptionEndDate] = useState("");
   const [tenure, setTenure] = useState("");
   const [calculatedEndDate, setCalculatedEndDate] = useState("");
+  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
+  const [subscriptionConfig, setSubscriptionConfig] = useState(null);
+  const [subscriptionPrice, setSubscriptionPrice] = useState(null);
+  const [subscriptionFeatures, setSubscriptionFeatures] = useState([]);
+  const [subscriptionActions, setSubscriptionActions] = useState([]);
 
   // Reset tenure and end date when subscription changes
   useEffect(() => {
@@ -158,100 +163,160 @@ function EditOutlet() {
   }, [adminData?.user_id, outletId]);
 
   const fetchOutletData = async () => {
-  try {
-    const token = getToken();
-    if (!token) {
-      throw new Error("No authentication token available");
-    }
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
 
-    const response = await axios.post(
-      `${BASE_URL}/${API_VERSION}/common/view_outlet`,
-      {
-        outlet_id: outletId,
-        user_id: adminData?.user_id,
-        app_source: "admin_app",
-      },
-      {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
+      const response = await axios.post(
+        `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+        {
+          outlet_id: outletId,
+          user_id: adminData?.user_id,
+          app_source: "admin_app",
         },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.detail === "Successfully retrieved outlet details") {
+        const data = response.data.data;
+
+        // Ensure subscription_id is a string or null
+        const subscriptionId = data.subscription_details?.subscription_id
+          ? String(data.subscription_details.subscription_id)
+          : data.subscription_id
+          ? String(data.subscription_id)
+          : null;
+
+        setOutletData({
+          outlet_id: outletId,
+          user_id: adminData?.user_id,
+          owner_ids: data.owners?.map((owner) => owner.owner_id) || [],
+          name: data.name || "",
+          outlet_type: data.outlet_type || "",
+          fssainumber:
+            data.fssainumber === "None" ? "" : data.fssainumber || "",
+          gstnumber: data.gstnumber || "",
+          mobile: data.mobile || "",
+          veg_nonveg: data.veg_nonveg || "",
+          service_charges: data.service_charges || "",
+          gst: data.gst || "",
+          address: data.address || "",
+          is_open: data.is_open === 1,
+          outlet_status: data.outlet_status === 1,
+          upi_id: data.upi_id || "",
+          website: data.website || "",
+          whatsapp: data.whatsapp?.replace(/\D/g, "") || "",
+          facebook: data.facebook || "",
+          instagram: data.instagram || "",
+          google_business_link: data.google_business_link || "",
+          google_review: data.google_review || "",
+          email: data.email || "",
+          opening_time: data.opening_time
+            ? data.opening_time.split(" ")[1]
+            : "",
+          closing_time: data.closing_time
+            ? data.closing_time.split(" ")[1]
+            : "",
+          outlet_mode: data.outlet_mode || "",
+          image: data.image || null,
+          subscription_id: subscriptionId,
+          subscription_end_date:
+            data.subscription_details?.subscription_end_date || "",
+          subscription_details: data.subscription_details || null,
+        });
+
+        // Set time picker values
+        if (data.opening_time) {
+          const [hour, minute, period] = data.opening_time.split(/[: ]/);
+          setOpeningHour(hour);
+          setOpeningMinute(minute);
+          setOpeningPeriod(period);
+        }
+        if (data.closing_time) {
+          const [hour, minute, period] = data.closing_time.split(/[: ]/);
+          setClosingHour(hour);
+          setClosingMinute(minute);
+          setClosingPeriod(period);
+        }
+
+        // Set subscription end date and extract subscription details
+        if (data.subscription_details?.subscription_end_date) {
+          setSubscriptionEndDate(
+            data.subscription_details.subscription_end_date
+          );
+          setCalculatedEndDate(
+            formatDateToDDMMMYYYY(
+              data.subscription_details.subscription_end_date
+            )
+          );
+        }
+
+        // Extract subscription details for popup prefilling
+        if (data.subscription_details) {
+          const subDetails = data.subscription_details;
+
+          // Set subscription price from subscription_price field
+          if (subDetails.subscription_price) {
+            setSubscriptionPrice(subDetails.subscription_price);
+          }
+
+          // Extract features and actions from modules data
+          if (
+            data.modules &&
+            Array.isArray(data.modules) &&
+            data.modules.length > 0
+          ) {
+            const allFeatures = [];
+            const allActions = [];
+            data.modules.forEach((module) => {
+              if (module.features && Array.isArray(module.features)) {
+                allFeatures.push(...module.features);
+                // Extract actions from each feature
+                module.features.forEach((feature) => {
+                  if (feature.actions && Array.isArray(feature.actions)) {
+                    allActions.push(...feature.actions);
+                  }
+                });
+              }
+            });
+            setSubscriptionFeatures(allFeatures);
+            setSubscriptionActions(allActions);
+          }
+
+          // Calculate tenure from start and end dates
+          if (
+            subDetails.subscription_start_date &&
+            subDetails.subscription_end_date
+          ) {
+            try {
+              const startDate = new Date(subDetails.subscription_start_date);
+              const endDate = new Date(subDetails.subscription_end_date);
+              const diffTime = Math.abs(endDate - startDate);
+              const diffMonths = Math.ceil(
+                diffTime / (1000 * 60 * 60 * 24 * 30)
+              );
+              setTenure(diffMonths.toString());
+            } catch (error) {
+              console.error("Error calculating tenure:", error);
+            }
+          }
+        }
+
+        setIsLoading(false);
       }
-    );
-
-    if (response.data.detail === "Successfully retrieved outlet details") {
-      const data = response.data.data;
-
-      // Ensure subscription_id is a string or null
-      const subscriptionId = data.subscription_details?.subscription_id
-        ? String(data.subscription_details.subscription_id)
-        : data.subscription_id
-        ? String(data.subscription_id)
-        : null;
-
-      setOutletData({
-        outlet_id: outletId,
-        user_id: adminData?.user_id,
-        owner_ids: data.owners?.map((owner) => owner.owner_id) || [],
-        name: data.name || "",
-        outlet_type: data.outlet_type || "",
-        fssainumber: data.fssainumber === "None" ? "" : data.fssainumber || "",
-        gstnumber: data.gstnumber || "",
-        mobile: data.mobile || "",
-        veg_nonveg: data.veg_nonveg || "",
-        service_charges: data.service_charges || "",
-        gst: data.gst || "",
-        address: data.address || "",
-        is_open: data.is_open === 1,
-        outlet_status: data.outlet_status === 1,
-        upi_id: data.upi_id || "",
-        website: data.website || "",
-        whatsapp: data.whatsapp?.replace(/\D/g, "") || "",
-        facebook: data.facebook || "",
-        instagram: data.instagram || "",
-        google_business_link: data.google_business_link || "",
-        google_review: data.google_review || "",
-        email: data.email || "",
-        opening_time: data.opening_time
-          ? data.opening_time.split(" ")[1]
-          : "",
-        closing_time: data.closing_time
-          ? data.closing_time.split(" ")[1]
-          : "",
-        outlet_mode: data.outlet_mode || "",
-        image: data.image || null,
-        subscription_id: subscriptionId,
-        subscription_end_date: data.subscription_details?.subscription_end_date || "",
-      });
-
-      // Set time picker values
-      if (data.opening_time) {
-        const [hour, minute, period] = data.opening_time.split(/[: ]/);
-        setOpeningHour(hour);
-        setOpeningMinute(minute);
-        setOpeningPeriod(period);
-      }
-      if (data.closing_time) {
-        const [hour, minute, period] = data.closing_time.split(/[: ]/);
-        setClosingHour(hour);
-        setClosingMinute(minute);
-        setClosingPeriod(period);
-      }
-
-      // Set subscription end date
-      if (data.subscription_details?.subscription_end_date) {
-        setSubscriptionEndDate(data.subscription_details.subscription_end_date);
-        setCalculatedEndDate(formatDateToDDMMMYYYY(data.subscription_details.subscription_end_date));
-      }
-
-      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching outlet data:", error);
+      toastController.error("Failed to fetch outlet data");
+      navigate(-1);
     }
-  } catch (error) {
-    console.error("Error fetching outlet data:", error);
-    toastController.error("Failed to fetch outlet data");
-    navigate(-1);
-  }
-};
+  };
 
   const fetchOutletTypes = async () => {
     try {
@@ -341,6 +406,72 @@ function EditOutlet() {
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
       toastController.error("Failed to fetch subscriptions");
+    }
+  };
+
+  // Handle subscription configuration save from popup
+  const handleSubscriptionConfigSave = async (config) => {
+    try {
+      // Persist config to local state
+      setSubscriptionConfig(config);
+
+      // Update outlet local state with chosen subscription
+      setOutletData((prev) => ({
+        ...prev,
+        subscription_id: config.subscription_id || prev.subscription_id || "",
+        subscription_end_date:
+          config.subscription_end_date || prev.subscription_end_date || "",
+      }));
+
+      // Prepare features with default usage_limit (2 to match example)
+      const featuresWithUsage = (config.features || [])
+        .map((f) => ({
+          feature_id: f.feature_id || f.id,
+          usage_limit: 2,
+        }))
+        .filter((f) => !!f.feature_id);
+      setSubscriptionFeatures(featuresWithUsage);
+
+      // Capture price for update_outlet payload
+      const priceFromConfig = config.subscription?.price ?? null;
+      setSubscriptionPrice(priceFromConfig);
+
+      // Also update the subscription itself via admin/update_subscription if we have details
+      const subId = config.subscription_id;
+      const subName = config.subscription?.name;
+      const subPrice = priceFromConfig;
+      const subTenure = config.subscription?.tenure; // already formatted (e.g., "1 year")
+
+      if (subId && subName && subPrice !== null && subTenure) {
+        const token = getToken();
+        await axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/update_subscription`,
+          {
+            subscription_id: Number(subId),
+            name: subName,
+            price: Number(subPrice),
+            tenure: subTenure,
+            user_id: adminData?.user_id,
+            app_source: "admin_app",
+          },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+
+      toastController.success("Subscription configuration saved successfully!");
+    } catch (error) {
+      console.error("Error saving subscription configuration:", error);
+      toastController.error(
+        error.response?.data?.detail ||
+          "Failed to save subscription configuration"
+      );
+    } finally {
+      setShowSubscriptionPopup(false);
     }
   };
 
@@ -483,8 +614,6 @@ function EditOutlet() {
         throw new Error("No authentication token available");
       }
 
-
-
       // Prepare API data with new_owner_ids as array
       const apiData = {
         outlet_id: parseInt(outletId),
@@ -529,6 +658,19 @@ function EditOutlet() {
 
       // Log the API payload for debugging
       console.log("API Payload:", JSON.stringify(apiData, null, 2));
+
+      // Include subscription pricing and features if configured
+      if (outletData.subscription_id) {
+        if (subscriptionPrice !== null) {
+          apiData.subscription_price = Number(subscriptionPrice);
+        }
+        if (
+          Array.isArray(subscriptionFeatures) &&
+          subscriptionFeatures.length > 0
+        ) {
+          apiData.subscription_features = subscriptionFeatures;
+        }
+      }
 
       const response = await axios.patch(
         `${BASE_URL}/${API_VERSION}/common/update_outlet`,
@@ -585,21 +727,32 @@ function EditOutlet() {
               Edit Outlet
             </h1>
 
-            {/* Save Button */}
-            <button
-              onClick={handleSubmit}
-              disabled={isLoading}
-              className={`
+            {/* Subscription + Save Buttons */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowSubscriptionPopup(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition shadow-sm text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                title="Configure Subscription"
+              >
+                <FontAwesomeIcon icon={faCog} className="w-4 h-4" />
+                <span>Subscription</span>
+              </button>
+
+              <button
+                onClick={handleSubmit}
+                disabled={isLoading}
+                className={`
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 bg-brand-500 hover:bg-brand-600 
                 transition shadow-sm
                 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
               `}
-            >
-              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>Save</span>
-            </button>
+              >
+                <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+                <span>Save</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -978,141 +1131,6 @@ function EditOutlet() {
                   ]}
                   placeholder="Select Open/Close Status"
                 />
-               <CustomSelectInput
-  label="Subscription Plan"
-  name="subscription_id"
-  value={outletData?.subscription_id || ""}
-  onChange={handleInputChange}
-  placeholder="Select Subscription Plan"
-  options={
-    Array.isArray(subscriptions) && subscriptions.length > 0
-      ? subscriptions.map((sub) => {
-          try {
-            return {
-              value: sub?.subscription_id?.toString() || "",
-              label: `${sub?.name || "Unnamed"} - ₹${sub?.price ?? 0} (${
-                sub?.features?.length || 0
-              } features)`,
-            };
-          } catch (error) {
-            console.error("Error mapping subscription:", error);
-            return {
-              value: "",
-              label: "Invalid subscription",
-            };
-          }
-        })
-      : [
-          {
-            value: "",
-            label: "No subscription plans available",
-          },
-        ]
-  }
-/>
-
-                {outletData.subscription_id && (
-                  <div className="mt-2">
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      <span className="text-error-600">*</span> Tenure (Months)
-                    </label>
-                    <select
-                      name="tenure"
-                      value={tenure || ""}
-                      onChange={(e) => {
-                        const months = parseInt(e.target.value, 10);
-                        setTenure(e.target.value);
-                        if (!months) {
-                          setCalculatedEndDate("");
-                          setSubscriptionEndDate("");
-                          setOutletData((prev) => ({
-                            ...prev,
-                            subscription_end_date: "",
-                          }));
-                          return;
-                        }
-                        const today = new Date();
-                        let targetMonth = today.getMonth() + months;
-                        let targetYear = today.getFullYear();
-                        while (targetMonth > 11) {
-                          targetMonth -= 12;
-                          targetYear += 1;
-                        }
-                        const lastDayOfTargetMonth = new Date(
-                          targetYear,
-                          targetMonth + 1,
-                          0
-                        ).getDate();
-                        const targetDay = Math.min(
-                          today.getDate(),
-                          lastDayOfTargetMonth
-                        );
-                        const endDate = new Date(
-                          targetYear,
-                          targetMonth,
-                          targetDay
-                        );
-                        if (isNaN(endDate.getTime())) {
-                          setCalculatedEndDate("");
-                          setSubscriptionEndDate("");
-                          setOutletData((prev) => ({
-                            ...prev,
-                            subscription_end_date: "",
-                          }));
-                          return;
-                        }
-                        const day = String(endDate.getDate()).padStart(2, "0");
-                        const monthNames = [
-                          "Jan",
-                          "Feb",
-                          "Mar",
-                          "Apr",
-                          "May",
-                          "Jun",
-                          "Jul",
-                          "Aug",
-                          "Sep",
-                          "Oct",
-                          "Nov",
-                          "Dec",
-                        ];
-                        const monthIdx = endDate.getMonth();
-                        const month = monthNames[monthIdx];
-                        const year = endDate.getFullYear();
-                        const formatted = `${day} ${month} ${year}`;
-                        setCalculatedEndDate(formatted);
-                        setSubscriptionEndDate(formatted);
-                        setOutletData((prev) => ({
-                          ...prev,
-                          subscription_end_date: formatted,
-                        }));
-                      }}
-                      required
-                      className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    >
-                      <option value="">Select tenure</option>
-                      <option value="1">1 Month</option>
-                      <option value="2">2 Months</option>
-                      <option value="3">3 Months</option>
-                      <option value="6">6 Months</option>
-                      <option value="9">9 Months</option>
-                      <option value="12">12 Months</option>
-                    </select>
-                    {/* {calculatedEndDate && (
-                      <div className="mt-2">
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                          Subscription End Date
-                        </label>
-                        <input
-                          type="text"
-                          value={calculatedEndDate}
-                          readOnly
-                          className="w-full px-3 py-2 border rounded-lg shadow-sm bg-gray-100"
-                />
-              </div>
-                    )} */}
-                  </div>
-                )}
 
                 <div className="sm:col-span-1">
                   <Textarea
@@ -1381,6 +1399,27 @@ function EditOutlet() {
           </section>
         </form>
       </div>
+
+      {/* Subscription Configuration Popup */}
+      <SubscriptionPopup
+        isOpen={showSubscriptionPopup}
+        onClose={() => setShowSubscriptionPopup(false)}
+        onSave={handleSubscriptionConfigSave}
+        primaryButtonLabel="Update Subscription"
+        initialModuleId={
+          outletData.subscription_id ? outletData.subscription_id : null
+        }
+        initialFeatureIds={subscriptionFeatures?.map((f) => f.feature_id) || []}
+        initialActionIds={subscriptionActions?.map((a) => a.action_id) || []}
+        initialPlanName={
+          outletData.subscription_details?.subscription_name ||
+          (subscriptionPrice
+            ? `Subscription ${outletData.subscription_id}`
+            : "")
+        }
+        initialPrice={subscriptionPrice}
+        initialTenureMonths={tenure ? parseInt(tenure) : null}
+      />
     </>
   );
 }

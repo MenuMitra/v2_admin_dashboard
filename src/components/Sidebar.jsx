@@ -23,6 +23,7 @@ import {
   faChartLine,
   faDatabase,
   faEnvelope,
+  faCalendarCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -91,7 +92,12 @@ const menuGroups = [
         id: "enquiries",
         icon: faEnvelope,
       },
-      { title: "Bookings", path: "/bookings", id: "bookings" },
+      {
+        title: "Bookings",
+        path: "/bookings",
+        id: "bookings",
+        icon: faCalendarCheck,
+      },
     ],
   },
   {
@@ -219,7 +225,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
             `}
           >
             <FontAwesomeIcon
-              icon={item.icon}
+              icon={item.icon || faEllipsis}
               className={`w-4 h-4 ${isActive ? "text-brand-600 " : ""}`}
             />
             <span
@@ -285,7 +291,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
                       }`}
                     >
                       <FontAwesomeIcon
-                        icon={subItem.icon}
+                        icon={subItem.icon || faEllipsis}
                         className={`menu-item-icon ${
                           location.pathname === subItem.path
                             ? "menu-item-icon-active"
@@ -323,7 +329,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
                     }`}
                   >
                     <FontAwesomeIcon
-                      icon={item.icon}
+                      icon={subItem.icon || faEllipsis}
                       className={`menu-item-icon ${
                         location.pathname === subItem.path
                           ? "menu-item-icon-active"
