@@ -2,12 +2,12 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
-const ActiveSessionsTable = ({ 
-  activeSessions = [], 
-  lastLogin, 
-  onLogout, 
+const ActiveSessionsTable = ({
+  activeSessions = [],
+  lastLogin,
+  onLogout,
   showAction = true,
-  className = "" 
+  className = "",
 }) => {
   if (!activeSessions || activeSessions.length === 0) {
     return null;
@@ -44,7 +44,7 @@ const ActiveSessionsTable = ({
           {activeSessions.map((session, idx) => (
             <tr key={idx} className="border-b last:border-b-0">
               <td className="px-4 py-2 text-sm text-gray-800">
-                {session.device_model?.toUpperCase() || "-"}
+                {session.device_model || "-"}
               </td>
               <td className="px-4 py-2 text-sm text-gray-800">
                 {session.expires_on || "-"}
@@ -64,10 +64,7 @@ const ActiveSessionsTable = ({
                     className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
                     onClick={() => onLogout && onLogout(session.device_id)}
                   >
-                    <FontAwesomeIcon
-                      icon={faTrash}
-                      className="w-4 h-4"
-                    />
+                    <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
                   </button>
                 </td>
               )}

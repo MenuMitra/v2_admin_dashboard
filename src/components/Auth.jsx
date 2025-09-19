@@ -103,11 +103,172 @@ function Auth() {
 
     const otpString = otp.join("");
 
+    // Collect browser/device details to send along with OTP verification
+    const getBrowserDetails = () => {
+      try {
+        const nav = window.navigator || {};
+        const ua = nav.userAgent || "";
+        const platform = nav.platform || "";
+        const language = nav.language || nav.userLanguage || "";
+        const vendor = nav.vendor || "";
+        const hardwareConcurrency = nav.hardwareConcurrency || null;
+        const deviceMemory = nav.deviceMemory || null;
+        const cookiesEnabled = nav.cookieEnabled || false;
+        const screenWidth = window.screen?.width || null;
+        const screenHeight = window.screen?.height || null;
+        const colorDepth = window.screen?.colorDepth || null;
+        const timezone =
+          Intl?.DateTimeFormat?.().resolvedOptions?.().timeZone || "";
+        const languages = Array.isArray(nav.languages)
+          ? nav.languages
+          : language
+          ? [language]
+          : [];
+        const touchPoints = nav.maxTouchPoints || 0;
+        const uaData = nav.userAgentData || null;
+        const brands = uaData?.brands || uaData?.uaList || null;
+        const mobile = !!uaData?.mobile || /Mobi|Android/i.test(ua);
+
+        // Simple UA parsing for browser and OS
+        const parseUserAgent = (userAgent) => {
+          let browserName = "Unknown";
+          let browserVersion = "";
+          let osName = "Unknown";
+          let osVersion = "";
+
+          // Browser detection
+          const browserRegexes = [
+            [/Edg\/(\d+\.\d+)/, "Edge"],
+            [/OPR\/(\d+\.\d+)/, "Opera"],
+            [/Chrome\/(\d+\.\d+)/, "Chrome"],
+            [/Firefox\/(\d+\.\d+)/, "Firefox"],
+            [/Version\/(\d+\.\d+).*Safari/, "Safari"],
+            [/Safari\/(\d+\.\d+)/, "Safari"],
+          ];
+          for (const [regex, name] of browserRegexes) {
+            const match = userAgent.match(regex);
+            if (match) {
+              browserName = name;
+              browserVersion = match[1];
+              break;
+            }
+          }
+
+          // OS detection
+          const osMatchers = [
+            [
+              /(Windows NT) (\d+\.\d+)/,
+              (m) => ({ osName: "Windows", osVersion: m[2] }),
+            ],
+            [
+              /(Android) (\d+(?:\.\d+)?)/,
+              (m) => ({ osName: "Android", osVersion: m[2] }),
+            ],
+            [
+              /iPhone OS (\d+_\d+)/,
+              (m) => ({ osName: "iOS", osVersion: m[1].replace(/_/g, ".") }),
+            ],
+            [
+              /iPad; CPU OS (\d+_\d+)/,
+              (m) => ({ osName: "iPadOS", osVersion: m[1].replace(/_/g, ".") }),
+            ],
+            [
+              /(Mac OS X) (\d+[_\.]\d+(?:[_\.]\d+)?)/,
+              (m) => ({ osName: "macOS", osVersion: m[2].replace(/_/g, ".") }),
+            ],
+            [/(Linux)/, () => ({ osName: "Linux", osVersion: "" })],
+          ];
+          for (const [regex, mapper] of osMatchers) {
+            const match = userAgent.match(regex);
+            if (match) {
+              const mapped = mapper(match);
+              osName = mapped.osName;
+              osVersion = mapped.osVersion;
+              break;
+            }
+          }
+
+          return { browserName, browserVersion, osName, osVersion };
+        };
+
+        const { browserName, browserVersion, osName, osVersion } =
+          parseUserAgent(ua);
+
+        const browserMajor = (browserVersion || "").split(".")[0] || "";
+        const osVersionMajor = (osVersion || "").split(/[._]/)[0] || "";
+        const userAgentName = `${browserName}${
+          browserMajor ? ` ${browserMajor}` : ""
+        }${
+          osName && osName !== "Unknown"
+            ? ` on ${osName}${osVersionMajor ? ` ${osVersionMajor}` : ""}`
+            : ""
+        }`;
+
+        // Try to extract a more specific device model for Android/iOS
+        let deviceModel = null;
+        try {
+          const androidMatch = ua.match(/Android[^;]*;\s*([^;\)]+)/i);
+          if (androidMatch && androidMatch[1]) {
+            deviceModel = androidMatch[1].trim();
+          }
+        } catch (_) {}
+
+        if (!deviceModel) {
+          const iosMatch = ua.match(/(iPhone|iPad|iPod)/i);
+          if (iosMatch) deviceModel = iosMatch[1];
+        }
+
+        deviceModel =
+          deviceModel ||
+          vendor ||
+          platform ||
+          userAgentName ||
+          "Unknown Device";
+
+        return {
+          userAgent: ua,
+          platform,
+          language,
+          languages,
+          vendor,
+          hardwareConcurrency,
+          deviceMemory,
+          cookiesEnabled,
+          screen: { width: screenWidth, height: screenHeight, colorDepth },
+          timezone,
+          touchPoints,
+          uaBrands: brands,
+          isMobile: mobile,
+          browser: { name: browserName, version: browserVersion },
+          os: { name: osName, version: osVersion },
+          userAgentName,
+          deviceModel,
+        };
+      } catch (_) {
+        return {};
+      }
+    };
+    const browserDetails = getBrowserDetails();
+
+    // Ensure we have a persistent device id for this browser
+    let deviceId = localStorage.getItem("mm_device_id");
+    if (!deviceId) {
+      // Generate a simple pseudo-random device id
+      deviceId = `${Date.now()}${Math.floor(Math.random() * 1000000)}`;
+      localStorage.setItem("mm_device_id", deviceId);
+    }
+
     try {
       const response = await toastController.promise(
         axios.post(`${BASE_URL}/${API_VERSION}/admin/admin_verify_otp`, {
           mobile,
           otp: parseInt(otpString),
+          user_agent_name: browserDetails.userAgentName,
+          device_id: deviceId,
+          device_model:
+            browserDetails.deviceModel ||
+            browserDetails.userAgentName ||
+            "Unknown Device",
         }),
         {
           loading: "Verifying OTP...",
@@ -127,6 +288,13 @@ function Auth() {
           email: response.data.email,
           role: response.data.role,
         };
+        // Save device info returned from server (if any) for admin details view
+        if (response.data.active_sessions) {
+          localStorage.setItem(
+            "admin_active_sessions",
+            JSON.stringify(response.data.active_sessions)
+          );
+        }
         localStorage.setItem("adminData", JSON.stringify(adminData));
         navigate("/home");
       }
@@ -364,16 +532,28 @@ function Auth() {
                   {/* Footer links below the card (separate from card) */}
                   <div className="w-full flex justify-center lg:justify-center">
                     <nav className="flex gap-10 text-sm text-gray-500 dark:text-gray-400">
-                      <a href="https://menumitra.com/" className="hover:text-gray-700">
+                      <a
+                        href="https://menumitra.com/"
+                        className="hover:text-gray-700"
+                      >
                         Home
                       </a>
-                      <a href="https://menumitra.com/book_demo" className="hover:text-gray-700">
+                      <a
+                        href="https://menumitra.com/book_demo"
+                        className="hover:text-gray-700"
+                      >
                         Book a demo
                       </a>
-                      <a href="https://menumitra.com/about_us" className="hover:text-gray-700">
+                      <a
+                        href="https://menumitra.com/about_us"
+                        className="hover:text-gray-700"
+                      >
                         Contact
                       </a>
-                      <a href="https://menumitra.com/support" className="hover:text-gray-700">
+                      <a
+                        href="https://menumitra.com/support"
+                        className="hover:text-gray-700"
+                      >
                         Support
                       </a>
                     </nav>
@@ -417,7 +597,7 @@ function Auth() {
                       ></i>
                     </a>
                   </div>
- 
+
                   <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
                     <span className="font-medium">Version 2.0</span>
                     <span>|</span>
