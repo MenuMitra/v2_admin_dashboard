@@ -1089,33 +1089,16 @@ function ViewOutlet() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {/* Plan Name */}
-              {outletData?.subscription_details?.name && (
+              {outletData?.subscription_details?.subscription_name && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.subscription_details.name}
+                          {outletData.subscription_details.subscription_name}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Plan Name
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Plan Price */}
-              {outletData?.subscription_details?.price && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {`₹${outletData.subscription_details.price}`}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Plan Price
+                          Subscription Plan
                         </p>
                       </div>
                     </div>
@@ -1162,32 +1145,65 @@ function ViewOutlet() {
                   </div>
                 </div>
               )}
-              {outletData?.subscription_details?.latest_feature && (
-                <div className="col-span-1 w-auto">
-                  <div className="inline-block align-top max-w-max bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-left">
-                    {/* Feature Name */}
-                    <div className="font-semibold text-gray-800 text-[13px] leading-tight">
-                      {outletData.subscription_details.latest_feature
-                        .feature_name || "-"}
-                    </div>
-
-                    {/* Date + Day Count */}
-                    <div className="text-gray-700 text-[12px]">
-                      {(() => {
-                        const lastUsed =
-                          outletData.subscription_details.latest_feature
-                            .last_used;
-                        const days = getDaysSinceLastUsed(lastUsed);
-                        return lastUsed
-                          ? `${lastUsed} (${days !== null ? days : "-"} day${
-                              days === 1 ? "" : "s"
-                            })`
-                          : "-";
-                      })()}
+              {/* Days Until Expiry */}
+              {outletData?.subscription_details?.subscription_start_date &&
+                outletData?.subscription_details?.subscription_end_date && (
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="w-full">
+                        <h4 className="text-base font-medium text-gray-800 dark:text-white/90 mb-2">
+                          Days Until Expiry
+                        </h4>
+                        {(() => {
+                          const msPerDay = 1000 * 60 * 60 * 24;
+                          const start = new Date(
+                            outletData.subscription_details.subscription_start_date
+                          );
+                          const end = new Date(
+                            outletData.subscription_details.subscription_end_date
+                          );
+                          const now = new Date();
+                          const total = Math.max(
+                            0,
+                            Math.ceil((end - start) / msPerDay)
+                          );
+                          const remaining = Math.max(
+                            0,
+                            Math.ceil((end - now) / msPerDay)
+                          );
+                          const elapsed = Math.max(0, total - remaining);
+                          const percent =
+                            total > 0
+                              ? Math.min(
+                                  100,
+                                  Math.max(0, (elapsed / total) * 100)
+                                )
+                              : 0;
+                          return (
+                            <div>
+                              <div
+                                className="w-full h-2 bg-gray-200 rounded-full overflow-hidden"
+                                role="progressbar"
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-valuenow={Math.round(percent)}
+                              >
+                                <div
+                                  className="h-2 bg-brand-500 rounded-full transition-all duration-500"
+                                  style={{ width: `${percent}%` }}
+                                />
+                              </div>
+                              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                                {remaining} days remaining until your plan
+                                requires update
+                              </p>
+                            </div>
+                          );
+                        })()}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         </div>

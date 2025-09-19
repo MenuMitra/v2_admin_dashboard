@@ -364,16 +364,16 @@ function Auth() {
                   {/* Footer links below the card (separate from card) */}
                   <div className="w-full flex justify-center lg:justify-center">
                     <nav className="flex gap-10 text-sm text-gray-500 dark:text-gray-400">
-                      <a href="#" className="hover:text-gray-700">
+                      <a href="https://menumitra.com/" className="hover:text-gray-700">
                         Home
                       </a>
-                      <a href="#" className="hover:text-gray-700">
+                      <a href="https://menumitra.com/book_demo" className="hover:text-gray-700">
                         Book a demo
                       </a>
-                      <a href="#" className="hover:text-gray-700">
+                      <a href="https://menumitra.com/about_us" className="hover:text-gray-700">
                         Contact
                       </a>
-                      <a href="#" className="hover:text-gray-700">
+                      <a href="https://menumitra.com/support" className="hover:text-gray-700">
                         Support
                       </a>
                     </nav>
@@ -417,7 +417,7 @@ function Auth() {
                       ></i>
                     </a>
                   </div>
-
+ 
                   <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
                     <span className="font-medium">Version 2.0</span>
                     <span>|</span>

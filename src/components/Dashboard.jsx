@@ -25,6 +25,7 @@ import {
   faChartLine,
   faEnvelope,
   faShoppingCart,
+  faCalendarCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "./common/DataTable";
 import { useFullscreen } from "./FullscreenContext";
@@ -225,26 +226,26 @@ function Dashboard() {
           {/* Header with Controls */}
           {!isFullscreen && (
             <div className="flex items-center justify-end mb-6">
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => refetchCardData()}
-                disabled={isCardLoading}
-                title="Reload"
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => refetchCardData()}
+                  disabled={isCardLoading}
+                  title="Reload"
                   className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
-              >
-                <FontAwesomeIcon
-                  icon={faRotate}
-                  className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`}
-                />
-              </button>
-              <button
-                onClick={() => setIsFullscreen((f) => !f)}
-                title={isFullscreen ? "Minimize" : "Fullscreen"}
+                >
+                  <FontAwesomeIcon
+                    icon={faRotate}
+                    className={`w-4 h-4 ${isCardLoading ? "animate-spin" : ""}`}
+                  />
+                </button>
+                <button
+                  onClick={() => setIsFullscreen((f) => !f)}
+                  title={isFullscreen ? "Minimize" : "Fullscreen"}
                   className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
-              >
-                <FontAwesomeIcon
-                  icon={isFullscreen ? faCompress : faExpand}
-                  className="w-4 h-4"
+                >
+                  <FontAwesomeIcon
+                    icon={isFullscreen ? faCompress : faExpand}
+                    className="w-4 h-4"
                   />
                 </button>
               </div>
@@ -380,7 +381,16 @@ function Dashboard() {
                 />
                 <span className="text-xs font-medium text-dark">Admins</span>
               </Link>
-
+              <Link
+                to="/outlets"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+              >
+                <FontAwesomeIcon
+                  icon={faStore}
+                  className="text-brand-500 mb-1"
+                />
+                <span className="text-xs font-medium text-dark">Outlets</span>
+              </Link>
               <Link
                 to="/owners"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
@@ -415,8 +425,16 @@ function Dashboard() {
                 />
                 <span className="text-xs font-medium text-dark">Partners</span>
               </Link>
-
-             
+              <Link
+                to="/customer"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+              >
+                <FontAwesomeIcon
+                  icon={faUser}
+                  className="text-brand-500 mb-1"
+                />
+                <span className="text-xs font-medium text-dark">Customers</span>
+              </Link>
               <Link
                 to="/subscriptions"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
@@ -430,21 +448,8 @@ function Dashboard() {
                 </span>
               </Link>
 
-              <Link
-                to="/outlets"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faStore}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Outlets</span>
-              </Link>
-
              
-
              
-
               <Link
                 to="/search"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
@@ -456,16 +461,7 @@ function Dashboard() {
                 <span className="text-xs font-medium text-dark">Search</span>
               </Link>
 
-              <Link
-                to="/customer"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faUser}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Customers</span>
-              </Link>
+            
 
               <Link
                 to="/notifications"
@@ -492,6 +488,17 @@ function Dashboard() {
               </Link>
 
               <Link
+                to="/bookings"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+              >
+                <FontAwesomeIcon
+                  icon={faCalendarCheck}
+                  className="text-brand-500 mb-1"
+                />
+                <span className="text-xs font-medium text-dark">Bookings</span>
+              </Link>
+
+              <Link
                 to="/stats"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
@@ -502,16 +509,7 @@ function Dashboard() {
                 <span className="text-xs font-medium text-dark">Stats</span>
               </Link>
 
-              <Link
-                to="/profile"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faUser}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Profile</span>
-              </Link>
+              
             </div>
           </div>
 
