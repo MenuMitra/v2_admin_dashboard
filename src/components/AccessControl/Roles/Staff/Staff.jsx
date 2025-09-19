@@ -18,6 +18,7 @@ import Breadcrumb from "../../../Breadcrumb";
 import DataTable from "../../../common/DataTable";
 import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../../../utils/toastController";
+import { useStaff } from "../../../../lib/react-query/hooks/useStaff";
 
 function Staff() {
   const { outletId } = useParams();
@@ -33,27 +34,10 @@ function Staff() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["staff", outletId, adminData?.user_id],
-    enabled: Boolean(outletId) && Boolean(adminData?.user_id),
-    queryFn: async () => {
-      const token = getToken();
-      const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/staff_listview`,
-        {
-          outlet_id: Number(outletId),
-          user_id: adminData.user_id,
-          app_source: "admin_app",
-        },
-        {
-          headers: { Authorization: token, "Content-Type": "application/json" },
-        }
-      );
-      return response.data;
-    },
-  });
+  const { staffData, isLoading, error, refetch, bulkAction, isBulkActioning } =
+    useStaff(getToken(), outletId, adminData?.user_id);
 
-  const lists = useMemo(() => data?.lists || [], [data]);
+  const lists = useMemo(() => staffData?.lists || [], [staffData]);
   const outletName = useMemo(() => lists[0]?.outlet_name || "", [lists]);
 
   const deleteMutation = useMutation({
@@ -89,6 +73,35 @@ function Staff() {
     setStaffToDelete(id);
     setShowDeleteModal(true);
   }, []);
+
+  const handleBulkAction = async (actionKey, selectedIds) => {
+    try {
+      await bulkAction(
+        {
+          user_id: adminData.user_id,
+          action: actionKey,
+          staff_ids: selectedIds,
+          outlet_id: outletId,
+        },
+        {
+          onSuccess: (data) => {
+            toastController.success(
+              data.detail || `Bulk ${actionKey} successful`
+            );
+            setSelectedItems([]);
+            refetch();
+          },
+          onError: (err) => {
+            toastController.error(
+              err.response?.data?.detail || `Failed to ${actionKey} staff`
+            );
+          },
+        }
+      );
+    } catch (err) {
+      console.error(`Bulk action ${actionKey} failed:`, err);
+    }
+  };
 
   const handleView = useCallback(
     (id) => {
@@ -153,6 +166,25 @@ function Staff() {
     [handleEdit, handleView, openDeleteModal]
   );
 
+  // Add bulk action options for DataTable
+  const bulkActionOptions = [
+    {
+      key: "active",
+      label: "Active",
+      className: "text-success-600 hover:bg-success-50",
+    },
+    {
+      key: "inactive",
+      label: "Inactive",
+      className: "text-warning-600 hover:bg-warning-50",
+    },
+    {
+      key: "delete",
+      label: "Delete",
+      className: "text-error-600 hover:bg-error-50",
+    },
+  ];
+
   const total = lists.length;
   const active = lists.filter((i) => i.is_active).length;
   const inactive = total - active;
@@ -181,7 +213,6 @@ function Staff() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         darkMode={true}
-        enableSelection={false}
         title="Staff"
         isLoading={isLoading || deleteMutation.isLoading}
         onReload={refetch}
@@ -202,6 +233,12 @@ function Staff() {
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
         emptyStateMessage="No staff found. Create a new staff to get started!"
+        enableSelection={true}
+        onSelectionChange={setSelectedItems}
+        onBulkAction={(actionKey, selectedIds) =>
+          handleBulkAction(actionKey, selectedIds)
+        }
+        bulkActionOptions={bulkActionOptions}
       />
 
       <DeleteConfirmModal

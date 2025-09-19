@@ -261,6 +261,35 @@ function EditStaff() {
         }
       );
 
+      // Also call update_active_status so central active/inactive state is updated
+      try {
+        const statusPayload = {
+          outlet_id: Number(outletId),
+          user_id: adminData.user_id,
+          type: form.role || "staff",
+          id: Number(userId),
+          is_active: Number(form.is_active) || 0,
+          app_source: "admin_app",
+        };
+
+        // fire-and-forget; report failure but don't block the main save
+        await axios.patch(
+          `${BASE_URL}/${API_VERSION}/common/update_active_status`,
+          statusPayload,
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      } catch (statusErr) {
+        // Log and show a non-blocking error
+        toastController.error(
+          statusErr?.response?.data?.detail || "Failed to update active status"
+        );
+      }
+
       // After successful update, assign actions if any selected
       try {
         if (selectedFunctionalities.length > 0) {
