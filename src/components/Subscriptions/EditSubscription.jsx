@@ -379,9 +379,24 @@ function EditSubscription() {
         }
       );
 
-      if (response.data.detail === "Subscription updated successfully") {
-        toastController.success("Subscription updated successfully");
+      // Log full response for debugging
+      // eslint-disable-next-line no-console
+      console.log(
+        "update_subscription response:",
+        response.status,
+        response.data
+      );
+
+      // Treat any 2xx HTTP response as success, but still show server message when available
+      if (response.status >= 200 && response.status < 300) {
+        toastController.success(
+          response.data?.detail || "Subscription updated successfully"
+        );
         navigate("/subscriptions");
+      } else {
+        toastController.error(
+          response.data?.detail || "Failed to update subscription"
+        );
       }
     } catch (error) {
       console.error("Error updating subscription:", error);

@@ -338,6 +338,14 @@ const SubscriptionPopup = ({
         }
       }
 
+      // Log create response for debugging
+      // eslint-disable-next-line no-console
+      console.log(
+        "create_subscription response:",
+        response.status,
+        response.data
+      );
+
       // If the server didn't return an id, still try to pass back the raw response (augmented)
       if (!createdId) {
         toastController.error(

@@ -1204,6 +1204,45 @@ function ViewOutlet() {
                     </div>
                   </div>
                 )}
+
+              {/* Modules, Features and Actions (inline) */}
+              {outletData?.modules && outletData.modules.length > 0 && (
+                <div className="col-span-1 sm:col-span-2 md:col-span-3 xl:col-span-4">
+                  <div>
+                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90 mb-2">
+                      Modules & Features
+                    </h4>
+
+                    {outletData.modules.map((mod) => (
+                      <div key={mod.module_id} className="mb-3">
+                        <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+                          {mod.name ? mod.name.replace(/_/g, " ") : "-"}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          {(mod.features || []).map((feat) => (
+                            <div
+                              key={feat.feature_id}
+                              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-200 border border-gray-200"
+                            >
+                              <span className="font-medium">{feat.name}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                :
+                              </span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {(feat.actions || [])
+                                  .map((a) => a.name)
+                                  .join(", ")}
+                              </span>
+                            </div>
+                          ))}
+
+                          {/* showing all features, no summary */}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
