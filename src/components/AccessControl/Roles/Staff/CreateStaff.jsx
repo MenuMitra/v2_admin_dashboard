@@ -94,8 +94,40 @@ function CreateStaff() {
     (async () => {
       try {
         const token = getToken();
-        // POST payload as required by the API
-        const payload = { feature_ids: [1, 2, 3] };
+
+        // First fetch outlet details to get assigned feature IDs
+        let featureIds = [];
+        try {
+          const outletRes = await axios.post(
+            `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+            {
+              outlet_id: Number(outletId),
+              user_id: adminData?.user_id,
+              app_source: "admin_app",
+            },
+            {
+              headers: {
+                Authorization: token,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const oData = outletRes.data?.data;
+          if (oData?.modules) {
+            featureIds = oData.modules.flatMap((m) =>
+              (m.features || []).map((f) => f.feature_id)
+            );
+            featureIds = [...new Set(featureIds.filter(Boolean))];
+          }
+        } catch (err) {
+          // ignore and fall back to default feature ids
+        }
+
+        // If no feature ids found, fall back to a small safe default
+        const payload = {
+          feature_ids: featureIds.length ? featureIds : [1, 2, 3],
+        };
+
         const res = await axios.post(
           `${BASE_URL}/${API_VERSION}/admin/list_actions`,
           payload,
@@ -149,7 +181,7 @@ function CreateStaff() {
         // no-op
       }
     })();
-  }, []);
+  }, [outletId, adminData, getToken, BASE_URL, API_VERSION]);
 
   // Fetch staff roles for select input (guard against repeated calls)
   const fetchedRolesRef = useRef(false);

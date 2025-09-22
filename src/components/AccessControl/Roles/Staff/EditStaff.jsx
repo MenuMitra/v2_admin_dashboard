@@ -73,14 +73,17 @@ function EditStaff() {
           aadhar_number: d.aadhar_number || "",
           is_active: typeof d.is_active === "number" ? d.is_active : 1,
         });
-        // Pre-check assigned functionalities from staff_view
-        const assigned = Array.isArray(d.functionalities)
-          ? d.functionalities
-              .map((f) => f?.functionality_id)
-              .filter((id) => typeof id === "number")
-          : Array.isArray(d.functionality_ids)
-          ? d.functionality_ids
-          : [];
+        // Pre-check assigned functionalities from staff_view (normalize to numbers)
+        let assigned = [];
+        if (Array.isArray(d.functionalities)) {
+          assigned = d.functionalities
+            .map((f) => Number(f?.functionality_id))
+            .filter((id) => Number.isFinite(id));
+        } else if (Array.isArray(d.functionality_ids)) {
+          assigned = d.functionality_ids
+            .map((id) => Number(id))
+            .filter((id) => Number.isFinite(id));
+        }
         setSelectedFunctionalities(assigned);
       } finally {
         setLoading(false);
@@ -95,7 +98,39 @@ function EditStaff() {
     (async () => {
       try {
         const token = getToken();
-        const payload = { feature_ids: [1, 2, 3] };
+
+        // First fetch outlet details to get assigned feature IDs
+        let featureIds = [];
+        try {
+          const outletRes = await axios.post(
+            `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+            {
+              outlet_id: Number(outletId),
+              user_id: adminData?.user_id,
+              app_source: "admin_app",
+            },
+            {
+              headers: {
+                Authorization: token,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const oData = outletRes.data?.data;
+          if (oData?.modules) {
+            featureIds = oData.modules.flatMap((m) =>
+              (m.features || []).map((f) => f.feature_id)
+            );
+            featureIds = [...new Set(featureIds.filter(Boolean))];
+          }
+        } catch (err) {
+          // ignore and fall back to defaults
+        }
+
+        const payload = {
+          feature_ids: featureIds.length ? featureIds : [1, 2, 3],
+        };
+
         const res = await axios.post(
           `${BASE_URL}/${API_VERSION}/admin/list_actions`,
           payload,
@@ -138,13 +173,22 @@ function EditStaff() {
         const unique = mapped.filter(
           (item, idx, arr) =>
             idx ===
-            arr.findIndex((x) => x.functionality_id === item.functionality_id)
+            arr.findIndex(
+              (x) =>
+                Number(x.functionality_id) === Number(item.functionality_id)
+            )
         );
 
-        setFunctionalities(unique);
+        // Normalize functionality_id to numbers to ensure checkbox matching
+        const normalized = unique.map((u) => ({
+          ...u,
+          functionality_id: Number(u.functionality_id),
+        }));
+
+        setFunctionalities(normalized);
       } catch (e) {}
     })();
-  }, []);
+  }, [outletId, adminData, getToken, BASE_URL, API_VERSION]);
 
   // Fetch staff roles (run once per mount)
   const fetchedRolesRef = useRef(false);
