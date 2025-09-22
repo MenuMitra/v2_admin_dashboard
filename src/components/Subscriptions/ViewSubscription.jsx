@@ -1,29 +1,27 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";  
-import Breadcrumb from '../Breadcrumb';
-import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
-import { useSubscriptionDetails } from '../../lib/react-query/hooks/useSubscriptionDetails';
+import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "../Breadcrumb";
+import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import { useSubscriptionDetails } from "../../lib/react-query/hooks/useSubscriptionDetails";
 
 function ViewSubscription() {
   const { subscriptionId } = useParams();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const {
-    subscription,
-    isLoading,
-    error,
-    deleteSubscription,
-    isDeleting
-  } = useSubscriptionDetails(subscriptionId);
+  const { subscription, isLoading, error, deleteSubscription, isDeleting } =
+    useSubscriptionDetails(subscriptionId);
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
     { label: "Subscriptions", path: "/subscriptions" },
-    { label: "Subscription Details", path: `/view-subscription/${subscriptionId}` },
+    {
+      label: "Subscription Details",
+      path: `/view-subscription/${subscriptionId}`,
+    },
   ];
 
   const handleDelete = async () => {
@@ -44,7 +42,7 @@ function ViewSubscription() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-lg text-gray-600 dark:text-gray-400">
-          {error.message || 'Failed to fetch subscription details'}
+          {error.message || "Failed to fetch subscription details"}
         </div>
       </div>
     );
@@ -63,7 +61,7 @@ function ViewSubscription() {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-      
+
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
           {/* Header Section */}
@@ -89,7 +87,7 @@ function ViewSubscription() {
               <button
                 onClick={() => navigate(`/edit-subscription/${subscriptionId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-                style={{ backgroundColor: '#f7941d' }}
+                style={{ backgroundColor: "#f7941d" }}
               >
                 <svg
                   className="w-4 h-4"
@@ -138,44 +136,60 @@ function ViewSubscription() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 <div className="p-3 rounded-lg">
-                  <div className="text-base font-medium text-gray-900">{subscription.name.toUpperCase()}</div>
+                  <div className="text-base font-medium text-gray-900">
+                    {subscription.name.toUpperCase()}
+                  </div>
                   <div className="text-sm text-gray-500 mb-1">Name</div>
                 </div>
                 <div className="p-3 rounded-lg">
-                  <div className="text-base font-medium text-gray-900">₹{subscription.price}</div>
+                  <div className="text-base font-medium text-gray-900">
+                    ₹{subscription.price}
+                  </div>
                   <div className="text-sm text-gray-500 mb-1">Price</div>
                 </div>
-                
               </div>
             </div>
 
-            {/* Features */}
+            {/* Modules -> Features -> Actions */}
             <div>
-              <h2 className="text-base font-medium mb-4 text-gray-800">Features</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                {subscription.features.map((feature) => (
+              <h2 className="text-base font-medium mb-4 text-gray-800">
+                Modules
+              </h2>
+              <div className="space-y-4">
+                {(subscription.modules || []).map((module) => (
                   <div
-                    key={feature.feature_id}
+                    key={module.module_id}
                     className="p-4 rounded-xl border border-gray-200 bg-gray-50"
                   >
-                    <div className="flex items-center">
-                      <svg
-                        className="w-5 h-5 text-brand-500 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      <span className="text-gray-900 capitalize">
-                        {feature.name.replace(/_/g, ' ').toUpperCase()}
-                      </span>
+                    <div className="mb-2 text-sm font-semibold text-gray-800">
+                      {module.name.replace(/_/g, " ").toUpperCase()}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {(module.features || []).map((feature) => (
+                        <div
+                          key={feature.feature_id}
+                          className="p-3 rounded-lg border border-gray-100 bg-white"
+                        >
+                          <div className="text-sm font-medium text-gray-900 mb-2">
+                            {feature.name.replace(/_/g, " ").toUpperCase()}
+                          </div>
+                          <div className="text-xs text-gray-600 mb-2">
+                            {feature.description || ""}
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            {(feature.actions || []).map((action) => (
+                              <span
+                                key={action.action_id}
+                                className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 text-xs text-gray-700 border border-gray-200"
+                              >
+                                {action.name.replace(/_/g, " ")}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 ))}

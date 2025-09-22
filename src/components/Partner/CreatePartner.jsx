@@ -127,7 +127,7 @@ function CreatePartner() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
+    { label: "Home", path: "/home" },
     { label: "Partners", path: "/partners" },
     { label: "Create Partner" },
   ];
