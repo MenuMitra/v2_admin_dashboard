@@ -48,6 +48,7 @@ function EditStaff() {
   const [aadharError, setAadharError] = useState("");
   const [funcError, setFuncError] = useState("");
   const [roles, setRoles] = useState([]);
+  const [outletName, setOutletName] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -85,6 +86,27 @@ function EditStaff() {
             .filter((id) => Number.isFinite(id));
         }
         setSelectedFunctionalities(assigned);
+
+        // Also fetch outlet name for breadcrumb
+        try {
+          const token2 = getToken();
+          const outletRes = await axios.post(
+            `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+            {
+              outlet_id: Number(outletId),
+              user_id: adminData?.user_id,
+              app_source: "admin_app",
+            },
+            {
+              headers: {
+                Authorization: token2,
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const oData = outletRes.data?.data;
+          if (oData?.name) setOutletName(oData.name);
+        } catch (e) {}
       } finally {
         setLoading(false);
       }
@@ -219,11 +241,11 @@ function EditStaff() {
     () => [
       { label: "Home", path: "/home" },
       { label: "Outlets", path: "/outlets" },
-      { label: "Outlet", path: `/view-outlet/${outletId}` },
+      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
       { label: "Staff", path: `/staff/${outletId}` },
       { label: "Edit Staff" },
     ],
-    [outletId]
+    [outletId, outletName]
   );
 
   const handleChange = (e) => {

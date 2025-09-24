@@ -173,7 +173,7 @@ function ManageCategories() {
     { label: "Outlets", path: "/outlets" },
     {
       label: outletInfo?.outlet_name || "Loading...",
-      path: `/outlet/${outletId}`,
+      path: `/view-outlet/${outletId}`,
     },
     { label: "Categories" },
   ];

@@ -46,16 +46,17 @@ function CreateStaff() {
   const [functionalities, setFunctionalities] = useState([]);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [checkAll, setCheckAll] = useState(false);
+  const [outletName, setOutletName] = useState("");
 
   const breadcrumbItems = useMemo(
     () => [
       { label: "Home", path: "/home" },
       { label: "Outlets", path: "/outlets" },
-      { label: "Outlet", path: `/view-outlet/${outletId}` },
+      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
       { label: "Staff", path: `/staff/${outletId}` },
       { label: "Create Staff" },
     ],
-    [outletId]
+    [outletId, outletName]
   );
 
   const handleChange = (e) => {
@@ -95,7 +96,7 @@ function CreateStaff() {
       try {
         const token = getToken();
 
-        // First fetch outlet details to get assigned feature IDs
+        // First fetch outlet details to get assigned feature IDs and outlet name
         let featureIds = [];
         try {
           const outletRes = await axios.post(
@@ -113,6 +114,9 @@ function CreateStaff() {
             }
           );
           const oData = outletRes.data?.data;
+          if (oData?.name) {
+            setOutletName(oData.name);
+          }
           if (oData?.modules) {
             featureIds = oData.modules.flatMap((m) =>
               (m.features || []).map((f) => f.feature_id)

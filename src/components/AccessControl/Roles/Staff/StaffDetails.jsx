@@ -46,7 +46,7 @@ function StaffDetails() {
     () => [
       { label: "Home", path: "/home" },
       { label: "Outlets", path: "/outlets" },
-      { label: "Outlet", path: `/view-outlet/${outletId}` },
+      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
       { label: "Staff", path: `/staff/${outletId}` },
       { label: "Staff Details" },
     ],

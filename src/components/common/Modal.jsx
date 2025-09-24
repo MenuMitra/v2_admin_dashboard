@@ -72,7 +72,7 @@ const Modal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header with Title and Close Button */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 gap-3">
           {title && (
             <h4 className="text-xl font-semibold text-gray-800 dark:text-white/90 ">
               {title}

@@ -123,6 +123,60 @@ function CreateSubscription() {
     }
   };
 
+  // Fetch and merge features for multiple modules
+  const fetchFeaturesForModules = async (
+    moduleIds,
+    preserveSelection = false
+  ) => {
+    try {
+      if (!Array.isArray(moduleIds) || moduleIds.length === 0) {
+        setFeatures([]);
+        return;
+      }
+
+      const token = getToken();
+      if (!token) throw new Error("No authentication token available");
+
+      const collected = [];
+      for (const mid of moduleIds) {
+        const response = await axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          {
+            user_id: adminData.user_id,
+            app_source: "admin_app",
+            module_id: mid,
+          },
+          {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        const incoming =
+          response.data.data || response.data.features || response.data || [];
+        if (Array.isArray(incoming)) collected.push(...incoming);
+      }
+
+      // Deduplicate by feature_id
+      const map = new Map();
+      for (const f of collected) {
+        const id = f.feature_id || f.id;
+        if (id && !map.has(id)) map.set(id, f);
+      }
+      const merged = Array.from(map.values());
+      setFeatures(merged);
+      // reset selections related to features/actions unless caller asked to preserve
+      if (!preserveSelection) {
+        setFormData((prev) => ({ ...prev, feature_ids: [], action_ids: [] }));
+        setActionsMap({});
+      }
+    } catch (error) {
+      console.error("Error fetching features for modules:", error);
+      toastController.error("Failed to fetch features");
+    }
+  };
+
   // Fetch actions for selected features
   const fetchActions = async (featureIds) => {
     try {
@@ -232,15 +286,30 @@ function CreateSubscription() {
     });
   };
 
-  const handleModuleSelect = (moduleId) => {
-    setFormData((prev) => ({
-      ...prev,
-      module_ids: [moduleId],
-      feature_ids: [],
-      action_ids: [],
-    }));
-    // Fetch features for this module
-    fetchFeatures(moduleId);
+  const handleModuleToggle = (moduleId) => {
+    setFormData((prev) => {
+      const exists = prev.module_ids.includes(moduleId);
+      const newModuleIds = exists
+        ? prev.module_ids.filter((id) => id !== moduleId)
+        : [...prev.module_ids, moduleId];
+
+      // After module change, clear feature/action selections
+      return {
+        ...prev,
+        module_ids: newModuleIds,
+        feature_ids: [],
+        action_ids: [],
+      };
+    });
+
+    // Fetch features for updated module selection
+    setTimeout(() => {
+      const moduleIds = (formData.module_ids || []).includes(moduleId)
+        ? formData.module_ids.filter((id) => id !== moduleId)
+        : [...(formData.module_ids || []), moduleId];
+      fetchFeaturesForModules(moduleIds);
+    }, 0);
+
     setValidationStates((prev) => ({ ...prev, module_ids: false }));
   };
 
@@ -416,7 +485,7 @@ function CreateSubscription() {
                   <option value="" disabled>
                     Select months
                   </option>
-                  {[1, 2, 3, 6, 9, 12, 24].map((m) => (
+                  {[3, 6, 9, 12, 18, 24].map((m) => (
                     <option key={m} value={m}>
                       {m} {m === 1 ? "month" : "months"}
                     </option>
@@ -473,7 +542,7 @@ function CreateSubscription() {
                   return (
                     <div
                       key={mod.module_id}
-                      onClick={() => handleModuleSelect(mod.module_id)}
+                      onClick={() => handleModuleToggle(mod.module_id)}
                       className={`
                         bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border cursor-pointer select-none
                         ${
@@ -485,10 +554,18 @@ function CreateSubscription() {
                       `}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                          {mod.name.split("_").join(" ").toUpperCase()}
-                        </span>
-                        <input type="radio" checked={isSelected} readOnly />
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleModuleToggle(mod.module_id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="form-checkbox h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 cursor-pointer"
+                          />
+                          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                            {mod.name.split("_").join(" ").toUpperCase()}
+                          </span>
+                        </label>
                       </div>
                       {mod.description && (
                         <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">

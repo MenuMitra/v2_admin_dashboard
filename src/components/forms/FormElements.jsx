@@ -45,18 +45,20 @@ const TextInput = React.forwardRef(
       className = "",
       onFocus,
       errorMessage = "",
+      error: errorProp = false,
       ...props
     },
     ref
   ) => {
-    const [error, setError] = useState("");
+    const [localError, setLocalError] = useState("");
 
-    const showError = (required && isSubmitAttempted && !value) || error;
+    const showError =
+      (required && isSubmitAttempted && !value) || localError || errorProp;
 
     const validateInput = (value) => {
       // Skip validation if field is not required and empty
       if (!required && !value) {
-        setError("");
+        setLocalError("");
         return true;
       }
 
@@ -69,7 +71,7 @@ const TextInput = React.forwardRef(
       // Custom validator function takes precedence
       if (customValidator) {
         const { isValid, message } = customValidator(value);
-        setError(message);
+        setLocalError(message);
         return isValid;
       }
 
@@ -94,7 +96,7 @@ const TextInput = React.forwardRef(
         }
       }
 
-      setError("");
+      setLocalError("");
       return true;
     };
 
@@ -127,8 +129,10 @@ const TextInput = React.forwardRef(
         `}
           {...props}
         />
-        {(error || (errorMessage && showError)) && (
-          <p className="mt-1 text-sm text-error-500">{error || errorMessage}</p>
+        {(localError || (errorProp && errorMessage)) && (
+          <p className="mt-1 text-sm text-error-500">
+            {localError || (errorProp ? errorMessage : "")}
+          </p>
         )}
       </div>
     );

@@ -99,11 +99,55 @@ function EditSubscription() {
 
       if (response.data.detail === "Subscription fetched successfully") {
         const subscription = response.data.data || {};
-        const existingModuleIds =
+
+        // API may return modules/features/actions nested under `modules`.
+        // Extract ids from nested structure when top-level arrays are missing.
+        const modulesFromPayload = Array.isArray(subscription.modules)
+          ? subscription.modules
+          : [];
+
+        const moduleIdsFromModules = modulesFromPayload.map((m) =>
+          Number(m.module_id)
+        );
+
+        const featureIdsFromModules = modulesFromPayload.flatMap((m) =>
+          Array.isArray(m.features)
+            ? m.features.map((f) => Number(f.feature_id))
+            : []
+        );
+
+        const actionIdsFromModules = modulesFromPayload.flatMap((m) =>
+          Array.isArray(m.features)
+            ? m.features.flatMap((f) =>
+                Array.isArray(f.actions)
+                  ? f.actions.map((a) => Number(a.action_id))
+                  : []
+              )
+            : []
+        );
+
+        const existingModuleIdsRaw =
           subscription.module_ids ||
-          (subscription.module_id ? [subscription.module_id] : []);
-        const existingFeatureIds = subscription.feature_ids || [];
-        const existingActionIds = subscription.action_ids || [];
+          (subscription.module_id
+            ? [subscription.module_id]
+            : moduleIdsFromModules || []);
+
+        // Normalize module ids to numbers to avoid string/number mismatches
+        const existingModuleIds = Array.isArray(existingModuleIdsRaw)
+          ? existingModuleIdsRaw.map((id) => Number(id))
+          : [];
+
+        const existingFeatureIdsRaw =
+          subscription.feature_ids || featureIdsFromModules || [];
+        const existingFeatureIds = Array.isArray(existingFeatureIdsRaw)
+          ? existingFeatureIdsRaw.map((id) => Number(id))
+          : [];
+
+        const existingActionIdsRaw =
+          subscription.action_ids || actionIdsFromModules || [];
+        const existingActionIds = Array.isArray(existingActionIdsRaw)
+          ? existingActionIdsRaw.map((id) => Number(id))
+          : [];
         // Normalize tenure if string like "1 year"
         const parseTenureToMonths = (tenure) => {
           if (!tenure) return 12;
@@ -126,12 +170,39 @@ function EditSubscription() {
           action_ids: existingActionIds,
         }));
 
-        // If module present, load features and then actions
+        // Pre-check modules in the UI by ensuring modules state contains them
+        if (Array.isArray(existingModuleIds) && existingModuleIds.length > 0) {
+          // If modules already fetched, keep; otherwise fetch modules to populate names
+          if (!modules || modules.length === 0) {
+            await fetchModules();
+          }
+          // Ensure any module ids present are numbers to match mod.module_id
+          setFormData((prev) => ({ ...prev, module_ids: existingModuleIds }));
+        }
+
+        // If module present, load merged features for those modules and preselect existing features/actions
         if (existingModuleIds.length > 0) {
-          await fetchFeatures(existingModuleIds[0]);
+          await fetchFeaturesForModules(existingModuleIds, true);
         }
         if (existingFeatureIds.length > 0) {
-          await fetchActions(existingFeatureIds);
+          // Ensure selectedFeatures objects are set so UI checkboxes show correctly
+          const presetFeatures = (
+            response?.data?.data?.features ||
+            response?.data?.features ||
+            []
+          ).filter((f) => existingFeatureIds.includes(f.feature_id));
+          setFeatures((prev) => {
+            // merge any fetched features with preset if missing
+            const map = new Map(prev.map((f) => [f.feature_id || f.id, f]));
+            presetFeatures.forEach((f) => {
+              const id = f.feature_id || f.id;
+              if (id && !map.has(id)) map.set(id, f);
+            });
+            return Array.from(map.values());
+          });
+          setFormData((prev) => ({ ...prev, feature_ids: existingFeatureIds }));
+          if (existingActionIds.length > 0)
+            await fetchActions(existingFeatureIds);
         }
       }
     } catch (error) {
@@ -191,6 +262,53 @@ function EditSubscription() {
       toastController.error(
         error.response?.data?.detail || "Failed to fetch features"
       );
+    }
+  };
+
+  // Fetch and merge features for multiple modules (reuse logic from CreateSubscription)
+  const fetchFeaturesForModules = async (
+    moduleIds,
+    preserveSelection = false
+  ) => {
+    try {
+      if (!Array.isArray(moduleIds) || moduleIds.length === 0) {
+        setFeatures([]);
+        return;
+      }
+
+      const token = getToken();
+      if (!token) throw new Error("No authentication token available");
+
+      const collected = [];
+      for (const mid of moduleIds) {
+        const response = await axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          {
+            user_id: adminData.user_id,
+            app_source: "admin_app",
+            module_id: mid,
+          },
+          { headers: { Authorization: token } }
+        );
+        const incoming =
+          response.data.data || response.data.features || response.data || [];
+        if (Array.isArray(incoming)) collected.push(...incoming);
+      }
+
+      const map = new Map();
+      for (const f of collected) {
+        const id = f.feature_id || f.id;
+        if (id && !map.has(id)) map.set(id, f);
+      }
+      setFeatures(Array.from(map.values()));
+      // Only clear previously selected feature/action ids when caller doesn't want to preserve them
+      if (!preserveSelection) {
+        setFormData((prev) => ({ ...prev, feature_ids: [], action_ids: [] }));
+        setActionsMap({});
+      }
+    } catch (error) {
+      console.error("Error fetching features for modules:", error);
+      toastController.error("Failed to fetch features");
     }
   };
 
@@ -286,14 +404,28 @@ function EditSubscription() {
     });
   };
 
-  const handleModuleSelect = async (moduleId) => {
-    setFormData((prev) => ({
-      ...prev,
-      module_ids: [moduleId],
-      feature_ids: [],
-      action_ids: [],
-    }));
-    await fetchFeatures(moduleId);
+  const handleModuleToggle = async (moduleId) => {
+    setFormData((prev) => {
+      const exists = prev.module_ids.includes(moduleId);
+      const newModuleIds = exists
+        ? prev.module_ids.filter((id) => id !== moduleId)
+        : [...prev.module_ids, moduleId];
+
+      return {
+        ...prev,
+        module_ids: newModuleIds,
+        feature_ids: [],
+        action_ids: [],
+      };
+    });
+
+    // Fetch merged features for selected modules
+    setTimeout(() => {
+      const moduleIds = (formData.module_ids || []).includes(moduleId)
+        ? formData.module_ids.filter((id) => id !== moduleId)
+        : [...(formData.module_ids || []), moduleId];
+      fetchFeaturesForModules(moduleIds);
+    }, 0);
   };
 
   const validateForm = () => {
@@ -493,7 +625,7 @@ function EditSubscription() {
                   }
                   className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                 >
-                  {[1, 2, 3, 6, 9, 12, 24].map((m) => (
+                  {[3, 6, 9, 12, 18, 24].map((m) => (
                     <option key={m} value={m}>
                       {m} {m === 1 ? "month" : "months"}
                     </option>
@@ -527,7 +659,7 @@ function EditSubscription() {
                   return (
                     <div
                       key={mod.module_id}
-                      onClick={() => handleModuleSelect(mod.module_id)}
+                      onClick={() => handleModuleToggle(mod.module_id)}
                       className={`
                         bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border cursor-pointer select-none
                         ${
@@ -539,10 +671,18 @@ function EditSubscription() {
                       `}
                     >
                       <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                          {mod.name.split("_").join(" ").toUpperCase()}
-                        </span>
-                        <input type="radio" checked={isSelected} readOnly />
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => handleModuleToggle(mod.module_id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="form-checkbox h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 cursor-pointer"
+                          />
+                          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                            {mod.name.split("_").join(" ").toUpperCase()}
+                          </span>
+                        </label>
                       </div>
                       {mod.description && (
                         <p className="mt-2 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">

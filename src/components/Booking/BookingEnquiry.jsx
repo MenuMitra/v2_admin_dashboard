@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Breadcrumb from "../Breadcrumb";
+import { useNavigate } from "react-router-dom";
 import DataTable from "../common/DataTable";
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
@@ -13,6 +14,10 @@ const BookingEnquiry = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  const navigate = useNavigate();
+
+  const handleBack = () => navigate(-1);
 
   const fetchBookings = async () => {
     try {
@@ -88,6 +93,7 @@ const BookingEnquiry = () => {
           onSearchChange={setSearchTerm}
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={setItemsPerPage}
+          onBackClick={handleBack}
           enablePagination={true}
           showSearch={true}
           createButton={{ show: false, label: "", onClick: () => {} }}

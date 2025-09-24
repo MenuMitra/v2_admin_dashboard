@@ -176,7 +176,7 @@ function AdminDetails() {
           {/* Admin Details Card */}
           <div className="bg-white rounded-2xl overflow-hidden dark:border-gray-800 dark:bg-gray-900">
             {/* Basic Info Section */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-6  border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
                 Admin Information
               </h2>
@@ -247,7 +247,7 @@ function AdminDetails() {
             {/* Active Sessions Section */}
             {activeSessions && activeSessions.length > 0 && (
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 ">
                   Active Sessions
                 </h3>
                 <ActiveSessionsTable
@@ -260,33 +260,7 @@ function AdminDetails() {
                 />
               </div>
             )}
-            {/* Functionalities Section */}
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
-                Assigned Functionalities
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {(admin.functionalities || []).map((functionality) => (
-                  <div
-                    key={functionality.id}
-                    className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                  >
-                    <FontAwesomeIcon
-                      icon={faCircleCheck}
-                      className="w-4 h-4 text-success-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      {functionality.name
-                        .split("_")
-                        .map(
-                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                        )
-                        .join(" ")}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>

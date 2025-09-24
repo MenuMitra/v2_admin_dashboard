@@ -19,6 +19,8 @@ const SubscriptionPopup = ({
   onClose,
   onSave,
   initialModuleId,
+  initialModuleIds,
+  initialModulesPayload,
   initialFeatureIds,
   initialActionIds,
   initialPlanName,
@@ -35,6 +37,7 @@ const SubscriptionPopup = ({
 
   // Selected items
   const [selectedModule, setSelectedModule] = useState(null);
+  const [selectedModules, setSelectedModules] = useState([]);
   const [selectedFeatures, setSelectedFeatures] = useState([]);
   const [selectedActions, setSelectedActions] = useState([]);
 
@@ -44,18 +47,22 @@ const SubscriptionPopup = ({
   const [loadingFeatures, setLoadingFeatures] = useState(false);
   const [loadingActions, setLoadingActions] = useState(false);
   const [tenureMonths, setTenureMonths] = useState(null);
+  const ALLOWED_TENURES = [3, 6, 9, 12, 18, 24];
   const [startDate, setStartDate] = useState(
     () => new Date().toISOString().split("T")[0]
   );
   const [planName, setPlanName] = useState("");
   const [planPrice, setPlanPrice] = useState("");
+  const isPrefillPayload =
+    Array.isArray(initialModulesPayload) && initialModulesPayload.length > 0;
 
   // Derived validation flags
   const isNameValid = (planName || "").trim().length > 0;
   const isPriceValid =
     planPrice !== "" && !isNaN(Number(planPrice)) && Number(planPrice) > 0;
   const isTenureValid = !!tenureMonths;
-  const isModuleSelected = !!selectedModule;
+  const isModuleSelected =
+    (selectedModules && selectedModules.length > 0) || !!selectedModule;
   const canAssign =
     isNameValid && isPriceValid && isTenureValid && isModuleSelected;
 
@@ -73,7 +80,8 @@ const SubscriptionPopup = ({
       if (
         initialTenureMonths !== undefined &&
         initialTenureMonths !== null &&
-        !isNaN(Number(initialTenureMonths))
+        !isNaN(Number(initialTenureMonths)) &&
+        ALLOWED_TENURES.includes(Number(initialTenureMonths))
       )
         setTenureMonths(Number(initialTenureMonths));
 
@@ -81,16 +89,28 @@ const SubscriptionPopup = ({
     }
   }, [isOpen]);
 
-  // Fetch features when module is selected
+  // Fetch features when modules are selected and show/hide features panel
   useEffect(() => {
-    if (selectedModule) {
-      fetchFeatures(selectedModule.module_id);
+    if (selectedModules.length > 0) {
+      // If we already prefilled from view_outlet payload, do NOT refetch and clear selections
+      if (!isPrefillPayload) {
+        fetchFeaturesForModules(selectedModules.map((m) => m.module_id));
+      }
+      setShowFeatures(true);
+    } else {
+      setFeatures([]);
+      setShowFeatures(false);
     }
-  }, [selectedModule]);
+  }, [selectedModules]);
 
   // Fetch actions when features are selected
   useEffect(() => {
     if (selectedFeatures.length > 0) {
+      if (isPrefillPayload) {
+        // Actions already populated from payload prefill; don't override
+        setShowActions(true);
+        return;
+      }
       fetchActions(selectedFeatures.map((f) => f.feature_id));
     } else {
       setActions([]);
@@ -110,10 +130,21 @@ const SubscriptionPopup = ({
       );
       const list = response.data || [];
       setModules(list);
-      // Preselect module if provided
-      if (initialModuleId) {
-        const match = list.find((m) => m.module_id === initialModuleId);
-        if (match) setSelectedModule(match);
+      // Preselect modules if provided (single id or array)
+      const idsToPreselect = [];
+      if (initialModuleId) idsToPreselect.push(Number(initialModuleId));
+      if (Array.isArray(initialModuleIds) && initialModuleIds.length) {
+        initialModuleIds.forEach((id) => idsToPreselect.push(Number(id)));
+      }
+      if (idsToPreselect.length > 0) {
+        const unique = Array.from(new Set(idsToPreselect));
+        const matches = list.filter((m) =>
+          unique.includes(Number(m.module_id))
+        );
+        if (matches.length > 0) {
+          setSelectedModules(matches);
+          setShowFeatures(true);
+        }
       }
     } catch (error) {
       console.error("Error fetching modules:", error);
@@ -122,6 +153,184 @@ const SubscriptionPopup = ({
       setLoading(false);
     }
   };
+
+  // When modules list is loaded and popup opened, preselect modules/features/actions from initial props/payload (used by Edit Outlet)
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!modules || modules.length === 0) return;
+    // don't overwrite if user already selected
+    if (selectedModules && selectedModules.length > 0) return;
+
+    // Prefer full payload if provided from view_outlet
+    if (
+      Array.isArray(initialModulesPayload) &&
+      initialModulesPayload.length > 0
+    ) {
+      const payloadModuleIds = initialModulesPayload.map((m) =>
+        Number(m.module_id)
+      );
+      const toSelect = modules.filter((m) =>
+        payloadModuleIds.includes(Number(m.module_id))
+      );
+      if (toSelect.length > 0) {
+        setSelectedModules(toSelect);
+        // Merge features from payload (no additional API required)
+        const mergedFeatures = [];
+        initialModulesPayload.forEach((m) => {
+          if (Array.isArray(m.features)) mergedFeatures.push(...m.features);
+        });
+        // Deduplicate by feature_id
+        const fMap = new Map();
+        mergedFeatures.forEach((f) => {
+          const id = f.feature_id || f.id;
+          if (id && !fMap.has(id)) fMap.set(id, f);
+        });
+        const featuresArr = Array.from(fMap.values());
+        setFeatures(featuresArr);
+        setShowFeatures(true);
+
+        // Preselect features (prefer explicit initialFeatureIds if provided; otherwise select all from payload)
+        if (Array.isArray(initialFeatureIds) && initialFeatureIds.length > 0) {
+          const pick = featuresArr.filter((f) =>
+            initialFeatureIds
+              .map((id) => Number(id))
+              .includes(Number(f.feature_id))
+          );
+          setSelectedFeatures(pick);
+        } else {
+          setSelectedFeatures(featuresArr);
+        }
+
+        // Build actions from payload and preselect (prefer explicit initialActionIds; otherwise select all from payload)
+        const mergedActions = [];
+        initialModulesPayload.forEach((m) => {
+          (m.features || []).forEach((f) => {
+            if (Array.isArray(f.actions)) mergedActions.push(...f.actions);
+          });
+        });
+        // Deduplicate actions by action_id
+        const aMap = new Map();
+        mergedActions.forEach((a) => {
+          const id = a.action_id || a.id;
+          if (id && !aMap.has(id)) aMap.set(id, a);
+        });
+        const actionsArr = Array.from(aMap.values());
+        setActions(actionsArr);
+        if (Array.isArray(initialActionIds) && initialActionIds.length > 0) {
+          const apick = actionsArr.filter((a) =>
+            initialActionIds
+              .map((id) => Number(id))
+              .includes(Number(a.action_id))
+          );
+          setSelectedActions(apick);
+        } else {
+          setSelectedActions(actionsArr);
+        }
+      }
+      return; // Done via payload; skip id-based fallback
+    }
+
+    const initModuleIds = [];
+    if (initialModuleId) initModuleIds.push(Number(initialModuleId));
+    // if initialFeatureIds provided, find modules that contain those features
+    if (Array.isArray(initialFeatureIds) && initialFeatureIds.length > 0) {
+      const featureSet = new Set(initialFeatureIds.map((id) => Number(id)));
+      modules.forEach((m) => {
+        const modFeatures = (m.features || []).map((f) => Number(f.feature_id));
+        if (modFeatures.some((fid) => featureSet.has(fid))) {
+          initModuleIds.push(m.module_id);
+        }
+      });
+    }
+
+    if (initModuleIds.length > 0) {
+      const uniqueIds = Array.from(new Set(initModuleIds));
+      const toSelect = modules.filter((m) =>
+        uniqueIds.includes(Number(m.module_id))
+      );
+      if (toSelect.length > 0) {
+        setSelectedModules(toSelect);
+        // Load features for these modules and then preselect features/actions
+        (async () => {
+          try {
+            // fetch merged features and use returned array (avoid stale `features` state)
+            const mergedFeatures = await fetchFeaturesForModules(uniqueIds);
+
+            // after features are returned, select features from initialFeatureIds
+            if (
+              Array.isArray(initialFeatureIds) &&
+              initialFeatureIds.length > 0
+            ) {
+              const pick = (
+                Array.isArray(mergedFeatures) ? mergedFeatures : []
+              ).filter((f) =>
+                initialFeatureIds
+                  .map((id) => Number(id))
+                  .includes(Number(f.feature_id))
+              );
+              // If mergeFetch returned empty or ids differ by type, also try current `features` state and payload
+              let finalPick =
+                pick.length > 0
+                  ? pick
+                  : features.filter((f) =>
+                      initialFeatureIds
+                        .map((id) => Number(id))
+                        .includes(Number(f.feature_id))
+                    );
+              if (finalPick.length === 0) {
+                const collected = [];
+                toSelect.forEach((m) => {
+                  if (Array.isArray(m.features)) collected.push(...m.features);
+                });
+                finalPick = collected.filter((f) =>
+                  initialFeatureIds
+                    .map((id) => Number(id))
+                    .includes(Number(f.feature_id))
+                );
+              }
+              setSelectedFeatures(finalPick);
+            }
+
+            if (
+              Array.isArray(initialActionIds) &&
+              initialActionIds.length > 0
+            ) {
+              // fetch actions for the initialFeatureIds and use returned value
+              const fetchedActions = await fetchActions(initialFeatureIds);
+              const presetActions = (
+                Array.isArray(fetchedActions) ? fetchedActions : []
+              ).filter((a) =>
+                initialActionIds
+                  .map((id) => Number(id))
+                  .includes(Number(a.action_id))
+              );
+
+              if (presetActions.length > 0) {
+                setSelectedActions(presetActions);
+              } else {
+                // fallback: collect from modules payload
+                const collectedActions = [];
+                toSelect.forEach((m) => {
+                  (m.features || []).forEach((f) => {
+                    if (Array.isArray(f.actions))
+                      collectedActions.push(...f.actions);
+                  });
+                });
+                const fallbackActions = collectedActions.filter((a) =>
+                  initialActionIds
+                    .map((id) => Number(id))
+                    .includes(Number(a.action_id))
+                );
+                setSelectedActions(fallbackActions);
+              }
+            }
+          } catch (err) {
+            // ignore
+          }
+        })();
+      }
+    }
+  }, [modules, isOpen]);
 
   const fetchFeatures = async (moduleId) => {
     try {
@@ -150,6 +359,47 @@ const SubscriptionPopup = ({
       toastController.error("Failed to fetch features");
     } finally {
       setLoadingFeatures(false);
+    }
+  };
+
+  // Fetch and merge features for multiple modules
+  const fetchFeaturesForModules = async (moduleIds) => {
+    try {
+      if (!Array.isArray(moduleIds) || moduleIds.length === 0) {
+        setFeatures([]);
+        return [];
+      }
+
+      const token = getToken();
+      if (!token) throw new Error("No authentication token available");
+
+      const collected = [];
+      for (const mid of moduleIds) {
+        const response = await axios.post(
+          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          { module_id: mid },
+          { headers: { Authorization: token } }
+        );
+        const incoming =
+          response.data?.features || response.data?.data || response.data || [];
+        if (Array.isArray(incoming)) collected.push(...incoming);
+      }
+
+      const map = new Map();
+      for (const f of collected) {
+        const id = f.feature_id || f.id;
+        if (id && !map.has(id)) map.set(id, f);
+      }
+      const merged = Array.from(map.values());
+      setFeatures(merged);
+      setSelectedFeatures([]);
+      setSelectedActions([]);
+      setActions([]);
+      return merged;
+    } catch (error) {
+      console.error("Error fetching features for modules:", error);
+      toastController.error("Failed to fetch features");
+      return [];
     }
   };
 
@@ -197,22 +447,22 @@ const SubscriptionPopup = ({
         setSelectedActions(preset);
       }
       setShowActions(true);
+      return uniqueActions;
     } catch (error) {
       console.error("Error fetching actions:", error);
       toastController.error("Failed to fetch actions");
+      return [];
     } finally {
       setLoadingActions(false);
     }
   };
 
-  const handleModuleSelect = (module) => {
-    setSelectedModule(module);
-    setSelectedFeatures([]);
-    setSelectedActions([]);
-    setFeatures([]);
-    setActions([]);
-    setShowFeatures(false);
-    setShowActions(false);
+  const handleModuleToggle = (module) => {
+    setSelectedModules((prev) => {
+      const exists = prev.some((m) => m.module_id === module.module_id);
+      if (exists) return prev.filter((m) => m.module_id !== module.module_id);
+      return [...prev, module];
+    });
   };
 
   const handleFeatureToggle = (feature) => {
@@ -238,13 +488,13 @@ const SubscriptionPopup = ({
   };
 
   const handleSave = async () => {
-    if (!selectedModule) {
+    if (!isModuleSelected) {
       toastController.error("Please select a module");
       return;
     }
 
     const subscriptionData = {
-      module: selectedModule,
+      module: (selectedModules && selectedModules[0]) || selectedModule || null,
       features: selectedFeatures,
       actions: selectedActions,
     };
@@ -264,7 +514,11 @@ const SubscriptionPopup = ({
       const createPayload = {
         name:
           (planName && planName.trim()) ||
-          `${selectedModule.name || "custom"}_auto_${Date.now()}`,
+          `${
+            (selectedModules && selectedModules[0]?.name) ||
+            selectedModule?.name ||
+            "custom"
+          }_auto_${Date.now()}`,
         price:
           planPrice !== "" && !isNaN(Number(planPrice)) ? Number(planPrice) : 0,
         // Keep feature_ids for backward compatibility
@@ -272,7 +526,12 @@ const SubscriptionPopup = ({
           .map((f) => f.feature_id || f.id)
           .filter(Boolean),
         // Also send module ids (API expects module_ids per your example)
-        module_ids: selectedModule ? [selectedModule.module_id] : [],
+        module_ids:
+          selectedModules && selectedModules.length
+            ? selectedModules.map((m) => m.module_id)
+            : selectedModule
+            ? [selectedModule.module_id]
+            : [],
         user_id: adminData?.user_id,
         app_source: "admin_app",
         tenure_months: tenureMonths || null,
@@ -456,7 +715,7 @@ const SubscriptionPopup = ({
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-sm"
               >
                 <option value="">Select months</option>
-                {[1, 2, 3, 6, 9, 12, 24].map((m) => (
+                {ALLOWED_TENURES.map((m) => (
                   <option key={m} value={m}>
                     {m} month{m > 1 ? "s" : ""}
                   </option>
@@ -478,11 +737,13 @@ const SubscriptionPopup = ({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {modules.map((mod) => {
-                const isSelected = selectedModule?.module_id === mod.module_id;
+                const isSelected = selectedModules.some(
+                  (m) => m.module_id === mod.module_id
+                );
                 return (
                   <div
                     key={mod.module_id}
-                    onClick={() => handleModuleSelect(mod)}
+                    onClick={() => handleModuleToggle(mod)}
                     className={`
                       bg-white rounded-lg p-3 shadow-sm border cursor-pointer select-none
                       ${
@@ -494,10 +755,18 @@ const SubscriptionPopup = ({
                     `}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-800 capitalize">
-                        {mod.name?.split("_").join(" ")}
-                      </span>
-                      <input type="radio" checked={isSelected} readOnly />
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleModuleToggle(mod)}
+                          onClick={(e) => e.stopPropagation()}
+                          className="form-checkbox h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                        <span className="text-sm font-medium text-gray-800 capitalize">
+                          {mod.name?.split("_").join(" ")}
+                        </span>
+                      </label>
                     </div>
                     {mod.description && (
                       <p className="mt-2 text-xs text-gray-500 line-clamp-2">
@@ -512,7 +781,7 @@ const SubscriptionPopup = ({
         </section>
 
         {/* Features Section */}
-        {selectedModule && (
+        {showFeatures && (
           <section className="bg-white p-4 rounded-lg mt-4">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-medium text-gray-800 flex items-center">
@@ -706,7 +975,7 @@ const SubscriptionPopup = ({
         )}
 
         {/* Summary */}
-        {(selectedModule ||
+        {((selectedModules && selectedModules.length > 0) ||
           selectedFeatures.length > 0 ||
           selectedActions.length > 0) && (
           <div className="bg-gray-50 rounded-lg p-3">
@@ -714,10 +983,10 @@ const SubscriptionPopup = ({
               Selection Summary
             </h3>
             <div className="space-y-1">
-              {selectedModule && (
+              {selectedModules && selectedModules.length > 0 && (
                 <p className="text-xs">
                   <span className="font-medium">Module:</span>{" "}
-                  {selectedModule.name}
+                  {selectedModules.map((m) => m.name).join(", ")}
                 </p>
               )}
               {selectedFeatures.length > 0 && (

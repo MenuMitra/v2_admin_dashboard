@@ -95,6 +95,7 @@ function EditOutlet() {
   const [subscriptionPrice, setSubscriptionPrice] = useState(null);
   const [subscriptionFeatures, setSubscriptionFeatures] = useState([]);
   const [subscriptionActions, setSubscriptionActions] = useState([]);
+  const [outletModulesPayload, setOutletModulesPayload] = useState([]);
 
   // Reset tenure and end date when subscription changes
   useEffect(() => {
@@ -273,6 +274,7 @@ function EditOutlet() {
             Array.isArray(data.modules) &&
             data.modules.length > 0
           ) {
+            setOutletModulesPayload(data.modules);
             const allFeatures = [];
             const allActions = [];
             data.modules.forEach((module) => {
@@ -614,6 +616,22 @@ function EditOutlet() {
         throw new Error("No authentication token available");
       }
 
+      // Prepare image in server-expected format (pure base64 without data URI)
+      let imagePayload = outletData.image || null;
+      if (imagePayload) {
+        if (
+          typeof imagePayload === "string" &&
+          imagePayload.startsWith("data:image/")
+        ) {
+          const commaIdx = imagePayload.indexOf(",");
+          imagePayload =
+            commaIdx !== -1 ? imagePayload.slice(commaIdx + 1) : imagePayload;
+        } else if (/^https?:\/\//i.test(imagePayload)) {
+          // Existing URL; avoid sending as base64 to prevent server error
+          imagePayload = null;
+        }
+      }
+
       // Prepare API data with new_owner_ids as array
       const apiData = {
         outlet_id: parseInt(outletId),
@@ -640,7 +658,7 @@ function EditOutlet() {
         google_business_link: outletData.google_business_link || "",
         google_review: outletData.google_review || "",
         outlet_mode: outletData.outlet_mode,
-        image: outletData.image || "",
+        image: imagePayload,
         subscription_id: outletData.subscription_id
           ? parseInt(outletData.subscription_id)
           : null,
@@ -1406,9 +1424,18 @@ function EditOutlet() {
         onClose={() => setShowSubscriptionPopup(false)}
         onSave={handleSubscriptionConfigSave}
         primaryButtonLabel="Update Subscription"
-        initialModuleId={
-          outletData.subscription_id ? outletData.subscription_id : null
+        // Pass module ids array from outlet data modules if available
+        initialModuleIds={
+          outletData.subscription_details &&
+          outletData.subscription_details.modules
+            ? outletData.subscription_details.modules.map((m) => m.module_id)
+            : outletData.modules
+            ? outletData.modules.map((m) => m.module_id)
+            : outletData.subscription_id
+            ? [outletData.subscription_id]
+            : []
         }
+        initialModulesPayload={outletModulesPayload}
         initialFeatureIds={subscriptionFeatures?.map((f) => f.feature_id) || []}
         initialActionIds={subscriptionActions?.map((a) => a.action_id) || []}
         initialPlanName={
