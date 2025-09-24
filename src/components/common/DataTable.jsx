@@ -482,7 +482,7 @@ function DataTable({
     return (
       <div className="relative flex-1 sm:flex-initial">
         <select
-          className={`w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
+          className={`w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
             isLoading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           value={selectedOutlet}
@@ -775,7 +775,7 @@ function DataTable({
                       <select
                         value={statusFilter}
                         onChange={(e) => onStatusFilterChange(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                       >
                         <option value="all">All Status</option>
                         <option value="active">Active</option>
@@ -788,7 +788,7 @@ function DataTable({
                         <select
                           value={enquiryFilter || "all"}
                           onChange={onEnquiryFilterChange || (() => {})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">Enquiry Type</option>
                           <option value="enquiry">Enquiry</option>
@@ -803,7 +803,7 @@ function DataTable({
                         <select
                           value={accountType || "all"}
                           onChange={onAccountTypeChange || (() => {})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">Account Type</option>
                           <option value="live">Live</option>
@@ -817,7 +817,7 @@ function DataTable({
                         <select
                           value={openCloseStatus || "all"}
                           onChange={onOpenCloseStatusChange || (() => {})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">Open/Close</option>
                           <option value="open">Open</option>
@@ -833,7 +833,7 @@ function DataTable({
                           onChange={(e) => {
                             onActiveSessionFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Sessions</option>
                           <option value="0">0</option>
@@ -854,7 +854,7 @@ function DataTable({
                           onChange={(e) => {
                             onOutletCountFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Outlets</option>
                           <option value="0">0</option>
@@ -875,7 +875,7 @@ function DataTable({
                           onChange={(e) => {
                             onOutletTypeFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Types</option>
                           <option value="outlet">Outlet</option>
@@ -891,7 +891,7 @@ function DataTable({
                           onChange={(e) => {
                             onOutletModeFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Modes</option>
                           <option value="online">Online</option>
@@ -907,7 +907,7 @@ function DataTable({
                           onChange={(e) => {
                             onOwnerCountFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Owners</option>
                           <option value="0">0</option>
@@ -931,7 +931,7 @@ function DataTable({
                       onChange={(e) => {
                         onExecutionTimeFilterChange(e.target.value);
                       }}
-                      className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                      className="w-full px-2 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                     >
                       <option value="all">All Execution Time</option>
                       <option value="5">&gt;5ms</option>
@@ -957,7 +957,7 @@ function DataTable({
                         {filter.type === "select" && (
                           <div className="relative">
                             <select
-                              className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                              className="w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                               value={filter.value}
                               onChange={(e) => filter.onChange(e.target.value)}
                             >

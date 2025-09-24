@@ -312,6 +312,7 @@ function Stats() {
       <div className="mt-6">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-sm font-semibold">App Usage</h2>
+          
         </div>
 
         {/* Error Display */}

@@ -588,7 +588,7 @@ function Auth() {
                       ></i>
                     </a>
                     <a
-                      href="https://www.google.com/@menumitra"
+                      href="https://menumitra.com/"
                       className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
                     >
                       <i
