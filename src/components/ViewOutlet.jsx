@@ -916,6 +916,26 @@ function ViewOutlet() {
                 Manage Staff Details
               </h2>
             </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-4">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletData?.staff_count ??
+                          outletResponse?.data?.staff_count ??
+                          outletResponse?.staff_count ??
+                          "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Staff Count
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           {/* Manage Outlet Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
@@ -964,21 +984,6 @@ function ViewOutlet() {
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Sections
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.orders_count ?? "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Orders
                       </p>
                     </div>
                   </div>

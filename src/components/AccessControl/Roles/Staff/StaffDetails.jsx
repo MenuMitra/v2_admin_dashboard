@@ -13,7 +13,11 @@ import {
   faPenToSquare,
   faCircleCheck,
   faCircleXmark,
+  faRotate,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+import ActiveSessionsTable from "../../../common/ActiveSessionsTable";
+import DeleteConfirmModal from "../../../common/DeleteConfirmModal/DeleteConfirmModal";
 
 function StaffDetails() {
   const { outletId, userId } = useParams();
@@ -21,8 +25,11 @@ function StaffDetails() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { BASE_URL, API_VERSION } = API_CONFIG;
+  const [outletName, setOutletName] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["staff_view", outletId, userId],
     queryFn: async () => {
       const token = getToken();
@@ -46,12 +53,54 @@ function StaffDetails() {
     () => [
       { label: "Home", path: "/home" },
       { label: "Outlets", path: "/outlets" },
-      { label: outletName || "Outlet", path: `/view-outlet/${outletId}` },
+      {
+        label: outletName || data?.outlet_name || `Outlet ${outletId}`,
+        path: `/view-outlet/${outletId}`,
+      },
       { label: "Staff", path: `/staff/${outletId}` },
       { label: "Staff Details" },
     ],
-    [outletId]
+    [outletId, outletName, data?.outlet_name]
   );
+
+  // Fetch outlet name if not available in staff data
+  useEffect(() => {
+    let cancelled = false;
+    const fetchOutletName = async () => {
+      if (!outletId || !adminData?.user_id) return;
+      try {
+        const token = getToken();
+        const res = await axios.post(
+          `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+          {
+            outlet_id: Number(outletId),
+            user_id: adminData.user_id,
+            app_source: "admin_app",
+          },
+          { headers: { Authorization: token } }
+        );
+        const o = res.data?.data;
+        if (!cancelled && o) {
+          setOutletName(o.name || o.outlet_name || "");
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    // only fetch if breadcrumb doesn't already have a name
+    if (!data?.outlet_name && !outletName) fetchOutletName();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    outletId,
+    adminData,
+    getToken,
+    BASE_URL,
+    API_VERSION,
+    data?.outlet_name,
+    outletName,
+  ]);
 
   // Prepare assigned actions for display: prefer `assigned_actions`, fall back to `functionalities`
   const assignedActions = (() => {
@@ -116,12 +165,31 @@ function StaffDetails() {
             </div>
             <div className="flex items-center gap-2 order-3">
               <button
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-theme-xs disabled:opacity-60"
+                title="Reload"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+              </button>
+              <button
                 onClick={() => navigate(`/edit-staff/${outletId}/${userId}`)}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
                 style={{ backgroundColor: "#f7941d" }}
               >
                 <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit</span>
+              </button>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                disabled={isDeleting}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600 disabled:opacity-50"
+              >
+                <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                <span className="hidden sm:inline">Delete</span>
               </button>
             </div>
           </div>
@@ -142,6 +210,42 @@ function StaffDetails() {
                 {data?.address && (
                   <Info label="Address" value={data?.address} />
                 )}
+                <DeleteConfirmModal
+                  isOpen={showDeleteModal}
+                  onClose={() => setShowDeleteModal(false)}
+                  onDelete={async () => {
+                    try {
+                      setIsDeleting(true);
+                      const token = getToken();
+                      await toastController.promise(
+                        // axios.delete takes (url, config) where payload must be under `data` key
+                        axios.delete(
+                          `${BASE_URL}/${API_VERSION}/common/delete_staff`,
+                          {
+                            data: {
+                              staff_id: Number(userId),
+                              outlet_id: Number(outletId),
+                              user_id: adminData.user_id,
+                              app_source: "admin_app",
+                            },
+                            headers: { Authorization: token },
+                          }
+                        ),
+                        {
+                          loading: "Deleting staff...",
+                          success: "Staff deleted successfully",
+                          error: "Failed to delete staff",
+                        }
+                      );
+                      setShowDeleteModal(false);
+                      navigate(-1);
+                    } catch (e) {
+                      // error is handled by toastController
+                    } finally {
+                      setIsDeleting(false);
+                    }
+                  }}
+                />
               </div>
             </div>
 
@@ -203,6 +307,25 @@ function StaffDetails() {
                     </span>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Active Sessions Section - follow Partner/Owner pattern */}
+            {data?.active_sessions && (
+              <div className="p-6 border-t">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
+                  Active Sessions
+                </h2>
+                <ActiveSessionsTable
+                  activeSessions={data.active_sessions}
+                  lastLogin={data.last_login}
+                  onLogout={(deviceId) => {
+                    // delegate to existing partner/owner style logout if needed
+                    // no-op here; you can implement logout via API similar to OwnerDetails
+                    console.log("Logout requested for", deviceId);
+                  }}
+                  showAction={true}
+                />
               </div>
             )}
           </>

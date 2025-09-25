@@ -7,6 +7,7 @@ import {
   faCircleXmark,
   faChevronLeft as faBack,
   faPenToSquare,
+  faRotate,
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
@@ -20,7 +21,7 @@ function PartnerDetails() {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const { partner, isLoading, error, deletePartner, isDeleting } =
+  const { partner, isLoading, error, deletePartner, isDeleting, refetch } =
     usePartnerDetails(partnerId);
 
   // Local state for active sessions
@@ -135,6 +136,18 @@ function PartnerDetails() {
 
             {/* Right Side - Status, Edit, Delete */}
             <div className="flex items-center gap-2 order-3">
+              <button
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-theme-xs disabled:opacity-60"
+                title="Reload"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+               
+              </button>
               <button
                 onClick={() => navigate(`/edit-partner/${partnerId}`)}
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"

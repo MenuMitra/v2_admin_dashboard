@@ -34,6 +34,7 @@ const EnquiryList = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [statusFilter, setStatusFilter] = useState("");
 
+  const handleBack = () => navigate(-1);
   // Fetch enquiries using new API
   const fetchEnquiries = async (
     page = 1,
@@ -127,7 +128,7 @@ const EnquiryList = () => {
       sortable: true,
       render: (value) => <span>{value || "-"}</span>,
     },
-    
+
     {
       field: "enquiry_datetime",
       header: "Enquiry Date",
@@ -294,6 +295,7 @@ const EnquiryList = () => {
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={setItemsPerPage}
           onBulkAction={handleBulkAction}
+          onBackClick={handleBack}
           bulkActions={[
             { label: "Delete Selected", value: "delete" },
             { label: "Mark as Resolved", value: "update_status" },

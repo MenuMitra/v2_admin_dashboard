@@ -165,7 +165,6 @@ function OwnerDetails() {
                   icon={faRotate}
                   className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
                 />
-                <span className="hidden sm:inline">Reload</span>
               </button>
               <button
                 onClick={() => navigate(`/edit-owner/${ownerId}`)}

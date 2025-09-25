@@ -6,6 +6,7 @@ import grid01 from "../assets/images/shape/grid-01.svg";
 import { toastController } from "../utils/toastController";
 import { API_CONFIG } from "../config/appConfig";
 import { useAuth } from "../hooks/useAuth";
+import UpdateService from "../services/UpdateService";
 import YouTubePlayer from "./YouTubePlayer";
 
 function Auth() {
@@ -17,6 +18,7 @@ function Auth() {
   const [isOtpSent, setIsOtpSent] = useState(false);
   // const [isOtpScreen, setIsOtpScreen] = useState(false); // Unused variable
   const [mobileError, setMobileError] = useState("");
+  const [invalidOtpError, setInvalidOtpError] = useState("");
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [countdown, setCountdown] = useState(0);
   const { getToken, login } = useAuth();
@@ -47,6 +49,13 @@ function Auth() {
         nextInput.focus();
       }
     }
+
+    // If last digit entered and all digits present, auto-verify
+    if (index === 3 && newOtp.every((d) => d !== "") && !verifyLoading) {
+      // Call verify with the composed OTP string to avoid state timing issues
+      const otpString = newOtp.join("");
+      handleVerifyOTP(null, otpString);
+    }
   };
 
   const handleKeyDown = (index, e) => {
@@ -74,6 +83,21 @@ function Auth() {
     setLoading(true);
     setError("");
 
+    // Check for updates before sending login OTP
+    try {
+      const updateInfo = await UpdateService.checkForUpdates();
+      if (updateInfo.hasUpdate) {
+        // Show a toast/warning but allow login to continue
+        toastController.show({
+          type: "warning",
+          message: `New version available (${updateInfo.serverVersion}). Please update to latest.`,
+        });
+      }
+    } catch (err) {
+      // Ignore update-check failures, proceed with login
+      console.warn("Update check failed:", err);
+    }
+
     try {
       const response = await toastController.promise(
         axios.post(`${BASE_URL}/${API_VERSION}/admin/admin_login`, { mobile }),
@@ -87,6 +111,7 @@ function Auth() {
       if (response.data.detail === "OTP sent successfully") {
         setIsOtpSent(true);
         setCountdown(5);
+        setInvalidOtpError("");
       }
     } catch (err) {
       const errorMsg = err.response?.data?.detail || "Something went wrong";
@@ -96,12 +121,13 @@ function Auth() {
     }
   };
 
-  const handleVerifyOTP = async (e) => {
+  const handleVerifyOTP = async (e, otpOverride) => {
     e?.preventDefault?.();
     setVerifyLoading(true);
     setError("");
 
-    const otpString = otp.join("");
+    const otpString =
+      typeof otpOverride === "string" ? otpOverride : otp.join("");
 
     // Collect browser/device details to send along with OTP verification
     const getBrowserDetails = () => {
@@ -300,7 +326,14 @@ function Auth() {
       }
     } catch (err) {
       const errorMsg = err.response?.data?.detail || "Failed to verify OTP";
-      setError(errorMsg);
+      // If the error mentions OTP, show it under the OTP inputs and highlight them
+      if (/(otp|incorrect|invalid)/i.test(errorMsg)) {
+        setInvalidOtpError(errorMsg);
+        setError("");
+      } else {
+        setError(errorMsg);
+        setInvalidOtpError("");
+      }
     } finally {
       setVerifyLoading(false);
     }
@@ -351,7 +384,7 @@ function Auth() {
       );
 
       if (response.status === 200) {
-        setCountdown(5);
+        setCountdown(20);
       }
     } catch (err) {
       const errorMsg = err.response?.data?.detail || "Failed to resend OTP";
@@ -459,7 +492,11 @@ function Auth() {
                                 }
                                 onKeyDown={(e) => handleKeyDown(index, e)}
                                 onKeyPress={handleOtpKeyPress}
-                                className="dark:bg-dark-900 otp-input h-11 w-full rounded-lg border border-black bg-transparent px-4 py-2.5 text-center text-xl font-semibold text-gray-800 placeholder:text-gray-400 focus:border-black focus:outline-none dark:border-black dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30"
+                                className={`dark:bg-dark-900 otp-input h-11 w-full rounded-lg border bg-transparent px-4 py-2.5 text-center text-xl font-semibold placeholder:text-gray-400 focus:outline-none dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
+                                  invalidOtpError
+                                    ? "border-error-500 text-error-700"
+                                    : "border-black text-gray-800"
+                                }`}
                               />
                             ))}
                           </div>
@@ -494,11 +531,15 @@ function Auth() {
                         </button>
                       </div>
 
-                      {error && (
+                      {invalidOtpError ? (
+                        <div className="mt-3 text-center text-sm text-error-500 font-medium">
+                          {invalidOtpError}
+                        </div>
+                      ) : error ? (
                         <div className="mt-4 text-sm text-error-500">
                           {error}
                         </div>
-                      )}
+                      ) : null}
 
                       {isOtpSent && (
                         <div className="mt-5">
@@ -601,7 +642,13 @@ function Auth() {
                   <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
                     <span className="font-medium">Version 2.0</span>
                     <span>|</span>
-                    <span>13 Aug 2025</span>
+                    <span>
+                      {new Date().toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
                   </div>
                 </div>
               </div>

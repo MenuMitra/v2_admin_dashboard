@@ -100,9 +100,18 @@ const Search = () => {
     [searchType, selectedRole, getToken]
   );
 
-  // Simplify handleInputChange to just update state
+  // Update input and clear prior search state when user erases input
   const handleInputChange = useCallback((e) => {
-    setSearchInput(e.target.value);
+    const val = e.target.value;
+    setSearchInput(val);
+    if (!val.trim()) {
+      // clear previous search results / messages when input is empty
+      setHasSearched(false);
+      setSearchedTerm("");
+      setSearchResults([]);
+      setTotalResults(0);
+      setError(null);
+    }
   }, []);
 
   // Modified form submit handler to handle search
@@ -310,6 +319,12 @@ const Search = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           setSearchInput("");
+                          // Clear search state as well
+                          setHasSearched(false);
+                          setSearchedTerm("");
+                          setSearchResults([]);
+                          setTotalResults(0);
+                          setError(null);
                           // Keep focus on the search input
                           if (searchInputRef.current) {
                             searchInputRef.current.focus();

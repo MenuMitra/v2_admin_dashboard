@@ -1,19 +1,15 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../../hooks/useAuth';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { API_CONFIG } from '../../../config/appConfig';
-import axios from 'axios';
-import { toastController } from '../../../utils/toastController';
-import { queryKeys } from '../queryKeys';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../../../hooks/useAuth";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { API_CONFIG } from "../../../config/appConfig";
+import axios from "axios";
+import { toastController } from "../../../utils/toastController";
+import { queryKeys } from "../queryKeys";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
 // Protected mobiles array
-const PROTECTED_MOBILES = [
-  "8806431723",
-  "9767637798",
-  "8600704616",
-];
+const PROTECTED_MOBILES = ["8806431723", "9767637798", "8600704616"];
 
 export const useAdminDetails = (adminId) => {
   const { getToken } = useAuth();
@@ -27,8 +23,18 @@ export const useAdminDetails = (adminId) => {
     if (isNaN(date.getTime())) return "Invalid Date";
 
     const months = [
-      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
     ];
     const month = months[date.getMonth()];
     const day = date.getDate().toString().padStart(2, "0");
@@ -48,6 +54,7 @@ export const useAdminDetails = (adminId) => {
     data: admin,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.admin.detail(adminId),
     queryFn: async () => {
@@ -58,7 +65,7 @@ export const useAdminDetails = (adminId) => {
 
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/admin/view_admin`,
-        { admin_id: parseInt(adminId),app_source: "admin" },
+        { admin_id: parseInt(adminId), app_source: "admin" },
         {
           headers: {
             Authorization: token,
@@ -70,7 +77,10 @@ export const useAdminDetails = (adminId) => {
       return response.data;
     },
     onError: (err) => {
-      const errorMessage = err.response?.data?.detail || err.message || "Failed to fetch admin details";
+      const errorMessage =
+        err.response?.data?.detail ||
+        err.message ||
+        "Failed to fetch admin details";
       toastController.error(errorMessage);
     },
   });
@@ -112,7 +122,8 @@ export const useAdminDetails = (adminId) => {
       }
     },
     onError: (err) => {
-      const errorMessage = err.response?.data?.detail || err.message || "Failed to delete admin";
+      const errorMessage =
+        err.response?.data?.detail || err.message || "Failed to delete admin";
       toastController.error(errorMessage);
     },
   });
@@ -121,9 +132,10 @@ export const useAdminDetails = (adminId) => {
     admin,
     isLoading,
     error,
+    refetch,
     deleteAdmin: deleteAdminMutation.mutate,
     isDeleting: deleteAdminMutation.isLoading,
     formatDate,
     PROTECTED_MOBILES,
   };
-}; 
+};
