@@ -1199,8 +1199,7 @@ function ViewOutlet() {
                                 />
                               </div>
                               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                {remaining} days remaining until your plan
-                                requires update
+                                {remaining} days remaining
                               </p>
                             </div>
                           );
