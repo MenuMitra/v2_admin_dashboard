@@ -566,6 +566,13 @@ function CreateOutlet() {
         tenure_months: Number(tenureMonths),
       };
 
+      // Also include selected module ids inside subscription object for backend compatibility
+      if (Array.isArray(selectedModuleIds) && selectedModuleIds.length > 0) {
+        payload.subscription.module_ids = selectedModuleIds.map((id) =>
+          Number(id)
+        );
+      }
+
       if (outletData.service_charges !== "") {
         payload.service_charges = outletData.service_charges.toString();
       }
@@ -1452,47 +1459,90 @@ function CreateOutlet() {
                   </div>
                   {/* New boolean dropdowns: combo, denomination, reserve_table */}
                   <div>
-                    <SelectInput
-                      label="Has Combo"
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Has Combo
+                    </label>
+                    <select
                       name="has_combo"
-                      value={outletData.has_combo}
+                      value={
+                        outletData.has_combo === null ||
+                        outletData.has_combo === undefined
+                          ? ""
+                          : String(outletData.has_combo)
+                      }
                       onChange={(e) =>
                         setOutletData((prev) => ({
                           ...prev,
                           has_combo: Number(e.target.value),
                         }))
                       }
-                      options={YES_NO_OPTIONS}
-                      placeholder="Select"
-                    />
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    >
+                      <option value="">Select</option>
+                      {YES_NO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                    <SelectInput
-                      label="Has Denomination"
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Has Denomination
+                    </label>
+                    <select
                       name="has_denomination"
-                      value={outletData.has_denomination}
+                      value={
+                        outletData.has_denomination === null ||
+                        outletData.has_denomination === undefined
+                          ? ""
+                          : String(outletData.has_denomination)
+                      }
                       onChange={(e) =>
                         setOutletData((prev) => ({
                           ...prev,
                           has_denomination: Number(e.target.value),
                         }))
                       }
-                      options={YES_NO_OPTIONS}
-                      placeholder="Select"
-                    />
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    >
+                      <option value="">Select</option>
+                      {YES_NO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                    <SelectInput
-                      label="Reserve Table"
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Reserve Table
+                    </label>
+                    <select
                       name="reserve_table"
-                      value={outletData.reserve_table}
+                      value={
+                        outletData.reserve_table === null ||
+                        outletData.reserve_table === undefined
+                          ? ""
+                          : String(outletData.reserve_table)
+                      }
                       onChange={(e) =>
                         setOutletData((prev) => ({
                           ...prev,
                           reserve_table: Number(e.target.value),
                         }))
                       }
-                      options={YES_NO_OPTIONS}
-                      placeholder="Select"
-                    />
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    >
+                      <option value="">Select</option>
+                      {YES_NO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </div>
