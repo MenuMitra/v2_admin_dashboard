@@ -8,6 +8,7 @@ import {
   faChevronLeft as faBack,
   faPlus,
   faTimes,
+  faLayerGroup,
   faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -18,6 +19,7 @@ import {
   TimePickerInput,
   labelStyles,
 } from "./forms/FormElements.jsx";
+import { YES_NO_OPTIONS } from "../utils/validationPatterns";
 import ImageUploader from "./common/ImageUploader";
 import Breadcrumb from "./Breadcrumb";
 import { toastController } from "../utils/toastController";
@@ -28,7 +30,6 @@ import {
   isWhatsappValid,
 } from "../utils/validations";
 import CustomSelectInput from "./common/CustomSelectInput";
-import SubscriptionPopup from "./Subscriptions/SubscriptionPopup";
 
 function formatDateToDDMMMYYYY(dateStr) {
   if (!dateStr) return "";
@@ -58,8 +59,14 @@ function CreateOutlet() {
   const [allOwners, setAllOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [subscriptions, setSubscriptions] = useState([]);
+  // Subscriptions removed
   const { BASE_URL, API_VERSION } = API_CONFIG;
+
+  // Subscription plan fields for Assign Subscription
+  const [planName, setPlanName] = useState("");
+  const [planPrice, setPlanPrice] = useState("");
+  const [tenureMonths, setTenureMonths] = useState(null);
+  const ALLOWED_TENURES = [1, 3, 6, 12, 18, 24];
 
   const [outletData, setOutletData] = useState({
     name: "",
@@ -90,6 +97,9 @@ function CreateOutlet() {
     subscription_end_date: "",
     feature_ids: [],
     action_ids: [],
+    has_combo: 0,
+    has_denomination: 0,
+    reserve_table: 0,
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -122,6 +132,11 @@ function CreateOutlet() {
     // Add other fields that might have API errors
   });
 
+  // Modules for Assign Subscription
+  const [modules, setModules] = useState([]);
+  const [selectedModuleIds, setSelectedModuleIds] = useState([]);
+  const [loadingModules, setLoadingModules] = useState(false);
+
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
     { label: "Outlets", path: "/outlets" },
@@ -131,7 +146,26 @@ function CreateOutlet() {
   useEffect(() => {
     fetchOutletTypes();
     fetchOwners();
-    fetchSubscriptions();
+    // fetch modules for subscription assign
+    (async () => {
+      try {
+        setLoadingModules(true);
+        const token = getToken();
+        const resp = await axios.get(
+          `${BASE_URL}/${API_VERSION}/admin/get_modules`,
+          {
+            headers: { Authorization: token },
+          }
+        );
+        setModules(
+          Array.isArray(resp.data) ? resp.data : resp.data?.data || []
+        );
+      } catch (err) {
+        console.error("Error fetching modules:", err);
+      } finally {
+        setLoadingModules(false);
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -162,6 +196,9 @@ function CreateOutlet() {
     outletData.outlet_mode,
     outletData.address,
     outletData.subscription_end_date,
+    outletData.has_combo,
+    outletData.has_denomination,
+    outletData.reserve_table,
   ]);
 
   useEffect(() => {
@@ -246,9 +283,10 @@ function CreateOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_end_date: outletData.subscription_id && outletData.subscription_id !== ""
-        ? !!outletData.subscription_end_date
-        : true,
+      subscription_end_date:
+        outletData.subscription_id && outletData.subscription_id !== ""
+          ? !!outletData.subscription_end_date
+          : true,
     };
 
     // Check if there are any API errors
@@ -322,27 +360,7 @@ function CreateOutlet() {
     }
   };
 
-  const fetchSubscriptions = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-      const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      if (response.data.detail === "Subscription list fetched successfully") {
-        setSubscriptions(response.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching subscriptions:", error);
-    }
-  };
+  // fetchSubscriptions removed
 
   const handleImagesChange = (images) => {
     // Don't set to null if no new image is provided
@@ -354,6 +372,14 @@ function CreateOutlet() {
         image: base64String,
       }));
     }
+  };
+
+  const handleModuleToggle = (moduleId) => {
+    setSelectedModuleIds((prev) => {
+      const exists = prev.includes(moduleId);
+      if (exists) return prev.filter((id) => id !== moduleId);
+      return [...prev, moduleId];
+    });
   };
 
   const handleInputChange = (e) => {
@@ -490,6 +516,28 @@ function CreateOutlet() {
 
       const currentDate = new Date().toISOString().split("T")[0];
 
+      // Require at least one module selected
+      if (!Array.isArray(selectedModuleIds) || selectedModuleIds.length === 0) {
+        toastController.error(
+          "Please select at least one module for subscription"
+        );
+        return;
+      }
+
+      // Require plan fields
+      if (!planName || planName.trim().length === 0) {
+        toastController.error("Please enter plan name");
+        return;
+      }
+      if (!planPrice || isNaN(Number(planPrice)) || Number(planPrice) <= 0) {
+        toastController.error("Please enter a valid price");
+        return;
+      }
+      if (!tenureMonths || !ALLOWED_TENURES.includes(Number(tenureMonths))) {
+        toastController.error("Please select a valid tenure");
+        return;
+      }
+
       const payload = {
         // Only include owner_ids if at least one owner is selected
         ...(outletData.owner_id.length > 0
@@ -503,23 +551,20 @@ function CreateOutlet() {
         outlet_mode: outletData.outlet_mode,
         veg_nonveg: outletData.veg_nonveg,
         upi_id: outletData.upi_id,
-        
+        has_combo: outletData.has_combo,
+        has_denomination: outletData.has_denomination,
+        reserve_table: outletData.reserve_table,
       };
 
-      // Only include subscription fields if subscription is actually configured
-      if (outletData.subscription_id && outletData.subscription_id !== "") {
-        payload.subscription_id = parseInt(outletData.subscription_id);
-        // Include feature and action IDs if subscription is configured
-        if (outletData.feature_ids && outletData.feature_ids.length > 0) {
-          payload.feature_ids = outletData.feature_ids;
-        }
-        if (outletData.action_ids && outletData.action_ids.length > 0) {
-          payload.action_ids = outletData.action_ids;
-        }
-      }
-      if (outletData.subscription_end_date && outletData.subscription_end_date !== "") {
-        payload.subscription_end_date = outletData.subscription_end_date;
-      }
+      // Attach selected module ids as subscription assignment
+      payload.module_ids = selectedModuleIds.map((id) => Number(id));
+
+      // Attach subscription plan details
+      payload.subscription = {
+        name: planName,
+        price: Number(planPrice),
+        tenure_months: Number(tenureMonths),
+      };
 
       if (outletData.service_charges !== "") {
         payload.service_charges = outletData.service_charges.toString();
@@ -564,6 +609,29 @@ function CreateOutlet() {
       ) {
         payload.image = outletData.image;
       }
+
+      // Subscription creation removed: the server will handle subscription
+      // assignment when `subscription` object is provided in the outlet payload.
+      // We keep the `payload.subscription` object but DO NOT call
+      // the `admin/create_subscription` API from the client.
+      // However the backend still validates for legacy top-level subscription
+      // fields (`subscription_name`, `subscription_price`, `subscription_tenure`),
+      // so include them for backward compatibility.
+      const formatTenure = (months) => {
+        if (!months) return "";
+        if (months % 12 === 0)
+          return `${months / 12} year${months / 12 > 1 ? "s" : ""}`;
+        return `${months} months`;
+      };
+
+      if (planName) payload.subscription_name = planName;
+      if (planPrice !== "" && planPrice != null)
+        payload.subscription_price = Number(planPrice);
+      payload.subscription_description = planName || "";
+      if (tenureMonths)
+        payload.subscription_tenure = formatTenure(Number(tenureMonths));
+      // Keep app_source for compatibility with older endpoints
+      payload.app_source = "admin_app";
 
       console.log("Sending payload:", {
         ...payload,
@@ -706,9 +774,10 @@ function CreateOutlet() {
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
       // Subscription validation: if subscription_id exists, subscription_end_date should exist
-      subscription_end_date: outletData.subscription_id && outletData.subscription_id !== ""
-        ? !!outletData.subscription_end_date
-        : true,
+      subscription_end_date:
+        outletData.subscription_id && outletData.subscription_id !== ""
+          ? !!outletData.subscription_end_date
+          : true,
     };
 
     // Check if all required fields are valid
@@ -767,47 +836,7 @@ function CreateOutlet() {
     }
   };
 
-  const [tenure, setTenure] = useState("");
-  const [calculatedEndDate, setCalculatedEndDate] = useState("");
-  const [showSubscriptionPopup, setShowSubscriptionPopup] = useState(false);
-  const [subscriptionConfig, setSubscriptionConfig] = useState(null);
-
-  // Reset tenure and end date when subscription changes
-  useEffect(() => {
-    setTenure("");
-    setCalculatedEndDate("");
-    // Only reset subscription_end_date if subscription_id is being cleared
-    if (!outletData.subscription_id) {
-      setOutletData((prev) => ({
-        ...prev,
-        subscription_end_date: "",
-        feature_ids: [],
-        action_ids: [],
-      }));
-    }
-  }, [outletData.subscription_id]);
-
-  // Handle subscription configuration save
-  const handleSubscriptionConfigSave = (config) => {
-    console.log("Subscription config received:", config);
-    setSubscriptionConfig(config);
-    
-    // Update outletData with subscription information
-    setOutletData((prev) => {
-      const updated = {
-        ...prev,
-        subscription_id: config.subscription_id || "",
-        subscription_end_date: config.subscription_end_date || "",
-        // Store feature and action IDs for payload
-        feature_ids: config.features?.map(f => f.feature_id || f.id) || [],
-        action_ids: config.actions?.map(a => a.action_id || a.id) || [],
-      };
-      console.log("Updated outletData with subscription:", updated);
-      return updated;
-    });
-    
-    toastController.success("Subscription configuration saved successfully!");
-  };
+  // Subscription popup removed
 
   return (
     <>
@@ -829,22 +858,7 @@ function CreateOutlet() {
             </h1>
 
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setShowSubscriptionPopup(true)}
-                className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full transition shadow-sm ${
-                  outletData.subscription_id && outletData.subscription_id !== ""
-                    ? "text-green-700 bg-green-50 border border-green-300 hover:bg-green-100"
-                    : "text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
-                }`}
-                title="Configure Subscription"
-              >
-                <FontAwesomeIcon icon={faCog} className="w-4 h-4" />
-                <span>
-                  {outletData.subscription_id && outletData.subscription_id !== ""
-                    ? "Subscription ✓"
-                    : "Subscription"}
-                </span>
-              </button>
+              {/* Subscription button removed */}
 
               <button
                 onClick={handleSubmit}
@@ -1255,8 +1269,6 @@ function CreateOutlet() {
                       </p>
                     )}
                   </div>
-
-                  {/* Subscription fields removed as per request */}
                 </div>
               </div>
             </section>
@@ -1438,8 +1450,177 @@ function CreateOutlet() {
                       </select>
                     </div>
                   </div>
+                  {/* New boolean dropdowns: combo, denomination, reserve_table */}
+                  <div>
+                    <SelectInput
+                      label="Has Combo"
+                      name="has_combo"
+                      value={outletData.has_combo}
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          has_combo: Number(e.target.value),
+                        }))
+                      }
+                      options={YES_NO_OPTIONS}
+                      placeholder="Select"
+                    />
+
+                    <SelectInput
+                      label="Has Denomination"
+                      name="has_denomination"
+                      value={outletData.has_denomination}
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          has_denomination: Number(e.target.value),
+                        }))
+                      }
+                      options={YES_NO_OPTIONS}
+                      placeholder="Select"
+                    />
+
+                    <SelectInput
+                      label="Reserve Table"
+                      name="reserve_table"
+                      value={outletData.reserve_table}
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          reserve_table: Number(e.target.value),
+                        }))
+                      }
+                      options={YES_NO_OPTIONS}
+                      placeholder="Select"
+                    />
+                  </div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* Assign Subscription Section (moved below Business Details) */}
+          <section className="bg-white p-4 rounded-lg shadow">
+            <div className=" border-b border-gray-200 dark:border-gray-800 pb-5">
+              <h2 className="text-lg font-medium mb-3 flex items-center">
+                <FontAwesomeIcon icon={faLayerGroup} className="w-5 h-5 mr-2" />
+                Assign Subscription{" "}
+                <span className="text-error-500 ml-2">*</span>
+              </h2>
+              {/* Plan fields - first row */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <div className="flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Plan Name <span className="text-error-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={planName}
+                    onChange={(e) => setPlanName(e.target.value)}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter plan name"
+                  />
+                </div>
+
+                <div className="flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Price <span className="text-error-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={planPrice}
+                    onChange={(e) => setPlanPrice(e.target.value)}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter price"
+                  />
+                </div>
+
+                <div className="flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Tenure (months) <span className="text-error-500">*</span>
+                  </label>
+                  <select
+                    value={tenureMonths || ""}
+                    onChange={(e) =>
+                      setTenureMonths(
+                        e.target.value ? Number(e.target.value) : null
+                      )
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  >
+                    <option value="">Select months</option>
+                    {ALLOWED_TENURES.map((m) => (
+                      <option key={m} value={m}>
+                        {m} month{m > 1 ? "s" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Modules row - next row */}
+              {loadingModules ? (
+                <div className="text-sm text-gray-500">Loading modules...</div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-medium text-gray-700">
+                      Modules
+                    </h3>
+                    <label className="inline-flex items-center text-sm text-gray-600">
+                      <input
+                        type="checkbox"
+                        checked={
+                          modules.length > 0 &&
+                          selectedModuleIds.length === modules.length
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedModuleIds(
+                              modules.map((m) => m.module_id)
+                            );
+                          } else {
+                            setSelectedModuleIds([]);
+                          }
+                        }}
+                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded mr-2"
+                      />
+                      Check All
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {modules.map((m) => {
+                      const checked = selectedModuleIds.includes(m.module_id);
+                      return (
+                        <div
+                          key={m.module_id}
+                          onClick={() => handleModuleToggle(m.module_id)}
+                          className={`bg-white rounded-lg p-3 shadow-sm border cursor-pointer select-none transition-all duration-200 ease-in-out ${
+                            checked
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-200 hover:border-blue-300"
+                          }`}
+                        >
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => handleModuleToggle(m.module_id)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="form-checkbox h-4 w-4 mt-0.5 text-blue-600 border-gray-300 rounded"
+                            />
+                            <span className="text-xs font-medium uppercase text-gray-800">
+                              {m.name?.split("_").join(" ")}
+                            </span>
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           </section>
 
@@ -1615,12 +1796,7 @@ function CreateOutlet() {
         </form>
       </div>
 
-      {/* Subscription Configuration Popup */}
-      <SubscriptionPopup
-        isOpen={showSubscriptionPopup}
-        onClose={() => setShowSubscriptionPopup(false)}
-        onSave={handleSubscriptionConfigSave}
-      />
+      {/* Subscription popup removed */}
     </>
   );
 }

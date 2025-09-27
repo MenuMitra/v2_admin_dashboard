@@ -24,7 +24,7 @@ import {
   faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import { faAndroid } from "@fortawesome/free-brands-svg-icons";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { queryKeys } from "../lib/react-query/queryKeys";
 import Breadcrumb from "./Breadcrumb";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
@@ -57,6 +57,12 @@ function ViewOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { outletId } = useParams();
+  const location = useLocation();
+  const urlSearch = new URLSearchParams(location.search);
+  const queryAppSource = urlSearch.get("app_source") || null;
+  const queryUserId = urlSearch.get("user_id")
+    ? Number(urlSearch.get("user_id"))
+    : null;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -76,12 +82,14 @@ function ViewOutlet() {
   } = useQuery({
     queryKey: queryKeys.outlets.detail(outletId),
     queryFn: async () => {
+      const requestUserId = queryUserId || adminData?.user_id;
+      const requestAppSource = queryAppSource || "admin_app";
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/common/view_outlet`,
         {
           outlet_id: outletId,
-          user_id: adminData?.user_id,
-          app_source: "admin_app",
+          user_id: requestUserId,
+          app_source: requestAppSource,
         },
         {
           headers: {
@@ -92,7 +100,9 @@ function ViewOutlet() {
       );
       return response.data;
     },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId),
+    enabled:
+      Boolean(outletId) &&
+      (Boolean(adminData?.user_id) || Boolean(queryUserId)),
     staleTime: 30000, // Data considered fresh for 30 seconds
     cacheTime: 300000, // Cache kept for 5 minutes
   });
@@ -440,7 +450,7 @@ function ViewOutlet() {
             </div>
 
             {/* Staff Management Section */}
-            <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
+            {/* <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
               <h2 className="text-lg font-semibold text-gray-800 mb-6">
                 Staff Management
               </h2>
@@ -458,7 +468,7 @@ function ViewOutlet() {
                   </span>
                 </Link>
               </div>
-            </div>
+            </div> */}
           </div>
           {/* Outlet Owners Section */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
@@ -1184,6 +1194,10 @@ function ViewOutlet() {
                                   Math.max(0, (elapsed / total) * 100)
                                 )
                               : 0;
+                          // Use orange progress bar color and show both
+                          // days completed (elapsed) and days remaining.
+                          const barColorClass = "bg-warning-500"; // orange
+
                           return (
                             <div>
                               <div
@@ -1194,13 +1208,19 @@ function ViewOutlet() {
                                 aria-valuenow={Math.round(percent)}
                               >
                                 <div
-                                  className="h-2 bg-brand-500 rounded-full transition-all duration-500"
+                                  className={`h-2 ${barColorClass} rounded-full transition-all duration-500`}
                                   style={{ width: `${percent}%` }}
                                 />
                               </div>
-                              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                {remaining} days remaining
-                              </p>
+
+                              <div className="flex items-center justify-between mt-2">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {elapsed} days completed
+                                </p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {remaining} days remaining
+                                </p>
+                              </div>
                             </div>
                           );
                         })()}
@@ -1209,41 +1229,24 @@ function ViewOutlet() {
                   </div>
                 )}
 
-              {/* Modules, Features and Actions (inline) */}
+              {/* Modules (display only module names) */}
               {outletData?.modules && outletData.modules.length > 0 && (
                 <div className="col-span-1 sm:col-span-2 md:col-span-3 xl:col-span-4">
                   <div>
                     <h4 className="text-lg font-normal text-gray-800 dark:text-white/90 mb-2">
-                      Modules & Features
+                      Modules
                     </h4>
 
-                    {outletData.modules.map((mod) => (
-                      <div key={mod.module_id} className="mb-3">
-                        <div className="text-sm text-gray-600 dark:text-gray-300 font-medium">
+                    <div className="flex flex-wrap gap-2">
+                      {outletData.modules.map((mod) => (
+                        <span
+                          key={mod.module_id}
+                          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-200 border border-gray-200"
+                        >
                           {mod.name ? mod.name.replace(/_/g, " ") : "-"}
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2 mt-2">
-                          {(mod.features || []).map((feat) => (
-                            <div
-                              key={feat.feature_id}
-                              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-200 border border-gray-200"
-                            >
-                              <span className="font-medium">{feat.name}</span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                :
-                              </span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {(feat.actions || [])
-                                  .map((a) => a.name)
-                                  .join(", ")}
-                              </span>
-                            </div>
-                          ))}
-
-                          {/* showing all features, no summary */}
-                        </div>
-                      </div>
-                    ))}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}

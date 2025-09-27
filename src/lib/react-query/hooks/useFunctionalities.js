@@ -1,9 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import { API_CONFIG } from '../../../config/appConfig';
-import { queryKeys } from '../queryKeys';
-import { toastController } from '../../../utils/toastController';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import { API_CONFIG } from "../../../config/appConfig";
+import { queryKeys } from "../queryKeys";
+import { toastController } from "../../../utils/toastController";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -31,7 +31,9 @@ export const useFunctionalities = () => {
       return response.data;
     },
     onError: (err) => {
-      toastController.error(err.response?.data?.detail || "Failed to fetch functionalities");
+      toastController.error(
+        err.response?.data?.detail || "Failed to fetch functionalities"
+      );
     },
   });
 
@@ -66,7 +68,9 @@ export const useFunctionalities = () => {
       toastController.success("Functionality created successfully!");
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.detail || "Failed to create functionality");
+      toastController.error(
+        error.response?.data?.detail || "Failed to create functionality"
+      );
     },
   });
 
@@ -94,7 +98,9 @@ export const useFunctionalities = () => {
       toastController.success("Functionality updated successfully!");
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.detail || "Failed to update functionality");
+      toastController.error(
+        error.response?.data?.detail || "Failed to update functionality"
+      );
     },
   });
 
@@ -117,7 +123,9 @@ export const useFunctionalities = () => {
       toastController.success("Functionality deleted successfully!");
     },
     onError: (error) => {
-      toastController.error(error.response?.data?.detail || "Failed to delete functionality");
+      toastController.error(
+        error.response?.data?.detail || "Failed to delete functionality"
+      );
     },
   });
 
@@ -132,6 +140,7 @@ export const useFunctionalities = () => {
     isUpdating: updateMutation.isLoading,
     deleteFunctionality: deleteMutation.mutate,
     isDeleting: deleteMutation.isLoading,
-    refetchFunctionalities: () => queryClient.invalidateQueries(queryKeys.functionalities.list()),
+    refetchFunctionalities: () =>
+      queryClient.invalidateQueries(queryKeys.functionalities.list()),
   };
-}; 
+};

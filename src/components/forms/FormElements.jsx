@@ -64,7 +64,7 @@ const TextInput = React.forwardRef(
 
       // Required field validation
       if (required && !value) {
-        setError("This field is required");
+        setLocalError("This field is required");
         return false;
       }
 
@@ -81,17 +81,17 @@ const TextInput = React.forwardRef(
           validationRules;
 
         if (minLength && value.length < minLength) {
-          setError(`Minimum ${minLength} characters required`);
+          setLocalError(`Minimum ${minLength} characters required`);
           return false;
         }
 
         if (maxLength && value.length > maxLength) {
-          setError(`Maximum ${maxLength} characters allowed`);
+          setLocalError(`Maximum ${maxLength} characters allowed`);
           return false;
         }
 
         if (pattern && !pattern.test(value)) {
-          setError(patternMessage || "Invalid format");
+          setLocalError(patternMessage || "Invalid format");
           return false;
         }
       }
