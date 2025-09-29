@@ -419,7 +419,7 @@ function Outlets() {
               {row.ownerCount}
             </span>
           ) : (
-            <span className="font-medium text-red-500 text-theme-sm">
+            <span className="font-medium text-error-500 text-theme-sm">
               NO owner
             </span>
           )}
