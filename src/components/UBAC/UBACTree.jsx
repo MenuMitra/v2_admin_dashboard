@@ -16,6 +16,8 @@ const UBACTree = () => {
   const [selectedModuleId, setSelectedModuleId] = useState("");
   const [selectedFeatureId, setSelectedFeatureId] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
+  const [expandedModules, setExpandedModules] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   // load modules on mount
   useEffect(() => {
@@ -102,17 +104,17 @@ const UBACTree = () => {
   }, [selectedModuleId]);
 
   const items = [
-    { label: "Access Control", path: "/roles" },
+    { label: "Home", path: "/home" },
     { label: "UBAC Tree", path: "/ubac_tree" },
   ];
 
-  // Render actions vertically with connector
+  // Render actions vertically with connector (compact)
   const renderActions = (actions) => (
-    <div className="flex flex-col items-start ml-6">
+    <div className="flex flex-col items-start ml-4">
       {actions.map((action, idx) => (
-        <div key={action.action_id} className="flex items-center">
-          <div className="w-4 h-0.5 bg-gray-300 mr-2" />
-          <div className="px-3 py-1 rounded bg-white border text-sm">
+        <div key={action.action_id} className="flex items-center mb-1">
+          <div className="w-3 h-0.5 bg-gray-300 mr-2" />
+          <div className="px-2 py-1 rounded bg-white border text-xs whitespace-nowrap">
             {action.name}
           </div>
         </div>
@@ -120,32 +122,64 @@ const UBACTree = () => {
     </div>
   );
 
-  // Render features with vertical line to actions
-  const renderFeatures = (features) => (
-    <div className="flex gap-8">
-      {features.map((feature) => (
-        <div key={feature.feature_id} className="flex flex-col items-center">
-          <div className="px-4 py-2 rounded bg-white border font-medium">
-            {feature.name}
-          </div>
-          <div className="w-px h-6 bg-gray-300 mt-2" />
-          {feature.actions && renderActions(feature.actions)}
+  // Render features horizontally; show first 3, then a 'See more' card toggling full list
+  const renderFeatures = (features, moduleId) => {
+    const isExpanded = Boolean(expandedModules[moduleId]);
+
+    // items to show when not expanded
+    const visible = isExpanded ? features : features.slice(0, 3);
+
+    return (
+      <div className="flex items-start">
+        <div className="flex gap-6 items-start">
+          {visible.map((feature) => (
+            <div
+              key={feature.feature_id}
+              className="flex flex-col items-center"
+            >
+              <div className="min-w-[140px] max-w-xs px-4 py-2 rounded bg-white border shadow-sm text-center font-medium break-words">
+                {feature.name}
+              </div>
+              <div className="w-px h-4 bg-gray-300 mt-2" />
+              {feature.actions && renderActions(feature.actions)}
+            </div>
+          ))}
+
+          {features.length > 3 && (
+            <div className="flex flex-col items-center">
+              <div
+                className="min-w-[140px] px-4 py-2 rounded bg-white border shadow-sm font-medium cursor-pointer text-center"
+                onClick={() =>
+                  setExpandedModules((prev) => ({
+                    ...prev,
+                    [moduleId]: !prev[moduleId],
+                  }))
+                }
+              >
+                {isExpanded ? "See less" : `+${features.length - 3} more`}
+              </div>
+            </div>
+          )}
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    );
+  };
 
   // Render modules across the top with connectors to features
   const renderModules = (modules) => (
-    <div className="flex gap-12 justify-start items-start">
+    <div className="flex gap-10 justify-start items-start overflow-x-auto py-4">
       {modules.map((module) => (
-        <div key={module.module_id} className="flex flex-col items-center">
-          <div className="px-6 py-2 rounded bg-gray-100 border font-semibold">
+        <div
+          key={module.module_id}
+          className="flex flex-col items-center min-w-[220px]"
+        >
+          <div className="px-4 py-2 rounded bg-gray-100 border font-semibold text-center w-full">
             {module.name}
           </div>
           <div className="w-px h-6 bg-gray-300 mt-2" />
-          <div className="mt-4">
-            {module.features && renderFeatures(module.features)}
+          <div className="mt-4 w-full">
+            {module.features &&
+              renderFeatures(module.features, module.module_id)}
           </div>
         </div>
       ))}
@@ -161,24 +195,79 @@ const UBACTree = () => {
         showCreateButton={true}
         createButtonLabel="Create"
         onCreateClick={() => setIsModalOpen(true)}
+        onReload={refetchUbacTree}
+        isLoading={isLoading}
+        showSearch={true}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        counts={{
+          total_modules: data && data.data ? data.data.length : 0,
+          total_features:
+            data && data.data
+              ? data.data.reduce(
+                  (acc, m) =>
+                    acc + (Array.isArray(m.features) ? m.features.length : 0),
+                  0
+                )
+              : 0,
+          total_actions:
+            data && data.data
+              ? data.data.reduce(
+                  (acc, m) =>
+                    acc +
+                    (Array.isArray(m.features)
+                      ? m.features.reduce(
+                          (faAcc, f) =>
+                            faAcc +
+                            (Array.isArray(f.actions) ? f.actions.length : 0),
+                          0
+                        )
+                      : 0),
+                  0
+                )
+              : 0,
+        }}
       />
 
       <div className="px-6">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            Modules / Features / Actions
+        <div className="rounded-2xl border border-gray-200 bg-white p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-sm text-gray-600">
+              Modules / Features / Actions
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={refetchUbacTree}
-              className="px-3 py-1 rounded bg-brand-500 text-white"
-            >
-              Reload
-            </button>
-          </div>
-        </div>
 
-        {isLoading ? <div>Loading...</div> : renderModules(data.data || [])}
+          {isLoading ? (
+            <div>Loading...</div>
+          ) : (
+            renderModules(
+              // filter modules/features/actions by search term
+              (data.data || []).filter((m) => {
+                if (!searchTerm) return true;
+                const q = searchTerm.toLowerCase();
+                // match module name
+                if (m.name && m.name.toLowerCase().includes(q)) return true;
+                // match features or actions
+                if (
+                  m.features &&
+                  m.features.some((f) => {
+                    if (f.name && f.name.toLowerCase().includes(q)) return true;
+                    if (
+                      f.actions &&
+                      f.actions.some(
+                        (a) => a.name && a.name.toLowerCase().includes(q)
+                      )
+                    )
+                      return true;
+                    return false;
+                  })
+                )
+                  return true;
+                return false;
+              })
+            )
+          )}
+        </div>
       </div>
 
       {/* Create Modal */}

@@ -32,7 +32,8 @@ const EnquiryList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [statusFilter, setStatusFilter] = useState("");
+  // Default to showing 'Enquiry' entries on load
+  const [statusFilter, setStatusFilter] = useState("enquiry");
 
   const handleBack = () => navigate(-1);
   // Fetch enquiries using new API

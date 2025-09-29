@@ -157,9 +157,14 @@ function CreateOutlet() {
             headers: { Authorization: token },
           }
         );
-        setModules(
-          Array.isArray(resp.data) ? resp.data : resp.data?.data || []
-        );
+        const modList = Array.isArray(resp.data)
+          ? resp.data
+          : resp.data?.data || [];
+        setModules(modList);
+        // Select all modules by default when creating an outlet
+        if (modList.length > 0) {
+          setSelectedModuleIds(modList.map((m) => m.module_id));
+        }
       } catch (err) {
         console.error("Error fetching modules:", err);
       } finally {
@@ -1555,7 +1560,7 @@ function CreateOutlet() {
               <h2 className="text-lg font-medium mb-3 flex items-center">
                 <FontAwesomeIcon icon={faLayerGroup} className="w-5 h-5 mr-2" />
                 Assign Subscription{" "}
-                <span className="text-error-500 ml-2">*</span>
+               
               </h2>
               {/* Plan fields - first row */}
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -1600,6 +1605,7 @@ function CreateOutlet() {
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   >
                     <option value="">Select months</option>
+                    
                     {ALLOWED_TENURES.map((m) => (
                       <option key={m} value={m}>
                         {m} month{m > 1 ? "s" : ""}
@@ -1618,6 +1624,7 @@ function CreateOutlet() {
                     <h3 className="text-sm font-medium text-gray-700">
                       Modules
                     </h3>
+                    <span className="text-error-500 ml-2">*</span>
                     <label className="inline-flex items-center text-sm text-gray-600">
                       <input
                         type="checkbox"

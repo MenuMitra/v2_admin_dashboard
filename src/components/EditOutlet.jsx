@@ -106,11 +106,10 @@ function EditOutlet() {
   // Add essential validation helper functions
   const isNameValid = (name) => name?.length >= 3 && name?.length <= 50;
   const isUpiValid = (upi) => /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/.test(upi);
-  // Address validation function
+  // Address validation function (relaxed for edit view: accept any non-empty value)
   const isAddressValid = (address) => {
-    return (
-      address && address.trim().length >= 5 && address.trim().length <= 200
-    );
+    const len = address ? address.trim().length : 0;
+    return len >= 1 && len <= 200;
   };
 
   // Add at the top of the component:
@@ -232,7 +231,7 @@ function EditOutlet() {
           veg_nonveg: data.veg_nonveg || "",
           service_charges: data.service_charges || "",
           gst: data.gst || "",
-          address: data.address || "",
+          address: (data.address || "").trim(),
           is_open: data.is_open === 1,
           outlet_status: data.outlet_status === 1,
           upi_id: data.upi_id || "",
@@ -690,20 +689,25 @@ function EditOutlet() {
         }
       );
 
-      if (response.data.detail === "Outlet information updated successfully") {
-        toastController.success("Outlet updated successfully");
-        // Invalidate the outlet detail cache so ViewOutlet will fetch fresh data
+      // Treat any 2xx response as success; backend may return different 'detail' text.
+      if (response.status >= 200 && response.status < 300) {
+        const successMessage =
+          response.data?.detail ||
+          response.data?.message ||
+          "Outlet updated successfully";
+        toastController.success(successMessage);
         try {
-          // Invalidate cache so viewing the outlet fetches fresh data
           queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
         } catch (err) {
           console.warn("Failed to invalidate outlet detail query:", err);
         }
-        // Navigate to the outlet view page to ensure the latest subscription
-        // information (created during outlet creation) is fetched and displayed.
         navigate(`/view-outlet/${outletId}`);
       } else {
-        throw new Error("Failed to update outlet");
+        const msg =
+          response.data?.detail ||
+          response.data?.message ||
+          "Failed to update outlet";
+        toastController.error(msg);
       }
     } catch (error) {
       console.error("Error updating outlet:", error);
@@ -1210,6 +1214,33 @@ function EditOutlet() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                    FSSAI Number
+                  </label>
+                  <input
+                    type="text"
+                    name="fssainumber"
+                    value={outletData.fssainumber}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    maxLength={14}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                    GST Number
+                  </label>
+                  <input
+                    type="text"
+                    name="gstnumber"
+                    value={outletData.gstnumber}
+                    maxLength={15}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
                 {/* Opening Time */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1308,120 +1339,94 @@ function EditOutlet() {
                     </select>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                    FSSAI Number
-                  </label>
-                  <input
-                    type="text"
-                    name="fssainumber"
-                    value={outletData.fssainumber}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    maxLength={14}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
-                    GST Number
-                  </label>
-                  <input
-                    type="text"
-                    name="gstnumber"
-                    value={outletData.gstnumber}
-                    maxLength={15}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
                 {/* New boolean dropdowns */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Has Combo
-                  </label>
-                  <select
-                    name="has_combo"
-                    value={
-                      outletData.has_combo === null ||
-                      outletData.has_combo === undefined
-                        ? ""
-                        : String(outletData.has_combo)
-                    }
-                    onChange={(e) =>
-                      setOutletData((prev) => ({
-                        ...prev,
-                        has_combo: Number(e.target.value),
-                      }))
-                    }
-                    className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                  >
-                    <option value="">Select</option>
-                    {YES_NO_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={String(opt.value)}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <div className="flex flex-row flex-nowrap items-end gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Has Combo
+                    </label>
+                    <select
+                      name="has_combo"
+                      value={
+                        outletData.has_combo === null ||
+                        outletData.has_combo === undefined
+                          ? ""
+                          : String(outletData.has_combo)
+                      }
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          has_combo: Number(e.target.value),
+                        }))
+                      }
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    >
+                      <option value="">Select</option>
+                      {YES_NO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Has Denomination
-                  </label>
-                  <select
-                    name="has_denomination"
-                    value={
-                      outletData.has_denomination === null ||
-                      outletData.has_denomination === undefined
-                        ? ""
-                        : String(outletData.has_denomination)
-                    }
-                    onChange={(e) =>
-                      setOutletData((prev) => ({
-                        ...prev,
-                        has_denomination: Number(e.target.value),
-                      }))
-                    }
-                    className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                  >
-                    <option value="">Select</option>
-                    {YES_NO_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={String(opt.value)}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Has Denomination
+                    </label>
+                    <select
+                      name="has_denomination"
+                      value={
+                        outletData.has_denomination === null ||
+                        outletData.has_denomination === undefined
+                          ? ""
+                          : String(outletData.has_denomination)
+                      }
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          has_denomination: Number(e.target.value),
+                        }))
+                      }
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    >
+                      <option value="">Select</option>
+                      {YES_NO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Reserve Table
-                  </label>
-                  <select
-                    name="reserve_table"
-                    value={
-                      outletData.reserve_table === null ||
-                      outletData.reserve_table === undefined
-                        ? ""
-                        : String(outletData.reserve_table)
-                    }
-                    onChange={(e) =>
-                      setOutletData((prev) => ({
-                        ...prev,
-                        reserve_table: Number(e.target.value),
-                      }))
-                    }
-                    className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                  >
-                    <option value="">Select</option>
-                    {YES_NO_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={String(opt.value)}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Reserve Table
+                    </label>
+                    <select
+                      name="reserve_table"
+                      value={
+                        outletData.reserve_table === null ||
+                        outletData.reserve_table === undefined
+                          ? ""
+                          : String(outletData.reserve_table)
+                      }
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          reserve_table: Number(e.target.value),
+                        }))
+                      }
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    >
+                      <option value="">Select</option>
+                      {YES_NO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1572,7 +1577,7 @@ function EditOutlet() {
               Social Media
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <TextInput
                 label="Website"
                 name="website"
@@ -1621,8 +1626,6 @@ function EditOutlet() {
           </section>
         </form>
       </div>
-
-      {/* Subscription popup removed */}
     </>
   );
 }

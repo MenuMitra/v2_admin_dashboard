@@ -414,9 +414,15 @@ function Outlets() {
       sortable: true,
       render: (value, row) => (
         <div className="flex items-center justify-center gap-2">
-          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-            {row?.ownerCount || "-"}
-          </span>
+          {row?.ownerCount && Number(row.ownerCount) > 0 ? (
+            <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+              {row.ownerCount}
+            </span>
+          ) : (
+            <span className="font-medium text-red-500 text-theme-sm">
+              NO owner
+            </span>
+          )}
         </div>
       ),
     },

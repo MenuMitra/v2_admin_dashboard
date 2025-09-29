@@ -920,7 +920,7 @@ function ViewOutlet() {
             </div>
           </div>
           {/* Manage Staff Details section with divider */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+          {/* <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Manage Staff Details
@@ -946,7 +946,7 @@ function ViewOutlet() {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
           {/* Manage Outlet Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
