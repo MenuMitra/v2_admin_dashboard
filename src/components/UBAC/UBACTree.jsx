@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import TablesViewHeader from "../common/TablesViewHeader";
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
 import Modal from "../common/Modal";
+import { toastController } from "../../utils/toastController";
 
 const UBACTree = () => {
   const { data, isLoading, refetchUbacTree } = useUbacTree();
@@ -17,6 +21,14 @@ const UBACTree = () => {
   const [selectedModuleId, setSelectedModuleId] = useState("");
   const [selectedFeatureId, setSelectedFeatureId] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editType, setEditType] = useState("module"); // module | feature | action
+  const [editId, setEditId] = useState(null);
+  const [editFormName, setEditFormName] = useState("");
+  const [editSelectedModuleId, setEditSelectedModuleId] = useState("");
+  const [editSelectedFeatureId, setEditSelectedFeatureId] = useState("");
+  const [editLoadingSave, setEditLoadingSave] = useState(false);
   const [expandedModules, setExpandedModules] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -136,8 +148,70 @@ const UBACTree = () => {
       {actions.map((action, idx) => (
         <div key={action.action_id} className="flex items-center mb-1">
           <div className="w-3 h-0.5 bg-gray-300 mr-2" />
-          <div className="px-2 py-1 rounded bg-white border text-xs whitespace-nowrap">
-            {action.name}
+          <div className="px-2 py-1 rounded bg-white border text-xs whitespace-nowrap flex items-center gap-2">
+            <span>{action.name}</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  // open edit modal for action
+                  setEditType("action");
+                  setEditId(action.action_id);
+                  setEditFormName(action.name || "");
+                  setEditSelectedFeatureId(
+                    action.feature_id || selectedFeatureId
+                  );
+                  setIsEditModalOpen(true);
+                }}
+                className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+                title="Edit action"
+              >
+                <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+              </button>
+              {/* Delete action (always allowed) */}
+              <button
+                onClick={async () => {
+                  if (!confirm("Delete action? This cannot be undone.")) return;
+                  try {
+                    const token = getToken() || localStorage.getItem("token");
+                    const headers = token
+                      ? {
+                          Authorization: token,
+                          "Content-Type": "application/json",
+                        }
+                      : { "Content-Type": "application/json" };
+
+                    const resp = await fetch(
+                      "https://men4u.xyz/v2/admin/delete_actions",
+                      {
+                        method: "DELETE",
+                        headers,
+                        body: JSON.stringify({
+                          action_ids: [Number(action.action_id)],
+                        }),
+                      }
+                    );
+
+                    if (!resp.ok) {
+                      const errJson = await resp.json().catch(() => ({}));
+                      toastController.error(
+                        errJson.detail || errJson.message || "Delete failed"
+                      );
+                      return;
+                    }
+
+                    await refetchUbacTree();
+                    toastController.success("Deleted successfully");
+                  } catch (err) {
+                    console.error(err);
+                    toastController.error("Delete failed");
+                  }
+                }}
+                className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                title="Delete action"
+              >
+                <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       ))}
@@ -160,7 +234,92 @@ const UBACTree = () => {
               className="flex flex-col items-center"
             >
               <div className="min-w-[140px] max-w-xs px-4 py-2 rounded bg-white border shadow-sm text-center font-medium break-words">
-                {feature.name}
+                <div className="flex items-center justify-between gap-2">
+                  <span className="break-words">{feature.name}</span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        // open edit modal for feature
+                        setEditType("feature");
+                        setEditId(feature.feature_id);
+                        setEditFormName(feature.name || "");
+                        setEditSelectedModuleId(moduleId);
+                        setIsEditModalOpen(true);
+                      }}
+                      className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition ml-2"
+                      title="Edit feature"
+                    >
+                      <FontAwesomeIcon
+                        icon={faPenToSquare}
+                        className="w-4 h-4"
+                      />
+                    </button>
+                    {/* Delete feature - only render if no actions assigned */}
+                    {!(
+                      Array.isArray(feature.actions) &&
+                      feature.actions.length > 0
+                    ) && (
+                      <button
+                        onClick={async () => {
+                          if (
+                            !confirm(
+                              "Delete feature? This will remove the feature."
+                            )
+                          )
+                            return;
+                          try {
+                            const token =
+                              getToken() || localStorage.getItem("token");
+                            const headers = token
+                              ? {
+                                  Authorization: token,
+                                  "Content-Type": "application/json",
+                                }
+                              : { "Content-Type": "application/json" };
+
+                            const resp = await fetch(
+                              "https://men4u.xyz/v2/admin/delete_feature",
+                              {
+                                method: "DELETE",
+                                headers,
+                                body: JSON.stringify({
+                                  feature_id: Number(feature.feature_id),
+                                  user_id: String(2),
+                                  app_source: "admin_app",
+                                }),
+                              }
+                            );
+
+                            if (!resp.ok) {
+                              const errJson = await resp
+                                .json()
+                                .catch(() => ({}));
+                              toastController.error(
+                                errJson.detail ||
+                                  errJson.message ||
+                                  "Delete failed"
+                              );
+                              return;
+                            }
+
+                            await refetchUbacTree();
+                            toastController.success("Deleted successfully");
+                          } catch (err) {
+                            console.error(err);
+                            toastController.error("Delete failed");
+                          }
+                        }}
+                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                        title="Delete feature"
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          className="w-3.5 h-3.5"
+                        />
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="w-px h-4 bg-gray-300 mt-2" />
               {feature.actions && renderActions(feature.actions)}
@@ -196,7 +355,76 @@ const UBACTree = () => {
           className="flex flex-col items-center min-w-[220px]"
         >
           <div className="px-4 py-2 rounded bg-gray-100 border font-semibold text-center w-full">
-            {module.name}
+            <div className="flex items-center justify-between gap-2">
+              <span className="break-words">{module.name}</span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    // open edit modal for module
+                    setEditType("module");
+                    setEditId(module.module_id);
+                    setEditFormName(module.name || "");
+                    setIsEditModalOpen(true);
+                  }}
+                  className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition ml-2"
+                  title="Edit module"
+                >
+                  <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+                </button>
+                {/* Delete module - only render if no features assigned */}
+                {!(
+                  Array.isArray(module.features) && module.features.length > 0
+                ) && (
+                  <button
+                    onClick={async () => {
+                      if (
+                        !confirm("Delete module? This will remove the module.")
+                      )
+                        return;
+                      try {
+                        const token =
+                          getToken() || localStorage.getItem("token");
+                        const headers = token
+                          ? {
+                              Authorization: token,
+                              "Content-Type": "application/json",
+                            }
+                          : { "Content-Type": "application/json" };
+
+                        const resp = await fetch(
+                          "https://men4u.xyz/v2/admin/delete_modules",
+                          {
+                            method: "DELETE",
+                            headers,
+                            body: JSON.stringify({
+                              module_ids: [Number(module.module_id)],
+                            }),
+                          }
+                        );
+
+                        if (!resp.ok) {
+                          const errJson = await resp.json().catch(() => ({}));
+                          toastController.error(
+                            errJson.detail || errJson.message || "Delete failed"
+                          );
+                          return;
+                        }
+
+                        await refetchUbacTree();
+                        toastController.success("Deleted successfully");
+                      } catch (err) {
+                        console.error(err);
+                        toastController.error("Delete failed");
+                      }
+                    }}
+                    className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition ml-2"
+                    title="Delete module"
+                  >
+                    <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
           <div className="w-px h-6 bg-gray-300 mt-2" />
           <div className="mt-4 w-full">
@@ -363,10 +591,10 @@ const UBACTree = () => {
                         errJson.detail ||
                         errJson.message ||
                         JSON.stringify(errJson);
-                      alert(message);
+                      toastController.error(message);
                       throw new Error(message);
                     } catch (parseErr) {
-                      alert("Save failed");
+                      toastController.error("Save failed");
                       throw parseErr;
                     }
                   }
@@ -378,7 +606,7 @@ const UBACTree = () => {
                   setSelectedModuleId("");
                 } catch (err) {
                   console.error(err);
-                  alert("Save failed");
+                  toastController.error("Save failed");
                 } finally {
                   setLoadingSave(false);
                 }
@@ -452,6 +680,184 @@ const UBACTree = () => {
             className="w-full border px-2 py-1"
           />
         </div>
+      </Modal>
+
+      {/* Edit Modal for Module / Feature / Action */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        title={`Edit ${editType}`}
+        size="small"
+        actionButtons={
+          <>
+            <button
+              className="px-3 py-1 border rounded"
+              onClick={() => setIsEditModalOpen(false)}
+              disabled={editLoadingSave}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-3 py-1 bg-brand-500 text-white rounded"
+              onClick={async () => {
+                setEditLoadingSave(true);
+                try {
+                  const token = getToken() || localStorage.getItem("token");
+                  const headers = token
+                    ? {
+                        Authorization: token,
+                        "Content-Type": "application/json",
+                      }
+                    : { "Content-Type": "application/json" };
+
+                  let resp;
+                  if (editType === "module") {
+                    resp = await fetch(
+                      "https://men4u.xyz/v2/admin/update_module",
+                      {
+                        method: "PATCH",
+                        headers,
+                        body: JSON.stringify({
+                          module_id: Number(editId),
+                          name: editFormName,
+                        }),
+                      }
+                    );
+                  } else if (editType === "feature") {
+                    resp = await fetch(
+                      "https://men4u.xyz/v2/admin/update_feature",
+                      {
+                        method: "PATCH",
+                        headers,
+                        body: JSON.stringify({
+                          feature_id: Number(editId),
+                          name: editFormName,
+                          module_id: editSelectedModuleId
+                            ? Number(editSelectedModuleId)
+                            : undefined,
+                        }),
+                      }
+                    );
+                  } else if (editType === "action") {
+                    resp = await fetch(
+                      "https://men4u.xyz/v2/admin/update_action",
+                      {
+                        method: "PATCH",
+                        headers,
+                        body: JSON.stringify({
+                          action_id: Number(editId),
+                          name: editFormName,
+                          feature_id: editSelectedFeatureId
+                            ? Number(editSelectedFeatureId)
+                            : undefined,
+                        }),
+                      }
+                    );
+                  }
+
+                  if (resp && !resp.ok) {
+                    try {
+                      const errJson = await resp.json();
+                      const message =
+                        errJson.detail ||
+                        errJson.message ||
+                        JSON.stringify(errJson);
+                      toastController.error(message);
+                      throw new Error(message);
+                    } catch (parseErr) {
+                      toastController.error("Save failed");
+                      throw parseErr;
+                    }
+                  }
+
+                  await refetchUbacTree();
+                  setIsEditModalOpen(false);
+                  setEditFormName("");
+                  setEditSelectedFeatureId("");
+                  setEditSelectedModuleId("");
+                  setEditId(null);
+                } catch (err) {
+                  console.error(err);
+                  toastController.error("Save failed");
+                } finally {
+                  setEditLoadingSave(false);
+                }
+              }}
+              disabled={
+                editLoadingSave ||
+                !editFormName ||
+                (editType === "feature" && !editSelectedModuleId) ||
+                (editType === "action" && !editSelectedFeatureId)
+              }
+            >
+              {editLoadingSave ? "Saving..." : "Save"}
+            </button>
+          </>
+        }
+      >
+        {/* Build a flat list of features for easy selection */}
+        {(() => {
+          const allFeatures = modulesList.reduce((acc, m) => {
+            if (Array.isArray(m.features)) {
+              m.features.forEach((f) =>
+                acc.push({ ...f, module_id: m.module_id })
+              );
+            }
+            return acc;
+          }, []);
+
+          return (
+            <>
+              {editType === "feature" && (
+                <div className="mb-3">
+                  <label className="block text-sm mb-1">Module</label>
+                  <select
+                    value={editSelectedModuleId}
+                    onChange={(e) => setEditSelectedModuleId(e.target.value)}
+                    className="w-full border px-2 py-1"
+                  >
+                    <option value="">Select module</option>
+                    {modulesList.map((m) => (
+                      <option key={m.module_id} value={m.module_id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {editType === "action" && (
+                <div className="mb-3">
+                  <label className="block text-sm mb-1">Feature</label>
+                  <select
+                    value={editSelectedFeatureId}
+                    onChange={(e) => setEditSelectedFeatureId(e.target.value)}
+                    className="w-full border px-2 py-1"
+                  >
+                    <option value="">Select feature</option>
+                    {allFeatures.map((f) => (
+                      <option key={f.feature_id} value={f.feature_id}>
+                        {`${f.name} (${
+                          modulesList.find((m) => m.module_id === f.module_id)
+                            ?.name || ""
+                        })`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="mb-4">
+                <label className="block text-sm mb-1">Name</label>
+                <input
+                  value={editFormName}
+                  onChange={(e) => setEditFormName(e.target.value)}
+                  className="w-full border px-2 py-1"
+                />
+              </div>
+            </>
+          );
+        })()}
       </Modal>
     </div>
   );
