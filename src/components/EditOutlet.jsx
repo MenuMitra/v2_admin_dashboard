@@ -242,12 +242,8 @@ function EditOutlet() {
           google_business_link: data.google_business_link || "",
           google_review: data.google_review || "",
           email: data.email || "",
-          opening_time: data.opening_time
-            ? data.opening_time.split(" ")[1]
-            : "",
-          closing_time: data.closing_time
-            ? data.closing_time.split(" ")[1]
-            : "",
+          opening_time: data.opening_time || "",
+          closing_time: data.closing_time || "",
           outlet_mode: data.outlet_mode || "",
           image: data.image || null,
           subscription_id: subscriptionId,
@@ -261,16 +257,27 @@ function EditOutlet() {
 
         // Set time picker values
         if (data.opening_time) {
-          const [hour, minute, period] = data.opening_time.split(/[: ]/);
-          setOpeningHour(hour);
-          setOpeningMinute(minute);
-          setOpeningPeriod(period);
+          // Expecting formats like "HH:MM:SS AM" or "HH:MM AM" or "HH:MM:SS"
+          const m = String(data.opening_time).match(
+            /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i
+          );
+          if (m) {
+            const [, h, min, per] = m;
+            setOpeningHour(h.padStart(2, "0"));
+            setOpeningMinute(min);
+            setOpeningPeriod((per || "AM").toUpperCase());
+          }
         }
         if (data.closing_time) {
-          const [hour, minute, period] = data.closing_time.split(/[: ]/);
-          setClosingHour(hour);
-          setClosingMinute(minute);
-          setClosingPeriod(period);
+          const m2 = String(data.closing_time).match(
+            /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i
+          );
+          if (m2) {
+            const [, h2, min2, per2] = m2;
+            setClosingHour(h2.padStart(2, "0"));
+            setClosingMinute(min2);
+            setClosingPeriod((per2 || "AM").toUpperCase());
+          }
         }
 
         // Populate selected modules for edit view (if present in response)

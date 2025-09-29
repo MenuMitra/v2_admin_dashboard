@@ -3,6 +3,7 @@ import TablesViewHeader from "../common/TablesViewHeader";
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
+import Modal from "../common/Modal";
 
 const UBACTree = () => {
   const { data, isLoading, refetchUbacTree } = useUbacTree();
@@ -79,11 +80,22 @@ const UBACTree = () => {
         console.log("UBAC: fetchFeatures getToken() =>", getToken());
         console.log("UBAC: fetchFeatures headers =>", headers);
 
-        const res = await fetch("https://men4u.xyz/v2/admin/list_features", {
-          method: "POST",
+        const query = new URLSearchParams({
+          module_id: String(body.module_id),
+          outlet_id: String(body.outlet_id),
+          app_source: body.app_source,
+        }).toString();
+
+        // include query string so API receives module_id/outlet_id/app_source
+        const url = `https://men4u.xyz/v2/admin/get_features?${query}`;
+        console.log("UBAC: fetchFeatures url =>", url);
+
+        const res = await fetch(url, {
+          method: "GET",
           headers,
-          body: JSON.stringify(body),
         });
+
+        console.log("UBAC: fetchFeatures status =>", res.status);
 
         if (res.status === 401 || res.status === 403) {
           console.warn("Unauthorized when fetching features", res.status);
@@ -91,9 +103,19 @@ const UBACTree = () => {
           return;
         }
 
+        if (!res.ok) {
+          console.error("Failed to fetch features, status:", res.status);
+          setFeaturesList([]);
+          return;
+        }
+
         const json = await res.json();
-        const data = json.data || json || [];
-        setFeaturesList(Array.isArray(data) ? data : []);
+        // API may return features in different shapes: { data: [...] } or { features: [...] } or { ..., features: [...] }
+        const incoming = json.data || json.features || json || [];
+        const features = Array.isArray(incoming)
+          ? incoming
+          : incoming.features || [];
+        setFeaturesList(features);
       } catch (err) {
         console.error("Failed to load features", err);
         setFeaturesList([]);
@@ -270,178 +292,167 @@ const UBACTree = () => {
         </div>
       </div>
 
-      {/* Create Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div
-            className="absolute inset-0 bg-black opacity-40"
-            onClick={() => setIsModalOpen(false)}
-          />
-          <div className="bg-white rounded shadow-lg p-6 z-10 w-96">
-            <h3 className="text-lg font-semibold mb-4">Create</h3>
-
-            <div className="mb-3">
-              <label className="block text-sm mb-1">Type</label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-                className="w-full border px-2 py-1"
-              >
-                <option value="module">Module</option>
-                <option value="feature">Feature</option>
-                <option value="action">Action</option>
-              </select>
-            </div>
-
-            {/* Module select - shown for feature/action */}
-            {(type === "feature" || type === "action") && (
-              <div className="mb-3">
-                <label className="block text-sm mb-1">Module</label>
-                <select
-                  value={selectedModuleId}
-                  onChange={(e) => setSelectedModuleId(e.target.value)}
-                  className="w-full border px-2 py-1"
-                >
-                  <option value="">Select module</option>
-                  {modulesList.map((m) => (
-                    <option key={m.module_id} value={m.module_id}>
-                      {m.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Feature select - shown for action */}
-            {type === "action" && (
-              <div className="mb-3">
-                <label className="block text-sm mb-1">Feature</label>
-                <select
-                  value={selectedFeatureId}
-                  onChange={(e) => setSelectedFeatureId(e.target.value)}
-                  className="w-full border px-2 py-1"
-                >
-                  <option value="">Select feature</option>
-                  {featuresList.map((f) => (
-                    <option key={f.feature_id} value={f.feature_id}>
-                      {f.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            <div className="mb-4">
-              <label className="block text-sm mb-1">Name</label>
-              <input
-                value={formName}
-                onChange={(e) => setFormName(e.target.value)}
-                className="w-full border px-2 py-1"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <button
-                className="px-3 py-1 border rounded"
-                onClick={() => setIsModalOpen(false)}
-                disabled={loadingSave}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-3 py-1 bg-brand-500 text-white rounded"
-                onClick={async () => {
-                  // save logic
-                  setLoadingSave(true);
-                  try {
-                    const token = getToken() || localStorage.getItem("token");
-                    const headers = token
-                      ? {
-                          Authorization: token,
-                          "Content-Type": "application/json",
-                        }
-                      : { "Content-Type": "application/json" };
-
-                    let resp;
-                    if (type === "module") {
-                      resp = await fetch(
-                        "https://men4u.xyz/v2/admin/create_module",
-                        {
-                          method: "POST",
-                          headers,
-                          body: JSON.stringify({ name: formName }),
-                        }
-                      );
-                    } else if (type === "feature") {
-                      resp = await fetch(
-                        "https://men4u.xyz/v2/admin/create_feature",
-                        {
-                          method: "POST",
-                          headers,
-                          body: JSON.stringify({
-                            module_id: Number(selectedModuleId),
-                            name: formName,
-                          }),
-                        }
-                      );
-                    } else if (type === "action") {
-                      resp = await fetch(
-                        "https://men4u.xyz/v2/admin/create_action",
-                        {
-                          method: "POST",
-                          headers,
-                          body: JSON.stringify({
-                            feature_id: Number(selectedFeatureId),
-                            name: formName,
-                          }),
-                        }
-                      );
-                    }
-
-                    // handle non-2xx responses and show clearer message
-                    if (resp && !resp.ok) {
-                      try {
-                        const errJson = await resp.json();
-                        const message =
-                          errJson.detail ||
-                          errJson.message ||
-                          JSON.stringify(errJson);
-                        alert(message);
-                        throw new Error(message);
-                      } catch (parseErr) {
-                        alert("Save failed");
-                        throw parseErr;
+      {/* Create Modal (use shared Modal component for consistent appearance) */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Create"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              className="px-3 py-1 border rounded"
+              onClick={() => setIsModalOpen(false)}
+              disabled={loadingSave}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-3 py-1 bg-brand-500 text-white rounded"
+              onClick={async () => {
+                setLoadingSave(true);
+                try {
+                  const token = getToken() || localStorage.getItem("token");
+                  const headers = token
+                    ? {
+                        Authorization: token,
+                        "Content-Type": "application/json",
                       }
-                    }
+                    : { "Content-Type": "application/json" };
 
-                    // refresh list
-                    await refetchUbacTree();
-                    // close
-                    setIsModalOpen(false);
-                    // reset
-                    setFormName("");
-                    setSelectedFeatureId("");
-                    setSelectedModuleId("");
-                  } catch (err) {
-                    console.error(err);
-                    alert("Save failed");
-                  } finally {
-                    setLoadingSave(false);
+                  let resp;
+                  if (type === "module") {
+                    resp = await fetch(
+                      "https://men4u.xyz/v2/admin/create_module",
+                      {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({ name: formName }),
+                      }
+                    );
+                  } else if (type === "feature") {
+                    resp = await fetch(
+                      "https://men4u.xyz/v2/admin/create_feature",
+                      {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({
+                          module_id: Number(selectedModuleId),
+                          name: formName,
+                        }),
+                      }
+                    );
+                  } else if (type === "action") {
+                    resp = await fetch(
+                      "https://men4u.xyz/v2/admin/create_action",
+                      {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({
+                          feature_id: Number(selectedFeatureId),
+                          name: formName,
+                        }),
+                      }
+                    );
                   }
-                }}
-                disabled={
-                  loadingSave ||
-                  (type !== "module" && !selectedModuleId) ||
-                  (type === "action" && !selectedFeatureId) ||
-                  !formName
+
+                  if (resp && !resp.ok) {
+                    try {
+                      const errJson = await resp.json();
+                      const message =
+                        errJson.detail ||
+                        errJson.message ||
+                        JSON.stringify(errJson);
+                      alert(message);
+                      throw new Error(message);
+                    } catch (parseErr) {
+                      alert("Save failed");
+                      throw parseErr;
+                    }
+                  }
+
+                  await refetchUbacTree();
+                  setIsModalOpen(false);
+                  setFormName("");
+                  setSelectedFeatureId("");
+                  setSelectedModuleId("");
+                } catch (err) {
+                  console.error(err);
+                  alert("Save failed");
+                } finally {
+                  setLoadingSave(false);
                 }
-              >
-                {loadingSave ? "Saving..." : "Save"}
-              </button>
-            </div>
-          </div>
+              }}
+              disabled={
+                loadingSave ||
+                (type !== "module" && !selectedModuleId) ||
+                (type === "action" && !selectedFeatureId) ||
+                !formName
+              }
+            >
+              {loadingSave ? "Saving..." : "Save"}
+            </button>
+          </>
+        }
+      >
+        <div className="mb-3">
+          <label className="block text-sm mb-1">Type</label>
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className="w-full border px-2 py-1"
+          >
+            <option value="module">Module</option>
+            <option value="feature">Feature</option>
+            <option value="action">Action</option>
+          </select>
         </div>
-      )}
+
+        {(type === "feature" || type === "action") && (
+          <div className="mb-3">
+            <label className="block text-sm mb-1">Module</label>
+            <select
+              value={selectedModuleId}
+              onChange={(e) => setSelectedModuleId(e.target.value)}
+              className="w-full border px-2 py-1"
+            >
+              <option value="">Select module</option>
+              {modulesList.map((m) => (
+                <option key={m.module_id} value={m.module_id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {type === "action" && (
+          <div className="mb-3">
+            <label className="block text-sm mb-1">Feature</label>
+            <select
+              value={selectedFeatureId}
+              onChange={(e) => setSelectedFeatureId(e.target.value)}
+              className="w-full border px-2 py-1"
+            >
+              <option value="">Select feature</option>
+              {featuresList.map((f) => (
+                <option key={f.feature_id} value={f.feature_id}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Name</label>
+          <input
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            className="w-full border px-2 py-1"
+          />
+        </div>
+      </Modal>
     </div>
   );
 };
