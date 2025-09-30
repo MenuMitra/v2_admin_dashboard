@@ -62,16 +62,16 @@ const menuGroups = [
       },
     ],
   },
-  {
-    items: [
-      {
-        title: "Subscriptions",
-        path: "/subscriptions",
-        id: "subscriptions",
-        icon: faIndianRupeeSign,
-      },
-    ],
-  },
+  // {
+  //   items: [
+  //     {
+  //       title: "Subscriptions",
+  //       path: "/subscriptions",
+  //       id: "subscriptions",
+  //       icon: faIndianRupeeSign,
+  //     },
+  //   ],
+  // },
   {
     items: [{ title: "Search", path: "/search", id: "search", icon: faSearch }],
   },

@@ -646,7 +646,7 @@ function EditOwner() {
                 value={ownerData.role}
                 onChange={handleChange}
                 options={[{ value: "super_owner", label: "Superowner" }]}
-                placeholder="SelectRole"
+                placeholder="Select Role"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
                 {/* Owner Status - Added to the grid */}

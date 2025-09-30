@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import TablesViewHeader from "../common/TablesViewHeader";
+import { faTrash, faChevronLeft, faPlus, faRotate, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
@@ -278,12 +277,12 @@ const UBACTree = () => {
                               : { "Content-Type": "application/json" };
 
                             const resp = await fetch(
-                              "https://men4u.xyz/v2/admin/delete_feature",
+                              "https://men4u.xyz/v2/admin/delete_features",
                               {
                                 method: "DELETE",
                                 headers,
                                 body: JSON.stringify({
-                                  feature_id: Number(feature.feature_id),
+                                  feature_ids: [Number(feature.feature_id)],
                                   user_id: String(2),
                                   app_source: "admin_app",
                                 }),
@@ -437,58 +436,113 @@ const UBACTree = () => {
   );
 
   return (
-    <div>
-      <Breadcrumb items={items} />
-      <TablesViewHeader
-        title="UBAC Tree"
-        showBackButton={false}
-        showCreateButton={true}
-        createButtonLabel="Create"
-        onCreateClick={() => setIsModalOpen(true)}
-        onReload={refetchUbacTree}
-        isLoading={isLoading}
-        showSearch={true}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        counts={{
-          total_modules: data && data.data ? data.data.length : 0,
-          total_features:
-            data && data.data
-              ? data.data.reduce(
-                  (acc, m) =>
-                    acc + (Array.isArray(m.features) ? m.features.length : 0),
-                  0
-                )
-              : 0,
-          total_actions:
-            data && data.data
-              ? data.data.reduce(
-                  (acc, m) =>
-                    acc +
-                    (Array.isArray(m.features)
-                      ? m.features.reduce(
-                          (faAcc, f) =>
-                            faAcc +
-                            (Array.isArray(f.actions) ? f.actions.length : 0),
-                          0
-                        )
-                      : 0),
-                  0
-                )
-              : 0,
-        }}
-      />
+    <>
+      {/* Breadcrumb - Moved outside the card */}
+      <div className="mb-6">
+        <Breadcrumb items={items} />
+      </div>
 
-      <div className="px-6">
-        <div className="rounded-2xl border border-gray-200 bg-white p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              Modules / Features / Actions
+      {/* Main Card */}
+      <div className="rounded-2xl border border-gray-200 bg-white">
+        <div className="overflow-hidden pt-4">
+          {/* Header Section */}
+          <div className="flex items-center px-6 mb-3">
+            {/* Left Side - Back Button */}
+            <div>
+              <button
+                onClick={() => window.history.back()}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
+
+            {/* Center - Title */}
+            <div className="flex-1 text-center">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                UBAC Tree
+              </h2>
+            </div>
+
+            {/* Right Side - Action Buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={refetchUbacTree}
+                disabled={isLoading}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Reload data"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+              </button>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-success-500 hover:bg-success-600 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                Create
+              </button>
             </div>
           </div>
 
+          {/* Stats and Search Row */}
+          <div className="flex items-center justify-between px-6 mb-4">
+            {/* Left - Stats */}
+            <div className="flex items-center gap-4 text-sm">
+              <span className="font-medium text-gray-800">
+                Modules: {data && data.data ? data.data.length : 0}
+              </span>
+              <span className="font-medium text-gray-800">
+                Features: {data && data.data
+                  ? data.data.reduce(
+                      (acc, m) =>
+                        acc + (Array.isArray(m.features) ? m.features.length : 0),
+                      0
+                    )
+                  : 0}
+              </span>
+              <span className="font-medium text-gray-800">
+                Actions: {data && data.data
+                  ? data.data.reduce(
+                      (acc, m) =>
+                        acc +
+                        (Array.isArray(m.features)
+                          ? m.features.reduce(
+                              (faAcc, f) =>
+                                faAcc +
+                                (Array.isArray(f.actions) ? f.actions.length : 0),
+                              0
+                            )
+                          : 0),
+                      0
+                    )
+                  : 0}
+              </span>
+            </div>
+
+            {/* Right - Search */}
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+              </span>
+              <input
+                placeholder="Search modules, features, actions..."
+                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="px-6 pb-6">
           {isLoading ? (
-            <div>Loading...</div>
+            <div className="text-center py-8">Loading...</div>
           ) : (
             renderModules(
               // filter modules/features/actions by search term
@@ -859,7 +913,7 @@ const UBACTree = () => {
           );
         })()}
       </Modal>
-    </div>
+    </>
   );
 };
 

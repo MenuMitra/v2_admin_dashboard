@@ -160,8 +160,41 @@ function ViewOutlet() {
         }
       );
     },
+    onMutate: async ({ type, value }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries(queryKeys.outlets.detail(outletId));
+
+      // Snapshot the previous value
+      const previousOutletData = queryClient.getQueryData(queryKeys.outlets.detail(outletId));
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(queryKeys.outlets.detail(outletId), (old) => {
+        if (!old?.data) return old;
+        
+        const newData = { ...old.data };
+        
+        switch (type) {
+          case "outlet_status":
+            newData.outlet_status = value === "active" ? 1 : 0;
+            break;
+          case "is_open":
+            newData.is_open = value === "open" ? 1 : 0;
+            break;
+          case "outlet_mode":
+            newData.outlet_mode = value;
+            break;
+          case "account_type":
+            newData.account_type = value;
+            break;
+        }
+        
+        return { ...old, data: newData };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousOutletData };
+    },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
       const successMessages = {
         outlet_status: "Outlet status updated successfully!",
         is_open: "Open/Close status updated successfully!",
@@ -172,10 +205,18 @@ function ViewOutlet() {
         successMessages[variables.type] || "Status updated successfully!"
       );
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousOutletData) {
+        queryClient.setQueryData(queryKeys.outlets.detail(outletId), context.previousOutletData);
+      }
       toastController.error(
         error.response?.data?.message || "Failed to update status"
       );
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
     },
   });
 
@@ -604,28 +645,10 @@ function ViewOutlet() {
             {/* Outlet Mode */}
             {outletData?.outlet_mode && (
               <div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <FontAwesomeIcon
-                      icon={
-                        outletData.outlet_mode === "online"
-                          ? faToggleOn
-                          : faToggleOff
-                      }
-                      className={`w-6 h-6 ${
-                        outletData.outlet_mode === "online"
-                          ? "text-brand-500"
-                          : "text-warning-500"
-                      }`}
-                    />
                     <div>
-                      <h4
-                        className={`text-lg font-normal ${
-                          outletData.outlet_mode === "online"
-                            ? "text-brand-500"
-                            : "text-warning-500"
-                        } dark:text-white/90`}
-                      >
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData.outlet_mode.charAt(0).toUpperCase() +
                           outletData.outlet_mode.slice(1)}
                       </h4>
@@ -637,14 +660,15 @@ function ViewOutlet() {
                   <div className="flex items-center">
                     <button
                       onClick={() => handleToggleOutletMode()}
-                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 shadow-inner ${
+                      disabled={toggleStatusMutation.isPending}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                         outletData?.outlet_mode === "online"
                           ? "bg-brand-500"
                           : "bg-gray-300"
                       }`}
                     >
                       <span
-                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
                           outletData?.outlet_mode === "online"
                             ? "translate-x-6"
                             : "translate-x-1"
@@ -657,16 +681,10 @@ function ViewOutlet() {
             )}
             {/* Outlet Status */}
             <div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div>
-                    <h4
-                      className={`text-lg font-normal ${
-                        outletData?.outlet_status === 1
-                          ? "text-success-500"
-                          : "text-error-500"
-                      } dark:text-white/90`}
-                    >
+                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                       {outletData?.outlet_status === 1 ? "Active" : "Inactive"}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -677,14 +695,15 @@ function ViewOutlet() {
                 <div className="flex items-center">
                   <button
                     onClick={() => handleToggleOutletStatus()}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 shadow-inner ${
+                    disabled={toggleStatusMutation.isPending}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
                       outletData?.outlet_status === 1
                         ? "bg-brand-500"
                         : "bg-gray-300"
                     }`}
                   >
                     <span
-                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
                         outletData?.outlet_status === 1
                           ? "translate-x-6"
                           : "translate-x-1"
@@ -696,16 +715,10 @@ function ViewOutlet() {
             </div>
             {/* Open/Close Status */}
             <div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div>
-                    <h4
-                      className={`text-lg font-normal ${
-                        outletData?.is_open === 1
-                          ? "text-success-500"
-                          : "text-error-500"
-                      } dark:text-white/90`}
-                    >
+                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                       {outletData?.is_open === 1 ? "Open" : "Closed"}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -716,12 +729,15 @@ function ViewOutlet() {
                 <div className="flex items-center">
                   <button
                     onClick={() => handleToggleOpenStatus()}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 shadow-inner ${
-                      outletData?.is_open === 1 ? "bg-brand-500" : "bg-gray-300"
+                    disabled={toggleStatusMutation.isPending}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      outletData?.is_open === 1
+                        ? "bg-brand-500"
+                        : "bg-gray-300"
                     }`}
                   >
                     <span
-                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
                         outletData?.is_open === 1
                           ? "translate-x-6"
                           : "translate-x-1"
@@ -871,6 +887,57 @@ function ViewOutlet() {
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           UPI ID
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Has Combo */}
+              {outletData?.has_combo !== undefined && outletData?.has_combo !== null && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.has_combo === 1 ? "Yes" : "No"}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Has Combo
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Has Denomination */}
+              {outletData?.has_denomination !== undefined && outletData?.has_denomination !== null && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.has_denomination === 1 ? "Yes" : "No"}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Has Denomination
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Reserve Table */}
+              {outletData?.reserve_table !== undefined && outletData?.reserve_table !== null && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.reserve_table === 1 ? "Yes" : "No"}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Reserve Table
                         </p>
                       </div>
                     </div>
@@ -1042,13 +1109,13 @@ function ViewOutlet() {
                 </div>
               )}
               {/* Created By */}
-              {outletData?.created_by && (
+              {outletData?.created_by_name && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.created_by}
+                          {outletData.created_by_name}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Created By
@@ -1076,14 +1143,13 @@ function ViewOutlet() {
                 </div>
               )}
               {/* Updated By */}
-              {outletData?.updated_by && (
+              {outletData?.updated_by_name && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.updated_by.charAt(0).toUpperCase() +
-                            outletData.updated_by.slice(1)}
+                          {outletData.updated_by_name}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Updated By
@@ -1114,6 +1180,40 @@ function ViewOutlet() {
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Subscription Plan
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Subscription Price */}
+              {outletData?.subscription_details?.subscription_price != null && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          ₹{outletData.subscription_details.subscription_price}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Subscription Price
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Tenure */}
+              {outletData?.subscription_details?.tenure && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.subscription_details.tenure}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Tenure
                         </p>
                       </div>
                     </div>
@@ -1167,17 +1267,29 @@ function ViewOutlet() {
                     <div className="flex items-center justify-between">
                       <div className="w-full">
                         <h4 className="text-base font-medium text-gray-800 dark:text-white/90 mb-2">
-                          Days Until Expiry
+                          Timeline
                         </h4>
                         {(() => {
                           const msPerDay = 1000 * 60 * 60 * 24;
-                          const start = new Date(
-                            outletData.subscription_details.subscription_start_date
-                          );
-                          const end = new Date(
-                            outletData.subscription_details.subscription_end_date
-                          );
+                          
+                          // Parse dates correctly - handle "DD MMM YYYY" format
+                          const parseDate = (dateString) => {
+                            if (!dateString) return new Date();
+                            // Convert "29 Sep 2025" to "Sep 29, 2025" for proper parsing
+                            const parts = dateString.split(' ');
+                            if (parts.length === 3) {
+                              const day = parts[0];
+                              const month = parts[1];
+                              const year = parts[2];
+                              return new Date(`${month} ${day}, ${year}`);
+                            }
+                            return new Date(dateString);
+                          };
+                          
+                          const start = parseDate(outletData.subscription_details.subscription_start_date);
+                          const end = parseDate(outletData.subscription_details.subscription_end_date);
                           const now = new Date();
+                          
                           const total = Math.max(
                             0,
                             Math.ceil((end - start) / msPerDay)
@@ -1187,28 +1299,34 @@ function ViewOutlet() {
                             Math.ceil((end - now) / msPerDay)
                           );
                           const elapsed = Math.max(0, total - remaining);
+                          // Show remaining days as filled portion (inverse of completed)
                           const percent =
                             total > 0
                               ? Math.min(
                                   100,
-                                  Math.max(0, (elapsed / total) * 100)
+                                  Math.max(0, (remaining / total) * 100)
                                 )
                               : 0;
-                          // Use orange progress bar color and show both
-                          // days completed (elapsed) and days remaining.
-                          const barColorClass = "bg-warning-500"; // orange
+                          
+                          // Dynamic color based on remaining days
+                          let barColorClass = "bg-success-500"; // green (default)
+                          if (remaining <= 5) {
+                            barColorClass = "bg-error-500"; // red (≤5 days)
+                          } else if (remaining <= 25) {
+                            barColorClass = "bg-warning-500"; // orange (≤25 days)
+                          }
 
                           return (
                             <div>
                               <div
-                                className="w-full h-2 bg-gray-200 rounded-full overflow-hidden"
+                                className="w-full h-3 bg-gray-200 rounded-full overflow-hidden"
                                 role="progressbar"
                                 aria-valuemin={0}
                                 aria-valuemax={100}
                                 aria-valuenow={Math.round(percent)}
                               >
                                 <div
-                                  className={`h-2 ${barColorClass} rounded-full transition-all duration-500`}
+                                  className={`h-3 ${barColorClass} rounded-full transition-all duration-500`}
                                   style={{ width: `${percent}%` }}
                                 />
                               </div>

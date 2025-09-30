@@ -34,9 +34,33 @@ function CreatePartner() {
     address: "",
   });
   const [emailError, setEmailError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
+
+  // Check if all required fields are filled
+  const isFormValid = () => {
+    return (
+      partnerDetails.name.trim() &&
+      partnerDetails.mobile.trim() &&
+      partnerDetails.email.trim() &&
+      partnerDetails.dob &&
+      partnerDetails.aadhar_number.trim() &&
+      !emailError &&
+      partnerDetails.mobile.length === 10 &&
+      partnerDetails.aadhar_number.length === 12
+    );
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Clear validation error for this field when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+    
     // Mobile number validation: not starting with 0-5, max length 10
     if (name === "mobile") {
       // Only allow numbers
@@ -71,8 +95,50 @@ function CreatePartner() {
     }));
   };
 
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!partnerDetails.name.trim()) {
+      errors.name = "Full name is required";
+    }
+    
+    if (!partnerDetails.mobile.trim()) {
+      errors.mobile = "Mobile number is required";
+    } else if (partnerDetails.mobile.length !== 10) {
+      errors.mobile = "Mobile number must be 10 digits";
+    }
+    
+    if (!partnerDetails.email.trim()) {
+      errors.email = "Email address is required";
+    } else {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+      if (!emailPattern.test(partnerDetails.email)) {
+        errors.email = "Email format is incorrect";
+      }
+    }
+    
+    if (!partnerDetails.dob) {
+      errors.dob = "Date of birth is required";
+    }
+    
+    if (!partnerDetails.aadhar_number.trim()) {
+      errors.aadhar_number = "Aadhar number is required";
+    } else if (partnerDetails.aadhar_number.length !== 12) {
+      errors.aadhar_number = "Aadhar number must be 12 digits";
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form before submitting
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
 
@@ -166,13 +232,15 @@ function CreatePartner() {
             {/* Create Button */}
             <button
               onClick={handleSubmit}
-              disabled={isLoading}
+              disabled={isLoading || !isFormValid()}
               className={`
                 inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
+                text-sm font-medium rounded-full
                 transition shadow-sm
-                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
+                ${(isLoading || !isFormValid()) 
+                  ? "bg-gray-400 text-gray-200 cursor-not-allowed" 
+                  : "bg-success-500 hover:bg-success-600 text-white cursor-pointer"
+                }
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -186,25 +254,39 @@ function CreatePartner() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <TextInput
-                label="Full Name"
-                name="name"
-                value={partnerDetails.name}
-                onChange={handleChange}
-                placeholder="Enter full name"
-                required
-              />
+              <div>
+                <TextInput
+                  label="Full Name"
+                  name="name"
+                  value={partnerDetails.name}
+                  onChange={handleChange}
+                  placeholder="Enter full name"
+                  required
+                />
+                {validationErrors.name && (
+                  <div className="text-error-500 text-sm mt-1">
+                    {validationErrors.name}
+                  </div>
+                )}
+              </div>
 
-              <TextInput
-                label="Mobile Number"
-                name="mobile"
-                type="tel"
-                value={partnerDetails.mobile}
-                onChange={handleChange}
-                placeholder="Enter mobile number"
-                required
-                maxLength={10}
-              />
+              <div>
+                <TextInput
+                  label="Mobile Number"
+                  name="mobile"
+                  type="tel"
+                  value={partnerDetails.mobile}
+                  onChange={handleChange}
+                  placeholder="Enter mobile number"
+                  required
+                  maxLength={10}
+                />
+                {validationErrors.mobile && (
+                  <div className="text-error-500 text-sm mt-1">
+                    {validationErrors.mobile}
+                  </div>
+                )}
+              </div>
 
               <div>
                 <TextInput
@@ -216,31 +298,45 @@ function CreatePartner() {
                   placeholder="Enter email address"
                   required
                 />
-                {emailError && (
+                {(emailError || validationErrors.email) && (
                   <div className="text-error-500 text-sm mt-1">
-                    {emailError}
+                    {emailError || validationErrors.email}
                   </div>
                 )}
               </div>
 
-              <DateInput
-                label="Date of Birth"
-                name="dob"
-                value={partnerDetails.dob}
-                onChange={handleChange}
-                required
-                placeholder="Select date of birth"
-              />
+              <div>
+                <DateInput
+                  label="Date of Birth"
+                  name="dob"
+                  value={partnerDetails.dob}
+                  onChange={handleChange}
+                  required
+                  placeholder="Select date of birth"
+                />
+                {validationErrors.dob && (
+                  <div className="text-error-500 text-sm mt-1">
+                    {validationErrors.dob}
+                  </div>
+                )}
+              </div>
 
-              <TextInput
-                label="Aadhar Number"
-                name="aadhar_number"
-                value={partnerDetails.aadhar_number}
-                onChange={handleChange}
-                placeholder="Enter 12-digit Aadhar number"
-                required
-                maxLength="12"
-              />
+              <div>
+                <TextInput
+                  label="Aadhar Number"
+                  name="aadhar_number"
+                  value={partnerDetails.aadhar_number}
+                  onChange={handleChange}
+                  placeholder="Enter 12-digit Aadhar number"
+                  required
+                  maxLength="12"
+                />
+                {validationErrors.aadhar_number && (
+                  <div className="text-error-500 text-sm mt-1">
+                    {validationErrors.aadhar_number}
+                  </div>
+                )}
+              </div>
 
               <div className="sm:col-span-1">
                 <Textarea
@@ -250,7 +346,7 @@ function CreatePartner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
-                  required
+                
                 />
               </div>
             </div>

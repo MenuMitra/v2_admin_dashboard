@@ -419,8 +419,8 @@ function Outlets() {
               {row.ownerCount}
             </span>
           ) : (
-            <span className="font-medium text-error-500 text-theme-sm">
-              NO owner
+            <span className="font-medium text-error-500 text-theme-xs">
+              NO OWNER ASSIGNED
             </span>
           )}
         </div>
@@ -835,7 +835,7 @@ function Outlets() {
               }
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
             >
-              <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+             
               Cancel
             </button>
             <button

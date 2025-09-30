@@ -253,6 +253,9 @@ function EditOutlet() {
             "",
           subscription_details:
             respSubscription || data.subscription_details || null,
+          has_combo: data.has_combo !== undefined ? data.has_combo : null,
+          has_denomination: data.has_denomination !== undefined ? data.has_denomination : null,
+          reserve_table: data.reserve_table !== undefined ? data.reserve_table : null,
         });
 
         // Set time picker values
@@ -1354,26 +1357,18 @@ function EditOutlet() {
                     </label>
                     <select
                       name="has_combo"
-                      value={
-                        outletData.has_combo === null ||
-                        outletData.has_combo === undefined
-                          ? ""
-                          : String(outletData.has_combo)
-                      }
+                      value={outletData.has_combo !== null ? String(outletData.has_combo) : ""}
                       onChange={(e) =>
                         setOutletData((prev) => ({
                           ...prev,
-                          has_combo: Number(e.target.value),
+                          has_combo: e.target.value ? Number(e.target.value) : null,
                         }))
                       }
                       className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     >
                       <option value="">Select</option>
-                      {YES_NO_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={String(opt.value)}>
-                          {opt.label}
-                        </option>
-                      ))}
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
                     </select>
                   </div>
 
@@ -1383,26 +1378,18 @@ function EditOutlet() {
                     </label>
                     <select
                       name="has_denomination"
-                      value={
-                        outletData.has_denomination === null ||
-                        outletData.has_denomination === undefined
-                          ? ""
-                          : String(outletData.has_denomination)
-                      }
+                      value={outletData.has_denomination !== null ? String(outletData.has_denomination) : ""}
                       onChange={(e) =>
                         setOutletData((prev) => ({
                           ...prev,
-                          has_denomination: Number(e.target.value),
+                          has_denomination: e.target.value ? Number(e.target.value) : null,
                         }))
                       }
                       className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     >
                       <option value="">Select</option>
-                      {YES_NO_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={String(opt.value)}>
-                          {opt.label}
-                        </option>
-                      ))}
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
                     </select>
                   </div>
 
@@ -1412,26 +1399,18 @@ function EditOutlet() {
                     </label>
                     <select
                       name="reserve_table"
-                      value={
-                        outletData.reserve_table === null ||
-                        outletData.reserve_table === undefined
-                          ? ""
-                          : String(outletData.reserve_table)
-                      }
+                      value={outletData.reserve_table !== null ? String(outletData.reserve_table) : ""}
                       onChange={(e) =>
                         setOutletData((prev) => ({
                           ...prev,
-                          reserve_table: Number(e.target.value),
+                          reserve_table: e.target.value ? Number(e.target.value) : null,
                         }))
                       }
                       className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     >
                       <option value="">Select</option>
-                      {YES_NO_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={String(opt.value)}>
-                          {opt.label}
-                        </option>
-                      ))}
+                      <option value="0">No</option>
+                      <option value="1">Yes</option>
                     </select>
                   </div>
                 </div>

@@ -158,6 +158,7 @@ function DataTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
 
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
@@ -168,6 +169,11 @@ function DataTable({
     // passes a new array reference with same contents).
     setCurrentPage(1);
   }, [searchTerm, safeData.length]);
+
+  // Sync internal itemsPerPage with prop changes
+  useEffect(() => {
+    setInternalItemsPerPage(itemsPerPage);
+  }, [itemsPerPage]);
 
   // Sorting Logic
   const handleSort = (field) => {
@@ -311,9 +317,9 @@ function DataTable({
 
   // Pagination Logic
   const processedData = getSortedAndFilteredData();
-  const totalPages = Math.ceil(processedData.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const totalPages = Math.ceil(processedData.length / internalItemsPerPage);
+  const indexOfLastItem = currentPage * internalItemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - internalItemsPerPage;
   const currentItems = processedData.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (pageNumber) => {
@@ -544,7 +550,7 @@ function DataTable({
   };
 
   // Add these helper functions near the top of the component
-  const shouldShowPagination = () => processedData.length > itemsPerPage;
+  const shouldShowPagination = () => processedData.length > internalItemsPerPage;
   const shouldShowNavigationButtons = () => totalPages > 1;
   const currentPageInfo = `Page ${currentPage} of ${Math.max(totalPages, 1)}`;
 
@@ -925,13 +931,19 @@ function DataTable({
 
                 {/* Execution Time Filter - Independent of Status Filter */}
                 {enableExecutionTimeFilter && (
-                  <div className="relative w-40">
+                  <div className="relative w-56">
                     <select
                       value={executionTimeFilter || "all"}
                       onChange={(e) => {
                         onExecutionTimeFilterChange(e.target.value);
                       }}
-                      className="w-full px-2 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                      className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none"
+                      style={{ 
+                        backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")', 
+                        backgroundPosition: 'right 0.75rem center', 
+                        backgroundRepeat: 'no-repeat', 
+                        backgroundSize: '1.5em 1.5em'
+                      }}
                     >
                       <option value="all">All Execution Time</option>
                       <option value="5">&gt;5ms</option>
@@ -1287,8 +1299,15 @@ function DataTable({
                   Show
                 </span>
                 <select
-                  value={itemsPerPage}
-                  onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+                  value={internalItemsPerPage}
+                  onChange={(e) => {
+                    const newItemsPerPage = Number(e.target.value);
+                    setInternalItemsPerPage(newItemsPerPage);
+                    setCurrentPage(1); // Reset to first page when changing items per page
+                    if (onItemsPerPageChange) {
+                      onItemsPerPageChange(newItemsPerPage);
+                    }
+                  }}
                   className="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
                 >
                   {itemsPerPageOptions.map((option) => (

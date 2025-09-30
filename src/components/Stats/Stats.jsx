@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft, faRotate } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import DatePickerInput from "../common/DatePickerInput";
@@ -241,16 +243,67 @@ function Stats() {
   ];
 
   return (
-    <div>
-      <Breadcrumb items={breadcrumbItems} />
-      {/* API Usage Stats Section */}
+    <>
+      {/* Breadcrumb - Moved outside the card */}
       <div className="mb-6">
-        <h2 className="text-sm font-semibold mb-1">API Usage Stats</h2>
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+
+      {/* Main Card */}
+      <div className="rounded-2xl border border-gray-200 bg-white">
+        <div className="overflow-hidden pt-4">
+          {/* Header Section */}
+          <div className="flex items-center px-6 mb-3">
+            {/* Left Side - Back Button */}
+            <div>
+              <button
+                onClick={() => window.history.back()}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
+
+            {/* Center - Title */}
+            <div className="flex-1 text-center">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                Stats
+              </h2>
+            </div>
+
+            {/* Right Side - Reload Button */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  reloadApiUsageStats();
+                  reloadDbTableStats();
+                  reloadAppUsage();
+                }}
+                disabled={apiUsageStatsIsLoading || dbIsLoading || appUsageIsLoading}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Reload data"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${(apiUsageStatsIsLoading || dbIsLoading || appUsageIsLoading) ? "animate-spin" : ""}`}
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="px-6 pb-6">
+          {/* API Usage Stats Section */}
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold mb-1">API Usage Stats</h2>
         <DataTable
           data={getApiUsageStatsData()}
           columns={apiUsageStatsColumns}
           enableSearch={true}
           enableSort={true}
+          enablePagination={true}
           enableStatusFilter={false}
           enableExecutionTimeFilter={true}
           executionTimeFilter={executionTimeFilter}
@@ -268,7 +321,8 @@ function Stats() {
           onSearchChange={setApiUsageStatsSearchTerm}
           isLoading={apiUsageStatsIsLoading}
           error={apiUsageStatsError}
-          itemsPerPage={20}
+          itemsPerPage={50}
+          itemsPerPageOptions={[50, 100, 200, 500]}
           className="compact-table"
           emptyStateMessage="No API usage stats data available."
           customFilters={[]}
@@ -287,12 +341,14 @@ function Stats() {
             columns={dbColumns}
             enableSearch={true}
             enableSort={true}
+            enablePagination={true}
             searchTerm={dbSearchTerm}
             onSearchChange={setDbSearchTerm}
             searchPlaceholder="Search"
             isLoading={dbIsLoading}
             error={dbError}
             itemsPerPage={20}
+            itemsPerPageOptions={[20, 50, 100, 200]}
             enableStatusFilter={false}
             showCreateButton={false}
             showBackButton={false}
@@ -350,6 +406,7 @@ function Stats() {
           }}
           enableSearch={true}
           enableSort={true}
+          enablePagination={true}
           enableStatusFilter={false}
           showCreateButton={false}
           createButton={{ show: false, label: "", onClick: () => {} }}
@@ -358,7 +415,8 @@ function Stats() {
           onSearchChange={setAppUsageSearchTerm}
           isLoading={appUsageIsLoading}
           error={appUsageError}
-          itemsPerPage={20}
+          itemsPerPage={50}
+          itemsPerPageOptions={[50, 100, 200, 500]}
           className="compact-table"
           emptyStateMessage="No app usage data available."
           onReload={reloadAppUsage}
@@ -411,8 +469,10 @@ function Stats() {
             },
           ]}
         />
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
