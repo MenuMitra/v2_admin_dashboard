@@ -41,6 +41,49 @@ function toTitleCase(str) {
     : "";
 }
 
+// Reusable Toggle Switch Component
+const ToggleSwitch = ({ 
+  label, 
+  isOn, 
+  onToggle, 
+  disabled = false,
+  onText = "On",
+  offText = "Off"
+}) => {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div>
+          <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+            {isOn ? onText : offText}
+          </h4>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {label}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center ml-4">
+        <button
+          onClick={onToggle}
+          disabled={disabled}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            isOn ? "bg-brand-500" : "bg-gray-300"
+          }`}
+        >
+          <span
+            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
+              isOn ? "translate-x-6" : "translate-x-1"
+            }`}
+            style={{
+              transform: isOn ? 'translateX(1.5rem)' : 'translateX(0.25rem)'
+            }}
+          />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Helper to calculate days since last used
 function getDaysSinceLastUsed(lastUsed) {
   if (!lastUsed) return null;
@@ -72,6 +115,7 @@ function ViewOutlet() {
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  
 
   // Fetch outlet details query
   const {
@@ -255,23 +299,31 @@ function ViewOutlet() {
 
   // Toggle handlers
   const handleToggleOutletStatus = () => {
+    console.log("handleToggleOutletStatus called, current status:", outletData?.outlet_status);
     const newValue = outletData?.outlet_status === 1 ? "inactive" : "active";
+    console.log("Setting outlet status to:", newValue);
     toggleStatusMutation.mutate({ type: "outlet_status", value: newValue });
   };
 
   const handleToggleOpenStatus = () => {
+    console.log("handleToggleOpenStatus called, current status:", outletData?.is_open);
     const newValue = outletData?.is_open === 1 ? "close" : "open";
+    console.log("Setting open status to:", newValue);
     toggleStatusMutation.mutate({ type: "is_open", value: newValue });
   };
 
   const handleToggleAccountType = () => {
+    console.log("handleToggleAccountType called, current type:", outletData?.account_type);
     const newValue = outletData?.account_type === "test" ? "live" : "test";
+    console.log("Setting account type to:", newValue);
     toggleStatusMutation.mutate({ type: "account_type", value: newValue });
   };
 
   const handleToggleOutletMode = () => {
+    console.log("handleToggleOutletMode called, current mode:", outletData?.outlet_mode);
     const newValue =
       outletData?.outlet_mode === "online" ? "offline" : "online";
+    console.log("Setting outlet mode to:", newValue);
     toggleStatusMutation.mutate({ type: "outlet_mode", value: newValue });
   };
 
@@ -422,7 +474,6 @@ function ViewOutlet() {
 
         {/* Main Content */}
         <div className="px-4 pb-4">
-          {" "}
           {/* Using flex-col by default for mobile and row for larger screens */}
           <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 md:gap-6 mt-0">
             {/* Outlet Image Section */}
@@ -643,109 +694,37 @@ function ViewOutlet() {
               </div>
             )}
             {/* Outlet Mode */}
-            {outletData?.outlet_mode && (
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData.outlet_mode.charAt(0).toUpperCase() +
-                          outletData.outlet_mode.slice(1)}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Outlet Mode
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => handleToggleOutletMode()}
-                      disabled={toggleStatusMutation.isPending}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-                        outletData?.outlet_mode === "online"
-                          ? "bg-brand-500"
-                          : "bg-gray-300"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-                          outletData?.outlet_mode === "online"
-                            ? "translate-x-6"
-                            : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            <div className="flex justify-start">
+              <ToggleSwitch
+                label="Outlet Mode"
+                isOn={outletData?.outlet_mode === "online"}
+                onToggle={handleToggleOutletMode}
+                disabled={toggleStatusMutation.isPending}
+                onText="Online"
+                offText="Offline"
+              />
+            </div>
             {/* Outlet Status */}
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div>
-                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                      {outletData?.outlet_status === 1 ? "Active" : "Inactive"}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Outlet Status
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <button
-                    onClick={() => handleToggleOutletStatus()}
-                    disabled={toggleStatusMutation.isPending}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-                      outletData?.outlet_status === 1
-                        ? "bg-brand-500"
-                        : "bg-gray-300"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-                        outletData?.outlet_status === 1
-                          ? "translate-x-6"
-                          : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-              </div>
+            <div className="flex justify-start">
+              <ToggleSwitch
+                label="Outlet Status"
+                isOn={outletData?.outlet_status === 1}
+                onToggle={handleToggleOutletStatus}
+                disabled={toggleStatusMutation.isPending}
+                onText="Active"
+                offText="Inactive"
+              />
             </div>
             {/* Open/Close Status */}
-            <div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div>
-                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                      {outletData?.is_open === 1 ? "Open" : "Closed"}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Open/Close Status
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <button
-                    onClick={() => handleToggleOpenStatus()}
-                    disabled={toggleStatusMutation.isPending}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-                      outletData?.is_open === 1
-                        ? "bg-brand-500"
-                        : "bg-gray-300"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-                        outletData?.is_open === 1
-                          ? "translate-x-6"
-                          : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-              </div>
+            <div className="flex justify-start">
+              <ToggleSwitch
+                label="Open/Close Status"
+                isOn={outletData?.is_open === 1}
+                onToggle={handleToggleOpenStatus}
+                disabled={toggleStatusMutation.isPending}
+                onText="Open"
+                offText="Closed"
+              />
             </div>
           </div>
           {/* Business Details section with divider */}
