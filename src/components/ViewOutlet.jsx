@@ -41,14 +41,22 @@ function toTitleCase(str) {
     : "";
 }
 
+// Format numbers as currency with comma separators (Indian grouping)
+function formatCurrency(amount) {
+  if (amount === null || amount === undefined || amount === "") return "-";
+  const n = Number(amount);
+  if (Number.isNaN(n)) return String(amount);
+  return `₹${new Intl.NumberFormat("en-IN").format(n)}`;
+}
+
 // Reusable Toggle Switch Component
-const ToggleSwitch = ({ 
-  label, 
-  isOn, 
-  onToggle, 
+const ToggleSwitch = ({
+  label,
+  isOn,
+  onToggle,
   disabled = false,
   onText = "On",
-  offText = "Off"
+  offText = "Off",
 }) => {
   return (
     <div className="flex items-center justify-between">
@@ -57,9 +65,7 @@ const ToggleSwitch = ({
           <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
             {isOn ? onText : offText}
           </h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {label}
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
         </div>
       </div>
       <div className="flex items-center ml-4">
@@ -75,7 +81,7 @@ const ToggleSwitch = ({
               isOn ? "translate-x-6" : "translate-x-1"
             }`}
             style={{
-              transform: isOn ? 'translateX(1.5rem)' : 'translateX(0.25rem)'
+              transform: isOn ? "translateX(1.5rem)" : "translateX(0.25rem)",
             }}
           />
         </button>
@@ -115,7 +121,6 @@ function ViewOutlet() {
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  
 
   // Fetch outlet details query
   const {
@@ -209,14 +214,16 @@ function ViewOutlet() {
       await queryClient.cancelQueries(queryKeys.outlets.detail(outletId));
 
       // Snapshot the previous value
-      const previousOutletData = queryClient.getQueryData(queryKeys.outlets.detail(outletId));
+      const previousOutletData = queryClient.getQueryData(
+        queryKeys.outlets.detail(outletId)
+      );
 
       // Optimistically update to the new value
       queryClient.setQueryData(queryKeys.outlets.detail(outletId), (old) => {
         if (!old?.data) return old;
-        
+
         const newData = { ...old.data };
-        
+
         switch (type) {
           case "outlet_status":
             newData.outlet_status = value === "active" ? 1 : 0;
@@ -231,7 +238,7 @@ function ViewOutlet() {
             newData.account_type = value;
             break;
         }
-        
+
         return { ...old, data: newData };
       });
 
@@ -252,7 +259,10 @@ function ViewOutlet() {
     onError: (error, variables, context) => {
       // If the mutation fails, use the context returned from onMutate to roll back
       if (context?.previousOutletData) {
-        queryClient.setQueryData(queryKeys.outlets.detail(outletId), context.previousOutletData);
+        queryClient.setQueryData(
+          queryKeys.outlets.detail(outletId),
+          context.previousOutletData
+        );
       }
       toastController.error(
         error.response?.data?.message || "Failed to update status"
@@ -299,28 +309,40 @@ function ViewOutlet() {
 
   // Toggle handlers
   const handleToggleOutletStatus = () => {
-    console.log("handleToggleOutletStatus called, current status:", outletData?.outlet_status);
+    console.log(
+      "handleToggleOutletStatus called, current status:",
+      outletData?.outlet_status
+    );
     const newValue = outletData?.outlet_status === 1 ? "inactive" : "active";
     console.log("Setting outlet status to:", newValue);
     toggleStatusMutation.mutate({ type: "outlet_status", value: newValue });
   };
 
   const handleToggleOpenStatus = () => {
-    console.log("handleToggleOpenStatus called, current status:", outletData?.is_open);
+    console.log(
+      "handleToggleOpenStatus called, current status:",
+      outletData?.is_open
+    );
     const newValue = outletData?.is_open === 1 ? "close" : "open";
     console.log("Setting open status to:", newValue);
     toggleStatusMutation.mutate({ type: "is_open", value: newValue });
   };
 
   const handleToggleAccountType = () => {
-    console.log("handleToggleAccountType called, current type:", outletData?.account_type);
+    console.log(
+      "handleToggleAccountType called, current type:",
+      outletData?.account_type
+    );
     const newValue = outletData?.account_type === "test" ? "live" : "test";
     console.log("Setting account type to:", newValue);
     toggleStatusMutation.mutate({ type: "account_type", value: newValue });
   };
 
   const handleToggleOutletMode = () => {
-    console.log("handleToggleOutletMode called, current mode:", outletData?.outlet_mode);
+    console.log(
+      "handleToggleOutletMode called, current mode:",
+      outletData?.outlet_mode
+    );
     const newValue =
       outletData?.outlet_mode === "online" ? "offline" : "online";
     console.log("Setting outlet mode to:", newValue);
@@ -873,56 +895,59 @@ function ViewOutlet() {
                 </div>
               )}
               {/* Has Combo */}
-              {outletData?.has_combo !== undefined && outletData?.has_combo !== null && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.has_combo === 1 ? "Yes" : "No"}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Has Combo
-                        </p>
+              {outletData?.has_combo !== undefined &&
+                outletData?.has_combo !== null && (
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                            {outletData.has_combo === 1 ? "Yes" : "No"}
+                          </h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Has Combo
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
               {/* Has Denomination */}
-              {outletData?.has_denomination !== undefined && outletData?.has_denomination !== null && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.has_denomination === 1 ? "Yes" : "No"}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Has Denomination
-                        </p>
+              {outletData?.has_denomination !== undefined &&
+                outletData?.has_denomination !== null && (
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                            {outletData.has_denomination === 1 ? "Yes" : "No"}
+                          </h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Has Denomination
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
               {/* Reserve Table */}
-              {outletData?.reserve_table !== undefined && outletData?.reserve_table !== null && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.reserve_table === 1 ? "Yes" : "No"}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Reserve Table
-                        </p>
+              {outletData?.reserve_table !== undefined &&
+                outletData?.reserve_table !== null && (
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                            {outletData.reserve_table === 1 ? "Yes" : "No"}
+                          </h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Reserve Table
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
           {/* Order section with divider */}
@@ -953,7 +978,7 @@ function ViewOutlet() {
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.total_earning != null
-                          ? `₹${outletData.total_earning}`
+                          ? formatCurrency(outletData.total_earning)
                           : "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1158,7 +1183,7 @@ function ViewOutlet() {
                           {outletData.subscription_details.subscription_name}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Subscription Plan
+                          Plan
                         </p>
                       </div>
                     </div>
@@ -1172,10 +1197,12 @@ function ViewOutlet() {
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          ₹{outletData.subscription_details.subscription_price}
+                          {formatCurrency(
+                            outletData.subscription_details.subscription_price
+                          )}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Subscription Price
+                          Price
                         </p>
                       </div>
                     </div>
@@ -1239,6 +1266,7 @@ function ViewOutlet() {
                   </div>
                 </div>
               )}
+
               {/* Days Until Expiry */}
               {outletData?.subscription_details?.subscription_start_date &&
                 outletData?.subscription_details?.subscription_end_date && (
@@ -1246,29 +1274,17 @@ function ViewOutlet() {
                     <div className="flex items-center justify-between">
                       <div className="w-full">
                         <h4 className="text-base font-medium text-gray-800 dark:text-white/90 mb-2">
-                          Timeline
+                          TimeLine
                         </h4>
                         {(() => {
                           const msPerDay = 1000 * 60 * 60 * 24;
-                          
-                          // Parse dates correctly - handle "DD MMM YYYY" format
-                          const parseDate = (dateString) => {
-                            if (!dateString) return new Date();
-                            // Convert "29 Sep 2025" to "Sep 29, 2025" for proper parsing
-                            const parts = dateString.split(' ');
-                            if (parts.length === 3) {
-                              const day = parts[0];
-                              const month = parts[1];
-                              const year = parts[2];
-                              return new Date(`${month} ${day}, ${year}`);
-                            }
-                            return new Date(dateString);
-                          };
-                          
-                          const start = parseDate(outletData.subscription_details.subscription_start_date);
-                          const end = parseDate(outletData.subscription_details.subscription_end_date);
+                          const start = new Date(
+                            outletData.subscription_details.subscription_start_date
+                          );
+                          const end = new Date(
+                            outletData.subscription_details.subscription_end_date
+                          );
                           const now = new Date();
-                          
                           const total = Math.max(
                             0,
                             Math.ceil((end - start) / msPerDay)
@@ -1278,34 +1294,35 @@ function ViewOutlet() {
                             Math.ceil((end - now) / msPerDay)
                           );
                           const elapsed = Math.max(0, total - remaining);
-                          // Show remaining days as filled portion (inverse of completed)
                           const percent =
                             total > 0
                               ? Math.min(
                                   100,
-                                  Math.max(0, (remaining / total) * 100)
+                                  Math.max(0, (elapsed / total) * 100)
                                 )
                               : 0;
-                          
-                          // Dynamic color based on remaining days
-                          let barColorClass = "bg-success-500"; // green (default)
+                          // Choose progress bar color based on remaining days:
+                          // - <=5 days: red (urgent)
+                          // - <=15 days: orange (warning)
+                          // - >15 days: green (healthy)
+                          let barColorClass = "bg-success-500"; // green by default
                           if (remaining <= 5) {
-                            barColorClass = "bg-error-500"; // red (≤5 days)
-                          } else if (remaining <= 25) {
-                            barColorClass = "bg-warning-500"; // orange (≤25 days)
+                            barColorClass = "bg-error-500"; // red
+                          } else if (remaining <= 15) {
+                            barColorClass = "bg-warning-500"; // orange
                           }
 
                           return (
                             <div>
                               <div
-                                className="w-full h-3 bg-gray-200 rounded-full overflow-hidden"
+                                className="w-full h-2 bg-gray-200 rounded-full overflow-hidden"
                                 role="progressbar"
                                 aria-valuemin={0}
                                 aria-valuemax={100}
                                 aria-valuenow={Math.round(percent)}
                               >
                                 <div
-                                  className={`h-3 ${barColorClass} rounded-full transition-all duration-500`}
+                                  className={`h-2 ${barColorClass} rounded-full transition-all duration-500`}
                                   style={{ width: `${percent}%` }}
                                 />
                               </div>

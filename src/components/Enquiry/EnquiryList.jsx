@@ -32,8 +32,8 @@ const EnquiryList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  // Default to showing 'Enquiry' entries on load
-  const [statusFilter, setStatusFilter] = useState("enquiry");
+  // Default to showing all entries on load
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const handleBack = () => navigate(-1);
   // Fetch enquiries using new API
@@ -52,8 +52,8 @@ const EnquiryList = () => {
         limit,
       };
 
-      // Only add status_filter if it's not empty
-      if (status && status !== "") {
+      // Only add status_filter if it's not empty and not "all"
+      if (status && status !== "" && status !== "all") {
         requestBody.status_filter = status;
       }
 
@@ -99,7 +99,7 @@ const EnquiryList = () => {
           .includes(searchTerm.toLowerCase()) ||
         String(enquiry.enquiry_id).includes(searchTerm);
 
-      // Only apply status filter if statusFilter is not empty
+      // Only apply status filter if statusFilter is not empty and not "all"
       const matchesStatus =
         !statusFilter ||
         statusFilter === "" ||

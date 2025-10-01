@@ -505,7 +505,7 @@ function OwnerDetails() {
                           className="text-base font-medium text-gray-900 group-hover:text-brand-600 
                           flex items-center justify-between"
                         >
-                          {outlet.name}
+                          {toTitleCase(outlet.name)}
                           <FontAwesomeIcon
                             icon={faChevronRight}
                             className="w-4 h-4 text-gray-400 group-hover:text-brand-500"
@@ -568,6 +568,18 @@ function OwnerDetails() {
       </div>
     </>
   );
+}
+
+// Helper to convert strings to Title Case
+function toTitleCase(str) {
+  return str
+    ? str
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(" ")
+    : "";
 }
 
 export default OwnerDetails;
