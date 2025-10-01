@@ -53,17 +53,36 @@ export const useAuth = () => {
     const newAuthData = {
       access_token: response.data.access_token,
       token_type: response.data.token_type,
-      expires_at: response.data.expires_at,
+      expires_on: response.data.expires_on || response.data.expires_on, // Handle both field names
     };
     setAuthData(newAuthData);
   };
 
   const isAuthenticated = () => {
-    return !!authData && new Date(authData.expires_at) > new Date();
+    if (!authData || !authData.access_token) {
+      return false;
+    }
+    
+    // If expires_on is not available, consider token valid (for backward compatibility)
+    if (!authData.expires_on) {
+      return true;
+    }
+    
+    try {
+      // Parse the date string (format: "10 Sep 2025")
+      const expirationDate = new Date(authData.expires_on);
+      const currentDate = new Date();
+      
+      // Check if the date is valid and not expired
+      return !isNaN(expirationDate.getTime()) && expirationDate > currentDate;
+    } catch (error) {
+      console.error('Error parsing expiration date:', error);
+      return false;
+    }
   };
 
   const getToken = () => {
-    return authData ? `${authData.token_type} ${authData.access_token}` : null;
+    return authData ? `Bearer ${authData.access_token}` : null;
   };
 
   return {

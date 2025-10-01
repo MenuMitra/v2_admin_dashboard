@@ -17,13 +17,13 @@ import {
   faSignOut,
   faEllipsis,
   faUserShield,
-  faList,
   faIndianRupeeSign,
   faMobileScreenButton,
   faBell,
   faChartLine,
   faDatabase,
   faEnvelope,
+  faCalendarCheck,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -46,6 +46,7 @@ const menuGroups = [
         icon: faHandshake,
       },
       { title: "Customers", path: "/customer", id: "customer", icon: faUser },
+      { title: "UBAC Tree", path: "/ubac_tree", id: "ubac-tree", icon: faLock },
     ],
   },
   {
@@ -61,33 +62,16 @@ const menuGroups = [
       },
     ],
   },
-  {
-    items: [
-      {
-        title: "Subscriptions",
-        path: "/subscriptions",
-        id: "subscriptions",
-        icon: faIndianRupeeSign,
-      },
-      {
-        title: "Features",
-        path: "/features",
-        id: "features",
-        icon: faMobileScreenButton,
-      },
-    ],
-  },
-  {
-    items: [
-      { title: "Roles", path: "/roles", id: "roles", icon: faUserShield },
-      {
-        title: "Functionalities",
-        path: "/functionalities",
-        id: "functionalities",
-        icon: faList,
-      },
-    ],
-  },
+  // {
+  //   items: [
+  //     {
+  //       title: "Subscriptions",
+  //       path: "/subscriptions",
+  //       id: "subscriptions",
+  //       icon: faIndianRupeeSign,
+  //     },
+  //   ],
+  // },
   {
     items: [{ title: "Search", path: "/search", id: "search", icon: faSearch }],
   },
@@ -108,6 +92,12 @@ const menuGroups = [
         path: "/enquiries",
         id: "enquiries",
         icon: faEnvelope,
+      },
+      {
+        title: "Bookings",
+        path: "/bookings",
+        id: "bookings",
+        icon: faCalendarCheck,
       },
     ],
   },
@@ -175,19 +165,11 @@ const Sidebar = ({ sidebarToggle = false }) => {
           "/categories/",
           "/category-details/",
           "/edit-category/",
-          // Add manager, chef, captain, waiter sub-routes
-          "/managers/",
-          "/edit-manager/",
-          "/manager-details/",
-          "/chefs/",
-          "/edit-chef/",
-          "/chef-details/",
-          "/captains/",
-          "/edit-captain/",
-          "/captain-details/",
-          "/waiters/",
-          "/edit-waiter/",
-          "/waiter-details/",
+          // Staff sub-routes
+          "/staff/",
+          "/create-staff/",
+          "/edit-staff/",
+          "/staff-details/",
         ],
         admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
         "super-owners": [
@@ -202,14 +184,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
           "/template-details/",
           "/edit-template/",
         ],
-        // Special case for Access Control section
-        roles: [
-          "/roles",
-          "/add-role-assign-functionalities/",
-          "/role-details",
-          "/role-functionalities-mapping",
-        ],
-        functionalities: ["/functionalities", "/assign-functionality-role/"],
         subscriptions: [
           "/subscriptions",
           "/create-subscription",
@@ -219,17 +193,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
 
         customer: ["/customer", "/customer-details", "/edit-customer"],
       };
-
-      // Special case for Access Control section
-      if (item.title === "Access Control") {
-        return Object.keys(routePatterns)
-          .filter((key) => ["roles", "functionalities"].includes(key))
-          .some((key) =>
-            routePatterns[key].some((pattern) =>
-              currentPath.startsWith(pattern)
-            )
-          );
-      }
 
       // For regular menu items
       if (routePatterns[baseRoute]) {
@@ -263,7 +226,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
             `}
           >
             <FontAwesomeIcon
-              icon={item.icon}
+              icon={item.icon || faEllipsis}
               className={`w-4 h-4 ${isActive ? "text-brand-600 " : ""}`}
             />
             <span
@@ -329,7 +292,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
                       }`}
                     >
                       <FontAwesomeIcon
-                        icon={subItem.icon}
+                        icon={subItem.icon || faEllipsis}
                         className={`menu-item-icon ${
                           location.pathname === subItem.path
                             ? "menu-item-icon-active"
@@ -367,7 +330,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
                     }`}
                   >
                     <FontAwesomeIcon
-                      icon={item.icon}
+                      icon={subItem.icon || faEllipsis}
                       className={`menu-item-icon ${
                         location.pathname === subItem.path
                           ? "menu-item-icon-active"
@@ -425,8 +388,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
         </div>
       </div>
       {/* Menu Items */}
-      <div className="block lg:hidden mt-16"></div> {/* Mobile-only spacer */}
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4 ">
+      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4 pb-10">
         <nav>
           {menuGroups.map((group, idx) => (
             <React.Fragment key={idx}>

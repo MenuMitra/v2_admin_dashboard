@@ -12,8 +12,6 @@ import {
   TextInput,
   DateInput,
   Textarea,
-  Checkbox,
-  labelStyles,
   SelectInput,
 } from "./forms/FormElements.jsx";
 import Breadcrumb from "./Breadcrumb";
@@ -29,8 +27,7 @@ function EditOwner() {
   const [isLoading, setIsLoading] = useState(true);
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [error, setError] = useState(null);
-  const [functionalities, setFunctionalities] = useState([]);
-  const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
+
   const [roles, setRoles] = useState([]); // 1. Add roles state
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlets, setSelectedOutlets] = useState([]);
@@ -45,7 +42,6 @@ function EditOwner() {
     address: "",
     account_type: "",
     is_active: 0,
-    functionality_ids: [],
     role: "", // 2. Add role to ownerData
     outlet_ids: [], // Add outlet_ids to ownerData
   });
@@ -72,7 +68,6 @@ function EditOwner() {
   }, [adminData?.user_id, ownerId]);
 
   useEffect(() => {
-    fetchFunctionalities();
     fetchRoles(); // 3. Fetch roles on mount
     fetchOutlets(); // Add fetchOutlets to initial fetch
   }, []);
@@ -93,32 +88,6 @@ function EditOwner() {
       );
     } catch (err) {
       setError("Failed to load roles");
-    }
-  };
-
-  const fetchFunctionalities = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      setFunctionalities(
-        Array.isArray(response.data.functionalities)
-          ? response.data.functionalities
-          : []
-      );
-    } catch (err) {
-      console.error("Error fetching functionalities:", err);
-      setError("Failed to load functionalities");
     }
   };
 
@@ -176,11 +145,6 @@ function EditOwner() {
         }
       );
 
-      const funcIds = response.data.functionalities.map(
-        (f) => f.functionality_id
-      );
-      setSelectedFunctionalities(funcIds);
-
       // Add outlet_ids handling
       const outletIds =
         response.data.outlets?.map((outlet) => outlet.outlet_id) || [];
@@ -198,7 +162,6 @@ function EditOwner() {
         address: response.data.address,
         account_type: response.data.account_type,
         is_active: response.data.is_active,
-        functionality_ids: funcIds,
         role: response.data.role || "",
         outlet_ids: outletIds,
       });
@@ -333,7 +296,6 @@ function EditOwner() {
       ownerData.name?.trim() &&
       ownerData.mobile?.trim() &&
       ownerData.aadhar_number?.trim() &&
-      ownerData.functionality_ids.length > 0 &&
       ownerData.role && // Keep role validation
       // Remove outlet_ids validation
       validationStates.name &&
@@ -470,7 +432,6 @@ function EditOwner() {
         dob: dobForApi,
         email: ownerData.email,
         account_type: ownerData.account_type,
-        functionality_ids: ownerData.functionality_ids,
         is_active: Number(ownerData.is_active),
         app_source: "admin",
         ...outletData,
@@ -684,13 +645,7 @@ function EditOwner() {
                 name="role"
                 value={ownerData.role}
                 onChange={handleChange}
-                required
-                options={roles.map((role) => ({
-                  value: role.role_name,
-                  label:
-                    role.role_name.charAt(0).toUpperCase() +
-                    role.role_name.slice(1),
-                }))}
+                options={[{ value: "super_owner", label: "Superowner" }]}
                 placeholder="Select Role"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
@@ -767,111 +722,6 @@ function EditOwner() {
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Functionalities */}
-            <div>
-              <div className="flex items-center justify-between">
-                <label className={labelStyles}>
-                  <span className="text-error-600 text-red-500 mr-1">*</span>
-                  Functionalities
-                </label>
-                {/* Check All Checkbox on the right */}
-                <label className="flex items-center gap-2 font-medium cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={
-                      functionalities.length > 0 &&
-                      selectedFunctionalities.length === functionalities.length
-                    }
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        const allIds = functionalities.map(
-                          (f) => f.functionality_id
-                        );
-                        setSelectedFunctionalities(allIds);
-                        setOwnerData((prev) => ({
-                          ...prev,
-                          functionality_ids: allIds,
-                        }));
-                      } else {
-                        setSelectedFunctionalities([]);
-                        setOwnerData((prev) => ({
-                          ...prev,
-                          functionality_ids: [],
-                        }));
-                      }
-                    }}
-                  />
-                  Check All
-                </label>
-              </div>
-              <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
-                <div className="flex flex-wrap gap-4">
-                  {functionalities.map((func) => (
-                    <div
-                      key={func.functionality_id}
-                      className="min-w-[200px] flex-1"
-                    >
-                      <Checkbox
-                        label={func.functionality_name}
-                        value={func.functionality_id}
-                        checked={selectedFunctionalities.includes(
-                          func.functionality_id
-                        )}
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-                          setSelectedFunctionalities((prev) =>
-                            e.target.checked
-                              ? [...prev, value]
-                              : prev.filter((id) => id !== value)
-                          );
-                          setOwnerData((prev) => ({
-                            ...prev,
-                            functionality_ids: e.target.checked
-                              ? [...prev.functionality_ids, value]
-                              : prev.functionality_ids.filter(
-                                  (id) => id !== value
-                                ),
-                          }));
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Selected Functionalities Tags */}
-              {/* {selectedFunctionalities.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {selectedFunctionalities.map(id => {
-                    const func = functionalities.find(f => f.functionality_id === id);
-                    return (
-                      <span
-                        key={id}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      >
-                        {func?.functionality_name}
-                        <button
-                          type="button"
-                          className="ml-1 inline-flex items-center justify-center"
-                          onClick={() => {
-                            setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
-                            setOwnerData(prev => ({
-                              ...prev,
-                              functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
-                            }));
-                          }}
-                        >
-                          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )} */}
             </div>
 
             {/* Error Message */}

@@ -83,7 +83,17 @@ function ViewEnquiry() {
             {/* Left Side - Back Button */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                  try {
+                    if (window.history && window.history.length > 1) {
+                      navigate(-1);
+                    } else {
+                      navigate("/enquiries");
+                    }
+                  } catch (e) {
+                    navigate("/enquiries");
+                  }
+                }}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover shadow-theme-xs"
               >
                 <svg

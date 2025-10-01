@@ -68,10 +68,10 @@ function CreateCategory() {
       {/* Breadcrumb */}
       <Breadcrumb
         items={[
-          { label: 'Home', path: '/home' },
-          { label: 'Outlets', path: '/outlets' },
-          { label: 'Categories', path: `/outlets/${outletId}/categories` },
-          { label: 'Create Category' }
+          { label: "Home", path: "/home" },
+          { label: "Outlets", path: "/outlets" },
+          { label: "Categories", path: `/categories/${outletId}` },
+          { label: "Create Category" },
         ]}
       />
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">

@@ -207,9 +207,10 @@ function Functionalities() {
               <button
                 onClick={handleCreateFunctionality}
                 disabled={isCreating || !newFunctionalityName.trim()}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-success-500 shadow-theme-xs hover:bg-success-600 disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white transition rounded-full bg-success-500 shadow-theme-xs hover:bg-success-600 disabled:opacity-50"
               >
-                {isCreating ? "Creating..." : "Create"}
+                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                <span>{isCreating ? "Creating..." : "Create"}</span>
               </button>
             </div>
           </div>

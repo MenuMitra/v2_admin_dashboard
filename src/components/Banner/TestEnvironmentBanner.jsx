@@ -38,9 +38,10 @@ const TestEnvironmentBanner = () => {
         </span>
       </div>
       <Link
-        to="https://user.menumitra.com/"
+        to="https://admin-v2.menumitra.com"
         className="flex items-center p-3 py-1 bg-gray-50 rounded-full font-semibold text-sm shadow-md transition-all duration-200 text-gray-700"
         target="_blank"
+        rel="noopener noreferrer"
       >
         Prod
         <svg

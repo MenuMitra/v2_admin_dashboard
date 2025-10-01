@@ -1,9 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { useAuth } from '../../../hooks/useAuth';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { queryKeys } from '../queryKeys';
-import { toastController } from '../../../utils/toastController';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useAuth } from "../../../hooks/useAuth";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { queryKeys } from "../queryKeys";
+import { toastController } from "../../../utils/toastController";
 
 export const usePartnerDetails = (partnerId) => {
   const { getToken } = useAuth();
@@ -15,11 +15,12 @@ export const usePartnerDetails = (partnerId) => {
     data: partnerData,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.partners.detail(partnerId),
     queryFn: async () => {
       const token = getToken();
-      if (!token) throw new Error('No authentication token available');
+      if (!token) throw new Error("No authentication token available");
 
       const response = await axios.post(
         'https://ghanish.in/v2/admin/view_partner',
@@ -31,8 +32,8 @@ export const usePartnerDetails = (partnerId) => {
         {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json'
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -40,21 +41,21 @@ export const usePartnerDetails = (partnerId) => {
     },
     enabled: Boolean(partnerId && adminData?.user_id),
     meta: {
-      cacheStrategy: 'post-cache', // Handle POST request caching
-    }
+      cacheStrategy: "post-cache", // Handle POST request caching
+    },
   });
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const token = getToken();
-      if (!token) throw new Error('No authentication token available');
+      if (!token) throw new Error("No authentication token available");
 
       await toastController.promise(
         axios.delete('https://ghanish.in/v2/admin/delete_partner', {
           headers: {
             Authorization: token,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           data: {
             partner_id: Number(partnerId),
@@ -63,16 +64,18 @@ export const usePartnerDetails = (partnerId) => {
           },
         }),
         {
-          loading: 'Deleting partner...',
-          success: 'Partner deleted successfully!',
-          error: 'Failed to delete partner'
+          loading: "Deleting partner...",
+          success: "Partner deleted successfully!",
+          error: "Failed to delete partner",
         }
       );
     },
     onSuccess: () => {
       // Invalidate both list and detail queries
       queryClient.invalidateQueries({ queryKey: queryKeys.partners.all });
-      queryClient.invalidateQueries({ queryKey: queryKeys.partners.detail(partnerId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.partners.detail(partnerId),
+      });
     },
   });
 
@@ -80,7 +83,8 @@ export const usePartnerDetails = (partnerId) => {
     partner: partnerData,
     isLoading,
     error,
+    refetch,
     deletePartner: deleteMutation.mutate,
-    isDeleting: deleteMutation.isPending
+    isDeleting: deleteMutation.isPending,
   };
-}; 
+};

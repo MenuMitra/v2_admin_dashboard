@@ -1,10 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { API_CONFIG } from '../../../config/appConfig';
-import { useAuth } from '../../../hooks/useAuth';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { queryKeys } from '../queryKeys';
-import { toastController } from '../../../utils/toastController';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { API_CONFIG } from "../../../config/appConfig";
+import { useAuth } from "../../../hooks/useAuth";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { queryKeys } from "../queryKeys";
+import { toastController } from "../../../utils/toastController";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -18,6 +18,7 @@ export const useOwnerDetails = (ownerId) => {
     data: ownerData,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.owners.detail(ownerId),
     queryFn: async () => {
@@ -42,9 +43,9 @@ export const useOwnerDetails = (ownerId) => {
           }
         ),
         {
-          loading: 'Loading owner details...',
-          success: 'Owner details loaded successfully!',
-          error: 'Failed to load owner details'
+          loading: "Loading owner details...",
+          success: "Owner details loaded successfully!",
+          error: "Failed to load owner details",
         }
       );
 
@@ -74,9 +75,9 @@ export const useOwnerDetails = (ownerId) => {
           },
         }),
         {
-          loading: 'Deleting owner...',
-          success: 'Owner deleted successfully!',
-          error: 'Failed to delete owner'
+          loading: "Deleting owner...",
+          success: "Owner deleted successfully!",
+          error: "Failed to delete owner",
         }
       );
     },
@@ -90,7 +91,8 @@ export const useOwnerDetails = (ownerId) => {
     ownerData,
     isLoading,
     error,
+    refetch,
     deleteOwner: deleteOwnerMutation.mutate,
     isDeleting: deleteOwnerMutation.isPending,
   };
-}; 
+};

@@ -158,15 +158,22 @@ function DataTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
+  const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
 
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
     ------------------------------------------------------------ */
   useEffect(() => {
     // Go back to page-1 whenever the search term changes
-    // or the parent passes in a new data array.
+    // or the number of items changes (avoid resetting when parent
+    // passes a new array reference with same contents).
     setCurrentPage(1);
-  }, [searchTerm, data]);
+  }, [searchTerm, safeData.length]);
+
+  // Sync internal itemsPerPage with prop changes
+  useEffect(() => {
+    setInternalItemsPerPage(itemsPerPage);
+  }, [itemsPerPage]);
 
   // Sorting Logic
   const handleSort = (field) => {
@@ -310,9 +317,9 @@ function DataTable({
 
   // Pagination Logic
   const processedData = getSortedAndFilteredData();
-  const totalPages = Math.ceil(processedData.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const totalPages = Math.ceil(processedData.length / internalItemsPerPage);
+  const indexOfLastItem = currentPage * internalItemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - internalItemsPerPage;
   const currentItems = processedData.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageChange = (pageNumber) => {
@@ -481,7 +488,7 @@ function DataTable({
     return (
       <div className="relative flex-1 sm:flex-initial">
         <select
-          className={`w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
+          className={`w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
             isLoading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           value={selectedOutlet}
@@ -543,7 +550,7 @@ function DataTable({
   };
 
   // Add these helper functions near the top of the component
-  const shouldShowPagination = () => processedData.length > itemsPerPage;
+  const shouldShowPagination = () => processedData.length > internalItemsPerPage;
   const shouldShowNavigationButtons = () => totalPages > 1;
   const currentPageInfo = `Page ${currentPage} of ${Math.max(totalPages, 1)}`;
 
@@ -719,12 +726,22 @@ function DataTable({
                   )}
                   {typeof counts.active === "number" && (
                     <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">
-                      Active: {processedData.filter(item => normalizeStatus(item[statusField])).length}
+                      Active:{" "}
+                      {
+                        processedData.filter((item) =>
+                          normalizeStatus(item[statusField])
+                        ).length
+                      }
                     </span>
                   )}
                   {typeof counts.inactive === "number" && (
                     <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">
-                      Inactive: {processedData.filter(item => !normalizeStatus(item[statusField])).length}
+                      Inactive:{" "}
+                      {
+                        processedData.filter(
+                          (item) => !normalizeStatus(item[statusField])
+                        ).length
+                      }
                     </span>
                   )}
                   {/* Custom count properties for Stats */}
@@ -764,7 +781,7 @@ function DataTable({
                       <select
                         value={statusFilter}
                         onChange={(e) => onStatusFilterChange(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                        className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                       >
                         <option value="all">All Status</option>
                         <option value="active">Active</option>
@@ -777,7 +794,7 @@ function DataTable({
                         <select
                           value={enquiryFilter || "all"}
                           onChange={onEnquiryFilterChange || (() => {})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">Enquiry Type</option>
                           <option value="enquiry">Enquiry</option>
@@ -792,7 +809,7 @@ function DataTable({
                         <select
                           value={accountType || "all"}
                           onChange={onAccountTypeChange || (() => {})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">Account Type</option>
                           <option value="live">Live</option>
@@ -806,7 +823,7 @@ function DataTable({
                         <select
                           value={openCloseStatus || "all"}
                           onChange={onOpenCloseStatusChange || (() => {})}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">Open/Close</option>
                           <option value="open">Open</option>
@@ -822,7 +839,7 @@ function DataTable({
                           onChange={(e) => {
                             onActiveSessionFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Sessions</option>
                           <option value="0">0</option>
@@ -843,7 +860,7 @@ function DataTable({
                           onChange={(e) => {
                             onOutletCountFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Outlets</option>
                           <option value="0">0</option>
@@ -864,7 +881,7 @@ function DataTable({
                           onChange={(e) => {
                             onOutletTypeFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Types</option>
                           <option value="outlet">Outlet</option>
@@ -880,7 +897,7 @@ function DataTable({
                           onChange={(e) => {
                             onOutletModeFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Modes</option>
                           <option value="online">Online</option>
@@ -896,7 +913,7 @@ function DataTable({
                           onChange={(e) => {
                             onOwnerCountFilterChange(e.target.value);
                           }}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Owners</option>
                           <option value="0">0</option>
@@ -914,13 +931,19 @@ function DataTable({
 
                 {/* Execution Time Filter - Independent of Status Filter */}
                 {enableExecutionTimeFilter && (
-                  <div className="relative w-40">
+                  <div className="relative w-56">
                     <select
                       value={executionTimeFilter || "all"}
                       onChange={(e) => {
                         onExecutionTimeFilterChange(e.target.value);
                       }}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                      className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none"
+                      style={{ 
+                        backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")', 
+                        backgroundPosition: 'right 0.75rem center', 
+                        backgroundRepeat: 'no-repeat', 
+                        backgroundSize: '1.5em 1.5em'
+                      }}
                     >
                       <option value="all">All Execution Time</option>
                       <option value="5">&gt;5ms</option>
@@ -946,7 +969,7 @@ function DataTable({
                         {filter.type === "select" && (
                           <div className="relative">
                             <select
-                              className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                              className="w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                               value={filter.value}
                               onChange={(e) => filter.onChange(e.target.value)}
                             >
@@ -998,7 +1021,7 @@ function DataTable({
                 {/* Search Input */}
                 {showSearch && (
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
                       <FontAwesomeIcon
                         icon={faMagnifyingGlass}
                         className="w-4 h-4"
@@ -1006,7 +1029,7 @@ function DataTable({
                     </span>
                     <input
                       placeholder={searchPlaceholder}
-                      className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                      className="sm:w-[250px] h-10 mr-3 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
                       type="text"
                       value={searchTerm}
                       onChange={(e) => onSearchChange(e.target.value)}
@@ -1016,6 +1039,7 @@ function DataTable({
                         }
                       }}
                     />
+
                     {searchTerm && (
                       <button
                         onClick={(e) => {
@@ -1029,7 +1053,7 @@ function DataTable({
                             searchInput.focus();
                           }
                         }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                       >
                         <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
                       </button>
@@ -1275,8 +1299,15 @@ function DataTable({
                   Show
                 </span>
                 <select
-                  value={itemsPerPage}
-                  onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+                  value={internalItemsPerPage}
+                  onChange={(e) => {
+                    const newItemsPerPage = Number(e.target.value);
+                    setInternalItemsPerPage(newItemsPerPage);
+                    setCurrentPage(1); // Reset to first page when changing items per page
+                    if (onItemsPerPageChange) {
+                      onItemsPerPageChange(newItemsPerPage);
+                    }
+                  }}
                   className="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
                 >
                   {itemsPerPageOptions.map((option) => (

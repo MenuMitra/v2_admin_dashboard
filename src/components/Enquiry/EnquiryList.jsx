@@ -32,8 +32,10 @@ const EnquiryList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [statusFilter, setStatusFilter] = useState("");
+  // Default to showing 'Enquiry' entries on load
+  const [statusFilter, setStatusFilter] = useState("enquiry");
 
+  const handleBack = () => navigate(-1);
   // Fetch enquiries using new API
   const fetchEnquiries = async (
     page = 1,
@@ -127,7 +129,7 @@ const EnquiryList = () => {
       sortable: true,
       render: (value) => <span>{value || "-"}</span>,
     },
-    
+
     {
       field: "enquiry_datetime",
       header: "Enquiry Date",
@@ -294,6 +296,7 @@ const EnquiryList = () => {
           itemsPerPage={itemsPerPage}
           onItemsPerPageChange={setItemsPerPage}
           onBulkAction={handleBulkAction}
+          onBackClick={handleBack}
           bulkActions={[
             { label: "Delete Selected", value: "delete" },
             { label: "Mark as Resolved", value: "update_status" },

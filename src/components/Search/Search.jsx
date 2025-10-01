@@ -100,9 +100,18 @@ const Search = () => {
     [searchType, selectedRole, getToken]
   );
 
-  // Simplify handleInputChange to just update state
+  // Update input and clear prior search state when user erases input
   const handleInputChange = useCallback((e) => {
-    setSearchInput(e.target.value);
+    const val = e.target.value;
+    setSearchInput(val);
+    if (!val.trim()) {
+      // clear previous search results / messages when input is empty
+      setHasSearched(false);
+      setSearchedTerm("");
+      setSearchResults([]);
+      setTotalResults(0);
+      setError(null);
+    }
   }, []);
 
   // Modified form submit handler to handle search
@@ -114,7 +123,11 @@ const Search = () => {
   };
 
   // Add handler for view button click with role-based navigation
-  const handleViewDetails = (userId, role, outlet) => {
+  const handleViewDetails = (userId, role, outlets) => {
+    // Get primary outlet or first outlet
+    const primaryOutlet = outlets?.find(outlet => outlet.is_primary);
+    const outlet = primaryOutlet || outlets?.[0];
+    
     switch (role?.toLowerCase()) {
       case "chef":
         if (outlet?.outlet_id) {
@@ -153,6 +166,9 @@ const Search = () => {
       case "super_owner":
         navigate(`/super-owner-details/${userId}`);
         break;
+      case "partner":
+        navigate(`/partner-details/${userId}`);
+        break;
       default:
         // Fallback to role-details if role is unknown
         navigate(`/role-details/${userId}`);
@@ -175,10 +191,19 @@ const Search = () => {
       ),
     },
     {
-      field: "outlet",
-      header: "Outlet",
+      field: "outlets",
+      header: "Outlets",
       sortable: true,
-      render: (outlet) => outlet?.outlet_name || "-",
+      render: (outlets) => {
+        if (!outlets || !Array.isArray(outlets) || outlets.length === 0) {
+          return "0";
+        }
+        return (
+          <span className="font-medium text-gray-800">
+            {outlets.length}
+          </span>
+        );
+      },
     },
     {
       field: "action",
@@ -198,7 +223,7 @@ const Search = () => {
           <div className="flex justify-center">
             <button
               onClick={() =>
-                handleViewDetails(row.user_id, row.role, row.outlet)
+                handleViewDetails(row.user_id, row.role, row.outlets)
               }
               className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
               title="View Details"
@@ -260,11 +285,19 @@ const Search = () => {
               {/* Mobile: Stacked Layout for Filters */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                 {/* Role Select */}
-                <div className="w-full sm:w-40">
+                <div className="w-full sm:w-auto sm:min-w-[200px]">
                   <select
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full h-10 sm:h-auto text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-10 sm:h-auto px-4 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white appearance-none"
+                    style={{ 
+                      backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")', 
+                      backgroundPosition: 'right 0.75rem center', 
+                      backgroundRepeat: 'no-repeat', 
+                      backgroundSize: '1.5em 1.5em',
+                      width: 'max-content',
+                      minWidth: '200px'
+                    }}
                   >
                     <option value="">All Roles</option>
                     <option value="super_owner">Super Owner</option>
@@ -278,11 +311,19 @@ const Search = () => {
                 </div>
 
                 {/* Search Type Select */}
-                <div className="w-full sm:w-40">
+                <div className="w-full sm:w-auto sm:min-w-[200px]">
                   <select
                     value={searchType}
                     onChange={(e) => setSearchType(e.target.value)}
-                    className="w-full h-10 sm:h-auto px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full h-10 sm:h-auto px-4 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white appearance-none"
+                    style={{ 
+                      backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")', 
+                      backgroundPosition: 'right 0.75rem center', 
+                      backgroundRepeat: 'no-repeat', 
+                      backgroundSize: '1.5em 1.5em',
+                      width: 'max-content',
+                      minWidth: '200px'
+                    }}
                   >
                     <option value="name">Name</option>
                     <option value="mobile">Mobile</option>
@@ -294,37 +335,46 @@ const Search = () => {
               {/* Search Input and Button Group */}
               <div className="flex gap-2 sm:gap-4 flex-1">
                 <div className="flex-1 relative">
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchInput}
-                    onChange={handleInputChange}
-                    placeholder={`Search by ${searchType}...`}
-                    className="w-full h-10 sm:h-auto px-3 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    autoFocus
-                  />
-                  {searchInput && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setSearchInput("");
-                        // Keep focus on the search input
-                        if (searchInputRef.current) {
-                          searchInputRef.current.focus();
-                        }
-                      }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
-                    </button>
-                  )}
+                  <div className="relative">
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchInput}
+                      onChange={handleInputChange}
+                      placeholder={`Search by ${searchType}...`}
+                      className="w-full h-10 sm:h-auto px-3 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      autoFocus
+                    />
+                    {searchInput && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setSearchInput("");
+                          // Clear search state as well
+                          setHasSearched(false);
+                          setSearchedTerm("");
+                          setSearchResults([]);
+                          setTotalResults(0);
+                          setError(null);
+                          // Keep focus on the search input
+                          if (searchInputRef.current) {
+                            searchInputRef.current.focus();
+                          }
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                        title="Clear search"
+                      >
+                        <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="self-start sm:self-end">
                   <button
                     type="submit"
-                    className="h-10 sm:h-auto px-4 sm:px-6 py-2 text-sm bg-brand-500 text-white rounded-full hover:bg-brand-600 disabled:bg-brand-300 flex items-center gap-2"
+                    className="h-10 sm:h-auto px-4 sm:px-6 py-2 text-sm bg-brand-500 text-white rounded-full hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed flex items-center gap-2 transition-all duration-200 shadow-sm hover:shadow-md"
                     disabled={loading || !searchInput.trim()}
                   >
                     <span className="hidden sm:inline">

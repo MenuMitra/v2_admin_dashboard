@@ -35,11 +35,8 @@ function EditPartner() {
   const { getToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [functionalities, setFunctionalities] = useState([]);
-  const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
+
   const [validationErrors, setValidationErrors] = useState({});
-  const [roles, setRoles] = useState([]);
-  const [outlets, setOutlets] = useState([]);
 
   const [partnerDetails, setPartnerDetails] = useState({
     name: "",
@@ -49,7 +46,6 @@ function EditPartner() {
     aadhar_number: "",
     address: "",
     is_active: 0,
-    functionality_ids: [],
     role: "",
     outlet_id: "", // Add outlet_id field
   });
@@ -60,62 +56,11 @@ function EditPartner() {
     }
   }, [adminData?.user_id, partnerId]);
 
-  useEffect(() => {
-    fetchFunctionalities();
-    fetchRoles();
-    fetchOutlets();
-  }, []);
+  useEffect(() => {}, []);
 
-  const fetchFunctionalities = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
+  // fetchFunctionalities removed
 
-      const response = await axios.get(
-        "https://ghanish.in/v2/admin/get_ubac_functionalities",
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setFunctionalities(
-        Array.isArray(response.data.functionalities)
-          ? response.data.functionalities
-          : []
-      );
-      // Do NOT check all checkboxes by default
-      setSelectedFunctionalities([]);
-      setPartnerDetails((prev) => ({
-        ...prev,
-        functionality_ids: [],
-      }));
-    } catch (err) {
-      console.error("Error fetching functionalities:", err);
-      setError("Failed to load functionalities");
-    }
-  };
-
-  const fetchRoles = async () => {
-    try {
-      const response = await axios.get(
-        "https://ghanish.in/v2/common/get_list/roles",
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-        }
-      );
-      setRoles(Array.isArray(response.data.role_list) ? response.data.role_list : []);
-    } catch (err) {
-      console.error("Error fetching roles:", err);
-      setError("Failed to load roles");
-    }
-  };
+  // fetchRoles removed
 
   // Uncomment and modify fetchOutlets function
   const fetchOutlets = async () => {
@@ -126,7 +71,7 @@ function EditPartner() {
       }
 
       const response = await axios.get(
-        "https://ghanish.in/v2/common/get_list/outlets",
+        "https://men4u.xyz/v2/common/get_list/outlets",
         {
           headers: {
             Authorization: token,
@@ -173,10 +118,9 @@ function EditPartner() {
         }
       );
 
-      const funcIds = response.data.functionalities.map(
-        (f) => f.functionality_id
-      );
-      setSelectedFunctionalities(funcIds);
+      const funcIds = Array.isArray(response.data.functionalities)
+        ? response.data.functionalities.map((f) => f.functionality_id)
+        : [];
 
       setPartnerDetails({
         name: response.data.name,
@@ -186,7 +130,7 @@ function EditPartner() {
         aadhar_number: response.data.aadhar_number,
         address: response.data.address,
         is_active: response.data.is_active,
-        functionality_ids: funcIds,
+        // functionality_ids removed
         role: response.data.role || "",
         outlet_id: response.data.outlet_id || "",
       });
@@ -321,7 +265,6 @@ function EditPartner() {
           aadhar_number: partnerDetails.aadhar_number,
           address: partnerDetails.address,
           is_active: partnerDetails.is_active,
-          functionality_ids: selectedFunctionalities,
           role: partnerDetails.role,
           user_id: Number(partnerId),
           update_user_id: adminData.user_id,
@@ -496,21 +439,7 @@ function EditPartner() {
                 placeholder="Select Status"
               />
 
-              {/* Role */}
-              <SelectInput
-                label="Role"
-                name="role"
-                value={partnerDetails.role}
-                onChange={handleChange}
-                required
-                options={roles.map((role) => ({
-                  value: role.role_name,
-                  label:
-                    role.role_name.charAt(0).toUpperCase() +
-                    role.role_name.slice(1),
-                }))}
-                placeholder="Select Role"
-              />
+              {/* Role removed */}
 
               {/* Address */}
               <div className="sm:col-span-1">
@@ -524,99 +453,10 @@ function EditPartner() {
                 />
               </div>
 
-              {/* Add Outlet Selection to Form */}
-              <SelectInput
-                label="Outlet"
-                name="outlet_id"
-                value={partnerDetails.outlet_id}
-                onChange={handleChange}
-                required
-                options={[
-                  { value: "", label: "Select Outlet" },
-                  ...outlets.map((outlet) => ({
-                    value: outlet.outlet_id,
-                    label: outlet.outlet_name,
-                  })),
-                ]}
-                placeholder="Select Outlet"
-              />
+              {/* Outlet selection removed */}
             </div>
 
-            {/* Functionalities Section */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className={labelStyles}>
-                  <span className="text-error-600 text-red-500 mr-1">*</span>
-                  Functionalities
-                </label>
-                {/* Check All Checkbox */}
-                <label className="flex items-center gap-2 font-medium cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={
-                      functionalities.length > 0 &&
-                      selectedFunctionalities.length === functionalities.length
-                    }
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        const allIds = functionalities.map(
-                          (f) => f.functionality_id
-                        );
-                        setSelectedFunctionalities(allIds);
-                        setPartnerDetails((prev) => ({
-                          ...prev,
-                          functionality_ids: allIds,
-                        }));
-                      } else {
-                        setSelectedFunctionalities([]);
-                        setPartnerDetails((prev) => ({
-                          ...prev,
-                          functionality_ids: [],
-                        }));
-                      }
-                    }}
-                  />
-                  Check All
-                </label>
-              </div>
-              <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
-                <div className="flex flex-wrap gap-4">
-                  {functionalities.map((func) => (
-                    <div
-                      key={func.functionality_id}
-                      className="min-w-[200px] flex-1"
-                    >
-                      <label className="flex items-center justify-between gap-2 cursor-pointer select-none">
-                        <Checkbox
-                          label=""
-                          value={func.functionality_id}
-                          checked={selectedFunctionalities.includes(
-                            func.functionality_id
-                          )}
-                          onChange={(e) => {
-                            const value = Number(e.target.value);
-                            setSelectedFunctionalities((prev) =>
-                              e.target.checked
-                                ? [...prev, value]
-                                : prev.filter((id) => id !== value)
-                            );
-                            setPartnerDetails((prev) => ({
-                              ...prev,
-                              functionality_ids: e.target.checked
-                                ? [...prev.functionality_ids, value]
-                                : prev.functionality_ids.filter(
-                                    (id) => id !== value
-                                  ),
-                            }));
-                          }}
-                        />
-                        <span>{func.functionality_name}</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            {/* Functionalities removed */}
 
             {/* Outlets Section - Commented out for now */}
             {/*

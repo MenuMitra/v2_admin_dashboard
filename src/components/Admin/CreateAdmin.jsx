@@ -211,7 +211,7 @@ function CreateAdmin() {
 
             {/* Title */}
             <h1 className="text-xl font-semibold text-gray-800">
-              Create New Admin
+              Create Admin
             </h1>
 
             {/* Create Button */}
@@ -272,11 +272,6 @@ function CreateAdmin() {
                     ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
                   `}
                 />
-                {!validationStates.mobile && (
-                  <p className="text-error-500 text-sm mt-1">
-                    {validationStates.mobileMessage}
-                  </p>
-                )}
               </div>
 
               <div className="relative">

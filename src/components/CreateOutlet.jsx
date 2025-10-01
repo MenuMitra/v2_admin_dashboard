@@ -8,6 +8,8 @@ import {
   faChevronLeft as faBack,
   faPlus,
   faTimes,
+  faLayerGroup,
+  faCog,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
@@ -17,6 +19,7 @@ import {
   TimePickerInput,
   labelStyles,
 } from "./forms/FormElements.jsx";
+import { YES_NO_OPTIONS } from "../utils/validationPatterns";
 import ImageUploader from "./common/ImageUploader";
 import Breadcrumb from "./Breadcrumb";
 import { toastController } from "../utils/toastController";
@@ -56,8 +59,14 @@ function CreateOutlet() {
   const [allOwners, setAllOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [subscriptions, setSubscriptions] = useState([]);
+  // Subscriptions removed
   const { BASE_URL, API_VERSION } = API_CONFIG;
+
+  // Subscription plan fields for Assign Subscription
+  const [planName, setPlanName] = useState("");
+  const [planPrice, setPlanPrice] = useState("");
+  const [tenureMonths, setTenureMonths] = useState(null);
+  const ALLOWED_TENURES = [1, 3, 6, 12, 18, 24];
 
   const [outletData, setOutletData] = useState({
     name: "",
@@ -86,6 +95,11 @@ function CreateOutlet() {
     image: null,
     subscription_id: "",
     subscription_end_date: "",
+    feature_ids: [],
+    action_ids: [],
+    has_combo: 0,
+    has_denomination: 0,
+    reserve_table: 0,
   });
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -118,6 +132,11 @@ function CreateOutlet() {
     // Add other fields that might have API errors
   });
 
+  // Modules for Assign Subscription
+  const [modules, setModules] = useState([]);
+  const [selectedModuleIds, setSelectedModuleIds] = useState([]);
+  const [loadingModules, setLoadingModules] = useState(false);
+
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
     { label: "Outlets", path: "/outlets" },
@@ -127,7 +146,31 @@ function CreateOutlet() {
   useEffect(() => {
     fetchOutletTypes();
     fetchOwners();
-    fetchSubscriptions();
+    // fetch modules for subscription assign
+    (async () => {
+      try {
+        setLoadingModules(true);
+        const token = getToken();
+        const resp = await axios.get(
+          `${BASE_URL}/${API_VERSION}/admin/get_modules`,
+          {
+            headers: { Authorization: token },
+          }
+        );
+        const modList = Array.isArray(resp.data)
+          ? resp.data
+          : resp.data?.data || [];
+        setModules(modList);
+        // Select all modules by default when creating an outlet
+        if (modList.length > 0) {
+          setSelectedModuleIds(modList.map((m) => m.module_id));
+        }
+      } catch (err) {
+        console.error("Error fetching modules:", err);
+      } finally {
+        setLoadingModules(false);
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -158,6 +201,9 @@ function CreateOutlet() {
     outletData.outlet_mode,
     outletData.address,
     outletData.subscription_end_date,
+    outletData.has_combo,
+    outletData.has_denomination,
+    outletData.reserve_table,
   ]);
 
   useEffect(() => {
@@ -242,9 +288,10 @@ function CreateOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_end_date: outletData.subscription_id
-        ? !!outletData.subscription_end_date
-        : true,
+      subscription_end_date:
+        outletData.subscription_id && outletData.subscription_id !== ""
+          ? !!outletData.subscription_end_date
+          : true,
     };
 
     // Check if there are any API errors
@@ -318,27 +365,7 @@ function CreateOutlet() {
     }
   };
 
-  const fetchSubscriptions = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-      const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      if (response.data.detail === "Subscription list fetched successfully") {
-        setSubscriptions(response.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching subscriptions:", error);
-    }
-  };
+  // fetchSubscriptions removed
 
   const handleImagesChange = (images) => {
     // Don't set to null if no new image is provided
@@ -350,6 +377,14 @@ function CreateOutlet() {
         image: base64String,
       }));
     }
+  };
+
+  const handleModuleToggle = (moduleId) => {
+    setSelectedModuleIds((prev) => {
+      const exists = prev.includes(moduleId);
+      if (exists) return prev.filter((id) => id !== moduleId);
+      return [...prev, moduleId];
+    });
   };
 
   const handleInputChange = (e) => {
@@ -486,12 +521,34 @@ function CreateOutlet() {
 
       const currentDate = new Date().toISOString().split("T")[0];
 
+      // Require at least one module selected
+      if (!Array.isArray(selectedModuleIds) || selectedModuleIds.length === 0) {
+        toastController.error(
+          "Please select at least one module for subscription"
+        );
+        return;
+      }
+
+      // Require plan fields
+      if (!planName || planName.trim().length === 0) {
+        toastController.error("Please enter plan name");
+        return;
+      }
+      if (!planPrice || isNaN(Number(planPrice)) || Number(planPrice) <= 0) {
+        toastController.error("Please enter a valid price");
+        return;
+      }
+      if (!tenureMonths || !ALLOWED_TENURES.includes(Number(tenureMonths))) {
+        toastController.error("Please select a valid tenure");
+        return;
+      }
+
       const payload = {
         // Only include owner_ids if at least one owner is selected
         ...(outletData.owner_id.length > 0
           ? { owner_ids: outletData.owner_id }
           : {}),
-        user_id: adminData.user_id.toString(),
+        user_id: parseInt(adminData.user_id),
         name: outletData.name,
         mobile: outletData.mobile,
         address: outletData.address,
@@ -499,9 +556,27 @@ function CreateOutlet() {
         outlet_mode: outletData.outlet_mode,
         veg_nonveg: outletData.veg_nonveg,
         upi_id: outletData.upi_id,
-        subscription_id: outletData.subscription_id, // <-- added
-        subscription_end_date: outletData.subscription_end_date,
+        has_combo: outletData.has_combo,
+        has_denomination: outletData.has_denomination,
+        reserve_table: outletData.reserve_table,
       };
+
+      // Attach selected module ids as subscription assignment
+      payload.module_ids = selectedModuleIds.map((id) => Number(id));
+
+      // Attach subscription plan details
+      payload.subscription = {
+        name: planName,
+        price: Number(planPrice),
+        tenure_months: Number(tenureMonths),
+      };
+
+      // Also include selected module ids inside subscription object for backend compatibility
+      if (Array.isArray(selectedModuleIds) && selectedModuleIds.length > 0) {
+        payload.subscription.module_ids = selectedModuleIds.map((id) =>
+          Number(id)
+        );
+      }
 
       if (outletData.service_charges !== "") {
         payload.service_charges = outletData.service_charges.toString();
@@ -530,13 +605,13 @@ function CreateOutlet() {
       if (outletData.opening_time) {
         const [timeStr, period] = outletData.opening_time.split(" ");
         const [hours, minutes] = timeStr.split(":");
-        payload.opening_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
+        payload.opening_time = `${hours}:${minutes}:00 ${period}`;
       }
 
       if (outletData.closing_time) {
         const [timeStr, period] = outletData.closing_time.split(" ");
         const [hours, minutes] = timeStr.split(":");
-        payload.closing_time = `${currentDate} ${hours}:${minutes}:00 ${period}`;
+        payload.closing_time = `${hours}:${minutes}:00 ${period}`;
       }
 
       if (
@@ -547,9 +622,38 @@ function CreateOutlet() {
         payload.image = outletData.image;
       }
 
+      // Subscription creation removed: the server will handle subscription
+      // assignment when `subscription` object is provided in the outlet payload.
+      // We keep the `payload.subscription` object but DO NOT call
+      // the `admin/create_subscription` API from the client.
+      // However the backend still validates for legacy top-level subscription
+      // fields (`subscription_name`, `subscription_price`, `subscription_tenure`),
+      // so include them for backward compatibility.
+      const formatTenure = (months) => {
+        if (!months) return "";
+        if (months % 12 === 0)
+          return `${months / 12} year${months / 12 > 1 ? "s" : ""}`;
+        return `${months} months`;
+      };
+
+      if (planName) payload.subscription_name = planName;
+      if (planPrice !== "" && planPrice != null)
+        payload.subscription_price = Number(planPrice);
+      payload.subscription_description = planName || "";
+      if (tenureMonths)
+        payload.subscription_tenure = formatTenure(Number(tenureMonths));
+      // Keep app_source for compatibility with older endpoints
+      payload.app_source = "admin_app";
+
       console.log("Sending payload:", {
         ...payload,
         image: payload.image ? "base64_string_present" : null,
+      });
+      console.log("Subscription data in payload:", {
+        subscription_id: payload.subscription_id,
+        feature_ids: payload.feature_ids,
+        action_ids: payload.action_ids,
+        subscription_end_date: payload.subscription_end_date,
       });
 
       const response = await toastController.promise(
@@ -681,9 +785,11 @@ function CreateOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
-      subscription_end_date: outletData.subscription_id
-        ? !!outletData.subscription_end_date
-        : true,
+      // Subscription validation: if subscription_id exists, subscription_end_date should exist
+      subscription_end_date:
+        outletData.subscription_id && outletData.subscription_id !== ""
+          ? !!outletData.subscription_end_date
+          : true,
     };
 
     // Check if all required fields are valid
@@ -742,18 +848,7 @@ function CreateOutlet() {
     }
   };
 
-  const [tenure, setTenure] = useState("");
-  const [calculatedEndDate, setCalculatedEndDate] = useState("");
-
-  // Reset tenure and end date when subscription changes
-  useEffect(() => {
-    setTenure("");
-    setCalculatedEndDate("");
-    setOutletData((prev) => ({
-      ...prev,
-      subscription_end_date: "",
-    }));
-  }, [outletData.subscription_id]);
+  // Subscription popup removed
 
   return (
     <>
@@ -774,7 +869,9 @@ function CreateOutlet() {
               Create Outlet
             </h1>
 
-            <div className="relative">
+            <div className="flex items-center gap-3">
+              {/* Subscription button removed */}
+
               <button
                 onClick={handleSubmit}
                 disabled={!isFormValid || isLoading}
@@ -1184,127 +1281,6 @@ function CreateOutlet() {
                       </p>
                     )}
                   </div>
-
-                  <CustomSelectInput
-                    label="Subscription Plan"
-                    name="subscription_id"
-                    value={outletData.subscription_id || ""}
-                    onChange={handleInputChange}
-                    required
-                    options={subscriptions.map((sub) => ({
-                      value: sub.subscription_id.toString(),
-                      label: `${sub.name} - ₹${sub.price} (${
-                        sub.features?.length || 0
-                      } features)`,
-                    }))}
-                    placeholder="Select Subscription Plan"
-                  />
-                  {outletData.subscription_id && (
-                    <div className="relative">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                        <span className="text-error-600">*</span> Tenure
-                        (Months)
-                      </label>
-                      <select
-                        name="tenure"
-                        value={tenure || ""}
-                        onChange={(e) => {
-                          const months = parseInt(e.target.value, 10);
-                          setTenure(e.target.value);
-                          if (!months) {
-                            setCalculatedEndDate("");
-                            setOutletData((prev) => ({
-                              ...prev,
-                              subscription_end_date: "",
-                            }));
-                            return;
-                          }
-                          const today = new Date();
-                          // Calculate the target month and year
-                          let targetMonth = today.getMonth() + months;
-                          let targetYear = today.getFullYear();
-                          while (targetMonth > 11) {
-                            targetMonth -= 12;
-                            targetYear += 1;
-                          }
-                          // Get the last day of the target month
-                          const lastDayOfTargetMonth = new Date(
-                            targetYear,
-                            targetMonth + 1,
-                            0
-                          ).getDate();
-                          // Use the same day if possible, otherwise use the last day of the month
-                          const targetDay = Math.min(
-                            today.getDate(),
-                            lastDayOfTargetMonth
-                          );
-                          const endDate = new Date(
-                            targetYear,
-                            targetMonth,
-                            targetDay
-                          );
-                          if (isNaN(endDate.getTime())) {
-                            setCalculatedEndDate("");
-                            setOutletData((prev) => ({
-                              ...prev,
-                              subscription_end_date: "",
-                            }));
-                            return;
-                          }
-                          const day = String(endDate.getDate()).padStart(
-                            2,
-                            "0"
-                          );
-                          const monthNames = [
-                            "Jan",
-                            "Feb",
-                            "Mar",
-                            "Apr",
-                            "May",
-                            "Jun",
-                            "Jul",
-                            "Aug",
-                            "Sep",
-                            "Oct",
-                            "Nov",
-                            "Dec",
-                          ];
-                          const monthIdx = endDate.getMonth();
-                          const month = monthNames[monthIdx];
-                          const year = endDate.getFullYear();
-                          const formatted = `${day} ${month} ${year}`;
-                          setCalculatedEndDate(formatted);
-                          setOutletData((prev) => ({
-                            ...prev,
-                            subscription_end_date: formatted,
-                          }));
-                        }}
-                        required
-                        className="w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                      >
-                        <option value="">Select tenure</option>
-                        <option value="1">1 Month</option>
-                        <option value="2">2 Months</option>
-                        <option value="3">3 Months</option>
-                        <option value="6">6 Months</option>
-                        <option value="9">9 Months</option>
-                        <option value="12">12 Months</option>
-                      </select>
-                      {/* {calculatedEndDate && (
-                      <div className="mt-2">
-                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                          Subscription End Date
-                        </label>
-                        <input
-                          type="text"
-                          value={calculatedEndDate}
-                          readOnly
-                          className="w-full px-3 py-2 border rounded-lg shadow-sm bg-gray-100"
-                    />
-                  </div>
-                    )} */}
-                    </div>
-                  )}
                 </div>
               </div>
             </section>
@@ -1486,8 +1462,222 @@ function CreateOutlet() {
                       </select>
                     </div>
                   </div>
+                  {/* New boolean dropdowns: combo, denomination, reserve_table */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Has Combo
+                    </label>
+                    <select
+                      name="has_combo"
+                      value={
+                        outletData.has_combo === null ||
+                        outletData.has_combo === undefined
+                          ? ""
+                          : String(outletData.has_combo)
+                      }
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          has_combo: Number(e.target.value),
+                        }))
+                      }
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    >
+                      <option value="">Select</option>
+                      {YES_NO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Has Denomination
+                    </label>
+                    <select
+                      name="has_denomination"
+                      value={
+                        outletData.has_denomination === null ||
+                        outletData.has_denomination === undefined
+                          ? ""
+                          : String(outletData.has_denomination)
+                      }
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          has_denomination: Number(e.target.value),
+                        }))
+                      }
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    >
+                      <option value="">Select</option>
+                      {YES_NO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Reserve Table
+                    </label>
+                    <select
+                      name="reserve_table"
+                      value={
+                        outletData.reserve_table === null ||
+                        outletData.reserve_table === undefined
+                          ? ""
+                          : String(outletData.reserve_table)
+                      }
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          reserve_table: Number(e.target.value),
+                        }))
+                      }
+                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    >
+                      <option value="">Select</option>
+                      {YES_NO_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={String(opt.value)}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* Assign Subscription Section (moved below Business Details) */}
+          <section className="bg-white p-4 rounded-lg shadow">
+            <div className=" border-b border-gray-200 dark:border-gray-800 pb-5">
+              <h2 className="text-lg font-medium mb-3 flex items-center">
+                <FontAwesomeIcon icon={faLayerGroup} className="w-5 h-5 mr-2" />
+                Assign Subscription{" "}
+               
+              </h2>
+              {/* Plan fields - first row */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                <div className="flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Plan Name <span className="text-error-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={planName}
+                    onChange={(e) => setPlanName(e.target.value)}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter plan name"
+                  />
+                </div>
+
+                <div className="flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Price <span className="text-error-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={planPrice}
+                    onChange={(e) => setPlanPrice(e.target.value)}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter price"
+                  />
+                </div>
+
+                <div className="flex-1">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Tenure (months) <span className="text-error-500">*</span>
+                  </label>
+                  <select
+                    value={tenureMonths || ""}
+                    onChange={(e) =>
+                      setTenureMonths(
+                        e.target.value ? Number(e.target.value) : null
+                      )
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  >
+                    <option value="">Select months</option>
+                    
+                    {ALLOWED_TENURES.map((m) => (
+                      <option key={m} value={m}>
+                        {m} month{m > 1 ? "s" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Modules row - next row */}
+              {loadingModules ? (
+                <div className="text-sm text-gray-500">Loading modules...</div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-medium text-gray-700">
+                      Modules
+                    </h3>
+                    <span className="text-error-500 ml-2">*</span>
+                    <label className="inline-flex items-center text-sm text-gray-600">
+                      <input
+                        type="checkbox"
+                        checked={
+                          modules.length > 0 &&
+                          selectedModuleIds.length === modules.length
+                        }
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedModuleIds(
+                              modules.map((m) => m.module_id)
+                            );
+                          } else {
+                            setSelectedModuleIds([]);
+                          }
+                        }}
+                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded mr-2"
+                      />
+                      Check All
+                    </label>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {modules.map((m) => {
+                      const checked = selectedModuleIds.includes(m.module_id);
+                      return (
+                        <div
+                          key={m.module_id}
+                          onClick={() => handleModuleToggle(m.module_id)}
+                          className={`bg-white rounded-lg p-3 shadow-sm border cursor-pointer select-none transition-all duration-200 ease-in-out ${
+                            checked
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-200 hover:border-blue-300"
+                          }`}
+                        >
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => handleModuleToggle(m.module_id)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="form-checkbox h-4 w-4 mt-0.5 text-blue-600 border-gray-300 rounded"
+                            />
+                            <span className="text-xs font-medium uppercase text-gray-800">
+                              {m.name?.split("_").join(" ")}
+                            </span>
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           </section>
 
@@ -1662,6 +1852,8 @@ function CreateOutlet() {
           </section>
         </form>
       </div>
+
+      {/* Subscription popup removed */}
     </>
   );
 }

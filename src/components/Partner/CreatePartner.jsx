@@ -24,8 +24,7 @@ function CreatePartner() {
   const { getToken } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [functionalities, setFunctionalities] = useState([]);
-  const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
+
   const [partnerDetails, setPartnerDetails] = useState({
     name: "",
     mobile: "",
@@ -33,50 +32,35 @@ function CreatePartner() {
     dob: "",
     aadhar_number: "",
     address: "",
-    functionality_ids: [],
   });
   const [emailError, setEmailError] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
 
-  useEffect(() => {
-    fetchFunctionalities();
-  }, []);
-
-  const fetchFunctionalities = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get(
-        "https://ghanish.in/v2/admin/get_ubac_functionalities",
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setFunctionalities(
-        Array.isArray(response.data.functionalities)
-          ? response.data.functionalities
-          : []
-      );
-      // Do NOT check all checkboxes by default
-      setSelectedFunctionalities([]);
-      setPartnerDetails((prev) => ({
-        ...prev,
-        functionality_ids: [],
-      }));
-    } catch (err) {
-      console.error("Error fetching functionalities:", err);
-      setError("Failed to load functionalities");
-    }
+  // Check if all required fields are filled
+  const isFormValid = () => {
+    return (
+      partnerDetails.name.trim() &&
+      partnerDetails.mobile.trim() &&
+      partnerDetails.email.trim() &&
+      partnerDetails.dob &&
+      partnerDetails.aadhar_number.trim() &&
+      !emailError &&
+      partnerDetails.mobile.length === 10 &&
+      partnerDetails.aadhar_number.length === 12
+    );
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Clear validation error for this field when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+    
     // Mobile number validation: not starting with 0-5, max length 10
     if (name === "mobile") {
       // Only allow numbers
@@ -111,8 +95,50 @@ function CreatePartner() {
     }));
   };
 
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!partnerDetails.name.trim()) {
+      errors.name = "Full name is required";
+    }
+    
+    if (!partnerDetails.mobile.trim()) {
+      errors.mobile = "Mobile number is required";
+    } else if (partnerDetails.mobile.length !== 10) {
+      errors.mobile = "Mobile number must be 10 digits";
+    }
+    
+    if (!partnerDetails.email.trim()) {
+      errors.email = "Email address is required";
+    } else {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+      if (!emailPattern.test(partnerDetails.email)) {
+        errors.email = "Email format is incorrect";
+      }
+    }
+    
+    if (!partnerDetails.dob) {
+      errors.dob = "Date of birth is required";
+    }
+    
+    if (!partnerDetails.aadhar_number.trim()) {
+      errors.aadhar_number = "Aadhar number is required";
+    } else if (partnerDetails.aadhar_number.length !== 12) {
+      errors.aadhar_number = "Aadhar number must be 12 digits";
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form before submitting
+    if (!validateForm()) {
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
 
@@ -139,7 +165,7 @@ function CreatePartner() {
         dob: formattedDate,
         aadhar_number: partnerDetails.aadhar_number,
         address: partnerDetails.address,
-        functionality_ids: partnerDetails.functionality_ids,
+        // functionality_ids: partnerDetails.functionality_ids,
         app_source: "admin_app",
       };
 
@@ -167,7 +193,7 @@ function CreatePartner() {
 
   // Add breadcrumb items
   const breadcrumbItems = [
-    { label: "Dashboard", path: "/" },
+    { label: "Home", path: "/home" },
     { label: "Partners", path: "/partners" },
     { label: "Create Partner" },
   ];
@@ -206,13 +232,15 @@ function CreatePartner() {
             {/* Create Button */}
             <button
               onClick={handleSubmit}
-              disabled={isLoading}
+              disabled={isLoading || !isFormValid()}
               className={`
                 inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
+                text-sm font-medium rounded-full
                 transition shadow-sm
-                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
+                ${(isLoading || !isFormValid()) 
+                  ? "bg-gray-400 text-gray-200 cursor-not-allowed" 
+                  : "bg-success-500 hover:bg-success-600 text-white cursor-pointer"
+                }
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -226,25 +254,39 @@ function CreatePartner() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <TextInput
-                label="Full Name"
-                name="name"
-                value={partnerDetails.name}
-                onChange={handleChange}
-                placeholder="Enter full name"
-                required
-              />
+              <div>
+                <TextInput
+                  label="Full Name"
+                  name="name"
+                  value={partnerDetails.name}
+                  onChange={handleChange}
+                  placeholder="Enter full name"
+                  required
+                />
+                {validationErrors.name && (
+                  <div className="text-error-500 text-sm mt-1">
+                    {validationErrors.name}
+                  </div>
+                )}
+              </div>
 
-              <TextInput
-                label="Mobile Number"
-                name="mobile"
-                type="tel"
-                value={partnerDetails.mobile}
-                onChange={handleChange}
-                placeholder="Enter mobile number"
-                required
-                maxLength={10}
-              />
+              <div>
+                <TextInput
+                  label="Mobile Number"
+                  name="mobile"
+                  type="tel"
+                  value={partnerDetails.mobile}
+                  onChange={handleChange}
+                  placeholder="Enter mobile number"
+                  required
+                  maxLength={10}
+                />
+                {validationErrors.mobile && (
+                  <div className="text-error-500 text-sm mt-1">
+                    {validationErrors.mobile}
+                  </div>
+                )}
+              </div>
 
               <div>
                 <TextInput
@@ -256,31 +298,45 @@ function CreatePartner() {
                   placeholder="Enter email address"
                   required
                 />
-                {emailError && (
+                {(emailError || validationErrors.email) && (
                   <div className="text-error-500 text-sm mt-1">
-                    {emailError}
+                    {emailError || validationErrors.email}
                   </div>
                 )}
               </div>
 
-              <DateInput
-                label="Date of Birth"
-                name="dob"
-                value={partnerDetails.dob}
-                onChange={handleChange}
-                required
-                placeholder="Select date of birth"
-              />
+              <div>
+                <DateInput
+                  label="Date of Birth"
+                  name="dob"
+                  value={partnerDetails.dob}
+                  onChange={handleChange}
+                  required
+                  placeholder="Select date of birth"
+                />
+                {validationErrors.dob && (
+                  <div className="text-error-500 text-sm mt-1">
+                    {validationErrors.dob}
+                  </div>
+                )}
+              </div>
 
-              <TextInput
-                label="Aadhar Number"
-                name="aadhar_number"
-                value={partnerDetails.aadhar_number}
-                onChange={handleChange}
-                placeholder="Enter 12-digit Aadhar number"
-                required
-                maxLength="12"
-              />
+              <div>
+                <TextInput
+                  label="Aadhar Number"
+                  name="aadhar_number"
+                  value={partnerDetails.aadhar_number}
+                  onChange={handleChange}
+                  placeholder="Enter 12-digit Aadhar number"
+                  required
+                  maxLength="12"
+                />
+                {validationErrors.aadhar_number && (
+                  <div className="text-error-500 text-sm mt-1">
+                    {validationErrors.aadhar_number}
+                  </div>
+                )}
+              </div>
 
               <div className="sm:col-span-1">
                 <Textarea
@@ -290,117 +346,9 @@ function CreatePartner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
-                  required
+                
                 />
               </div>
-            </div>
-
-            {/* Functionalities */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className={labelStyles}>
-                  <span className="text-error-600 text-red-500 mr-1">*</span>
-                  Functionalities
-                </label>
-                {/* Check All Checkbox */}
-                <label className="flex items-center gap-2 font-medium cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={
-                      functionalities.length > 0 &&
-                      selectedFunctionalities.length === functionalities.length
-                    }
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        const allIds = functionalities.map(
-                          (f) => f.functionality_id
-                        );
-                        setSelectedFunctionalities(allIds);
-                        setPartnerDetails((prev) => ({
-                          ...prev,
-                          functionality_ids: allIds,
-                        }));
-                      } else {
-                        setSelectedFunctionalities([]);
-                        setPartnerDetails((prev) => ({
-                          ...prev,
-                          functionality_ids: [],
-                        }));
-                      }
-                    }}
-                  />
-                  Check All
-                </label>
-              </div>
-              <div className="mt-2 rounded-lg p-4 bg-white dark:bg-gray-900 dark:border-gray-700">
-                <div className="flex flex-wrap gap-4">
-                  {functionalities.map((func) => (
-                    <div
-                      key={func.functionality_id}
-                      className="min-w-[200px] flex-1"
-                    >
-                      <label className="flex items-center justify-between gap-2 cursor-pointer select-none">
-                        <Checkbox
-                          label=""
-                          value={func.functionality_id}
-                          checked={selectedFunctionalities.includes(
-                            func.functionality_id
-                          )}
-                          onChange={(e) => {
-                            const value = Number(e.target.value);
-                            setSelectedFunctionalities((prev) =>
-                              e.target.checked
-                                ? [...prev, value]
-                                : prev.filter((id) => id !== value)
-                            );
-                            setPartnerDetails((prev) => ({
-                              ...prev,
-                              functionality_ids: e.target.checked
-                                ? [...prev.functionality_ids, value]
-                                : prev.functionality_ids.filter(
-                                    (id) => id !== value
-                                  ),
-                            }));
-                          }}
-                        />
-                        <span>{func.functionality_name}</span>
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Selected Functionalities Tags */}
-              {/* {selectedFunctionalities.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {selectedFunctionalities.map(id => {
-                    const func = functionalities.find(f => f.functionality_id === id);
-                    return (
-                      <span
-                        key={id}
-                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                      >
-                        {func?.functionality_name}
-                        <button
-                          type="button"
-                          className="ml-1 inline-flex items-center justify-center"
-                          onClick={() => {
-                            setSelectedFunctionalities(prev => prev.filter(fid => fid !== id));
-                            setPartnerDetails(prev => ({
-                              ...prev,
-                              functionality_ids: prev.functionality_ids.filter(fid => fid !== id)
-                            }));
-                          }}
-                        >
-                          <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              )} */}
             </div>
 
             {/* Error Message */}

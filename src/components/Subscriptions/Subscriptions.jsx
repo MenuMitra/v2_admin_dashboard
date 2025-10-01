@@ -136,7 +136,6 @@ function Subscriptions() {
         title="Subscriptions"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        counts={null}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
         searchPlaceholder="Search subscriptions"
@@ -146,6 +145,11 @@ function Subscriptions() {
         enableStatusFilter={false}
         showSearch={true}
         itemsPerPage={50}
+        counts={{
+          total: subscriptions.length,
+          active: null,
+          inactive: null,
+        }}
         createButton={{
           show: true,
           label: "Create",
@@ -157,6 +161,7 @@ function Subscriptions() {
           disabled: false,
           tooltip: "Create a new subscription",
         }}
+        
         onReload={refetch}
         isLoading={deleteSubscriptionMutation.isLoading}
       />

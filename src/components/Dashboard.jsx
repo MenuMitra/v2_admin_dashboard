@@ -25,6 +25,7 @@ import {
   faChartLine,
   faEnvelope,
   faShoppingCart,
+  faCalendarCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "./common/DataTable";
 import { useFullscreen } from "./FullscreenContext";
@@ -222,9 +223,15 @@ function Dashboard() {
           className={`p-6 ${isFullscreen ? "w-full max-w-6xl p-8" : ""}`}
           style={isFullscreen ? { overflow: "auto" } : {}}
         >
-          {/* Header with Controls */}
-          {!isFullscreen && (
-            <div className="flex items-center justify-end mb-6">
+          {/* Header with Title and Controls */}
+          <div className="flex items-center justify-between mb-6">
+            {/* Title */}
+            <div className="flex-1 text-center">
+              <h1 className="text-2xl font-semibold text-gray-800">Home</h1>
+            </div>
+            
+            {/* Controls */}
+            {!isFullscreen && (
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => refetchCardData()}
@@ -248,8 +255,8 @@ function Dashboard() {
                   />
                 </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Dashboard Sections Grid */}
           <div
@@ -359,16 +366,7 @@ function Dashboard() {
           {/* Navigation Icons Section */}
           <div className="mt-6">
             <div className="flex flex-wrap gap-5">
-              <Link
-                to="/home"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faHome}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Home</span>
-              </Link>
+             
 
               <Link
                 to="/admins"
@@ -380,7 +378,16 @@ function Dashboard() {
                 />
                 <span className="text-xs font-medium text-dark">Admins</span>
               </Link>
-
+              <Link
+                to="/outlets"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+              >
+                <FontAwesomeIcon
+                  icon={faStore}
+                  className="text-brand-500 mb-1"
+                />
+                <span className="text-xs font-medium text-dark">Outlets</span>
+              </Link>
               <Link
                 to="/owners"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
@@ -415,66 +422,20 @@ function Dashboard() {
                 />
                 <span className="text-xs font-medium text-dark">Partners</span>
               </Link>
-
               <Link
-                to="/features"
+                to="/customer"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
-                  icon={faMobileScreenButton}
+                  icon={faUser}
                   className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-dark">Features</span>
+                <span className="text-xs font-medium text-dark">Customers</span>
               </Link>
+        
 
-              <Link
-                to="/subscriptions"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faIndianRupeeSign}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">
-                  Subscriptions
-                </span>
-              </Link>
-
-              <Link
-                to="/outlets"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faStore}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Outlets</span>
-              </Link>
-
-              <Link
-                to="/roles"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faUserShield}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Roles</span>
-              </Link>
-
-              <Link
-                to="/functionalities"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faList}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">
-                  Functionalities
-                </span>
-              </Link>
-
+             
+             
               <Link
                 to="/search"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
@@ -486,16 +447,7 @@ function Dashboard() {
                 <span className="text-xs font-medium text-dark">Search</span>
               </Link>
 
-              <Link
-                to="/customer"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faUser}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Customers</span>
-              </Link>
+            
 
               <Link
                 to="/notifications"
@@ -522,6 +474,17 @@ function Dashboard() {
               </Link>
 
               <Link
+                to="/bookings"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+              >
+                <FontAwesomeIcon
+                  icon={faCalendarCheck}
+                  className="text-brand-500 mb-1"
+                />
+                <span className="text-xs font-medium text-dark">Bookings</span>
+              </Link>
+
+              <Link
                 to="/stats"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
@@ -532,16 +495,7 @@ function Dashboard() {
                 <span className="text-xs font-medium text-dark">Stats</span>
               </Link>
 
-              <Link
-                to="/profile"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faUser}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">Profile</span>
-              </Link>
+              
             </div>
           </div>
 

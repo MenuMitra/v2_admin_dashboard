@@ -8,8 +8,10 @@ import {
   faCircleXmark,
   faPenToSquare,
   faTrash,
+  faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import ActiveSessionsTable from "../common/ActiveSessionsTable";
 import { useAdminDetails } from "../../lib/react-query/hooks/useAdminDetails";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
@@ -23,6 +25,7 @@ function AdminDetails() {
     admin,
     isLoading,
     error,
+    refetch,
     deleteAdmin,
     isDeleting,
     formatDate,
@@ -146,8 +149,20 @@ function AdminDetails() {
 
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
-              {admin && !PROTECTED_MOBILES.includes(admin.mobile) && (
+              {admin && !PROTECTED_MOBILES.includes(String(admin.mobile)) && (
                 <>
+                  <button
+                    onClick={() => refetch()}
+                    disabled={isLoading}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-theme-xs disabled:opacity-60"
+                    title="Reload"
+                  >
+                    <FontAwesomeIcon
+                      icon={faRotate}
+                      className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                    />
+                 
+                  </button>
                   <button
                     onClick={() => navigate(`/edit-admin/${adminId}`)}
                     className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full shadow-theme-xs hover:brightness-110"
@@ -171,11 +186,11 @@ function AdminDetails() {
         </div>
 
         {/* Admin Details Content */}
-        <div className="p-6">
+        <div className="px-4 pb-4">
           {/* Admin Details Card */}
           <div className="bg-white rounded-2xl overflow-hidden dark:border-gray-800 dark:bg-gray-900">
             {/* Basic Info Section */}
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-6  border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-4">
                 Admin Information
               </h2>
@@ -246,96 +261,19 @@ function AdminDetails() {
             {/* Active Sessions Section */}
             {activeSessions && activeSessions.length > 0 && (
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 ">
                   Active Sessions
                 </h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Device ID
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Device Model
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          App Type
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Last Activity
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Last Login
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeSessions.map((session, idx) => (
-                        <tr key={idx} className="border-b last:border-b-0">
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.device_id || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.device_model || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.app_type || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.last_activity || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                            {session.last_login || "-"}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-800">
-                          <button
-                              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-                              onClick={() => handleLogout(session.device_id)}
-                            >
-                              <FontAwesomeIcon
-                                icon={faTrash}
-                                className="w-4 h-4"
-                              />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <ActiveSessionsTable
+                  activeSessions={activeSessions}
+                  lastLogin={admin.last_login}
+                  onLogout={handleLogout}
+                  showAction={
+                    admin && !PROTECTED_MOBILES.includes(String(admin.mobile))
+                  }
+                />
               </div>
             )}
-            {/* Functionalities Section */}
-            <div className="p-6">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
-                Assigned Functionalities
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {admin.functionalities.map((functionality) => (
-                  <div
-                    key={functionality.id}
-                    className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
-                  >
-                    <FontAwesomeIcon
-                      icon={faCircleCheck}
-                      className="w-4 h-4 text-success-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
-                      {functionality.name
-                        .split("_")
-                        .map(
-                          (word) => word.charAt(0).toUpperCase() + word.slice(1)
-                        )
-                        .join(" ")}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
       </div>

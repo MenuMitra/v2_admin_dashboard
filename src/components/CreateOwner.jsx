@@ -27,8 +27,6 @@ function CreateOwner() {
   const { adminData } = useAdmin();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [functionalities, setFunctionalities] = useState([]);
-  const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlets, setSelectedOutlets] = useState([]);
@@ -40,9 +38,9 @@ function CreateOwner() {
     dob: "",
     aadhar_number: "",
     address: "",
-    outlet_ids: [], // Add outlet_ids
-    account_type: "live", // Default to live
-    is_active: 1, // Default to active
+    outlet_ids: [],
+    account_type: "live",
+    is_active: 1,
   });
 
   const [validationStates, setValidationStates] = useState({
@@ -56,7 +54,6 @@ function CreateOwner() {
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
-  // Add Breadcrumb configuration
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
     { label: "Owners", path: "/owners" },
@@ -64,35 +61,9 @@ function CreateOwner() {
   ];
 
   useEffect(() => {
-    fetchFunctionalities();
-    fetchOutlets(); // Add fetchOutlets
+    fetchOutlets();
   }, []);
 
-  const fetchFunctionalities = async () => {
-    try {
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-      setFunctionalities(response.data);
-    } catch (err) {
-      const errorMsg =
-        err.response?.data?.detail || "Failed to load functionalities";
-      setError(errorMsg);
-      toastController.error(errorMsg);
-    }
-  };
-
-  // Add fetchOutlets function
   const fetchOutlets = async () => {
     try {
       const token = getToken();
@@ -124,7 +95,6 @@ function CreateOwner() {
     }
   };
 
-  // Add handleOutletChange function
   const handleOutletChange = (newOutletIds) => {
     setSelectedOutlets(newOutletIds);
     setOwnerData((prev) => ({
@@ -166,36 +136,29 @@ function CreateOwner() {
     return { isValid: true, message: "" };
   };
 
-  // Update address validation function to only allow alphabets and spaces
   const isAddressValid = (address) => {
-    // Only allow letters and spaces
     const alphabetOnly = /^[A-Za-z\s]+$/.test(address);
     return (
       address && address.length >= 5 && address.length <= 50 && alphabetOnly
     );
   };
 
-  // Update handleChange to include address validation
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (name === "address") {
-      // Filter out numbers and special characters, only allow letters and spaces
       const filteredValue = value.replace(/[^A-Za-z\s]/g, "");
       setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
 
-      // Real-time address validation - only check length since we filter characters
       if (filteredValue && filteredValue.length < 5) {
         setValidationStates((prev) => ({ ...prev, [name]: true }));
       } else {
         setValidationStates((prev) => ({ ...prev, [name]: false }));
       }
     } else if (name === "name") {
-      // Allow only alphabets and spaces
       const filteredValue = value.replace(/[^A-Za-z\s]/g, "");
       setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
 
-      // Validate name
       if (!filteredValue.trim()) {
         setValidationStates((prev) => ({
           ...prev,
@@ -223,44 +186,6 @@ function CreateOwner() {
           mobile: false,
           mobileMessage: "Number must start with 6, 7, 8, or 9",
         }));
-        return;
-      } else if (name === "name") {
-        // Allow only alphabets and spaces
-        const filteredValue = value.replace(/[^A-Za-z\s]/g, "");
-        setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
-
-        // Mark as invalid if too short or empty
-        let errorMsg = "";
-        if (value !== filteredValue) {
-          errorMsg = "Only alphabets and spaces are allowed.";
-          setValidationStates((prev) => ({
-            ...prev,
-            [name]: true,
-            [`${name}Message`]: errorMsg,
-          }));
-          // Show error for 1 second
-          if (nameErrorTimeout.current) clearTimeout(nameErrorTimeout.current);
-          nameErrorTimeout.current = setTimeout(() => {
-            setValidationStates((prev) => ({
-              ...prev,
-              [name]: false,
-              [`${name}Message`]: "",
-            }));
-          }, 1000);
-        } else if (filteredValue.length > 0 && filteredValue.length < 2) {
-          errorMsg = "Minimum 2 characters required.";
-          setValidationStates((prev) => ({
-            ...prev,
-            [name]: true,
-            [`${name}Message`]: errorMsg,
-          }));
-        } else {
-          setValidationStates((prev) => ({
-            ...prev,
-            [name]: false,
-            [`${name}Message`]: "",
-          }));
-        }
         return;
       }
 
@@ -295,20 +220,17 @@ function CreateOwner() {
     }));
   };
 
-  // Modify isFormValid to remove outlet validation
   const isFormValid = () => {
     return (
       ownerData.name?.trim() &&
       ownerData.mobile?.trim() &&
       ownerData.aadhar_number?.trim() &&
-      // Remove outlet_ids validation
       !validationStates.nameMessage &&
       validationStates.mobile &&
       validationStates.aadhar_number
     );
   };
 
-  // Modify handleSubmit to make outlet_ids optional in payload
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitAttempted(true);
@@ -325,7 +247,6 @@ function CreateOwner() {
         throw new Error("No authentication token available");
       }
 
-      // Format date as DD MMM YYYY
       const formattedDate = ownerData.dob
         ? new Date(ownerData.dob).toLocaleDateString("en-GB", {
             day: "2-digit",
@@ -342,10 +263,10 @@ function CreateOwner() {
         address: ownerData.address,
         aadhar_number: ownerData.aadhar_number,
         dob: formattedDate,
-        // Only include outlet_ids if there are selected outlets
-        ...(ownerData.outlet_ids.length > 0 && {
-          outlet_ids: ownerData.outlet_ids,
-        }),
+        ...(ownerData.outlet_ids &&
+          ownerData.outlet_ids.length > 0 && {
+            outlet_ids: ownerData.outlet_ids,
+          }),
         account_type: ownerData.account_type,
         is_active: ownerData.is_active,
         app_source: "admin",
@@ -385,14 +306,11 @@ function CreateOwner() {
 
   return (
     <>
-      {/* Add Breadcrumb here */}
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
-            {/* Back Button */}
             <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
@@ -401,12 +319,10 @@ function CreateOwner() {
               <span>Back</span>
             </button>
 
-            {/* Title - Centered between buttons */}
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Create Owner
             </h1>
 
-            {/* Create Button */}
             <button
               onClick={handleSubmit}
               disabled={isLoading || !isFormValid()}
@@ -427,10 +343,8 @@ function CreateOwner() {
           </div>
         </div>
 
-        {/* Form Content */}
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information - First Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <TextInput
                 label="Full Name"
@@ -490,7 +404,6 @@ function CreateOwner() {
               />
             </div>
 
-            {/* Second Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <div className="relative">
                 <TextInput
@@ -530,7 +443,6 @@ function CreateOwner() {
                 />
               </div>
               <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
-                
                 <SelectInput
                   label="Owner Status"
                   name="is_active"
@@ -546,7 +458,6 @@ function CreateOwner() {
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-              {/* Address Field - Outside Grid */}
               <div className="mt-6">
                 <Textarea
                   label="Address"
@@ -568,7 +479,6 @@ function CreateOwner() {
               </div>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="text-error-500 text-sm mt-2">{error}</div>
             )}

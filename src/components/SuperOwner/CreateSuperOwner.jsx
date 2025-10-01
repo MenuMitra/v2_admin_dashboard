@@ -130,6 +130,20 @@ function CreateSuperOwner() {
     setFieldErrors((prev) => ({ ...prev, [name]: error }));
   };
 
+  const isFormValid = () => {
+    return (
+      superOwnerDetails.name?.trim() &&
+      superOwnerDetails.mobile?.trim() &&
+      superOwnerDetails.email?.trim() &&
+      superOwnerDetails.aadhar_number?.trim() &&
+      selectedOutlets.length > 0 &&
+      !fieldErrors.name &&
+      !fieldErrors.mobile &&
+      !fieldErrors.email &&
+      !fieldErrors.aadhar_number
+    );
+  };
+
   const validate = () => {
     const errors = {};
     if (!superOwnerDetails.name.trim()) {
@@ -142,10 +156,9 @@ function CreateSuperOwner() {
     } else if (!/^[6-9][0-9]{9}$/.test(superOwnerDetails.mobile)) {
       errors.mobile = "Mobile must be 10 digits, start with 6, 7, 8, or 9";
     }
-    if (
-      superOwnerDetails.email &&
-      !/^([a-zA-Z0-9._%+-]+)@gmail\.com$/.test(superOwnerDetails.email)
-    ) {
+    if (!superOwnerDetails.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^([a-zA-Z0-9._%+-]+)@gmail\.com$/.test(superOwnerDetails.email)) {
       errors.email = "Email must be a valid @gmail.com address";
     }
     if (!superOwnerDetails.aadhar_number.trim()) {
@@ -265,9 +278,9 @@ function CreateSuperOwner() {
               <button
                 type="submit"
                 form="create-super-owner-form"
-                disabled={loading || !isAuthenticated()}
+                disabled={loading || !isAuthenticated() || !isFormValid()}
                 className={`inline-flex items-center gap-2 px-6 py-2 text-sm font-medium text-white transition rounded-full ${
-                  loading || !isAuthenticated()
+                  loading || !isAuthenticated() || !isFormValid()
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-success-500 hover:bg-success-600"
                 }`}
@@ -317,18 +330,6 @@ function CreateSuperOwner() {
 
         {/* Main Content */}
         <div className="p-6">
-          {/* Error and Success Messages */}
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-              {success}
-            </div>
-          )}
-
           {/* Form Section */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg">
@@ -345,7 +346,9 @@ function CreateSuperOwner() {
                       value={superOwnerDetails.name}
                       onChange={handleChange}
                       placeholder="Enter name"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        fieldErrors.name ? 'border-error-500' : 'border-gray-300'
+                      }`}
                       required
                     />
                     {fieldErrors.name && (
@@ -367,7 +370,9 @@ function CreateSuperOwner() {
                       placeholder="Enter mobile number"
                       maxLength={10}
                       pattern="[0-9]{10}"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        fieldErrors.mobile ? 'border-error-500' : 'border-gray-300'
+                      }`}
                       required
                     />
                     {fieldErrors.mobile && (
@@ -379,15 +384,18 @@ function CreateSuperOwner() {
 
                   <div>
                     <label className="block text-sm text-gray-500 mb-1">
-                      Email
+                      Email <span className="text-error-600">*</span>
                     </label>
                     <input
                       type="email"
                       name="email"
                       value={superOwnerDetails.email}
                       onChange={handleChange}
-                      placeholder="Enter email address"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter email address" 
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        fieldErrors.email ? 'border-error-500' : 'border-gray-300'
+                      }`}
+                      required
                     />
                     {fieldErrors.email && (
                       <p className="text-error-500 text-sm mt-1">
@@ -408,7 +416,9 @@ function CreateSuperOwner() {
                       placeholder="Enter Aadhar number"
                       maxLength={12}
                       pattern="[0-9]{12}"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        fieldErrors.aadhar_number ? 'border-error-500' : 'border-gray-300'
+                      }`}
                       required
                     />
                     {fieldErrors.aadhar_number && (
@@ -461,8 +471,29 @@ function CreateSuperOwner() {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Search"
-                          className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                          className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-10 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
                         />
+                        {searchTerm && (
+                          <button
+                            type="button"
+                            onClick={() => setSearchTerm("")}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                          >
+                            <svg
+                              className="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

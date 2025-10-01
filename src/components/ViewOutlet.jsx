@@ -21,8 +21,10 @@ import {
   faUser,
   faToggleOff,
   faToggleOn,
+  faRotate,
 } from "@fortawesome/free-solid-svg-icons";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { faAndroid } from "@fortawesome/free-brands-svg-icons";
+import { useParams, useNavigate, Link, useLocation } from "react-router-dom";
 import { queryKeys } from "../lib/react-query/queryKeys";
 import Breadcrumb from "./Breadcrumb";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
@@ -38,6 +40,49 @@ function toTitleCase(str) {
       )
     : "";
 }
+
+// Reusable Toggle Switch Component
+const ToggleSwitch = ({ 
+  label, 
+  isOn, 
+  onToggle, 
+  disabled = false,
+  onText = "On",
+  offText = "Off"
+}) => {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div>
+          <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+            {isOn ? onText : offText}
+          </h4>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {label}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center ml-4">
+        <button
+          onClick={onToggle}
+          disabled={disabled}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            isOn ? "bg-brand-500" : "bg-gray-300"
+          }`}
+        >
+          <span
+            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
+              isOn ? "translate-x-6" : "translate-x-1"
+            }`}
+            style={{
+              transform: isOn ? 'translateX(1.5rem)' : 'translateX(0.25rem)'
+            }}
+          />
+        </button>
+      </div>
+    </div>
+  );
+};
 
 // Helper to calculate days since last used
 function getDaysSinceLastUsed(lastUsed) {
@@ -55,6 +100,12 @@ function ViewOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { outletId } = useParams();
+  const location = useLocation();
+  const urlSearch = new URLSearchParams(location.search);
+  const queryAppSource = urlSearch.get("app_source") || null;
+  const queryUserId = urlSearch.get("user_id")
+    ? Number(urlSearch.get("user_id"))
+    : null;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -64,21 +115,25 @@ function ViewOutlet() {
   const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  
 
   // Fetch outlet details query
   const {
     data: outletResponse,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.outlets.detail(outletId),
     queryFn: async () => {
+      const requestUserId = queryUserId || adminData?.user_id;
+      const requestAppSource = queryAppSource || "admin_app";
       const response = await axios.post(
         `${BASE_URL}/${API_VERSION}/common/view_outlet`,
         {
           outlet_id: outletId,
-          user_id: adminData?.user_id,
-          app_source: "admin_app",
+          user_id: requestUserId,
+          app_source: requestAppSource,
         },
         {
           headers: {
@@ -89,7 +144,9 @@ function ViewOutlet() {
       );
       return response.data;
     },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId),
+    enabled:
+      Boolean(outletId) &&
+      (Boolean(adminData?.user_id) || Boolean(queryUserId)),
     staleTime: 30000, // Data considered fresh for 30 seconds
     cacheTime: 300000, // Cache kept for 5 minutes
   });
@@ -147,8 +204,41 @@ function ViewOutlet() {
         }
       );
     },
+    onMutate: async ({ type, value }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries(queryKeys.outlets.detail(outletId));
+
+      // Snapshot the previous value
+      const previousOutletData = queryClient.getQueryData(queryKeys.outlets.detail(outletId));
+
+      // Optimistically update to the new value
+      queryClient.setQueryData(queryKeys.outlets.detail(outletId), (old) => {
+        if (!old?.data) return old;
+        
+        const newData = { ...old.data };
+        
+        switch (type) {
+          case "outlet_status":
+            newData.outlet_status = value === "active" ? 1 : 0;
+            break;
+          case "is_open":
+            newData.is_open = value === "open" ? 1 : 0;
+            break;
+          case "outlet_mode":
+            newData.outlet_mode = value;
+            break;
+          case "account_type":
+            newData.account_type = value;
+            break;
+        }
+        
+        return { ...old, data: newData };
+      });
+
+      // Return a context object with the snapshotted value
+      return { previousOutletData };
+    },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
       const successMessages = {
         outlet_status: "Outlet status updated successfully!",
         is_open: "Open/Close status updated successfully!",
@@ -159,10 +249,18 @@ function ViewOutlet() {
         successMessages[variables.type] || "Status updated successfully!"
       );
     },
-    onError: (error) => {
+    onError: (error, variables, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousOutletData) {
+        queryClient.setQueryData(queryKeys.outlets.detail(outletId), context.previousOutletData);
+      }
       toastController.error(
         error.response?.data?.message || "Failed to update status"
       );
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
     },
   });
 
@@ -201,23 +299,31 @@ function ViewOutlet() {
 
   // Toggle handlers
   const handleToggleOutletStatus = () => {
+    console.log("handleToggleOutletStatus called, current status:", outletData?.outlet_status);
     const newValue = outletData?.outlet_status === 1 ? "inactive" : "active";
+    console.log("Setting outlet status to:", newValue);
     toggleStatusMutation.mutate({ type: "outlet_status", value: newValue });
   };
 
   const handleToggleOpenStatus = () => {
+    console.log("handleToggleOpenStatus called, current status:", outletData?.is_open);
     const newValue = outletData?.is_open === 1 ? "close" : "open";
+    console.log("Setting open status to:", newValue);
     toggleStatusMutation.mutate({ type: "is_open", value: newValue });
   };
 
   const handleToggleAccountType = () => {
+    console.log("handleToggleAccountType called, current type:", outletData?.account_type);
     const newValue = outletData?.account_type === "test" ? "live" : "test";
+    console.log("Setting account type to:", newValue);
     toggleStatusMutation.mutate({ type: "account_type", value: newValue });
   };
 
   const handleToggleOutletMode = () => {
+    console.log("handleToggleOutletMode called, current mode:", outletData?.outlet_mode);
     const newValue =
       outletData?.outlet_mode === "online" ? "offline" : "online";
+    console.log("Setting outlet mode to:", newValue);
     toggleStatusMutation.mutate({ type: "outlet_mode", value: newValue });
   };
 
@@ -321,20 +427,33 @@ function ViewOutlet() {
             <div className="flex-1 text-center">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 inline-flex items-center">
                 {outletData?.name || "-"}
-                <a
-                  href={`https://testing-menumitra-customer-v2.netlify.app/o${outletData?.outlet_code}/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="View in Customer App"
-                  className="inline-flex items-center justify-center ml-2 w-6 h-6 text-gray-700 transition rounded-full  hover:bg-gray-300"
-                >
-                  <FontAwesomeIcon icon={faLink} className="w-4 h-4" />
-                </a>
               </h2>
             </div>
 
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-theme-xs disabled:opacity-60"
+                title="Reload"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+              </button>
+              <a
+                href={`https://test-menumitra-customer-v2.netlify.app/o${outletData?.outlet_code}/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-brand-500 text-brand-500 bg-white hover:bg-brand-50 shadow-theme-xs"
+                title="Open Customer App"
+              >
+                <FontAwesomeIcon icon={faAndroid} className="w-4 h-4" />
+                <span className="hidden sm:inline">Customer App</span>
+              </a>
+
               <button
                 onClick={handleEdit}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 hover:bg-warning-600 shadow-theme-xs"
@@ -354,9 +473,30 @@ function ViewOutlet() {
         </div>
 
         {/* Main Content */}
-        <div className="p-4 sm:p-6">
+        <div className="px-4 pb-4">
           {/* Using flex-col by default for mobile and row for larger screens */}
-          <div className="flex flex-col md:flex-row justify-between items-stretch gap-4 md:gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-stretch gap-2 md:gap-6 mt-0">
+            {/* Outlet Image Section */}
+            {outletData?.image && (
+              <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
+                <h2 className="text-lg font-semibold text-gray-800 mb-6">
+                  Outlet Image
+                </h2>
+                <div className="flex justify-center">
+                  <div className="relative">
+                    <img
+                      src={outletData.image}
+                      alt={`${outletData?.name || "Outlet"} image`}
+                      className="w-[252px] h-[252px] sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-32 lg:h-32 xl:w-40 xl:h-40 rounded-lg shadow-lg object-cover"
+                      onError={(e) => {
+                        e.target.style.display = "none";
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Menu Management Section */}
             <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
@@ -402,67 +542,26 @@ function ViewOutlet() {
             </div>
 
             {/* Staff Management Section */}
-            <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
+            {/* <div className="p-4 sm:p-6 bg-white w-full md:flex-1 border border-gray-200 rounded-2xl">
               <h2 className="text-lg font-semibold text-gray-800 mb-6">
                 Staff Management
               </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1">
                 <Link
-                  to={`/managers/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-                >
-                  <FontAwesomeIcon
-                    icon={faUserTie}
-                    className="w-5 h-5 mr-2 text-gray-800"
-                  />
-                  <span className="text-md font-medium text-gray-800">
-                    Managers
-                  </span>
-                </Link>
-
-                <Link
-                  to={`/chefs/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-                >
-                  <FontAwesomeIcon
-                    icon={faUserCog}
-                    className="w-5 h-5 mr-2 text-gray-800"
-                  />
-                  <span className="text-md font-medium text-gray-800">
-                    Chefs
-                  </span>
-                </Link>
-
-                <Link
-                  to={`/captains/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                  to={`/staff/${outletId}`}
+                  className="flex items-center justify-center p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon
                     icon={faUserFriends}
                     className="w-5 h-5 mr-2 text-gray-800"
                   />
                   <span className="text-md font-medium text-gray-800">
-                    Captains
-                  </span>
-                </Link>
-
-                <Link
-                  to={`/waiters/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
-                >
-                  <FontAwesomeIcon
-                    icon={faUser}
-                    className="w-5 h-5 mr-2 text-gray-800"
-                  />
-                  <span className="text-md font-medium text-gray-800">
-                    Waiters
+                    Staff
                   </span>
                 </Link>
               </div>
-            </div>
+            </div> */}
           </div>
-
           {/* Outlet Owners Section */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -500,7 +599,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6 flex flex-wrap items-center justify-between gap-3 mb-6">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Basic Information
@@ -596,137 +694,39 @@ function ViewOutlet() {
               </div>
             )}
             {/* Outlet Mode */}
-            {outletData?.outlet_mode && (
-              <div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <FontAwesomeIcon
-                      icon={
-                        outletData.outlet_mode === "online"
-                          ? faToggleOn
-                          : faToggleOff
-                      }
-                      className={`w-6 h-6 ${
-                        outletData.outlet_mode === "online"
-                          ? "text-brand-500"
-                          : "text-warning-500"
-                      }`}
-                    />
-                    <div>
-                      <h4
-                        className={`text-lg font-normal ${
-                          outletData.outlet_mode === "online"
-                            ? "text-brand-500"
-                            : "text-warning-500"
-                        } dark:text-white/90`}
-                      >
-                        {outletData.outlet_mode.charAt(0).toUpperCase() +
-                          outletData.outlet_mode.slice(1)}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Outlet Mode
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <button
-                      onClick={() => handleToggleOutletMode()}
-                      className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 shadow-inner ${
-                        outletData?.outlet_mode === "online"
-                          ? "bg-brand-500"
-                          : "bg-gray-300"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
-                          outletData?.outlet_mode === "online"
-                            ? "translate-x-6"
-                            : "translate-x-1"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            <div className="flex justify-start">
+              <ToggleSwitch
+                label="Outlet Mode"
+                isOn={outletData?.outlet_mode === "online"}
+                onToggle={handleToggleOutletMode}
+                disabled={toggleStatusMutation.isPending}
+                onText="Online"
+                offText="Offline"
+              />
+            </div>
             {/* Outlet Status */}
-            <div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <div>
-                    <h4
-                      className={`text-lg font-normal ${
-                        outletData?.outlet_status === 1
-                          ? "text-success-500"
-                          : "text-error-500"
-                      } dark:text-white/90`}
-                    >
-                      {outletData?.outlet_status === 1 ? "Active" : "Inactive"}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Outlet Status
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <button
-                    onClick={() => handleToggleOutletStatus()}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 shadow-inner ${
-                      outletData?.outlet_status === 1
-                        ? "bg-brand-500"
-                        : "bg-gray-300"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
-                        outletData?.outlet_status === 1
-                          ? "translate-x-6"
-                          : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-              </div>
+            <div className="flex justify-start">
+              <ToggleSwitch
+                label="Outlet Status"
+                isOn={outletData?.outlet_status === 1}
+                onToggle={handleToggleOutletStatus}
+                disabled={toggleStatusMutation.isPending}
+                onText="Active"
+                offText="Inactive"
+              />
             </div>
             {/* Open/Close Status */}
-            <div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <div>
-                    <h4
-                      className={`text-lg font-normal ${
-                        outletData?.is_open === 1
-                          ? "text-success-500"
-                          : "text-error-500"
-                      } dark:text-white/90`}
-                    >
-                      {outletData?.is_open === 1 ? "Open" : "Closed"}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Open/Close Status
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <button
-                    onClick={() => handleToggleOpenStatus()}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 shadow-inner ${
-                      outletData?.is_open === 1 ? "bg-brand-500" : "bg-gray-300"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300 ease-in-out ${
-                        outletData?.is_open === 1
-                          ? "translate-x-6"
-                          : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
-              </div>
+            <div className="flex justify-start">
+              <ToggleSwitch
+                label="Open/Close Status"
+                isOn={outletData?.is_open === 1}
+                onToggle={handleToggleOpenStatus}
+                disabled={toggleStatusMutation.isPending}
+                onText="Open"
+                offText="Closed"
+              />
             </div>
           </div>
-
           {/* Business Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -872,9 +872,59 @@ function ViewOutlet() {
                   </div>
                 </div>
               )}
+              {/* Has Combo */}
+              {outletData?.has_combo !== undefined && outletData?.has_combo !== null && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.has_combo === 1 ? "Yes" : "No"}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Has Combo
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Has Denomination */}
+              {outletData?.has_denomination !== undefined && outletData?.has_denomination !== null && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.has_denomination === 1 ? "Yes" : "No"}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Has Denomination
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Reserve Table */}
+              {outletData?.reserve_table !== undefined && outletData?.reserve_table !== null && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.reserve_table === 1 ? "Yes" : "No"}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Reserve Table
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-
           {/* Order section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -915,77 +965,34 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Manage Staff Details section with divider */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+          {/* <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
                 Manage Staff Details
               </h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.waiter_count ?? "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Waiters
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-4">
               <div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.chef_count ?? "-"}
+                        {outletData?.staff_count ??
+                          outletResponse?.data?.staff_count ??
+                          outletResponse?.staff_count ??
+                          "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Chefs
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.captain_count ?? "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Captains
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.manager_count ?? "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Managers
+                        Staff Count
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-
+          </div> */}
           {/* Manage Outlet Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -1044,21 +1051,6 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.orders_count ?? "-"}
-                      </h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Orders
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.table_count ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1070,7 +1062,6 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-
           {/* Audit Information section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -1097,13 +1088,13 @@ function ViewOutlet() {
                 </div>
               )}
               {/* Created By */}
-              {outletData?.created_by && (
+              {outletData?.created_by_name && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.created_by}
+                          {outletData.created_by_name}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Created By
@@ -1131,14 +1122,13 @@ function ViewOutlet() {
                 </div>
               )}
               {/* Updated By */}
-              {outletData?.updated_by && (
+              {outletData?.updated_by_name && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.updated_by.charAt(0).toUpperCase() +
-                            outletData.updated_by.slice(1)}
+                          {outletData.updated_by_name}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Updated By
@@ -1150,7 +1140,6 @@ function ViewOutlet() {
               )}
             </div>
           </div>
-
           {/* Subscription Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -1160,33 +1149,50 @@ function ViewOutlet() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               {/* Plan Name */}
-              {outletData?.subscription_details?.name && (
+              {outletData?.subscription_details?.subscription_name && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.subscription_details.name}
+                          {outletData.subscription_details.subscription_name}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Plan Name
+                          Subscription Plan
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
-              {/* Plan Price */}
-              {outletData?.subscription_details?.price && (
+              {/* Subscription Price */}
+              {outletData?.subscription_details?.subscription_price != null && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {`₹${outletData.subscription_details.price}`}
+                          ₹{outletData.subscription_details.subscription_price}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Plan Price
+                          Subscription Price
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Tenure */}
+              {outletData?.subscription_details?.tenure && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.subscription_details.tenure}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Tenure
                         </p>
                       </div>
                     </div>
@@ -1233,28 +1239,110 @@ function ViewOutlet() {
                   </div>
                 </div>
               )}
-              {outletData?.subscription_details?.latest_feature && (
-                <div className="col-span-1 w-auto">
-                  <div className="inline-block align-top max-w-max bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 text-left">
-                    {/* Feature Name */}
-                    <div className="font-semibold text-gray-800 text-[13px] leading-tight">
-                      {outletData.subscription_details.latest_feature
-                        .feature_name || "-"}
-                    </div>
+              {/* Days Until Expiry */}
+              {outletData?.subscription_details?.subscription_start_date &&
+                outletData?.subscription_details?.subscription_end_date && (
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="w-full">
+                        <h4 className="text-base font-medium text-gray-800 dark:text-white/90 mb-2">
+                          Timeline
+                        </h4>
+                        {(() => {
+                          const msPerDay = 1000 * 60 * 60 * 24;
+                          
+                          // Parse dates correctly - handle "DD MMM YYYY" format
+                          const parseDate = (dateString) => {
+                            if (!dateString) return new Date();
+                            // Convert "29 Sep 2025" to "Sep 29, 2025" for proper parsing
+                            const parts = dateString.split(' ');
+                            if (parts.length === 3) {
+                              const day = parts[0];
+                              const month = parts[1];
+                              const year = parts[2];
+                              return new Date(`${month} ${day}, ${year}`);
+                            }
+                            return new Date(dateString);
+                          };
+                          
+                          const start = parseDate(outletData.subscription_details.subscription_start_date);
+                          const end = parseDate(outletData.subscription_details.subscription_end_date);
+                          const now = new Date();
+                          
+                          const total = Math.max(
+                            0,
+                            Math.ceil((end - start) / msPerDay)
+                          );
+                          const remaining = Math.max(
+                            0,
+                            Math.ceil((end - now) / msPerDay)
+                          );
+                          const elapsed = Math.max(0, total - remaining);
+                          // Show remaining days as filled portion (inverse of completed)
+                          const percent =
+                            total > 0
+                              ? Math.min(
+                                  100,
+                                  Math.max(0, (remaining / total) * 100)
+                                )
+                              : 0;
+                          
+                          // Dynamic color based on remaining days
+                          let barColorClass = "bg-success-500"; // green (default)
+                          if (remaining <= 5) {
+                            barColorClass = "bg-error-500"; // red (≤5 days)
+                          } else if (remaining <= 25) {
+                            barColorClass = "bg-warning-500"; // orange (≤25 days)
+                          }
 
-                    {/* Date + Day Count */}
-                    <div className="text-gray-700 text-[12px]">
-                      {(() => {
-                        const lastUsed =
-                          outletData.subscription_details.latest_feature
-                            .last_used;
-                        const days = getDaysSinceLastUsed(lastUsed);
-                        return lastUsed
-                          ? `${lastUsed} (${days !== null ? days : "-"} day${
-                              days === 1 ? "" : "s"
-                            })`
-                          : "-";
-                      })()}
+                          return (
+                            <div>
+                              <div
+                                className="w-full h-3 bg-gray-200 rounded-full overflow-hidden"
+                                role="progressbar"
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-valuenow={Math.round(percent)}
+                              >
+                                <div
+                                  className={`h-3 ${barColorClass} rounded-full transition-all duration-500`}
+                                  style={{ width: `${percent}%` }}
+                                />
+                              </div>
+
+                              <div className="flex items-center justify-between mt-2">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {elapsed} days completed
+                                </p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {remaining} days remaining
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              {/* Modules (display only module names) */}
+              {outletData?.modules && outletData.modules.length > 0 && (
+                <div className="col-span-1 sm:col-span-2 md:col-span-3 xl:col-span-4">
+                  <div>
+                    <h4 className="text-lg font-normal text-gray-800 dark:text-white/90 mb-2">
+                      Modules
+                    </h4>
+
+                    <div className="flex flex-wrap gap-2">
+                      {outletData.modules.map((mod) => (
+                        <span
+                          key={mod.module_id}
+                          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-200 border border-gray-200"
+                        >
+                          {mod.name ? mod.name.replace(/_/g, " ") : "-"}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>

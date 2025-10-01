@@ -45,31 +45,33 @@ const TextInput = React.forwardRef(
       className = "",
       onFocus,
       errorMessage = "",
+      error: errorProp = false,
       ...props
     },
     ref
   ) => {
-    const [error, setError] = useState("");
+    const [localError, setLocalError] = useState("");
 
-    const showError = (required && isSubmitAttempted && !value) || error;
+    const showError =
+      (required && isSubmitAttempted && !value) || localError || errorProp;
 
     const validateInput = (value) => {
       // Skip validation if field is not required and empty
       if (!required && !value) {
-        setError("");
+        setLocalError("");
         return true;
       }
 
       // Required field validation
       if (required && !value) {
-        setError("This field is required");
+        setLocalError("This field is required");
         return false;
       }
 
       // Custom validator function takes precedence
       if (customValidator) {
         const { isValid, message } = customValidator(value);
-        setError(message);
+        setLocalError(message);
         return isValid;
       }
 
@@ -79,22 +81,22 @@ const TextInput = React.forwardRef(
           validationRules;
 
         if (minLength && value.length < minLength) {
-          setError(`Minimum ${minLength} characters required`);
+          setLocalError(`Minimum ${minLength} characters required`);
           return false;
         }
 
         if (maxLength && value.length > maxLength) {
-          setError(`Maximum ${maxLength} characters allowed`);
+          setLocalError(`Maximum ${maxLength} characters allowed`);
           return false;
         }
 
         if (pattern && !pattern.test(value)) {
-          setError(patternMessage || "Invalid format");
+          setLocalError(patternMessage || "Invalid format");
           return false;
         }
       }
 
-      setError("");
+      setLocalError("");
       return true;
     };
 
@@ -127,8 +129,10 @@ const TextInput = React.forwardRef(
         `}
           {...props}
         />
-        {(error || (errorMessage && showError)) && (
-          <p className="mt-1 text-sm text-error-500">{error || errorMessage}</p>
+        {(localError || (errorProp && errorMessage)) && (
+          <p className="mt-1 text-sm text-error-500">
+            {localError || (errorProp ? errorMessage : "")}
+          </p>
         )}
       </div>
     );
@@ -311,18 +315,71 @@ const DateInput = React.forwardRef(
     ref
   ) => {
     // Function to format date to DD MMM YYYY
+    // Use manual parsing for known input formats to avoid Date parsing quirks
     const formatDate = (date) => {
       if (!date) return "";
-      const d = new Date(date);
-      if (isNaN(d.getTime())) return ""; // Invalid date
 
-      return d
-        .toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        })
-        .replace(/ /g, " "); // Ensure proper spacing
+      // YYYY-MM-DD -> produce DD MMM YYYY
+      const ymdMatch = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (ymdMatch) {
+        const [, y, m, d] = ymdMatch;
+        const months = {
+          "01": "Jan",
+          "02": "Feb",
+          "03": "Mar",
+          "04": "Apr",
+          "05": "May",
+          "06": "Jun",
+          "07": "Jul",
+          "08": "Aug",
+          "09": "Sep",
+          10: "Oct",
+          11: "Nov",
+          12: "Dec",
+        };
+        const mon = months[m] || "";
+        if (mon) return `${d} ${mon} ${y}`;
+      }
+
+      // DD-MM-YYYY -> produce DD MMM YYYY
+      const hyphenMatch = date.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+      if (hyphenMatch) {
+        const [, d, m, y] = hyphenMatch;
+        const months = {
+          "01": "Jan",
+          "02": "Feb",
+          "03": "Mar",
+          "04": "Apr",
+          "05": "May",
+          "06": "Jun",
+          "07": "Jul",
+          "08": "Aug",
+          "09": "Sep",
+          10: "Oct",
+          11: "Nov",
+          12: "Dec",
+        };
+        const mon = months[m] || "";
+        if (mon) return `${d} ${mon} ${y}`;
+      }
+
+      // Already in DD Mon YYYY -> return as-is
+      const dmyShortMatch = date.match(/^(\d{2})\s([A-Za-z]{3})\s(\d{4})$/);
+      if (dmyShortMatch) return date;
+
+      // Fallback to Date parsing only if necessary
+      const dObj = new Date(date);
+      if (!isNaN(dObj.getTime())) {
+        return dObj
+          .toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+          .replace(/ /g, " ");
+      }
+
+      return "";
     };
 
     // Convert controlled value to YYYY-MM-DD for input element
@@ -332,7 +389,7 @@ const DateInput = React.forwardRef(
       // Already in YYYY-MM-DD
       if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
 
-      // Handle DD MMM YYYY
+      // Handle DD MMM YYYY (e.g., 21 May 1919)
       const dmyMatch = value.match(/^(\d{2})\s([A-Za-z]{3})\s(\d{4})$/);
       if (dmyMatch) {
         const [, d, mon, y] = dmyMatch;
@@ -361,12 +418,12 @@ const DateInput = React.forwardRef(
         return `${y}-${m}-${d}`;
       }
 
-      // Try native parse
-      const d = new Date(value);
-      if (!isNaN(d.getTime())) {
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const dd = String(d.getDate()).padStart(2, "0");
+      // Try native parse but prefer preserving year from explicit strings
+      const dObj = new Date(value);
+      if (!isNaN(dObj.getTime())) {
+        const yyyy = dObj.getFullYear();
+        const mm = String(dObj.getMonth() + 1).padStart(2, "0");
+        const dd = String(dObj.getDate()).padStart(2, "0");
         return `${yyyy}-${mm}-${dd}`;
       }
 
@@ -386,6 +443,19 @@ const DateInput = React.forwardRef(
       onChange?.(syntheticEvent);
     };
 
+    // Validate incoming controlled value: allowed formats are YYYY-MM-DD or DD Mon YYYY
+    const isAllowedFormat = (v) => {
+      if (!v) return true;
+      const ymd = /^\d{4}-\d{2}-\d{2}$/;
+      const dmy = /^(\d{2})\s([A-Za-z]{3})\s(\d{4})$/; // e.g., 21 May 1919
+      return ymd.test(v) || dmy.test(v);
+    };
+
+    const formatErrorMessage =
+      value && !isAllowedFormat(value)
+        ? "Invalid date format. Use either DD MMM YYYY or YYYY-MM-DD"
+        : "";
+
     return (
       <div className="mb-4">
         {label && (
@@ -403,7 +473,11 @@ const DateInput = React.forwardRef(
           className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${className}`}
           {...props}
         />
-        {error && <p className="text-error-500 text-xs mt-1">{error}</p>}
+        {(error || formatErrorMessage) && (
+          <p className="text-error-500 text-xs mt-1">
+            {error || formatErrorMessage}
+          </p>
+        )}
       </div>
     );
   }

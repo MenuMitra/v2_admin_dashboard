@@ -414,9 +414,15 @@ function Outlets() {
       sortable: true,
       render: (value, row) => (
         <div className="flex items-center justify-center gap-2">
-          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-            {row?.ownerCount || "-"}
-          </span>
+          {row?.ownerCount && Number(row.ownerCount) > 0 ? (
+            <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+              {row.ownerCount}
+            </span>
+          ) : (
+            <span className="font-medium text-error-500 text-theme-xs">
+              NO OWNER ASSIGNED
+            </span>
+          )}
         </div>
       ),
     },
@@ -720,9 +726,11 @@ function Outlets() {
         columns={columns}
         title="Outlets"
         counts={{
-          total: filteredData.length,  // Use filteredData which has all filters applied
-          active: filteredData.filter((outlet) => outlet.outletStatus === 1).length,
-          inactive: filteredData.filter((outlet) => outlet.outletStatus === 0).length,
+          total: filteredData.length, // Use filteredData which has all filters applied
+          active: filteredData.filter((outlet) => outlet.outletStatus === 1)
+            .length,
+          inactive: filteredData.filter((outlet) => outlet.outletStatus === 0)
+            .length,
         }}
         searchTerm={searchQuery}
         onSearchChange={(value) => {
@@ -827,7 +835,7 @@ function Outlets() {
               }
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
             >
-              <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+             
               Cancel
             </button>
             <button

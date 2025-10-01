@@ -19,8 +19,10 @@ import {
   faStore,
   faChevronRight,
   faTrash,
+  faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
+import ActiveSessionsTable from "./common/ActiveSessionsTable";
 import Breadcrumb from "./Breadcrumb";
 import { useOwnerDetails } from "../lib/react-query/hooks/useOwnerDetails";
 import { useAdmin } from "../hooks/useAdmin";
@@ -31,7 +33,7 @@ function OwnerDetails() {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { ownerData, isLoading, error, deleteOwner, isDeleting } =
+  const { ownerData, isLoading, error, deleteOwner, refetch } =
     useOwnerDetails(ownerId);
 
   // Local state for active sessions
@@ -118,7 +120,7 @@ function OwnerDetails() {
           alert(data.detail || "Logout failed");
         }
       }
-    } catch (err) {
+    } catch {
       if (window.toastController) {
         window.toastController.error("Logout failed");
       } else {
@@ -153,6 +155,17 @@ function OwnerDetails() {
 
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-theme-xs disabled:opacity-60"
+                title="Reload"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+              </button>
               <button
                 onClick={() => navigate(`/edit-owner/${ownerId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
@@ -504,7 +517,20 @@ function OwnerDetails() {
                 </div>
               </div>
             )}
-
+            {/* Active Sessions Section */}
+            {activeSessions && activeSessions.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-base font-medium mb-4 text-gray-800">
+                  Active Sessions
+                </h2>
+                <ActiveSessionsTable
+                  activeSessions={activeSessions}
+                  lastLogin={ownerData?.last_login}
+                  onLogout={handleLogout}
+                  showAction={true}
+                />
+              </div>
+            )}
             {/* Add new Functionalities section */}
             {ownerData?.functionalities &&
               ownerData.functionalities.length > 0 && (
@@ -531,73 +557,6 @@ function OwnerDetails() {
                   </div>
                 </div>
               )}
-
-            {/* Active Sessions Section */}
-            {activeSessions && activeSessions.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-base font-medium mb-4 text-gray-800">
-                  Active Sessions
-                </h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Device ID
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Device Model
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          App Type
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Last Activity
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Last Login
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activeSessions.map((session, idx) => (
-                        <tr key={idx} className="border-b last:border-b-0">
-                          <td className="px-4 py-2">
-                            {session.device_id || "-"}
-                          </td>
-                          <td className="px-4 py-2">
-                            {session.device_model || "-"}
-                          </td>
-                          <td className="px-4 py-2">
-                            {session.app_type || "-"}
-                          </td>
-                          <td className="px-4 py-2">
-                            {session.last_activity || "-"}
-                          </td>
-                          <td className="px-4 py-2">
-                            {session.last_login || "-"}
-                          </td>
-                          <td className="px-4 py-2">
-                            <button
-                              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-                              onClick={() => handleLogout(session.device_id)}
-                            >
-                              <FontAwesomeIcon
-                                icon={faTrash}
-                                className="w-4 h-4"
-                              />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
