@@ -399,14 +399,27 @@ function Outlets() {
       field: "name",
       header: "Name",
       sortable: true,
-      render: (value, row) => (
-        <div className="flex flex-col items-start">
-          <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-            {value}
-            <span className="pl-2 text-xs text-gray-500">({row.code})</span>
-          </p>
-        </div>
-      ),
+      render: (value, row) => {
+        // Check if outlet name contains "Expiring Soon" and extract it
+        const isExpiringSoon = value && value.includes(" - Expiring Soon");
+        const displayName = isExpiringSoon
+          ? value.replace(" - Expiring Soon", "")
+          : value;
+
+        return (
+          <div className="flex flex-col items-start">
+            <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+              {displayName}
+              <span className="pl-2 text-xs text-gray-500">({row.code})</span>
+              {isExpiringSoon && (
+                <span className="pl-2 text-xs text-error-500 font-medium">
+                  Expiring Soon
+                </span>
+              )}
+            </p>
+          </div>
+        );
+      },
     },
     {
       field: "owner",
@@ -835,7 +848,6 @@ function Outlets() {
               }
               className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
             >
-             
               Cancel
             </button>
             <button

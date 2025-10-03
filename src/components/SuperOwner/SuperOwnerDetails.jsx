@@ -26,6 +26,7 @@ import ActiveSessionsTable from "../common/ActiveSessionsTable";
 import { useSuperOwnerDetails } from "../../lib/react-query/hooks/useSuperOwnerDetails";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
+import { toastController } from "../../utils/toastController";
 
 function SuperOwnerDetails() {
   const { adminData } = useAdmin();
@@ -33,6 +34,7 @@ function SuperOwnerDetails() {
   const { superOwnerId } = useParams();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isTogglingActive, setIsTogglingActive] = useState(false);
 
   const {
     superOwnerDetails,
@@ -65,6 +67,52 @@ function SuperOwnerDetails() {
     await deleteSuperOwner();
     setIsModalOpen(false);
     navigate("/super-owners");
+  };
+
+  const handleToggleSuperOwnerActive = async () => {
+    if (!superOwnerDetails?.superOwnerData?.super_owner_id) return;
+    const current = superOwnerDetails.superOwnerData.is_active;
+    const nextIsActive = current === 1 || current === true ? false : true;
+    setIsTogglingActive(true);
+    try {
+      const resp = await fetch(
+        "https://men4u.xyz/v2/admin/update_super_owner",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: getToken(),
+          },
+          body: JSON.stringify({
+            user_id: adminData?.user_id,
+            super_owner_id: parseInt(superOwnerId),
+            name: superOwnerDetails.superOwnerData.name || "",
+            mobile: superOwnerDetails.superOwnerData.mobile || "",
+            email: superOwnerDetails.superOwnerData.email || "",
+            aadhar_number: superOwnerDetails.superOwnerData.aadhar_number || "",
+            is_active: nextIsActive,
+            app_source: "admin",
+          }),
+        }
+      );
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        const message =
+          data?.detail || data?.message || "Failed to update super owner";
+        toastController.error(message);
+        throw new Error(message);
+      }
+      toastController.success(
+        `Super owner marked as ${nextIsActive ? "Active" : "Inactive"}`
+      );
+      if (typeof refetch === "function") {
+        await refetch();
+      }
+    } catch (e) {
+      // already handled
+    } finally {
+      setIsTogglingActive(false);
+    }
   };
 
   // Update active sessions when superOwnerData changes
@@ -414,40 +462,18 @@ function SuperOwnerDetails() {
                         className="w-5 h-5 text-gray-400"
                       />
                     </div>
-                    <div className="ml-3">
-                      <div className="mt-1 flex items-center gap-2">
-                        <FontAwesomeIcon
-                          icon={
-                            superOwnerData.is_active === 1 ||
-                            superOwnerData.is_active === true
-                              ? faCircleCheck
-                              : faCircleXmark
-                          }
-                          className={`w-5 h-5 ${
-                            superOwnerData.is_active === 1 ||
-                            superOwnerData.is_active === true
-                              ? "text-success-500"
-                              : "text-error-500"
-                          }`}
-                        />
-                        <span
-                          className={`text-base font-medium ${
-                            superOwnerData.is_active === 1 ||
-                            superOwnerData.is_active === true
-                              ? "text-success-700"
-                              : "text-error-700"
-                          }`}
-                        >
-                          {superOwnerData.is_active === 1 ||
+                    <div className="ml-3 w-full">
+                      <ToggleSwitch
+                        label="Account Status"
+                        isOn={
+                          superOwnerData.is_active === 1 ||
                           superOwnerData.is_active === true
-                            ? "Active"
-                            : "Inactive"}
-                        </span>
-                      </div>
-
-                      <div className="text-sm text-gray-500">
-                        Account Status
-                      </div>
+                        }
+                        onToggle={handleToggleSuperOwnerActive}
+                        disabled={isTogglingActive}
+                        onText="Active"
+                        offText="Inactive"
+                      />
                     </div>
                   </div>
                 )}
@@ -554,7 +580,7 @@ function SuperOwnerDetails() {
                       <div className="ml-4 flex-1">
                         <div
                           className="text-base font-medium text-gray-900 group-hover:text-brand-600 
-                          flex items-center justify-between"
+                          flex items-center"
                         >
                           {outlet.outlet_name}
                           <FontAwesomeIcon
@@ -622,3 +648,48 @@ function SuperOwnerDetails() {
 }
 
 export default SuperOwnerDetails;
+
+// Reusable Toggle Switch (consistent with other details screens)
+const ToggleSwitch = ({
+  label,
+  isOn,
+  onToggle,
+  disabled = false,
+  onText = "On",
+  offText = "Off",
+}) => {
+  return (
+    <div className="flex items-center">
+      <div className="flex items-center gap-2">
+        <div>
+          <h4
+            className={`text-lg font-normal dark:text-white/90 ${
+              isOn ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {isOn ? onText : offText}
+          </h4>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
+        </div>
+      </div>
+      <div className="flex items-center ml-4">
+        <button
+          onClick={onToggle}
+          disabled={disabled}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            isOn ? "bg-brand-500" : "bg-gray-300"
+          }`}
+        >
+          <span
+            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
+              isOn ? "translate-x-6" : "translate-x-1"
+            }`}
+            style={{
+              transform: isOn ? "translateX(1.5rem)" : "translateX(0.25rem)",
+            }}
+          />
+        </button>
+      </div>
+    </div>
+  );
+};

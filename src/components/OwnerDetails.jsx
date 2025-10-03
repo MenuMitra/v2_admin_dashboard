@@ -27,6 +27,7 @@ import Breadcrumb from "./Breadcrumb";
 import { useOwnerDetails } from "../lib/react-query/hooks/useOwnerDetails";
 import { useAdmin } from "../hooks/useAdmin";
 import { useAuth } from "../hooks/useAuth";
+import { toastController } from "../utils/toastController";
 
 function OwnerDetails() {
   const { ownerId } = useParams();
@@ -46,6 +47,8 @@ function OwnerDetails() {
 
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
+
+  const [isTogglingActive, setIsTogglingActive] = useState(false);
 
   // Add breadcrumb configuration
   const breadcrumbItems = [
@@ -126,6 +129,56 @@ function OwnerDetails() {
       } else {
         alert("Logout failed");
       }
+    }
+  };
+
+  // Toggle owner's Active/Inactive status
+  const handleToggleOwnerActive = async () => {
+    if (!ownerData?.user_id) return;
+    const nextIsActive = ownerData.is_active === 1 ? 0 : 1;
+    setIsTogglingActive(true);
+    try {
+      const token = getToken();
+      const payload = {
+        update_user_id: adminData?.user_id,
+        user_id: Number(ownerData.user_id),
+        name: ownerData.name || "",
+        mobile: ownerData.mobile || "",
+        address: ownerData.address || "",
+        aadhar_number: ownerData.aadhar_number || "",
+        dob: ownerData.dob || "",
+        email: ownerData.email || "",
+        account_type: ownerData.account_type || "",
+        is_active: nextIsActive,
+        app_source: "admin",
+      };
+
+      const resp = await fetch(`https://men4u.xyz/v2/common/update_owner`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        const message =
+          data?.detail || data?.message || "Failed to update status";
+        toastController.error(message);
+        throw new Error(message);
+      }
+
+      toastController.success(
+        `Owner marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
+      );
+      await refetch();
+    } catch (e) {
+      // already toasting in failure path
+      console.error(e);
+    } finally {
+      setIsTogglingActive(false);
     }
   };
 
@@ -373,33 +426,15 @@ function OwnerDetails() {
                         className="w-5 h-5 text-gray-400"
                       />
                     </div>
-                    <div className="ml-3">
-                      <div className="mt-1 flex items-center gap-2">
-                        <FontAwesomeIcon
-                          icon={
-                            ownerData.is_active === 1
-                              ? faCircleCheck
-                              : faCircleXmark
-                          }
-                          className={`w-5 h-5 ${
-                            ownerData.is_active === 1
-                              ? "text-success-500"
-                              : "text-error-500"
-                          }`}
-                        />
-                        <span
-                          className={`text-base font-medium ${
-                            ownerData.is_active === 1
-                              ? "text-success-700"
-                              : "text-error-700"
-                          }`}
-                        >
-                          {ownerData.is_active === 1 ? "Active" : "Inactive"}
-                        </span>
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Account Status
-                      </div>
+                    <div className="ml-3 w-full">
+                      <ToggleSwitch
+                        label="Account Status"
+                        isOn={ownerData.is_active === 1}
+                        onToggle={handleToggleOwnerActive}
+                        disabled={isTogglingActive}
+                        onText="Active"
+                        offText="Inactive"
+                      />
                     </div>
                   </div>
                 )}
@@ -491,7 +526,7 @@ function OwnerDetails() {
                       className="group flex items-center p-4 rounded-xl border border-gray-200 
                         hover:border-brand-500 hover:shadow-md transition-all duration-200 cursor-pointer"
                     >
-                      <div
+                      <div 
                         className="w-10 h-10 flex items-center justify-center rounded-lg 
                         bg-gray-100 group-hover:bg-brand-50"
                       >
@@ -505,7 +540,7 @@ function OwnerDetails() {
                           className="text-base font-medium text-gray-900 group-hover:text-brand-600 
                           flex items-center justify-between"
                         >
-                          {outlet.name}
+                          {toTitleCase(outlet.name)}
                           <FontAwesomeIcon
                             icon={faChevronRight}
                             className="w-4 h-4 text-gray-400 group-hover:text-brand-500"
@@ -570,4 +605,61 @@ function OwnerDetails() {
   );
 }
 
+// Helper to convert strings to Title Case
+function toTitleCase(str) {
+  return str
+    ? str
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        )
+        .join(" ")
+    : "";
+}
+
 export default OwnerDetails;
+
+// Reusable Toggle Switch (copied style from ViewOutlet)
+const ToggleSwitch = ({
+  label,
+  isOn,
+  onToggle,
+  disabled = false,
+  onText = "On",
+  offText = "Off",
+}) => {
+  return (
+    <div className="flex items-center ">
+      <div className="flex items-center gap-0">
+        <div>
+          <h4
+            className={`text-lg font-normal dark:text-white/90 ${
+              isOn ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {isOn ? onText : offText}
+          </h4>
+          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
+        </div>
+      </div>
+      <div className="flex items-center ml-4">
+        <button
+          onClick={onToggle}
+          disabled={disabled}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            isOn ? "bg-brand-500" : "bg-gray-300"
+          }`}
+        >
+          <span
+            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
+              isOn ? "translate-x-6" : "translate-x-1"
+            }`}
+            style={{
+              transform: isOn ? "translateX(1.5rem)" : "translateX(0.25rem)",
+            }}
+          />
+        </button>
+      </div>
+    </div>
+  );
+};
