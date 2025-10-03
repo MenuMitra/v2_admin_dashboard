@@ -526,7 +526,7 @@ function OwnerDetails() {
                       className="group flex items-center p-4 rounded-xl border border-gray-200 
                         hover:border-brand-500 hover:shadow-md transition-all duration-200 cursor-pointer"
                     >
-                      <div
+                      <div 
                         className="w-10 h-10 flex items-center justify-center rounded-lg 
                         bg-gray-100 group-hover:bg-brand-50"
                       >
@@ -629,8 +629,8 @@ const ToggleSwitch = ({
   offText = "Off",
 }) => {
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center ">
+      <div className="flex items-center gap-0">
         <div>
           <h4
             className={`text-lg font-normal dark:text-white/90 ${

@@ -4,11 +4,15 @@ import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSpinner, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
+import {
+  faSpinner,
+  faChevronLeft as faBack,
+  faRotate,
+} from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
-import DeleteConfirmModal from '../common/DeleteConfirmModal/DeleteConfirmModal';
+import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import { toastController } from "../../utils/toastController";
-import { API_CONFIG } from '../../config/appConfig';
+import { API_CONFIG } from "../../config/appConfig";
 
 function CustomerDetails() {
   const { customerId } = useParams();
@@ -18,10 +22,11 @@ function CustomerDetails() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isTogglingActive, setIsTogglingActive] = useState(false);
   // error state removed (was unused)
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
-    customerId: null
+    customerId: null,
   });
 
   useEffect(() => {
@@ -47,41 +52,79 @@ function CustomerDetails() {
       );
       setCustomerData(response.data);
     } catch (err) {
-      toastController.error(err.response?.data?.msg || "Failed to fetch customer details");
+      toastController.error(
+        err.response?.data?.msg || "Failed to fetch customer details"
+      );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleCustomerActive = async () => {
+    if (!customerId || !customerData?.customer_details) return;
+    const nextIsActive = customerData.customer_details.is_active ? 0 : 1;
+    setIsTogglingActive(true);
+    try {
+      const response = await axios.patch(
+        `${BASE_URL}/${API_VERSION}/admin/customer_update`,
+        {
+          user_id: adminData?.user_id,
+          customer_id: Number(customerId),
+          name: customerData.customer_details.name,
+          mobile: customerData.customer_details.mobile,
+          is_active: nextIsActive,
+          outlet_id: customerData.customer_details.outlet_id,
+          app_source: "admin_app",
+        },
+        {
+          headers: { Authorization: getToken() },
+        }
+      );
+
+      await toastController.promise(Promise.resolve(response), {
+        loading: "Updating customer...",
+        success: `Customer marked as ${
+          nextIsActive === 1 ? "Active" : "Inactive"
+        }`,
+        error: (err) => err.response?.data?.msg || "Failed to update customer",
+      });
+
+      await fetchCustomerData();
+    } catch (e) {
+      // error toast handled in promise above
+    } finally {
+      setIsTogglingActive(false);
     }
   };
 
   const handleDeleteCustomer = () => {
     setDeleteModal({
       isOpen: true,
-      customerId: customerId
+      customerId: customerId,
     });
   };
 
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      await axios.delete(
-        'https://men4u.xyz/v2/admin/customer_delete',
-        {
-          headers: {
-            Authorization: getToken(),
-          },
-          data: {
-            user_id: adminData?.user_id,
-            customer_id: customerId,
-            app_source: "admin_app"
-          }
-        }
-      );
-      
+      await axios.delete("https://men4u.xyz/v2/admin/customer_delete", {
+        headers: {
+          Authorization: getToken(),
+        },
+        data: {
+          user_id: adminData?.user_id,
+          customer_id: customerId,
+          app_source: "admin_app",
+        },
+      });
+
       toastController.success("Customer deleted successfully");
       setDeleteModal({ isOpen: false, customerId: null });
       navigate(-1);
     } catch (error) {
-      toastController.error(error.response?.data?.msg || "Failed to delete customer");
+      toastController.error(
+        error.response?.data?.msg || "Failed to delete customer"
+      );
       setDeleteModal({ isOpen: false, customerId: null });
     } finally {
       setLoading(false);
@@ -91,7 +134,7 @@ function CustomerDetails() {
   const breadcrumbItems = [
     { label: "Dashboard", path: "/" },
     { label: "Customers", path: "/customer" },
-    { label: "Customer Details" }
+    { label: "Customer Details" },
   ];
 
   const renderCustomerDetails = () => (
@@ -114,14 +157,15 @@ function CustomerDetails() {
         </div>
 
         {/* Email */}
-        {customerData?.customer_details?.email && customerData.customer_details.email !== "null" && (
-          <div>
-            <p className="text-base font-medium text-gray-800 truncate">
-              {customerData.customer_details.email}
-            </p>
-            <p className="text-sm text-gray-500">Email</p>
-          </div>
-        )}
+        {customerData?.customer_details?.email &&
+          customerData.customer_details.email !== "null" && (
+            <div>
+              <p className="text-base font-medium text-gray-800 truncate">
+                {customerData.customer_details.email}
+              </p>
+              <p className="text-sm text-gray-500">Email</p>
+            </div>
+          )}
 
         {/* Created On */}
         <div>
@@ -143,14 +187,15 @@ function CustomerDetails() {
 
         {/* Account Status */}
         <div>
-          <p className={`text-base font-medium ${
-            customerData?.customer_details?.is_active ? "text-green-600" : "text-red-600"
-          }`}>
-            {customerData?.customer_details?.is_active ? "Active" : "Inactive"}
-          </p>
-          <p className="text-sm text-gray-500">Account Status</p>
+          <ToggleSwitch
+            label="Account Status"
+            isOn={!!customerData?.customer_details?.is_active}
+            onToggle={handleToggleCustomerActive}
+            disabled={isTogglingActive}
+            onText="Active"
+            offText="Inactive"
+          />
         </div>
-
 
         {/* Address - Only show if not null */}
         {customerData?.customer_details?.address && (
@@ -168,7 +213,9 @@ function CustomerDetails() {
   const renderOrderStatistics = () => {
     return (
       <div className="p-6 border-t">
-        <h2 className="text-xl font-medium mb-6 text-gray-800">Order Statistics</h2>
+        <h2 className="text-xl font-medium mb-6 text-gray-800">
+          Order Statistics
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
           {/* Total Orders */}
           {customerData?.order_statistics?.total_orders > 0 && (
@@ -277,7 +324,10 @@ function CustomerDetails() {
                 onClick={() => navigate(-1)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                <FontAwesomeIcon icon={faBack} className="w-3 h-3 sm:w-4 sm:h-4" />
+                <FontAwesomeIcon
+                  icon={faBack}
+                  className="w-3 h-3 sm:w-4 sm:h-4"
+                />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
@@ -290,12 +340,33 @@ function CustomerDetails() {
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
               <button
+                onClick={() => fetchCustomerData()}
+                disabled={loading}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-theme-xs disabled:opacity-60"
+                title="Reload"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                />
+              </button>
+              <button
                 onClick={() => navigate(`/edit-customer/${customerId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-                style={{ backgroundColor: '#f7941d' }}
+                style={{ backgroundColor: "#f7941d" }}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                  />
                 </svg>
                 <span className="hidden sm:inline">Edit</span>
               </button>
@@ -303,8 +374,18 @@ function CustomerDetails() {
                 onClick={handleDeleteCustomer}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
                 </svg>
                 <span className="hidden sm:inline">Delete</span>
               </button>
@@ -328,3 +409,48 @@ function CustomerDetails() {
 }
 
 export default CustomerDetails;
+
+// Reusable Toggle Switch (consistent with Owner/Admin/Partner)
+const ToggleSwitch = ({
+  label,
+  isOn,
+  onToggle,
+  disabled = false,
+  onText = "On",
+  offText = "Off",
+}) => {
+  return (
+    <div className="flex items-center ">
+      <div className="flex items-center gap-2">
+        <div>
+          <h4
+            className={`text-lg font-normal ${
+              isOn ? "text-success-700" : "text-error-700"
+            }`}
+          >
+            {isOn ? onText : offText}
+          </h4>
+          <p className="text-sm text-gray-500">{label}</p>
+        </div>
+      </div>
+      <div className="flex items-center ml-4">
+        <button
+          onClick={onToggle}
+          disabled={disabled}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+            isOn ? "bg-brand-500" : "bg-gray-300"
+          }`}
+        >
+          <span
+            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
+              isOn ? "translate-x-6" : "translate-x-1"
+            }`}
+            style={{
+              transform: isOn ? "translateX(1.5rem)" : "translateX(0.25rem)",
+            }}
+          />
+        </button>
+      </div>
+    </div>
+  );
+};
