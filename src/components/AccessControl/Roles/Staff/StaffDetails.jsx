@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Breadcrumb from "../../../Breadcrumb";
 import { useAuth } from "../../../../hooks/useAuth";
@@ -24,6 +24,7 @@ function StaffDetails() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [outletName, setOutletName] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -238,6 +239,8 @@ function StaffDetails() {
                         }
                       );
                       setShowDeleteModal(false);
+                      // Invalidate staff cache to refresh the list
+                      queryClient.invalidateQueries(['staff', outletId]);
                       navigate(-1);
                     } catch (e) {
                       // error is handled by toastController

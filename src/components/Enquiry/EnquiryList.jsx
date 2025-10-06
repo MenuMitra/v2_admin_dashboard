@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -10,6 +11,7 @@ import {
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import { API_CONFIG } from "../../config/appConfig";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import Breadcrumb from "../Breadcrumb";
 import DataTable from "../common/DataTable";
 import { toastController } from "../../utils/toastController";
@@ -17,6 +19,7 @@ import { toastController } from "../../utils/toastController";
 const EnquiryList = () => {
   const navigate = useNavigate();
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const [enquiries, setEnquiries] = useState([]);
@@ -208,7 +211,9 @@ const EnquiryList = () => {
 
         if (response.data && response.data.success) {
           toastController.showSuccess("Enquiry deleted successfully");
-          fetchEnquiries(); // Refresh the list
+          // Invalidate enquiries cache to refresh the list
+          queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+          fetchEnquiries(); // Also refresh local state
         } else {
           throw new Error(response.data?.message || "Failed to delete enquiry");
         }
@@ -256,7 +261,9 @@ const EnquiryList = () => {
 
       if (response.data && response.data.success) {
         toastController.showSuccess("Bulk action completed successfully");
-        fetchEnquiries(); // Refresh the list
+        // Invalidate enquiries cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+        fetchEnquiries(); // Also refresh local state
         setSelectedItems([]);
       } else {
         throw new Error(
