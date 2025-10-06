@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
+import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
   SelectInput,
@@ -21,6 +23,7 @@ function EditMenu() {
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Add state for menu categories
   const [categories, setCategories] = useState([]);
@@ -343,10 +346,10 @@ function EditMenu() {
       // Format portion data properly
       const formattedPortionData = portionData.map((portion, index) => {
         const basePortionData = {
-          portion_name: portion.portion_name.trim(),
+          portion_name: portion.portion_name?.trim() || '',
           price: parseInt(portion.price, 10),
-          unit_value: portion.unit_value.trim(),
-          unit_type: portion.unit_type.trim(),
+          unit_value: portion.unit_value?.trim() || '',
+          unit_type: portion.unit_type?.trim() || '',
           flag: index === 0 ? 1 : 0
         };
 
@@ -366,14 +369,14 @@ function EditMenu() {
         menu_id: Number(menuId),
         outlet_id: Number(outletId),
         user_id: adminData?.user_id,
-        name: name.trim(),
+        name: name?.trim() || '',
         portion_data: formattedPortionData, // Use formatted portion data
         food_type: foodType,
         menu_cat_id: Number(menuCatId),
         spicy_index: spicyIndex ? spicyIndex.toString() : null,
         offer: offer ? Number(offer) : 0,
-        description: description.trim(),
-        ingredients: ingredients.trim(),
+        description: description?.trim() || '',
+        ingredients: ingredients?.trim() || '',
         is_special: isSpecial,
         images: images,
         existing_image_ids: existingImages
@@ -396,6 +399,8 @@ function EditMenu() {
 
       toastController.success('Menu updated successfully');
       setSuccessMsg(response.data.detail || 'Menu updated successfully');
+      // Invalidate menus cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.list(outletId) });
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
       console.error('Update error:', err);
