@@ -59,7 +59,7 @@ function CreateSubscription() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/modules`,
+        `${BASE_URL}/admin/modules`,
         {
           headers: { Authorization: token },
         }
@@ -87,7 +87,7 @@ function CreateSubscription() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/list_features`,
+        `${BASE_URL}/admin/list_features`,
         {
           user_id: adminData.user_id,
           app_source: "admin_app",
@@ -140,7 +140,7 @@ function CreateSubscription() {
       const collected = [];
       for (const mid of moduleIds) {
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          `${BASE_URL}/admin/list_features`,
           {
             user_id: adminData.user_id,
             app_source: "admin_app",
@@ -188,7 +188,7 @@ function CreateSubscription() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/list_actions`,
+        `${BASE_URL}/admin/list_actions`,
         { feature_ids: featureIds },
         {
           headers: { Authorization: token, "Content-Type": "application/json" },
@@ -363,7 +363,7 @@ function CreateSubscription() {
       };
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/create_subscription`,
+        `${BASE_URL}/admin/create_subscription`,
         payload,
         {
           headers: { Authorization: token, "Content-Type": "application/json" },

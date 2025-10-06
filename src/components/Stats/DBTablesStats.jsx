@@ -51,7 +51,7 @@ function DBTablesStats() {
   // Fetch table statistics
   const fetchTableStats = async () => {
     try {
-      const response = await fetch(`${BASE_URL}/${API_VERSION}/admin/table_stats`, {
+      const response = await fetch(`${BASE_URL}/admin/table_stats`, {
         method: 'GET',
         headers: {
           'Authorization': getToken(),

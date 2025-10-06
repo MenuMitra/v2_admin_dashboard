@@ -29,7 +29,7 @@ export const useOwnerDetails = (ownerId) => {
 
       const response = await toastController.promise(
         axios.post(
-          `${BASE_URL}/${API_VERSION}/common/view_owner`,
+          `${BASE_URL}/common/view_owner`,
           {
             user_id: adminData.user_id,
             owner_id: parseInt(ownerId),
@@ -63,7 +63,7 @@ export const useOwnerDetails = (ownerId) => {
       }
 
       await toastController.promise(
-        axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_owner`, {
+        axios.delete(`${BASE_URL}/common/delete_owner`, {
           data: {
             owner_id: parseInt(ownerId),
             user_id: adminData.user_id,

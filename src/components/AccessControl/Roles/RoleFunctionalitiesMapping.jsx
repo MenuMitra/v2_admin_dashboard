@@ -68,7 +68,7 @@ function RoleFunctionalitiesMapping() {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/listview_ubac_role_functionality_mapping`,
+        `${BASE_URL}/admin/listview_ubac_role_functionality_mapping`,
         { role_id: parseInt(roleId), app_source: "admin" },
         {
           headers: {
@@ -99,7 +99,7 @@ function RoleFunctionalitiesMapping() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
+        `${BASE_URL}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: token,
@@ -132,7 +132,7 @@ function RoleFunctionalitiesMapping() {
       }
 
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/create_ubac_role_functionality_mapping`,
+        `${BASE_URL}/admin/create_ubac_role_functionality_mapping`,
         {
           functionality_ids: selectedFunctionalities,
           role_id: parseInt(roleId), // Using roleId as user_id
@@ -178,7 +178,7 @@ function RoleFunctionalitiesMapping() {
         throw new Error("No authentication token available");
       }
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/delete_ubac_role`,
+        `${BASE_URL}/admin/delete_ubac_role`,
         {
           role_id: parseInt(roleId),
           user_id: adminData.user_id,

@@ -100,7 +100,7 @@ function Auth() {
 
     try {
       const response = await toastController.promise(
-        axios.post(`${BASE_URL}/${API_VERSION}/admin/admin_login`, { mobile }),
+        axios.post(`${BASE_URL}/admin/admin_login`, { mobile }),
         {
           loading: "Sending OTP...",
           success: "OTP sent successfully!",
@@ -286,7 +286,7 @@ function Auth() {
 
     try {
       const response = await toastController.promise(
-        axios.post(`${BASE_URL}/${API_VERSION}/admin/admin_verify_otp`, {
+        axios.post(`${BASE_URL}/admin/admin_verify_otp`, {
           mobile,
           otp: parseInt(otpString),
           user_agent_name: browserDetails.userAgentName,
@@ -368,7 +368,7 @@ function Auth() {
     try {
       const response = await toastController.promise(
         axios.post(
-          `${BASE_URL}/${API_VERSION}/common/resend_otp`,
+          `${BASE_URL}/common/resend_otp`,
           { mobile, app_type: "admin" },
           {
             headers: {

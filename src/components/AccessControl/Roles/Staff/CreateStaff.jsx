@@ -103,7 +103,7 @@ function CreateStaff() {
         let featureIds = [];
         try {
           const outletRes = await axios.post(
-            `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+            `${BASE_URL}/common/view_outlet`,
             {
               outlet_id: Number(outletId),
               user_id: adminData?.user_id,
@@ -136,7 +136,7 @@ function CreateStaff() {
         };
 
         const res = await axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_actions`,
+          `${BASE_URL}/admin/list_actions`,
           payload,
           {
             headers: {
@@ -199,7 +199,7 @@ function CreateStaff() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/staff_role`,
+          `${BASE_URL}/common/get_list/staff_role`,
           { headers: { Authorization: token } }
         );
         const list =
@@ -276,7 +276,7 @@ function CreateStaff() {
       };
 
       await toastController.promise(
-        axios.post(`${BASE_URL}/${API_VERSION}/common/create_staff`, payload, {
+        axios.post(`${BASE_URL}/common/create_staff`, payload, {
           headers: { Authorization: token, "Content-Type": "application/json" },
         }),
         {

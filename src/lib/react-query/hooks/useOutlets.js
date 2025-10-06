@@ -57,7 +57,7 @@ export const useOutlets = () => {
     queryKey: queryKeys.outlets.list(),
     queryFn: async () => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/listview_outlet`,
+        `${BASE_URL}/common/listview_outlet`,
         {
           user_id: adminData?.user_id,
           app_source: "admin_app",
@@ -82,7 +82,7 @@ export const useOutlets = () => {
   const deleteMutation = useMutation({
     mutationFn: async (outletId) => {
       const response = await axios.delete(
-        `${BASE_URL}/${API_VERSION}/common/delete_outlet`,
+        `${BASE_URL}/common/delete_outlet`,
         {
           headers: {
             Authorization: getToken(),
@@ -112,7 +112,7 @@ export const useOutlets = () => {
   const bulkActionMutation = useMutation({
     mutationFn: async ({ action, outletIds }) => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/bulk_outlet_action`,
+        `${BASE_URL}/common/bulk_outlet_action`,
         {
           user_id: adminData.user_id,
           action: action,

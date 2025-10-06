@@ -75,7 +75,7 @@ function CreateOwner() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/outlets`,
+        `${BASE_URL}/common/get_list/outlets`,
         {
           headers: {
             Authorization: token,
@@ -276,7 +276,7 @@ function CreateOwner() {
       };
 
       await toastController.promise(
-        axios.post(`${BASE_URL}/${API_VERSION}/common/create_owner`, payload, {
+        axios.post(`${BASE_URL}/common/create_owner`, payload, {
           headers: {
             Authorization: token,
             "Content-Type": "application/json",

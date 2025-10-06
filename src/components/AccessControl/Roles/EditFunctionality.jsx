@@ -50,7 +50,7 @@ function EditFunctionality() {
       const token = getToken();
       if (!token) throw new Error("No authentication token available");
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
+        `${BASE_URL}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: token,
@@ -100,7 +100,7 @@ function EditFunctionality() {
       const token = getToken();
       if (!token) throw new Error("No authentication token available");
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/listview_ubac_role_functionality_mapping`,
+        `${BASE_URL}/admin/listview_ubac_role_functionality_mapping`,
         { role_id: parseInt(roleId), app_source: "admin" },
         {
           headers: {
@@ -145,7 +145,7 @@ function EditFunctionality() {
       const token = getToken();
       if (!token) throw new Error("No authentication token available");
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/create_ubac_role_functionality_mapping`,
+        `${BASE_URL}/admin/create_ubac_role_functionality_mapping`,
         {
           functionality_ids: selectedFunctionalities,
           role_id: parseInt(roleId),

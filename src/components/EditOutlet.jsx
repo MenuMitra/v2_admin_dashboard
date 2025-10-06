@@ -163,7 +163,7 @@ function EditOutlet() {
           setLoadingModules(true);
           const token = getToken();
           const resp = await axios.get(
-            `${BASE_URL}/${API_VERSION}/admin/get_modules`,
+            `${BASE_URL}/admin/get_modules`,
             { headers: { Authorization: token } }
           );
           setModules(
@@ -186,7 +186,7 @@ function EditOutlet() {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+        `${BASE_URL}/common/view_outlet`,
         {
           outlet_id: outletId,
           user_id: adminData?.user_id,
@@ -346,7 +346,7 @@ function EditOutlet() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/outlet_type`,
+        `${BASE_URL}/common/get_list/outlet_type`,
         {
           headers: {
             Authorization: token,
@@ -370,7 +370,7 @@ function EditOutlet() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/veg_or_nonveg`,
+        `${BASE_URL}/common/get_list/veg_or_nonveg`,
         {
           headers: {
             Authorization: token,
@@ -392,7 +392,7 @@ function EditOutlet() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/listview_owner/${adminData.user_id}`,
+        `${BASE_URL}/common/listview_owner/${adminData.user_id}`,
         { headers: { Authorization: token } }
       );
 
@@ -689,7 +689,7 @@ function EditOutlet() {
       apiData.app_source = outletData.app_source || "admin_app";
 
       const response = await axios.patch(
-        `${BASE_URL}/${API_VERSION}/common/update_outlet`,
+        `${BASE_URL}/common/update_outlet`,
         apiData,
         {
           headers: {

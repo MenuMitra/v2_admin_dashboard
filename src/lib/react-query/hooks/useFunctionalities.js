@@ -20,7 +20,7 @@ export const useFunctionalities = () => {
     queryKey: queryKeys.functionalities.list(),
     queryFn: async () => {
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
+        `${BASE_URL}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: getToken(),
@@ -49,7 +49,7 @@ export const useFunctionalities = () => {
   const createMutation = useMutation({
     mutationFn: async (functionalityName) => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/create_ubac_functionality`,
+        `${BASE_URL}/admin/create_ubac_functionality`,
         {
           functionality_name: functionalityName,
           app_source: "admin",
@@ -78,7 +78,7 @@ export const useFunctionalities = () => {
   const updateMutation = useMutation({
     mutationFn: async ({ functionalityId, functionalityName }) => {
       const response = await axios.put(
-        `${BASE_URL}/${API_VERSION}/admin/update_ubac_functionality`,
+        `${BASE_URL}/admin/update_ubac_functionality`,
         {
           functionality_id: functionalityId,
           functionality_name: functionalityName,
@@ -108,7 +108,7 @@ export const useFunctionalities = () => {
   const deleteMutation = useMutation({
     mutationFn: async (functionalityId) => {
       const response = await axios.delete(
-        `${BASE_URL}/${API_VERSION}/admin/delete_ubac_functionality/${functionalityId}`,
+        `${BASE_URL}/admin/delete_ubac_functionality/${functionalityId}`,
         {
           headers: {
             Authorization: getToken(),

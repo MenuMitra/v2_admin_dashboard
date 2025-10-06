@@ -162,7 +162,7 @@ function CombinedStats() {
       setDbError(null);
       try {
         const response = await fetch(
-          `${BASE_URL}/${API_VERSION}/admin/table_stats`,
+          `${BASE_URL}/admin/table_stats`,
           {
             method: "GET",
             headers: {

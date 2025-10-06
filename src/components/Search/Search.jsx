@@ -61,7 +61,7 @@ const Search = () => {
 
       try {
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/search`,
+          `${BASE_URL}/admin/search`,
           {
             search: searchType,
             app_source: "admin",

@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAdmin } from "../../../hooks/useAdmin";
 import { useAuth } from "../../../hooks/useAuth";
 import { queryKeys } from "../../../lib/react-query/queryKeys";
+import { API_CONFIG } from "../../../config/appConfig";
 import { TextInput } from "../../forms/FormElements";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -20,6 +21,7 @@ function CreateCategory() {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { BASE_URL } = API_CONFIG;
 
   const [categoryName, setCategoryName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ function CreateCategory() {
 
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/menu_category_create",
+        `${BASE_URL}/common/menu_category_create`,
         {
           outlet_id: outletId,
           category_name: categoryName,

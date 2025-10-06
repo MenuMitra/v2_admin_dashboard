@@ -79,7 +79,7 @@ function EditOwner() {
   const fetchRoles = async () => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/roles`,
+        `${BASE_URL}/common/get_list/roles`,
         {
           headers: {
             Authorization: getToken(),
@@ -102,7 +102,7 @@ function EditOwner() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/outlets`,
+        `${BASE_URL}/common/get_list/outlets`,
         {
           headers: {
             Authorization: token,
@@ -134,7 +134,7 @@ function EditOwner() {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/view_owner`,
+        `${BASE_URL}/common/view_owner`,
         {
           owner_id: Number(ownerId),
           user_id: adminData.user_id,
@@ -446,7 +446,7 @@ function EditOwner() {
       }
 
       const response = await axios.patch(
-        `${BASE_URL}/${API_VERSION}/common/update_owner`,
+        `${BASE_URL}/common/update_owner`,
         basePayload,
         {
           headers: {

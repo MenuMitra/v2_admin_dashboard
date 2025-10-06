@@ -39,7 +39,7 @@ function CustomerDetails() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/customer_view`,
+        `${BASE_URL}/admin/customer_view`,
         {
           user_id: Number(customerId),
           app_source: "admin_app",
@@ -66,7 +66,7 @@ function CustomerDetails() {
     setIsTogglingActive(true);
     try {
       const response = await axios.patch(
-        `${BASE_URL}/${API_VERSION}/admin/customer_update`,
+        `${BASE_URL}/admin/customer_update`,
         {
           user_id: adminData?.user_id,
           customer_id: Number(customerId),

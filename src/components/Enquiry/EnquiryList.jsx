@@ -200,7 +200,7 @@ const EnquiryList = () => {
         if (!token) throw new Error("No authentication token available");
 
         const response = await axios.delete(
-          `${BASE_URL}/${API_VERSION}/admin/delete_enquiry/${enquiry.id}`,
+          `${BASE_URL}/admin/delete_enquiry/${enquiry.id}`,
           {
             headers: {
               Authorization: token,
@@ -233,7 +233,7 @@ const EnquiryList = () => {
       switch (action) {
         case "delete":
           response = await axios.post(
-            `${BASE_URL}/${API_VERSION}/admin/bulk_delete_enquiries`,
+            `${BASE_URL}/admin/bulk_delete_enquiries`,
             { enquiry_ids: selectedIds },
             {
               headers: {
@@ -245,7 +245,7 @@ const EnquiryList = () => {
           break;
         case "update_status":
           response = await axios.post(
-            `${BASE_URL}/${API_VERSION}/admin/bulk_update_enquiry_status`,
+            `${BASE_URL}/admin/bulk_update_enquiry_status`,
             { enquiry_ids: selectedIds, status: "resolved" },
             {
               headers: {

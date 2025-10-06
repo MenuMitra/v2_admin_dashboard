@@ -35,7 +35,7 @@ function StaffDetails() {
     queryFn: async () => {
       const token = getToken();
       const res = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/staff_view`,
+        `${BASE_URL}/common/staff_view`,
         {
           staff_id: Number(userId),
           outlet_id: Number(outletId),
@@ -72,7 +72,7 @@ function StaffDetails() {
       try {
         const token = getToken();
         const res = await axios.post(
-          `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+          `${BASE_URL}/common/view_outlet`,
           {
             outlet_id: Number(outletId),
             user_id: adminData.user_id,
@@ -221,7 +221,7 @@ function StaffDetails() {
                       await toastController.promise(
                         // axios.delete takes (url, config) where payload must be under `data` key
                         axios.delete(
-                          `${BASE_URL}/${API_VERSION}/common/delete_staff`,
+                          `${BASE_URL}/common/delete_staff`,
                           {
                             data: {
                               staff_id: Number(userId),

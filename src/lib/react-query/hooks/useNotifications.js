@@ -24,7 +24,7 @@ export const useNotifications = (selectedOutlet = '') => {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/outlets`,
+        `${BASE_URL}/common/get_list/outlets`,
         {
           headers: {
             Authorization: token,
@@ -61,7 +61,7 @@ export const useNotifications = (selectedOutlet = '') => {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/notification_filter_options`,
+        `${BASE_URL}/common/notification_filter_options`,
         { outlet_id: selectedOutlet },
         {
           headers: {
@@ -101,7 +101,7 @@ export const useNotifications = (selectedOutlet = '') => {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/list_notifications`,
+        `${BASE_URL}/common/list_notifications`,
         {
           headers: {
             Authorization: token,

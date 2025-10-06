@@ -15,7 +15,7 @@ export const useDashboard = () => {
     }
 
     const response = await fetch(
-      `${BASE_URL}/${API_VERSION}/admin/admin_home`,
+      `${BASE_URL}/admin/admin_home`,
       {
         method: "GET",
         headers: {

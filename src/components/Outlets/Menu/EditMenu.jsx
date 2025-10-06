@@ -150,7 +150,7 @@ function EditMenu() {
     const fetchMenuDetails = async () => {
       try {
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/common/menu_view`,
+          `${BASE_URL}/common/menu_view`,
           {
             menu_id: Number(menuId),
             outlet_id: Number(outletId),
@@ -210,7 +210,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/common/menu_category_list`,
+          `${BASE_URL}/common/menu_category_list`,
           {
             outlet_id: outletId,
             user_id: adminData?.user_id,
@@ -244,7 +244,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/food_type`,
+          `${BASE_URL}/common/get_list/food_type`,
           {
             headers: {
               Authorization: token
@@ -273,7 +273,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/spicy_index`,
+          `${BASE_URL}/common/get_list/spicy_index`,
           {
             headers: {
               Authorization: token
@@ -384,7 +384,7 @@ function EditMenu() {
       };
 
       const response = await axios.put(
-        `${BASE_URL}/${API_VERSION}/common/menu_update`,
+        `${BASE_URL}/common/menu_update`,
         payload,
         {
           headers: {

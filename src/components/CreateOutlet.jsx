@@ -155,7 +155,7 @@ function CreateOutlet() {
         setLoadingModules(true);
         const token = getToken();
         const resp = await axios.get(
-          `${BASE_URL}/${API_VERSION}/admin/get_modules`,
+          `${BASE_URL}/admin/get_modules`,
           {
             headers: { Authorization: token },
           }
@@ -325,7 +325,7 @@ function CreateOutlet() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/outlet_type`,
+        `${BASE_URL}/common/get_list/outlet_type`,
         {
           headers: {
             Authorization: token,
@@ -350,7 +350,7 @@ function CreateOutlet() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/listview_owner/${adminData.user_id}`,
+        `${BASE_URL}/common/listview_owner/${adminData.user_id}`,
         {
           headers: {
             Authorization: token,
@@ -660,7 +660,7 @@ function CreateOutlet() {
       });
 
       const response = await toastController.promise(
-        axios.post(`${BASE_URL}/${API_VERSION}/common/create_outlet`, payload, {
+        axios.post(`${BASE_URL}/common/create_outlet`, payload, {
           headers: {
             Authorization: token,
             "Content-Type": "application/json",

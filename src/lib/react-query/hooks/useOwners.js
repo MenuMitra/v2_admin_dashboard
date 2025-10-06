@@ -14,7 +14,7 @@ export function useOwners(token, userId) {
     queryKey: queryKeys.owners.list(),
     queryFn: async () => {
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/listview_owner/${userId}`,
+        `${BASE_URL}/common/listview_owner/${userId}`,
         {
           headers: {
             Authorization: token,
@@ -31,7 +31,7 @@ export function useOwners(token, userId) {
   const deleteOwnerMutation = useMutation({
     mutationFn: async ({ ownerId, userId }) => {
       const response = await axios.delete(
-        `${BASE_URL}/${API_VERSION}/common/delete_owner`,
+        `${BASE_URL}/common/delete_owner`,
         {
           data: {
             owner_id: ownerId,
@@ -56,7 +56,7 @@ export function useOwners(token, userId) {
   const bulkActionMutation = useMutation({
     mutationFn: async ({ userIds, action, userId }) => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/bulk_owner_action`,
+        `${BASE_URL}/common/bulk_owner_action`,
         {
           user_id: userId,
           action: action,

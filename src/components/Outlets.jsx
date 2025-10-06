@@ -75,7 +75,7 @@ function Outlets() {
       };
       console.log("Full API payload:", payload);
       return axios.patch(
-        `${BASE_URL}/${API_VERSION}/common/change_outlet_status`,
+        `${BASE_URL}/common/change_outlet_status`,
         payload,
         {
           headers: {

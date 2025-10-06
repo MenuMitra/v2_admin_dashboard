@@ -134,7 +134,7 @@ function ViewOutlet() {
       const requestUserId = queryUserId || adminData?.user_id;
       const requestAppSource = queryAppSource || "admin_app";
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+        `${BASE_URL}/common/view_outlet`,
         {
           outlet_id: outletId,
           user_id: requestUserId,
@@ -165,7 +165,7 @@ function ViewOutlet() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      return axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_outlet`, {
+      return axios.delete(`${BASE_URL}/common/delete_outlet`, {
         headers: {
           Authorization: getToken(),
           "Content-Type": "application/json",
@@ -193,7 +193,7 @@ function ViewOutlet() {
   const toggleStatusMutation = useMutation({
     mutationFn: async ({ type, value }) => {
       return axios.patch(
-        `${BASE_URL}/${API_VERSION}/common/change_outlet_status`,
+        `${BASE_URL}/common/change_outlet_status`,
         {
           outlet_id: outletId,
           user_id: adminData?.user_id,
@@ -278,7 +278,7 @@ function ViewOutlet() {
   const bulkUploadMutation = useMutation({
     mutationFn: async (formData) => {
       return axios.post(
-        `${BASE_URL}/${API_VERSION}/common/bulk_upload_file`,
+        `${BASE_URL}/common/bulk_upload_file`,
         formData,
         {
           headers: {

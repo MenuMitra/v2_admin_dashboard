@@ -61,7 +61,7 @@ function EditSubscription() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/modules`,
+        `${BASE_URL}/admin/modules`,
         {
           headers: { Authorization: token },
         }
@@ -81,7 +81,7 @@ function EditSubscription() {
     try {
       const response = await toastController.promise(
         axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/view_subscription`,
+          `${BASE_URL}/admin/view_subscription`,
           {
             subscription_id: Number(subscriptionId),
             user_id: adminData.user_id,
@@ -222,7 +222,7 @@ function EditSubscription() {
     try {
       const response = await toastController.promise(
         axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          `${BASE_URL}/admin/list_features`,
           {
             user_id: adminData.user_id,
             app_source: "admin_app",
@@ -285,7 +285,7 @@ function EditSubscription() {
       const collected = [];
       for (const mid of moduleIds) {
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          `${BASE_URL}/admin/list_features`,
           {
             user_id: adminData.user_id,
             app_source: "admin_app",
@@ -323,7 +323,7 @@ function EditSubscription() {
         return;
       }
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/list_actions`,
+        `${BASE_URL}/admin/list_actions`,
         { feature_ids: featureIds },
         {
           headers: {
@@ -504,7 +504,7 @@ function EditSubscription() {
       };
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/update_subscription`,
+        `${BASE_URL}/admin/update_subscription`,
         payload,
         {
           headers: {

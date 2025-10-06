@@ -4,6 +4,9 @@ import { useAuth } from '../../../hooks/useAuth';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { toastController } from '../../../utils/toastController';
 import { queryKeys } from '../queryKeys';
+import { API_CONFIG } from '../../../config/appConfig';
+
+const { BASE_URL } = API_CONFIG;
 
 export const usePartners = () => {
   const { getToken } = useAuth();
@@ -25,7 +28,7 @@ export const usePartners = () => {
       }
 
       const response = await axios.get(
-        `https://men4u.xyz/v2/admin/listview_partner/${adminData.user_id}`,
+        `${BASE_URL}/admin/listview_partner/${adminData.user_id}`,
         {
           headers: {
             Authorization: token,
@@ -47,7 +50,7 @@ export const usePartners = () => {
         throw new Error('No authentication token available');
       }
 
-      await axios.delete('https://men4u.xyz/v2/admin/delete_partner', {
+      await axios.delete(`${BASE_URL}/admin/delete_partner`, {
         headers: {
           Authorization: token,
           'Content-Type': 'application/json',
@@ -77,7 +80,7 @@ export const usePartners = () => {
       }
 
       const response = await axios.post(
-        'https://men4u.xyz/v2/common/bulk_partner_action',
+        `${BASE_URL}/common/bulk_partner_action`,
         payload,
         {
           headers: {

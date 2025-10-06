@@ -3,34 +3,21 @@
  * Single source of truth for the entire application
  */
 
-// Helper function to safely check domain
-const isMenuMitraDomain = () => {
-  try {
-    const hostname = window.location.hostname;
-    // Check for exact domain matches
-    return hostname === 'admin.menumitra.com' || 
-           hostname === 'menumitra.com' || 
-           hostname.endsWith('.menumitra.com');
-  } catch (error) {
-    console.error('Error checking domain:', error);
-    return false;
-  }
-};
-
-// Helper function to get API base URL
+// Get API base URL from environment variable (Netlify)
+// Falls back to testing API if not set
 const getApiBaseUrl = () => {
-  const hostname = window.location.hostname;
+  // Check for Vite environment variable (set in Netlify)
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
   
-  // For all domains including localhost, use domain-based logic
-  return isMenuMitraDomain() 
-    ? 'https://menusmitra.xyz' 
-    : 'https://men4u.xyz';
+  // Default fallback for local development
+  return 'https://men4u.xyz/v2';
 };
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: getApiBaseUrl(),
-  API_VERSION: 'v2',
+  BASE_URL: getApiBaseUrl(), // Full URL including /v2
 };
 
 // Protected Users Configuration

@@ -133,7 +133,7 @@ function RoleDetails() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/user_view`,
+        `${BASE_URL}/common/user_view`,
         {
           user_id: adminData?.user_id,
           staff_id: userId,
@@ -161,7 +161,7 @@ function RoleDetails() {
   const handleDeleteCustomer = async () => {
     try {
       await axios.delete(
-        `${BASE_URL}/${API_VERSION}/admin/customer_delete`,
+        `${BASE_URL}/admin/customer_delete`,
         {
           headers: {
             Authorization: getToken(),

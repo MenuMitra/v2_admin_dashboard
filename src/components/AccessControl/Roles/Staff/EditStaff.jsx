@@ -57,7 +57,7 @@ function EditStaff() {
       try {
         const token = getToken();
         const res = await axios.post(
-          `${BASE_URL}/${API_VERSION}/common/staff_view`,
+          `${BASE_URL}/common/staff_view`,
           {
             staff_id: Number(userId),
             outlet_id: Number(outletId),
@@ -93,7 +93,7 @@ function EditStaff() {
         try {
           const token2 = getToken();
           const outletRes = await axios.post(
-            `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+            `${BASE_URL}/common/view_outlet`,
             {
               outlet_id: Number(outletId),
               user_id: adminData?.user_id,
@@ -127,7 +127,7 @@ function EditStaff() {
         let featureIds = [];
         try {
           const outletRes = await axios.post(
-            `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+            `${BASE_URL}/common/view_outlet`,
             {
               outlet_id: Number(outletId),
               user_id: adminData?.user_id,
@@ -156,7 +156,7 @@ function EditStaff() {
         };
 
         const res = await axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_actions`,
+          `${BASE_URL}/admin/list_actions`,
           payload,
           {
             headers: {
@@ -223,7 +223,7 @@ function EditStaff() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/staff_role`,
+          `${BASE_URL}/common/get_list/staff_role`,
           { headers: { Authorization: token } }
         );
         const list =
@@ -318,7 +318,7 @@ function EditStaff() {
       };
 
       await toastController.promise(
-        axios.patch(`${BASE_URL}/${API_VERSION}/common/update_staff`, payload, {
+        axios.patch(`${BASE_URL}/common/update_staff`, payload, {
           headers: { Authorization: token },
         }),
         {
@@ -342,7 +342,7 @@ function EditStaff() {
 
         // fire-and-forget; report failure but don't block the main save
         await axios.patch(
-          `${BASE_URL}/${API_VERSION}/common/update_active_status`,
+          `${BASE_URL}/common/update_active_status`,
           statusPayload,
           {
             headers: {
@@ -367,7 +367,7 @@ function EditStaff() {
           };
           await toastController.promise(
             axios.post(
-              `${BASE_URL}/${API_VERSION}/admin/user_assign_actions`,
+              `${BASE_URL}/admin/user_assign_actions`,
               assignPayload,
               {
                 headers: {
