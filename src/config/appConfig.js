@@ -15,9 +15,22 @@ const getApiBaseUrl = () => {
   return 'https://men4u.xyz/v2';
 };
 
+// Get Customer App base URL from environment variable (Netlify)
+// Falls back to testing app if not set
+const getCustomerAppUrl = () => {
+  // Check for Vite environment variable (set in Netlify)
+  if (import.meta.env.VITE_CUSTOMER_APP_URL) {
+    return import.meta.env.VITE_CUSTOMER_APP_URL;
+  }
+  
+  // Default fallback for local development
+  return 'https://test-menumitra-customer-v2.netlify.app';
+};
+
 // API Configuration
 export const API_CONFIG = {
   BASE_URL: getApiBaseUrl(), // Full URL including /v2
+  CUSTOMER_APP_URL: getCustomerAppUrl(), // Customer app base URL
 };
 
 // Protected Users Configuration

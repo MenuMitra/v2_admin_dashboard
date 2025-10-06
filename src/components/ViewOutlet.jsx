@@ -114,7 +114,7 @@ function ViewOutlet() {
     : null;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL, API_VERSION, CUSTOMER_APP_URL } = API_CONFIG;
 
   // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -466,7 +466,7 @@ function ViewOutlet() {
                 />
               </button>
               <a
-                href={`https://test-menumitra-customer-v2.netlify.app/o${outletData?.outlet_code}/`}
+                href={`${CUSTOMER_APP_URL}/o${outletData?.outlet_code}/`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-brand-500 text-brand-500 bg-white hover:bg-brand-50 shadow-theme-xs"
