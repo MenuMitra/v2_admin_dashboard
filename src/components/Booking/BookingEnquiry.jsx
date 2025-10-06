@@ -8,7 +8,7 @@ import { API_CONFIG } from "../../config/appConfig";
 
 const BookingEnquiry = () => {
   const { getToken } = useAuth();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
   const [bookings, setBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,7 +24,7 @@ const BookingEnquiry = () => {
       setIsLoading(true);
       const token = getToken();
       // Using public endpoint from user-provided API — no token required, fall back to GET
-      const url = "https://men4u.xyz/v2/website_api/listview_website_booking";
+      const url = `${BASE_URL}/website_api/listview_website_booking`;
       const resp = await axios.get(url, {
         headers: token
           ? { Authorization: token, "Content-Type": "application/json" }

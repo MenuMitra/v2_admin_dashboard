@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import axios from "axios";
+import { API_CONFIG } from "../../config/appConfig";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -24,6 +25,7 @@ function CreatePartner() {
   const { getToken } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { BASE_URL } = API_CONFIG;
 
   const [partnerDetails, setPartnerDetails] = useState({
     name: "",
@@ -170,7 +172,7 @@ function CreatePartner() {
       };
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/admin/create_partner",
+        `${BASE_URL}/admin/create_partner`,
         requestData,
         {
           headers: {

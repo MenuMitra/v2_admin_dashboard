@@ -107,7 +107,7 @@ function CustomerDetails() {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      await axios.delete("https://men4u.xyz/v2/admin/customer_delete", {
+      await axios.delete(`${BASE_URL}/admin/customer_delete`, {
         headers: {
           Authorization: getToken(),
         },

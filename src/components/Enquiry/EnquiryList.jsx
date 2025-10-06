@@ -61,7 +61,7 @@ const EnquiryList = () => {
       }
 
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/list_enquiries",
+        `${BASE_URL}/common/list_enquiries`,
         requestBody,
         {
           headers: {

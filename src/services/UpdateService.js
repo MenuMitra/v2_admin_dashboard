@@ -1,4 +1,7 @@
 import axios from "axios";
+import { API_CONFIG } from "../config/appConfig";
+
+const { BASE_URL } = API_CONFIG;
 
 export class UpdateService {
   static get currentVersion() {
@@ -8,7 +11,7 @@ export class UpdateService {
   static async checkForUpdates() {
     try {
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/check_version",
+        `${BASE_URL}/common/check_version`,
         {
           app_type: "pos",
         }

@@ -5,12 +5,14 @@ import { faTrash, faChevronLeft, faPlus, faRotate, faMagnifyingGlass } from "@fo
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
+import { API_CONFIG } from "../../config/appConfig";
 import Modal from "../common/Modal";
 import { toastController } from "../../utils/toastController";
 
 const UBACTree = () => {
   const { data, isLoading, refetchUbacTree } = useUbacTree();
   const { getToken } = useAuth();
+  const { BASE_URL } = API_CONFIG;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [type, setType] = useState("module"); // module | feature | action
@@ -44,7 +46,7 @@ const UBACTree = () => {
         console.log("UBAC: fetchModules getToken() =>", getToken());
         console.log("UBAC: fetchModules headers =>", headers);
 
-        const res = await fetch("https://men4u.xyz/v2/admin/get_modules", {
+        const res = await fetch(`${BASE_URL}/admin/get_modules`, {
           method: "GET",
           headers,
         });
@@ -98,7 +100,7 @@ const UBACTree = () => {
         }).toString();
 
         // include query string so API receives module_id/outlet_id/app_source
-        const url = `https://men4u.xyz/v2/admin/get_features?${query}`;
+        const url = `${BASE_URL}/admin/get_features?${query}`;
         console.log("UBAC: fetchFeatures url =>", url);
 
         const res = await fetch(url, {
@@ -180,7 +182,7 @@ const UBACTree = () => {
                       : { "Content-Type": "application/json" };
 
                     const resp = await fetch(
-                      "https://men4u.xyz/v2/admin/delete_actions",
+                      `${BASE_URL}/admin/delete_actions`,
                       {
                         method: "DELETE",
                         headers,
@@ -277,7 +279,7 @@ const UBACTree = () => {
                               : { "Content-Type": "application/json" };
 
                             const resp = await fetch(
-                              "https://men4u.xyz/v2/admin/delete_features",
+                              `${BASE_URL}/admin/delete_features`,
                               {
                                 method: "DELETE",
                                 headers,
@@ -391,7 +393,7 @@ const UBACTree = () => {
                           : { "Content-Type": "application/json" };
 
                         const resp = await fetch(
-                          "https://men4u.xyz/v2/admin/delete_modules",
+                          `${BASE_URL}/admin/delete_modules`,
                           {
                             method: "DELETE",
                             headers,
@@ -605,7 +607,7 @@ const UBACTree = () => {
                   let resp;
                   if (type === "module") {
                     resp = await fetch(
-                      "https://men4u.xyz/v2/admin/create_module",
+                      `${BASE_URL}/admin/create_module`,
                       {
                         method: "POST",
                         headers,
@@ -614,7 +616,7 @@ const UBACTree = () => {
                     );
                   } else if (type === "feature") {
                     resp = await fetch(
-                      "https://men4u.xyz/v2/admin/create_feature",
+                      `${BASE_URL}/admin/create_feature`,
                       {
                         method: "POST",
                         headers,
@@ -626,7 +628,7 @@ const UBACTree = () => {
                     );
                   } else if (type === "action") {
                     resp = await fetch(
-                      "https://men4u.xyz/v2/admin/create_action",
+                      `${BASE_URL}/admin/create_action`,
                       {
                         method: "POST",
                         headers,
@@ -767,7 +769,7 @@ const UBACTree = () => {
                   let resp;
                   if (editType === "module") {
                     resp = await fetch(
-                      "https://men4u.xyz/v2/admin/update_module",
+                      `${BASE_URL}/admin/update_module`,
                       {
                         method: "PATCH",
                         headers,
@@ -779,7 +781,7 @@ const UBACTree = () => {
                     );
                   } else if (editType === "feature") {
                     resp = await fetch(
-                      "https://men4u.xyz/v2/admin/update_feature",
+                      `${BASE_URL}/admin/update_feature`,
                       {
                         method: "PATCH",
                         headers,
@@ -794,7 +796,7 @@ const UBACTree = () => {
                     );
                   } else if (editType === "action") {
                     resp = await fetch(
-                      "https://men4u.xyz/v2/admin/update_action",
+                      `${BASE_URL}/admin/update_action`,
                       {
                         method: "PATCH",
                         headers,

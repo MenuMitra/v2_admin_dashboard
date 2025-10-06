@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { queryKeys } from '../queryKeys';
+import { API_CONFIG } from '../../../config/appConfig';
+
+const { BASE_URL } = API_CONFIG;
 
 export const useCategories = (outletId, userId) => {
   const queryClient = useQueryClient();
@@ -11,7 +14,7 @@ export const useCategories = (outletId, userId) => {
     queryFn: async () => {
       const token = localStorage.getItem('token'); // Or use your auth method
       const response = await axios.post(
-        "https://men4u.xyz/v2/common/menu_category_list",
+        `${BASE_URL}/common/menu_category_list`,
         {
           outlet_id: Number(outletId),
           user_id: userId,
@@ -33,7 +36,7 @@ export const useCategories = (outletId, userId) => {
   const deleteCategoryMutation = useMutation({
     mutationFn: async ({ categoryId, outletId, userId }) => {
       const token = localStorage.getItem('token');
-      return axios.delete('https://men4u.xyz/v2/common/menu_category_delete', {
+      return axios.delete(`${BASE_URL}/common/menu_category_delete`, {
         data: {
           menu_cat_id: categoryId,
           outlet_id: outletId,
@@ -59,7 +62,7 @@ export const useCategories = (outletId, userId) => {
     mutationFn: async ({ action, selectedIds, outletId, userId }) => {
       const token = localStorage.getItem('token');
       return axios.post(
-        'https://men4u.xyz/v2/common/bulk_category_action',
+        `${BASE_URL}/common/bulk_category_action`,
         {
           user_id: userId,
           outlet_id: Number(outletId),
