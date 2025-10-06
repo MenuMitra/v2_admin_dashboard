@@ -46,7 +46,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/logout`,
+        `${BASE_URL}/common/logout`,
         {
           user_id: adminData.user_id,
           role: adminData.role,

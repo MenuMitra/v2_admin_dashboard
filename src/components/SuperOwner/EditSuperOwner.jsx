@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { API_CONFIG } from "../../config/appConfig";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -24,6 +27,8 @@ function EditSuperOwner() {
   const { adminData } = useAdmin();
   const navigate = useNavigate();
   const { superOwnerId } = useParams();
+  const queryClient = useQueryClient();
+  const { BASE_URL } = API_CONFIG;
 
   const [superOwnerDetails, setSuperOwnerDetails] = useState({
     user_id: adminData?.user_id || "",
@@ -78,7 +83,7 @@ function EditSuperOwner() {
       }
 
       const response = await axios.post(
-        "https://ghanish.in/v2/admin/view_super_owner",
+        `${BASE_URL}/admin/view_super_owner`,
         {
           user_id: adminData?.user_id,
           super_owner_id: parseInt(superOwnerId),
@@ -126,7 +131,7 @@ function EditSuperOwner() {
       }
 
       const response = await axios.post(
-        "https://ghanish.in/v2/admin/get_outlets_for_super_owner",
+        `${BASE_URL}/admin/get_outlets_for_super_owner`,
         {
           app_source: "admin_app",
           super_owner_id: parseInt(superOwnerId),
@@ -261,7 +266,7 @@ function EditSuperOwner() {
     try {
       const token = getToken();
       const response = await axios.put(
-        "https://ghanish.in/v2/admin/update_super_owner",
+        `${BASE_URL}/admin/update_super_owner`,
         {
           ...superOwnerDetails,
           super_owner_id: parseInt(superOwnerId),
@@ -278,6 +283,8 @@ function EditSuperOwner() {
 
       if (response.data) {
         setSuccess("Super owner updated successfully!");
+        // Invalidate super owners cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.superOwners.list() });
         navigate("/super-owners");
       }
     } catch (err) {

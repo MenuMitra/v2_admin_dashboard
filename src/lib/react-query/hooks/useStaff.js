@@ -12,7 +12,7 @@ export function useStaff(token, outletId, adminUserId) {
     queryKey: queryKeys.staff.list(outletId),
     queryFn: async () => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/staff_listview`,
+        `${BASE_URL}/common/staff_listview`,
         {
           outlet_id: Number(outletId),
           user_id: adminUserId,
@@ -30,7 +30,7 @@ export function useStaff(token, outletId, adminUserId) {
   const bulkActionMutation = useMutation({
     mutationFn: async ({ user_id, action, staff_ids, outlet_id }) => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/bulk_staff_action`,
+        `${BASE_URL}/common/bulk_staff_action`,
         {
           user_id: String(user_id),
           action,

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
@@ -24,6 +26,7 @@ function EditSubscription() {
   const { subscriptionId } = useParams();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
   const [modules, setModules] = useState([]);
@@ -58,7 +61,7 @@ function EditSubscription() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/modules`,
+        `${BASE_URL}/admin/modules`,
         {
           headers: { Authorization: token },
         }
@@ -78,7 +81,7 @@ function EditSubscription() {
     try {
       const response = await toastController.promise(
         axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/view_subscription`,
+          `${BASE_URL}/admin/view_subscription`,
           {
             subscription_id: Number(subscriptionId),
             user_id: adminData.user_id,
@@ -219,7 +222,7 @@ function EditSubscription() {
     try {
       const response = await toastController.promise(
         axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          `${BASE_URL}/admin/list_features`,
           {
             user_id: adminData.user_id,
             app_source: "admin_app",
@@ -282,7 +285,7 @@ function EditSubscription() {
       const collected = [];
       for (const mid of moduleIds) {
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          `${BASE_URL}/admin/list_features`,
           {
             user_id: adminData.user_id,
             app_source: "admin_app",
@@ -320,7 +323,7 @@ function EditSubscription() {
         return;
       }
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/list_actions`,
+        `${BASE_URL}/admin/list_actions`,
         { feature_ids: featureIds },
         {
           headers: {
@@ -501,7 +504,7 @@ function EditSubscription() {
       };
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/update_subscription`,
+        `${BASE_URL}/admin/update_subscription`,
         payload,
         {
           headers: {
@@ -524,6 +527,8 @@ function EditSubscription() {
         toastController.success(
           response.data?.detail || "Subscription updated successfully"
         );
+        // Invalidate subscriptions cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.all });
         navigate("/subscriptions");
       } else {
         toastController.error(

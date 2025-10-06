@@ -19,7 +19,7 @@ export const useUbacTree = () => {
     queryKey: queryKeys.functionalities.list(),
     queryFn: async () => {
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/ubac_tree`,
+        `${BASE_URL}/admin/ubac_tree`,
         {
           headers: {
             Authorization: getToken(),

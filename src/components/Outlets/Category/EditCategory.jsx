@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
+import { API_CONFIG } from '../../../config/appConfig';
+import { queryKeys } from '../../../lib/react-query/queryKeys';
 import { TextInput } from '../../forms/FormElements';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
@@ -13,6 +16,8 @@ function EditCategory() {
   const { outletId, menuCategoryId } = useParams();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
+  const { BASE_URL } = API_CONFIG;
   const navigate = useNavigate();
 
   const [categoryName, setCategoryName] = useState('');
@@ -30,7 +35,7 @@ function EditCategory() {
         setLoading(true);
         try {
           const response = await axios.post(
-            'https://ghanish.in/v2/common/menu_category_view',
+            `${BASE_URL}/common/menu_category_view`,
             {
               menu_cat_id: Number(menuCategoryId),
               outlet_id: Number(outletId),
@@ -62,7 +67,7 @@ function EditCategory() {
 
     try {
       const response = await axios.patch(
-        'https://ghanish.in/v2/common/menu_category_update',
+        `${BASE_URL}/common/menu_category_update`,
         {
           outlet_id: Number(outletId),
           menu_cat_id: Number(menuCategoryId),
@@ -80,6 +85,8 @@ function EditCategory() {
       );
       
       toastController.success(response.data.detail || 'Menu Category updated successfully');
+      // Invalidate categories cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.list(outletId) });
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
       toastController.error(

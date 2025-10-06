@@ -13,7 +13,7 @@ export function useAdmins(token) {
     queryKey: queryKeys.admins.list(),
     queryFn: async () => {
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/list_admins`,
+        `${BASE_URL}/admin/list_admins`,
         {
           headers: {
             Authorization: token,
@@ -30,7 +30,7 @@ export function useAdmins(token) {
   const deleteAdminMutation = useMutation({
     mutationFn: async ({ adminId, userId }) => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/delete_admin`,
+        `${BASE_URL}/admin/delete_admin`,
         {
           admin_id: adminId,
           user_id: userId,
@@ -55,7 +55,7 @@ export function useAdmins(token) {
   const bulkActionMutation = useMutation({
     mutationFn: async ({ userIds, action }) => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/bulk_admin_action`,
+        `${BASE_URL}/common/bulk_admin_action`,
         {
           user_ids: userIds,
           action: action,

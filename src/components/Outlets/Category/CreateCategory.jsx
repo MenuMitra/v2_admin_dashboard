@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAdmin } from "../../../hooks/useAdmin";
 import { useAuth } from "../../../hooks/useAuth";
+import { queryKeys } from "../../../lib/react-query/queryKeys";
+import { API_CONFIG } from "../../../config/appConfig";
 import { TextInput } from "../../forms/FormElements";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -17,10 +20,11 @@ function CreateCategory() {
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { BASE_URL } = API_CONFIG;
 
   const [categoryName, setCategoryName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   // Add state for name error
   const [nameError, setNameError] = useState("");
 
@@ -31,11 +35,10 @@ function CreateCategory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       const response = await axios.post(
-        "https://ghanish.in/v2/common/menu_category_create",
+        `${BASE_URL}/common/menu_category_create`,
         {
           outlet_id: outletId,
           category_name: categoryName,
@@ -51,6 +54,8 @@ function CreateCategory() {
       );
 
       toastController.success(response.data.detail || "Success");
+      // Invalidate categories cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.categories.list(outletId) });
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
       toastController.error(

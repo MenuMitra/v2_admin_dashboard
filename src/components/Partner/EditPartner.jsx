@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import axios from "axios";
+import { API_CONFIG } from "../../config/appConfig";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
@@ -33,7 +36,9 @@ function EditPartner() {
   const { partnerId } = useParams();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
+  const { BASE_URL } = API_CONFIG;
   const [error, setError] = useState(null);
 
   const [validationErrors, setValidationErrors] = useState({});
@@ -104,7 +109,7 @@ function EditPartner() {
       }
 
       const response = await axios.post(
-        "https://ghanish.in/v2/admin/view_partner",
+        `${BASE_URL}/admin/view_partner`,
         {
           partner_id: Number(partnerId), // Changed back to partner_id to match usePartnerDetails.js
           user_id: adminData.user_id,
@@ -256,7 +261,7 @@ function EditPartner() {
         .replace(/ /g, " ");
 
       const response = await axios.patch(
-        "https://ghanish.in/v2/admin/update_partner",
+        `${BASE_URL}/admin/update_partner`,
         {
           name: partnerDetails.name,
           email: partnerDetails.email,
@@ -280,6 +285,8 @@ function EditPartner() {
       );
 
       if (response.data.detail === "Partner updated successfully") {
+        // Invalidate partners cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.partners.list() });
         // Handle navigation based on role
         const roleNavigationMap = {
           // Staff roles that require outlet_id

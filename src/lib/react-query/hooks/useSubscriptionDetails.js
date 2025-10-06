@@ -4,6 +4,9 @@ import { useAuth } from '../../../hooks/useAuth';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { queryKeys } from '../queryKeys';
 import { toastController } from '../../../utils/toastController';
+import { API_CONFIG } from '../../../config/appConfig';
+
+const { BASE_URL } = API_CONFIG;
 
 export const useSubscriptionDetails = (subscriptionId) => {
   const { getToken } = useAuth();
@@ -23,7 +26,7 @@ export const useSubscriptionDetails = (subscriptionId) => {
 
       const response = await toastController.promise(
         axios.post(
-          'https://ghanish.in/v2/admin/view_subscription',
+          `${BASE_URL}/admin/view_subscription`,
           {
             subscription_id: Number(subscriptionId),
             user_id: adminData.user_id,
@@ -58,7 +61,7 @@ export const useSubscriptionDetails = (subscriptionId) => {
 
       const response = await toastController.promise(
         axios.post(
-          'https://ghanish.in/v2/admin/delete_subscription',
+          `${BASE_URL}/admin/delete_subscription`,
           {
             subscription_id: Number(subscriptionId),
             user_id: adminData.user_id,

@@ -40,7 +40,7 @@ export const useFeatures = () => {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/list_features`,
+        `${BASE_URL}/admin/list_features`,
         {
           user_id: adminData.user_id,
           app_source: "admin_app",
@@ -71,7 +71,7 @@ export const useFeatures = () => {
       }
 
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/create_feature`,
+        `${BASE_URL}/admin/create_feature`,
         {
           name: featureName.toLowerCase().replace(/\s+/g, "_"),
           user_id: adminData.user_id,
@@ -105,7 +105,7 @@ export const useFeatures = () => {
       }
 
       await axios.put(
-        `${BASE_URL}/${API_VERSION}/admin/update_feature`,
+        `${BASE_URL}/admin/update_feature`,
         {
           feature_id: featureId,
           name: name.toLowerCase().replace(/\s+/g, "_"),
@@ -140,7 +140,7 @@ export const useFeatures = () => {
       }
 
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/delete_feature`,
+        `${BASE_URL}/admin/delete_feature`,
         {
           feature_id: featureId,
           user_id: adminData.user_id,

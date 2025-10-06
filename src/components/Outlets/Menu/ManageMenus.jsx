@@ -4,6 +4,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAdmin } from "../../../hooks/useAdmin";
 import { useAuth } from "../../../hooks/useAuth";
+import { API_CONFIG } from "../../../config/appConfig";
 import { queryKeys } from "../../../lib/react-query/queryKeys";
 import { toastController } from "../../../utils/toastController";
 import DataTable from "../../common/DataTable";
@@ -25,6 +26,7 @@ function ManageMenus() {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { BASE_URL } = API_CONFIG;
 
   // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -53,7 +55,7 @@ function ManageMenus() {
     queryFn: async () => {
       const token = getToken();
       const response = await axios.post(
-        "https://ghanish.in/v2/common/menu_list",
+        `${BASE_URL}/common/menu_list`,
         {
           outlet_id: outletId,
           user_id: adminData?.user_id,
@@ -75,7 +77,7 @@ function ManageMenus() {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const token = getToken();
-      return axios.delete("https://ghanish.in/v2/common/menu_delete", {
+      return axios.delete(`${BASE_URL}/common/menu_delete`, {
         data: {
           outlet_id: Number(outletId),
           user_id: adminData?.user_id,
@@ -110,7 +112,7 @@ function ManageMenus() {
         .map((menu) => menu.menu_id);
 
       return axios.post(
-        "https://ghanish.in/v2/common/bulk_menu_action",
+        `${BASE_URL}/common/bulk_menu_action`,
         {
           user_id: adminData?.user_id,
           outlet_id: Number(outletId),

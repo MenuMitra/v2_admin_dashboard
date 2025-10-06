@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import Breadcrumb from "../../../Breadcrumb";
 import { useAuth } from "../../../../hooks/useAuth";
@@ -24,6 +24,7 @@ function StaffDetails() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [outletName, setOutletName] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -34,7 +35,7 @@ function StaffDetails() {
     queryFn: async () => {
       const token = getToken();
       const res = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/staff_view`,
+        `${BASE_URL}/common/staff_view`,
         {
           staff_id: Number(userId),
           outlet_id: Number(outletId),
@@ -71,7 +72,7 @@ function StaffDetails() {
       try {
         const token = getToken();
         const res = await axios.post(
-          `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+          `${BASE_URL}/common/view_outlet`,
           {
             outlet_id: Number(outletId),
             user_id: adminData.user_id,
@@ -220,7 +221,7 @@ function StaffDetails() {
                       await toastController.promise(
                         // axios.delete takes (url, config) where payload must be under `data` key
                         axios.delete(
-                          `${BASE_URL}/${API_VERSION}/common/delete_staff`,
+                          `${BASE_URL}/common/delete_staff`,
                           {
                             data: {
                               staff_id: Number(userId),
@@ -238,6 +239,8 @@ function StaffDetails() {
                         }
                       );
                       setShowDeleteModal(false);
+                      // Invalidate staff cache to refresh the list
+                      queryClient.invalidateQueries(['staff', outletId]);
                       navigate(-1);
                     } catch (e) {
                       // error is handled by toastController

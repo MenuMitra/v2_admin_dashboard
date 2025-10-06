@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
@@ -23,6 +25,7 @@ function CreateSubscription() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
   const [modules, setModules] = useState([]);
@@ -59,7 +62,7 @@ function CreateSubscription() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/modules`,
+        `${BASE_URL}/admin/modules`,
         {
           headers: { Authorization: token },
         }
@@ -87,7 +90,7 @@ function CreateSubscription() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/list_features`,
+        `${BASE_URL}/admin/list_features`,
         {
           user_id: adminData.user_id,
           app_source: "admin_app",
@@ -140,7 +143,7 @@ function CreateSubscription() {
       const collected = [];
       for (const mid of moduleIds) {
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_features`,
+          `${BASE_URL}/admin/list_features`,
           {
             user_id: adminData.user_id,
             app_source: "admin_app",
@@ -188,7 +191,7 @@ function CreateSubscription() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/list_actions`,
+        `${BASE_URL}/admin/list_actions`,
         { feature_ids: featureIds },
         {
           headers: { Authorization: token, "Content-Type": "application/json" },
@@ -363,7 +366,7 @@ function CreateSubscription() {
       };
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/create_subscription`,
+        `${BASE_URL}/admin/create_subscription`,
         payload,
         {
           headers: { Authorization: token, "Content-Type": "application/json" },
@@ -372,6 +375,8 @@ function CreateSubscription() {
 
       if (response.data.detail === "Subscription created successfully") {
         toastController.success("Subscription created successfully");
+        // Invalidate subscriptions cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.all });
         navigate("/subscriptions");
       }
     } catch (error) {

@@ -138,7 +138,7 @@ function CreateNotification() {
       };
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/create_notification`,
+        `${BASE_URL}/common/create_notification`,
         payload,
         {
           headers: {
@@ -214,7 +214,7 @@ function CreateNotification() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/outlets`,
+        `${BASE_URL}/common/get_list/outlets`,
         {
           headers: {
             Authorization: token,
@@ -266,7 +266,7 @@ function CreateNotification() {
         : { outlet_id: outletId };
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/notification_filter_options`,
+        `${BASE_URL}/common/notification_filter_options`,
         payload,
         {
           headers: {

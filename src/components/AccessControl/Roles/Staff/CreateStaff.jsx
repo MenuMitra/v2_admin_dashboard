@@ -1,9 +1,11 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { API_CONFIG } from "../../../../config/appConfig";
+import { queryKeys } from "../../../../lib/react-query/queryKeys";
 import Breadcrumb from "../../../Breadcrumb";
 import {
   TextInput,
@@ -27,6 +29,7 @@ function CreateStaff() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const [form, setForm] = useState({
@@ -100,7 +103,7 @@ function CreateStaff() {
         let featureIds = [];
         try {
           const outletRes = await axios.post(
-            `${BASE_URL}/${API_VERSION}/common/view_outlet`,
+            `${BASE_URL}/common/view_outlet`,
             {
               outlet_id: Number(outletId),
               user_id: adminData?.user_id,
@@ -133,7 +136,7 @@ function CreateStaff() {
         };
 
         const res = await axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/list_actions`,
+          `${BASE_URL}/admin/list_actions`,
           payload,
           {
             headers: {
@@ -196,7 +199,7 @@ function CreateStaff() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/staff_role`,
+          `${BASE_URL}/common/get_list/staff_role`,
           { headers: { Authorization: token } }
         );
         const list =
@@ -273,7 +276,7 @@ function CreateStaff() {
       };
 
       await toastController.promise(
-        axios.post(`${BASE_URL}/${API_VERSION}/common/create_staff`, payload, {
+        axios.post(`${BASE_URL}/common/create_staff`, payload, {
           headers: { Authorization: token, "Content-Type": "application/json" },
         }),
         {
@@ -284,6 +287,8 @@ function CreateStaff() {
         }
       );
 
+      // Invalidate staff cache to refresh the list
+      queryClient.invalidateQueries(['staff', outletId]);
       // backend will assign actions; just navigate back
       navigate(-1);
     } catch (err) {

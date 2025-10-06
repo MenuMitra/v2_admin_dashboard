@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
+import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
   SelectInput,
@@ -21,6 +23,7 @@ function CreateMenu() {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const outletName = location.state?.outletName || '';
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -124,7 +127,7 @@ function CreateMenu() {
       try {
         const token = getToken();
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/common/menu_category_list`,
+          `${BASE_URL}/common/menu_category_list`,
           {
             outlet_id: outletId,
             user_id: adminData?.user_id,
@@ -158,7 +161,7 @@ function CreateMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/food_type`,
+          `${BASE_URL}/common/get_list/food_type`,
           {
             headers: {
               Authorization: token
@@ -187,7 +190,7 @@ function CreateMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/spicy_index`,
+          `${BASE_URL}/common/get_list/spicy_index`,
           {
             headers: {
               Authorization: token
@@ -276,7 +279,7 @@ function CreateMenu() {
       };
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/menu_create`,
+        `${BASE_URL}/common/menu_create`,
         payload,
         {
           headers: {
@@ -288,6 +291,8 @@ function CreateMenu() {
 
       toastController.success('Menu created successfully');
       setSuccessMsg(response.data.detail || 'Menu created successfully');
+      // Invalidate menus cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.list(outletId) });
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
       console.error('Create error:', err);

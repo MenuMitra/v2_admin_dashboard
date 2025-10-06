@@ -158,7 +158,7 @@ function CreateAdmin() {
 
       await toastController.promise(
         axios.post(
-          `${BASE_URL}/${API_VERSION}/admin/create_admin`,
+          `${BASE_URL}/admin/create_admin`,
           adminData,
           {
             headers: {

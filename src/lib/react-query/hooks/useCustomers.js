@@ -32,7 +32,7 @@ export const useCustomers = (statusFilter = 'all') => {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/customer_listview`,
+        `${BASE_URL}/admin/customer_listview`,
         requestData,
         {
           headers: {
@@ -49,7 +49,7 @@ export const useCustomers = (statusFilter = 'all') => {
   // Delete Mutation
   const deleteMutation = useMutation({
     mutationFn: async (customer_id) => {
-      await axios.delete(`${BASE_URL}/${API_VERSION}/admin/customer_delete`, {
+      await axios.delete(`${BASE_URL}/admin/customer_delete`, {
         headers: {
           Authorization: getToken(),
         },
@@ -73,7 +73,7 @@ export const useCustomers = (statusFilter = 'all') => {
   const bulkActionMutation = useMutation({
     mutationFn: async ({ action, customerIds }) => {
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/bulk_customer_action`,
+        `${BASE_URL}/common/bulk_customer_action`,
         {
           user_id: adminData.user_id,
           action,

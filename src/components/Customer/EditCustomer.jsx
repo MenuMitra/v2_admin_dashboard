@@ -63,7 +63,7 @@ function EditCustomer() {
     try {
       setIsLoading(true);
       const customerResponse = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/customer_view`,
+        `${BASE_URL}/admin/customer_view`,
         {
           user_id: Number(customerId),
           app_source: "admin_app",
@@ -124,7 +124,7 @@ function EditCustomer() {
     try {
       setIsSaving(true);
       const response = await axios.patch(
-        `${BASE_URL}/${API_VERSION}/admin/customer_update`,
+        `${BASE_URL}/admin/customer_update`,
         {
           user_id: adminData?.user_id,
           customer_id: Number(customerId),

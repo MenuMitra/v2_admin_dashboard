@@ -48,7 +48,7 @@ function AddRoleAssignFunctionalities() {
 
       await toastController.promise(
         axios.post(
-          `${BASE_URL}/${API_VERSION}/common/create_ubac_user_functionalities`,
+          `${BASE_URL}/common/create_ubac_user_functionalities`,
           {
             functionality_id: parseInt(selectedFunctionality),
             user_id: parseInt(user_id),

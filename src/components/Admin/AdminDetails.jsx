@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -21,6 +22,7 @@ function AdminDetails() {
   const { adminId } = useParams();
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const { BASE_URL } = API_CONFIG;
 
   const {
     admin,
@@ -65,7 +67,7 @@ function AdminDetails() {
     const session = activeSessions.find((s) => s.device_id === device_id);
     if (!session) return;
     try {
-      const res = await fetch("https://ghanish.in/v2/admin/admin_logout_user", {
+      const res = await fetch(`${BASE_URL}/admin/admin_logout_user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -121,7 +123,7 @@ function AdminDetails() {
         role: admin.role || "admin",
         app_source: "admin",
       };
-      const resp = await fetch(`https://men4u.xyz/v2/admin/update_admin`, {
+      const resp = await fetch(`${BASE_URL}/admin/update_admin`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

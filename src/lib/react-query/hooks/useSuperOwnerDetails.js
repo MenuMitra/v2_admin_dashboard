@@ -4,6 +4,9 @@ import { useAuth } from '../../../hooks/useAuth';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { queryKeys } from '../queryKeys';
 import { toastController } from '../../../utils/toastController';
+import { API_CONFIG } from '../../../config/appConfig';
+
+const { BASE_URL } = API_CONFIG;
 
 export const useSuperOwnerDetails = (superOwnerId) => {
   const { getToken } = useAuth();
@@ -22,7 +25,7 @@ export const useSuperOwnerDetails = (superOwnerId) => {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.post(
-        'https://ghanish.in/v2/admin/view_super_owner',
+        `${BASE_URL}/admin/view_super_owner`,
         {
           user_id: adminData.user_id,
           super_owner_id: parseInt(superOwnerId),
@@ -53,7 +56,7 @@ export const useSuperOwnerDetails = (superOwnerId) => {
       if (!token) throw new Error("No authentication token available");
 
       await toastController.promise(
-        axios.delete('https://ghanish.in/v2/admin/delete_super_owner', {
+        axios.delete(`${BASE_URL}/admin/delete_super_owner`, {
           data: {
             user_id: adminData.user_id,
             super_owner_id: parseInt(superOwnerId),

@@ -64,7 +64,7 @@ export const useAdminDetails = (adminId) => {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/view_admin`,
+        `${BASE_URL}/admin/view_admin`,
         { admin_id: parseInt(adminId), app_source: "admin" },
         {
           headers: {
@@ -99,7 +99,7 @@ export const useAdminDetails = (adminId) => {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/delete_admin`,
+        `${BASE_URL}/admin/delete_admin`,
         {
           admin_id: parseInt(adminId),
           user_id: adminData.user_id,

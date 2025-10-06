@@ -233,7 +233,7 @@ const Notifications = () => {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/resend_notification`,
+        `${BASE_URL}/common/resend_notification`,
         {
           notification_id: notificationId,
         },

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import axios from "axios";
 import { useAdmin } from "../hooks/useAdmin";
+import { queryKeys } from "../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
@@ -55,6 +57,7 @@ function CreateOutlet() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const [outletTypes, setOutletTypes] = useState({});
   const [allOwners, setAllOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -152,7 +155,7 @@ function CreateOutlet() {
         setLoadingModules(true);
         const token = getToken();
         const resp = await axios.get(
-          `${BASE_URL}/${API_VERSION}/admin/get_modules`,
+          `${BASE_URL}/admin/get_modules`,
           {
             headers: { Authorization: token },
           }
@@ -322,7 +325,7 @@ function CreateOutlet() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/outlet_type`,
+        `${BASE_URL}/common/get_list/outlet_type`,
         {
           headers: {
             Authorization: token,
@@ -347,7 +350,7 @@ function CreateOutlet() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/listview_owner/${adminData.user_id}`,
+        `${BASE_URL}/common/listview_owner/${adminData.user_id}`,
         {
           headers: {
             Authorization: token,
@@ -657,7 +660,7 @@ function CreateOutlet() {
       });
 
       const response = await toastController.promise(
-        axios.post(`${BASE_URL}/${API_VERSION}/common/create_outlet`, payload, {
+        axios.post(`${BASE_URL}/common/create_outlet`, payload, {
           headers: {
             Authorization: token,
             "Content-Type": "application/json",
@@ -673,6 +676,8 @@ function CreateOutlet() {
       if (response.data.detail.includes("Outlet created successfully")) {
         // Clear any existing API errors
         setApiErrors({});
+        // Invalidate outlets cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.outlets.all });
         navigate(-1);
       }
     } catch (error) {

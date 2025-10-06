@@ -63,7 +63,7 @@ function EditAdmin() {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/view_admin`,
+        `${BASE_URL}/admin/view_admin`,
         { admin_id: parseInt(adminId), app_source: "admin" },
         {
           headers: {
@@ -228,7 +228,7 @@ function EditAdmin() {
 
       await toastController.promise(
         axios.patch(
-          `${BASE_URL}/${API_VERSION}/admin/update_admin`,
+          `${BASE_URL}/admin/update_admin`,
           {
             user_id: adminData.user_id,
             admin_id: parseInt(adminId),

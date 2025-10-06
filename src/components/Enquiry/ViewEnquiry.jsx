@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_CONFIG } from "../../config/appConfig";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBuilding,
@@ -24,6 +25,7 @@ function ViewEnquiry() {
   const { getToken } = useAuth();
   const [enquiry, setEnquiry] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { BASE_URL } = API_CONFIG;
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -33,7 +35,7 @@ function ViewEnquiry() {
         const token = getToken();
         if (!token) throw new Error("No authentication token available");
         const response = await axios.post(
-          "https://ghanish.in/v2/common/view_enquiry",
+          `${BASE_URL}/common/view_enquiry`,
           { enquiry_id: Number(enquiry_id) },
           {
             headers: {

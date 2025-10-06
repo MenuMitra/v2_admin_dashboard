@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
+import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
   SelectInput,
@@ -21,6 +23,7 @@ function EditMenu() {
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // Add state for menu categories
   const [categories, setCategories] = useState([]);
@@ -150,7 +153,7 @@ function EditMenu() {
     const fetchMenuDetails = async () => {
       try {
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/common/menu_view`,
+          `${BASE_URL}/common/menu_view`,
           {
             menu_id: Number(menuId),
             outlet_id: Number(outletId),
@@ -210,7 +213,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.post(
-          `${BASE_URL}/${API_VERSION}/common/menu_category_list`,
+          `${BASE_URL}/common/menu_category_list`,
           {
             outlet_id: outletId,
             user_id: adminData?.user_id,
@@ -244,7 +247,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/food_type`,
+          `${BASE_URL}/common/get_list/food_type`,
           {
             headers: {
               Authorization: token
@@ -273,7 +276,7 @@ function EditMenu() {
       try {
         const token = getToken();
         const response = await axios.get(
-          `${BASE_URL}/${API_VERSION}/common/get_list/spicy_index`,
+          `${BASE_URL}/common/get_list/spicy_index`,
           {
             headers: {
               Authorization: token
@@ -343,10 +346,10 @@ function EditMenu() {
       // Format portion data properly
       const formattedPortionData = portionData.map((portion, index) => {
         const basePortionData = {
-          portion_name: portion.portion_name.trim(),
+          portion_name: portion.portion_name?.trim() || '',
           price: parseInt(portion.price, 10),
-          unit_value: portion.unit_value.trim(),
-          unit_type: portion.unit_type.trim(),
+          unit_value: portion.unit_value?.trim() || '',
+          unit_type: portion.unit_type?.trim() || '',
           flag: index === 0 ? 1 : 0
         };
 
@@ -366,14 +369,14 @@ function EditMenu() {
         menu_id: Number(menuId),
         outlet_id: Number(outletId),
         user_id: adminData?.user_id,
-        name: name.trim(),
+        name: name?.trim() || '',
         portion_data: formattedPortionData, // Use formatted portion data
         food_type: foodType,
         menu_cat_id: Number(menuCatId),
         spicy_index: spicyIndex ? spicyIndex.toString() : null,
         offer: offer ? Number(offer) : 0,
-        description: description.trim(),
-        ingredients: ingredients.trim(),
+        description: description?.trim() || '',
+        ingredients: ingredients?.trim() || '',
         is_special: isSpecial,
         images: images,
         existing_image_ids: existingImages
@@ -384,7 +387,7 @@ function EditMenu() {
       };
 
       const response = await axios.put(
-        `${BASE_URL}/${API_VERSION}/common/menu_update`,
+        `${BASE_URL}/common/menu_update`,
         payload,
         {
           headers: {
@@ -396,6 +399,8 @@ function EditMenu() {
 
       toastController.success('Menu updated successfully');
       setSuccessMsg(response.data.detail || 'Menu updated successfully');
+      // Invalidate menus cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.list(outletId) });
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
       console.error('Update error:', err);

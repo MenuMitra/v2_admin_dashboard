@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { API_CONFIG } from "../../config/appConfig";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
@@ -21,6 +24,8 @@ function CreateSuperOwner() {
   const { getToken, isAuthenticated } = useAuth();
   const { adminData } = useAdmin();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { BASE_URL } = API_CONFIG;
 
   const [superOwnerDetails, setSuperOwnerDetails] = useState({
     user_id: adminData?.user_id || "",
@@ -53,7 +58,7 @@ function CreateSuperOwner() {
       }
 
       const response = await axios.post(
-        "https://ghanish.in/v2/admin/get_outlets_for_super_owner",
+        `${BASE_URL}/admin/get_outlets_for_super_owner`,
         {
           app_source: "admin_app",
         },
@@ -189,7 +194,7 @@ function CreateSuperOwner() {
     try {
       const token = getToken();
       const response = await axios.post(
-        "https://ghanish.in/v2/admin/create_super_owner",
+        `${BASE_URL}/admin/create_super_owner`,
         {
           ...superOwnerDetails,
           outlet_ids: selectedOutlets,
@@ -204,6 +209,8 @@ function CreateSuperOwner() {
 
       if (response.data) {
         setSuccess("Super owner created successfully!");
+        // Invalidate super owners cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.superOwners.list() });
         navigate("/super-owners");
       }
     } catch (err) {

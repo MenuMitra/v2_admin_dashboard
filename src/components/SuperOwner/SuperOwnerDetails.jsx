@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { API_CONFIG } from "../../config/appConfig";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
@@ -34,6 +35,7 @@ function SuperOwnerDetails() {
   const { superOwnerId } = useParams();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { BASE_URL } = API_CONFIG;
   const [isTogglingActive, setIsTogglingActive] = useState(false);
 
   const {
@@ -76,7 +78,7 @@ function SuperOwnerDetails() {
     setIsTogglingActive(true);
     try {
       const resp = await fetch(
-        "https://men4u.xyz/v2/admin/update_super_owner",
+        `${BASE_URL}/admin/update_super_owner`,
         {
           method: "PUT",
           headers: {
@@ -168,7 +170,7 @@ function SuperOwnerDetails() {
     const session = activeSessions.find((s) => s.device_id === device_id);
     if (!session) return;
     try {
-      const res = await fetch("https://ghanish.in/v2/admin/admin_logout_user", {
+      const res = await fetch(`${BASE_URL}/admin/admin_logout_user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

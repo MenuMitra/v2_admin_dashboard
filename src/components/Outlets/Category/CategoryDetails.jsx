@@ -3,6 +3,9 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
+import { API_CONFIG } from '../../../config/appConfig';
+
+const { BASE_URL } = API_CONFIG;
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUtensils,
@@ -44,7 +47,7 @@ function CategoryDetails() {
       try {
         const token = getToken();
         const response = await axios.post(
-          'https://ghanish.in/v2/common/menu_category_view',
+          `${BASE_URL}/common/menu_category_view`,
           {
             menu_cat_id: Number(menuCategoryId),
             outlet_id: Number(outletId),
@@ -74,7 +77,7 @@ function CategoryDetails() {
   const handleDeleteCategory = async () => {
     try {
       const token = getToken();
-      await axios.delete('https://ghanish.in/v2/common/menu_category_delete', {
+      await axios.delete(`${BASE_URL}/common/menu_category_delete`, {
         data: {
           menu_cat_id: Number(menuCategoryId),
           outlet_id: Number(outletId),

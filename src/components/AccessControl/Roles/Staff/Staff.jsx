@@ -43,7 +43,7 @@ function Staff() {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const token = getToken();
-      return axios.delete(`${BASE_URL}/${API_VERSION}/common/delete_staff`, {
+      return axios.delete(`${BASE_URL}/common/delete_staff`, {
         data: {
           staff_id: Number(staffToDelete),
           outlet_id: Number(outletId),

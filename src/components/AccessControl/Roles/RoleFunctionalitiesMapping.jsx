@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../../hooks/useAuth";
 import { useAdmin } from "../../../hooks/useAdmin";
 import { API_CONFIG } from "../../../config/appConfig";
+import { queryKeys } from "../../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck,
@@ -19,14 +21,14 @@ function RoleFunctionalitiesMapping() {
   const { roleId } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
   const [mappings, setMappings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [showEditModal, setShowEditModal] = useState(false);
   const [allFunctionalities, setAllFunctionalities] = useState([]);
-  const [isLoadingFunctionalities, setIsLoadingFunctionalities] =
-    useState(false);
+  const [isLoadingFunctionalities, setIsLoadingFunctionalities] = useState(false);
   const [selectedFunctionalities, setSelectedFunctionalities] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
@@ -43,17 +45,19 @@ function RoleFunctionalitiesMapping() {
 
   useEffect(() => {
     fetchRoleFunctionalityMappings();
-  }, [roleId]);
+  }, [roleId, fetchRoleFunctionalityMappings]);
 
   useEffect(() => {
     if (showEditModal) {
       // Use Set to ensure unique values
       const uniqueIds = [...new Set(mappings.map((m) => m.functionality_id))];
       setSelectedFunctionalities(uniqueIds);
+      // Fetch all functionalities when modal opens
+      fetchAllFunctionalities();
     }
-  }, [showEditModal, mappings]);
+  }, [showEditModal, mappings, fetchAllFunctionalities]);
 
-  const fetchRoleFunctionalityMappings = async () => {
+  const fetchRoleFunctionalityMappings = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -64,7 +68,7 @@ function RoleFunctionalitiesMapping() {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/listview_ubac_role_functionality_mapping`,
+        `${BASE_URL}/admin/listview_ubac_role_functionality_mapping`,
         { role_id: parseInt(roleId), app_source: "admin" },
         {
           headers: {
@@ -84,9 +88,9 @@ function RoleFunctionalitiesMapping() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [roleId, getToken, BASE_URL, API_VERSION]);
 
-  const fetchAllFunctionalities = async () => {
+  const fetchAllFunctionalities = useCallback(async () => {
     try {
       setIsLoadingFunctionalities(true);
       const token = getToken();
@@ -95,7 +99,7 @@ function RoleFunctionalitiesMapping() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/get_ubac_functionalities`,
+        `${BASE_URL}/admin/get_ubac_functionalities`,
         {
           headers: {
             Authorization: token,
@@ -110,7 +114,7 @@ function RoleFunctionalitiesMapping() {
     } finally {
       setIsLoadingFunctionalities(false);
     }
-  };
+  }, [getToken, BASE_URL, API_VERSION]);
 
   const handleSaveChanges = async () => {
     // Validation: must select at least one functionality
@@ -128,7 +132,7 @@ function RoleFunctionalitiesMapping() {
       }
 
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/create_ubac_role_functionality_mapping`,
+        `${BASE_URL}/admin/create_ubac_role_functionality_mapping`,
         {
           functionality_ids: selectedFunctionalities,
           role_id: parseInt(roleId), // Using roleId as user_id
@@ -174,7 +178,7 @@ function RoleFunctionalitiesMapping() {
         throw new Error("No authentication token available");
       }
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/delete_ubac_role`,
+        `${BASE_URL}/admin/delete_ubac_role`,
         {
           role_id: parseInt(roleId),
           user_id: adminData.user_id,
@@ -188,6 +192,8 @@ function RoleFunctionalitiesMapping() {
         }
       );
       setIsDeleteModalOpen(false);
+      // Invalidate roles cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
       navigate("/roles");
     } catch (err) {
       console.error("Error deleting role:", err);

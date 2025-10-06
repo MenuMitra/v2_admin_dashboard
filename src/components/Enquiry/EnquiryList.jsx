@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -10,6 +11,7 @@ import {
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import { API_CONFIG } from "../../config/appConfig";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import Breadcrumb from "../Breadcrumb";
 import DataTable from "../common/DataTable";
 import { toastController } from "../../utils/toastController";
@@ -17,6 +19,7 @@ import { toastController } from "../../utils/toastController";
 const EnquiryList = () => {
   const navigate = useNavigate();
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const [enquiries, setEnquiries] = useState([]);
@@ -58,7 +61,7 @@ const EnquiryList = () => {
       }
 
       const response = await axios.post(
-        "https://ghanish.in/v2/common/list_enquiries",
+        `${BASE_URL}/common/list_enquiries`,
         requestBody,
         {
           headers: {
@@ -197,7 +200,7 @@ const EnquiryList = () => {
         if (!token) throw new Error("No authentication token available");
 
         const response = await axios.delete(
-          `${BASE_URL}/${API_VERSION}/admin/delete_enquiry/${enquiry.id}`,
+          `${BASE_URL}/admin/delete_enquiry/${enquiry.id}`,
           {
             headers: {
               Authorization: token,
@@ -208,7 +211,9 @@ const EnquiryList = () => {
 
         if (response.data && response.data.success) {
           toastController.showSuccess("Enquiry deleted successfully");
-          fetchEnquiries(); // Refresh the list
+          // Invalidate enquiries cache to refresh the list
+          queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+          fetchEnquiries(); // Also refresh local state
         } else {
           throw new Error(response.data?.message || "Failed to delete enquiry");
         }
@@ -228,7 +233,7 @@ const EnquiryList = () => {
       switch (action) {
         case "delete":
           response = await axios.post(
-            `${BASE_URL}/${API_VERSION}/admin/bulk_delete_enquiries`,
+            `${BASE_URL}/admin/bulk_delete_enquiries`,
             { enquiry_ids: selectedIds },
             {
               headers: {
@@ -240,7 +245,7 @@ const EnquiryList = () => {
           break;
         case "update_status":
           response = await axios.post(
-            `${BASE_URL}/${API_VERSION}/admin/bulk_update_enquiry_status`,
+            `${BASE_URL}/admin/bulk_update_enquiry_status`,
             { enquiry_ids: selectedIds, status: "resolved" },
             {
               headers: {
@@ -256,7 +261,9 @@ const EnquiryList = () => {
 
       if (response.data && response.data.success) {
         toastController.showSuccess("Bulk action completed successfully");
-        fetchEnquiries(); // Refresh the list
+        // Invalidate enquiries cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+        fetchEnquiries(); // Also refresh local state
         setSelectedItems([]);
       } else {
         throw new Error(

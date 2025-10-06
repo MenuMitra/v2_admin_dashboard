@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -21,6 +22,7 @@ function PartnerDetails() {
   const { partnerId } = useParams();
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { BASE_URL } = API_CONFIG;
 
   const { partner, isLoading, error, deletePartner, isDeleting, refetch } =
     usePartnerDetails(partnerId);
@@ -71,7 +73,7 @@ function PartnerDetails() {
     const session = activeSessions.find((s) => s.device_id === device_id);
     if (!session) return;
     try {
-      const res = await fetch("https://ghanish.in/v2/admin/admin_logout_user", {
+      const res = await fetch(`${BASE_URL}/admin/admin_logout_user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +128,7 @@ function PartnerDetails() {
         is_active: nextIsActive,
         app_source: "admin",
       };
-      const resp = await fetch(`https://men4u.xyz/v2/admin/update_partner`, {
+      const resp = await fetch(`${BASE_URL}/admin/update_partner`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

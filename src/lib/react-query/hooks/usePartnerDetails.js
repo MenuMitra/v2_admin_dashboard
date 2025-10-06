@@ -4,6 +4,9 @@ import { useAuth } from "../../../hooks/useAuth";
 import { useAdmin } from "../../../hooks/useAdmin";
 import { queryKeys } from "../queryKeys";
 import { toastController } from "../../../utils/toastController";
+import { API_CONFIG } from "../../../config/appConfig";
+
+const { BASE_URL } = API_CONFIG;
 
 export const usePartnerDetails = (partnerId) => {
   const { getToken } = useAuth();
@@ -23,7 +26,7 @@ export const usePartnerDetails = (partnerId) => {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.post(
-        'https://ghanish.in/v2/admin/view_partner',
+        `${BASE_URL}/admin/view_partner`,
         {
           partner_id: Number(partnerId),
           user_id: adminData.user_id,
@@ -52,7 +55,7 @@ export const usePartnerDetails = (partnerId) => {
       if (!token) throw new Error("No authentication token available");
 
       await toastController.promise(
-        axios.delete('https://ghanish.in/v2/admin/delete_partner', {
+        axios.delete(`${BASE_URL}/admin/delete_partner`, {
           headers: {
             Authorization: token,
             "Content-Type": "application/json",

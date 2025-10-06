@@ -22,7 +22,7 @@ export const useRoles = () => {
     queryKey: queryKeys.roles.list(),
     queryFn: async () => {
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/roles`,
+        `${BASE_URL}/common/get_list/roles`,
         {
           headers: {
             Authorization: getToken(),
@@ -46,7 +46,7 @@ export const useRoles = () => {
   const createMutation = useMutation({
     mutationFn: async (roleName) => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/create_ubac_role`,
+        `${BASE_URL}/admin/create_ubac_role`,
         {
           role_name: roleName,
           user_id: adminData.user_id,
@@ -74,7 +74,7 @@ export const useRoles = () => {
   const updateMutation = useMutation({
     mutationFn: async ({ roleId, roleName }) => {
       const response = await axios.put(
-        `${BASE_URL}/${API_VERSION}/admin/update_ubac_role`,
+        `${BASE_URL}/admin/update_ubac_role`,
         {
           role_id: roleId,
           role_name: roleName,
@@ -103,7 +103,7 @@ export const useRoles = () => {
   const deleteMutation = useMutation({
     mutationFn: async (roleId) => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/delete_ubac_role`,
+        `${BASE_URL}/admin/delete_ubac_role`,
         {
           role_id: roleId,
           user_id: adminData.user_id,

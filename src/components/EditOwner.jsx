@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { queryKeys } from "../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
@@ -24,6 +26,7 @@ function EditOwner() {
   const { adminData } = useAdmin();
   const { ownerId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [error, setError] = useState(null);
@@ -76,7 +79,7 @@ function EditOwner() {
   const fetchRoles = async () => {
     try {
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/roles`,
+        `${BASE_URL}/common/get_list/roles`,
         {
           headers: {
             Authorization: getToken(),
@@ -99,7 +102,7 @@ function EditOwner() {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/common/get_list/outlets`,
+        `${BASE_URL}/common/get_list/outlets`,
         {
           headers: {
             Authorization: token,
@@ -131,7 +134,7 @@ function EditOwner() {
       }
 
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/view_owner`,
+        `${BASE_URL}/common/view_owner`,
         {
           owner_id: Number(ownerId),
           user_id: adminData.user_id,
@@ -443,7 +446,7 @@ function EditOwner() {
       }
 
       const response = await axios.patch(
-        `${BASE_URL}/${API_VERSION}/common/update_owner`,
+        `${BASE_URL}/common/update_owner`,
         basePayload,
         {
           headers: {
@@ -454,6 +457,9 @@ function EditOwner() {
       );
 
       if (response.data.detail === "Owner updated successfully") {
+        // Invalidate owners cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.owners.all });
+        
         // Handle navigation based on role
         const roleNavigationMap = {
           // Staff roles that require outlet_id

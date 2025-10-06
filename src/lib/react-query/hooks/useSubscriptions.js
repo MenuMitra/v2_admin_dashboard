@@ -28,7 +28,7 @@ export const useSubscriptions = () => {
       }
 
       const response = await axios.get(
-        `${BASE_URL}/${API_VERSION}/admin/list_subscriptions`,
+        `${BASE_URL}/admin/list_subscriptions`,
         {
           headers: {
             Authorization: token,
@@ -53,7 +53,7 @@ export const useSubscriptions = () => {
       }
 
       await axios.post(
-        `${BASE_URL}/${API_VERSION}/admin/delete_subscription`,
+        `${BASE_URL}/admin/delete_subscription`,
         {
           subscription_id: subscriptionId,
           user_id: adminData.user_id,
