@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import axios from "axios";
 import { API_CONFIG } from "../../config/appConfig";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -23,6 +25,7 @@ function CreatePartner() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const { BASE_URL } = API_CONFIG;
@@ -183,6 +186,8 @@ function CreatePartner() {
       );
 
       if (response.data.detail === "Partner created successfully") {
+        // Invalidate partners cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.partners.list() });
         navigate("/partners");
       }
     } catch (err) {

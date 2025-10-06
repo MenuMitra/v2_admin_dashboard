@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import axios from "axios";
 import { API_CONFIG } from "../../config/appConfig";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
@@ -34,6 +36,7 @@ function EditPartner() {
   const { partnerId } = useParams();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
   const { BASE_URL } = API_CONFIG;
   const [error, setError] = useState(null);
@@ -253,6 +256,8 @@ function EditPartner() {
       );
 
       if (response.data.detail === "Partner updated successfully") {
+        // Invalidate partners cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.partners.list() });
         // Handle navigation based on role
         const roleNavigationMap = {
           // Staff roles that require outlet_id
