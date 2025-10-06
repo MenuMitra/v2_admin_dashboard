@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import axios from "axios";
+import { queryKeys } from "../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -25,6 +27,7 @@ function CreateOwner() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -287,6 +290,8 @@ function CreateOwner() {
         }
       );
 
+      // Invalidate owners cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.owners.all });
       navigate(-1);
     } catch (err) {
       const errorMsg = err.response?.data?.detail || "Failed to create owner";

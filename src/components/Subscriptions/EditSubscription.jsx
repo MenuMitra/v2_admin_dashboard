@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
@@ -24,6 +26,7 @@ function EditSubscription() {
   const { subscriptionId } = useParams();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
   const [modules, setModules] = useState([]);
@@ -524,6 +527,8 @@ function EditSubscription() {
         toastController.success(
           response.data?.detail || "Subscription updated successfully"
         );
+        // Invalidate subscriptions cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.subscriptions.all });
         navigate("/subscriptions");
       } else {
         toastController.error(

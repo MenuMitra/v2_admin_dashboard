@@ -1,9 +1,11 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
 import { API_CONFIG } from "../../../../config/appConfig";
+import { queryKeys } from "../../../../lib/react-query/queryKeys";
 import Breadcrumb from "../../../Breadcrumb";
 import {
   TextInput,
@@ -27,6 +29,7 @@ function CreateStaff() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const [form, setForm] = useState({
@@ -284,6 +287,8 @@ function CreateStaff() {
         }
       );
 
+      // Invalidate staff cache to refresh the list
+      queryClient.invalidateQueries(['staff', outletId]);
       // backend will assign actions; just navigate back
       navigate(-1);
     } catch (err) {

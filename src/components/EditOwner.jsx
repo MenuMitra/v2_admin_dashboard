@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { queryKeys } from "../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
@@ -24,6 +26,7 @@ function EditOwner() {
   const { adminData } = useAdmin();
   const { ownerId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [error, setError] = useState(null);
@@ -454,6 +457,9 @@ function EditOwner() {
       );
 
       if (response.data.detail === "Owner updated successfully") {
+        // Invalidate owners cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.owners.all });
+        
         // Handle navigation based on role
         const roleNavigationMap = {
           // Staff roles that require outlet_id

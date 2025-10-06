@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useAuth } from "../../../../hooks/useAuth";
 import { useAdmin } from "../../../../hooks/useAdmin";
@@ -27,6 +28,7 @@ function EditStaff() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
   const [form, setForm] = useState({
@@ -388,8 +390,10 @@ function EditStaff() {
           assignErr.response?.data?.detail || "Failed to assign actions"
         );
       }
+      // Invalidate staff cache to refresh the list
+      queryClient.invalidateQueries(['staff', outletId]);
       navigate(-1);
-    } catch (err) {
+    } catch (err) { 
       setSaving(false);
     }
   };

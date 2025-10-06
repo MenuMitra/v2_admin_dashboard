@@ -708,8 +708,9 @@ function EditOutlet() {
         toastController.success(successMessage);
         try {
           queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
+          queryClient.invalidateQueries(queryKeys.outlets.all);
         } catch (err) {
-          console.warn("Failed to invalidate outlet detail query:", err);
+          console.warn("Failed to invalidate outlet queries:", err);
         }
         navigate(`/view-outlet/${outletId}`);
       } else {

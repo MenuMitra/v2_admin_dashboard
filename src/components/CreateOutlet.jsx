@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
 import axios from "axios";
 import { useAdmin } from "../hooks/useAdmin";
+import { queryKeys } from "../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
@@ -55,6 +57,7 @@ function CreateOutlet() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const queryClient = useQueryClient();
   const [outletTypes, setOutletTypes] = useState({});
   const [allOwners, setAllOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -673,6 +676,8 @@ function CreateOutlet() {
       if (response.data.detail.includes("Outlet created successfully")) {
         // Clear any existing API errors
         setApiErrors({});
+        // Invalidate outlets cache to refresh the list
+        queryClient.invalidateQueries({ queryKey: queryKeys.outlets.all });
         navigate(-1);
       }
     } catch (error) {

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
+import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
   SelectInput,
@@ -21,6 +23,7 @@ function CreateMenu() {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const outletName = location.state?.outletName || '';
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -288,6 +291,8 @@ function CreateMenu() {
 
       toastController.success('Menu created successfully');
       setSuccessMsg(response.data.detail || 'Menu created successfully');
+      // Invalidate menus cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.list(outletId) });
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
       console.error('Create error:', err);
