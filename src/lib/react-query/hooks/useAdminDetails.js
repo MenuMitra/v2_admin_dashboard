@@ -103,6 +103,7 @@ export const useAdminDetails = (adminId) => {
         {
           admin_id: parseInt(adminId),
           user_id: adminData.user_id,
+          "app_source": "admin_app"
         },
         {
           headers: {
