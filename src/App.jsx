@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import EnquiryList from "./components/Enquiry/EnquiryList";
 import BookingEnquiry from "./components/Booking/BookingEnquiry";
 
@@ -60,6 +60,7 @@ import CreateNotification from "./components/Notifications/CreateNotification";
 import Stats from "./components/Stats/Stats";
 import DBTablesStats from "./components/Stats/DBTablesStats";
 import CombinedStats from "./components/Stats/CombinedStats";
+import ReactFlowDemo from "./components/ReactFlowDemo";
 import "remixicon/fonts/remixicon.css";
 
 function App() {
@@ -205,6 +206,9 @@ function App() {
             <Route path="/ubac_tree" element={<UBACTree />} />
             <Route path="/db-tables-stats" element={<DBTablesStats />} />
             <Route path="/combined-stats" element={<CombinedStats />} />
+            
+            {/* React Flow Demo Route */}
+            <Route path="/react-flow-demo" element={<ReactFlowDemo />} />
           </Route>
         </Routes>
       </BrowserRouter>
