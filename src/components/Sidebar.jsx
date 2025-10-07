@@ -89,13 +89,13 @@ const menuGroups = [
   {
     items: [
       {
-        title: "Enquiries",
+        title: "Partner Enquiries",
         path: "/enquiries",
         id: "enquiries",
         icon: faEnvelope,
       },
       {
-        title: "Bookings",
+        title: "Website Bookings",
         path: "/bookings",
         id: "bookings",
         icon: faCalendarCheck,
