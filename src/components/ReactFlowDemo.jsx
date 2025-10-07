@@ -11,6 +11,13 @@ import {
   Panel,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft, faPlus, faRotate, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "./Breadcrumb";
+import Modal from "./common/Modal";
+import { useAuth } from "../hooks/useAuth";
+import { API_CONFIG } from "../config/appConfig";
+import { toastController } from "../utils/toastController";
 import useUbacTree from '../lib/react-query/hooks/useUbacTree';
 
 // Color scheme for different node types
@@ -334,8 +341,112 @@ const initialEdges = [
 ];
 
 const ReactFlowDemoInner = () => {
-  const { data, isLoading, error } = useUbacTree();
+  const { data, isLoading, error, refetchUbacTree } = useUbacTree();
+  const { getToken } = useAuth();
+  const { BASE_URL } = API_CONFIG;
   const [isDragEnabled, setIsDragEnabled] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [type, setType] = useState("module"); // module | feature | action
+  const [modulesList, setModulesList] = useState([]);
+  const [featuresList, setFeaturesList] = useState([]);
+  const [formName, setFormName] = useState("");
+  const [selectedModuleId, setSelectedModuleId] = useState("");
+  const [selectedFeatureId, setSelectedFeatureId] = useState("");
+  const [loadingSave, setLoadingSave] = useState(false);
+
+  // Load modules on mount
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        const token = getToken() || localStorage.getItem("token");
+        const headers = token
+          ? { Authorization: token, "Content-Type": "application/json" }
+          : { "Content-Type": "application/json" };
+
+        const res = await fetch(`${BASE_URL}/admin/get_modules`, {
+          method: "GET",
+          headers,
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          console.warn("Unauthorized when fetching modules", res.status);
+          setModulesList([]);
+          return;
+        }
+
+        const json = await res.json();
+        const data = json.data || json || [];
+        setModulesList(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("Failed to load modules", err);
+        setModulesList([]);
+      }
+    };
+
+    fetchModules();
+  }, [getToken]);
+
+  // Load features when module is selected
+  useEffect(() => {
+    if (!selectedModuleId) {
+      setFeaturesList([]);
+      return;
+    }
+
+    const fetchFeatures = async () => {
+      try {
+        const token = getToken() || localStorage.getItem("token");
+        const body = {
+          outlet_id: 6473,
+          app_source: "pos_app",
+          module_id: Number(selectedModuleId),
+        };
+
+        const headers = token
+          ? { Authorization: token, "Content-Type": "application/json" }
+          : { "Content-Type": "application/json" };
+
+        const query = new URLSearchParams({
+          module_id: String(body.module_id),
+          outlet_id: String(body.outlet_id),
+          app_source: body.app_source,
+        }).toString();
+
+        const url = `${BASE_URL}/admin/get_features?${query}`;
+        const res = await fetch(url, {
+          method: "GET",
+          headers,
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          console.warn("Unauthorized when fetching features", res.status);
+          setFeaturesList([]);
+          return;
+        }
+
+        if (!res.ok) {
+          console.error("Failed to fetch features, status:", res.status);
+          setFeaturesList([]);
+          return;
+        }
+
+        const json = await res.json();
+        const incoming = json.data || json.features || json || [];
+        const features = Array.isArray(incoming)
+          ? incoming
+          : incoming.features || [];
+        setFeaturesList(features);
+      } catch (err) {
+        console.error("Failed to load features", err);
+        setFeaturesList([]);
+      }
+    };
+
+    fetchFeatures();
+  }, [selectedModuleId, getToken]);
   
   // Transform UBAC tree data to React Flow format
   const { nodes: transformedNodes, edges: transformedEdges } = useMemo(() => {
@@ -420,17 +531,107 @@ const ReactFlowDemoInner = () => {
     );
   }
 
+  const items = [
+    { label: "Home", path: "/home" },
+    { label: "UBAC Tree", path: "/ubac_tree" },
+  ];
+
   return (
-    <div style={{ width: '100%', height: '700px' }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-        attributionPosition="bottom-left"
-      >
+    <>
+      {/* Breadcrumb - Moved outside the card */}
+      <div className="mb-6">
+        <Breadcrumb items={items} />
+      </div>
+
+      {/* Main Card */}
+      <div className="rounded-2xl border border-gray-200 bg-white">
+        <div className="overflow-hidden pt-4">
+          {/* Header Section */}
+          <div className="flex items-center px-6 mb-3">
+            {/* Left Side - Back Button */}
+            <div>
+              <button
+                onClick={() => window.history.back()}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
+
+            {/* Center - Title */}
+            <div className="flex-1 text-center">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                UBAC Tree
+              </h2>
+            </div>
+
+            {/* Right Side - Action Buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={refetchUbacTree}
+                disabled={isLoading}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Reload data"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+              </button>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-success-500 hover:bg-success-600 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+                Create
+              </button>
+            </div>
+          </div>
+
+          {/* Stats and Search Row */}
+          <div className="flex items-center justify-between px-6 mb-4">
+            {/* Left - Stats */}
+            <div className="flex items-center gap-4 text-sm">
+              <span className="font-medium text-gray-800">
+                Modules: {stats.modules}
+              </span>
+              <span className="font-medium text-gray-800">
+                Features: {stats.features}
+              </span>
+              <span className="font-medium text-gray-800">
+                Actions: {stats.actions}
+              </span>
+            </div>
+
+            {/* Right - Search */}
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+              </span>
+              <input
+                placeholder="Search modules, features, actions..."
+                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* React Flow Content */}
+        <div className="px-6 pb-6">
+          <div style={{ width: '100%', height: '700px' }}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              fitView
+              attributionPosition="bottom-left"
+            >
         <Background />
         <Controls />
         <MiniMap
@@ -512,19 +713,182 @@ const ReactFlowDemoInner = () => {
                <p>• Drag background to pan</p>
              </div>
           </div>
-        </Panel>
-      </ReactFlow>
-    </div>
+            </Panel>
+          </ReactFlow>
+          </div>
+        </div>
+      </div>
+
+      {/* Create Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Create"
+        size="small"
+        actionButtons={
+          <>
+            <button
+              className="px-3 py-1 border rounded"
+              onClick={() => setIsModalOpen(false)}
+              disabled={loadingSave}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-3 py-1 bg-brand-500 text-white rounded"
+              onClick={async () => {
+                setLoadingSave(true);
+                try {
+                  const token = getToken() || localStorage.getItem("token");
+                  const headers = token
+                    ? {
+                        Authorization: token,
+                        "Content-Type": "application/json",
+                      }
+                    : { "Content-Type": "application/json" };
+
+                  let resp;
+                  if (type === "module") {
+                    resp = await fetch(
+                      `${BASE_URL}/admin/create_module`,
+                      {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({ name: formName }),
+                      }
+                    );
+                  } else if (type === "feature") {
+                    resp = await fetch(
+                      `${BASE_URL}/admin/create_feature`,
+                      {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({
+                          module_id: Number(selectedModuleId),
+                          name: formName,
+                        }),
+                      }
+                    );
+                  } else if (type === "action") {
+                    resp = await fetch(
+                      `${BASE_URL}/admin/create_action`,
+                      {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({
+                          feature_id: Number(selectedFeatureId),
+                          name: formName,
+                        }),
+                      }
+                    );
+                  }
+
+                  if (resp && !resp.ok) {
+                    try {
+                      const errJson = await resp.json();
+                      const message =
+                        errJson.detail ||
+                        errJson.message ||
+                        JSON.stringify(errJson);
+                      toastController.error(message);
+                      throw new Error(message);
+                    } catch (parseErr) {
+                      toastController.error("Save failed");
+                      throw parseErr;
+                    }
+                  }
+
+                  await refetchUbacTree();
+                  setIsModalOpen(false);
+                  setFormName("");
+                  setSelectedFeatureId("");
+                  setSelectedModuleId("");
+                } catch (err) {
+                  console.error(err);
+                  toastController.error("Save failed");
+                } finally {
+                  setLoadingSave(false);
+                }
+              }}
+              disabled={
+                loadingSave ||
+                (type !== "module" && !selectedModuleId) ||
+                (type === "action" && !selectedFeatureId) ||
+                !formName
+              }
+            >
+              {loadingSave ? "Saving..." : "Save"}
+            </button>
+          </>
+        }
+      >
+        <div className="mb-3">
+          <label className="block text-sm mb-1">Type</label>
+          <select
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            className="w-full border px-2 py-1"
+          >
+            <option value="module">Module</option>
+            <option value="feature">Feature</option>
+            <option value="action">Action</option>
+          </select>
+        </div>
+
+        {(type === "feature" || type === "action") && (
+          <div className="mb-3">
+            <label className="block text-sm mb-1">Module</label>
+            <select
+              value={selectedModuleId}
+              onChange={(e) => setSelectedModuleId(e.target.value)}
+              className="w-full border px-2 py-1"
+            >
+              <option value="">Select module</option>
+              {modulesList.map((m) => (
+                <option key={m.module_id} value={m.module_id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {type === "action" && (
+          <div className="mb-3">
+            <label className="block text-sm mb-1">Feature</label>
+            <select
+              value={selectedFeatureId}
+              onChange={(e) => setSelectedFeatureId(e.target.value)}
+              className="w-full border px-2 py-1"
+            >
+              <option value="">Select feature</option>
+              {featuresList.map((f) => (
+                <option key={f.feature_id} value={f.feature_id}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Name</label>
+          <input
+            value={formName}
+            onChange={(e) => setFormName(e.target.value)}
+            className="w-full border px-2 py-1"
+          />
+        </div>
+      </Modal>
+    </>
   );
 };
 
 const ReactFlowDemo = () => {
   return (
-    <div className="rounded-lg border border-stroke bg-white shadow-default">
-      <ReactFlowProvider>
-        <ReactFlowDemoInner />
-      </ReactFlowProvider>
-    </div>
+    <ReactFlowProvider>
+      <ReactFlowDemoInner />
+    </ReactFlowProvider>
   );
 };
 
