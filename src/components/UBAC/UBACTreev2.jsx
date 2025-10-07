@@ -2,12 +2,18 @@ import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { faTrash, faChevronLeft, faPlus, faRotate, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { OrganizationChart } from 'primereact/organizationchart';
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
 import { API_CONFIG } from "../../config/appConfig";
 import Modal from "../common/Modal";
 import { toastController } from "../../utils/toastController";
+
+// PrimeReact theme imports
+import "primereact/resources/themes/lara-light-cyan/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
 
 const UBACTree = () => {
   const { data, isLoading, refetchUbacTree } = useUbacTree();
@@ -30,8 +36,148 @@ const UBACTree = () => {
   const [editSelectedModuleId, setEditSelectedModuleId] = useState("");
   const [editSelectedFeatureId, setEditSelectedFeatureId] = useState("");
   const [editLoadingSave, setEditLoadingSave] = useState(false);
-  const [expandedModules, setExpandedModules] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Transform UBAC data to TreeNode format for OrganizationChart
+  const transformToTreeNode = (modules) => {
+    if (!modules || !Array.isArray(modules)) return [];
+    
+    return modules.map((module) => ({
+      label: module.name,
+      type: 'module',
+      data: module,
+      className: 'bg-blue-100 border-blue-300',
+      children: module.features?.map((feature) => ({
+        label: feature.name,
+        type: 'feature',
+        data: feature,
+        className: 'bg-green-100 border-green-300',
+        children: feature.actions?.map((action) => ({
+          label: action.name,
+          type: 'action',
+          data: action,
+          className: 'bg-orange-100 border-orange-300'
+        })) || []
+      })) || []
+    }));
+  };
+
+  // Custom node template with colored styling and action buttons
+  const nodeTemplate = (node) => {
+    const { type, data, label } = node;
+    
+    const getNodeColor = () => {
+      switch (type) {
+        case 'module':
+          return 'bg-blue-100 border-blue-300 text-blue-800';
+        case 'feature':
+          return 'bg-green-100 border-green-300 text-green-800';
+        case 'action':
+          return 'bg-orange-100 border-orange-300 text-orange-800';
+        default:
+          return 'bg-gray-100 border-gray-300 text-gray-800';
+      }
+    };
+
+    const getTypeIcon = () => {
+      switch (type) {
+        case 'module':
+          return 'pi pi-sitemap';
+        case 'feature':
+          return 'pi pi-cog';
+        case 'action':
+          return 'pi pi-play';
+        default:
+          return 'pi pi-circle';
+      }
+    };
+
+    return (
+      <div className={`p-3 rounded-lg border-2 shadow-sm min-w-[200px] ${getNodeColor()}`}>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <i className={`${getTypeIcon()} text-lg`}></i>
+            <span className="font-semibold text-sm break-words">{label}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditType(type);
+                setEditId(data[`${type}_id`]);
+                setEditFormName(data.name || "");
+                if (type === 'feature') {
+                  setEditSelectedModuleId(data.module_id);
+                } else if (type === 'action') {
+                  setEditSelectedFeatureId(data.feature_id);
+                }
+                setIsEditModalOpen(true);
+              }}
+              className="w-6 h-6 flex items-center justify-center text-white bg-yellow-500 hover:bg-yellow-600 rounded transition"
+              title={`Edit ${type}`}
+            >
+              <FontAwesomeIcon icon={faPenToSquare} className="w-3 h-3" />
+            </button>
+            <button
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (!confirm(`Delete ${type}? This cannot be undone.`)) return;
+                
+                try {
+                  const token = getToken() || localStorage.getItem("token");
+                  const headers = token
+                    ? { Authorization: token, "Content-Type": "application/json" }
+                    : { "Content-Type": "application/json" };
+
+                  let endpoint, body;
+                  const id = data[`${type}_id`];
+
+                  if (type === 'module') {
+                    endpoint = `${BASE_URL}/admin/delete_modules`;
+                    body = { module_ids: [Number(id)] };
+                  } else if (type === 'feature') {
+                    endpoint = `${BASE_URL}/admin/delete_features`;
+                    body = { 
+                      feature_ids: [Number(id)],
+                      user_id: String(2),
+                      app_source: "admin_app"
+                    };
+                  } else if (type === 'action') {
+                    endpoint = `${BASE_URL}/admin/delete_actions`;
+                    body = { action_ids: [Number(id)] };
+                  }
+
+                  const resp = await fetch(endpoint, {
+                    method: "DELETE",
+                    headers,
+                    body: JSON.stringify(body),
+                  });
+
+                  if (!resp.ok) {
+                    const errJson = await resp.json().catch(() => ({}));
+                    toastController.error(
+                      errJson.detail || errJson.message || "Delete failed"
+                    );
+                    return;
+                  }
+
+                  await refetchUbacTree();
+                  toastController.success("Deleted successfully");
+                } catch (err) {
+                  console.error(err);
+                  toastController.error("Delete failed");
+                }
+              }}
+              className="w-6 h-6 flex items-center justify-center text-white bg-red-500 hover:bg-red-600 rounded transition"
+              title={`Delete ${type}`}
+            >
+              <FontAwesomeIcon icon={faTrash} className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // load modules on mount
   useEffect(() => {
@@ -67,7 +213,7 @@ const UBACTree = () => {
     };
 
     fetchModules();
-  }, []);
+  }, [BASE_URL, getToken]);
 
   // load features when module is selected
   useEffect(() => {
@@ -136,304 +282,40 @@ const UBACTree = () => {
     };
 
     fetchFeatures();
-  }, [selectedModuleId]);
+  }, [selectedModuleId, BASE_URL, getToken]);
 
   const items = [
     { label: "Home", path: "/home" },
-    { label: "UBAC Tree", path: "/ubac_tree" },
+    { label: "UBAC Tree v2", path: "/ubac_tree_v2" },
   ];
 
-  // Render actions horizontally with connector (compact)
-  const renderActions = (actions) => (
-    <div className="flex items-center gap-2 ml-4">
-      {actions.map((action) => (
-        <div key={action.action_id} className="flex flex-col items-center">
-          <div className="h-3 w-0.5 bg-gray-300 mb-2" />
-          <div className="px-2 py-1 rounded bg-white border text-xs whitespace-nowrap flex items-center gap-2">
-            <span>{action.name}</span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  // open edit modal for action
-                  setEditType("action");
-                  setEditId(action.action_id);
-                  setEditFormName(action.name || "");
-                  setEditSelectedFeatureId(
-                    action.feature_id || selectedFeatureId
-                  );
-                  setIsEditModalOpen(true);
-                }}
-                className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
-                title="Edit action"
-              >
-                <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-              </button>
-              {/* Delete action (always allowed) */}
-              <button
-                onClick={async () => {
-                  if (!confirm("Delete action? This cannot be undone.")) return;
-                  try {
-                    const token = getToken() || localStorage.getItem("token");
-                    const headers = token
-                      ? {
-                          Authorization: token,
-                          "Content-Type": "application/json",
-                        }
-                      : { "Content-Type": "application/json" };
-
-                    const resp = await fetch(
-                      `${BASE_URL}/admin/delete_actions`,
-                      {
-                        method: "DELETE",
-                        headers,
-                        body: JSON.stringify({
-                          action_ids: [Number(action.action_id)],
-                        }),
-                      }
-                    );
-
-                    if (!resp.ok) {
-                      const errJson = await resp.json().catch(() => ({}));
-                      toastController.error(
-                        errJson.detail || errJson.message || "Delete failed"
-                      );
-                      return;
-                    }
-
-                    await refetchUbacTree();
-                    toastController.success("Deleted successfully");
-                  } catch (err) {
-                    console.error(err);
-                    toastController.error("Delete failed");
-                  }
-                }}
-                className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-                title="Delete action"
-              >
-                <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  // Render features vertically; show first 3, then a 'See more' card toggling full list
-  const renderFeatures = (features, moduleId) => {
-    const isExpanded = Boolean(expandedModules[moduleId]);
-
-    // items to show when not expanded
-    const visible = isExpanded ? features : features.slice(0, 3);
-
-    return (
-      <div className="flex flex-col items-start ml-6">
-        {visible.map((feature) => (
-          <div key={feature.feature_id} className="flex items-center mb-4">
-            <div className="w-6 h-0.5 bg-gray-300 mr-2" />
-            <div className="flex flex-col">
-              <div className="min-w-[140px] max-w-xs px-4 py-2 rounded bg-white border shadow-sm text-center font-medium break-words">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="break-words">{feature.name}</span>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => {
-                        // open edit modal for feature
-                        setEditType("feature");
-                        setEditId(feature.feature_id);
-                        setEditFormName(feature.name || "");
-                        setEditSelectedModuleId(moduleId);
-                        setIsEditModalOpen(true);
-                      }}
-                      className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition ml-2"
-                      title="Edit feature"
-                    >
-                      <FontAwesomeIcon
-                        icon={faPenToSquare}
-                        className="w-4 h-4"
-                      />
-                    </button>
-                    {/* Delete feature - only render if no actions assigned */}
-                    {!(
-                      Array.isArray(feature.actions) &&
-                      feature.actions.length > 0
-                    ) && (
-                      <button
-                        onClick={async () => {
-                          if (
-                            !confirm(
-                              "Delete feature? This will remove the feature."
-                            )
-                          )
-                            return;
-                          try {
-                            const token =
-                              getToken() || localStorage.getItem("token");
-                            const headers = token
-                              ? {
-                                  Authorization: token,
-                                  "Content-Type": "application/json",
-                                }
-                              : { "Content-Type": "application/json" };
-
-                            const resp = await fetch(
-                              `${BASE_URL}/admin/delete_features`,
-                              {
-                                method: "DELETE",
-                                headers,
-                                body: JSON.stringify({
-                                  feature_ids: [Number(feature.feature_id)],
-                                  user_id: String(2),
-                                  app_source: "admin_app",
-                                }),
-                              }
-                            );
-
-                            if (!resp.ok) {
-                              const errJson = await resp
-                                .json()
-                                .catch(() => ({}));
-                              toastController.error(
-                                errJson.detail ||
-                                  errJson.message ||
-                                  "Delete failed"
-                              );
-                              return;
-                            }
-
-                            await refetchUbacTree();
-                            toastController.success("Deleted successfully");
-                          } catch (err) {
-                            console.error(err);
-                            toastController.error("Delete failed");
-                          }
-                        }}
-                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-                        title="Delete feature"
-                      >
-                        <FontAwesomeIcon
-                          icon={faTrash}
-                          className="w-3.5 h-3.5"
-                        />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="h-3 w-0.5 bg-gray-300 ml-[70px]" />
-              {feature.actions && renderActions(feature.actions)}
-            </div>
-          </div>
-        ))}
-
-        {features.length > 3 && (
-          <div className="flex items-center mb-4">
-            <div className="w-6 h-0.5 bg-gray-300 mr-2" />
-            <div
-              className="min-w-[140px] px-4 py-2 rounded bg-white border shadow-sm font-medium cursor-pointer text-center"
-              onClick={() =>
-                setExpandedModules((prev) => ({
-                  ...prev,
-                  [moduleId]: !prev[moduleId],
-                }))
-              }
-            >
-              {isExpanded ? "See less" : `+${features.length - 3} more`}
-            </div>
-          </div>
-        )}
-      </div>
-    );
+  // Filter modules based on search term
+  const filterModules = (modules) => {
+    if (!searchTerm) return modules;
+    
+    const q = searchTerm.toLowerCase();
+    return modules.filter((m) => {
+      // match module name
+      if (m.name && m.name.toLowerCase().includes(q)) return true;
+      // match features or actions
+      if (
+        m.features &&
+        m.features.some((f) => {
+          if (f.name && f.name.toLowerCase().includes(q)) return true;
+          if (
+            f.actions &&
+            f.actions.some(
+              (a) => a.name && a.name.toLowerCase().includes(q)
+            )
+          )
+            return true;
+          return false;
+        })
+      )
+        return true;
+      return false;
+    });
   };
-
-  // Render modules vertically with connectors to features
-  const renderModules = (modules) => (
-    <div className="flex flex-col gap-6 py-4">
-      {modules.map((module) => (
-        <div key={module.module_id} className="flex items-start">
-          <div className="flex flex-col items-center">
-            <div className="px-4 py-2 rounded bg-gray-100 border font-semibold text-center min-w-[220px]">
-              <div className="flex items-center justify-between gap-2">
-                <span className="break-words">{module.name}</span>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      // open edit modal for module
-                      setEditType("module");
-                      setEditId(module.module_id);
-                      setEditFormName(module.name || "");
-                      setIsEditModalOpen(true);
-                    }}
-                    className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition ml-2"
-                    title="Edit module"
-                  >
-                    <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-                  </button>
-                  {/* Delete module - only render if no features assigned */}
-                  {!(
-                    Array.isArray(module.features) && module.features.length > 0
-                  ) && (
-                    <button
-                      onClick={async () => {
-                        if (
-                          !confirm("Delete module? This will remove the module.")
-                        )
-                          return;
-                        try {
-                          const token =
-                            getToken() || localStorage.getItem("token");
-                          const headers = token
-                            ? {
-                                Authorization: token,
-                                "Content-Type": "application/json",
-                              }
-                            : { "Content-Type": "application/json" };
-
-                          const resp = await fetch(
-                            `${BASE_URL}/admin/delete_modules`,
-                            {
-                              method: "DELETE",
-                              headers,
-                              body: JSON.stringify({
-                                module_ids: [Number(module.module_id)],
-                              }),
-                            }
-                          );
-
-                          if (!resp.ok) {
-                            const errJson = await resp.json().catch(() => ({}));
-                            toastController.error(
-                              errJson.detail || errJson.message || "Delete failed"
-                            );
-                            return;
-                          }
-
-                          await refetchUbacTree();
-                          toastController.success("Deleted successfully");
-                        } catch (err) {
-                          console.error(err);
-                          toastController.error("Delete failed");
-                        }
-                      }}
-                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition ml-2"
-                      title="Delete module"
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="w-0.5 h-6 bg-gray-300 mt-2" />
-          </div>
-          <div className="ml-4">
-            {module.features &&
-              renderFeatures(module.features, module.module_id)}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
 
   return (
     <>
@@ -461,7 +343,7 @@ const UBACTree = () => {
             {/* Center - Title */}
             <div className="flex-1 text-center">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-                UBAC Tree
+                UBAC Tree v2
               </h2>
             </div>
 
@@ -544,32 +426,13 @@ const UBACTree = () => {
           {isLoading ? (
             <div className="text-center py-8">Loading...</div>
           ) : (
-            renderModules(
-              // filter modules/features/actions by search term
-              (data.data || []).filter((m) => {
-                if (!searchTerm) return true;
-                const q = searchTerm.toLowerCase();
-                // match module name
-                if (m.name && m.name.toLowerCase().includes(q)) return true;
-                // match features or actions
-                if (
-                  m.features &&
-                  m.features.some((f) => {
-                    if (f.name && f.name.toLowerCase().includes(q)) return true;
-                    if (
-                      f.actions &&
-                      f.actions.some(
-                        (a) => a.name && a.name.toLowerCase().includes(q)
-                      )
-                    )
-                      return true;
-                    return false;
-                  })
-                )
-                  return true;
-                return false;
-              })
-            )
+            <div className="overflow-auto">
+              <OrganizationChart 
+                value={transformToTreeNode(filterModules(data.data || []))} 
+                nodeTemplate={nodeTemplate}
+                style={{ width: '100%', height: 'auto' }}
+              />
+            </div>
           )}
         </div>
       </div>
