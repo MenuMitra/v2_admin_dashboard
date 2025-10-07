@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useEffect } from 'react';
+import React, { useCallback, useMemo, useEffect, useState } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -31,11 +31,12 @@ const transformUbacTreeToReactFlow = (ubacData) => {
   const edges = [];
   let edgeIdCounter = 1;
 
-  // Position calculation
-  const moduleSpacing = 200;
-  const featureSpacing = 150;
-  const actionSpacing = 100;
-  const rootToModuleSpacing = 150;
+      // Position calculation
+      const moduleSpacing = 800;
+      const featureSpacing = 500;
+      const actionSpacing = 400;
+      const rootToModuleSpacing = 300;
+      const featureToActionSpacing = 200;
 
   // Calculate total width needed for modules
   const totalModules = ubacData.length;
@@ -69,13 +70,15 @@ const transformUbacTreeToReactFlow = (ubacData) => {
         x: startX + (moduleIndex * moduleSpacing), 
         y: rootToModuleSpacing 
       },
-      style: {
-        background: nodeColors.module.background,
-        color: nodeColors.module.color,
-        border: `1px solid ${nodeColors.module.border}`,
-        borderRadius: '8px',
-        minWidth: '120px'
-      }
+       style: {
+         background: nodeColors.module.background,
+         color: nodeColors.module.color,
+         border: `1px solid ${nodeColors.module.border}`,
+         borderRadius: '8px',
+         minWidth: '120px',
+         paddingLeft: '15px',
+         paddingRight: '15px'
+       }
     };
     nodes.push(moduleNode);
 
@@ -88,67 +91,79 @@ const transformUbacTreeToReactFlow = (ubacData) => {
       style: { stroke: nodeColors.root.border, strokeWidth: 3 }
     });
 
-    // Add features
-    if (module.features && Array.isArray(module.features)) {
-      module.features.forEach((feature, featureIndex) => {
-        const featureNode = {
-          id: `feature-${feature.feature_id}`,
-          data: { label: feature.name, type: 'feature' },
-          position: { 
-            x: moduleNode.position.x, 
-            y: moduleNode.position.y + rootToModuleSpacing + (featureIndex * featureSpacing)
-          },
-          style: {
-            background: nodeColors.feature.background,
-            color: nodeColors.feature.color,
-            border: `1px solid ${nodeColors.feature.border}`,
-            borderRadius: '8px',
-            minWidth: '120px'
-          }
-        };
-        nodes.push(featureNode);
+        // Add features - spread horizontally under each module
+        if (module.features && Array.isArray(module.features)) {
+          const totalFeatures = module.features.length;
+          const featureWidth = totalFeatures > 1 ? (totalFeatures - 1) * featureSpacing : 0;
+          const featureStartX = moduleNode.position.x - featureWidth / 2;
 
-        // Add module to feature edge
-        edges.push({
-          id: `edge-${edgeIdCounter++}`,
-          source: moduleNode.id,
-          target: featureNode.id,
-          animated: true,
-          style: { stroke: nodeColors.module.border, strokeWidth: 2 }
-        });
-
-        // Add actions
-        if (feature.actions && Array.isArray(feature.actions)) {
-          feature.actions.forEach((action, actionIndex) => {
-            const actionNode = {
-              id: `action-${action.action_id}`,
-              data: { label: action.name, type: 'action' },
-              position: { 
-                x: featureNode.position.x, 
-                y: featureNode.position.y + rootToModuleSpacing + (actionIndex * actionSpacing)
+          module.features.forEach((feature, featureIndex) => {
+            const featureNode = {
+              id: `feature-${feature.feature_id}`,
+              data: { label: feature.name, type: 'feature' },
+              position: {
+                x: featureStartX + (featureIndex * featureSpacing),
+                y: moduleNode.position.y + rootToModuleSpacing
               },
               style: {
-                background: nodeColors.action.background,
-                color: nodeColors.action.color,
-                border: `1px solid ${nodeColors.action.border}`,
+                background: nodeColors.feature.background,
+                color: nodeColors.feature.color,
+                border: `1px solid ${nodeColors.feature.border}`,
                 borderRadius: '8px',
-                minWidth: '120px'
+                minWidth: '120px',
+                height: '40px'
               }
             };
-            nodes.push(actionNode);
+            nodes.push(featureNode);
 
-            // Add feature to action edge
+            // Add module to feature edge
             edges.push({
               id: `edge-${edgeIdCounter++}`,
-              source: featureNode.id,
-              target: actionNode.id,
+              source: moduleNode.id,
+              target: featureNode.id,
               animated: true,
-              style: { stroke: nodeColors.feature.border, strokeWidth: 2 }
+              style: { stroke: nodeColors.module.border, strokeWidth: 2 }
             });
+
+            // Add actions - spread horizontally under each feature
+            if (feature.actions && Array.isArray(feature.actions)) {
+              const totalActions = feature.actions.length;
+              const actionWidth = totalActions > 1 ? (totalActions - 1) * actionSpacing : 0;
+              const actionStartX = featureNode.position.x - actionWidth / 2;
+
+              feature.actions.forEach((action, actionIndex) => {
+                const actionNode = {
+                  id: `action-${action.action_id}`,
+                  data: { label: action.name, type: 'action' },
+                  position: {
+                    x: actionStartX + (actionIndex * actionSpacing),
+                    y: featureNode.position.y + featureToActionSpacing
+                  },
+                   style: {
+                     background: nodeColors.action.background,
+                     color: nodeColors.action.color,
+                     border: `1px solid ${nodeColors.action.border}`,
+                     borderRadius: '8px',
+                     minWidth: '120px',
+                     height: '35px',
+                     paddingLeft: '10px',
+                     paddingRight: '10px'
+                   }
+                };
+                nodes.push(actionNode);
+
+                // Add feature to action edge
+                edges.push({
+                  id: `edge-${edgeIdCounter++}`,
+                  source: featureNode.id,
+                  target: actionNode.id,
+                  animated: true,
+                  style: { stroke: nodeColors.feature.border, strokeWidth: 2 }
+                });
+              });
+            }
           });
         }
-      });
-    }
   });
 
   return { nodes, edges };
@@ -320,12 +335,21 @@ const initialEdges = [
 
 const ReactFlowDemoInner = () => {
   const { data, isLoading, error } = useUbacTree();
+  const [isDragEnabled, setIsDragEnabled] = useState(false);
   
   // Transform UBAC tree data to React Flow format
   const { nodes: transformedNodes, edges: transformedEdges } = useMemo(() => {
     if (!data?.data) return { nodes: initialNodes, edges: initialEdges };
-    return transformUbacTreeToReactFlow(data.data);
-  }, [data]);
+    const transformed = transformUbacTreeToReactFlow(data.data);
+    
+    // Make all nodes non-draggable initially
+    const nodesWithDragDisabled = transformed.nodes.map(node => ({
+      ...node,
+      draggable: isDragEnabled
+    }));
+    
+    return { nodes: nodesWithDragDisabled, edges: transformed.edges };
+  }, [data, isDragEnabled]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(transformedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(transformedEdges);
@@ -466,13 +490,27 @@ const ReactFlowDemoInner = () => {
               </div>
             </div>
             
-            {/* Instructions */}
-            <div className="text-xs text-gray-500 border-t pt-2">
-              <p>• Drag nodes to move them around</p>
-              <p>• Click to select nodes or edges</p>
-              <p>• Use mouse wheel to zoom</p>
-              <p>• Drag background to pan</p>
-            </div>
+             {/* Drag Toggle */}
+             <div className="border-t pt-2 mb-2">
+               <button
+                 onClick={() => setIsDragEnabled(!isDragEnabled)}
+                 className={`w-full px-3 py-1 text-xs rounded transition-colors ${
+                   isDragEnabled 
+                     ? 'bg-green-100 text-green-700 border border-green-300' 
+                     : 'bg-gray-100 text-gray-700 border border-gray-300'
+                 }`}
+               >
+                 {isDragEnabled ? '🔓 Drag Enabled' : '🔒 Drag Disabled'}
+               </button>
+             </div>
+             
+             {/* Instructions */}
+             <div className="text-xs text-gray-500 border-t pt-2">
+               <p>• Toggle drag to move nodes around</p>
+               <p>• Click to select nodes or edges</p>
+               <p>• Use mouse wheel to zoom</p>
+               <p>• Drag background to pan</p>
+             </div>
           </div>
         </Panel>
       </ReactFlow>
