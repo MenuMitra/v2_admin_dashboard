@@ -8,6 +8,8 @@ import {
   faEye,
   faCircleCheck,
   faCircleXmark,
+  faCheck,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
@@ -331,11 +333,13 @@ function Admins() {
           {
             key: "active",
             label: "Active",
+            icon: faCheck,
             className: "text-success-600 hover:bg-success-50",
           },
           {
             key: "inactive",
             label: "Inactive",
+            icon: faTimes,
             className: "text-warning-600 hover:bg-warning-50",
           },
         ]}
