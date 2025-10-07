@@ -43,7 +43,6 @@ import CreateMenu from "./components/Outlets/Menu/CreateMenu";
 import { ToastProvider } from "./components/common/ToastProvider";
 import RoleDetails from "./components/AccessControl/Roles/RoleDetails";
 import UBACTree from "./components/UBAC/UBACTree";
-import UBACTreev2 from "./components/UBAC/UBACTreev2";
 
 import EditCustomer from "./components/Customer/EditCustomer";
 
@@ -205,7 +204,6 @@ function App() {
             {/* Stats Routes */}
             <Route path="/stats" element={<Stats />} />
             <Route path="/ubac_tree" element={<UBACTree />} />
-            <Route path="/ubac_tree_v2" element={<UBACTreev2 />} />
             <Route path="/db-tables-stats" element={<DBTablesStats />} />
             <Route path="/combined-stats" element={<CombinedStats />} />
             

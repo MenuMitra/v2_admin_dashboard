@@ -15,6 +15,7 @@ import useUbacTree from '../lib/react-query/hooks/useUbacTree';
 
 // Color scheme for different node types
 const nodeColors = {
+  root: { background: '#8b5cf6', color: 'white', border: '#7c3aed' },
   module: { background: '#f3f4f6', color: '#374151', border: '#d1d5db' },
   feature: { background: '#4ecdc4', color: 'white', border: '#26a69a' },
   action: { background: '#96ceb4', color: 'white', border: '#4caf50' }
@@ -34,15 +35,40 @@ const transformUbacTreeToReactFlow = (ubacData) => {
   const moduleSpacing = 200;
   const featureSpacing = 150;
   const actionSpacing = 100;
-  const horizontalOffset = 300;
+  const rootToModuleSpacing = 150;
+
+  // Calculate total width needed for modules
+  const totalModules = ubacData.length;
+  const totalWidth = (totalModules - 1) * moduleSpacing;
+  const startX = -totalWidth / 2;
+
+  // Add UBAC TREE root node
+  const rootNode = {
+    id: 'ubac-root',
+    type: 'input',
+    data: { label: 'UBAC TREE', type: 'root' },
+    position: { x: 0, y: 0 },
+    style: {
+      background: nodeColors.root.background,
+      color: nodeColors.root.color,
+      border: `2px solid ${nodeColors.root.border}`,
+      borderRadius: '12px',
+      minWidth: '180px',
+      fontSize: '16px',
+      fontWeight: 'bold'
+    }
+  };
+  nodes.push(rootNode);
 
   ubacData.forEach((module, moduleIndex) => {
-    // Add module node
+    // Add module node - positioned horizontally below root
     const moduleNode = {
       id: `module-${module.module_id}`,
-      type: 'input',
       data: { label: module.name, type: 'module' },
-      position: { x: 50, y: moduleIndex * moduleSpacing },
+      position: { 
+        x: startX + (moduleIndex * moduleSpacing), 
+        y: rootToModuleSpacing 
+      },
       style: {
         background: nodeColors.module.background,
         color: nodeColors.module.color,
@@ -53,6 +79,15 @@ const transformUbacTreeToReactFlow = (ubacData) => {
     };
     nodes.push(moduleNode);
 
+    // Add edge from root to module
+    edges.push({
+      id: `edge-${edgeIdCounter++}`,
+      source: rootNode.id,
+      target: moduleNode.id,
+      animated: true,
+      style: { stroke: nodeColors.root.border, strokeWidth: 3 }
+    });
+
     // Add features
     if (module.features && Array.isArray(module.features)) {
       module.features.forEach((feature, featureIndex) => {
@@ -60,8 +95,8 @@ const transformUbacTreeToReactFlow = (ubacData) => {
           id: `feature-${feature.feature_id}`,
           data: { label: feature.name, type: 'feature' },
           position: { 
-            x: moduleNode.position.x + horizontalOffset, 
-            y: moduleNode.position.y + (featureIndex * featureSpacing)
+            x: moduleNode.position.x, 
+            y: moduleNode.position.y + rootToModuleSpacing + (featureIndex * featureSpacing)
           },
           style: {
             background: nodeColors.feature.background,
@@ -89,8 +124,8 @@ const transformUbacTreeToReactFlow = (ubacData) => {
               id: `action-${action.action_id}`,
               data: { label: action.name, type: 'action' },
               position: { 
-                x: featureNode.position.x + horizontalOffset, 
-                y: featureNode.position.y + (actionIndex * actionSpacing)
+                x: featureNode.position.x, 
+                y: featureNode.position.y + rootToModuleSpacing + (actionIndex * actionSpacing)
               },
               style: {
                 background: nodeColors.action.background,
@@ -388,28 +423,35 @@ const ReactFlowDemoInner = () => {
         <Panel position="top-left">
           <div className="bg-white p-4 rounded-lg shadow-lg border">
             <h3 className="text-lg font-semibold mb-2">UBAC Tree Visualization</h3>
-            <p className="text-sm text-gray-600 mb-3">
+            {/* <p className="text-sm text-gray-600 mb-3">
               Interactive visualization of the User-Based Access Control tree structure.
-            </p>
+            </p> */}
             
             {/* Statistics */}
-            <div className="grid grid-cols-3 gap-2 mb-3 text-xs">
-              <div className="text-center p-2 bg-gray-50 rounded">
-                <div className="font-semibold text-gray-800">{stats.modules}</div>
-                <div className="text-gray-500">Modules</div>
+            <div className="flex justify-center items-center gap-4 mb-3 text-xs">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                <span className="font-semibold text-gray-800">{stats.modules}</span>
+                <span className="text-gray-500">Modules</span>
               </div>
-              <div className="text-center p-2 bg-blue-50 rounded">
-                <div className="font-semibold text-blue-800">{stats.features}</div>
-                <div className="text-blue-500">Features</div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+                <span className="font-semibold text-blue-800">{stats.features}</span>
+                <span className="text-blue-500">Features</span>
               </div>
-              <div className="text-center p-2 bg-green-50 rounded">
-                <div className="font-semibold text-green-800">{stats.actions}</div>
-                <div className="text-green-500">Actions</div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <span className="font-semibold text-green-800">{stats.actions}</span>
+                <span className="text-green-500">Actions</span>
               </div>
             </div>
             
             {/* Legend */}
             <div className="text-xs text-gray-500 mb-2">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-3 h-3 rounded" style={{ backgroundColor: nodeColors.root.background, border: `1px solid ${nodeColors.root.border}` }}></div>
+                <span>UBAC Tree</span>
+              </div>
               <div className="flex items-center gap-2 mb-1">
                 <div className="w-3 h-3 rounded" style={{ backgroundColor: nodeColors.module.background, border: `1px solid ${nodeColors.module.border}` }}></div>
                 <span>Modules</span>
