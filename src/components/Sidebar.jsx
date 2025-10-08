@@ -388,6 +388,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
           </span>
         </div>
       </div>
+      <hr className="my-2 border-t border-blue-200 w-2" />
       {/* Menu Items */}
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4 pb-10">
         <nav>
