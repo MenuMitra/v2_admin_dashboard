@@ -206,7 +206,6 @@ function Staff() {
         data={lists}
         columns={columns}
         enablePagination={true}
-        itemsPerPage={10}
         itemsPerPageOptions={[10, 20, 30, 40, 50]}
         enableSort={true}
         enableSearch={true}

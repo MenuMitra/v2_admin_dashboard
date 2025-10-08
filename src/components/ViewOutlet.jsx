@@ -931,14 +931,14 @@ function ViewOutlet() {
                   </div>
                 )}
               {/* Reserve Table */}
-              {outletData?.reserve_table !== undefined &&
-                outletData?.reserve_table !== null && (
+              {outletData?.has_reserve_table !== undefined &&
+                outletData?.has_reserve_table !== null && (
                   <div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div>
                           <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                            {outletData.reserve_table === 1 ? "Yes" : "No"}
+                            {outletData.has_reserve_table === 1 ? "Yes" : "No"}
                           </h4>
                           <p className="text-sm text-gray-500 dark:text-gray-400">
                             Reserve Table

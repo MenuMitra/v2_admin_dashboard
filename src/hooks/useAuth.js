@@ -58,7 +58,7 @@ export const useAuth = () => {
     setAuthData(newAuthData);
   };
 
-  const isAuthenticated = () => {
+  const isAuthenticated = useCallback(() => {
     if (!authData || !authData.access_token) {
       return false;
     }
@@ -79,11 +79,11 @@ export const useAuth = () => {
       console.error('Error parsing expiration date:', error);
       return false;
     }
-  };
+  }, [authData]);
 
-  const getToken = () => {
+  const getToken = useCallback(() => {
     return authData ? `Bearer ${authData.access_token}` : null;
-  };
+  }, [authData]);
 
   return {
     authData,
