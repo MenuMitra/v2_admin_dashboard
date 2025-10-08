@@ -47,6 +47,7 @@ const menuGroups = [
       },
       { title: "Customers", path: "/customer", id: "customer", icon: faUser },
       { title: "UBAC Tree", path: "/ubac_tree", id: "ubac-tree", icon: faLock },
+      { title: "UBAC Tree ApexChart", path: "/ubac_tree_apexchart", id: "ubac-tree-apexchart", icon: faChartLine },
       { title: "React Flow Demo", path: "/react-flow-demo", id: "react-flow-demo", icon: faDatabase },
     ],
   },

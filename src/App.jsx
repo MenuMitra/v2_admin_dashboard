@@ -43,6 +43,7 @@ import CreateMenu from "./components/Outlets/Menu/CreateMenu";
 import { ToastProvider } from "./components/common/ToastProvider";
 import RoleDetails from "./components/AccessControl/Roles/RoleDetails";
 import UBACTree from "./components/UBAC/UBACTree";
+import UBACTreeApexChart from "./components/UBAC/UBACTreeApexChart";
 
 import EditCustomer from "./components/Customer/EditCustomer";
 
@@ -204,6 +205,7 @@ function App() {
             {/* Stats Routes */}
             <Route path="/stats" element={<Stats />} />
             <Route path="/ubac_tree" element={<UBACTree />} />
+            <Route path="/ubac_tree_apexchart" element={<UBACTreeApexChart />} />
             <Route path="/db-tables-stats" element={<DBTablesStats />} />
             <Route path="/combined-stats" element={<CombinedStats />} />
             
