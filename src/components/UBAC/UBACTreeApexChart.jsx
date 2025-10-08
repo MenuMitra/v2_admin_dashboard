@@ -161,6 +161,12 @@ const UBACTree = () => {
       childrenSpacing: 70,
       siblingSpacing: 30,
       direction: 'left',
+      // Auto-fit content settings
+      autoFit: true,
+      padding: 20, // Add padding around the content
+      // Disable manual zoom and pan
+      zoom: false,
+      pan: false,
       nodeTemplate: (content) => {
         return `<div style='display: flex;flex-direction: row;justify-content: space-between;align-items: center;height: 100%; padding: 0 7px;'>
           <div style="font-weight: bold; font-family: Arial; font-size: 14px">${content.name}</div>
@@ -174,6 +180,13 @@ const UBACTree = () => {
     try {
       const tree = new ApexTree(container, options);
       tree.render(sampleData);
+      
+      // Alternative: Manually fit content after rendering
+      setTimeout(() => {
+        if (tree.fit) {
+          tree.fit(); // Call fit method if available
+        }
+      }, 100);
     } catch (error) {
       console.error('Error initializing ApexTree:', error);
     }
