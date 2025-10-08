@@ -24,13 +24,15 @@ function EditCategory() {
   const [loading, setLoading] = useState(false);
   // Add state for name error
   const [nameError, setNameError] = useState('');
+  // Add state to track if initial data has been loaded
+  const [hasLoadedData, setHasLoadedData] = useState(false);
 
   // Ref for form submission from Save button
   const formRef = React.useRef();
 
   // Fetch current category details for editing
   useEffect(() => {
-    if (!categoryName && adminData?.user_id && menuCategoryId && outletId) {
+    if (!hasLoadedData && adminData?.user_id && menuCategoryId && outletId) {
       const fetchCategory = async () => {
         setLoading(true);
         try {
@@ -50,15 +52,16 @@ function EditCategory() {
             }
           );
           setCategoryName(response.data.data.name || '');
-        } catch (err) {
-          toastController.error('Failed to fetch category details');
+          setHasLoadedData(true);
+        } catch (error) {
+          toastController.error(error.response?.data?.message || 'Failed to fetch category details');
         } finally {
           setLoading(false);
         }
       };
       fetchCategory();
     }
-  }, [adminData?.user_id, menuCategoryId, outletId, categoryName, getToken]);
+  }, [adminData?.user_id, menuCategoryId, outletId, hasLoadedData, getToken, BASE_URL]);
 
   // Handle form submit
   const handleSubmit = async (e) => {
@@ -156,7 +159,7 @@ function EditCategory() {
                 value={categoryName}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (!/^[A-Za-z\s]*$/.test(value)) {
+                  if (!/^[A-Za-z\u0900-\u097F\s]*$/.test(value)) {
                     setNameError(
                       "Category name should only contain alphabets and spaces"
                     );
