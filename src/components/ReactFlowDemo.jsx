@@ -801,8 +801,8 @@ const ReactFlowDemoInner = () => {
               attributionPosition="bottom-left"
             >
         <Background />
-        <Controls />
-        <MiniMap
+        {/* <Controls /> */}
+        {/* <MiniMap
           nodeStrokeColor={(n) => {
             if (n.style?.background) return n.style.background;
             return '#eee';
@@ -812,76 +812,8 @@ const ReactFlowDemoInner = () => {
             return '#fff';
           }}
           nodeBorderRadius={8}
-        />
-        <Panel position="top-left">
-          <div className="bg-white p-4 rounded-lg shadow-lg border">
-            <h3 className="text-lg font-semibold mb-2">UBAC Tree Visualization</h3>
-            {/* <p className="text-sm text-gray-600 mb-3">
-              Interactive visualization of the User-Based Access Control tree structure.
-            </p> */}
-            
-            {/* Statistics */}
-            <div className="flex justify-center items-center gap-4 mb-3 text-xs">
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
-                <span className="font-semibold text-gray-800">{stats.modules}</span>
-                <span className="text-gray-500">Modules</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                <span className="font-semibold text-blue-800">{stats.features}</span>
-                <span className="text-blue-500">Features</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                <span className="font-semibold text-green-800">{stats.actions}</span>
-                <span className="text-green-500">Actions</span>
-              </div>
-            </div>
-            
-            {/* Legend */}
-            <div className="text-xs text-gray-500 mb-2">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-3 h-3 rounded" style={{ backgroundColor: nodeColors.root.background, border: `1px solid ${nodeColors.root.border}` }}></div>
-                <span>UBAC Tree</span>
-              </div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-3 h-3 rounded" style={{ backgroundColor: nodeColors.module.background, border: `1px solid ${nodeColors.module.border}` }}></div>
-                <span>Modules</span>
-              </div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-3 h-3 rounded" style={{ backgroundColor: nodeColors.feature.background }}></div>
-                <span>Features</span>
-              </div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-3 h-3 rounded" style={{ backgroundColor: nodeColors.action.background }}></div>
-                <span>Actions</span>
-              </div>
-            </div>
-            
-             {/* Drag Toggle */}
-             <div className="border-t pt-2 mb-2">
-               <button
-                 onClick={() => setIsDragEnabled(!isDragEnabled)}
-                 className={`w-full px-3 py-1 text-xs rounded transition-colors ${
-                   isDragEnabled 
-                     ? 'bg-green-100 text-green-700 border border-green-300' 
-                     : 'bg-gray-100 text-gray-700 border border-gray-300'
-                 }`}
-               >
-                 {isDragEnabled ? '🔓 Drag Enabled' : '🔒 Drag Disabled'}
-               </button>
-             </div>
-             
-             {/* Instructions */}
-             <div className="text-xs text-gray-500 border-t pt-2">
-               <p>• Toggle drag to move nodes around</p>
-               <p>• Click to select nodes or edges</p>
-               <p>• Use mouse wheel to zoom</p>
-               <p>• Drag background to pan</p>
-             </div>
-          </div>
-            </Panel>
+        /> */}
+       
           </ReactFlow>
           </div>
         </div>
