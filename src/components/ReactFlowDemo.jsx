@@ -9,10 +9,12 @@ import {
   Controls,
   MiniMap,
   Panel,
+  Handle,
+  Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faPlus, faRotate, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faPlus, faRotate, faMagnifyingGlass, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "./Breadcrumb";
 import Modal from "./common/Modal";
 import { useAuth } from "../hooks/useAuth";
@@ -28,8 +30,53 @@ const nodeColors = {
   action: { background: '#96ceb4', color: 'white', border: '#4caf50' }
 };
 
+// Custom node component for modules, features, and actions
+const CustomNode = ({ data }) => {
+  return (
+    <div className="relative">
+      {/* React Flow Handles for edge connections */}
+      <Handle type="target" position={Position.Top} className="!w-2 !h-2" />
+      
+      {/* Node content with styling - flex layout to position buttons on right */}
+      <div className="flex items-center gap-2" style={data.nodeStyle}>
+        {/* Node label */}
+        <span className="flex-1">{data.label}</span>
+        
+        {/* Action buttons container - inline on the right side */}
+        <div className="flex items-center gap-1">
+          {/* Edit button - warning/orange color */}
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              data.onEdit(data);
+            }}
+            title="Edit"
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-3.5 h-3.5" />
+          </button>
+          
+          {/* Delete button - error/red color */}
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              data.onDelete(data);
+            }}
+            title="Delete"
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+      
+      <Handle type="source" position={Position.Bottom} className="!w-2 !h-2" />
+    </div>
+  );
+};
+
 // Transform UBAC tree data to React Flow format
-const transformUbacTreeToReactFlow = (ubacData) => {
+const transformUbacTreeToReactFlow = (ubacData, handleEdit, handleDelete) => {
   if (!ubacData || !Array.isArray(ubacData)) {
     return { nodes: [], edges: [] };
   }
@@ -72,20 +119,25 @@ const transformUbacTreeToReactFlow = (ubacData) => {
     // Add module node - positioned horizontally below root
     const moduleNode = {
       id: `module-${module.module_id}`,
-      data: { label: module.name, type: 'module' },
+      type: 'custom',
+      data: { 
+        label: module.name, 
+        type: 'module',
+        id: module.module_id,
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+        nodeStyle: {
+          background: nodeColors.module.background,
+          color: nodeColors.module.color,
+          border: `1px solid ${nodeColors.module.border}`,
+          borderRadius: '8px',
+          minWidth: '120px'
+        }
+      },
       position: { 
         x: startX + (moduleIndex * moduleSpacing), 
         y: rootToModuleSpacing 
-      },
-       style: {
-         background: nodeColors.module.background,
-         color: nodeColors.module.color,
-         border: `1px solid ${nodeColors.module.border}`,
-         borderRadius: '8px',
-         minWidth: '120px',
-         paddingLeft: '15px',
-         paddingRight: '15px'
-       }
+      }
     };
     nodes.push(moduleNode);
 
@@ -107,18 +159,26 @@ const transformUbacTreeToReactFlow = (ubacData) => {
           module.features.forEach((feature, featureIndex) => {
             const featureNode = {
               id: `feature-${feature.feature_id}`,
-              data: { label: feature.name, type: 'feature' },
+              type: 'custom',
+              data: { 
+                label: feature.name, 
+                type: 'feature',
+                id: feature.feature_id,
+                moduleId: module.module_id,
+                onEdit: handleEdit,
+                onDelete: handleDelete,
+                nodeStyle: {
+                  background: nodeColors.feature.background,
+                  color: nodeColors.feature.color,
+                  border: `1px solid ${nodeColors.feature.border}`,
+                  borderRadius: '8px',
+                  minWidth: '120px',
+                  height: '40px'
+                }
+              },
               position: {
                 x: featureStartX + (featureIndex * featureSpacing),
                 y: moduleNode.position.y + rootToModuleSpacing
-              },
-              style: {
-                background: nodeColors.feature.background,
-                color: nodeColors.feature.color,
-                border: `1px solid ${nodeColors.feature.border}`,
-                borderRadius: '8px',
-                minWidth: '120px',
-                height: '40px'
               }
             };
             nodes.push(featureNode);
@@ -141,21 +201,28 @@ const transformUbacTreeToReactFlow = (ubacData) => {
               feature.actions.forEach((action, actionIndex) => {
                 const actionNode = {
                   id: `action-${action.action_id}`,
-                  data: { label: action.name, type: 'action' },
+                  type: 'custom',
+                  data: { 
+                    label: action.name, 
+                    type: 'action',
+                    id: action.action_id,
+                    moduleId: module.module_id,
+                    featureId: feature.feature_id,
+                    onEdit: handleEdit,
+                    onDelete: handleDelete,
+                    nodeStyle: {
+                      background: nodeColors.action.background,
+                      color: nodeColors.action.color,
+                      border: `1px solid ${nodeColors.action.border}`,
+                      borderRadius: '8px',
+                      minWidth: '120px',
+                      height: '35px'
+                    }
+                  },
                   position: {
                     x: actionStartX + (actionIndex * actionSpacing),
                     y: featureNode.position.y + featureToActionSpacing
-                  },
-                   style: {
-                     background: nodeColors.action.background,
-                     color: nodeColors.action.color,
-                     border: `1px solid ${nodeColors.action.border}`,
-                     borderRadius: '8px',
-                     minWidth: '120px',
-                     height: '35px',
-                     paddingLeft: '10px',
-                     paddingRight: '10px'
-                   }
+                  }
                 };
                 nodes.push(actionNode);
 
@@ -357,6 +424,15 @@ const ReactFlowDemoInner = () => {
   const [selectedFeatureId, setSelectedFeatureId] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
 
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editType, setEditType] = useState(""); // module | feature | action
+  const [editId, setEditId] = useState("");
+  const [editFormName, setEditFormName] = useState("");
+  const [editSelectedModuleId, setEditSelectedModuleId] = useState("");
+  const [editSelectedFeatureId, setEditSelectedFeatureId] = useState("");
+  const [loadingEditSave, setLoadingEditSave] = useState(false);
+
   // Load modules on mount
   useEffect(() => {
     const fetchModules = async () => {
@@ -387,7 +463,7 @@ const ReactFlowDemoInner = () => {
     };
 
     fetchModules();
-  }, [getToken]);
+  }, [getToken, BASE_URL]);
 
   // Load features when module is selected
   useEffect(() => {
@@ -446,12 +522,68 @@ const ReactFlowDemoInner = () => {
     };
 
     fetchFeatures();
-  }, [selectedModuleId, getToken]);
+  }, [selectedModuleId, getToken, BASE_URL]);
+
+  // Edit and delete handlers
+  const handleEdit = useCallback((nodeData) => {
+    setEditType(nodeData.type);
+    setEditId(nodeData.id);
+    setEditFormName(nodeData.label);
+    // Set parent IDs if needed
+    if (nodeData.moduleId) setEditSelectedModuleId(nodeData.moduleId);
+    if (nodeData.featureId) setEditSelectedFeatureId(nodeData.featureId);
+    setIsEditModalOpen(true);
+  }, []);
+
+  const handleDelete = useCallback(async (nodeData) => {
+    const confirmMsg = `Delete this ${nodeData.type}? This action cannot be undone.`;
+    if (!confirm(confirmMsg)) return;
+    
+    try {
+      const token = getToken() || localStorage.getItem("token");
+      const headers = { Authorization: token, "Content-Type": "application/json" };
+      
+      let endpoint, body;
+      if (nodeData.type === 'module') {
+        endpoint = '/admin/delete_modules';
+        body = { module_ids: [Number(nodeData.id)] };
+      } else if (nodeData.type === 'feature') {
+        endpoint = '/admin/delete_features';
+        body = { feature_ids: [Number(nodeData.id)] };
+      } else if (nodeData.type === 'action') {
+        endpoint = '/admin/delete_actions';
+        body = { action_ids: [Number(nodeData.id)] };
+      }
+      
+      const resp = await fetch(`${BASE_URL}${endpoint}`, {
+        method: 'DELETE',
+        headers,
+        body: JSON.stringify(body)
+      });
+      
+      if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        toastController.error(errJson.detail || "Delete failed");
+        return;
+      }
+      
+      await refetchUbacTree();
+      toastController.success("Deleted successfully");
+    } catch (err) {
+      console.error(err);
+      toastController.error("Delete failed");
+    }
+  }, [getToken, BASE_URL, refetchUbacTree]);
+
+  // Define custom node types
+  const nodeTypes = useMemo(() => ({
+    custom: CustomNode,
+  }), []);
   
   // Transform UBAC tree data to React Flow format
   const { nodes: transformedNodes, edges: transformedEdges } = useMemo(() => {
     if (!data?.data) return { nodes: initialNodes, edges: initialEdges };
-    const transformed = transformUbacTreeToReactFlow(data.data);
+    const transformed = transformUbacTreeToReactFlow(data.data, handleEdit, handleDelete);
     
     // Make all nodes non-draggable initially
     const nodesWithDragDisabled = transformed.nodes.map(node => ({
@@ -460,7 +592,7 @@ const ReactFlowDemoInner = () => {
     }));
     
     return { nodes: nodesWithDragDisabled, edges: transformed.edges };
-  }, [data, isDragEnabled]);
+  }, [data, isDragEnabled, handleEdit, handleDelete]);
 
   const [nodes, setNodes, onNodesChange] = useNodesState(transformedNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(transformedEdges);
@@ -637,6 +769,7 @@ const ReactFlowDemoInner = () => {
             <ReactFlow
               nodes={nodes}
               edges={edges}
+              nodeTypes={nodeTypes}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
@@ -887,6 +1020,175 @@ const ReactFlowDemoInner = () => {
           <input
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
+            className="w-full border px-2 py-1"
+          />
+        </div>
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        title={`Edit ${editType}`}
+        size="small"
+        actionButtons={
+          <>
+            <button
+              className="px-3 py-1 border rounded"
+              onClick={() => setIsEditModalOpen(false)}
+              disabled={loadingEditSave}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-3 py-1 bg-brand-500 text-white rounded"
+              onClick={async () => {
+                setLoadingEditSave(true);
+                try {
+                  const token = getToken() || localStorage.getItem("token");
+                  const headers = token
+                    ? {
+                        Authorization: token,
+                        "Content-Type": "application/json",
+                      }
+                    : { "Content-Type": "application/json" };
+
+                  let resp;
+                  if (editType === "module") {
+                    resp = await fetch(
+                      `${BASE_URL}/admin/update_module`,
+                      {
+                        method: "PATCH",
+                        headers,
+                        body: JSON.stringify({
+                          module_id: Number(editId),
+                          name: editFormName,
+                        }),
+                      }
+                    );
+                  } else if (editType === "feature") {
+                    resp = await fetch(
+                      `${BASE_URL}/admin/update_feature`,
+                      {
+                        method: "PATCH",
+                        headers,
+                        body: JSON.stringify({
+                          feature_id: Number(editId),
+                          name: editFormName,
+                          module_id: editSelectedModuleId
+                            ? Number(editSelectedModuleId)
+                            : undefined,
+                        }),
+                      }
+                    );
+                  } else if (editType === "action") {
+                    resp = await fetch(
+                      `${BASE_URL}/admin/update_action`,
+                      {
+                        method: "PATCH",
+                        headers,
+                        body: JSON.stringify({
+                          action_id: Number(editId),
+                          name: editFormName,
+                          feature_id: editSelectedFeatureId
+                            ? Number(editSelectedFeatureId)
+                            : undefined,
+                        }),
+                      }
+                    );
+                  }
+
+                  if (resp && !resp.ok) {
+                    try {
+                      const errJson = await resp.json();
+                      const message =
+                        errJson.detail ||
+                        errJson.message ||
+                        JSON.stringify(errJson);
+                      toastController.error(message);
+                      throw new Error(message);
+                    } catch (parseErr) {
+                      toastController.error("Update failed");
+                      throw parseErr;
+                    }
+                  }
+
+                  await refetchUbacTree();
+                  setIsEditModalOpen(false);
+                  setEditFormName("");
+                  setEditSelectedFeatureId("");
+                  setEditSelectedModuleId("");
+                  setEditId("");
+                  setEditType("");
+                } catch (err) {
+                  console.error(err);
+                  toastController.error("Update failed");
+                } finally {
+                  setLoadingEditSave(false);
+                }
+              }}
+              disabled={
+                loadingEditSave ||
+                (editType !== "module" && !editSelectedModuleId) ||
+                (editType === "action" && !editSelectedFeatureId) ||
+                !editFormName
+              }
+            >
+              {loadingEditSave ? "Updating..." : "Update"}
+            </button>
+          </>
+        }
+      >
+        <div className="mb-3">
+          <label className="block text-sm mb-1">Type</label>
+          <input
+            value={editType}
+            disabled
+            className="w-full border px-2 py-1 bg-gray-100"
+          />
+        </div>
+
+        {(editType === "feature" || editType === "action") && (
+          <div className="mb-3">
+            <label className="block text-sm mb-1">Module</label>
+            <select
+              value={editSelectedModuleId}
+              onChange={(e) => setEditSelectedModuleId(e.target.value)}
+              className="w-full border px-2 py-1"
+            >
+              <option value="">Select module</option>
+              {modulesList.map((m) => (
+                <option key={m.module_id} value={m.module_id}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {editType === "action" && (
+          <div className="mb-3">
+            <label className="block text-sm mb-1">Feature</label>
+            <select
+              value={editSelectedFeatureId}
+              onChange={(e) => setEditSelectedFeatureId(e.target.value)}
+              className="w-full border px-2 py-1"
+            >
+              <option value="">Select feature</option>
+              {featuresList.map((f) => (
+                <option key={f.feature_id} value={f.feature_id}>
+                  {f.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="mb-4">
+          <label className="block text-sm mb-1">Name</label>
+          <input
+            value={editFormName}
+            onChange={(e) => setEditFormName(e.target.value)}
             className="w-full border px-2 py-1"
           />
         </div>
