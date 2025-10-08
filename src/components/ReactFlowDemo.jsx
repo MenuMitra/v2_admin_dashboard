@@ -32,6 +32,9 @@ const nodeColors = {
 
 // Custom node component for modules, features, and actions
 const CustomNode = ({ data }) => {
+  // Determine if delete button should be shown based on children
+  const canDelete = !data.hasChildren;
+  
   return (
     <div className="relative">
       {/* React Flow Handles for edge connections */}
@@ -56,17 +59,19 @@ const CustomNode = ({ data }) => {
             <FontAwesomeIcon icon={faPenToSquare} className="w-3.5 h-3.5" />
           </button>
           
-          {/* Delete button - error/red color */}
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              data.onDelete(data);
-            }}
-            title="Delete"
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
-          >
-            <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
-          </button>
+          {/* Delete button - error/red color - only shown if no children */}
+          {canDelete && (
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                data.onDelete(data);
+              }}
+              title={`Delete ${data.type}`}
+              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            >
+              <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
       </div>
       
@@ -117,6 +122,7 @@ const transformUbacTreeToReactFlow = (ubacData, handleEdit, handleDelete) => {
 
   ubacData.forEach((module, moduleIndex) => {
     // Add module node - positioned horizontally below root
+    const hasFeatures = module.features && Array.isArray(module.features) && module.features.length > 0;
     const moduleNode = {
       id: `module-${module.module_id}`,
       type: 'custom',
@@ -124,6 +130,7 @@ const transformUbacTreeToReactFlow = (ubacData, handleEdit, handleDelete) => {
         label: module.name, 
         type: 'module',
         id: module.module_id,
+        hasChildren: hasFeatures,
         onEdit: handleEdit,
         onDelete: handleDelete,
         nodeStyle: {
@@ -157,6 +164,7 @@ const transformUbacTreeToReactFlow = (ubacData, handleEdit, handleDelete) => {
           const featureStartX = moduleNode.position.x - featureWidth / 2;
 
           module.features.forEach((feature, featureIndex) => {
+            const hasActions = feature.actions && Array.isArray(feature.actions) && feature.actions.length > 0;
             const featureNode = {
               id: `feature-${feature.feature_id}`,
               type: 'custom',
@@ -165,6 +173,7 @@ const transformUbacTreeToReactFlow = (ubacData, handleEdit, handleDelete) => {
                 type: 'feature',
                 id: feature.feature_id,
                 moduleId: module.module_id,
+                hasChildren: hasActions,
                 onEdit: handleEdit,
                 onDelete: handleDelete,
                 nodeStyle: {
@@ -208,6 +217,7 @@ const transformUbacTreeToReactFlow = (ubacData, handleEdit, handleDelete) => {
                     id: action.action_id,
                     moduleId: module.module_id,
                     featureId: feature.feature_id,
+                    hasChildren: false, // Actions are leaf nodes, no children
                     onEdit: handleEdit,
                     onDelete: handleDelete,
                     nodeStyle: {
