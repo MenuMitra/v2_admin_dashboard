@@ -193,7 +193,6 @@ function Partners() {
         enableSort={true}
         enablePagination={true}
         enableSearch={true}
-        itemsPerPage={10}
         onBackClick={() => navigate(-1)}
         showBackButton={true}
         backButtonLabel="Back"

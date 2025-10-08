@@ -323,7 +323,6 @@ function Admins() {
           console.log("Filter change event:", value); // Debug log
           setActiveSessionFilter(value);
         }}
-        itemsPerPage={10}
         enableSelection={true}
         onReload={reloadfetchAdmins}
         onSelectionChange={handleSelectionChange}

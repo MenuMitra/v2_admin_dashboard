@@ -268,7 +268,6 @@ function SuperOwner() {
           id: owner.super_owner_id, // Normalize id field for selection
         }))}
         columns={columns}
-        itemsPerPage={10}
         enableSort={true}
         enablePagination={true}
         enableSearch={true}
