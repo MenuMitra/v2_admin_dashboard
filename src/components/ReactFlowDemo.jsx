@@ -433,96 +433,98 @@ const ReactFlowDemoInner = () => {
   const [editSelectedFeatureId, setEditSelectedFeatureId] = useState("");
   const [loadingEditSave, setLoadingEditSave] = useState(false);
 
-  // Load modules on mount
-  useEffect(() => {
-    const fetchModules = async () => {
-      try {
-        const token = getToken() || localStorage.getItem("token");
-        const headers = token
-          ? { Authorization: token, "Content-Type": "application/json" }
-          : { "Content-Type": "application/json" };
+  // Function to fetch modules
+  const fetchModules = useCallback(async () => {
+    try {
+      const token = getToken() || localStorage.getItem("token");
+      const headers = token
+        ? { Authorization: token, "Content-Type": "application/json" }
+        : { "Content-Type": "application/json" };
 
-        const res = await fetch(`${BASE_URL}/admin/get_modules`, {
-          method: "GET",
-          headers,
-        });
+      const res = await fetch(`${BASE_URL}/admin/get_modules`, {
+        method: "GET",
+        headers,
+      });
 
-        if (res.status === 401 || res.status === 403) {
-          console.warn("Unauthorized when fetching modules", res.status);
-          setModulesList([]);
-          return;
-        }
-
-        const json = await res.json();
-        const data = json.data || json || [];
-        setModulesList(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Failed to load modules", err);
+      if (res.status === 401 || res.status === 403) {
+        console.warn("Unauthorized when fetching modules", res.status);
         setModulesList([]);
+        return;
       }
-    };
 
-    fetchModules();
+      const json = await res.json();
+      const data = json.data || json || [];
+      setModulesList(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load modules", err);
+      setModulesList([]);
+    }
   }, [getToken, BASE_URL]);
 
-  // Load features when module is selected
+  // Load modules on mount
   useEffect(() => {
-    if (!selectedModuleId) {
+    fetchModules();
+  }, [fetchModules]);
+
+  // Function to fetch features for a given module
+  const fetchFeatures = useCallback(async (moduleId) => {
+    if (!moduleId) {
       setFeaturesList([]);
       return;
     }
 
-    const fetchFeatures = async () => {
-      try {
-        const token = getToken() || localStorage.getItem("token");
-        const body = {
-          outlet_id: 6473,
-          app_source: "pos_app",
-          module_id: Number(selectedModuleId),
-        };
+    try {
+      const token = getToken() || localStorage.getItem("token");
+      const body = {
+        outlet_id: 6473,
+        app_source: "pos_app",
+        module_id: Number(moduleId),
+      };
 
-        const headers = token
-          ? { Authorization: token, "Content-Type": "application/json" }
-          : { "Content-Type": "application/json" };
+      const headers = token
+        ? { Authorization: token, "Content-Type": "application/json" }
+        : { "Content-Type": "application/json" };
 
-        const query = new URLSearchParams({
-          module_id: String(body.module_id),
-          outlet_id: String(body.outlet_id),
-          app_source: body.app_source,
-        }).toString();
+      const query = new URLSearchParams({
+        module_id: String(body.module_id),
+        outlet_id: String(body.outlet_id),
+        app_source: body.app_source,
+      }).toString();
 
-        const url = `${BASE_URL}/admin/get_features?${query}`;
-        const res = await fetch(url, {
-          method: "GET",
-          headers,
-        });
+      const url = `${BASE_URL}/admin/get_features?${query}`;
+      const res = await fetch(url, {
+        method: "GET",
+        headers,
+      });
 
-        if (res.status === 401 || res.status === 403) {
-          console.warn("Unauthorized when fetching features", res.status);
-          setFeaturesList([]);
-          return;
-        }
-
-        if (!res.ok) {
-          console.error("Failed to fetch features, status:", res.status);
-          setFeaturesList([]);
-          return;
-        }
-
-        const json = await res.json();
-        const incoming = json.data || json.features || json || [];
-        const features = Array.isArray(incoming)
-          ? incoming
-          : incoming.features || [];
-        setFeaturesList(features);
-      } catch (err) {
-        console.error("Failed to load features", err);
+      if (res.status === 401 || res.status === 403) {
+        console.warn("Unauthorized when fetching features", res.status);
         setFeaturesList([]);
+        return;
       }
-    };
 
-    fetchFeatures();
-  }, [selectedModuleId, getToken, BASE_URL]);
+      if (!res.ok) {
+        console.error("Failed to fetch features, status:", res.status);
+        setFeaturesList([]);
+        return;
+      }
+
+      const json = await res.json();
+      const incoming = json.data || json.features || json || [];
+      const features = Array.isArray(incoming)
+        ? incoming
+        : incoming.features || [];
+      setFeaturesList(features);
+    } catch (err) {
+      console.error("Failed to load features", err);
+      setFeaturesList([]);
+    }
+  }, [getToken, BASE_URL]);
+
+  // Load features when module is selected
+  useEffect(() => {
+    fetchFeatures(selectedModuleId);
+  }, [selectedModuleId, fetchFeatures]);
 
   // Edit and delete handlers
   const handleEdit = useCallback((nodeData) => {
@@ -567,13 +569,25 @@ const ReactFlowDemoInner = () => {
         return;
       }
       
+      // Refetch UBAC tree
       await refetchUbacTree();
+      
+      // Refetch modules list if a module was deleted
+      if (nodeData.type === 'module') {
+        await fetchModules();
+      }
+      
+      // Refetch features list if a feature was deleted and module is known
+      if (nodeData.type === 'feature' && nodeData.moduleId) {
+        await fetchFeatures(nodeData.moduleId);
+      }
+      
       toastController.success("Deleted successfully");
     } catch (err) {
       console.error(err);
       toastController.error("Delete failed");
     }
-  }, [getToken, BASE_URL, refetchUbacTree]);
+  }, [getToken, BASE_URL, refetchUbacTree, fetchModules, fetchFeatures]);
 
   // Define custom node types
   const nodeTypes = useMemo(() => ({
@@ -942,7 +956,19 @@ const ReactFlowDemoInner = () => {
                     }
                   }
 
+                  // Refetch UBAC tree
                   await refetchUbacTree();
+                  
+                  // Refetch modules list if a module was created
+                  if (type === "module") {
+                    await fetchModules();
+                  }
+                  
+                  // Refetch features list if a feature was created and module is selected
+                  if (type === "feature" && selectedModuleId) {
+                    await fetchFeatures(selectedModuleId);
+                  }
+                  
                   setIsModalOpen(false);
                   setFormName("");
                   setSelectedFeatureId("");
@@ -1113,7 +1139,19 @@ const ReactFlowDemoInner = () => {
                     }
                   }
 
+                  // Refetch UBAC tree
                   await refetchUbacTree();
+                  
+                  // Refetch modules list if a module was updated
+                  if (editType === "module") {
+                    await fetchModules();
+                  }
+                  
+                  // Refetch features list if a feature was updated and module is selected
+                  if (editType === "feature" && editSelectedModuleId) {
+                    await fetchFeatures(editSelectedModuleId);
+                  }
+                  
                   setIsEditModalOpen(false);
                   setEditFormName("");
                   setEditSelectedFeatureId("");
