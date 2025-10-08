@@ -167,7 +167,7 @@ const UBACTree = () => {
         </div>`;
       },
       nodeStyle: 'box-shadow: -3px 6px 8px -5px rgba(0,0,0,0.31)',
-      canvasStyle: 'border: 1px solid black;background: #f6f6f6;',
+      canvasStyle: 'background: #fff;',
     };
 
     // Initialize and render the tree
