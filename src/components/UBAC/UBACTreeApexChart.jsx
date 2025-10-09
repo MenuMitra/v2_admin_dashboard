@@ -34,122 +34,135 @@ const UBACTree = () => {
   const [editLoadingSave, setEditLoadingSave] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Transform API data to ApexTree format
+  const transformUbacDataToTree = (apiResponse) => {
+    if (!apiResponse?.data || !Array.isArray(apiResponse.data)) {
+      return null;
+    }
+
+    // Root node
+    const rootNode = {
+      id: 'UBAC_Root',
+      data: { 
+        name: 'UBAC System',
+        stats: `${apiResponse.total_modules || 0} Modules | ${apiResponse.total_features || 0} Features | ${apiResponse.total_actions || 0} Actions`
+      },
+      options: { nodeBGColor: '#94ddff' }, // Blue for root
+      children: []
+    };
+
+    // Transform each module
+    apiResponse.data.forEach(module => {
+      const moduleNode = {
+        id: `module_${module.module_id}`,
+        data: { name: module.name },
+        options: { nodeBGColor: '#ffc7c2' }, // Red for modules
+        children: []
+      };
+
+      // Transform features in this module
+      if (module.features && Array.isArray(module.features) && module.features.length > 0) {
+        module.features.forEach(feature => {
+          const featureNode = {
+            id: `feature_${feature.feature_id}`,
+            data: { name: feature.name },
+            options: { nodeBGColor: '#e3c2ff' }, // Purple for features
+            children: []
+          };
+
+          // Transform actions in this feature
+          if (feature.actions && Array.isArray(feature.actions) && feature.actions.length > 0) {
+            feature.actions.forEach(action => {
+              const actionNode = {
+                id: `action_${action.action_id}`,
+                data: { name: action.name },
+                options: { nodeBGColor: '#d2edc5' }, // Green for actions
+              };
+              featureNode.children.push(actionNode);
+            });
+          }
+
+          moduleNode.children.push(featureNode);
+        });
+      }
+
+      rootNode.children.push(moduleNode);
+    });
+
+    return rootNode;
+  };
+
+  // Filter tree data based on search term
+  const filterTreeData = (apiResponse, searchTerm) => {
+    if (!searchTerm || !apiResponse?.data) {
+      return apiResponse;
+    }
+
+    const filteredModules = apiResponse.data.filter(module => {
+      // Check if module name matches
+      if (module.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return true;
+      }
+
+      // Check if any feature matches
+      if (module.features && Array.isArray(module.features)) {
+        const filteredFeatures = module.features.filter(feature => {
+          // Check if feature name matches
+          if (feature.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+            return true;
+          }
+
+          // Check if any action matches
+          if (feature.actions && Array.isArray(feature.actions)) {
+            const filteredActions = feature.actions.filter(action =>
+              action.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            if (filteredActions.length > 0) {
+              // Update feature with filtered actions
+              feature.actions = filteredActions;
+              return true;
+            }
+          }
+
+          return false;
+        });
+
+        if (filteredFeatures.length > 0) {
+          // Update module with filtered features
+          module.features = filteredFeatures;
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+    return {
+      ...apiResponse,
+      data: filteredModules
+    };
+  };
+
   // Initialize ApexTree
   useEffect(() => {
     const container = treeContainerRef.current;
-    if (!container) return;
+    if (!container || !data?.data || isLoading) return;
 
     // Clear any existing content
     container.innerHTML = '';
 
-    // Sample data from the HTML file for testing
-    const sampleData = {
-      id: 'Lucas_Alex',
-      data: {
-        name: 'Lucas Alex',
-      },
-      options: {
-        nodeBGColor: '#94ddff',
-      },
-      children: [
-        {
-          id: 'Alex_Lee',
-          data: {
-            name: 'Alex Lee',
-          },
-          options: {
-            nodeBGColor: '#ffc7c2',
-          },
-          children: [
-            {
-              id: 'Mia_Patel',
-              data: {
-                name: 'Mia Patel',
-              },
-              options: {
-                nodeBGColor: '#e3c2ff',
-              },
-            },
-            {
-              id: 'Ryan_Clark',
-              data: {
-                name: 'Ryan Clark',
-              },
-              options: {
-                nodeBGColor: '#e3c2ff',
-              },
-            },
-            {
-              id: 'Zoe_Wang',
-              data: {
-                name: 'Zoe Wang',
-              },
-              options: {
-                nodeBGColor: '#e3c2ff',
-              },
-            },
-          ],
-        },
-        {
-          id: 'Leo_Kim',
-          data: {
-            name: 'Leo Kim',
-          },
-          options: {
-            nodeBGColor: '#ffc7c2',
-          },
-          children: [
-            {
-              id: 'Ava_Jones',
-              data: {
-                name: 'Ava Jones',
-              },
-              options: {
-                nodeBGColor: '#d2edc5',
-              },
-            },
-            {
-              id: 'Maya_Gupta',
-              data: {
-                name: 'Maya Gupta',
-              },
-              options: {
-                nodeBGColor: '#d2edc5',
-              },
-            },
-          ],
-        },
-        {
-          id: 'Lily_Chen',
-          data: {
-            name: 'Lily Chen',
-          },
-          options: {
-            nodeBGColor: '#ffc7c2',
-          },
-          children: [
-            {
-              id: 'Jake_Scott',
-              data: {
-                name: 'Jake Scott',
-              },
-              options: {
-                nodeBGColor: '#e9f08f',
-              },
-            },
-          ],
-        },
-        {
-          id: 'Max_Ruiz',
-          data: {
-            name: 'Max Ruiz',
-          },
-          options: {
-            nodeBGColor: '#ffc7c2',
-          },
-        },
-      ],
-    };
+    // Apply search filter if search term exists
+    const filteredData = searchTerm 
+      ? filterTreeData(data, searchTerm)
+      : data;
+
+    // Transform API data to ApexTree format
+    const treeData = transformUbacDataToTree(filteredData);
+    
+    if (!treeData) {
+      console.warn('No tree data available to render');
+      return;
+    }
 
     // ApexTree configuration matching the HTML example
     const options = {
@@ -168,8 +181,10 @@ const UBACTree = () => {
       zoom: false,
       pan: false,
       nodeTemplate: (content) => {
-        return `<div style='display: flex;flex-direction: row;justify-content: space-between;align-items: center;height: 100%; padding: 0 7px;'>
+        const stats = content.stats ? `<div style="font-size: 10px; color: #666; margin-top: 2px;">${content.stats}</div>` : '';
+        return `<div style='display: flex;flex-direction: column;justify-content: center;align-items: center;height: 100%; padding: 0 7px; text-align: center;'>
           <div style="font-weight: bold; font-family: Arial; font-size: 14px">${content.name}</div>
+          ${stats}
         </div>`;
       },
       nodeStyle: 'box-shadow: -3px 6px 8px -5px rgba(0,0,0,0.31)',
@@ -179,7 +194,7 @@ const UBACTree = () => {
     // Initialize and render the tree
     try {
       const tree = new ApexTree(container, options);
-      tree.render(sampleData);
+      tree.render(treeData);
       
       // Alternative: Manually fit content after rendering
       setTimeout(() => {
@@ -197,7 +212,7 @@ const UBACTree = () => {
         container.innerHTML = '';
       }
     };
-  }, []); // Empty dependency array since sampleData is now inside useEffect
+  }, [data, searchTerm, isLoading]); // Updated dependencies
 
   // load modules on mount
   useEffect(() => {
@@ -418,11 +433,32 @@ const UBACTree = () => {
 
         {/* ApexTree Container */}
         <div className="px-6 pb-6">
-          <div 
-            id="svg-tree" 
-            ref={treeContainerRef}
-            style={{ margin: '0 auto', minHeight: '400px' }}
-          />
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex flex-col items-center gap-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+                <p className="text-sm text-gray-600">Loading UBAC tree...</p>
+              </div>
+            </div>
+          ) : !data?.data || data.data.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="text-center">
+                <div className="text-gray-400 mb-2">
+                  <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-sm font-medium text-gray-900 mb-1">No UBAC data available</h3>
+                <p className="text-sm text-gray-500">Create modules, features, and actions to see the tree structure.</p>
+              </div>
+            </div>
+          ) : (
+            <div 
+              id="svg-tree" 
+              ref={treeContainerRef}
+              style={{ margin: '0 auto', minHeight: '400px' }}
+            />
+          )}
         </div>
       </div>
 
