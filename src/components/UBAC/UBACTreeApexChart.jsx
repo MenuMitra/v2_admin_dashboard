@@ -26,7 +26,7 @@ const UBACTree = () => {
   const [loadingSave, setLoadingSave] = useState(false);
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editType] = useState("module"); // module | feature | action
+  const [editType, setEditType] = useState("module"); // module | feature | action
   const [editId, setEditId] = useState(null);
   const [editFormName, setEditFormName] = useState("");
   const [editSelectedModuleId, setEditSelectedModuleId] = useState("");
@@ -128,7 +128,11 @@ const UBACTree = () => {
       id: 'UBAC_Root',
       data: { 
         name: 'UBAC System',
-        stats: `${apiResponse.total_modules || 0} Modules | ${apiResponse.total_features || 0} Features | ${apiResponse.total_actions || 0} Actions`
+        stats: `${apiResponse.total_modules || 0} Modules | ${apiResponse.total_features || 0} Features | ${apiResponse.total_actions || 0} Actions`,
+        nodeType: 'root',
+        originalId: 'root',
+        hasChildren: true,
+        childrenCount: apiResponse.data.length
       },
       options: { nodeBGColor: '#94ddff' }, // Blue for root
       children: []
@@ -136,29 +140,49 @@ const UBACTree = () => {
 
     // Transform each module
     apiResponse.data.forEach(module => {
+      const hasFeatures = module.features && Array.isArray(module.features) && module.features.length > 0;
       const moduleNode = {
         id: `module_${module.module_id}`,
-        data: { name: module.name },
+        data: { 
+          name: module.name,
+          nodeType: 'module',
+          originalId: module.module_id,
+          hasChildren: hasFeatures,
+          childrenCount: hasFeatures ? module.features.length : 0
+        },
         options: { nodeBGColor: '#ffc7c2' }, // Red for modules
         children: []
       };
 
       // Transform features in this module
-      if (module.features && Array.isArray(module.features) && module.features.length > 0) {
+      if (hasFeatures) {
         module.features.forEach(feature => {
+          const hasActions = feature.actions && Array.isArray(feature.actions) && feature.actions.length > 0;
           const featureNode = {
             id: `feature_${feature.feature_id}`,
-            data: { name: feature.name },
+            data: { 
+              name: feature.name,
+              nodeType: 'feature',
+              originalId: feature.feature_id,
+              hasChildren: hasActions,
+              childrenCount: hasActions ? feature.actions.length : 0
+            },
             options: { nodeBGColor: '#e3c2ff' }, // Purple for features
             children: []
           };
 
           // Transform actions in this feature
-          if (feature.actions && Array.isArray(feature.actions) && feature.actions.length > 0) {
+          if (hasActions) {
             feature.actions.forEach(action => {
               const actionNode = {
                 id: `action_${action.action_id}`,
-                data: { name: action.name },
+                data: { 
+                  name: action.name,
+                  nodeType: 'action',
+                  originalId: action.action_id,
+                  hasChildren: false,
+                  childrenCount: 0
+                },
                 options: { nodeBGColor: '#d2edc5' }, // Green for actions
               };
               featureNode.children.push(actionNode);
@@ -174,6 +198,103 @@ const UBACTree = () => {
 
     return rootNode;
   };
+
+  // Handle Edit Node Button Click
+  const handleEditNode = useCallback((nodeId, nodeType) => {
+    if (nodeType === 'module') {
+      const module = data.data.find(m => m.module_id === Number(nodeId));
+      setEditType('module');
+      setEditId(module.module_id);
+      setEditFormName(module.name);
+      setIsEditModalOpen(true);
+    } else if (nodeType === 'feature') {
+      // Find feature in modules
+      let feature = null;
+      let moduleId = null;
+      for (const module of data.data) {
+        const f = module.features?.find(f => f.feature_id === Number(nodeId));
+        if (f) {
+          feature = f;
+          moduleId = module.module_id;
+          break;
+        }
+      }
+      setEditType('feature');
+      setEditId(feature.feature_id);
+      setEditFormName(feature.name);
+      setEditSelectedModuleId(moduleId);
+      setIsEditModalOpen(true);
+    } else if (nodeType === 'action') {
+      // Find action in features
+      let action = null;
+      let featureId = null;
+      for (const module of data.data) {
+        for (const feature of module.features || []) {
+          const a = feature.actions?.find(a => a.action_id === Number(nodeId));
+          if (a) {
+            action = a;
+            featureId = feature.feature_id;
+            break;
+          }
+        }
+        if (action) break;
+      }
+      setEditType('action');
+      setEditId(action.action_id);
+      setEditFormName(action.name);
+      setEditSelectedFeatureId(featureId);
+      setIsEditModalOpen(true);
+    }
+  }, [data]);
+
+  // Handle Delete Node Button Click
+  const handleDeleteNode = useCallback(async (nodeId, nodeType) => {
+    if (!confirm(`Delete this ${nodeType}? This cannot be undone.`)) return;
+    
+    try {
+      const token = getToken() || localStorage.getItem("token");
+      const headers = token
+        ? { Authorization: token, "Content-Type": "application/json" }
+        : { "Content-Type": "application/json" };
+      
+      let resp;
+      if (nodeType === 'module') {
+        resp = await fetch(`${BASE_URL}/admin/delete_modules`, {
+          method: "DELETE",
+          headers,
+          body: JSON.stringify({ module_ids: [Number(nodeId)] }),
+        });
+      } else if (nodeType === 'feature') {
+        resp = await fetch(`${BASE_URL}/admin/delete_features`, {
+          method: "DELETE",
+          headers,
+          body: JSON.stringify({
+            feature_ids: [Number(nodeId)],
+            user_id: String(2),
+            app_source: "admin_app",
+          }),
+        });
+      } else if (nodeType === 'action') {
+        resp = await fetch(`${BASE_URL}/admin/delete_actions`, {
+          method: "DELETE",
+          headers,
+          body: JSON.stringify({ action_ids: [Number(nodeId)] }),
+        });
+      }
+      
+      if (!resp.ok) {
+        const errJson = await resp.json().catch(() => ({}));
+        toastController.error(errJson.detail || errJson.message || "Delete failed");
+        return;
+      }
+      
+      await refetchUbacTree();
+      toastController.success("Deleted successfully");
+    } catch (err) {
+      console.error(err);
+      toastController.error("Delete failed");
+    }
+  }, [BASE_URL, getToken, refetchUbacTree]);
 
   // Filter tree data based on search term
   const filterTreeData = (apiResponse, searchTerm) => {
@@ -264,20 +385,70 @@ const UBACTree = () => {
       zoom: false,
       pan: false,
       nodeTemplate: (content) => {
-        const stats = content.stats ? `<div style="font-size: 10px; color: #666; margin-top: 2px;">${content.stats}</div>` : '';
-        return `<div style='display: flex;flex-direction: column;justify-content: center;align-items: center;height: 100%; padding: 0 7px; text-align: center;'>
-          <div style="font-weight: bold; font-family: Arial; font-size: 14px">${content.name}</div>
-          ${stats}
-        </div>`;
+        const showDelete = !content.hasChildren;
+        
+        // Calculate dynamic width based on text length
+        // Average character width ~8px, add padding for buttons and spacing
+        const textLength = content.name.length;
+        const baseWidth = Math.max(150, Math.min(400, textLength * 8 + 100));
+        
+        return `
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:8px;width:${baseWidth}px;min-width:150px;max-width:400px;">
+            <div style="font-weight:bold;font-family:Arial;font-size:14px;text-align:center;word-wrap:break-word;margin-bottom:6px;">${content.name}</div>
+            ${content.stats ? `<div style="font-size:10px;color:#666;margin-bottom:6px;text-align:center;">${content.stats}</div>` : ''}
+            <div style="display:flex;gap:8px;margin-top:4px;justify-content:center;">
+              <button 
+                data-node-id="${content.originalId}"
+                data-node-type="${content.nodeType}"
+                data-action="edit"
+                style="width:32px;height:32px;background:#f59e0b;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;transition:opacity 0.2s;"
+                class="tree-node-btn edit-btn"
+                title="Edit ${content.nodeType}">
+                ✏️
+              </button>
+              ${showDelete ? `
+                <button 
+                  data-node-id="${content.originalId}"
+                  data-node-type="${content.nodeType}"
+                  data-action="delete"
+                  style="width:32px;height:32px;background:#ef4444;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;transition:opacity 0.2s;"
+                  class="tree-node-btn delete-btn"
+                  title="Delete ${content.nodeType}">
+                  🗑️
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
       },
       nodeStyle: 'box-shadow: -3px 6px 8px -5px rgba(0,0,0,0.31)',
       canvasStyle: 'background: #fff;',
+    };
+
+    // Add event delegation for button clicks
+    const handleNodeButtonClick = (e) => {
+      const button = e.target.closest('[data-action]');
+      if (!button) return;
+      
+      e.stopPropagation();
+      
+      const nodeId = button.dataset.nodeId;
+      const nodeType = button.dataset.nodeType;
+      const action = button.dataset.action;
+      
+      if (action === 'edit') {
+        handleEditNode(nodeId, nodeType);
+      } else if (action === 'delete') {
+        handleDeleteNode(nodeId, nodeType);
+      }
     };
 
     // Initialize and render the tree
     try {
       const tree = new ApexTree(container, options);
       tree.render(treeData);
+      
+      container.addEventListener('click', handleNodeButtonClick);
       
       // Alternative: Manually fit content after rendering
       setTimeout(() => {
@@ -292,10 +463,11 @@ const UBACTree = () => {
     // Cleanup function
     return () => {
       if (container) {
+        container.removeEventListener('click', handleNodeButtonClick);
         container.innerHTML = '';
       }
     };
-  }, [data, searchTerm, isLoading]); // Updated dependencies
+  }, [data, searchTerm, isLoading, handleEditNode, handleDeleteNode]); // Updated dependencies
 
   // load modules on mount
   useEffect(() => {
