@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faPlus, faRotate, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
@@ -33,6 +33,89 @@ const UBACTree = () => {
   const [editSelectedFeatureId, setEditSelectedFeatureId] = useState("");
   const [editLoadingSave, setEditLoadingSave] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Fetch modules function (extracted for reusability)
+  const fetchModules = useCallback(async () => {
+    try {
+      const token = getToken() || localStorage.getItem("token");
+      const headers = token
+        ? { Authorization: token, "Content-Type": "application/json" }
+        : { "Content-Type": "application/json" };
+
+      const res = await fetch(`${BASE_URL}/admin/get_modules`, {
+        method: "GET",
+        headers,
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        console.warn("Unauthorized when fetching modules", res.status);
+        setModulesList([]);
+        return;
+      }
+
+      const json = await res.json();
+      const data = json.data || json || [];
+      setModulesList(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Failed to load modules", err);
+      setModulesList([]);
+    }
+  }, [BASE_URL, getToken]);
+
+  // Fetch features function (extracted for reusability)
+  const fetchFeatures = useCallback(async (moduleId) => {
+    if (!moduleId) {
+      setFeaturesList([]);
+      return;
+    }
+
+    try {
+      const token = getToken() || localStorage.getItem("token");
+      const body = {
+        outlet_id: 6473,
+        app_source: "pos_app",
+        module_id: Number(moduleId),
+      };
+
+      const headers = token
+        ? { Authorization: token, "Content-Type": "application/json" }
+        : { "Content-Type": "application/json" };
+
+      const query = new URLSearchParams({
+        module_id: String(body.module_id),
+        outlet_id: String(body.outlet_id),
+        app_source: body.app_source,
+      }).toString();
+
+      const url = `${BASE_URL}/admin/get_features?${query}`;
+      const res = await fetch(url, {
+        method: "GET",
+        headers,
+      });
+
+      if (res.status === 401 || res.status === 403) {
+        console.warn("Unauthorized when fetching features", res.status);
+        setFeaturesList([]);
+        return;
+      }
+
+      if (!res.ok) {
+        console.error("Failed to fetch features, status:", res.status);
+        setFeaturesList([]);
+        return;
+      }
+
+      const json = await res.json();
+      const incoming = json.data || json.features || json || [];
+      const features = Array.isArray(incoming)
+        ? incoming
+        : incoming.features || [];
+      setFeaturesList(features);
+    } catch (err) {
+      console.error("Failed to load features", err);
+      setFeaturesList([]);
+    }
+  }, [BASE_URL, getToken]);
 
   // Transform API data to ApexTree format
   const transformUbacDataToTree = (apiResponse) => {
@@ -216,108 +299,13 @@ const UBACTree = () => {
 
   // load modules on mount
   useEffect(() => {
-    const fetchModules = async () => {
-      try {
-        const token = getToken() || localStorage.getItem("token");
-        const headers = token
-          ? { Authorization: token, "Content-Type": "application/json" }
-          : { "Content-Type": "application/json" };
-
-        // DEBUG: show token and headers for troubleshooting auth
-        console.log("UBAC: fetchModules getToken() =>", getToken());
-        console.log("UBAC: fetchModules headers =>", headers);
-
-        const res = await fetch(`${BASE_URL}/admin/get_modules`, {
-          method: "GET",
-          headers,
-        });
-
-        if (res.status === 401 || res.status === 403) {
-          console.warn("Unauthorized when fetching modules", res.status);
-          setModulesList([]);
-          return;
-        }
-
-        const json = await res.json();
-        const data = json.data || json || [];
-        setModulesList(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("Failed to load modules", err);
-        setModulesList([]);
-      }
-    };
-
     fetchModules();
-  }, [BASE_URL, getToken]);
+  }, [fetchModules]);
 
   // load features when module is selected
   useEffect(() => {
-    if (!selectedModuleId) {
-      setFeaturesList([]);
-      return;
-    }
-
-    const fetchFeatures = async () => {
-      try {
-        const token = getToken() || localStorage.getItem("token");
-        const body = {
-          outlet_id: 6473,
-          app_source: "pos_app",
-          module_id: Number(selectedModuleId),
-        };
-
-        const headers = token
-          ? { Authorization: token, "Content-Type": "application/json" }
-          : { "Content-Type": "application/json" };
-
-        // DEBUG: show token and headers for troubleshooting auth
-        console.log("UBAC: fetchFeatures getToken() =>", getToken());
-        console.log("UBAC: fetchFeatures headers =>", headers);
-
-        const query = new URLSearchParams({
-          module_id: String(body.module_id),
-          outlet_id: String(body.outlet_id),
-          app_source: body.app_source,
-        }).toString();
-
-        // include query string so API receives module_id/outlet_id/app_source
-        const url = `${BASE_URL}/admin/get_features?${query}`;
-        console.log("UBAC: fetchFeatures url =>", url);
-
-        const res = await fetch(url, {
-          method: "GET",
-          headers,
-        });
-
-        console.log("UBAC: fetchFeatures status =>", res.status);
-
-        if (res.status === 401 || res.status === 403) {
-          console.warn("Unauthorized when fetching features", res.status);
-          setFeaturesList([]);
-          return;
-        }
-
-        if (!res.ok) {
-          console.error("Failed to fetch features, status:", res.status);
-          setFeaturesList([]);
-          return;
-        }
-
-        const json = await res.json();
-        // API may return features in different shapes: { data: [...] } or { features: [...] } or { ..., features: [...] }
-        const incoming = json.data || json.features || json || [];
-        const features = Array.isArray(incoming)
-          ? incoming
-          : incoming.features || [];
-        setFeaturesList(features);
-      } catch (err) {
-        console.error("Failed to load features", err);
-        setFeaturesList([]);
-      }
-    };
-
-    fetchFeatures();
-  }, [selectedModuleId, BASE_URL, getToken]);
+    fetchFeatures(selectedModuleId);
+  }, [selectedModuleId, fetchFeatures]);
 
   const items = [
     { label: "Home", path: "/home" },
@@ -500,6 +488,11 @@ const UBACTree = () => {
                         body: JSON.stringify({ name: formName }),
                       }
                     );
+                    
+                    // Refetch modules list after creating a module
+                    if (resp && resp.ok) {
+                      await fetchModules();
+                    }
                   } else if (type === "feature") {
                     resp = await fetch(
                       `${BASE_URL}/admin/create_feature`,
@@ -512,6 +505,11 @@ const UBACTree = () => {
                         }),
                       }
                     );
+                    
+                    // Refetch features list after creating a feature
+                    if (resp && resp.ok && selectedModuleId) {
+                      await fetchFeatures(selectedModuleId);
+                    }
                   } else if (type === "action") {
                     resp = await fetch(
                       `${BASE_URL}/admin/create_action`,
