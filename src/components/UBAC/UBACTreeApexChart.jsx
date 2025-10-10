@@ -373,19 +373,20 @@ const UBACTree = () => {
       contentKey: 'data',
       width: "100%",
       height: 'auto',
-      nodeWidth: 250,
+      nodeWidth: 200,
       nodeHeight: 100,
       childrenSpacing: 70,
       siblingSpacing: 30,
       direction: 'left',
       // Auto-fit content settings
       autoFit: true,
-      padding: 20, // Add padding around the content
+      padding: 5, // Add padding around the content
       // Disable manual zoom and pan
       zoom: false,
       pan: false,
       nodeTemplate: (content) => {
         const showDelete = !content.hasChildren;
+        const showEdit = content.nodeType !== 'root'; // Hide edit button for root node
         
         // Calculate dynamic width based on text length
         // Average character width ~8px, add padding for buttons and spacing
@@ -397,17 +398,19 @@ const UBACTree = () => {
             <div style="font-weight:bold;font-family:Arial;font-size:14px;text-align:center;word-wrap:break-word;margin-bottom:6px;">${content.name}</div>
             ${content.stats ? `<div style="font-size:10px;color:#666;margin-bottom:6px;text-align:center;">${content.stats}</div>` : ''}
             <div style="display:flex;gap:8px;margin-top:4px;justify-content:center;">
-              <button 
-                data-node-id="${content.originalId}"
-                data-node-type="${content.nodeType}"
-                data-action="edit"
-                style="width:32px;height:32px;background:#f59e0b;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;transition:opacity 0.2s;"
-                class="tree-node-btn edit-btn"
-                title="Edit ${content.nodeType}">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                  <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354L12.427 2.487ZM11.189 6.25 9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286Z"/>
-                </svg>
-              </button>
+              ${showEdit ? `
+                <button 
+                  data-node-id="${content.originalId}"
+                  data-node-type="${content.nodeType}"
+                  data-action="edit"
+                  style="width:32px;height:32px;background:#f59e0b;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;transition:opacity 0.2s;"
+                  class="tree-node-btn edit-btn"
+                  title="Edit ${content.nodeType}">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354L12.427 2.487ZM11.189 6.25 9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286Z"/>
+                  </svg>
+                </button>
+              ` : ''}
               ${showDelete ? `
                 <button 
                   data-node-id="${content.originalId}"
