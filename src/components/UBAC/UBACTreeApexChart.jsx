@@ -34,6 +34,14 @@ const UBACTree = () => {
   const [editLoadingSave, setEditLoadingSave] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Utility function to clean field names
+  const cleanFieldName = (name) => {
+    if (!name) return '';
+    return name
+      .replace(/_/g, ' ')  // Replace underscores with spaces
+      .toUpperCase();     // Convert to uppercase
+  };
+
   // Fetch modules function (extracted for reusability)
   const fetchModules = useCallback(async () => {
     try {
@@ -127,7 +135,7 @@ const UBACTree = () => {
     const rootNode = {
       id: 'UBAC_Root',
       data: { 
-        name: 'UBAC System',
+        name: 'UBAC SYSTEM',
         stats: `${apiResponse.total_modules || 0} Modules | ${apiResponse.total_features || 0} Features | ${apiResponse.total_actions || 0} Actions`,
         nodeType: 'root',
         originalId: 'root',
@@ -144,7 +152,7 @@ const UBACTree = () => {
       const moduleNode = {
         id: `module_${module.module_id}`,
         data: { 
-          name: module.name,
+          name: cleanFieldName(module.name),
           nodeType: 'module',
           originalId: module.module_id,
           hasChildren: hasFeatures,
@@ -161,7 +169,7 @@ const UBACTree = () => {
           const featureNode = {
             id: `feature_${feature.feature_id}`,
             data: { 
-              name: feature.name,
+              name: cleanFieldName(feature.name),
               nodeType: 'feature',
               originalId: feature.feature_id,
               hasChildren: hasActions,
@@ -177,7 +185,7 @@ const UBACTree = () => {
               const actionNode = {
                 id: `action_${action.action_id}`,
                 data: { 
-                  name: action.name,
+                  name: cleanFieldName(action.name),
                   nodeType: 'action',
                   originalId: action.action_id,
                   hasChildren: false,
