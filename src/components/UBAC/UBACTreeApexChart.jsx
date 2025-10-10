@@ -42,6 +42,24 @@ const UBACTree = () => {
       .toUpperCase();     // Convert to uppercase
   };
 
+  // Color assignment function for module lineage
+  const getNodeColor = (moduleIndex, nodeType) => {
+    const colorPalette = [
+      { module: '#FF6B6B', feature: '#FF8787', action: '#FFA5A5' },  // Coral Red
+      { module: '#4ECDC4', feature: '#6FD9D1', action: '#90E5DE' },  // Turquoise
+      { module: '#95E1D3', feature: '#AAE8DC', action: '#BFEFE5' },  // Mint Green
+      { module: '#F38181', feature: '#F59999', action: '#F7B1B1' },  // Pastel Red
+      { module: '#AA96DA', feature: '#BBA8E2', action: '#CCBAEA' },  // Lavender
+      { module: '#FCBAD3', feature: '#FDC8DD', action: '#FED6E7' },  // Pink
+      { module: '#FFD93D', feature: '#FFE066', action: '#FFE78F' },  // Yellow
+      { module: '#A8D8EA', feature: '#B9E0EF', action: '#CAE8F4' },  // Sky Blue
+      { module: '#FFCF9F', feature: '#FFD9B3', action: '#FFE3C7' },  // Peach
+    ];
+    
+    const paletteIndex = moduleIndex % colorPalette.length;
+    return colorPalette[paletteIndex][nodeType];
+  };
+
   // Fetch modules function (extracted for reusability)
   const fetchModules = useCallback(async () => {
     try {
@@ -147,7 +165,7 @@ const UBACTree = () => {
     };
 
     // Transform each module
-    apiResponse.data.forEach(module => {
+    apiResponse.data.forEach((module, moduleIndex) => {
       const hasFeatures = module.features && Array.isArray(module.features) && module.features.length > 0;
       const moduleNode = {
         id: `module_${module.module_id}`,
@@ -158,7 +176,7 @@ const UBACTree = () => {
           hasChildren: hasFeatures,
           childrenCount: hasFeatures ? module.features.length : 0
         },
-        options: { nodeBGColor: '#ffc7c2' }, // Red for modules
+        options: { nodeBGColor: getNodeColor(moduleIndex, 'module') },
         children: []
       };
 
@@ -175,7 +193,7 @@ const UBACTree = () => {
               hasChildren: hasActions,
               childrenCount: hasActions ? feature.actions.length : 0
             },
-            options: { nodeBGColor: '#e3c2ff' }, // Purple for features
+            options: { nodeBGColor: getNodeColor(moduleIndex, 'feature') },
             children: []
           };
 
@@ -191,7 +209,7 @@ const UBACTree = () => {
                   hasChildren: false,
                   childrenCount: 0
                 },
-                options: { nodeBGColor: '#d2edc5' }, // Green for actions
+                options: { nodeBGColor: getNodeColor(moduleIndex, 'action') },
               };
               featureNode.children.push(actionNode);
             });
