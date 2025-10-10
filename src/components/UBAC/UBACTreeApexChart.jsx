@@ -373,8 +373,8 @@ const UBACTree = () => {
       contentKey: 'data',
       width: "100%",
       height: 'auto',
-      nodeWidth: 150,
-      nodeHeight: 70,
+      nodeWidth: 250,
+      nodeHeight: 100,
       childrenSpacing: 70,
       siblingSpacing: 30,
       direction: 'left',
@@ -404,7 +404,9 @@ const UBACTree = () => {
                 style="width:32px;height:32px;background:#f59e0b;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;transition:opacity 0.2s;"
                 class="tree-node-btn edit-btn"
                 title="Edit ${content.nodeType}">
-                ✏️
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M11.013 1.427a1.75 1.75 0 0 1 2.474 0l1.086 1.086a1.75 1.75 0 0 1 0 2.474l-8.61 8.61c-.21.21-.47.364-.756.445l-3.251.93a.75.75 0 0 1-.927-.928l.929-3.25c.081-.286.235-.547.445-.758l8.61-8.61Zm1.414 1.06a.25.25 0 0 0-.354 0L10.811 3.75l1.439 1.44 1.263-1.263a.25.25 0 0 0 0-.354L12.427 2.487ZM11.189 6.25 9.75 4.81l-6.286 6.287a.25.25 0 0 0-.064.108l-.558 1.953 1.953-.558a.249.249 0 0 0 .108-.064l6.286-6.286Z"/>
+                </svg>
               </button>
               ${showDelete ? `
                 <button 
@@ -414,7 +416,9 @@ const UBACTree = () => {
                   style="width:32px;height:32px;background:#ef4444;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:16px;transition:opacity 0.2s;"
                   class="tree-node-btn delete-btn"
                   title="Delete ${content.nodeType}">
-                  🗑️
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+                  </svg>
                 </button>
               ` : ''}
             </div>
