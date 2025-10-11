@@ -76,7 +76,7 @@ function EditPartner() {
       }
 
       const response = await axios.get(
-        "https://men4u.xyz/v2/common/get_list/outlets",
+        `${BASE_URL}/common/get_list/outlets`,
         {
           headers: {
             Authorization: token,

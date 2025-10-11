@@ -204,9 +204,7 @@ function App() {
 
             {/* Stats Routes */}
             <Route path="/stats" element={<Stats />} />
-            <Route path="/ubac_tree" element={<UBACTree />} />
-            <Route path="/ubac_tree_apexchart" element={<UBACTreeApexChart />} />
-            <Route path="/db-tables-stats" element={<DBTablesStats />} />
+            <Route path="/ubac_tree" element={<UBACTreeApexChart />} />
             <Route path="/combined-stats" element={<CombinedStats />} />
             
             {/* React Flow Demo Route */}

@@ -471,13 +471,15 @@ const UBACTree = () => {
         } else if (content.moduleIndex !== undefined) {
           background = getNodeColor(content.moduleIndex, content.nodeType);
           
+          // ALL non-root nodes get white text
+          textColor = '#FFFFFF';  // White text for modules, features, and actions
+          
           // Module nodes get special styling
           if (content.nodeType === 'module') {
-            textColor = '#FFFFFF';  // White text
             boxShadow = '0 6px 16px rgba(0,0,0,0.25)';  // Stronger shadow
             border = '2px solid rgba(255,255,255,0.3)';  // Subtle white border
           } else {
-            textColor = '#000';  // Black text for features/actions
+            // Features and actions get lighter shadow
             boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
           }
         }
