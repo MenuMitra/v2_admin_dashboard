@@ -45,15 +45,51 @@ const UBACTree = () => {
   // Color assignment function for module lineage
   const getNodeColor = (moduleIndex, nodeType) => {
     const colorPalette = [
-      { module: '#FF6B6B', feature: '#FF8787', action: '#FFA5A5' },  // Coral Red
-      { module: '#4ECDC4', feature: '#6FD9D1', action: '#90E5DE' },  // Turquoise
-      { module: '#95E1D3', feature: '#AAE8DC', action: '#BFEFE5' },  // Mint Green
-      { module: '#F38181', feature: '#F59999', action: '#F7B1B1' },  // Pastel Red
-      { module: '#AA96DA', feature: '#BBA8E2', action: '#CCBAEA' },  // Lavender
-      { module: '#FCBAD3', feature: '#FDC8DD', action: '#FED6E7' },  // Pink
-      { module: '#FFD93D', feature: '#FFE066', action: '#FFE78F' },  // Yellow
-      { module: '#A8D8EA', feature: '#B9E0EF', action: '#CAE8F4' },  // Sky Blue
-      { module: '#FFCF9F', feature: '#FFD9B3', action: '#FFE3C7' },  // Peach
+      { 
+        module: 'linear-gradient(135deg, #FF4757 0%, #FFA502 100%)',  // Red to Orange
+        feature: '#FF6348', 
+        action: '#FFA07A' 
+      },  // Red-Orange family
+      { 
+        module: 'linear-gradient(135deg, #1E90FF 0%, #00CED1 100%)',  // Blue to Cyan
+        feature: '#4FC3F7', 
+        action: '#81D4FA' 
+      },  // Blue-Cyan family
+      { 
+        module: 'linear-gradient(135deg, #2ECC71 0%, #3498DB 100%)',  // Green to Blue
+        feature: '#5DADE2', 
+        action: '#85C1E9' 
+      },  // Green-Blue family
+      { 
+        module: 'linear-gradient(135deg, #9B59B6 0%, #E91E63 100%)',  // Purple to Pink
+        feature: '#BA68C8', 
+        action: '#CE93D8' 
+      },  // Purple-Pink family
+      { 
+        module: 'linear-gradient(135deg, #F39C12 0%, #E74C3C 100%)',  // Orange to Red
+        feature: '#FF7043', 
+        action: '#FFAB91' 
+      },  // Orange-Red family
+      { 
+        module: 'linear-gradient(135deg, #16A085 0%, #F4D03F 100%)',  // Teal to Yellow
+        feature: '#4DB6AC', 
+        action: '#80CBC4' 
+      },  // Teal-Yellow family
+      { 
+        module: 'linear-gradient(135deg, #8E44AD 0%, #3498DB 100%)',  // Purple to Blue
+        feature: '#7986CB', 
+        action: '#9FA8DA' 
+      },  // Purple-Blue family
+      { 
+        module: 'linear-gradient(135deg, #C0392B 0%, #F39C12 100%)',  // Dark Red to Orange
+        feature: '#E57373', 
+        action: '#EF9A9A' 
+      },  // Red-Orange family
+      { 
+        module: 'linear-gradient(135deg, #D35400 0%, #FFC300 100%)',  // Dark Orange to Yellow
+        feature: '#FFB74D', 
+        action: '#FFCC80' 
+      },  // Orange-Yellow family
     ];
     
     const paletteIndex = moduleIndex % colorPalette.length;
@@ -173,10 +209,11 @@ const UBACTree = () => {
           name: cleanFieldName(module.name),
           nodeType: 'module',
           originalId: module.module_id,
+          moduleIndex: moduleIndex,
           hasChildren: hasFeatures,
           childrenCount: hasFeatures ? module.features.length : 0
         },
-        options: { nodeBGColor: getNodeColor(moduleIndex, 'module') },
+        options: { nodeBGColor: 'transparent' },
         children: []
       };
 
@@ -190,10 +227,11 @@ const UBACTree = () => {
               name: cleanFieldName(feature.name),
               nodeType: 'feature',
               originalId: feature.feature_id,
+              moduleIndex: moduleIndex,
               hasChildren: hasActions,
               childrenCount: hasActions ? feature.actions.length : 0
             },
-            options: { nodeBGColor: getNodeColor(moduleIndex, 'feature') },
+            options: { nodeBGColor: 'transparent' },
             children: []
           };
 
@@ -206,10 +244,11 @@ const UBACTree = () => {
                   name: cleanFieldName(action.name),
                   nodeType: 'action',
                   originalId: action.action_id,
+                  moduleIndex: moduleIndex,
                   hasChildren: false,
                   childrenCount: 0
                 },
-                options: { nodeBGColor: getNodeColor(moduleIndex, 'action') },
+                options: { nodeBGColor: 'transparent' },
               };
               featureNode.children.push(actionNode);
             });
@@ -419,10 +458,34 @@ const UBACTree = () => {
         const textLength = content.name.length;
         const baseWidth = Math.max(150, Math.min(400, textLength * 8 + 100));
         
+        // Get background color/gradient
+        let background = '#fff';
+        let textColor = '#000';
+        let boxShadow = 'none';
+        let border = 'none';
+        
+        if (content.nodeType === 'root') {
+          background = '#94ddff';
+          textColor = '#000';
+          boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        } else if (content.moduleIndex !== undefined) {
+          background = getNodeColor(content.moduleIndex, content.nodeType);
+          
+          // Module nodes get special styling
+          if (content.nodeType === 'module') {
+            textColor = '#FFFFFF';  // White text
+            boxShadow = '0 6px 16px rgba(0,0,0,0.25)';  // Stronger shadow
+            border = '2px solid rgba(255,255,255,0.3)';  // Subtle white border
+          } else {
+            textColor = '#000';  // Black text for features/actions
+            boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+          }
+        }
+        
         return `
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:8px;width:${baseWidth}px;min-width:150px;max-width:400px;">
-            <div style="font-weight:bold;font-family:Arial;font-size:14px;text-align:center;word-wrap:break-word;margin-bottom:6px;">${content.name}</div>
-            ${content.stats ? `<div style="font-size:10px;color:#666;margin-bottom:6px;text-align:center;">${content.stats}</div>` : ''}
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:10px;width:${baseWidth}px;min-width:150px;max-width:400px;background:${background} !important;border-radius:8px;box-shadow:${boxShadow};border:${border};color:${textColor};">
+            <div style="font-weight:bold;font-family:Arial;font-size:14px;text-align:center;word-wrap:break-word;margin-bottom:6px;color:${textColor};">${content.name}</div>
+            ${content.stats ? `<div style="font-size:10px;color:${textColor === '#FFFFFF' ? 'rgba(255,255,255,0.9)' : '#666'};margin-bottom:6px;text-align:center;">${content.stats}</div>` : ''}
             <div style="display:flex;gap:8px;margin-top:4px;justify-content:center;">
               ${showEdit ? `
                 <button 
