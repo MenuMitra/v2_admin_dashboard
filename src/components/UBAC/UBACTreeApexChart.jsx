@@ -213,7 +213,7 @@ const UBACTree = () => {
           hasChildren: hasFeatures,
           childrenCount: hasFeatures ? module.features.length : 0
         },
-        options: { nodeBGColor: 'transparent' },
+        options: { nodeBGColor: getNodeColor(moduleIndex, 'module') },
         children: []
       };
 
@@ -231,7 +231,7 @@ const UBACTree = () => {
               hasChildren: hasActions,
               childrenCount: hasActions ? feature.actions.length : 0
             },
-            options: { nodeBGColor: 'transparent' },
+            options: { nodeBGColor: getNodeColor(moduleIndex, 'feature') },
             children: []
           };
 
@@ -248,7 +248,7 @@ const UBACTree = () => {
                   hasChildren: false,
                   childrenCount: 0
                 },
-                options: { nodeBGColor: 'transparent' },
+                options: { nodeBGColor: getNodeColor(moduleIndex, 'action') },
               };
               featureNode.children.push(actionNode);
             });
@@ -438,7 +438,7 @@ const UBACTree = () => {
       contentKey: 'data',
       width: "100%",
       height: 'auto',
-      nodeWidth: 200,
+      nodeWidth: 250,
       nodeHeight: 100,
       childrenSpacing: 70,
       siblingSpacing: 30,
@@ -455,8 +455,8 @@ const UBACTree = () => {
         
         // Calculate dynamic width based on text length
         // Average character width ~8px, add padding for buttons and spacing
-        const textLength = content.name.length;
-        const baseWidth = Math.max(150, Math.min(400, textLength * 8 + 100));
+        // const textLength = content.name.length;
+        // const baseWidth = Math.max(150, Math.min(400, textLength * 8 + 100));
         
         // Get background color/gradient
         let background = '#fff';
@@ -483,7 +483,7 @@ const UBACTree = () => {
         }
         
         return `
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:10px;width:${baseWidth}px;min-width:150px;max-width:400px;background:${background} !important;border-radius:8px;box-shadow:${boxShadow};border:${border};color:${textColor};">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;padding:10px;background:${background} !important;border-radius:8px;box-shadow:${boxShadow};border:${border};color:${textColor};box-sizing:border-box;min-height:100%;">
             <div style="font-weight:bold;font-family:Arial;font-size:14px;text-align:center;word-wrap:break-word;margin-bottom:6px;color:${textColor};">${content.name}</div>
             ${content.stats ? `<div style="font-size:10px;color:${textColor === '#FFFFFF' ? 'rgba(255,255,255,0.9)' : '#666'};margin-bottom:6px;text-align:center;">${content.stats}</div>` : ''}
             <div style="display:flex;gap:8px;margin-top:4px;justify-content:center;">
