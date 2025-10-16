@@ -18,6 +18,7 @@ export const useSuperOwnerDetails = (superOwnerId) => {
     data: superOwnerData,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.superOwners.detail(superOwnerId),
     queryFn: async () => {
@@ -96,5 +97,6 @@ export const useSuperOwnerDetails = (superOwnerId) => {
     error,
     deleteSuperOwner: deleteMutation.mutate,
     isDeleting: deleteMutation.isPending,
+    refetch,
   };
 }; 
