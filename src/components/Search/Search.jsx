@@ -302,11 +302,7 @@ const Search = () => {
                     <option value="">All Roles</option>
                     <option value="super_owner">Super Owner</option>
                     <option value="owner">Owner</option>
-                    <option value="captain">Captain</option>
-                    <option value="manager">Manager</option>
-                    <option value="customer">Customer</option>
-                    <option value="waiter">Waiter</option>
-                    <option value="chef">Chef</option>
+                    <option value="staff">Staff</option>
                   </select>
                 </div>
 
