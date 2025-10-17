@@ -119,15 +119,16 @@ function SuperOwnerDetails() {
 
   // Update active sessions when superOwnerData changes
   useEffect(() => {
-    if (superOwnerDetails?.assignedOutlets) {
+    if (superOwnerDetails?.assignedOutlets && superOwnerDetails.assignedOutlets.length > 0) {
       // Flatten all active sessions from all outlets
-
       const allSessions = superOwnerDetails.assignedOutlets.flatMap(
         (outlet) => outlet.active_sessions || []
       );
       setActiveSessions(allSessions);
+    } else {
+      setActiveSessions([]);
     }
-  }, [superOwnerDetails?.assignedOutlets]);
+  }, [superOwnerDetails?.assignedOutlets?.length]); // Only use length to prevent infinite loops
 
   if (isLoading) {
     return (
@@ -250,10 +251,31 @@ function SuperOwnerDetails() {
                 <span className="hidden sm:inline">Reload</span>
               </button>
               <button
-                onClick={() =>
-                  navigate(`/edit-super-owner/${superOwnerData.super_owner_id}`)
-                }
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
+                onClick={() => {
+                  console.log('Edit button clicked');
+                  console.log('superOwnerDetails:', superOwnerDetails);
+                  console.log('superOwnerData:', superOwnerData);
+                  console.log('super_owner_id:', superOwnerData?.super_owner_id);
+                  
+                  if (superOwnerData?.super_owner_id) {
+                    console.log('Navigating to edit page with ID:', superOwnerData.super_owner_id);
+                    navigate(`/edit-super-owner/${superOwnerData.super_owner_id}`);
+                  } else {
+                    console.error('super_owner_id is not available');
+                    console.error('Available data:', {
+                      superOwnerDetails,
+                      superOwnerData,
+                      superOwnerId: superOwnerId
+                    });
+                    toastController.error('Unable to edit: Super owner ID not found');
+                  }
+                }}
+                disabled={!superOwnerData?.super_owner_id}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full shadow-theme-xs ${
+                  superOwnerData?.super_owner_id 
+                    ? 'bg-warning-500 hover:bg-warning-600' 
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
               >
                 <svg
                   className="w-4 h-4"
