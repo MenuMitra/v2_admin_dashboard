@@ -585,9 +585,11 @@ function EditOutlet() {
             commaIdx !== -1 ? imagePayload.slice(commaIdx + 1) : imagePayload;
         } else if (/^https?:\/\//i.test(imagePayload)) {
           // Existing URL; avoid sending as base64 to prevent server error
-          imagePayload = null;
+          imagePayload = "";
         }
       }
+      // If image is null/undefined, send empty string as per API expectation
+      if (imagePayload == null) imagePayload = "";
 
       // Prepare API data with new_owner_ids as array
       const apiData = {
@@ -618,7 +620,7 @@ function EditOutlet() {
         image: imagePayload,
         has_combo: outletData.has_combo,
         has_denomination: outletData.has_denomination,
-        reserve_table: outletData.reserve_table,
+        has_reserve_table: outletData.reserve_table,
         // subscription_id may be present in outletData or in the cached/view response
         subscription_id: outletData.subscription_id
           ? parseInt(outletData.subscription_id)
