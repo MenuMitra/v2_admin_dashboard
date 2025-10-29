@@ -325,7 +325,7 @@ function StaffDetails() {
                   onLogout={(deviceId) => {
                     // delegate to existing partner/owner style logout if needed
                     // no-op here; you can implement logout via API similar to OwnerDetails
-                    console.log("Logout requested for", deviceId);
+                    
                   }}
                   showAction={true}
                 />

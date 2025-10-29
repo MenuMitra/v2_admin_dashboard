@@ -63,7 +63,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       setDropdownOpen(false);
       navigate("/");
     } catch (error) {
-      console.error("Logout failed:", error);
+      
     }
   };
 

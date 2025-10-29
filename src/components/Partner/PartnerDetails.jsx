@@ -148,7 +148,7 @@ function PartnerDetails() {
       );
       await refetch();
     } catch (e) {
-      console.error(e);
+      
     } finally {
       setIsTogglingActive(false);
     }

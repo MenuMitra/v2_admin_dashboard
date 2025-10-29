@@ -78,7 +78,7 @@ function AddRoleAssignFunctionalities() {
 
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to assign functionality');
-      console.error('Error assigning functionality:', err);
+      
     } finally {
       setLoading(false);
     }

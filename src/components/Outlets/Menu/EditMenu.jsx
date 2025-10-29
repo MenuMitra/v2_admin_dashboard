@@ -113,7 +113,7 @@ function EditMenu() {
       setImages(prev => [...prev, ...base64Array]);
       setPreviews(prev => [...prev, ...base64Array]);
     } catch (error) {
-      console.error('Error processing images:', error);
+      
       toastController.error('Error processing images');
     }
 
@@ -403,7 +403,7 @@ function EditMenu() {
       queryClient.invalidateQueries({ queryKey: queryKeys.menus.list(outletId) });
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      console.error('Update error:', err);
+      
       const errorMessage = err.response?.data?.message || err.response?.data?.detail || 'Failed to update menu';
       toastController.error(errorMessage);
       setError(errorMessage);

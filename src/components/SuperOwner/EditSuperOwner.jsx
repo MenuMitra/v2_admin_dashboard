@@ -112,7 +112,7 @@ function EditSuperOwner() {
         }));
       }
     } catch (error) {
-      console.error("Error fetching super owner details:", error);
+      
       setError("Failed to fetch super owner details");
     }
   };
@@ -154,7 +154,7 @@ function EditSuperOwner() {
         );
       }
     } catch (error) {
-      console.error("Error fetching outlets:", error);
+      
       setError("Failed to fetch outlets");
     }
   };

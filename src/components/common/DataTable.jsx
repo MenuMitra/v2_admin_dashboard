@@ -1394,7 +1394,7 @@ function DataTable({
       </div>
     );
   } catch (error) {
-    console.error("DataTable Error:", error);
+    
     // Return a fallback UI
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-4">

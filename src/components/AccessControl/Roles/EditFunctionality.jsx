@@ -83,12 +83,12 @@ function EditFunctionality() {
         }
       }
 
-      console.log("API Response:", response.data);
-      console.log("Processed functionalities:", functionalities);
+      
+      
 
       setAllFunctionalities(functionalities);
     } catch (err) {
-      console.error("Error fetching functionalities:", err);
+      
       setSaveError("Failed to load functionalities");
       setAllFunctionalities([]); // Ensure it's an empty array on error
     }

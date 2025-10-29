@@ -178,7 +178,7 @@ function OwnerDetails() {
       await refetch();
     } catch (e) {
       // already toasting in failure path
-      console.error(e);
+      
     } finally {
       setIsTogglingActive(false);
     }

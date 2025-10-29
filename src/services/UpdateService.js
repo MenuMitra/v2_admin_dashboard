@@ -17,7 +17,7 @@ export class UpdateService {
         }
       );
 
-      // console.log('Version check response:', response.data);
+      
 
       if (response.data.st === 1) {
         const currentVersion = this.currentVersion;
@@ -38,7 +38,7 @@ export class UpdateService {
         error: "Invalid server response",
       };
     } catch (error) {
-      // console.error('Error checking for updates:', error);
+      
       return {
         hasUpdate: false,
         error: error.message,

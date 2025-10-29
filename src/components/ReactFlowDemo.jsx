@@ -457,7 +457,7 @@ const ReactFlowDemoInner = () => {
       });
 
       if (res.status === 401 || res.status === 403) {
-        console.warn("Unauthorized when fetching modules", res.status);
+        
         setModulesList([]);
         return;
       }
@@ -466,7 +466,7 @@ const ReactFlowDemoInner = () => {
       const data = json.data || json || [];
       setModulesList(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Failed to load modules", err);
+      
       setModulesList([]);
     }
   }, [getToken, BASE_URL]);
@@ -508,13 +508,13 @@ const ReactFlowDemoInner = () => {
       });
 
       if (res.status === 401 || res.status === 403) {
-        console.warn("Unauthorized when fetching features", res.status);
+        
         setFeaturesList([]);
         return;
       }
 
       if (!res.ok) {
-        console.error("Failed to fetch features, status:", res.status);
+        
         setFeaturesList([]);
         return;
       }
@@ -526,7 +526,7 @@ const ReactFlowDemoInner = () => {
         : incoming.features || [];
       setFeaturesList(features);
     } catch (err) {
-      console.error("Failed to load features", err);
+      
       setFeaturesList([]);
     }
   }, [getToken, BASE_URL]);
@@ -594,7 +594,7 @@ const ReactFlowDemoInner = () => {
       
       toastController.success("Deleted successfully");
     } catch (err) {
-      console.error(err);
+      
       toastController.error("Delete failed");
     }
   }, [getToken, BASE_URL, refetchUbacTree, fetchModules, fetchFeatures]);
@@ -893,7 +893,7 @@ const ReactFlowDemoInner = () => {
                   setSelectedFeatureId("");
                   setSelectedModuleId("");
                 } catch (err) {
-                  console.error(err);
+                  
                   toastController.error("Save failed");
                 } finally {
                   setLoadingSave(false);
@@ -1078,7 +1078,7 @@ const ReactFlowDemoInner = () => {
                   setEditId("");
                   setEditType("");
                 } catch (err) {
-                  console.error(err);
+                  
                   toastController.error("Update failed");
                 } finally {
                   setLoadingEditSave(false);

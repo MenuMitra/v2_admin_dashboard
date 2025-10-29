@@ -71,7 +71,7 @@ function Owners() {
         }
       );
     } catch (error) {
-      console.error("Error deleting owner:", error);
+      
     }
   };
 
@@ -81,7 +81,7 @@ function Owners() {
   };
 
   const getFilteredData = () => {
-    // console.log("Active Session Filter:", activeSessionFilter); // Debug log
+    
 
     const filtered = owners.filter((owner) => {
       // Status filter
@@ -94,9 +94,7 @@ function Owners() {
       // Active Session filter
       if (activeSessionFilter !== "all") {
         const sessionCount = owner.active_session_count || 0;
-        console.log(
-          `Owner ${owner.name}: sessionCount = ${sessionCount}, filter = ${activeSessionFilter}`
-        ); // Debug log
+         // Debug log
 
         if (activeSessionFilter === "10") {
           if (sessionCount < 10) return false;
@@ -109,9 +107,7 @@ function Owners() {
       // Outlet Count filter
       if (outletCountFilter !== "all") {
         const outletCount = owner.outlet_count || 0;
-        console.log(
-          `Owner ${owner.name}: outletCount = ${outletCount}, filter = ${outletCountFilter}`
-        ); // Debug log
+        // Debug log
 
         if (outletCountFilter === "10") {
           if (outletCount < 10) return false;
@@ -124,7 +120,7 @@ function Owners() {
       return true;
     });
 
-    console.log("Filtered results:", filtered.length); // Debug log
+    
     return filtered;
   };
 
@@ -239,7 +235,7 @@ function Owners() {
         }
       );
     } catch (error) {
-      console.error("Error performing bulk action:", error);
+      
     }
   };
 
@@ -317,13 +313,13 @@ function Owners() {
         enableActiveSessionFilter={true}
         activeSessionFilter={activeSessionFilter}
         onActiveSessionFilterChange={(value) => {
-          console.log("Owner filter change event:", value); // Debug log
+          
           setActiveSessionFilter(value);
         }}
         enableOutletCountFilter={true}
         outletCountFilter={outletCountFilter}
         onOutletCountFilterChange={(value) => {
-          console.log("Owner outlet count filter change event:", value); // Debug log
+           
           setOutletCountFilter(value);
         }}
         onReload={fetchOwners}

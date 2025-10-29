@@ -252,21 +252,14 @@ function SuperOwnerDetails() {
               </button>
               <button
                 onClick={() => {
-                  console.log('Edit button clicked');
-                  console.log('superOwnerDetails:', superOwnerDetails);
-                  console.log('superOwnerData:', superOwnerData);
-                  console.log('super_owner_id:', superOwnerData?.super_owner_id);
+                  
                   
                   if (superOwnerData?.super_owner_id) {
-                    console.log('Navigating to edit page with ID:', superOwnerData.super_owner_id);
+                    
                     navigate(`/edit-super-owner/${superOwnerData.super_owner_id}`);
                   } else {
-                    console.error('super_owner_id is not available');
-                    console.error('Available data:', {
-                      superOwnerDetails,
-                      superOwnerData,
-                      superOwnerId: superOwnerId
-                    });
+                    
+                    
                     toastController.error('Unable to edit: Super owner ID not found');
                   }
                 }}

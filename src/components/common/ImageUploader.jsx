@@ -84,7 +84,7 @@ const ImageUploader = ({
         onImagesChange(newImages); // For other uses, pass the full array
       }
     } catch (error) {
-      console.error("Error processing images:", error);
+      
     }
   };
 
@@ -250,7 +250,7 @@ const ImageUploader = ({
                 alt={`Preview ${index + 1}`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  console.error("Image load error:", preview.url);
+                  
                   e.target.src = "fallback-image-url";
                 }}
               />

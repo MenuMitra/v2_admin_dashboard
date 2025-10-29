@@ -169,7 +169,7 @@ function CreateOutlet() {
           setSelectedModuleIds(modList.map((m) => m.module_id));
         }
       } catch (err) {
-        console.error("Error fetching modules:", err);
+        
       } finally {
         setLoadingModules(false);
       }
@@ -337,7 +337,7 @@ function CreateOutlet() {
         setOutletTypes(response.data.outlet_type_list);
       }
     } catch (error) {
-      console.error("Error fetching outlet types:", error);
+      
     }
   };
 
@@ -362,7 +362,7 @@ function CreateOutlet() {
         setAllOwners(response.data);
       }
     } catch (error) {
-      console.error("Error fetching owners:", error);
+      
     } finally {
       setIsLoading(false);
     }
@@ -374,7 +374,7 @@ function CreateOutlet() {
     // Don't set to null if no new image is provided
     const base64String = images[0]?.url;
     if (base64String) {
-      console.log("Image received:", base64String.substring(0, 50) + "...");
+      
       setOutletData((prev) => ({
         ...prev,
         image: base64String,
@@ -648,16 +648,8 @@ function CreateOutlet() {
       // Keep app_source for compatibility with older endpoints
       payload.app_source = "admin_app";
 
-      console.log("Sending payload:", {
-        ...payload,
-        image: payload.image ? "base64_string_present" : null,
-      });
-      console.log("Subscription data in payload:", {
-        subscription_id: payload.subscription_id,
-        feature_ids: payload.feature_ids,
-        action_ids: payload.action_ids,
-        subscription_end_date: payload.subscription_end_date,
-      });
+      
+      
 
       const response = await toastController.promise(
         axios.post(`${BASE_URL}/common/create_outlet`, payload, {
@@ -681,7 +673,7 @@ function CreateOutlet() {
         navigate(-1);
       }
     } catch (error) {
-      console.error("Error creating outlet:", error);
+      
 
       // Handle specific API errors without clearing the image
       if (error.response?.data?.detail) {

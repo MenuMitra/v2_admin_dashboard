@@ -94,8 +94,7 @@ function Auth() {
         });
       }
     } catch (err) {
-      // Ignore update-check failures, proceed with login
-      console.warn("Update check failed:", err);
+      
     }
 
     try {

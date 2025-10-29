@@ -151,7 +151,7 @@ function CreateNotification() {
         navigate("/notifications");
       }
     } catch (error) {
-      console.error("Error creating notification:", error);
+      
     } finally {
       setIsLoading(false);
     }
@@ -226,7 +226,7 @@ function CreateNotification() {
         setOutlets(response.data.outlet_list);
       }
     } catch (error) {
-      console.error("Error fetching outlets:", error);
+      
     }
   };
 
@@ -289,7 +289,7 @@ function CreateNotification() {
         }
       }
     } catch (error) {
-      console.error("Error fetching filter options:", error);
+      
       setRoles([]);
       setUsers([]);
     }

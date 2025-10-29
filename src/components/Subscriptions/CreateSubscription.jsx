@@ -78,7 +78,7 @@ function CreateSubscription() {
         }
       }
     } catch (error) {
-      console.error("Error fetching modules:", error);
+      
       toastController.error("Failed to fetch modules");
     }
   };
@@ -121,7 +121,7 @@ function CreateSubscription() {
         setActionsMap({});
       }
     } catch (error) {
-      console.error("Error fetching features:", error);
+      
       toastController.error("Failed to fetch features");
     }
   };
@@ -175,7 +175,7 @@ function CreateSubscription() {
         setActionsMap({});
       }
     } catch (error) {
-      console.error("Error fetching features for modules:", error);
+      
       toastController.error("Failed to fetch features");
     }
   };
@@ -228,7 +228,7 @@ function CreateSubscription() {
         setActionsMap(map);
       }
     } catch (error) {
-      console.error("Error fetching actions:", error);
+      
       toastController.error("Failed to fetch actions");
     }
   };
@@ -380,7 +380,7 @@ function CreateSubscription() {
         navigate("/subscriptions");
       }
     } catch (error) {
-      console.error("Error creating subscription:", error);
+     
       toastController.error(
         error.response?.data?.detail || "Failed to create subscription"
       );

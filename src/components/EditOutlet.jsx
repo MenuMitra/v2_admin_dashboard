@@ -170,7 +170,7 @@ function EditOutlet() {
             Array.isArray(resp.data) ? resp.data : resp.data?.data || []
           );
         } catch (err) {
-          console.error("Error fetching modules:", err);
+          
         } finally {
           setLoadingModules(false);
         }
@@ -332,7 +332,7 @@ function EditOutlet() {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error("Error fetching outlet data:", error);
+      
       toastController.error("Failed to fetch outlet data");
       navigate(-1);
     }
@@ -358,7 +358,7 @@ function EditOutlet() {
         setOutletTypes(response.data.outlet_type_list);
       }
     } catch (error) {
-      console.error("Error fetching outlet types:", error);
+      
     }
   };
 
@@ -382,7 +382,7 @@ function EditOutlet() {
         setVegOrNonveg(response.data.veg_or_nonveg_list);
       }
     } catch (error) {
-      console.error("Error fetching veg or nonveg types:", error);
+      
     }
   };
 
@@ -400,7 +400,7 @@ function EditOutlet() {
         setAllOwners(response.data);
       }
     } catch (error) {
-      console.error("Error fetching owners:", error);
+      
     }
   };
 
@@ -527,8 +527,7 @@ function EditOutlet() {
     };
 
     // Log validation results for debugging
-    console.log("Validation results:", requiredFields);
-    console.log("Outlet data:", outletData);
+    
 
     const fieldsValid = Object.entries(requiredFields).every(
       ([, value]) => value
@@ -540,7 +539,7 @@ function EditOutlet() {
         .filter(([, value]) => !value)
         .map(([field]) => field);
 
-      console.log("Failed validation fields:", failedFields);
+      
       toastController.error(
         `Please fix the following fields: ${failedFields.join(", ")}`
       );
@@ -638,7 +637,7 @@ function EditOutlet() {
       }
 
       // Log the API payload for debugging
-      console.log("API Payload:", JSON.stringify(apiData, null, 2));
+      
 
       // Ensure we include any subscription id available from the cached outlet detail
       // (the view_outlet response may contain the subscription object created during create_outlet)
@@ -712,7 +711,7 @@ function EditOutlet() {
           queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
           queryClient.invalidateQueries(queryKeys.outlets.all);
         } catch (err) {
-          console.warn("Failed to invalidate outlet queries:", err);
+          
         }
         navigate(`/view-outlet/${outletId}`);
       } else {
@@ -723,9 +722,7 @@ function EditOutlet() {
         toastController.error(msg);
       }
     } catch (error) {
-      console.error("Error updating outlet:", error);
-      console.error("Error response:", error.response?.data);
-      console.error("Error status:", error.response?.status);
+      
 
       // Show more detailed error message
       const errorMessage =
@@ -951,11 +948,8 @@ function EditOutlet() {
                                           (id) => id !== owner.user_id
                                         );
 
-                                    console.log(
-                                      "Owner IDs before update:",
-                                      outletData.owner_ids
-                                    );
-                                    console.log("New owner IDs:", newOwnerIds);
+                                    
+                                    
 
                                     setOutletData((prev) => ({
                                       ...prev,

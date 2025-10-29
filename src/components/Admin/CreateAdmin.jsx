@@ -186,7 +186,7 @@ function CreateAdmin() {
       if (error.response?.data?.detail === "Email format is incorrect") {
         setEmailApiError("Email format is incorrect");
       }
-      console.error("Error creating admin:", error);
+      
     } finally {
       setIsSubmitting(false);
     }

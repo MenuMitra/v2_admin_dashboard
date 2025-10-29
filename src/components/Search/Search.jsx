@@ -87,7 +87,7 @@ const Search = () => {
           setError("Invalid response format from server");
         }
       } catch (error) {
-        console.error("Search failed:", error);
+        
         setError(
           error.response?.data?.message || "Search failed. Please try again."
         );

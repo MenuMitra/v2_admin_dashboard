@@ -78,7 +78,7 @@ const EnquiryList = () => {
         setEnquiries([]);
       }
     } catch (error) {
-      console.error("Error fetching enquiries:", error);
+      
       setError(error.message || "Failed to fetch enquiries");
       toastController.showError("Failed to fetch enquiries");
     } finally {
@@ -218,7 +218,7 @@ const EnquiryList = () => {
           throw new Error(response.data?.message || "Failed to delete enquiry");
         }
       } catch (error) {
-        console.error("Error deleting enquiry:", error);
+        
         toastController.showError(error.message || "Failed to delete enquiry");
       }
     }
@@ -271,7 +271,7 @@ const EnquiryList = () => {
         );
       }
     } catch (error) {
-      console.error("Error performing bulk action:", error);
+      
       toastController.showError(
         error.message || "Failed to perform bulk action"
       );

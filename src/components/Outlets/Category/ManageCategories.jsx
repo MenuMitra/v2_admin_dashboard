@@ -92,10 +92,7 @@ function ManageCategories() {
       queryClient.invalidateQueries(queryKeys.categories.list(outletId));
     },
     onError: (err) => {
-      console.error(
-        "Delete failed:",
-        err.response?.data?.detail || "Failed to delete category"
-      );
+      
     },
   });
 
@@ -129,10 +126,7 @@ function ManageCategories() {
       queryClient.invalidateQueries(queryKeys.categories.list(outletId));
     },
     onError: (err) => {
-      console.error(
-        "Bulk action failed:",
-        err.response?.data?.message || "Failed to perform bulk action"
-      );
+      
     },
   });
 

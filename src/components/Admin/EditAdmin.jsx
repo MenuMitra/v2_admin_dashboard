@@ -83,7 +83,7 @@ function EditAdmin() {
       });
     } catch (error) {
       toastController.error(error.response?.data?.detail || 'Failed to fetch admin details');
-      console.error('Error fetching admin details:', error);
+      
     } finally {
       setIsLoading(false);
     }
@@ -255,7 +255,7 @@ function EditAdmin() {
 
       navigate('/admins');
     } catch (error) {
-      console.error('Error updating admin:', error);
+      
     } finally {
       setIsSubmitting(false);
     }

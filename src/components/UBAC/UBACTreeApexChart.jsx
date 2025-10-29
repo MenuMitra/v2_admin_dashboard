@@ -110,7 +110,7 @@ const UBACTree = () => {
       });
 
       if (res.status === 401 || res.status === 403) {
-        console.warn("Unauthorized when fetching modules", res.status);
+        
         setModulesList([]);
         return;
       }
@@ -119,7 +119,7 @@ const UBACTree = () => {
       const data = json.data || json || [];
       setModulesList(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Failed to load modules", err);
+      
       setModulesList([]);
     }
   }, [BASE_URL, getToken]);
@@ -156,13 +156,13 @@ const UBACTree = () => {
       });
 
       if (res.status === 401 || res.status === 403) {
-        console.warn("Unauthorized when fetching features", res.status);
+        
         setFeaturesList([]);
         return;
       }
 
       if (!res.ok) {
-        console.error("Failed to fetch features, status:", res.status);
+       
         setFeaturesList([]);
         return;
       }
@@ -174,7 +174,7 @@ const UBACTree = () => {
         : incoming.features || [];
       setFeaturesList(features);
     } catch (err) {
-      console.error("Failed to load features", err);
+      
       setFeaturesList([]);
     }
   }, [BASE_URL, getToken]);
@@ -356,7 +356,7 @@ const UBACTree = () => {
       await refetchUbacTree();
       toastController.success("Deleted successfully");
     } catch (err) {
-      console.error(err);
+      
       toastController.error("Delete failed");
     }
   }, [BASE_URL, getToken, refetchUbacTree]);
@@ -429,7 +429,7 @@ const UBACTree = () => {
     const treeData = transformUbacDataToTree(filteredData);
     
     if (!treeData) {
-      console.warn('No tree data available to render');
+      
       return;
     }
 
@@ -555,7 +555,7 @@ const UBACTree = () => {
         }
       }, 100);
     } catch (error) {
-      console.error('Error initializing ApexTree:', error);
+      
     }
 
     // Cleanup function
@@ -828,7 +828,7 @@ const UBACTree = () => {
                   setSelectedFeatureId("");
                   setSelectedModuleId("");
                 } catch (err) {
-                  console.error(err);
+                  
                   toastController.error("Save failed");
                 } finally {
                   setLoadingSave(false);
@@ -1000,7 +1000,7 @@ const UBACTree = () => {
                   setEditSelectedModuleId("");
                   setEditId(null);
                 } catch (err) {
-                  console.error(err);
+                  
                   toastController.error("Save failed");
                 } finally {
                   setEditLoadingSave(false);

@@ -84,7 +84,7 @@ function RoleFunctionalitiesMapping() {
         err.response?.data?.detail ||
           "Failed to fetch role functionality mappings"
       );
-      console.error("Error fetching mappings:", err);
+      
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +110,7 @@ function RoleFunctionalitiesMapping() {
 
       setAllFunctionalities(response.data);
     } catch (err) {
-      console.error("Error fetching functionalities:", err);
+      
     } finally {
       setIsLoadingFunctionalities(false);
     }
@@ -153,7 +153,7 @@ function RoleFunctionalitiesMapping() {
       setSaveError(
         err.response?.data?.detail || "Failed to save functionalities"
       );
-      console.error("Error saving functionalities:", err);
+      
     } finally {
       setIsSaving(false);
     }
@@ -196,7 +196,7 @@ function RoleFunctionalitiesMapping() {
       queryClient.invalidateQueries({ queryKey: queryKeys.roles.all });
       navigate("/roles");
     } catch (err) {
-      console.error("Error deleting role:", err);
+      
     } finally {
       // No loading state needed
     }

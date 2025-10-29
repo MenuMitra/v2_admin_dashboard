@@ -92,7 +92,7 @@ function SuperOwner() {
       setSelectedItems([]);
       toastController.success("Bulk action completed successfully!");
     } catch (error) {
-      console.error("Error performing bulk action:", error);
+      
       toastController.error(
         error.response?.data?.detail || "Failed to process bulk action"
       );

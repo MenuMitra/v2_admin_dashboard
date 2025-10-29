@@ -120,7 +120,7 @@ function EditOwner() {
         setOutlets(outletArray);
       }
     } catch (err) {
-      console.error("Error fetching outlets:", err);
+      
       setError("Failed to load outlets");
     }
   };
@@ -171,7 +171,7 @@ function EditOwner() {
       setIsLoading(false);
     } catch (err) {
       setError("Failed to fetch owner details");
-      console.error("Error fetching owner details:", err);
+      
       setIsLoading(false);
     }
   };
@@ -490,7 +490,7 @@ function EditOwner() {
       }
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to update owner");
-      console.error("Error updating owner:", err);
+      
     } finally {
       setIsLoading(false);
     }

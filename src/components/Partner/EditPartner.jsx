@@ -94,7 +94,7 @@ function EditPartner() {
         setOutlets(outletArray);
       }
     } catch (err) {
-      console.error("Error fetching outlets:", err);
+      
       setError("Failed to load outlets");
     }
   };
@@ -142,7 +142,7 @@ function EditPartner() {
       setIsLoading(false);
     } catch (err) {
       setError("Failed to fetch partner details");
-      console.error("Error fetching partner details:", err);
+      
       setIsLoading(false);
     }
   };
@@ -314,7 +314,7 @@ function EditPartner() {
       }
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to update partner");
-      console.error("Error updating partner:", err);
+      
     } finally {
       setIsLoading(false);
     }

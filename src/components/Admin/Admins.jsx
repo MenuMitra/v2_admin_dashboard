@@ -101,7 +101,7 @@ function Admins() {
         }
       );
     } catch (err) {
-      console.error("Error deleting admin:", err);
+      
     }
   };
 
@@ -122,7 +122,7 @@ function Admins() {
         }
       );
     } catch (err) {
-      console.error(`Error performing bulk ${action}:`, err);
+      
     }
   };
 
@@ -221,7 +221,7 @@ function Admins() {
   ];
 
   const getFilteredData = () => {
-    // console.log("Active Session Filter:", activeSessionFilter); // Debug log
+    
 
     const filtered = admins.filter((admin) => {
       // Status filter
@@ -234,9 +234,7 @@ function Admins() {
       // Active Session filter
       if (activeSessionFilter !== "all") {
         const sessionCount = admin.active_session_count || 0;
-        console.log(
-          `Admin ${admin.name}: sessionCount = ${sessionCount}, filter = ${activeSessionFilter}`
-        ); // Debug log
+        
 
         if (activeSessionFilter === "10") {
           if (sessionCount < 10) return false;
@@ -249,7 +247,7 @@ function Admins() {
       return true;
     });
 
-    console.log("Filtered results:", filtered.length); // Debug log
+    
 
     if (filtered.length === 0) {
       return {
@@ -320,7 +318,7 @@ function Admins() {
         enableActiveSessionFilter={true}
         activeSessionFilter={activeSessionFilter}
         onActiveSessionFilterChange={(value) => {
-          console.log("Filter change event:", value); // Debug log
+          
           setActiveSessionFilter(value);
         }}
         enableSelection={true}

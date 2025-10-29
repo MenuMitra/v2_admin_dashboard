@@ -93,7 +93,7 @@ function CreateOwner() {
         setOutlets(outletArray);
       }
     } catch (err) {
-      console.error("Error fetching outlets:", err);
+      
       setError("Failed to load outlets");
     }
   };

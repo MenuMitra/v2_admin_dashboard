@@ -39,7 +39,7 @@ const BookingEnquiry = () => {
         setBookings([]);
       }
     } catch (err) {
-      console.error("Failed to fetch bookings:", err);
+      
       setError(err.message || "Failed to fetch bookings");
     } finally {
       setIsLoading(false);

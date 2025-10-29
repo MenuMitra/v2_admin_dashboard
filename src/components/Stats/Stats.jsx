@@ -49,34 +49,15 @@ function Stats() {
 
   // Debug logging
   useEffect(() => {
-    console.log("App Usage Payload:", appUsagePayload);
-    console.log("App Usage Data:", appUsageData);
-    console.log("App Usage Loading:", appUsageIsLoading);
-    console.log("App Usage Error:", appUsageError);
+    
 
     // Log the exact format of dates being sent
     if (appUsagePayload.start_date && appUsagePayload.end_date) {
-      console.log("Date format check:");
-      console.log(
-        "Start date:",
-        appUsagePayload.start_date,
-        "Type:",
-        typeof appUsagePayload.start_date
-      );
-      console.log(
-        "End date:",
-        appUsagePayload.end_date,
-        "Type:",
-        typeof appUsagePayload.end_date
-      );
-      console.log(
-        "Start date regex test:",
-        /^\d{2} [A-Za-z]{3} \d{4}$/.test(appUsagePayload.start_date)
-      );
-      console.log(
-        "End date regex test:",
-        /^\d{2} [A-Za-z]{3} \d{4}$/.test(appUsagePayload.end_date)
-      );
+      
+      
+      
+      
+      
     }
   }, [appUsagePayload, appUsageData, appUsageIsLoading, appUsageError]);
 
@@ -110,7 +91,7 @@ function Stats() {
 
     const year = date.getFullYear();
     const result = `${day} ${month} ${year}`;
-    console.log("getAppUsageDateString input:", date, "output:", result);
+    
     return result;
   }
 
@@ -153,7 +134,7 @@ function Stats() {
     // If it's a Date object or other format, try to parse it
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      console.warn("Could not parse date:", dateString);
+      
       return dateString;
     }
 
@@ -166,10 +147,7 @@ function Stats() {
   // Handle date change with proper formatting
   const handleAppUsageFilterChange = (filterType, value) => {
     const formattedValue = convertDateToApiFormat(value);
-    console.log(`Date change - ${filterType}:`, {
-      original: value,
-      formatted: formattedValue,
-    });
+    
     setAppUsagePayload((prev) => ({ ...prev, [filterType]: formattedValue }));
   };
 

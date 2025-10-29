@@ -113,7 +113,7 @@ function CombinedStats() {
         );
         setAppSourceOptions(options);
       } catch (error) {
-        console.error("Error fetching app sources:", error);
+        
       }
     };
     fetchAppSources();

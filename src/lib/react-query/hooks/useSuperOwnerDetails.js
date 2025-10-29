@@ -41,7 +41,7 @@ export const useSuperOwnerDetails = (superOwnerId) => {
         }
       );
 
-      console.log('API Response for super owner details:', response.data);
+      
       // Return the raw response data to match OwnerDetails pattern
       return response.data;
     },
@@ -97,9 +97,7 @@ export const useSuperOwnerDetails = (superOwnerId) => {
     };
   }, [superOwnerData]);
 
-  console.log('Processed superOwnerDetails:', superOwnerDetails);
-  console.log('superOwnerData from API:', superOwnerData);
-  console.log('super_owner object:', superOwnerData?.super_owner);
+  
 
   return {
     superOwnerDetails,

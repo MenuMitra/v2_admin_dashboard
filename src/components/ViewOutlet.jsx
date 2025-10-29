@@ -309,43 +309,31 @@ function ViewOutlet() {
 
   // Toggle handlers
   const handleToggleOutletStatus = () => {
-    console.log(
-      "handleToggleOutletStatus called, current status:",
-      outletData?.outlet_status
-    );
+    
     const newValue = outletData?.outlet_status === 1 ? "inactive" : "active";
-    console.log("Setting outlet status to:", newValue);
+    
     toggleStatusMutation.mutate({ type: "outlet_status", value: newValue });
   };
 
   const handleToggleOpenStatus = () => {
-    console.log(
-      "handleToggleOpenStatus called, current status:",
-      outletData?.is_open
-    );
+    
     const newValue = outletData?.is_open === 1 ? "close" : "open";
-    console.log("Setting open status to:", newValue);
+    
     toggleStatusMutation.mutate({ type: "is_open", value: newValue });
   };
 
   const handleToggleAccountType = () => {
-    console.log(
-      "handleToggleAccountType called, current type:",
-      outletData?.account_type
-    );
+    
     const newValue = outletData?.account_type === "test" ? "live" : "test";
-    console.log("Setting account type to:", newValue);
+    
     toggleStatusMutation.mutate({ type: "account_type", value: newValue });
   };
 
   const handleToggleOutletMode = () => {
-    console.log(
-      "handleToggleOutletMode called, current mode:",
-      outletData?.outlet_mode
-    );
+    
     const newValue =
       outletData?.outlet_mode === "online" ? "offline" : "online";
-    console.log("Setting outlet mode to:", newValue);
+    
     toggleStatusMutation.mutate({ type: "outlet_mode", value: newValue });
   };
 
@@ -388,7 +376,7 @@ function ViewOutlet() {
 
       toastController.success("Template downloaded successfully!");
     } catch (error) {
-      console.error("Error downloading template:", error);
+      
       toastController.error("Failed to download template");
     } finally {
       setIsDownloading(false);
