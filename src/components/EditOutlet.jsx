@@ -98,6 +98,7 @@ function EditOutlet() {
     whatsapp: false,
     whatsappMessage: "",
   });
+  const [originalOwnerIds, setOriginalOwnerIds] = useState([]);
 
   // Subscription-related state removed per request
 
@@ -218,10 +219,11 @@ function EditOutlet() {
           ? String(data.subscription_id)
           : null;
 
+        const initialOwnerIds = data.owners?.map((owner) => owner.owner_id) || [];
         setOutletData({
           outlet_id: outletId,
           user_id: adminData?.user_id,
-          owner_ids: data.owners?.map((owner) => owner.owner_id) || [],
+          owner_ids: initialOwnerIds,
           name: data.name || "",
           outlet_type: data.outlet_type || "",
           fssainumber:
@@ -257,6 +259,7 @@ function EditOutlet() {
           has_denomination: data.has_denomination !== undefined ? data.has_denomination : null,
           reserve_table: data.reserve_table !== undefined ? data.reserve_table : null,
         });
+        setOriginalOwnerIds(initialOwnerIds);
 
         // Set time picker values
         if (data.opening_time) {
@@ -590,11 +593,23 @@ function EditOutlet() {
       // If image is null/undefined, send empty string as per API expectation
       if (imagePayload == null) imagePayload = "";
 
-      // Prepare API data with new_owner_ids as array
+      // Determine owner additions/removals relative to original owner set
+      const currentOwnerIds = Array.isArray(outletData.owner_ids)
+        ? outletData.owner_ids
+        : [];
+      const removedOwnerIds = originalOwnerIds.filter(
+        (id) => !currentOwnerIds.includes(id)
+      );
+      const addedOwnerIds = currentOwnerIds.filter(
+        (id) => !originalOwnerIds.includes(id)
+      );
+
+      // Prepare API data with new_owner_ids and remove_owner_ids
       const apiData = {
         outlet_id: parseInt(outletId),
         user_id: parseInt(adminData.user_id),
-        new_owner_ids: outletData.owner_ids || [],
+        new_owner_ids: addedOwnerIds,
+        remove_owner_ids: removedOwnerIds,
         name: outletData.name,
         outlet_type: outletData.outlet_type,
         fssainumber: outletData.fssainumber || "",
