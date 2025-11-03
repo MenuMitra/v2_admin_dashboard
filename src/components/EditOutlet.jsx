@@ -257,7 +257,7 @@ function EditOutlet() {
             respSubscription || data.subscription_details || null,
           has_combo: data.has_combo !== undefined ? data.has_combo : null,
           has_denomination: data.has_denomination !== undefined ? data.has_denomination : null,
-          reserve_table: data.reserve_table !== undefined ? data.reserve_table : null,
+          reserve_table: data.has_reserve_table !== undefined ? data.has_reserve_table : (data.reserve_table !== undefined ? data.reserve_table : null),
         });
         setOriginalOwnerIds(initialOwnerIds);
 
