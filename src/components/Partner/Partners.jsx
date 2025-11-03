@@ -16,6 +16,14 @@ import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal"
 import { usePartners } from "../../lib/react-query/hooks/usePartners";
 import { toastController } from "../../utils/toastController";
 
+// Capitalize first letter of every word (title case)
+const toTitleCase = (str) =>
+  str
+    ? str.replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+
 function Partners() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
@@ -79,6 +87,9 @@ function Partners() {
       field: "name",
       header: "Name",
       sortable: true,
+      render: (value) => (
+        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">{toTitleCase(value)}</p>
+      ),
     },
     {
       field: "mobile",

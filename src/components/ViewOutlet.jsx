@@ -1107,7 +1107,7 @@ function ViewOutlet() {
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.created_by_name}
+                          {toTitleCase(outletData.created_by_name)}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Created By
@@ -1141,7 +1141,7 @@ function ViewOutlet() {
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.updated_by_name}
+                          {toTitleCase(outletData.updated_by_name)}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Updated By

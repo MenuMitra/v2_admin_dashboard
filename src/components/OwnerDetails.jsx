@@ -52,6 +52,14 @@ function OwnerDetails() {
 
   const [isTogglingActive, setIsTogglingActive] = useState(false);
 
+  // Title-case helper: capitalize first letter of every word
+  const toTitleCase = (str) =>
+    str
+      ? String(str).replace(/\w\S*/g, (txt) =>
+          txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        )
+      : "";
+
   // Add breadcrumb configuration
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
@@ -393,7 +401,7 @@ function OwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {ownerData.role}
+                      {toTitleCase(ownerData.role)}
                     </div>
                     <div className="text-sm text-gray-500">Role</div>
                   </div>
@@ -469,7 +477,7 @@ function OwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {ownerData.created_by?.toUpperCase() || "-"}
+                      {toTitleCase(ownerData.created_by) || "-"}
                     </div>
                     <div className="text-sm text-gray-500">Created By</div>
                   </div>
@@ -504,7 +512,7 @@ function OwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {ownerData.updated_by?.toUpperCase()}
+                      {toTitleCase(ownerData.updated_by)}
                     </div>
                     <div className="text-sm text-gray-500">Updated By</div>
                   </div>

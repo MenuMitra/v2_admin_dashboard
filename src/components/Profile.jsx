@@ -5,6 +5,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "./Breadcrumb";
 
+// Helper function to capitalize first letter
+const capitalizeFirstLetter = (str) => {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 function Profile() {
   const { adminData } = useAdmin();
   const navigate = useNavigate();
@@ -62,10 +68,10 @@ function Profile() {
           <div className="rounded-2xl dark:border-gray-800 lg:p-6">
             <div>
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
-                <InfoField label="Name" value={adminData.name} />
+                <InfoField label="Name" value={adminData.name} capitalize={true} />
                 <InfoField label="Email address" value={adminData.email} />
                 <InfoField label="Phone" value={adminData.mobile} />
-                <InfoField label="Role" value={adminData.role} />
+                <InfoField label="Role" value={adminData.role} capitalize={true} />
               </div>
             </div>
           </div>
@@ -76,15 +82,18 @@ function Profile() {
 }
 
 // Helper Component
-const InfoField = ({ label, value }) => (
-  <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
-    <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-      {value || "N/A"}
-    </p>
-    <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-      {label}
-    </p>
-  </div>
-);
+const InfoField = ({ label, value, capitalize = false }) => {
+  const displayValue = capitalize ? capitalizeFirstLetter(value) : value;
+  return (
+    <div className="flex flex-col items-center text-center sm:items-start sm:text-left">
+      <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+        {displayValue || "N/A"}
+      </p>
+      <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+        {label}
+      </p>
+    </div>
+  );
+};
 
 export default Profile;

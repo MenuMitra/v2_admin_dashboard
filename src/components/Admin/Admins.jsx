@@ -20,6 +20,14 @@ import { toastController } from "../../utils/toastController";
 import DeleteConfirmModal from "../../components/common/DeleteConfirmModal";
 import { useAdmins } from "../../lib/react-query/hooks/useAdmins";
 
+// Capitalize first letter of every word (title case)
+const toTitleCase = (str) =>
+  str
+    ? str.replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+
 function Admins() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
@@ -142,7 +150,7 @@ function Admins() {
       sortable: true,
       render: (value) => (
         <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-          {value}
+          {toTitleCase(value)}
         </p>
       ),
     },

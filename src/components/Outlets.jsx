@@ -27,6 +27,14 @@ import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 import { queryKeys } from "../lib/react-query/queryKeys";
 
+// Capitalize first letter of every word (title case)
+const toTitleCase = (str) =>
+  str
+    ? str.replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+
 function Outlets() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
@@ -400,7 +408,7 @@ function Outlets() {
         return (
           <div className="flex flex-col items-start">
             <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-              {displayName}
+              {toTitleCase(displayName)}
               <span className="pl-2 text-xs text-gray-500">({row.code})</span>
               {isExpiringSoon && (
                 <span className="pl-2 text-xs text-error-500 font-medium">

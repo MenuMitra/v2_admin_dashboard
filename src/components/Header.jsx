@@ -16,6 +16,12 @@ import { useAuth } from "../hooks/useAuth";
 import { API_CONFIG } from "../config/appConfig";
 import logo from "../assets/images/logo/logo.png";
 
+// Helper function to capitalize first letter
+const capitalizeFirstLetter = (str) => {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -135,7 +141,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                   />
                 </span>
                 <span className="hidden text-sm font-medium sm:block">
-                  {adminData.name}
+                  {capitalizeFirstLetter(adminData.name)}
                 </span>
                 <FontAwesomeIcon
                   icon={faChevronDown}
@@ -151,7 +157,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                   <Link to="/profile" onClick={() => setDropdownOpen(false)}>
                     <div className="mb-2 p-2">
                       <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {adminData.name}
+                        {capitalizeFirstLetter(adminData.name)}
                       </h4>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {adminData.email}

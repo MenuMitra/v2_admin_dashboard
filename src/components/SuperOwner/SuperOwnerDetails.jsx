@@ -29,6 +29,14 @@ import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
 
+// Title-case helper: capitalize first letter of every word
+const toTitleCase = (str) =>
+  str
+    ? String(str).replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+
 function SuperOwnerDetails() {
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
@@ -326,7 +334,7 @@ function SuperOwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {superOwnerData.name}
+                      {toTitleCase(superOwnerData.name)}
                     </div>
                     <div className="text-sm text-gray-500">Name</div>
                   </div>
@@ -524,7 +532,7 @@ function SuperOwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {superOwnerData.created_by?.toUpperCase() || "-"}
+                      {toTitleCase(superOwnerData.created_by) || "-"}
                     </div>
                     <div className="text-sm text-gray-500">Created By</div>
                   </div>
@@ -561,7 +569,7 @@ function SuperOwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {superOwnerData.updated_by?.toUpperCase()}
+                      {toTitleCase(superOwnerData.updated_by)}
                     </div>
                     <div className="text-sm text-gray-500">Updated By</div>
                   </div>
