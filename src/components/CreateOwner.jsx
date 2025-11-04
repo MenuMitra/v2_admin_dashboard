@@ -17,7 +17,6 @@ import {
   Textarea,
   Checkbox,
   labelStyles,
-  SelectInput,
 } from "./forms/FormElements.jsx";
 import Breadcrumb from "./Breadcrumb";
 import { API_CONFIG } from "../config/appConfig";
@@ -43,7 +42,6 @@ function CreateOwner() {
     address: "",
     outlet_ids: [],
     account_type: "live",
-    is_active: 1,
   });
 
   const [validationStates, setValidationStates] = useState({
@@ -271,7 +269,6 @@ function CreateOwner() {
             outlet_ids: ownerData.outlet_ids,
           }),
         account_type: ownerData.account_type,
-        is_active: ownerData.is_active,
         app_source: "admin",
       };
 
@@ -445,20 +442,6 @@ function CreateOwner() {
                   searchKeys={["outlet_name"]}
                   placeholder="Select outlets"
                   searchPlaceholder="Search outlets..."
-                />
-              </div>
-              <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
-                <SelectInput
-                  label="Owner Status"
-                  name="is_active"
-                  value={ownerData.is_active}
-                  onChange={handleChange}
-                  required
-                  options={[
-                    { value: 1, label: "Active" },
-                    { value: 0, label: "Inactive" },
-                  ]}
-                  placeholder="Select Status"
                 />
               </div>
             </div>
