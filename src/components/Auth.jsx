@@ -6,7 +6,6 @@ import grid01 from "../assets/images/shape/grid-01.svg";
 import { toastController } from "../utils/toastController";
 import { API_CONFIG } from "../config/appConfig";
 import { useAuth } from "../hooks/useAuth";
-import UpdateService from "../services/UpdateService";
 import YouTubePlayer from "./YouTubePlayer";
 
 function Auth() {
@@ -82,20 +81,6 @@ function Auth() {
     e?.preventDefault();
     setLoading(true);
     setError("");
-
-    // Check for updates before sending login OTP
-    try {
-      const updateInfo = await UpdateService.checkForUpdates();
-      if (updateInfo.hasUpdate) {
-        // Show a toast/warning but allow login to continue
-        toastController.show({
-          type: "warning",
-          message: `New version available (${updateInfo.serverVersion}). Please update to latest.`,
-        });
-      }
-    } catch (err) {
-      
-    }
 
     try {
       const response = await toastController.promise(
@@ -368,7 +353,7 @@ function Auth() {
       const response = await toastController.promise(
         axios.post(
           `${BASE_URL}/common/resend_otp`,
-          { mobile, app_type: "admin" },
+          { mobile, app_type: "admin", version: "2.0" },
           {
             headers: {
               Authorization: getToken(),

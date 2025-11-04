@@ -60,6 +60,20 @@ function OwnerDetails() {
         )
       : "";
 
+  // Format date as DD-MM-YYYY
+  const formatDateDMY = (value) => {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (!isNaN(date)) {
+      const dd = String(date.getDate()).padStart(2, "0");
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const yyyy = date.getFullYear();
+      return `${dd}-${mm}-${yyyy}`;
+    }
+    // If value isn't a parsable date (already formatted), return as is
+    return value;
+  };
+
   // Add breadcrumb configuration
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
@@ -341,7 +355,7 @@ function OwnerDetails() {
                     />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{ownerData.dob}</div>
+                    <div className="text-base font-medium">{formatDateDMY(ownerData.dob)}</div>
                     <div className="text-sm text-gray-500">Date of Birth</div>
                   </div>
                 </div>

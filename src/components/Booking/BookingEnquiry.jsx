@@ -110,31 +110,29 @@ const BookingEnquiry = () => {
     <>
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="mb-4 p-4">
-        <DataTable
-          data={filtered}
-          title="Bookings"
-          columns={columns}
-          isLoading={isLoading}
-          error={error}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={setItemsPerPage}
-          onBackClick={handleBack}
-          enablePagination={true}
-          showSearch={true}
-          createButton={{ show: false, label: "", onClick: () => {} }}
-          showBulkActions={false}
-          enableStatusFilter={false}
-          enableEnquiry={false}
-          counts={{
-            total: filtered.length,
-            active: null,
-            inactive: null,
-          }}
-        />
-      </div>
+      <DataTable
+        data={filtered}
+        title="Bookings"
+        columns={columns}
+        isLoading={isLoading}
+        error={error}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={setItemsPerPage}
+        onBackClick={handleBack}
+        enablePagination={true}
+        showSearch={true}
+        createButton={{ show: false, label: "", onClick: () => {} }}
+        showBulkActions={false}
+        enableStatusFilter={false}
+        enableEnquiry={false}
+        counts={{
+          total: filtered.length,
+          active: null,
+          inactive: null,
+        }}
+      />
     </>
   );
 };
