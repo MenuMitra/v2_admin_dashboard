@@ -841,7 +841,8 @@ function DataTable({
 
             {/* Filters Row - Below Stats */}
             {(enableStatusFilter || enableAccountTypeFilter || enableOpenCloseStatusFilter || enableOutletTypeFilter || enableOutletModeFilter || enableOwnerCountFilter || enableEnquiry || showSearch || onReload) && (
-              <div className="flex flex-wrap items-center gap-2 px-0 pl-2 mb-4">
+              <div className="flex items-center gap-2 px-0 pl-2 mb-4">
+                <div className="flex flex-1 flex-wrap items-center gap-2">
                 {enableStatusFilter && (
                   <div className="relative w-36 mr-2">
                     <select
@@ -993,6 +994,8 @@ function DataTable({
                     </select>
                   </div>
                 )}
+                </div>
+                <div className="ml-auto flex items-center gap-2">
                 {/* Reload Button */}
                 {onReload && (
                   <button
@@ -1049,6 +1052,7 @@ function DataTable({
                     )}
                   </div>
                 )}
+                </div>
               </div>
             )}
           </div>

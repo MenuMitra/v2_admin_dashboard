@@ -189,11 +189,10 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       type="error"
       size="small"
       title=""
+      showCloseButton={false}
     >
       <div className="flex flex-col items-center gap-4">
-        <span className="flex items-center justify-center w-12 h-12 rounded-full bg-error-50 text-error-500">
-          <FontAwesomeIcon icon={faSignOutAlt} className="w-6 h-6" />
-        </span>
+        <FontAwesomeIcon icon={faSignOutAlt} className="w-50 h-50 text-error-700" />
         <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90 text-center">
           Are you sure you want to logout?
         </h3>
@@ -211,9 +210,9 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
               setShowLogoutConfirm(false);
               handleLogout();
             }}
-            className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs border border-error-300 text-error-500 hover:bg-error-50"
+            className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs border border-error-300 text-error-400 hover:text-error-600 hover:bg-error-50"
           >
-            ✓ Yes, Exit Me
+            Exit Me
           </button>
         </div>
       </div>
