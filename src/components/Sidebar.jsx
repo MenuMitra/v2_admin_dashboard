@@ -403,7 +403,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
               </ul>
               {idx !== menuGroups.length - 1 && (
                 <hr
-                  className={`my-2 border-t ${
+                  className={`my-2 w-full border-t ${
                     isProduction && idx === 0 ? "border-blue-500" : "border-gray-200"
                   }`}
                 />
