@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
+import { API_CONFIG } from "../config/appConfig";
 import { useAdmin } from "../hooks/useAdmin";
 import {
   faHome,
@@ -112,6 +113,8 @@ const Sidebar = ({ sidebarToggle = false }) => {
   const navigate = useNavigate();
   const { getToken, logout } = useAuth();
   const { adminData, clearAdmin } = useAdmin();
+  const { BASE_URL } = API_CONFIG;
+  const isProduction = BASE_URL === "https://ghanish.in/v2";
 
   const MenuGroup = ({ title, items }) => (
     <div>
@@ -399,7 +402,11 @@ const Sidebar = ({ sidebarToggle = false }) => {
                 ))}
               </ul>
               {idx !== menuGroups.length - 1 && (
-                <hr className="my-2 border-t border-gray-200" />
+                <hr
+                  className={`my-2 border-t ${
+                    isProduction && idx === 0 ? "border-blue-500" : "border-gray-200"
+                  }`}
+                />
               )}
             </React.Fragment>
           ))}
