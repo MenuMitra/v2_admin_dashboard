@@ -192,7 +192,7 @@ function CreatePartner() {
       }
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to create partner");
-      console.error("Error creating partner:", err);
+      
     } finally {
       setIsLoading(false);
     }

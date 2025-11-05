@@ -52,6 +52,28 @@ function OwnerDetails() {
 
   const [isTogglingActive, setIsTogglingActive] = useState(false);
 
+  // Title-case helper: capitalize first letter of every word
+  const toTitleCase = (str) =>
+    str
+      ? String(str).replace(/\w\S*/g, (txt) =>
+          txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        )
+      : "";
+
+  // Format date as DD-MM-YYYY
+  const formatDateDMY = (value) => {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (!isNaN(date)) {
+      const dd = String(date.getDate()).padStart(2, "0");
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const yyyy = date.getFullYear();
+      return `${dd}-${mm}-${yyyy}`;
+    }
+    // If value isn't a parsable date (already formatted), return as is
+    return value;
+  };
+
   // Add breadcrumb configuration
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
@@ -178,7 +200,7 @@ function OwnerDetails() {
       await refetch();
     } catch (e) {
       // already toasting in failure path
-      console.error(e);
+      
     } finally {
       setIsTogglingActive(false);
     }
@@ -333,7 +355,7 @@ function OwnerDetails() {
                     />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{ownerData.dob}</div>
+                    <div className="text-base font-medium">{formatDateDMY(ownerData.dob)}</div>
                     <div className="text-sm text-gray-500">Date of Birth</div>
                   </div>
                 </div>
@@ -393,7 +415,7 @@ function OwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {ownerData.role}
+                      {toTitleCase(ownerData.role)}
                     </div>
                     <div className="text-sm text-gray-500">Role</div>
                   </div>
@@ -469,7 +491,7 @@ function OwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {ownerData.created_by?.toUpperCase() || "-"}
+                      {toTitleCase(ownerData.created_by) || "-"}
                     </div>
                     <div className="text-sm text-gray-500">Created By</div>
                   </div>
@@ -504,7 +526,7 @@ function OwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {ownerData.updated_by?.toUpperCase()}
+                      {toTitleCase(ownerData.updated_by)}
                     </div>
                     <div className="text-sm text-gray-500">Updated By</div>
                   </div>

@@ -6,6 +6,14 @@ import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import { API_CONFIG } from "../../config/appConfig";
 
+// Capitalize first letter of every word (title case)
+const toTitleCase = (str) =>
+  str
+    ? String(str).replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+
 const BookingEnquiry = () => {
   const { getToken } = useAuth();
   const { BASE_URL } = API_CONFIG;
@@ -39,7 +47,7 @@ const BookingEnquiry = () => {
         setBookings([]);
       }
     } catch (err) {
-      console.error("Failed to fetch bookings:", err);
+      
       setError(err.message || "Failed to fetch bookings");
     } finally {
       setIsLoading(false);
@@ -64,11 +72,31 @@ const BookingEnquiry = () => {
   });
 
   const columns = [
-    { field: "name", header: "Name", sortable: true },
+    {
+      field: "name",
+      header: "Name",
+      sortable: true,
+      render: (value) => toTitleCase(value),
+    },
     { field: "mobile", header: "Mobile", sortable: true },
-    { field: "outlet_name", header: "Outlet", sortable: true },
-    { field: "outlet_type", header: "Type", sortable: true },
-    { field: "city", header: "City", sortable: true },
+    {
+      field: "outlet_name",
+      header: "Outlet",
+      sortable: true,
+      render: (value) => toTitleCase(value),
+    },
+    {
+      field: "outlet_type",
+      header: "Type",
+      sortable: true,
+      render: (value) => toTitleCase(value),
+    },
+    {
+      field: "city",
+      header: "City",
+      sortable: true,
+      render: (value) => toTitleCase(value),
+    },
     { field: "email", header: "Email", sortable: true },
     { field: "created_on", header: "Created On", sortable: true },
   ];
@@ -82,31 +110,29 @@ const BookingEnquiry = () => {
     <>
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="mb-4 p-4">
-        <DataTable
-          data={filtered}
-          title="Bookings"
-          columns={columns}
-          isLoading={isLoading}
-          error={error}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={setItemsPerPage}
-          onBackClick={handleBack}
-          enablePagination={true}
-          showSearch={true}
-          createButton={{ show: false, label: "", onClick: () => {} }}
-          showBulkActions={false}
-          enableStatusFilter={false}
-          enableEnquiry={false}
-          counts={{
-            total: filtered.length,
-            active: null,
-            inactive: null,
-          }}
-        />
-      </div>
+      <DataTable
+        data={filtered}
+        title="Bookings"
+        columns={columns}
+        isLoading={isLoading}
+        error={error}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={setItemsPerPage}
+        onBackClick={handleBack}
+        enablePagination={true}
+        showSearch={true}
+        createButton={{ show: false, label: "", onClick: () => {} }}
+        showBulkActions={false}
+        enableStatusFilter={false}
+        enableEnquiry={false}
+        counts={{
+          total: filtered.length,
+          active: null,
+          inactive: null,
+        }}
+      />
     </>
   );
 };

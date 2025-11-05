@@ -71,7 +71,7 @@ function EditSubscription() {
         setModules(response.data);
       }
     } catch (error) {
-      console.error("Error fetching modules:", error);
+      
       toastController.error("Failed to fetch modules");
     }
   };
@@ -209,7 +209,7 @@ function EditSubscription() {
         }
       }
     } catch (error) {
-      console.error("Error fetching subscription details:", error);
+      
       toastController.error(
         error.response?.data?.detail || "Failed to fetch subscription details"
       );
@@ -261,7 +261,7 @@ function EditSubscription() {
         setActionsMap({});
       }
     } catch (error) {
-      console.error("Error fetching features:", error);
+      
       toastController.error(
         error.response?.data?.detail || "Failed to fetch features"
       );
@@ -310,7 +310,7 @@ function EditSubscription() {
         setActionsMap({});
       }
     } catch (error) {
-      console.error("Error fetching features for modules:", error);
+     
       toastController.error("Failed to fetch features");
     }
   };
@@ -352,7 +352,7 @@ function EditSubscription() {
       }
       setActionsMap(map);
     } catch (error) {
-      console.error("Error fetching actions:", error);
+      
       toastController.error("Failed to fetch actions");
     }
   };
@@ -449,12 +449,8 @@ function EditSubscription() {
       feature_ids: hasFeatures ? !hasSelectedAnyFeature : false,
     };
 
-    // Debug in console to spot what's failing
-    console.log("EditSubscription validate:", {
-      formData,
-      featuresCount: features.length,
-      newValidationStates,
-    });
+    
+    
 
     setValidationStates(newValidationStates);
     const isValid = !Object.values(newValidationStates).some((state) => state);
@@ -515,12 +511,8 @@ function EditSubscription() {
       );
 
       // Log full response for debugging
-      // eslint-disable-next-line no-console
-      console.log(
-        "update_subscription response:",
-        response.status,
-        response.data
-      );
+      
+      
 
       // Treat any 2xx HTTP response as success, but still show server message when available
       if (response.status >= 200 && response.status < 300) {
@@ -536,7 +528,7 @@ function EditSubscription() {
         );
       }
     } catch (error) {
-      console.error("Error updating subscription:", error);
+      
       toastController.error(
         error.response?.data?.detail || "Failed to update subscription"
       );

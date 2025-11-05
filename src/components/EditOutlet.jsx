@@ -98,6 +98,7 @@ function EditOutlet() {
     whatsapp: false,
     whatsappMessage: "",
   });
+  const [originalOwnerIds, setOriginalOwnerIds] = useState([]);
 
   // Subscription-related state removed per request
 
@@ -170,7 +171,7 @@ function EditOutlet() {
             Array.isArray(resp.data) ? resp.data : resp.data?.data || []
           );
         } catch (err) {
-          console.error("Error fetching modules:", err);
+          
         } finally {
           setLoadingModules(false);
         }
@@ -218,10 +219,11 @@ function EditOutlet() {
           ? String(data.subscription_id)
           : null;
 
+        const initialOwnerIds = data.owners?.map((owner) => owner.owner_id) || [];
         setOutletData({
           outlet_id: outletId,
           user_id: adminData?.user_id,
-          owner_ids: data.owners?.map((owner) => owner.owner_id) || [],
+          owner_ids: initialOwnerIds,
           name: data.name || "",
           outlet_type: data.outlet_type || "",
           fssainumber:
@@ -255,8 +257,9 @@ function EditOutlet() {
             respSubscription || data.subscription_details || null,
           has_combo: data.has_combo !== undefined ? data.has_combo : null,
           has_denomination: data.has_denomination !== undefined ? data.has_denomination : null,
-          reserve_table: data.reserve_table !== undefined ? data.reserve_table : null,
+          reserve_table: data.has_reserve_table !== undefined ? data.has_reserve_table : (data.reserve_table !== undefined ? data.reserve_table : null),
         });
+        setOriginalOwnerIds(initialOwnerIds);
 
         // Set time picker values
         if (data.opening_time) {
@@ -332,7 +335,7 @@ function EditOutlet() {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error("Error fetching outlet data:", error);
+      
       toastController.error("Failed to fetch outlet data");
       navigate(-1);
     }
@@ -358,7 +361,7 @@ function EditOutlet() {
         setOutletTypes(response.data.outlet_type_list);
       }
     } catch (error) {
-      console.error("Error fetching outlet types:", error);
+      
     }
   };
 
@@ -382,7 +385,7 @@ function EditOutlet() {
         setVegOrNonveg(response.data.veg_or_nonveg_list);
       }
     } catch (error) {
-      console.error("Error fetching veg or nonveg types:", error);
+      
     }
   };
 
@@ -400,7 +403,7 @@ function EditOutlet() {
         setAllOwners(response.data);
       }
     } catch (error) {
-      console.error("Error fetching owners:", error);
+      
     }
   };
 
@@ -527,8 +530,7 @@ function EditOutlet() {
     };
 
     // Log validation results for debugging
-    console.log("Validation results:", requiredFields);
-    console.log("Outlet data:", outletData);
+    
 
     const fieldsValid = Object.entries(requiredFields).every(
       ([, value]) => value
@@ -540,7 +542,7 @@ function EditOutlet() {
         .filter(([, value]) => !value)
         .map(([field]) => field);
 
-      console.log("Failed validation fields:", failedFields);
+      
       toastController.error(
         `Please fix the following fields: ${failedFields.join(", ")}`
       );
@@ -585,15 +587,29 @@ function EditOutlet() {
             commaIdx !== -1 ? imagePayload.slice(commaIdx + 1) : imagePayload;
         } else if (/^https?:\/\//i.test(imagePayload)) {
           // Existing URL; avoid sending as base64 to prevent server error
-          imagePayload = null;
+          imagePayload = "";
         }
       }
+      // If image is null/undefined, send empty string as per API expectation
+      if (imagePayload == null) imagePayload = "";
 
-      // Prepare API data with new_owner_ids as array
+      // Determine owner additions/removals relative to original owner set
+      const currentOwnerIds = Array.isArray(outletData.owner_ids)
+        ? outletData.owner_ids
+        : [];
+      const removedOwnerIds = originalOwnerIds.filter(
+        (id) => !currentOwnerIds.includes(id)
+      );
+      const addedOwnerIds = currentOwnerIds.filter(
+        (id) => !originalOwnerIds.includes(id)
+      );
+
+      // Prepare API data with new_owner_ids and remove_owner_ids
       const apiData = {
         outlet_id: parseInt(outletId),
         user_id: parseInt(adminData.user_id),
-        new_owner_ids: outletData.owner_ids || [],
+        new_owner_ids: addedOwnerIds,
+        remove_owner_ids: removedOwnerIds,
         name: outletData.name,
         outlet_type: outletData.outlet_type,
         fssainumber: outletData.fssainumber || "",
@@ -618,7 +634,7 @@ function EditOutlet() {
         image: imagePayload,
         has_combo: outletData.has_combo,
         has_denomination: outletData.has_denomination,
-        reserve_table: outletData.reserve_table,
+        has_reserve_table: outletData.reserve_table,
         // subscription_id may be present in outletData or in the cached/view response
         subscription_id: outletData.subscription_id
           ? parseInt(outletData.subscription_id)
@@ -636,7 +652,7 @@ function EditOutlet() {
       }
 
       // Log the API payload for debugging
-      console.log("API Payload:", JSON.stringify(apiData, null, 2));
+      
 
       // Ensure we include any subscription id available from the cached outlet detail
       // (the view_outlet response may contain the subscription object created during create_outlet)
@@ -710,7 +726,7 @@ function EditOutlet() {
           queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
           queryClient.invalidateQueries(queryKeys.outlets.all);
         } catch (err) {
-          console.warn("Failed to invalidate outlet queries:", err);
+          
         }
         navigate(`/view-outlet/${outletId}`);
       } else {
@@ -721,9 +737,7 @@ function EditOutlet() {
         toastController.error(msg);
       }
     } catch (error) {
-      console.error("Error updating outlet:", error);
-      console.error("Error response:", error.response?.data);
-      console.error("Error status:", error.response?.status);
+      
 
       // Show more detailed error message
       const errorMessage =
@@ -949,11 +963,8 @@ function EditOutlet() {
                                           (id) => id !== owner.user_id
                                         );
 
-                                    console.log(
-                                      "Owner IDs before update:",
-                                      outletData.owner_ids
-                                    );
-                                    console.log("New owner IDs:", newOwnerIds);
+                                    
+                                    
 
                                     setOutletData((prev) => ({
                                       ...prev,

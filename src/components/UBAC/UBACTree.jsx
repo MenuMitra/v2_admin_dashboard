@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
-import { faTrash, faChevronLeft, faPlus, faRotate, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faChevronLeft, faPlus, faRotate, faMagnifyingGlass, faTimes } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
@@ -43,8 +43,8 @@ const UBACTree = () => {
           : { "Content-Type": "application/json" };
 
         // DEBUG: show token and headers for troubleshooting auth
-        console.log("UBAC: fetchModules getToken() =>", getToken());
-        console.log("UBAC: fetchModules headers =>", headers);
+        
+        
 
         const res = await fetch(`${BASE_URL}/admin/get_modules`, {
           method: "GET",
@@ -52,7 +52,7 @@ const UBACTree = () => {
         });
 
         if (res.status === 401 || res.status === 403) {
-          console.warn("Unauthorized when fetching modules", res.status);
+          
           setModulesList([]);
           return;
         }
@@ -61,7 +61,7 @@ const UBACTree = () => {
         const data = json.data || json || [];
         setModulesList(Array.isArray(data) ? data : []);
       } catch (err) {
-        console.error("Failed to load modules", err);
+        
         setModulesList([]);
       }
     };
@@ -90,8 +90,7 @@ const UBACTree = () => {
           : { "Content-Type": "application/json" };
 
         // DEBUG: show token and headers for troubleshooting auth
-        console.log("UBAC: fetchFeatures getToken() =>", getToken());
-        console.log("UBAC: fetchFeatures headers =>", headers);
+        
 
         const query = new URLSearchParams({
           module_id: String(body.module_id),
@@ -101,23 +100,23 @@ const UBACTree = () => {
 
         // include query string so API receives module_id/outlet_id/app_source
         const url = `${BASE_URL}/admin/get_features?${query}`;
-        console.log("UBAC: fetchFeatures url =>", url);
+        
 
         const res = await fetch(url, {
           method: "GET",
           headers,
         });
 
-        console.log("UBAC: fetchFeatures status =>", res.status);
+        
 
         if (res.status === 401 || res.status === 403) {
-          console.warn("Unauthorized when fetching features", res.status);
+          
           setFeaturesList([]);
           return;
         }
 
         if (!res.ok) {
-          console.error("Failed to fetch features, status:", res.status);
+          
           setFeaturesList([]);
           return;
         }
@@ -130,7 +129,7 @@ const UBACTree = () => {
           : incoming.features || [];
         setFeaturesList(features);
       } catch (err) {
-        console.error("Failed to load features", err);
+        
         setFeaturesList([]);
       }
     };
@@ -203,7 +202,7 @@ const UBACTree = () => {
                     await refetchUbacTree();
                     toastController.success("Deleted successfully");
                   } catch (err) {
-                    console.error(err);
+                    
                     toastController.error("Delete failed");
                   }
                 }}
@@ -304,7 +303,7 @@ const UBACTree = () => {
                             await refetchUbacTree();
                             toastController.success("Deleted successfully");
                           } catch (err) {
-                            console.error(err);
+                           
                             toastController.error("Delete failed");
                           }
                         }}
@@ -411,7 +410,7 @@ const UBACTree = () => {
                           await refetchUbacTree();
                           toastController.success("Deleted successfully");
                         } catch (err) {
-                          console.error(err);
+                          
                           toastController.error("Delete failed");
                         }
                       }}
@@ -535,6 +534,19 @@ const UBACTree = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSearchTerm("");
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                  title="Clear search"
+                >
+                  <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -659,7 +671,7 @@ const UBACTree = () => {
                   setSelectedFeatureId("");
                   setSelectedModuleId("");
                 } catch (err) {
-                  console.error(err);
+                 
                   toastController.error("Save failed");
                 } finally {
                   setLoadingSave(false);
@@ -831,7 +843,7 @@ const UBACTree = () => {
                   setEditSelectedModuleId("");
                   setEditId(null);
                 } catch (err) {
-                  console.error(err);
+                 
                   toastController.error("Save failed");
                 } finally {
                   setEditLoadingSave(false);

@@ -27,6 +27,14 @@ import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 import { queryKeys } from "../lib/react-query/queryKeys";
 
+// Capitalize first letter of every word (title case)
+const toTitleCase = (str) =>
+  str
+    ? str.replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+
 function Outlets() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
@@ -65,7 +73,7 @@ function Outlets() {
   // Toggle status mutation
   const toggleStatusMutation = useMutation({
     mutationFn: async ({ outlet_id, type, value }) => {
-      console.log("Mutation payload:", { outlet_id, type, value });
+      
       const payload = {
         outlet_id: outlet_id,
         user_id: adminData?.user_id,
@@ -73,7 +81,7 @@ function Outlets() {
         type: type,
         value: value,
       };
-      console.log("Full API payload:", payload);
+      
       return axios.patch(
         `${BASE_URL}/common/change_outlet_status`,
         payload,
@@ -97,16 +105,11 @@ function Outlets() {
       // Optimistically update to the new value
       queryClient.setQueryData(queryKeys.outlets.list(), (old) => {
         if (!old) return old;
-        console.log("Optimistically updating outlet data:", {
-          outlet_id,
-          type,
-          value,
-          oldData: old,
-        });
+        
         return old.map((outlet) => {
           if (outlet.outlet_id === outlet_id || outlet.id === outlet_id) {
             const updatedOutlet = { ...outlet };
-            console.log("Updating outlet:", { before: outlet, type, value });
+            
             switch (type) {
               case "outlet_status":
                 updatedOutlet.outletStatus = value === "active" ? 1 : 0;
@@ -121,7 +124,7 @@ function Outlets() {
                 updatedOutlet.outlet_mode = value;
                 break;
             }
-            console.log("Updated outlet:", updatedOutlet);
+            
             return updatedOutlet;
           }
           return outlet;
@@ -249,9 +252,9 @@ function Outlets() {
 
   // Toggle handlers for status columns
   const handleToggleOutletStatus = (outletId, currentStatus) => {
-    console.log("Toggle outlet status:", { outletId, currentStatus });
+    
     if (!outletId) {
-      console.error("outletId is undefined!");
+      
       return;
     }
     const newValue = currentStatus === 1 ? "inactive" : "active";
@@ -263,9 +266,9 @@ function Outlets() {
   };
 
   const handleToggleOpenStatus = (outletId, currentStatus) => {
-    console.log("Toggle open status:", { outletId, currentStatus });
+    
     if (!outletId) {
-      console.error("outletId is undefined!");
+      
       return;
     }
     const newValue = currentStatus === 1 ? "close" : "open";
@@ -277,17 +280,13 @@ function Outlets() {
   };
 
   const handleToggleAccountType = (outletId, currentType) => {
-    console.log("Toggle account type:", { outletId, currentType });
+    
     if (!outletId) {
-      console.error("outletId is undefined!");
+      
       return;
     }
     const newValue = currentType === "live" ? "test" : "live";
-    console.log("Sending mutation with:", {
-      outlet_id: outletId,
-      type: "account_type",
-      value: newValue,
-    });
+    
     toggleStatusMutation.mutate({
       outlet_id: outletId,
       type: "account_type",
@@ -296,9 +295,9 @@ function Outlets() {
   };
 
   const handleToggleOutletMode = (outletId, currentMode) => {
-    console.log("Toggle outlet mode:", { outletId, currentMode });
+    
     if (!outletId) {
-      console.error("outletId is undefined!");
+      
       return;
     }
     const newValue = currentMode === "online" ? "offline" : "online";
@@ -321,7 +320,7 @@ function Outlets() {
       });
       setSelectedOutlets(selectedIds.filter((id) => id !== null));
     } catch (err) {
-      console.error("Error preparing bulk action:", err);
+      
     }
   };
 
@@ -409,7 +408,7 @@ function Outlets() {
         return (
           <div className="flex flex-col items-start">
             <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-              {displayName}
+              {toTitleCase(displayName)}
               <span className="pl-2 text-xs text-gray-500">({row.code})</span>
               {isExpiringSoon && (
                 <span className="pl-2 text-xs text-error-500 font-medium">
@@ -520,9 +519,7 @@ function Outlets() {
       render: (value, row) => (
         <button
           onClick={() => {
-            console.log("Row data for outlet mode:", row);
-            console.log("outlet_id from row:", row.outlet_id);
-            console.log("id from row:", row.id);
+            
             handleToggleOutletMode(row.outlet_id || row.id, value);
           }}
           disabled={toggleStatusMutation.isPending}
@@ -584,9 +581,7 @@ function Outlets() {
       render: (value, row) => (
         <button
           onClick={() => {
-            console.log("Row data for open/close:", row);
-            console.log("outlet_id from row:", row.outlet_id);
-            console.log("id from row:", row.id);
+            
             handleToggleOpenStatus(row.outlet_id || row.id, value);
           }}
           disabled={toggleStatusMutation.isPending}
@@ -610,9 +605,7 @@ function Outlets() {
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => {
-              console.log("Row data for outlet status:", row);
-              console.log("outlet_id from row:", row.outlet_id);
-              console.log("id from row:", row.id);
+              
               handleToggleOutletStatus(row.outlet_id || row.id, value);
             }}
             disabled={toggleStatusMutation.isPending}
@@ -795,7 +788,7 @@ function Outlets() {
         statusField="outletStatus"
         onReload={() => {
           queryClient.invalidateQueries(queryKeys.outlets.list());
-          console.log("Forcing outlets data refresh");
+          
         }}
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;

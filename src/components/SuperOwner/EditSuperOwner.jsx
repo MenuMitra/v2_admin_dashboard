@@ -12,6 +12,7 @@ import {
   faSave,
   faChevronLeft as faBack,
   faMagnifyingGlass,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Utility function to convert a string to title case
@@ -111,7 +112,7 @@ function EditSuperOwner() {
         }));
       }
     } catch (error) {
-      console.error("Error fetching super owner details:", error);
+      
       setError("Failed to fetch super owner details");
     }
   };
@@ -153,7 +154,7 @@ function EditSuperOwner() {
         );
       }
     } catch (error) {
-      console.error("Error fetching outlets:", error);
+      
       setError("Failed to fetch outlets");
     }
   };
@@ -532,6 +533,19 @@ function EditSuperOwner() {
                           placeholder="Search location"
                           className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
                         />
+                        {searchTerm && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setSearchTerm("");
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                            title="Clear search"
+                          >
+                            <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

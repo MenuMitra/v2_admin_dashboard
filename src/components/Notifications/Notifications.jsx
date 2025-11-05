@@ -209,7 +209,7 @@ const Notifications = () => {
   ];
 
   const handleBulkAction = async (action, selectedIds) => {
-    console.log("Bulk action:", action, "Selected IDs:", selectedIds);
+    
   };
 
   // Get filtered notifications
@@ -251,7 +251,7 @@ const Notifications = () => {
         refetchNotifications();
       }
     } catch (error) {
-      console.error("Error resending notification:", error);
+      
       const errorMessage =
         error.response?.data?.detail ||
         error.response?.data?.message ||

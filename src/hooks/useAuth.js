@@ -76,7 +76,7 @@ export const useAuth = () => {
       // Check if the date is valid and not expired
       return !isNaN(expirationDate.getTime()) && expirationDate > currentDate;
     } catch (error) {
-      console.error('Error parsing expiration date:', error);
+      
       return false;
     }
   }, [authData]);

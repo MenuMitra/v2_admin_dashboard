@@ -99,7 +99,7 @@ function Staff() {
         }
       );
     } catch (err) {
-      console.error(`Bulk action ${actionKey} failed:`, err);
+      
     }
   };
 

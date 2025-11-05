@@ -110,7 +110,7 @@ export const useStats = () => {
           // Try to parse as any other format
           const date = new Date(dateString);
           if (isNaN(date.getTime())) {
-            console.warn("Could not parse date:", dateString);
+            
             return dateString;
           }
 
@@ -125,8 +125,7 @@ export const useStats = () => {
           end_date: formatDateForApi(filters.end_date),
         };
 
-        console.log("Sending app usage stats request:", requestBody);
-        console.log("Authorization token:", token ? "Present" : "Missing");
+        
 
         const response = await fetch(
           `${BASE_URL}/admin/app_usage_stats`,
@@ -142,18 +141,14 @@ export const useStats = () => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          console.error(
-            "App usage stats API error:",
-            response.status,
-            errorText
-          );
+          
           throw new Error(
             `Failed to fetch app usage stats: ${response.status} ${errorText}`
           );
         }
 
         const data = await response.json();
-        console.log("Received app usage stats data:", data);
+        
         return data;
       },
       enabled: Boolean(filters?.start_date && filters?.end_date),

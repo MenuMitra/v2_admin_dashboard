@@ -78,7 +78,7 @@ const EnquiryList = () => {
         setEnquiries([]);
       }
     } catch (error) {
-      console.error("Error fetching enquiries:", error);
+      
       setError(error.message || "Failed to fetch enquiries");
       toastController.showError("Failed to fetch enquiries");
     } finally {
@@ -218,7 +218,7 @@ const EnquiryList = () => {
           throw new Error(response.data?.message || "Failed to delete enquiry");
         }
       } catch (error) {
-        console.error("Error deleting enquiry:", error);
+        
         toastController.showError(error.message || "Failed to delete enquiry");
       }
     }
@@ -271,7 +271,7 @@ const EnquiryList = () => {
         );
       }
     } catch (error) {
-      console.error("Error performing bulk action:", error);
+      
       toastController.showError(
         error.message || "Failed to perform bulk action"
       );
@@ -287,40 +287,38 @@ const EnquiryList = () => {
     <>
       <Breadcrumb items={breadcrumbItems} />
 
-      <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
-        <DataTable
-          data={getFilteredEnquiries()}
-          title="Enquiries"
-          columns={columns}
-          counts={counts}
-          isLoading={isLoading}
-          error={error}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          searchPlaceholder="Search by ID, hotel name, location or contact number..."
-          selectedItems={selectedItems}
-          onSelectionChange={setSelectedItems}
-          itemsPerPage={itemsPerPage}
-          onItemsPerPageChange={setItemsPerPage}
-          onBulkAction={handleBulkAction}
-          onBackClick={handleBack}
-          bulkActions={[
-            { label: "Delete Selected", value: "delete" },
-            { label: "Mark as Resolved", value: "update_status" },
-          ]}
-          enableEnquiry={true}
-          createButton={{ show: false, label: "", onClick: () => {} }}
-          enableStatusFilter={false}
-          enquiryFilter={statusFilter}
-          onEnquiryFilterChange={(value) => {
-            setStatusFilter(value);
-            fetchEnquiries(1, itemsPerPage, value);
-          }}
-          showSearch={true}
-          showBulkActions={true}
-          showPagination={true}
-        />
-      </div>
+      <DataTable
+        data={getFilteredEnquiries()}
+        title="Enquiries"
+        columns={columns}
+        counts={counts}
+        isLoading={isLoading}
+        error={error}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search by ID, hotel name, location or contact number..."
+        selectedItems={selectedItems}
+        onSelectionChange={setSelectedItems}
+        itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={setItemsPerPage}
+        onBulkAction={handleBulkAction}
+        onBackClick={handleBack}
+        bulkActions={[
+          { label: "Delete Selected", value: "delete" },
+          { label: "Mark as Resolved", value: "update_status" },
+        ]}
+        enableEnquiry={true}
+        createButton={{ show: false, label: "", onClick: () => {} }}
+        enableStatusFilter={false}
+        enquiryFilter={statusFilter}
+        onEnquiryFilterChange={(value) => {
+          setStatusFilter(value);
+          fetchEnquiries(1, itemsPerPage, value);
+        }}
+        showSearch={true}
+        showBulkActions={true}
+        showPagination={true}
+      />
     </>
   );
 };

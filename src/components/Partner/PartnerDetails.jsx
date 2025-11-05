@@ -18,6 +18,14 @@ import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
 
+// Title-case helper: first letter capital for every word
+const toTitleCase = (str) =>
+  str
+    ? String(str).replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+
 function PartnerDetails() {
   const { partnerId } = useParams();
   const navigate = useNavigate();
@@ -120,8 +128,9 @@ function PartnerDetails() {
     try {
       const token = getToken();
       const payload = {
-        user_id: adminData?.user_id,
-        partner_id: Number(partner.partner_id || partner.user_id),
+        // Backend expects 'user_id' as the partner's id and 'update_user_id' as the actor
+        user_id: Number(partner.partner_id || partner.user_id),
+        update_user_id: adminData?.user_id,
         name: partner.name || partner.partner_name || "",
         email: partner.email || "",
         mobile: partner.mobile || "",
@@ -148,7 +157,7 @@ function PartnerDetails() {
       );
       await refetch();
     } catch (e) {
-      console.error(e);
+      
     } finally {
       setIsTogglingActive(false);
     }
@@ -237,7 +246,7 @@ function PartnerDetails() {
                 {partner.name && (
                   <div>
                     <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.name}
+                      {toTitleCase(partner.name)}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Name
@@ -267,7 +276,7 @@ function PartnerDetails() {
                 {partner.address && (
                   <div>
                     <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.address}
+                      {toTitleCase(partner.address)}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Address
@@ -316,7 +325,7 @@ function PartnerDetails() {
                 {partner.role && (
                   <div>
                     <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.role}
+                      {toTitleCase(partner.role)}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Role
@@ -360,7 +369,7 @@ function PartnerDetails() {
                 {partner.created_by && (
                   <div>
                     <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.created_by}
+                      {toTitleCase(partner.created_by)}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Created By
@@ -380,7 +389,7 @@ function PartnerDetails() {
                 {partner.updated_by && (
                   <div>
                     <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.updated_by}
+                      {toTitleCase(partner.updated_by)}
                     </h4>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Updated By

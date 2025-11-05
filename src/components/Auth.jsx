@@ -6,7 +6,6 @@ import grid01 from "../assets/images/shape/grid-01.svg";
 import { toastController } from "../utils/toastController";
 import { API_CONFIG } from "../config/appConfig";
 import { useAuth } from "../hooks/useAuth";
-import UpdateService from "../services/UpdateService";
 import YouTubePlayer from "./YouTubePlayer";
 
 function Auth() {
@@ -82,21 +81,6 @@ function Auth() {
     e?.preventDefault();
     setLoading(true);
     setError("");
-
-    // Check for updates before sending login OTP
-    try {
-      const updateInfo = await UpdateService.checkForUpdates();
-      if (updateInfo.hasUpdate) {
-        // Show a toast/warning but allow login to continue
-        toastController.show({
-          type: "warning",
-          message: `New version available (${updateInfo.serverVersion}). Please update to latest.`,
-        });
-      }
-    } catch (err) {
-      // Ignore update-check failures, proceed with login
-      console.warn("Update check failed:", err);
-    }
 
     try {
       const response = await toastController.promise(
@@ -369,7 +353,7 @@ function Auth() {
       const response = await toastController.promise(
         axios.post(
           `${BASE_URL}/common/resend_otp`,
-          { mobile, app_type: "admin" },
+          { mobile, app_type: "admin", version: "2.0" },
           {
             headers: {
               Authorization: getToken(),
@@ -602,6 +586,15 @@ function Auth() {
                   {/* Fixed Social Icons Section */}
                   <div className="flex justify-center gap-4 mt-6">
                     <a
+                      href="https://menumitra.com/"
+                      className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
+                    >
+                      <i
+                        className="ri-google-fill text-2xl"
+                        style={{ color: "#34A853" }}
+                      ></i>
+                    </a>
+                    <a
                       href="https://www.facebook.com/people/Menu-Mitra/61565082412478/"
                       className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
                     >
@@ -626,15 +619,6 @@ function Auth() {
                       <i
                         className="ri-youtube-fill text-2xl"
                         style={{ color: "#FF0000" }}
-                      ></i>
-                    </a>
-                    <a
-                      href="https://menumitra.com/"
-                      className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
-                    >
-                      <i
-                        className="ri-google-fill text-2xl"
-                        style={{ color: "#34A853" }}
                       ></i>
                     </a>
                   </div>

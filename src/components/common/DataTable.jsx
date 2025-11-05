@@ -701,8 +701,8 @@ function DataTable({
               </div>
             </div>
 
-            {/* Stats and Controls Row */}
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-0 sm:items-center justify-between px-0 pl-2 mb-4">
+            {/* Stats Row */}
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-0 sm:items-center justify-between px-0 pl-2 mb-2">
               {/* Left: Stats as badges */}
               {counts && (
                 <div className="flex items-center gap-2 text-sm flex-wrap">
@@ -769,164 +769,11 @@ function DataTable({
               )}
               {/* Right: Controls */}
               <div className="flex flex-1 justify-end items-center gap-4 w-full sm:w-auto">
-                {/* Filters, Reload, Search, etc. */}
+                {/* Reload, Search, etc. */}
                 {dashboardTitle && (
                   <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
                     {dashboardTitle}
                   </span>
-                )}
-                {enableStatusFilter && (
-                  <>
-                    <div className="relative w-40 mr-2">
-                      <select
-                        value={statusFilter}
-                        onChange={(e) => onStatusFilterChange(e.target.value)}
-                        className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                      >
-                        <option value="all">All Status</option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </select>
-                    </div>
-                    {/* Enquiry Filter */}
-                    {enableEnquiry && (
-                      <div className="relative w-40 mr-2">
-                        <select
-                          value={enquiryFilter || "all"}
-                          onChange={onEnquiryFilterChange || (() => {})}
-                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">Enquiry Type</option>
-                          <option value="enquiry">Enquiry</option>
-                          <option value="positive">Positive</option>
-                          <option value="onboard">Onboard</option>
-                        </select>
-                      </div>
-                    )}
-                    {/* Account Type Filter */}
-                    {enableAccountTypeFilter && (
-                      <div className="relative w-40 mr-2">
-                        <select
-                          value={accountType || "all"}
-                          onChange={onAccountTypeChange || (() => {})}
-                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">Account Type</option>
-                          <option value="live">Live</option>
-                          <option value="test">Test</option>
-                        </select>
-                      </div>
-                    )}
-                    {/* Open/Close Filter */}
-                    {enableOpenCloseStatusFilter && (
-                      <div className="relative w-40">
-                        <select
-                          value={openCloseStatus || "all"}
-                          onChange={onOpenCloseStatusChange || (() => {})}
-                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">Open/Close</option>
-                          <option value="open">Open</option>
-                          <option value="close">Close</option>
-                        </select>
-                      </div>
-                    )}
-                    {/* Active Session Filter */}
-                    {enableActiveSessionFilter && (
-                      <div className="relative w-40">
-                        <select
-                          value={activeSessionFilter || "all"}
-                          onChange={(e) => {
-                            onActiveSessionFilterChange(e.target.value);
-                          }}
-                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">All Sessions</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                          <option value="10">10+</option>
-                        </select>
-                      </div>
-                    )}
-                    {/* Outlet Count Filter */}
-                    {enableOutletCountFilter && (
-                      <div className="relative w-40">
-                        <select
-                          value={outletCountFilter || "all"}
-                          onChange={(e) => {
-                            onOutletCountFilterChange(e.target.value);
-                          }}
-                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">All Outlets</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                          <option value="10">10+</option>
-                        </select>
-                      </div>
-                    )}
-                    {/* Outlet Type Filter */}
-                    {enableOutletTypeFilter && (
-                      <div className="relative w-40">
-                        <select
-                          value={outletTypeFilter || "all"}
-                          onChange={(e) => {
-                            onOutletTypeFilterChange(e.target.value);
-                          }}
-                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">All Types</option>
-                          <option value="outlet">Outlet</option>
-                          <option value="cake_shop">Cake Shop</option>
-                        </select>
-                      </div>
-                    )}
-                    {/* Outlet Mode Filter */}
-                    {enableOutletModeFilter && (
-                      <div className="relative w-40">
-                        <select
-                          value={outletModeFilter || "all"}
-                          onChange={(e) => {
-                            onOutletModeFilterChange(e.target.value);
-                          }}
-                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">All Modes</option>
-                          <option value="online">Online</option>
-                          <option value="offline">Offline</option>
-                        </select>
-                      </div>
-                    )}
-                    {/* Owner Count Filter */}
-                    {enableOwnerCountFilter && (
-                      <div className="relative w-40">
-                        <select
-                          value={ownerCountFilter || "all"}
-                          onChange={(e) => {
-                            onOwnerCountFilterChange(e.target.value);
-                          }}
-                          className="w-full px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">All Owners</option>
-                          <option value="0">0</option>
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          <option value="4">4</option>
-                          <option value="5">5</option>
-                          <option value="10">10+</option>
-                        </select>
-                      </div>
-                    )}
-                  </>
                 )}
 
                 {/* Execution Time Filter - Independent of Status Filter */}
@@ -989,12 +836,169 @@ function DataTable({
                   </div>
                 )}
 
+              </div>
+            </div>
+
+            {/* Filters Row - Below Stats */}
+            {(enableStatusFilter || enableAccountTypeFilter || enableOpenCloseStatusFilter || enableOutletTypeFilter || enableOutletModeFilter || enableOwnerCountFilter || enableEnquiry || showSearch || onReload) && (
+              <div className="flex flex-wrap items-center gap-2 px-0 pl-2 mb-4">
+                {enableStatusFilter && (
+                  <div className="relative w-36 mr-2">
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => onStatusFilterChange(e.target.value)}
+                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">All Status</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+                )}
+                {/* Enquiry Filter */}
+                {enableEnquiry && (
+                  <div className="relative w-36 mr-2">
+                    <select
+                      value={enquiryFilter || "all"}
+                      onChange={onEnquiryFilterChange || (() => {})}
+                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">Enquiry Type</option>
+                      <option value="enquiry">Enquiry</option>
+                      <option value="positive">Positive</option>
+                      <option value="onboard">Onboard</option>
+                    </select>
+                  </div>
+                )}
+                {/* Account Type Filter */}
+                {enableAccountTypeFilter && (
+                  <div className="relative w-36 mr-2">
+                    <select
+                      value={accountType || "all"}
+                      onChange={onAccountTypeChange || (() => {})}
+                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">Account Type</option>
+                      <option value="live">Live</option>
+                      <option value="test">Test</option>
+                    </select>
+                  </div>
+                )}
+                {/* Open/Close Filter */}
+                {enableOpenCloseStatusFilter && (
+                  <div className="relative w-36 mr-2">
+                    <select
+                      value={openCloseStatus || "all"}
+                      onChange={onOpenCloseStatusChange || (() => {})}
+                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">Open/Close</option>
+                      <option value="open">Open</option>
+                      <option value="close">Close</option>
+                    </select>
+                  </div>
+                )}
+                {/* Active Session Filter */}
+                {enableActiveSessionFilter && (
+                  <div className="relative w-36 mr-2">
+                    <select
+                      value={activeSessionFilter || "all"}
+                      onChange={(e) => {
+                        onActiveSessionFilterChange(e.target.value);
+                      }}
+                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">All Sessions</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="10">10+</option>
+                    </select>
+                  </div>
+                )}
+                {/* Outlet Count Filter */}
+                {enableOutletCountFilter && (
+                  <div className="relative w-36 mr-2">
+                    <select
+                      value={outletCountFilter || "all"}
+                      onChange={(e) => {
+                        onOutletCountFilterChange(e.target.value);
+                      }}
+                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">All Outlets</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="10">10+</option>
+                    </select>
+                  </div>
+                )}
+                {/* Outlet Type Filter */}
+                {enableOutletTypeFilter && (
+                  <div className="relative w-36 mr-2">
+                    <select
+                      value={outletTypeFilter || "all"}
+                      onChange={(e) => {
+                        onOutletTypeFilterChange(e.target.value);
+                      }}
+                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">All Types</option>
+                      <option value="outlet">Outlet</option>
+                      <option value="cake_shop">Cake Shop</option>
+                    </select>
+                  </div>
+                )}
+                {/* Outlet Mode Filter */}
+                {enableOutletModeFilter && (
+                  <div className="relative w-36 mr-2">
+                    <select
+                      value={outletModeFilter || "all"}
+                      onChange={(e) => {
+                        onOutletModeFilterChange(e.target.value);
+                      }}
+                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">All Modes</option>
+                      <option value="online">Online</option>
+                      <option value="offline">Offline</option>
+                    </select>
+                  </div>
+                )}
+                {/* Owner Count Filter */}
+                {enableOwnerCountFilter && (
+                  <div className="relative w-32 mr-2">
+                    <select
+                      value={ownerCountFilter || "all"}
+                      onChange={(e) => {
+                        onOwnerCountFilterChange(e.target.value);
+                      }}
+                      className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                    >
+                      <option value="all">All Owners</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="10">10+</option>
+                    </select>
+                  </div>
+                )}
                 {/* Reload Button */}
                 {onReload && (
                   <button
                     onClick={onReload}
                     disabled={isLoading}
-                    className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center justify-center w-10 h-10 mr-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Reload data"
                   >
                     <FontAwesomeIcon
@@ -1003,24 +1007,9 @@ function DataTable({
                     />
                   </button>
                 )}
-                {/* Enquiry Filter only (no status filter) */}
-                {!enableStatusFilter && enableEnquiry && (
-                  <div className="relative w-40 mr-2">
-                    <select
-                      value={enquiryFilter || "Enquiry"}
-                      onChange={(e) => onEnquiryFilterChange(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Status</option>
-                      <option value="Enquiry">Enquiry</option>
-                      <option value="Positive">Positive</option>
-                      <option value="Onboard">Onboard</option>
-                    </select>
-                  </div>
-                )}
                 {/* Search Input */}
                 {showSearch && (
-                  <div className="relative">
+                  <div className="relative mr-2">
                     <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
                       <FontAwesomeIcon
                         icon={faMagnifyingGlass}
@@ -1029,7 +1018,7 @@ function DataTable({
                     </span>
                     <input
                       placeholder={searchPlaceholder}
-                      className="sm:w-[250px] h-10 mr-3 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                      className="sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
                       type="text"
                       value={searchTerm}
                       onChange={(e) => onSearchChange(e.target.value)}
@@ -1061,7 +1050,7 @@ function DataTable({
                   </div>
                 )}
               </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -1394,7 +1383,7 @@ function DataTable({
       </div>
     );
   } catch (error) {
-    console.error("DataTable Error:", error);
+    
     // Return a fallback UI
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-4">

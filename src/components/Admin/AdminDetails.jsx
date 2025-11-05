@@ -143,7 +143,7 @@ function AdminDetails() {
       );
       await refetch();
     } catch (e) {
-      console.error(e);
+      
     } finally {
       setIsTogglingActive(false);
     }

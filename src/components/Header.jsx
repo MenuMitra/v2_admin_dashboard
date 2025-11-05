@@ -15,6 +15,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { API_CONFIG } from "../config/appConfig";
 import logo from "../assets/images/logo/logo.png";
+import Modal from "./common/Modal";
+
+// Helper function to capitalize first letter
+const capitalizeFirstLetter = (str) => {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -23,6 +30,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const { getToken, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { BASE_URL, API_VERSION } = API_CONFIG;
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -63,12 +71,32 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       setDropdownOpen(false);
       navigate("/");
     } catch (error) {
-      console.error("Logout failed:", error);
+      
     }
   };
 
   return (
-    <header className="sticky top-0 z-99999 flex w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+    <>
+      {/* Testing Environment Banner */}
+      <div
+        style={{
+          width: "100%",
+          backgroundColor: "#b22222",
+          color: "#fff",
+          textAlign: "center",
+          padding: "3px 0",
+          fontSize: "14px",
+          fontWeight: "bold",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          zIndex: 1100,
+        }}
+      >
+        Testing Environment
+      </div>
+      
+      <header className="sticky top-0 z-99999 flex w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900" style={{ marginTop: "30px" }}>
       <div className="flex w-full items-center justify-between px-4 py-2 lg:px-6">
         {/* Left Section - Logo and Toggle */}
         <div className="flex items-center gap-4">
@@ -115,7 +143,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                   />
                 </span>
                 <span className="hidden text-sm font-medium sm:block">
-                  {adminData.name}
+                  {capitalizeFirstLetter(adminData.name)}
                 </span>
                 <FontAwesomeIcon
                   icon={faChevronDown}
@@ -131,7 +159,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                   <Link to="/profile" onClick={() => setDropdownOpen(false)}>
                     <div className="mb-2 p-2">
                       <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {adminData.name}
+                        {capitalizeFirstLetter(adminData.name)}
                       </h4>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {adminData.email}
@@ -141,7 +169,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                   <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
                   <button
                     className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-error-600 hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-950"
-                    onClick={handleLogout}
+                    onClick={() => setShowLogoutConfirm(true)}
                   >
                     <FontAwesomeIcon icon={faSignOutAlt} className="h-4 w-4" />
                     Logout
@@ -153,6 +181,44 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
         )}
       </div>
     </header>
+
+    {/* Logout Confirm Modal */}
+    <Modal
+      isOpen={showLogoutConfirm}
+      onClose={() => setShowLogoutConfirm(false)}
+      type="error"
+      size="small"
+      title=""
+    >
+      <div className="flex flex-col items-center gap-4">
+        <span className="flex items-center justify-center w-12 h-12 rounded-full bg-error-50 text-error-500">
+          <FontAwesomeIcon icon={faSignOutAlt} className="w-6 h-6" />
+        </span>
+        <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90 text-center">
+          Are you sure you want to logout?
+        </h3>
+        <div className="flex justify-between w-full gap-4 mt-2">
+          <button
+            type="button"
+            onClick={() => setShowLogoutConfirm(false)}
+            className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowLogoutConfirm(false);
+              handleLogout();
+            }}
+            className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs border border-error-300 text-error-500 hover:bg-error-50"
+          >
+            ✓ Yes, Exit Me
+          </button>
+        </div>
+      </div>
+    </Modal>
+    </>
   );
 };
 

@@ -20,6 +20,14 @@ import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import axios from "axios";
 
+// Capitalize first letter of every word (title case)
+const toTitleCase = (str) =>
+  str
+    ? str.replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+
 function SuperOwner() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -92,7 +100,7 @@ function SuperOwner() {
       setSelectedItems([]);
       toastController.success("Bulk action completed successfully!");
     } catch (error) {
-      console.error("Error performing bulk action:", error);
+      
       toastController.error(
         error.response?.data?.detail || "Failed to process bulk action"
       );
@@ -114,7 +122,7 @@ function SuperOwner() {
         <div className="flex items-center justify-center gap-3">
           <div>
             <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-              {value}
+              {toTitleCase(value)}
             </p>
           </div>
         </div>

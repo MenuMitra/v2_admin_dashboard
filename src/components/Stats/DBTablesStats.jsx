@@ -66,7 +66,7 @@ function DBTablesStats() {
       const data = await response.json();
       setStatsData(data);
     } catch (error) {
-      console.error('Error fetching table statistics:', error);
+      
       setError('Failed to fetch table statistics');
     } finally {
       setIsLoading(false);

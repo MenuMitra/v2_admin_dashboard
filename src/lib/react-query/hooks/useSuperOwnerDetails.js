@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
 import { useAdmin } from '../../../hooks/useAdmin';
@@ -18,6 +19,7 @@ export const useSuperOwnerDetails = (superOwnerId) => {
     data: superOwnerData,
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.superOwners.detail(superOwnerId),
     queryFn: async () => {
@@ -39,6 +41,7 @@ export const useSuperOwnerDetails = (superOwnerId) => {
         }
       );
 
+      
       // Return the raw response data to match OwnerDetails pattern
       return response.data;
     },
@@ -82,13 +85,19 @@ export const useSuperOwnerDetails = (superOwnerId) => {
   });
 
   // Extract the needed data from the response to match the component's expectations
-  const superOwnerDetails = superOwnerData ? {
-    superOwnerData: superOwnerData.super_owner,
-    assignedOutlets: superOwnerData.assigned_outlets || [],
-    assignedFunctionalities: superOwnerData.assigned_functionalities || [],
-    totalOutlets: superOwnerData.total_outlets || 0,
-    totalFunctionalities: superOwnerData.total_functionalities || 0
-  } : null;
+  const superOwnerDetails = useMemo(() => {
+    if (!superOwnerData) return null;
+    
+    return {
+      superOwnerData: superOwnerData.super_owner,
+      assignedOutlets: superOwnerData.assigned_outlets || [],
+      assignedFunctionalities: superOwnerData.assigned_functionalities || [],
+      totalOutlets: superOwnerData.total_outlets || 0,
+      totalFunctionalities: superOwnerData.total_functionalities || 0
+    };
+  }, [superOwnerData]);
+
+  
 
   return {
     superOwnerDetails,
@@ -96,5 +105,6 @@ export const useSuperOwnerDetails = (superOwnerId) => {
     error,
     deleteSuperOwner: deleteMutation.mutate,
     isDeleting: deleteMutation.isPending,
+    refetch,
   };
 }; 

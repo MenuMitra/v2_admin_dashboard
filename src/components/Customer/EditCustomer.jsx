@@ -148,7 +148,7 @@ function EditCustomer() {
       // Navigate back to customers list after successful update
       navigate(-1);
     } catch (error) {
-      console.error("Error updating customer:", error);
+      
     } finally {
       setIsSaving(false);
     }

@@ -29,6 +29,14 @@ import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
 
+// Title-case helper: capitalize first letter of every word
+const toTitleCase = (str) =>
+  str
+    ? String(str).replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+
 function SuperOwnerDetails() {
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
@@ -119,15 +127,16 @@ function SuperOwnerDetails() {
 
   // Update active sessions when superOwnerData changes
   useEffect(() => {
-    if (superOwnerDetails?.assignedOutlets) {
+    if (superOwnerDetails?.assignedOutlets && superOwnerDetails.assignedOutlets.length > 0) {
       // Flatten all active sessions from all outlets
-
       const allSessions = superOwnerDetails.assignedOutlets.flatMap(
         (outlet) => outlet.active_sessions || []
       );
       setActiveSessions(allSessions);
+    } else {
+      setActiveSessions([]);
     }
-  }, [superOwnerDetails?.assignedOutlets]);
+  }, [superOwnerDetails?.assignedOutlets?.length]); // Only use length to prevent infinite loops
 
   if (isLoading) {
     return (
@@ -250,10 +259,24 @@ function SuperOwnerDetails() {
                 <span className="hidden sm:inline">Reload</span>
               </button>
               <button
-                onClick={() =>
-                  navigate(`/edit-super-owner/${superOwnerData.super_owner_id}`)
-                }
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
+                onClick={() => {
+                  
+                  
+                  if (superOwnerData?.super_owner_id) {
+                    
+                    navigate(`/edit-super-owner/${superOwnerData.super_owner_id}`);
+                  } else {
+                    
+                    
+                    toastController.error('Unable to edit: Super owner ID not found');
+                  }
+                }}
+                disabled={!superOwnerData?.super_owner_id}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full shadow-theme-xs ${
+                  superOwnerData?.super_owner_id 
+                    ? 'bg-warning-500 hover:bg-warning-600' 
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
               >
                 <svg
                   className="w-4 h-4"
@@ -311,7 +334,7 @@ function SuperOwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {superOwnerData.name}
+                      {toTitleCase(superOwnerData.name)}
                     </div>
                     <div className="text-sm text-gray-500">Name</div>
                   </div>
@@ -509,7 +532,7 @@ function SuperOwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {superOwnerData.created_by?.toUpperCase() || "-"}
+                      {toTitleCase(superOwnerData.created_by) || "-"}
                     </div>
                     <div className="text-sm text-gray-500">Created By</div>
                   </div>
@@ -546,7 +569,7 @@ function SuperOwnerDetails() {
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {superOwnerData.updated_by?.toUpperCase()}
+                      {toTitleCase(superOwnerData.updated_by)}
                     </div>
                     <div className="text-sm text-gray-500">Updated By</div>
                   </div>

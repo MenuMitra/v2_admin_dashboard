@@ -74,7 +74,7 @@ function CreateSuperOwner() {
         setOutlets(response.data.data.outlets);
       }
     } catch (error) {
-      console.error("Error fetching outlets:", error);
+      
       setError("Failed to fetch outlets");
     }
   };
