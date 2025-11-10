@@ -3,7 +3,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { useAuth } from "../hooks/useAuth";
-import { API_CONFIG } from "../config/appConfig";
 import { useAdmin } from "../hooks/useAdmin";
 import {
   faHome,
@@ -113,8 +112,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
   const navigate = useNavigate();
   const { getToken, logout } = useAuth();
   const { adminData, clearAdmin } = useAdmin();
-  const { BASE_URL } = API_CONFIG;
-  const isProduction = BASE_URL === "https://ghanish.in/v2";
 
   const MenuGroup = ({ title, items }) => (
     <div>
@@ -390,7 +387,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
           </span>
         </div>
       </div>
-      <hr className="my-2 border-t border-blue-200 w-2" />
+      <hr className="my-2 border-t border-brand-600 w-2" />
       {/* Menu Items */}
       <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4 pb-10">
         <nav>
@@ -402,11 +399,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
                 ))}
               </ul>
               {idx !== menuGroups.length - 1 && (
-                <hr
-                  className={`my-2 w-full border-t ${
-                    isProduction && idx === 0 ? "border-blue-500" : "border-gray-200"
-                  }`}
-                />
+                <hr className="my-2 border-t border-brand-600" />
               )}
             </React.Fragment>
           ))}
