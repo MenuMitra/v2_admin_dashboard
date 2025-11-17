@@ -12,7 +12,8 @@ const getApiBaseUrl = () => {
   }
   
   // Default fallback for local development
-  return 'https://menu4.xyz/v2';
+  return 'https://ghanish.in/v2';
+  
 };
 
 // Get Customer App base URL from environment variable (Netlify)

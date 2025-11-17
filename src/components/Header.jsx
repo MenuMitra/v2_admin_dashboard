@@ -31,7 +31,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const navigate = useNavigate();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const isTestingEnv = BASE_URL === "https://men4u.xyz/v2";
+  const isTestingEnv = BASE_URL === "https://ghanish.in/v2";
 
   useEffect(() => {
     if (!isAuthenticated()) {
