@@ -2,7 +2,7 @@
 
 ## Base URL
 ```
-https://ghanish.in/v2
+"http://menu4.xyz"
 ```
 
 ## Authentication

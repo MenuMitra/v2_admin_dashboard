@@ -114,7 +114,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
   const { getToken, logout } = useAuth();
   const { adminData, clearAdmin } = useAdmin();
   const { BASE_URL } = API_CONFIG;
-  const isProduction = BASE_URL === "https://ghanish.in/v2";
+  const isProduction = BASE_URL === "http://menu4.xyz";
 
   const MenuGroup = ({ title, items }) => (
     <div>

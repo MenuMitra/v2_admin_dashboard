@@ -103,7 +103,7 @@ function CaptainDetails() {
     const session = activeSessions.find((s) => s.device_id === device_id);
     if (!session) return;
     try {
-      const res = await fetch("https://ghanish.in/v2/admin/admin_logout_user", {
+      const res = await fetch(`${BASE_URL}/admin/admin_logout_user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -116,11 +116,14 @@ function CaptainDetails() {
           device_id: session.device_id,
         }),
       });
+    
       const data = await res.json();
+    
       if (res.ok) {
         setActiveSessions((prev) =>
           prev.filter((s) => s.device_id !== device_id)
         );
+    
         if (window.toastController) {
           window.toastController.success("Logout successful");
         } else {
@@ -133,13 +136,15 @@ function CaptainDetails() {
           alert(data.detail || "Logout failed");
         }
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Logout Error:", error);
       if (window.toastController) {
-        window.toastController.error("Logout failed");
+        window.toastController.error("Something went wrong");
       } else {
-        alert("Logout failed");
+        alert("Something went wrong");
       }
     }
+    
   };
 
   // Memoized breadcrumb items
