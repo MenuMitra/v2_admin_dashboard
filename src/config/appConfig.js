@@ -12,7 +12,7 @@ const getApiBaseUrl = () => {
   }
   
   // Default fallback for local development
-  return 'https://ghanish.in/v2';
+  return "https://ghanish.in/v2";
   
 };
 
