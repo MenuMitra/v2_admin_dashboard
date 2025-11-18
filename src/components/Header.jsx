@@ -29,9 +29,9 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const { adminData, clearAdmin } = useAdmin();
   const { getToken, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const isTestingEnv = BASE_URL === "https://ghanish.in/v2";
+  const isTestingEnv = BASE_URL?.startsWith("https://ghanish.in");
 
   useEffect(() => {
     if (!isAuthenticated()) {
