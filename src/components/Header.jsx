@@ -31,7 +31,19 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const navigate = useNavigate();
   const { BASE_URL } = API_CONFIG;
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const isTestingEnv = BASE_URL?.startsWith("https://ghanish.in");
+  const normalizeHost = (url = "") =>
+    url.replace(/^https?:\/\//i, "").replace(/\/.*$/, "").toLowerCase();
+
+  const apiHost = normalizeHost(BASE_URL);
+  const appHost =
+    typeof window !== "undefined"
+      ? window.location.hostname.toLowerCase()
+      : "";
+
+  const isTestingEnv =
+    (apiHost.includes("ghanish.in") || appHost.includes("ghanish.in")) &&
+    !apiHost.includes("menu4.xyz") &&
+    !appHost.includes("menu4.xyz");
 
   useEffect(() => {
     if (!isAuthenticated()) {
