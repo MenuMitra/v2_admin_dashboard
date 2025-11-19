@@ -31,7 +31,11 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const navigate = useNavigate();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const isTestingEnv = BASE_URL === "https://menu4.xyz/v2";
+  const isDevelopmentEnv =
+    (typeof globalThis !== "undefined" &&
+      globalThis.process?.env?.NODE_ENV === "development") ||
+    (typeof import.meta !== "undefined" &&
+      import.meta.env?.MODE === "development");
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -78,8 +82,8 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
   return (
     <>
-      {/* Testing Environment Banner (only for testing base URL) */}
-      {isTestingEnv && (
+      {/* Development Environment Banner */}
+      {isDevelopmentEnv && (
         <div
           style={{
             width: "100%",
@@ -99,7 +103,10 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
         </div>
       )}
       
-      <header className="sticky top-0 z-99999 flex w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900" style={{ marginTop: isTestingEnv ? "30px" : "0px" }}>
+      <header
+        className="sticky top-0 z-99999 flex w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+        style={{ marginTop: isDevelopmentEnv ? "30px" : "0px" }}
+      >
       <div className="flex w-full items-center justify-between px-4 py-2 lg:px-6">
         {/* Left Section - Logo and Toggle */}
         <div className="flex items-center gap-4">
