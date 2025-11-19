@@ -123,6 +123,7 @@ function DataTable({
   enableExecutionTimeFilter = false,
   executionTimeFilter = "all",
   onExecutionTimeFilterChange = () => {},
+  forceTopControls = false,
 }) {
   // Add data validation at the start of the component
   const safeData = Array.isArray(data) ? data : [];
@@ -620,6 +621,68 @@ function DataTable({
     );
   };
 
+  const renderReloadButton = (extraClasses = "") => {
+    if (!onReload) return null;
+
+    return (
+      <button
+        onClick={onReload}
+        disabled={isLoading}
+        className={`inline-flex items-center justify-center w-10 h-10 mr-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed ${extraClasses}`}
+        title="Reload data"
+      >
+        <FontAwesomeIcon
+          icon={faRotate}
+          className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+        />
+      </button>
+    );
+  };
+
+  const renderSearchInput = (extraWrapperClasses = "") => {
+    if (!showSearch) return null;
+
+    return (
+      <div className={`relative ${extraWrapperClasses}`}>
+        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
+          <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+        </span>
+        <input
+          placeholder={searchPlaceholder}
+          className="sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+          type="text"
+          value={searchTerm}
+          onChange={(e) => onSearchChange(e.target.value)}
+          ref={(input) => {
+            if (input) {
+              input.searchInputRef = input;
+            }
+          }}
+        />
+
+        {searchTerm && (
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onSearchChange("");
+              const searchInput = e.target.closest(".relative").querySelector("input");
+              if (searchInput) {
+                searchInput.focus();
+              }
+            }}
+            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const shouldShowTopSearchAndReload = enableExecutionTimeFilter || forceTopControls;
+  const shouldShowBottomSearch = !shouldShowTopSearchAndReload && showSearch;
+  const shouldShowBottomReload = !shouldShowTopSearchAndReload && !!onReload;
+
   // Add error boundary wrapper
   try {
     // Set default bulk actions if not provided
@@ -768,7 +831,7 @@ function DataTable({
                 </div>
               )}
               {/* Right: Controls */}
-              <div className="flex flex-1 justify-end items-center gap-4 w-full sm:w-auto">
+              <div className="flex flex-1 justify-end items-center gap-4 w-full sm:w-auto flex-wrap">
                 {/* Reload, Search, etc. */}
                 {dashboardTitle && (
                   <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
@@ -776,32 +839,41 @@ function DataTable({
                   </span>
                 )}
 
-                {/* Execution Time Filter - Independent of Status Filter */}
-                {enableExecutionTimeFilter && (
-                  <div className="relative w-56">
-                    <select
-                      value={executionTimeFilter || "all"}
-                      onChange={(e) => {
-                        onExecutionTimeFilterChange(e.target.value);
-                      }}
-                      className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none"
-                      style={{ 
-                        backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")', 
-                        backgroundPosition: 'right 0.75rem center', 
-                        backgroundRepeat: 'no-repeat', 
-                        backgroundSize: '1.5em 1.5em'
-                      }}
-                    >
-                      <option value="all">All Execution Time</option>
-                      <option value="5">&gt;5ms</option>
-                      <option value="10">&gt;10ms</option>
-                      <option value="50">&gt;50ms</option>
-                      <option value="100">&gt;100ms</option>
-                      <option value="200">&gt;200ms</option>
-                      <option value="500">&gt;500ms</option>
-                    </select>
-                  </div>
-                )}
+                <div className="flex flex-wrap items-center gap-3 justify-end">
+                  {/* Execution Time Filter - Independent of Status Filter */}
+                  {enableExecutionTimeFilter && (
+                    <div className="relative w-56">
+                      <select
+                        value={executionTimeFilter || "all"}
+                        onChange={(e) => {
+                          onExecutionTimeFilterChange(e.target.value);
+                        }}
+                        className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none"
+                        style={{
+                          backgroundImage:
+                            "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e\")",
+                          backgroundPosition: "right 0.75rem center",
+                          backgroundRepeat: "no-repeat",
+                          backgroundSize: "1.5em 1.5em",
+                        }}
+                      >
+                        <option value="all">All Execution Time</option>
+                        <option value="5">&gt;5ms</option>
+                        <option value="10">&gt;10ms</option>
+                        <option value="50">&gt;50ms</option>
+                        <option value="100">&gt;100ms</option>
+                        <option value="200">&gt;200ms</option>
+                        <option value="500">&gt;500ms</option>
+                      </select>
+                    </div>
+                  )}
+                  {shouldShowTopSearchAndReload && (
+                    <>
+                      {renderSearchInput("")}
+                      {renderReloadButton("")}
+                    </>
+                  )}
+                </div>
 
                 {/* Custom Filters */}
                 {customFilters && customFilters.length > 0 && (
@@ -996,62 +1068,10 @@ function DataTable({
                 )}
                 </div>
                 <div className="ml-auto flex items-center gap-2">
-                {/* Reload Button */}
-                {onReload && (
-                  <button
-                    onClick={onReload}
-                    disabled={isLoading}
-                    className="inline-flex items-center justify-center w-10 h-10 mr-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Reload data"
-                  >
-                    <FontAwesomeIcon
-                      icon={faRotate}
-                      className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
-                    />
-                  </button>
-                )}
-                {/* Search Input */}
-                {showSearch && (
-                  <div className="relative mr-2">
-                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
-                      <FontAwesomeIcon
-                        icon={faMagnifyingGlass}
-                        className="w-4 h-4"
-                      />
-                    </span>
-                    <input
-                      placeholder={searchPlaceholder}
-                      className="sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
-                      type="text"
-                      value={searchTerm}
-                      onChange={(e) => onSearchChange(e.target.value)}
-                      ref={(input) => {
-                        if (input) {
-                          input.searchInputRef = input;
-                        }
-                      }}
-                    />
-
-                    {searchTerm && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          onSearchChange("");
-                          // Keep focus on the search input
-                          const searchInput = e.target
-                            .closest(".relative")
-                            .querySelector("input");
-                          if (searchInput) {
-                            searchInput.focus();
-                          }
-                        }}
-                        className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                )}
+                  {/* Reload Button */}
+                  {shouldShowBottomReload && renderReloadButton("mr-2")}
+                  {/* Search Input */}
+                  {shouldShowBottomSearch && renderSearchInput("mr-2")}
                 </div>
               </div>
             )}
@@ -1554,6 +1574,7 @@ DataTable.propTypes = {
     "500",
   ]),
   onExecutionTimeFilterChange: PropTypes.func,
+  forceTopControls: PropTypes.bool,
 };
 
 DataTable.defaultProps = {
@@ -1662,6 +1683,7 @@ DataTable.defaultProps = {
   enableExecutionTimeFilter: false,
   executionTimeFilter: "all",
   onExecutionTimeFilterChange: () => {},
+  forceTopControls: false,
 };
 
 export default DataTable;
