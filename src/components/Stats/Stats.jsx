@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faRotate } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronLeft,
+  faRotate,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import DatePickerInput from "../common/DatePickerInput";
@@ -338,6 +342,7 @@ function Stats() {
               empty_tables: dbStatsData.summary?.empty_tables || 0,
             }}
             onReload={reloadDbTableStats}
+            forceTopControls={true}
           />
         </div>
       </div>
@@ -346,6 +351,85 @@ function Stats() {
       <div className="mt-6">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-sm font-semibold">App Usage</h2>
+        </div>
+
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between mb-4">
+          <div className="flex flex-wrap items-end gap-3 flex-1 min-w-[320px]">
+            <div className="w-40 sm:w-44">
+              <label className="block text-xs text-gray-600 mb-1">
+                Select App
+              </label>
+              <select
+                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-gray-700"
+                value={appUsageAppSource}
+                onChange={(e) => setAppUsageAppSource(e.target.value)}
+              >
+                <option value="">Select App</option>
+                {appSourceOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="w-40 sm:w-44">
+              <label className="block text-xs text-gray-600 mb-1">
+                Start Date
+              </label>
+              <DatePickerInput
+                value={appUsagePayload.start_date}
+                onChange={(e) =>
+                  handleAppUsageFilterChange("start_date", e.target.value)
+                }
+                placeholder="Start date"
+                className="w-full text-xs py-1 px-2"
+              />
+            </div>
+
+            <div className="w-40 sm:w-44">
+              <label className="block text-xs text-gray-600 mb-1">
+                End Date
+              </label>
+              <DatePickerInput
+                value={appUsagePayload.end_date}
+                onChange={(e) =>
+                  handleAppUsageFilterChange("end_date", e.target.value)
+                }
+                placeholder="End date"
+                className="w-full text-xs py-1 px-2"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-end gap-3 w-full lg:w-auto lg:justify-end">
+            <div className="relative w-full sm:w-60 lg:w-64">
+              <label className="sr-only">Search</label>
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+              </span>
+              <input
+                type="text"
+                value={appUsageSearchTerm}
+                onChange={(e) => setAppUsageSearchTerm(e.target.value)}
+                placeholder="Search"
+                className="w-full h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => reloadAppUsage()}
+              disabled={appUsageIsLoading}
+              className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Reload data"
+            >
+              <FontAwesomeIcon
+                icon={faRotate}
+                className={`w-4 h-4 ${appUsageIsLoading ? "animate-spin" : ""}`}
+              />
+            </button>
+          </div>
         </div>
 
         {/* Error Display */}
@@ -383,6 +467,7 @@ function Stats() {
             total_apps: appUsageData.app_statistics?.length || 0,
           }}
           enableSearch={true}
+          showSearch={false}
           enableSort={true}
           enablePagination={true}
           enableStatusFilter={false}
@@ -397,55 +482,6 @@ function Stats() {
           itemsPerPageOptions={[50, 100, 200, 500]}
           className="compact-table"
           emptyStateMessage="No app usage data available."
-          onReload={reloadAppUsage}
-          customFilters={[
-            {
-              type: "select",
-              label: "App Name",
-              value: appUsageAppSource,
-              options: appSourceOptions,
-              onChange: setAppUsageAppSource,
-              placeholder: "Select App",
-            },
-            {
-              type: "custom",
-              label: "Start Date",
-              component: (
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">
-                    Start Date
-                  </label>
-                  <DatePickerInput
-                    value={appUsagePayload.start_date}
-                    onChange={(e) =>
-                      handleAppUsageFilterChange("start_date", e.target.value)
-                    }
-                    placeholder="Select start date"
-                    className="w-full sm:w-64 text-xs py-1 px-2"
-                  />
-                </div>
-              ),
-            },
-            {
-              type: "custom",
-              label: "End Date",
-              component: (
-                <div>
-                  <label className="block text-xs text-gray-600 mb-1">
-                    End Date
-                  </label>
-                  <DatePickerInput
-                    value={appUsagePayload.end_date}
-                    onChange={(e) =>
-                      handleAppUsageFilterChange("end_date", e.target.value)
-                    }
-                    placeholder="Select end date"
-                    className="w-full sm:w-64 text-xs py-2 px-2"
-                  />
-                </div>
-              ),
-            },
-          ]}
         />
           </div>
         </div>
