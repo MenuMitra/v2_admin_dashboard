@@ -31,11 +31,12 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const navigate = useNavigate();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const isDevelopmentEnv =
+  const configuredApiBaseUrl =
     (typeof globalThis !== "undefined" &&
-      globalThis.process?.env?.NODE_ENV === "development") ||
+      globalThis.process?.env?.VITE_API_BASE_URL) ||
     (typeof import.meta !== "undefined" &&
-      import.meta.env?.MODE === "development");
+      import.meta.env?.VITE_API_BASE_URL);
+  const shouldShowTestingBanner = !configuredApiBaseUrl;
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -82,8 +83,8 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
   return (
     <>
-      {/* Development Environment Banner */}
-      {isDevelopmentEnv && (
+      {/* Testing Environment Banner (visible when API env is not configured) */}
+      {shouldShowTestingBanner && (
         <div
           style={{
             width: "100%",
@@ -105,7 +106,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       
       <header
         className="sticky top-0 z-99999 flex w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
-        style={{ marginTop: isDevelopmentEnv ? "30px" : "0px" }}
+        style={{ marginTop: shouldShowTestingBanner ? "30px" : "0px" }}
       >
       <div className="flex w-full items-center justify-between px-4 py-2 lg:px-6">
         {/* Left Section - Logo and Toggle */}
