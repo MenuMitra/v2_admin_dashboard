@@ -35,9 +35,9 @@ import { toastController } from "../utils/toastController";
 function toTitleCase(str) {
   return str
     ? str.replace(
-        /\w\S*/g,
-        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-      )
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )
     : "";
 }
 
@@ -72,14 +72,12 @@ const ToggleSwitch = ({
         <button
           onClick={onToggle}
           disabled={disabled}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-            isOn ? "bg-brand-500" : "bg-gray-300"
-          }`}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${isOn ? "bg-brand-500" : "bg-gray-300"
+            }`}
         >
           <span
-            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-              isOn ? "translate-x-6" : "translate-x-1"
-            }`}
+            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${isOn ? "translate-x-6" : "translate-x-1"
+              }`}
             style={{
               transform: isOn ? "translateX(1.5rem)" : "translateX(0.25rem)",
             }}
@@ -309,31 +307,31 @@ function ViewOutlet() {
 
   // Toggle handlers
   const handleToggleOutletStatus = () => {
-    
+
     const newValue = outletData?.outlet_status === 1 ? "inactive" : "active";
-    
+
     toggleStatusMutation.mutate({ type: "outlet_status", value: newValue });
   };
 
   const handleToggleOpenStatus = () => {
-    
+
     const newValue = outletData?.is_open === 1 ? "close" : "open";
-    
+
     toggleStatusMutation.mutate({ type: "is_open", value: newValue });
   };
 
   const handleToggleAccountType = () => {
-    
+
     const newValue = outletData?.account_type === "test" ? "live" : "test";
-    
+
     toggleStatusMutation.mutate({ type: "account_type", value: newValue });
   };
 
   const handleToggleOutletMode = () => {
-    
+
     const newValue =
       outletData?.outlet_mode === "online" ? "offline" : "online";
-    
+
     toggleStatusMutation.mutate({ type: "outlet_mode", value: newValue });
   };
 
@@ -376,7 +374,7 @@ function ViewOutlet() {
 
       toastController.success("Template downloaded successfully!");
     } catch (error) {
-      
+
       toastController.error("Failed to download template");
     } finally {
       setIsDownloading(false);
@@ -435,8 +433,8 @@ function ViewOutlet() {
 
             {/* Center - Title */}
             <div className="flex-1 text-center">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 inline-flex items-center">
-                {outletData?.name || "-"}
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800 inline-flex items-center capitalize">
+                {toTitleCase(outletData?.name) || "-"}
               </h2>
             </div>
 
@@ -588,10 +586,9 @@ function ViewOutlet() {
                         key={owner.owner_id}
                         onClick={() => handleOwnerClick(owner.owner_id)}
                         className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm cursor-pointer
-                          ${
-                            owner.is_primary
-                              ? "bg-brand-100 text-brand-700 border border-brand-200 hover:bg-brand-200"
-                              : "bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
+                          ${owner.is_primary
+                            ? "bg-brand-100 text-brand-700 border border-brand-200 hover:bg-brand-200"
+                            : "bg-gray-100 text-gray-700 border border-gray-200 hover:bg-gray-200"
                           }
                           transition-all duration-200
                         `}
@@ -692,7 +689,7 @@ function ViewOutlet() {
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData.outlet_type
                           ? outletData.outlet_type.charAt(0).toUpperCase() +
-                            outletData.outlet_type.slice(1).replace(/_/g, " ")
+                          outletData.outlet_type.slice(1).replace(/_/g, " ")
                           : "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1285,9 +1282,9 @@ function ViewOutlet() {
                           const percent =
                             total > 0
                               ? Math.min(
-                                  100,
-                                  Math.max(0, (elapsed / total) * 100)
-                                )
+                                100,
+                                Math.max(0, (elapsed / total) * 100)
+                              )
                               : 0;
                           // Choose progress bar color based on remaining days:
                           // - <=5 days: red (urgent)
@@ -1391,17 +1388,15 @@ function ViewOutlet() {
             <button
               onClick={handleBulkUpload}
               disabled={!selectedFile || bulkUploadMutation.isPending}
-              className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition ${
-                selectedFile && !bulkUploadMutation.isPending
-                  ? "bg-success-500 hover:bg-success-600"
-                  : "bg-success-500 opacity-50 cursor-not-allowed"
-              }`}
+              className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition ${selectedFile && !bulkUploadMutation.isPending
+                ? "bg-success-500 hover:bg-success-600"
+                : "bg-success-500 opacity-50 cursor-not-allowed"
+                }`}
             >
               <FontAwesomeIcon
                 icon={bulkUploadMutation.isPending ? faSpinner : faUpload}
-                className={`w-4 h-4 ${
-                  bulkUploadMutation.isPending ? "animate-spin" : ""
-                }`}
+                className={`w-4 h-4 ${bulkUploadMutation.isPending ? "animate-spin" : ""
+                  }`}
               />
               {bulkUploadMutation.isPending ? "Uploading..." : "Upload"}
             </button>
@@ -1433,11 +1428,10 @@ function ViewOutlet() {
             <button
               onClick={handleDownloadTemplate}
               disabled={isDownloading}
-              className={`inline-flex items-center gap-2 text-sm font-medium ${
-                isDownloading
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-brand-500 hover:text-brand-600"
-              }`}
+              className={`inline-flex items-center gap-2 text-sm font-medium ${isDownloading
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-brand-500 hover:text-brand-600"
+                }`}
             >
               <FontAwesomeIcon
                 icon={isDownloading ? faSpinner : faDownload}

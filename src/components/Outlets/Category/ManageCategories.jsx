@@ -32,6 +32,7 @@ function ManageCategories() {
   const [categoryToDelete, setCategoryToDelete] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Normalize data helper function
   const normaliseData = (categories) =>
@@ -92,7 +93,7 @@ function ManageCategories() {
       queryClient.invalidateQueries(queryKeys.categories.list(outletId));
     },
     onError: (err) => {
-      
+
     },
   });
 
@@ -126,18 +127,18 @@ function ManageCategories() {
       queryClient.invalidateQueries(queryKeys.categories.list(outletId));
     },
     onError: (err) => {
-      
+
     },
   });
 
   // Process the category data
   const categoryData = categoryResponse?.data?.menucat_details
     ? normaliseData(
-        categoryResponse.data.menucat_details.filter(
-          (cat) =>
-            cat.menu_cat_id && cat.category_name && cat.category_name !== "all"
-        )
+      categoryResponse.data.menucat_details.filter(
+        (cat) =>
+          cat.menu_cat_id && cat.category_name && cat.category_name !== "all"
       )
+    )
     : [];
 
   const outletInfo = categoryResponse?.data?.outlet_info || null;
@@ -207,6 +208,8 @@ function ManageCategories() {
               enableStatusFilter={true}
               statusFilter={statusFilter}
               onStatusFilterChange={handleStatusFilterChange}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
             />
           </div>
         )}
@@ -236,6 +239,8 @@ function MenuCategoryTable({
   enableStatusFilter,
   statusFilter,
   onStatusFilterChange,
+  searchTerm,
+  onSearchChange,
 }) {
   const navigate = useNavigate();
 
@@ -307,14 +312,12 @@ function MenuCategoryTable({
         <div className="flex items-center justify-center gap-2">
           <FontAwesomeIcon
             icon={value === 1 ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value === 1 ? "text-success-500" : "text-error-500"
-            }`}
+            className={`w-5 h-5 ${value === 1 ? "text-success-500" : "text-error-500"
+              }`}
           />
           <span
-            className={`text-base font-medium ${
-              value === 1 ? "text-success-700" : "text-error-700"
-            }`}
+            className={`text-base font-medium ${value === 1 ? "text-success-700" : "text-error-700"
+              }`}
           >
             {value === 1 ? "Active" : "Inactive"}
           </span>
@@ -362,7 +365,9 @@ function MenuCategoryTable({
       enableSort={true}
       enableSearch={true}
       enablePagination={true}
-      searchPlaceholder="Search"
+      searchPlaceholder="Search categories"
+      searchTerm={searchTerm}
+      onSearchChange={onSearchChange}
       darkMode={false}
       showBackButton={true}
       onBackClick={() => navigate(-1)}

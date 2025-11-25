@@ -40,7 +40,7 @@ const TextInput = React.forwardRef(
       validationType = null,
       validationRules = {},
       customValidator = null,
-      onValidation = () => {},
+      onValidation = () => { },
       isSubmitAttempted = false,
       className = "",
       onFocus,

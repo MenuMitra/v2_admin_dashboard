@@ -1263,167 +1263,185 @@ function EditOutlet() {
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
-                {/* Opening Time */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Opening Time
-                  </label>
-                  <div className="flex gap-2">
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                      value={openingHour}
-                      onChange={(e) =>
-                        handleOpeningTimeChange("hour", e.target.value)
-                      }
-                    >
-                      <option value="">HH</option>
-                      {[...Array(12)].map((_, i) => {
-                        const val = (i + 1).toString().padStart(2, "0");
-                        return (
-                          <option key={val} value={val}>
-                            {val}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                      value={openingMinute}
-                      onChange={(e) =>
-                        handleOpeningTimeChange("minute", e.target.value)
-                      }
-                    >
-                      <option value="">MM</option>
-                      {["00", "15", "30", "45"].map((min) => (
-                        <option key={min} value={min}>
-                          {min}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      value={openingPeriod}
-                      onChange={(e) =>
-                        handleOpeningTimeChange("period", e.target.value)
-                      }
-                    >
-                      <option value="AM">AM</option>
-                      <option value="PM">PM</option>
-                    </select>
-                  </div>
-                </div>
-                {/* Closing Time */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Closing Time
-                  </label>
-                  <div className="flex gap-2">
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                      value={closingHour}
-                      onChange={(e) =>
-                        handleClosingTimeChange("hour", e.target.value)
-                      }
-                    >
-                      <option value="">HH</option>
-                      {[...Array(12)].map((_, i) => {
-                        const val = (i + 1).toString().padStart(2, "0");
-                        return (
-                          <option key={val} value={val}>
-                            {val}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                      value={closingMinute}
-                      onChange={(e) =>
-                        handleClosingTimeChange("minute", e.target.value)
-                      }
-                    >
-                      <option value="">MM</option>
-                      {["00", "15", "30", "45"].map((min) => (
-                        <option key={min} value={min}>
-                          {min}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      value={closingPeriod}
-                      onChange={(e) =>
-                        handleClosingTimeChange("period", e.target.value)
-                      }
-                    >
-                      <option value="AM">AM</option>
-                      <option value="PM">PM</option>
-                    </select>
-                  </div>
-                </div>
-                {/* New boolean dropdowns */}
-                <div className="flex flex-row flex-nowrap items-end gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Has Combo
-                    </label>
-                    <select
-                      name="has_combo"
-                      value={outletData.has_combo !== null ? String(outletData.has_combo) : ""}
-                      onChange={(e) =>
-                        setOutletData((prev) => ({
-                          ...prev,
-                          has_combo: e.target.value ? Number(e.target.value) : null,
-                        }))
-                      }
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    >
-                      <option value="">Select</option>
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
+                <div className="sm:col-span-2 md:col-span-3 xl:col-span-4 w-full space-y-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Opening Time */}
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Opening Time
+                      </label>
+                      <div className="grid grid-cols-3 gap-3 sm:max-w-sm w-full">
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={openingHour}
+                          onChange={(e) =>
+                            handleOpeningTimeChange("hour", e.target.value)
+                          }
+                        >
+                          <option value="">HH</option>
+                          {[...Array(12)].map((_, i) => {
+                            const val = (i + 1).toString().padStart(2, "0");
+                            return (
+                              <option key={val} value={val}>
+                                {val}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={openingMinute}
+                          onChange={(e) =>
+                            handleOpeningTimeChange("minute", e.target.value)
+                          }
+                        >
+                          <option value="">MM</option>
+                          {["00", "15", "30", "45"].map((min) => (
+                            <option key={min} value={min}>
+                              {min}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={openingPeriod}
+                          onChange={(e) =>
+                            handleOpeningTimeChange("period", e.target.value)
+                          }
+                        >
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Closing Time */}
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Closing Time
+                      </label>
+                      <div className="grid grid-cols-3 gap-3 sm:max-w-sm w-full">
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={closingHour}
+                          onChange={(e) =>
+                            handleClosingTimeChange("hour", e.target.value)
+                          }
+                        >
+                          <option value="">HH</option>
+                          {[...Array(12)].map((_, i) => {
+                            const val = (i + 1).toString().padStart(2, "0");
+                            return (
+                              <option key={val} value={val}>
+                                {val}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={closingMinute}
+                          onChange={(e) =>
+                            handleClosingTimeChange("minute", e.target.value)
+                          }
+                        >
+                          <option value="">MM</option>
+                          {["00", "15", "30", "45"].map((min) => (
+                            <option key={min} value={min}>
+                              {min}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={closingPeriod}
+                          onChange={(e) =>
+                            handleClosingTimeChange("period", e.target.value)
+                          }
+                        >
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Has Denomination
-                    </label>
-                    <select
-                      name="has_denomination"
-                      value={outletData.has_denomination !== null ? String(outletData.has_denomination) : ""}
-                      onChange={(e) =>
-                        setOutletData((prev) => ({
-                          ...prev,
-                          has_denomination: e.target.value ? Number(e.target.value) : null,
-                        }))
-                      }
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    >
-                      <option value="">Select</option>
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
-                  </div>
+                  {/* Boolean dropdowns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has Combo
+                      </label>
+                      <select
+                        name="has_combo"
+                        value={
+                          outletData.has_combo !== null
+                            ? String(outletData.has_combo)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            has_combo: e.target.value ? Number(e.target.value) : null,
+                          }))
+                        }
+                        className="w-full h-11 border border-gray-300 rounded-lg bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      >
+                        <option value="">Select</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                      </select>
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Reserve Table
-                    </label>
-                    <select
-                      name="reserve_table"
-                      value={outletData.reserve_table !== null ? String(outletData.reserve_table) : ""}
-                      onChange={(e) =>
-                        setOutletData((prev) => ({
-                          ...prev,
-                          reserve_table: e.target.value ? Number(e.target.value) : null,
-                        }))
-                      }
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    >
-                      <option value="">Select</option>
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has Denomination
+                      </label>
+                      <select
+                        name="has_denomination"
+                        value={
+                          outletData.has_denomination !== null
+                            ? String(outletData.has_denomination)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            has_denomination: e.target.value ? Number(e.target.value) : null,
+                          }))
+                        }
+                        className="w-full h-11 border border-gray-300 rounded-lg bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      >
+                        <option value="">Select</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                      </select>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reserve Table
+                      </label>
+                      <select
+                        name="reserve_table"
+                        value={
+                          outletData.reserve_table !== null
+                            ? String(outletData.reserve_table)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            reserve_table: e.target.value ? Number(e.target.value) : null,
+                          }))
+                        }
+                        className="w-full h-11 border border-gray-300 rounded-lg bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      >
+                        <option value="">Select</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
