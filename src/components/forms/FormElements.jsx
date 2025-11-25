@@ -433,6 +433,16 @@ const DateInput = React.forwardRef(
     // onChange: accept native YYYY-MM-DD, propagate as DD MMM YYYY
     const handleDateChange = (e) => {
       const inputDate = e.target.value; // YYYY-MM-DD
+
+      // Validate year is exactly 4 digits
+      if (inputDate) {
+        const yearMatch = inputDate.match(/^(\d+)-/);
+        if (yearMatch && yearMatch[1].length !== 4) {
+          // Reject input if year is not exactly 4 digits
+          return;
+        }
+      }
+
       const formatted = formatDate(inputDate); // DD MMM YYYY
       const syntheticEvent = {
         target: {
