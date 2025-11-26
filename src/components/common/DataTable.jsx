@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSort,
@@ -26,6 +26,27 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
+
+const defaultGetRowId = (item) => {
+  if (!item || typeof item !== "object") return null;
+  const possibleKeys = [
+    "id",
+    "user_id",
+    "outlet_id",
+    "menu_id",
+    "role_id",
+    "notification_id",
+    "enquiry_id",
+    "uuid",
+    "_id",
+  ];
+  for (const key of possibleKeys) {
+    if (item[key] !== undefined && item[key] !== null) {
+      return item[key];
+    }
+  }
+  return null;
+};
 
 function DataTable({
   data = [],
@@ -124,6 +145,7 @@ function DataTable({
   executionTimeFilter = "all",
   onExecutionTimeFilterChange = () => {},
   forceTopControls = false,
+  getRowId = defaultGetRowId,
 }) {
   // Add data validation at the start of the component
   const safeData = Array.isArray(data) ? data : [];
@@ -160,6 +182,7 @@ function DataTable({
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
+  const actionDropdownRef = useRef(null);
 
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
@@ -459,11 +482,22 @@ function DataTable({
   };
 
   // Add selection handling functions
+  const resolveRowId = (item) => {
+    if (!item) return null;
+    try {
+      const value = getRowId(item);
+      return value !== undefined ? value : null;
+    } catch {
+      return null;
+    }
+  };
+
   const handleSelectAll = (e) => {
     if (e.target.checked) {
       const selectableIds = currentItems
         .filter((item) => isItemSelectable(item))
-        .map((item) => item.id || item.user_id);
+        .map((item) => resolveRowId(item))
+        .filter((id) => id !== null && id !== undefined);
       setSelectedItems(selectableIds);
       onSelectionChange(selectableIds);
     } else {
@@ -473,6 +507,7 @@ function DataTable({
   };
 
   const handleSelectItem = (id) => {
+    if (id === null || id === undefined) return;
     setSelectedItems((prev) => {
       const newSelection = prev.includes(id)
         ? prev.filter((itemId) => itemId !== id)
@@ -559,7 +594,7 @@ function DataTable({
   const shouldDisableNavigation = {
     prev: () => currentPage === 1,
     next: () => currentPage === totalPages,
-  };
+  }; 
 
   // Add this helper function
   const isAllCurrentItemsSelected = () => {
@@ -567,10 +602,39 @@ function DataTable({
       isItemSelectable(item)
     );
     if (selectableItems.length === 0) return false;
-    return selectableItems.every((item) =>
-      selectedItems.includes(item.id || item.user_id)
-    );
+    return selectableItems.every((item) => {
+      const rowId = resolveRowId(item);
+      if (rowId === null || rowId === undefined) return false;
+      return selectedItems.includes(rowId);
+    });
   };
+
+  useEffect(() => {
+    if (!isActionDropdownOpen) return;
+
+    const handleClickOutside = (event) => {
+      if (
+        actionDropdownRef.current &&
+        !actionDropdownRef.current.contains(event.target)
+      ) {
+        setIsActionDropdownOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsActionDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isActionDropdownOpen]);
 
   // Update renderStatus to use normalized values
   const renderStatus = (value) => (
@@ -706,8 +770,18 @@ function DataTable({
         className: "text-error-600 hover:bg-error-50",
       },
     ];
-    const resolvedBulkActionOptions =
-      bulkActionOptions || defaultBulkActionOptions;
+    const defaultOptionIcons = {
+      active: faCheck,
+      inactive: faXmark,
+      delete: faTrash,
+    };
+    const resolvedBulkActionOptions = (bulkActionOptions || defaultBulkActionOptions).map(
+      (option) => ({
+        ...option,
+        // Ensure icons appear for standard actions even when parent omits them
+        icon: option.icon || defaultOptionIcons[option.key] || null,
+      })
+    );
 
     return (
       <div
@@ -1103,15 +1177,12 @@ function DataTable({
                 {/* Bulk Actions column - Only visible when items are selected */}
                 {enableSelection && selectedItems.length > 0 && (
                   <th className="px-0 py-2.5">
-                    <div className="relative">
+                    <div className="relative" ref={actionDropdownRef}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setIsActionDropdownOpen(!isActionDropdownOpen);
                         }}
-                        onBlur={() =>
-                          setTimeout(() => setIsActionDropdownOpen(false), 200)
-                        }
                         className="inline-flex items-center gap-2 rounded-lg border border-gray-200  px-3 py-1.5 text-sm font-medium  hover:bg-brand-600 hover:text-white outline outline-offset-2"
                       >
                         {/* Actions */}
@@ -1145,8 +1216,19 @@ function DataTable({
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    onBulkAction(option.key, selectedItems);
+                                    const sanitizedSelection = selectedItems.filter(
+                                      (id) =>
+                                        id !== null &&
+                                        id !== undefined &&
+                                        id !== ""
+                                    );
+                                    if (sanitizedSelection.length === 0) {
+                                      setIsActionDropdownOpen(false);
+                                      return;
+                                    }
+                                    onBulkAction(option.key, sanitizedSelection);
                                     setSelectedItems([]);
+                                    onSelectionChange([]);
                                     setIsActionDropdownOpen(false);
                                   }}
                                   className={`w-full text-left flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${option.className}`}
@@ -1208,31 +1290,35 @@ function DataTable({
             </thead>
             <tbody>
               {currentItems.length > 0 ? (
-                currentItems.map((item, index) => (
-                  <tr
-                    key={index}
-                    className={`border-t border-gray-100 ${
-                      darkMode ? "dark:border-gray-800" : ""
-                    }`}
-                  >
+                currentItems.map((item, index) => {
+                  const rowId = resolveRowId(item);
+                  return (
+                    <tr
+                      key={index}
+                      className={`border-t border-gray-100 ${
+                        darkMode ? "dark:border-gray-800" : ""
+                      }`}
+                    >
                     {/* Checkbox cell */}
-                    {enableSelection && isItemSelectable(item) && (
+                    {enableSelection &&
+                      isItemSelectable(item) &&
+                      rowId !== null &&
+                      rowId !== undefined && (
                       <td className="px-2 py-2.5 text-center">
                         <input
                           type="checkbox"
-                          checked={selectedItems.includes(
-                            item.id || item.user_id
-                          )}
-                          onChange={() =>
-                            handleSelectItem(item.id || item.user_id)
-                          }
+                          checked={selectedItems.includes(rowId)}
+                          onChange={() => handleSelectItem(rowId)}
                           className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
                           onClick={(e) => e.stopPropagation()}
                         />
                       </td>
                     )}
                     {/* Add empty cell for non-selectable items when selection is enabled */}
-                    {enableSelection && !isItemSelectable(item) && (
+                    {enableSelection &&
+                      (!isItemSelectable(item) ||
+                        rowId === null ||
+                        rowId === undefined) && (
                       <td className="px-2 py-2.5"></td>
                     )}
 
@@ -1280,7 +1366,8 @@ function DataTable({
                       </td>
                     ))}
                   </tr>
-                ))
+                  );
+                })
               ) : (
                 <tr>
                   <td
@@ -1406,7 +1493,7 @@ function DataTable({
         )}
       </div>
     );
-  } catch (error) {
+  } catch {
     
     // Return a fallback UI
     return (
@@ -1575,6 +1662,7 @@ DataTable.propTypes = {
   ]),
   onExecutionTimeFilterChange: PropTypes.func,
   forceTopControls: PropTypes.bool,
+  getRowId: PropTypes.func,
 };
 
 DataTable.defaultProps = {
@@ -1684,6 +1772,7 @@ DataTable.defaultProps = {
   executionTimeFilter: "all",
   onExecutionTimeFilterChange: () => {},
   forceTopControls: false,
+  getRowId: defaultGetRowId,
 };
 
 export default DataTable;
