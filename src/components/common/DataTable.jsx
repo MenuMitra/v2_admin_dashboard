@@ -1099,7 +1099,6 @@ function DataTable({
                     >
                       <option value="all">All Types</option>
                       <option value="outlet">Outlet</option>
-                      <option value="cake_shop">Cake Shop</option>
                     </select>
                   </div>
                 )}
@@ -1633,7 +1632,7 @@ DataTable.propTypes = {
   ]),
   onOutletCountFilterChange: PropTypes.func,
   enableOutletTypeFilter: PropTypes.bool,
-  outletTypeFilter: PropTypes.oneOf(["all", "outlet", "cake_shop"]),
+  outletTypeFilter: PropTypes.oneOf(["all", "outlet"]),
   onOutletTypeFilterChange: PropTypes.func,
   enableOutletModeFilter: PropTypes.bool,
   outletModeFilter: PropTypes.oneOf(["all", "online", "offline"]),
