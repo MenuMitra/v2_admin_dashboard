@@ -21,9 +21,9 @@ import {
   faMobileScreenButton,
   faBell,
   faChartLine,
-  faDatabase,
   faEnvelope,
   faCalendarCheck,
+  faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -103,6 +103,16 @@ const menuGroups = [
   },
   {
     items: [{ title: "Stats", path: "/stats", id: "stats", icon: faChartLine }],
+  },
+  {
+    items: [
+      {
+        title: "Release Update",
+        path: "/release-update",
+        id: "release-update",
+        icon: faUpload,
+      },
+    ],
   },
 ];
 
