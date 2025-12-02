@@ -6,20 +6,29 @@ import {
   faCircleCheck,
   faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
+import axios from "axios";
+import { useAuth } from "../../hooks/useAuth";
+import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
 
+const allowedBinaryExtensions = ["apk", "exe"];
+const allowedConfigExtensions = ["yml"];
+
 const initialState = {
-  file: null,
+  binaryFile: null,
+  configFile: null,
 };
 
 const ReleaseUpdate = () => {
   const [formState, setFormState] = useState(initialState);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState(null);
+  const { getToken } = useAuth();
+  const { BASE_URL } = API_CONFIG;
 
   const disableSubmit = useMemo(() => {
     if (submitting) return true;
-    return !formState.file;
+    return !(formState.binaryFile && formState.configFile);
   }, [formState, submitting]);
 
   const breadcrumbItems = [
@@ -27,9 +36,48 @@ const ReleaseUpdate = () => {
     { label: "Release Update" },
   ];
 
-  const handleFileChange = (event) => {
+  const handleBinaryFileChange = (event) => {
     const file = event.target.files?.[0] ?? null;
-    setFormState((prev) => ({ ...prev, file }));
+    setFormState((prev) => ({ ...prev, binaryFile: file }));
+  };
+
+  const handleConfigFileChange = (event) => {
+    const file = event.target.files?.[0] ?? null;
+    setFormState((prev) => ({ ...prev, configFile: file }));
+  };
+
+  const getFileExtension = (fileName) => {
+    if (!fileName) return "";
+    const parts = fileName.split(".");
+    return parts.length > 1 ? parts.pop().toLowerCase() : "";
+  };
+
+  const validateFiles = () => {
+    if (!formState.binaryFile || !formState.configFile) {
+      return { valid: false, message: "Please select both build and config files." };
+    }
+
+    const binaryExt = getFileExtension(formState.binaryFile.name);
+    const configExt = getFileExtension(formState.configFile.name);
+
+    if (!allowedBinaryExtensions.includes(binaryExt)) {
+      return {
+        valid: false,
+        message: "Build file must be a .apk or .exe file.",
+      };
+    }
+
+    if (!allowedConfigExtensions.includes(configExt)) {
+      return {
+        valid: false,
+        message: "Config file must be a .yml file.",
+      };
+    }
+
+    return {
+      valid: true,
+      fileType: binaryExt === "exe" ? "desktop" : "mobile",
+    };
   };
 
   const resetForm = () => {
@@ -44,18 +92,60 @@ const ReleaseUpdate = () => {
     setSubmitting(true);
     setStatus(null);
 
-    try {
-      // TODO: wire up to backend when endpoint is available
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      setStatus({
-        type: "success",
-        message: `Release package (${formState.file.name}) queued successfully.`,
-      });
-      resetForm();
-    } catch {
+    const validation = validateFiles();
+    if (!validation.valid) {
       setStatus({
         type: "error",
-        message: "Upload failed. Please retry.",
+        message: validation.message,
+      });
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const formData = new FormData();
+      formData.append("file", formState.binaryFile);
+      formData.append("config_file", formState.configFile);
+      formData.append("file_type", validation.fileType);
+      formData.append("user_id", "1");
+      formData.append("app_source", "admin_panel");
+
+      const response = await axios.post(
+        `${BASE_URL}/admin/upload_app_to_server`,
+        formData,
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      const message =
+        response?.data?.message ||
+        response?.data?.detail ||
+        `Release package (${formState.binaryFile.name}) uploaded with ${formState.configFile.name}.`;
+
+      setStatus({
+        type: "success",
+        message,
+      });
+      resetForm();
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.detail ||
+        error.response?.data?.message ||
+        error.message ||
+        "Upload failed. Please retry.";
+
+      setStatus({
+        type: "error",
+        message: errorMessage,
       });
       setSubmitting(false);
     }
@@ -121,27 +211,56 @@ const ReleaseUpdate = () => {
           )}
 
           <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6">
-            <div className="flex flex-col items-center justify-center gap-3 text-center">
-              <FontAwesomeIcon icon={faUpload} className="h-8 w-8 text-brand-500" />
-              <div>
-                <p className="text-sm font-medium text-gray-900">Upload release artifact</p>
-                <p className="text-xs text-gray-500">APK / IPA / ZIP · max 250MB</p>
-              </div>
-              <label className="inline-flex cursor-pointer items-center rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-100">
-                Choose file
-                <input
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileChange}
-                  accept=".apk,.ipa,.zip"
-                />
-              </label>
-              {formState.file && (
-                <div className="rounded-full bg-white px-4 py-2 text-xs font-medium text-gray-700 shadow-sm">
-                  {formState.file.name}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/70 bg-white/70 p-4 text-center shadow-sm">
+                <FontAwesomeIcon icon={faUpload} className="h-8 w-8 text-brand-500" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Build Artifact</p>
+                  <p className="text-xs text-gray-500">
+                    Upload the main .apk (mobile) or .exe (desktop) binary.
+                  </p>
                 </div>
-              )}
+                <label className="inline-flex cursor-pointer items-center rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-100">
+                  Choose build file
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={handleBinaryFileChange}
+                    accept=".apk,.exe"
+                  />
+                </label>
+                {formState.binaryFile && (
+                  <div className="rounded-full bg-gray-50 px-4 py-2 text-xs font-medium text-gray-700 shadow-inner">
+                    {formState.binaryFile.name}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/70 bg-white/70 p-4 text-center shadow-sm">
+                <FontAwesomeIcon icon={faUpload} className="h-8 w-8 text-success-500" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Deployment Config</p>
+                  <p className="text-xs text-gray-500">Upload the required .yml manifest.</p>
+                </div>
+                <label className="inline-flex cursor-pointer items-center rounded-full bg-success-50 px-4 py-2 text-sm font-semibold text-success-600 hover:bg-success-100">
+                  Choose config file
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={handleConfigFileChange}
+                    accept=".yml"
+                  />
+                </label>
+                {formState.configFile && (
+                  <div className="rounded-full bg-gray-50 px-4 py-2 text-xs font-medium text-gray-700 shadow-inner">
+                    {formState.configFile.name}
+                  </div>
+                )}
+              </div>
             </div>
+            <p className="mt-4 text-center text-xs text-gray-500">
+              Upload must include either (.exe + .yml) for desktop or (.apk + .yml) for mobile builds.
+            </p>
           </div>
 
           <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 text-sm text-gray-500 lg:flex-row lg:items-center lg:justify-between">
