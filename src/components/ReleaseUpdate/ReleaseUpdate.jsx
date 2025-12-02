@@ -7,6 +7,7 @@ import {
   faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
+import yaml from "js-yaml";
 import { useAuth } from "../../hooks/useAuth";
 import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
@@ -23,6 +24,8 @@ const ReleaseUpdate = () => {
   const [formState, setFormState] = useState(initialState);
   const [submitting, setSubmitting] = useState(false);
   const [status, setStatus] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(null); // null = idle/unknown, 0-100 when uploading
+  const [yamlPreview, setYamlPreview] = useState({ data: null, error: null });
   const { getToken } = useAuth();
   const { BASE_URL } = API_CONFIG;
 
@@ -44,6 +47,34 @@ const ReleaseUpdate = () => {
   const handleConfigFileChange = (event) => {
     const file = event.target.files?.[0] ?? null;
     setFormState((prev) => ({ ...prev, configFile: file }));
+
+    if (!file) {
+      setYamlPreview({ data: null, error: null });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const parsed = yaml.load(reader.result || "");
+        setYamlPreview({
+          data: parsed,
+          error: null,
+        });
+      } catch {
+        setYamlPreview({
+          data: null,
+          error: "Unable to parse YAML config file.",
+        });
+      }
+    };
+    reader.onerror = () => {
+      setYamlPreview({
+        data: null,
+        error: "Failed to read config file.",
+      });
+    };
+    reader.readAsText(file);
   };
 
   const getFileExtension = (fileName) => {
@@ -83,6 +114,8 @@ const ReleaseUpdate = () => {
   const resetForm = () => {
     setFormState(initialState);
     setSubmitting(false);
+    setUploadProgress(null);
+    setYamlPreview({ data: null, error: null });
   };
 
   const handleSubmit = async (event) => {
@@ -91,6 +124,7 @@ const ReleaseUpdate = () => {
 
     setSubmitting(true);
     setStatus(null);
+    setUploadProgress(0);
 
     const validation = validateFiles();
     if (!validation.valid) {
@@ -122,6 +156,17 @@ const ReleaseUpdate = () => {
           headers: {
             Authorization: token,
             "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            if (!progressEvent.total) {
+              // Indeterminate, show animated bar
+              setUploadProgress(null);
+              return;
+            }
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percent);
           },
         }
       );
@@ -210,6 +255,35 @@ const ReleaseUpdate = () => {
             </div>
           )}
 
+          {(submitting || uploadProgress !== null) && (
+            <div className="mt-2">
+              <div className="mb-1 flex items-center justify-between text-xs text-gray-500">
+                <span>
+                  {uploadProgress !== null
+                    ? "Uploading release package..."
+                    : "Preparing upload..."}
+                </span>
+                {uploadProgress !== null && (
+                  <span className="font-medium text-gray-700">
+                    {uploadProgress}%
+                  </span>
+                )}
+              </div>
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-100">
+                <div
+                  className={`h-full rounded-full bg-success-500 transition-all duration-300 ${
+                    uploadProgress === null ? "w-1/3 animate-pulse" : ""
+                  }`}
+                  style={
+                    uploadProgress !== null
+                      ? { width: `${Math.min(uploadProgress, 100)}%` }
+                      : undefined
+                  }
+                />
+              </div>
+            </div>
+          )}
+
           <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/70 bg-white/70 p-4 text-center shadow-sm">
@@ -236,24 +310,46 @@ const ReleaseUpdate = () => {
                 )}
               </div>
 
-              <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/70 bg-white/70 p-4 text-center shadow-sm">
-                <FontAwesomeIcon icon={faUpload} className="h-8 w-8 text-success-500" />
-                <div>
-                  <p className="text-sm font-semibold text-gray-900">Deployment Config</p>
-                  <p className="text-xs text-gray-500">Upload the required .yml manifest.</p>
+              <div className="flex flex-col gap-3 rounded-xl border border-white/70 bg-white/70 p-4 shadow-sm">
+                <div className="flex flex-col items-center justify-center gap-3 text-center">
+                  <FontAwesomeIcon icon={faUpload} className="h-8 w-8 text-success-500" />
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">Deployment Config</p>
+                    <p className="text-xs text-gray-500">Upload the required .yml manifest.</p>
+                  </div>
+                  <label className="inline-flex cursor-pointer items-center rounded-full bg-success-50 px-4 py-2 text-sm font-semibold text-success-600 hover:bg-success-100">
+                    Choose config file
+                    <input
+                      type="file"
+                      className="hidden"
+                      onChange={handleConfigFileChange}
+                      accept=".yml"
+                    />
+                  </label>
+                  {formState.configFile && (
+                    <div className="rounded-full bg-gray-50 px-4 py-2 text-xs font-medium text-gray-700 shadow-inner">
+                      {formState.configFile.name}
+                    </div>
+                  )}
                 </div>
-                <label className="inline-flex cursor-pointer items-center rounded-full bg-success-50 px-4 py-2 text-sm font-semibold text-success-600 hover:bg-success-100">
-                  Choose config file
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={handleConfigFileChange}
-                    accept=".yml"
-                  />
-                </label>
-                {formState.configFile && (
-                  <div className="rounded-full bg-gray-50 px-4 py-2 text-xs font-medium text-gray-700 shadow-inner">
-                    {formState.configFile.name}
+
+                {(yamlPreview.data || yamlPreview.error) && (
+                  <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-3 text-left">
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span className="font-semibold text-gray-700">Config preview</span>
+                      {yamlPreview.error ? (
+                        <span className="font-medium text-error-600">Invalid YAML</span>
+                      ) : (
+                        <span className="font-medium text-success-600">Parsed</span>
+                      )}
+                    </div>
+                    {yamlPreview.error ? (
+                      <p className="text-xs text-error-600">{yamlPreview.error}</p>
+                    ) : (
+                      <pre className="max-h-40 overflow-auto rounded bg-white p-2 text-[11px] leading-snug text-gray-800">
+                        {JSON.stringify(yamlPreview.data, null, 2)}
+                      </pre>
+                    )}
                   </div>
                 )}
               </div>
