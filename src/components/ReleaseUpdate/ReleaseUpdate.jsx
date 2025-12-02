@@ -1,10 +1,14 @@
 import React, { useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUpload, faFileLines, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUpload,
+  faFileLines,
+  faCircleCheck,
+  faChevronLeft,
+} from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "../Breadcrumb";
 
 const initialState = {
-  version: "",
-  notes: "",
   file: null,
 };
 
@@ -15,12 +19,13 @@ const ReleaseUpdate = () => {
 
   const disableSubmit = useMemo(() => {
     if (submitting) return true;
-    return !(formState.version && formState.notes && formState.file);
+    return !formState.file;
   }, [formState, submitting]);
 
-  const handleChange = (field) => (event) => {
-    setFormState((prev) => ({ ...prev, [field]: event.target.value }));
-  };
+  const breadcrumbItems = [
+    { label: "Home", path: "/home" },
+    { label: "Release Update" },
+  ];
 
   const handleFileChange = (event) => {
     const file = event.target.files?.[0] ?? null;
@@ -47,7 +52,7 @@ const ReleaseUpdate = () => {
         message: `Release package (${formState.file.name}) queued successfully.`,
       });
       resetForm();
-    } catch (error) {
+    } catch {
       setStatus({
         type: "error",
         message: "Upload failed. Please retry.",
@@ -57,24 +62,46 @@ const ReleaseUpdate = () => {
   };
 
   return (
-    <section className="px-4 py-6 lg:px-6">
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="border-b border-gray-100 px-6 py-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-500">
-            Release Management
-          </p>
-          <div className="mt-1 flex items-center gap-3">
-            <h1 className="text-2xl font-semibold text-gray-900">Release Update</h1>
-            <span className="rounded-full bg-success-50 px-3 py-1 text-xs font-semibold text-success-600">
-              Internal
-            </span>
-          </div>
-          <p className="mt-2 text-sm text-gray-500">
-            Upload your latest build package and share a quick summary with the QA / deployment team.
-          </p>
-        </div>
+    <>
+      <div className="mb-6">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
 
-        <form className="flex flex-col gap-6 px-6 py-6" onSubmit={handleSubmit}>
+      <section className="px-4 py-0 lg:px-6">
+        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+          {/* Header with back button */}
+          <div className="border-b border-gray-100 px-6 py-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <div>
+                <button
+                  type="button"
+                  onClick={() => window.history.back()}
+                  className="inline-flex items-center gap-2 rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-theme-xs transition hover:bg-gray-50"
+                >
+                  <FontAwesomeIcon icon={faChevronLeft} className="h-4 w-4" />
+                  <span className="hidden sm:inline">Back</span>
+                </button>
+              </div>
+
+              <div className="flex-1 text-center">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <h1 className="text-lg font-semibold text-gray-900 sm:text-xl">
+                      Release Update
+                    </h1>
+                    <span className="rounded-full bg-success-50 px-3 py-1 text-xs font-semibold text-success-600">
+                      Development Builds
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-500 sm:text-sm">
+                    Upload the latest build package for deployment.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form className="flex flex-col gap-6 px-6 py-6" onSubmit={handleSubmit}>
           {status && (
             <div
               className={`rounded-xl border px-4 py-3 text-sm ${
@@ -92,33 +119,6 @@ const ReleaseUpdate = () => {
               </div>
             </div>
           )}
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-gray-700">Release Version</span>
-              <input
-                type="text"
-                placeholder="e.g. 2.3.0"
-                className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
-                value={formState.version}
-                onChange={handleChange("version")}
-                required
-              />
-              <span className="text-xs text-gray-400">Semantic versioning (major.minor.patch)</span>
-            </label>
-
-            <label className="flex flex-col gap-2">
-              <span className="text-sm font-medium text-gray-700">Release Notes</span>
-              <textarea
-                rows="4"
-                placeholder="Summarize key changes, bug fixes, migrations..."
-                className="rounded-xl border border-gray-200 px-4 py-3 text-sm focus:border-brand-500 focus:outline-none"
-                value={formState.notes}
-                onChange={handleChange("notes")}
-                required
-              />
-            </label>
-          </div>
 
           <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6">
             <div className="flex flex-col items-center justify-center gap-3 text-center">
@@ -146,27 +146,20 @@ const ReleaseUpdate = () => {
 
           <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 text-sm text-gray-500 lg:flex-row lg:items-center lg:justify-between">
             <span>Submitting will notify the deployment channel.</span>
-            <div className="flex gap-3">
-              <button
-                type="button"
-                className="rounded-xl border border-gray-200 px-5 py-2 font-medium text-gray-600 transition hover:bg-gray-50"
-                onClick={resetForm}
-                disabled={submitting}
-              >
-                Reset
-              </button>
-              <button
-                type="submit"
-                className="rounded-xl bg-brand-600 px-6 py-2 font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-brand-200"
-                disabled={disableSubmit}
-              >
-                {submitting ? "Uploading..." : "Upload Release"}
-              </button>
-            </div>
+             <div className="flex gap-3">
+               <button
+                 type="submit"
+                 className="rounded-3xl border border-success-500 bg-success-100 px-6 py-2 text-sm font-semibold text-success-700 transition hover:bg-success-200 disabled:cursor-not-allowed disabled:border-success-200 disabled:bg-success-50 disabled:text-success-400"
+                 disabled={disableSubmit}
+               >
+                 {submitting ? "Uploading..." : "Upload Release"}
+               </button>
+             </div>
           </div>
-        </form>
-      </div>
-    </section>
+          </form>
+        </div>
+      </section>
+    </>
   );
 };
 
