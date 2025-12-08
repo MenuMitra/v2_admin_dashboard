@@ -226,12 +226,6 @@ const SelectInput = React.forwardRef(
             [&::-o-select-arrow]{display:none}
             [&::select-arrow]{display:none}
           `}
-            style={{
-              WebkitAppearance: "none",
-              MozAppearance: "none",
-              appearance: "none",
-              backgroundImage: "none",
-            }}
             {...props}
           >
             <option

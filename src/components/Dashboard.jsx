@@ -171,26 +171,11 @@ function Dashboard() {
     <div className="p-0">
       {/* Compact Dashboard Card with All Sections */}
       <div
-        className={`bg-white rounded-lg border border-gray-200 shadow-sm mb-6 ${fullscreenClass}`}
-        style={
+        className={`bg-white rounded-lg border border-gray-200 shadow-sm mb-6 ${fullscreenClass} ${
           isFullscreen
-            ? {
-                borderRadius: 16,
-                border: "1px solid #e5e7eb",
-                background: "#fff",
-                position: "fixed",
-                inset: 0,
-                zIndex: 50,
-                margin: 0,
-                padding: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                minHeight: "100vh",
-                minWidth: "100vw",
-              }
-            : {}
-        }
+            ? "rounded-3xl border-gray-200 bg-white fixed inset-0 z-50 m-0 p-0 flex items-center justify-center min-h-screen min-w-full"
+            : ""
+        }`}
       >
         {/* Fullscreen top-right controls */}
         {isFullscreen && (
@@ -199,7 +184,7 @@ function Dashboard() {
               onClick={() => refetchCardData()}
               disabled={isCardLoading}
               title="Reload"
-              className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+              className="p-2 rounded-3xl border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
             >
               <FontAwesomeIcon
                 icon={faRotate}
@@ -209,7 +194,7 @@ function Dashboard() {
             <button
               onClick={() => setIsFullscreen((f) => !f)}
               title={isFullscreen ? "Minimize" : "Fullscreen"}
-              className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+              className="p-2 rounded-3xl border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
             >
               <FontAwesomeIcon
                 icon={isFullscreen ? faCompress : faExpand}
@@ -220,8 +205,7 @@ function Dashboard() {
         )}
 
         <div
-          className={`p-6 ${isFullscreen ? "w-full max-w-6xl p-8" : ""}`}
-          style={isFullscreen ? { overflow: "auto" } : {}}
+          className={`p-6 ${isFullscreen ? "w-full max-w-6xl p-8 overflow-auto" : ""}`}
         >
           {/* Header with Title and Controls */}
           <div className="flex items-center justify-between mb-6">

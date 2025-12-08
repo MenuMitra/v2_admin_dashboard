@@ -995,15 +995,7 @@ function CreateOutlet() {
 
                       {isDropdownOpen && (
                         <div
-                          className="fixed left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl"
-                          style={{
-                            position: "absolute",
-                            width: "100%",
-                            minWidth: "300px",
-                            zIndex: 9999,
-                            maxHeight: "350px",
-                            overflowY: "auto",
-                          }}
+                          className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl w-full min-w-[300px] z-[9999] max-h-[350px] overflow-y-auto"
                         >
                           {outletData.owner_id.length > 0 && (
                             <div className="p-2 border-b bg-gray-50">

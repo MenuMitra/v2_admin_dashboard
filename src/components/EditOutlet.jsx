@@ -890,13 +890,7 @@ function EditOutlet() {
                     {/* Dropdown Panel */}
                     {isDropdownOpen && (
                       <div
-                        className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
-                        style={{
-                          width: "100%",
-                          minWidth: "300px",
-                          maxHeight: "350px",
-                          overflowY: "auto",
-                        }}
+                        className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50 w-full min-w-[300px] max-h-[350px] overflow-y-auto"
                       >
                         {/* Search Bar */}
                         <div className="sticky top-0 p-2 border-b bg-white">

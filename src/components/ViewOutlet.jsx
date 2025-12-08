@@ -78,9 +78,6 @@ const ToggleSwitch = ({
           <span
             className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${isOn ? "translate-x-6" : "translate-x-1"
               }`}
-            style={{
-              transform: isOn ? "translateX(1.5rem)" : "translateX(0.25rem)",
-            }}
           />
         </button>
       </div>

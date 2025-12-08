@@ -727,7 +727,7 @@ const UBACTree = () => {
             <div 
               id="svg-tree" 
               ref={treeContainerRef}
-              style={{ margin: '0 auto', minHeight: '400px' }}
+              className="mx-auto min-h-[400px]"
             />
           )}
         </div>

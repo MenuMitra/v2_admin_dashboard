@@ -90,13 +90,7 @@ function CreateNotification() {
       const spaceBelow = window.innerHeight - rect.bottom;
       const maxHeight = Math.min(350, spaceBelow - 20); // Subtract 20px for padding/margin
       setDropdownStyle({
-        position: "absolute",
-        width: "300px",
-        zIndex: 1000,
         maxHeight: `${maxHeight}px`,
-        overflowY: "auto",
-        top: "100%",
-        left: 0,
       });
     }
   };
@@ -437,13 +431,7 @@ function CreateNotification() {
 
                   {dropdownStates.type && (
                     <div
-                      className="absolute mt-1 bg-white border rounded-lg shadow-xl"
-                      style={{
-                        width: "300px",
-                        zIndex: 1000,
-                        maxHeight: "350px",
-                        overflowY: "auto",
-                      }}
+                      className="absolute mt-1 bg-white border rounded-lg shadow-xl w-[300px] z-[1000] max-h-[350px] overflow-y-auto"
                     >
                       {notificationTypes.map((type) => (
                         <div
@@ -517,7 +505,7 @@ function CreateNotification() {
                   {dropdownStates.outlet && (
                     <div
                       ref={outletDropdownRef}
-                      className="bg-white border rounded-lg shadow-xl"
+                      className="absolute top-full left-0 bg-white border rounded-lg shadow-xl w-[300px] z-[1000] overflow-y-auto"
                       style={dropdownStyle}
                     >
                       <div className="sticky top-0 p-2 border-b bg-white">
@@ -635,13 +623,7 @@ function CreateNotification() {
 
                   {dropdownStates.role && (
                     <div
-                      className="absolute mt-1 bg-white border rounded-lg shadow-xl"
-                      style={{
-                        width: "300px",
-                        zIndex: 1000,
-                        maxHeight: "350px",
-                        overflowY: "auto",
-                      }}
+                      className="absolute mt-1 bg-white border rounded-lg shadow-xl w-[300px] z-[1000] max-h-[350px] overflow-y-auto"
                     >
                       <div className="sticky top-0 p-2 border-b bg-white">
                         <div className="relative">
@@ -750,13 +732,7 @@ function CreateNotification() {
 
                   {dropdownStates.user && (
                     <div
-                      className="absolute mt-1 bg-white border rounded-lg shadow-xl"
-                      style={{
-                        width: "300px",
-                        zIndex: 1000,
-                        maxHeight: "350px",
-                        overflowY: "auto",
-                      }}
+                      className="absolute mt-1 bg-white border rounded-lg shadow-xl w-[300px] z-[1000] max-h-[350px] overflow-y-auto"
                     >
                       <div className="sticky top-0 p-2 border-b bg-white">
                         <div className="relative">

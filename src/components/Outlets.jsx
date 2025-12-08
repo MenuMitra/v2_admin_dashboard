@@ -448,15 +448,7 @@ function Outlets() {
           <div className="text-sm font-medium flex items-center gap-1">
             {isLive && (
               <div
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  backgroundColor: "#10b981",
-                  borderRadius: "50%",
-                  animation: "blink 1.5s ease-in-out infinite",
-                  display: "inline-block",
-                  marginRight: "4px",
-                }}
+                className="w-2 h-2 bg-[#10b981] rounded-full inline-block mr-1 animate-[blink_1.5s_ease-in-out_infinite]"
               ></div>
             )}
             <span className={isLive ? "text-success-500" : "text-warning-500"}>
@@ -580,10 +572,7 @@ function Outlets() {
       customIcon: (
         <div className="flex items-center gap-2">
           <div
-            className="w-2 h-2 bg-success-500 rounded-full"
-            style={{
-              animation: "blink 1.5s ease-in-out infinite",
-            }}
+            className="w-2 h-2 bg-success-500 rounded-full animate-[blink_1.5s_ease-in-out_infinite]"
           ></div>
           <span>Live</span>
         </div>

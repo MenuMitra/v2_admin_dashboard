@@ -226,17 +226,12 @@ const ImageUploader = ({
           {previews.map((preview, index) => (
             <div
               key={preview.id || index}
-              className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden"
-              style={{
-                width: "100px",
-                aspectRatio: "1/1",
-              }}
+              className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-[100px] aspect-square"
             >
               {/* Remove Button - small, top-left, always visible */}
               <button
                 onClick={() => handleRemoveImage(index)}
-                className="absolute top-1 right-1 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-white bg-opacity-80 hover:bg-error-100 border border-gray-300 p-0.5"
-                style={{ lineHeight: 1 }}
+                className="absolute top-1 right-1 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-white bg-opacity-80 hover:bg-error-100 border border-gray-300 p-0.5 leading-none"
                 title="Remove"
               >
                 <FontAwesomeIcon

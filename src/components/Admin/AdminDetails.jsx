@@ -211,8 +211,7 @@ function AdminDetails() {
                   </button>
                   <button
                     onClick={() => navigate(`/edit-admin/${adminId}`)}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full shadow-theme-xs hover:brightness-110"
-                    style={{ backgroundColor: "#f7941d" }}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full shadow-theme-xs bg-warning-500 hover:bg-warning-600"
                   >
                     <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                     <span className="hidden sm:inline">Edit</span>
@@ -367,9 +366,6 @@ const ToggleSwitch = ({
             className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
               isOn ? "translate-x-6" : "translate-x-1"
             }`}
-            style={{
-              transform: isOn ? "translateX(1.5rem)" : "translateX(0.25rem)",
-            }}
           />
         </button>
       </div>

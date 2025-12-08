@@ -289,15 +289,7 @@ const Search = () => {
                   <select
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full h-10 sm:h-auto px-4 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white appearance-none"
-                    style={{ 
-                      backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")', 
-                      backgroundPosition: 'right 0.75rem center', 
-                      backgroundRepeat: 'no-repeat', 
-                      backgroundSize: '1.5em 1.5em',
-                      width: 'max-content',
-                      minWidth: '200px'
-                    }}
+                    className="w-full h-10 sm:h-auto px-4 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em] sm:w-max sm:min-w-[200px]"
                   >
                     <option value="">All Roles</option>
                     <option value="super_owner">Super Owner</option>
@@ -311,15 +303,7 @@ const Search = () => {
                   <select
                     value={searchType}
                     onChange={(e) => setSearchType(e.target.value)}
-                    className="w-full h-10 sm:h-auto px-4 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white appearance-none"
-                    style={{ 
-                      backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3e%3c/svg%3e")', 
-                      backgroundPosition: 'right 0.75rem center', 
-                      backgroundRepeat: 'no-repeat', 
-                      backgroundSize: '1.5em 1.5em',
-                      width: 'max-content',
-                      minWidth: '200px'
-                    }}
+                    className="w-full h-10 sm:h-auto px-4 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em] sm:w-max sm:min-w-[200px]"
                   >
                     <option value="name">Name</option>
                     <option value="mobile">Mobile</option>

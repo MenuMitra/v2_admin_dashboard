@@ -248,7 +248,10 @@ function DataTable({
 
     return (
       <span className="inline-flex justify-center items-center ml-1 w-4">
-        <FontAwesomeIcon icon={icon} className={iconClass} style={style} />
+        <FontAwesomeIcon 
+          icon={icon} 
+          className={`${iconClass} ${sortField === field && sortOrder === "asc" ? "translate-y-0.5" : sortField === field && sortOrder === "desc" ? "-translate-y-0.5" : ""}`} 
+        />
       </span>
     );
   };
@@ -657,7 +660,7 @@ function DataTable({
         {customFilters.map((filter, index) => (
           <React.Fragment key={index}>
             {filter.type === "custom" && (
-              <div className="relative" style={{ zIndex: 3 }}>
+              <div className="relative z-[3]">
                 {filter.component}
               </div>
             )}
@@ -922,14 +925,7 @@ function DataTable({
                         onChange={(e) => {
                           onExecutionTimeFilterChange(e.target.value);
                         }}
-                        className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none"
-                        style={{
-                          backgroundImage:
-                            "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e\")",
-                          backgroundPosition: "right 0.75rem center",
-                          backgroundRepeat: "no-repeat",
-                          backgroundSize: "1.5em 1.5em",
-                        }}
+                        className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em]"
                       >
                         <option value="all">All Execution Time</option>
                         <option value="5">&gt;5ms</option>
@@ -955,7 +951,7 @@ function DataTable({
                     {customFilters.map((filter, index) => (
                       <React.Fragment key={index}>
                         {filter.type === "custom" && (
-                          <div className="relative" style={{ zIndex: 3 }}>
+                          <div className="relative z-[3]">
                             {filter.component}
                           </div>
                         )}

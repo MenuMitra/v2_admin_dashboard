@@ -151,8 +151,7 @@ function CreateCategory() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
-              style={{ display: "none" }}
+              className="hidden w-full py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
             >
               {loading ? "Creating..." : "Create Category"}
             </button>

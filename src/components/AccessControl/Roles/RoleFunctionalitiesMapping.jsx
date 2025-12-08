@@ -353,8 +353,7 @@ function RoleFunctionalitiesMapping() {
                   <div className="relative">
                     {/* Functionalities List */}
                     <div
-                      className="border rounded-lg"
-                      style={{ maxHeight: "350px", overflowY: "auto" }}
+                      className="border rounded-lg max-h-[350px] overflow-y-auto"
                     >
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 p-4">
                         {allFunctionalities.map((functionality) => (

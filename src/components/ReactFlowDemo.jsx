@@ -652,7 +652,7 @@ const ReactFlowDemoInner = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div style={{ width: '100%', height: '700px' }} className="flex items-center justify-center">
+      <div className="w-full h-[700px] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading UBAC Tree...</p>
@@ -664,7 +664,7 @@ const ReactFlowDemoInner = () => {
   // Error state
   if (error) {
     return (
-      <div style={{ width: '100%', height: '700px' }} className="flex items-center justify-center">
+      <div className="w-full h-[700px] flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <p className="text-red-600 font-semibold mb-2">Failed to load UBAC Tree</p>
@@ -677,7 +677,7 @@ const ReactFlowDemoInner = () => {
   // Empty state
   if (!data?.data?.length) {
     return (
-      <div style={{ width: '100%', height: '700px' }} className="flex items-center justify-center">
+      <div className="w-full h-[700px] flex items-center justify-center">
         <div className="text-center">
           <div className="text-gray-400 text-6xl mb-4">📊</div>
           <p className="text-gray-600 font-semibold mb-2">No UBAC Tree Data</p>
@@ -766,7 +766,7 @@ const ReactFlowDemoInner = () => {
 
         {/* React Flow Content */}
         <div className="px-6 pb-6">
-          <div style={{ width: '100%', height: '700px' }}>
+          <div className="w-full h-[700px]">
             <ReactFlow
               nodes={nodes}
               edges={edges}
