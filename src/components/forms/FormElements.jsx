@@ -205,7 +205,7 @@ const SelectInput = React.forwardRef(
             onChange={onChange}
             onFocus={onFocus}
             className={`
-            w-full px-3 py-2 border rounded-lg shadow-sm
+            w-full px-3 py-2 border rounded-3xl shadow-sm
             focus:outline-none focus:ring-2 focus:ring-brand-500
             !appearance-none
             !select-none

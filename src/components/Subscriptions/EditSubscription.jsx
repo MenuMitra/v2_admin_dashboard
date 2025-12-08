@@ -674,7 +674,7 @@ function EditSubscription() {
                             checked={isSelected}
                             onChange={() => handleModuleToggle(mod.module_id)}
                             onClick={(e) => e.stopPropagation()}
-                            className="form-checkbox h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 cursor-pointer"
+                            className="form-checkbox h-4 w-4 rounded-3xl border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 cursor-pointer"
                           />
                           <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                             {mod.name.split("_").join(" ").toUpperCase()}

@@ -82,7 +82,7 @@ function Functionalities() {
               setEditingFunctionality(functionality);
               setShowEditModal(true);
             }}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
             title="Edit Functionality"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
@@ -92,7 +92,7 @@ function Functionalities() {
               setDeletingFunctionality(functionality);
               setShowDeleteModal(true);
             }}
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
             title="Delete Functionality"
           >
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />

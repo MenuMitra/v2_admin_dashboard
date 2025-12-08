@@ -140,21 +140,21 @@ function Staff() {
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => handleView(row.user_id)}
-              className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+              className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-3xl shadow-theme-xs transition"
               title="View Staff"
             >
               <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
             </button>
             <button
               onClick={() => handleEdit(row.user_id)}
-              className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+              className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
               title="Edit Staff"
             >
               <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
             </button>
             <button
               onClick={() => openDeleteModal(row.user_id)}
-              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
               title="Delete Staff"
             >
               <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />

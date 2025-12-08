@@ -113,7 +113,7 @@ function AddRoleAssignFunctionalities() {
                   id="functionality"
                   value={selectedFunctionality}
                   onChange={(e) => setSelectedFunctionality(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                   required
                 >
                   <option value="">Select a functionality</option>
@@ -129,7 +129,7 @@ function AddRoleAssignFunctionalities() {
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-3xl hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
                   <FontAwesomeIcon icon={faChevronLeft} className="mr-2" />
                   Back
@@ -137,7 +137,7 @@ function AddRoleAssignFunctionalities() {
                 <button
                   type="submit"
                   disabled={loading || !selectedFunctionality}
-                  className={`px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-3xl hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed ${
                     loading ? 'cursor-wait' : ''
                   }`}
                 >

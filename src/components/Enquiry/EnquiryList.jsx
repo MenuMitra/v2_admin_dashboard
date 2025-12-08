@@ -175,7 +175,7 @@ const EnquiryList = () => {
       render: (_, enquiry) => (
         <button
           onClick={() => navigate(`/view-enquiry/${enquiry.enquiry_id}`)}
-          className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-lg bg-brand-500 px-2 py-2 font-medium text-white hover:bg-brand-600"
+          className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-3xl bg-brand-500 px-2 py-2 font-medium text-white hover:bg-brand-600"
         >
           <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
         </button>

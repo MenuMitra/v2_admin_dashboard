@@ -135,14 +135,14 @@ const Form = ({
             <button
               type="button"
               onClick={onCancel}
-              className="px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
+              className="px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-3xl hover:bg-gray-50 focus:outline-none dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:hover:bg-gray-600"
             >
               Cancel
             </button>
           )}
           <button
             type="submit"
-            className="inline-flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 focus:outline-none"
+            className="inline-flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white bg-brand-500 rounded-3xl hover:bg-brand-600 focus:outline-none"
           >
             {submitText}
           </button>

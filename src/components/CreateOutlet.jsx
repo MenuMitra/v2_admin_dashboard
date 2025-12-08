@@ -1355,7 +1355,7 @@ function CreateOutlet() {
                     <div className="flex gap-2">
                       {/* Hour Dropdown */}
                       <select
-                        className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         value={openingHour}
                         onChange={(e) =>
                           handleOpeningTimeChange("hour", e.target.value)
@@ -1373,7 +1373,7 @@ function CreateOutlet() {
                       </select>
                       {/* Minute Dropdown */}
                       <select
-                        className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         value={openingMinute}
                         onChange={(e) =>
                           handleOpeningTimeChange("minute", e.target.value)
@@ -1388,7 +1388,7 @@ function CreateOutlet() {
                       </select>
                       {/* AM/PM Dropdown */}
                       <select
-                        className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                         value={openingPeriod}
                         onChange={(e) =>
                           handleOpeningTimeChange("period", e.target.value)
@@ -1407,7 +1407,7 @@ function CreateOutlet() {
                     <div className="flex gap-2">
                       {/* Hour Dropdown */}
                       <select
-                        className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         value={closingHour}
                         onChange={(e) =>
                           handleClosingTimeChange("hour", e.target.value)
@@ -1425,7 +1425,7 @@ function CreateOutlet() {
                       </select>
                       {/* Minute Dropdown */}
                       <select
-                        className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                         value={closingMinute}
                         onChange={(e) =>
                           handleClosingTimeChange("minute", e.target.value)
@@ -1440,7 +1440,7 @@ function CreateOutlet() {
                       </select>
                       {/* AM/PM Dropdown */}
                       <select
-                        className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                         value={closingPeriod}
                         onChange={(e) =>
                           handleClosingTimeChange("period", e.target.value)
@@ -1470,7 +1470,7 @@ function CreateOutlet() {
                           has_combo: Number(e.target.value),
                         }))
                       }
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     >
                       <option value="">Select</option>
                       {YES_NO_OPTIONS.map((opt) => (
@@ -1499,7 +1499,7 @@ function CreateOutlet() {
                           has_denomination: Number(e.target.value),
                         }))
                       }
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     >
                       <option value="">Select</option>
                       {YES_NO_OPTIONS.map((opt) => (
@@ -1528,7 +1528,7 @@ function CreateOutlet() {
                           reserve_table: Number(e.target.value),
                         }))
                       }
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                     >
                       <option value="">Select</option>
                       {YES_NO_OPTIONS.map((opt) => (

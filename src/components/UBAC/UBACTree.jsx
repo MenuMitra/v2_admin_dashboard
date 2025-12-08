@@ -162,7 +162,7 @@ const UBACTree = () => {
                   );
                   setIsEditModalOpen(true);
                 }}
-                className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+                className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
                 title="Edit action"
               >
                 <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
@@ -206,7 +206,7 @@ const UBACTree = () => {
                     toastController.error("Delete failed");
                   }
                 }}
-                className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
                 title="Delete action"
               >
                 <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
@@ -244,7 +244,7 @@ const UBACTree = () => {
                         setEditSelectedModuleId(moduleId);
                         setIsEditModalOpen(true);
                       }}
-                      className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition ml-2"
+                      className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition ml-2"
                       title="Edit feature"
                     >
                       <FontAwesomeIcon
@@ -307,7 +307,7 @@ const UBACTree = () => {
                             toastController.error("Delete failed");
                           }
                         }}
-                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
                         title="Delete feature"
                       >
                         <FontAwesomeIcon
@@ -363,7 +363,7 @@ const UBACTree = () => {
                       setEditFormName(module.name || "");
                       setIsEditModalOpen(true);
                     }}
-                    className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition ml-2"
+                    className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition ml-2"
                     title="Edit module"
                   >
                     <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
@@ -414,7 +414,7 @@ const UBACTree = () => {
                           toastController.error("Delete failed");
                         }
                       }}
-                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition ml-2"
+                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition ml-2"
                       title="Delete module"
                     >
                       <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
@@ -469,7 +469,7 @@ const UBACTree = () => {
               <button
                 onClick={refetchUbacTree}
                 disabled={isLoading}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-3xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Reload data"
               >
                 <FontAwesomeIcon
@@ -529,7 +529,7 @@ const UBACTree = () => {
               </span>
               <input
                 placeholder="Search modules, features, actions..."
-                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
+                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-3xl border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

@@ -136,14 +136,14 @@ function Dashboard() {
         <div className="flex gap-2">
           <button
             onClick={() => handleViewClick(item)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-3xl shadow-theme-xs transition"
             title="View Outlet"
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleEditClick(item)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
             title="Edit Outlet"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
@@ -221,7 +221,7 @@ function Dashboard() {
                   onClick={() => refetchCardData()}
                   disabled={isCardLoading}
                   title="Reload"
-                  className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+                  className="p-2 rounded-3xl border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
                 >
                   <FontAwesomeIcon
                     icon={faRotate}
@@ -231,7 +231,7 @@ function Dashboard() {
                 <button
                   onClick={() => setIsFullscreen((f) => !f)}
                   title={isFullscreen ? "Minimize" : "Fullscreen"}
-                  className="p-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+                  className="p-2 rounded-3xl border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
                 >
                   <FontAwesomeIcon
                     icon={isFullscreen ? faCompress : faExpand}
@@ -354,7 +354,7 @@ function Dashboard() {
 
               <Link
                 to="/admins"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faUser}
@@ -364,7 +364,7 @@ function Dashboard() {
               </Link>
               <Link
                 to="/outlets"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faStore}
@@ -374,7 +374,7 @@ function Dashboard() {
               </Link>
               <Link
                 to="/owners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faUsers}
@@ -385,7 +385,7 @@ function Dashboard() {
 
               <Link
                 to="/super-owners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faUserShield}
@@ -398,7 +398,7 @@ function Dashboard() {
 
               <Link
                 to="/partners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faHandshake}
@@ -408,7 +408,7 @@ function Dashboard() {
               </Link>
               <Link
                 to="/customer"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faUser}
@@ -422,7 +422,7 @@ function Dashboard() {
              
               <Link
                 to="/search"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faSearch}
@@ -435,7 +435,7 @@ function Dashboard() {
 
               <Link
                 to="/notifications"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faBell}
@@ -448,7 +448,7 @@ function Dashboard() {
 
               <Link
                 to="/enquiries"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faEnvelope}
@@ -459,7 +459,7 @@ function Dashboard() {
 
               <Link
                 to="/bookings"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faCalendarCheck}
@@ -470,7 +470,7 @@ function Dashboard() {
 
               <Link
                 to="/stats"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-lg border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
                 <FontAwesomeIcon
                   icon={faChartLine}

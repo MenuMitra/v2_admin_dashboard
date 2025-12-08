@@ -741,7 +741,7 @@ function EditMenu() {
             <button
               type="submit"
               disabled={loading}
-              className="hidden w-full py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
+              className="hidden w-full py-2 rounded-3xl bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
             >
               {loading ? 'Updating...' : 'Update Menu'}
             </button>

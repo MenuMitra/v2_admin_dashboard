@@ -918,7 +918,7 @@ function EditOutlet() {
                                     searchInput.focus();
                                   }
                                 }}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                className="absolute rounded-3xl right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                               >
                                 <FontAwesomeIcon
                                   icon={faTimes}
@@ -1266,7 +1266,7 @@ function EditOutlet() {
                       </label>
                       <div className="grid grid-cols-3 gap-3 sm:max-w-sm w-full">
                         <select
-                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           value={openingHour}
                           onChange={(e) =>
                             handleOpeningTimeChange("hour", e.target.value)
@@ -1283,7 +1283,7 @@ function EditOutlet() {
                           })}
                         </select>
                         <select
-                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           value={openingMinute}
                           onChange={(e) =>
                             handleOpeningTimeChange("minute", e.target.value)
@@ -1297,7 +1297,7 @@ function EditOutlet() {
                           ))}
                         </select>
                         <select
-                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           value={openingPeriod}
                           onChange={(e) =>
                             handleOpeningTimeChange("period", e.target.value)
@@ -1316,7 +1316,7 @@ function EditOutlet() {
                       </label>
                       <div className="grid grid-cols-3 gap-3 sm:max-w-sm w-full">
                         <select
-                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           value={closingHour}
                           onChange={(e) =>
                             handleClosingTimeChange("hour", e.target.value)
@@ -1333,7 +1333,7 @@ function EditOutlet() {
                           })}
                         </select>
                         <select
-                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           value={closingMinute}
                           onChange={(e) =>
                             handleClosingTimeChange("minute", e.target.value)
@@ -1347,7 +1347,7 @@ function EditOutlet() {
                           ))}
                         </select>
                         <select
-                          className="w-full h-11 border border-gray-300 rounded-lg bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                           value={closingPeriod}
                           onChange={(e) =>
                             handleClosingTimeChange("period", e.target.value)
@@ -1379,7 +1379,7 @@ function EditOutlet() {
                             has_combo: e.target.value ? Number(e.target.value) : null,
                           }))
                         }
-                        className="w-full h-11 border border-gray-300 rounded-lg bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                        className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                       >
                         <option value="">Select</option>
                         <option value="0">No</option>
@@ -1404,7 +1404,7 @@ function EditOutlet() {
                             has_denomination: e.target.value ? Number(e.target.value) : null,
                           }))
                         }
-                        className="w-full h-11 border border-gray-300 rounded-lg bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                        className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                       >
                         <option value="">Select</option>
                         <option value="0">No</option>
@@ -1429,7 +1429,7 @@ function EditOutlet() {
                             reserve_table: e.target.value ? Number(e.target.value) : null,
                           }))
                         }
-                        className="w-full h-11 border border-gray-300 rounded-lg bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                        className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                       >
                         <option value="">Select</option>
                         <option value="0">No</option>

@@ -113,21 +113,21 @@ function Customer() {
         <div className="flex gap-2 justify-center">
           <button
             onClick={() => navigate(`/customer-details/${row.user_id}`)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-3xl shadow-theme-xs transition"
             title="View Details"
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
           <button
             onClick={() => navigate(`/edit-customer/${row.user_id}`)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
             title="Edit Customer"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleDeleteCustomer(row.user_id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
             title="Delete Customer"
           >
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
