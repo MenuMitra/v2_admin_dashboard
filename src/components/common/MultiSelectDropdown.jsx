@@ -13,6 +13,7 @@ const MultiSelectDropdown = ({
   required,
   placeholder = "Select items",
   searchPlaceholder = "Search...",
+  className = "",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,8 +59,8 @@ const MultiSelectDropdown = ({
       {/* Main Button */}
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
-                   focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer min-h-[42px]"
+        className={`w-full p-2 text-left border shadow-sm bg-white hover:bg-gray-50 
+                   focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer min-h-[42px] ${className || 'rounded-lg'}`}
         role="combobox"
         aria-expanded={isOpen}
         aria-haspopup="listbox"

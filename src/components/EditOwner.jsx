@@ -567,6 +567,7 @@ function EditOwner() {
                 onChange={handleChange}
                 placeholder="Enter full name"
                 required
+                className="rounded-3xl"
               />
               <div className="relative">
                 <TextInput
@@ -579,7 +580,7 @@ function EditOwner() {
                   required
                   maxLength={10}
                   className={`
-                    focus:border-brand-500 focus:ring-brand-500
+                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
                     ${
                       !validationStates.mobile
                         ? "border-error-500"
@@ -602,7 +603,7 @@ function EditOwner() {
                   onChange={handleChange}
                   placeholder="Enter email address"
                   className={`
-                    focus:border-brand-500 focus:ring-brand-500
+                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
                     border-gray-300
                   `}
                 />
@@ -617,7 +618,7 @@ function EditOwner() {
                 onChange={handleChange}
                 placeholder="Select date of birth"
                 className={`
-                  focus:border-brand-500 focus:ring-brand-500
+                  rounded-3xl focus:border-brand-500 focus:ring-brand-500
                   border-gray-300
                 `}
               />
@@ -631,7 +632,7 @@ function EditOwner() {
                   required
                   maxLength={12}
                   className={`
-                    focus:border-brand-500 focus:ring-brand-500
+                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
                     ${
                       !validationStates.aadhar_number
                         ? "border-error-500"
@@ -682,6 +683,7 @@ function EditOwner() {
                   onChange={handleChange}
                   placeholder="Enter complete address"
                   rows={3}
+                  className="rounded-3xl"
                 />
                 {validationStates.address && (
                   <p className="text-error-500 text-sm -mt-1">
@@ -710,6 +712,7 @@ function EditOwner() {
                       // Remove required={true}
                       placeholder="Select outlets"
                       searchPlaceholder="Search outlets..."
+                      className="rounded-3xl"
                     />
                   ) : (
                     /* Single-select dropdown for staff roles */

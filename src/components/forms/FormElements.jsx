@@ -121,11 +121,11 @@ const TextInput = React.forwardRef(
           onFocus={onFocus}
           required={required}
           className={`
-          w-full px-3 py-2 border rounded-lg shadow-sm
+          w-full px-3 py-2 border shadow-sm
           focus:outline-none focus:ring-2 focus:ring-brand-500
           disabled:bg-gray-100 disabled:cursor-not-allowed
-          ${className}
           ${showError ? "border-error-500 focus:border-error-500" : ""}
+          ${className || 'rounded-lg'}
         `}
           {...props}
         />
@@ -474,7 +474,7 @@ const DateInput = React.forwardRef(
           onChange={handleDateChange}
           placeholder={placeholder}
           disabled={disabled}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${className}`}
+          className={`w-full px-4 py-2 border focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${className || 'rounded-lg'}`}
           {...props}
         />
         {(error || formatErrorMessage) && (
@@ -489,7 +489,7 @@ const DateInput = React.forwardRef(
 
 // Textarea Component
 const Textarea = React.forwardRef(
-  ({ label, required, value, onChange, rows = 4, ...props }, ref) => {
+  ({ label, required, value, onChange, rows = 4, className = "", ...props }, ref) => {
     return (
       <div>
         {label && (
@@ -503,7 +503,7 @@ const Textarea = React.forwardRef(
           onChange={onChange}
           rows={rows}
           required={required}
-          className="w-full h-11 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:outline-none focus:border-blue-500"
+          className={`w-full h-11 border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:outline-none focus:border-blue-500 ${className || 'rounded-lg'}`}
           {...props}
         />
       </div>

@@ -716,7 +716,7 @@ function DataTable({
         </span>
         <input
           placeholder={searchPlaceholder}
-          className="sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+          className="sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
           type="text"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}

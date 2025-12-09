@@ -322,7 +322,7 @@ const Search = () => {
                       value={searchInput}
                       onChange={handleInputChange}
                       placeholder={`Search by ${searchType}...`}
-                      className="w-full h-10 sm:h-auto px-3 py-2 pr-10 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      className="w-full h-10 sm:h-auto px-3 py-2 pr-10 text-sm border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       autoFocus
                     />
                     {searchInput && (

@@ -358,6 +358,7 @@ function CreateOwner() {
                 validationType="name"
                 onValidation={handleValidation("name")}
                 isSubmitAttempted={isSubmitAttempted}
+                className="rounded-3xl"
               />
 
               <div className="relative">
@@ -371,7 +372,7 @@ function CreateOwner() {
                   required
                   maxLength={10}
                   className={`
-                    focus:border-brand-500 focus:ring-brand-500
+                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
                     ${
                       !validationStates.mobile
                         ? "border-error-500"
@@ -395,6 +396,7 @@ function CreateOwner() {
                 placeholder="Enter email address"
                 validationType="email"
                 onValidation={handleValidation("email")}
+                className="rounded-3xl"
               />
 
               <DateInput
@@ -403,6 +405,7 @@ function CreateOwner() {
                 value={ownerData.dob}
                 onChange={handleChange}
                 placeholder="Select Date of birth"
+                className="rounded-3xl"
               />
             </div>
 
@@ -417,7 +420,7 @@ function CreateOwner() {
                   required
                   maxLength={12}
                   className={`
-                    focus:border-brand-500 focus:ring-brand-500
+                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
                     ${
                       !validationStates.aadhar_number
                         ? "border-error-500"
@@ -442,6 +445,7 @@ function CreateOwner() {
                   searchKeys={["outlet_name"]}
                   placeholder="Select outlets"
                   searchPlaceholder="Search outlets..."
+                  className="rounded-3xl"
                 />
               </div>
             </div>
@@ -454,6 +458,7 @@ function CreateOwner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
+                  className="rounded-3xl"
                 />
                 {validationStates.address && (
                   <p className="text-error-500 text-sm mt-1">

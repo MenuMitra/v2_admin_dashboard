@@ -269,6 +269,7 @@ function CreatePartner() {
                   onChange={handleChange}
                   placeholder="Enter full name"
                   required
+                  className="rounded-3xl"
                 />
                 {validationErrors.name && (
                   <div className="text-error-500 text-sm mt-1">
@@ -287,6 +288,7 @@ function CreatePartner() {
                   placeholder="Enter mobile number"
                   required
                   maxLength={10}
+                  className="rounded-3xl"
                 />
                 {validationErrors.mobile && (
                   <div className="text-error-500 text-sm mt-1">
@@ -304,6 +306,7 @@ function CreatePartner() {
                   onChange={handleChange}
                   placeholder="Enter email address"
                   required
+                  className="rounded-3xl"
                 />
                 {(emailError || validationErrors.email) && (
                   <div className="text-error-500 text-sm mt-1">
@@ -320,6 +323,7 @@ function CreatePartner() {
                   onChange={handleChange}
                   required
                   placeholder="Select date of birth"
+                  className="rounded-3xl"
                 />
                 {validationErrors.dob && (
                   <div className="text-error-500 text-sm mt-1">
@@ -337,6 +341,7 @@ function CreatePartner() {
                   placeholder="Enter 12-digit Aadhar number"
                   required
                   maxLength="12"
+                  className="rounded-3xl"
                 />
                 {validationErrors.aadhar_number && (
                   <div className="text-error-500 text-sm mt-1">
@@ -353,7 +358,7 @@ function CreatePartner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
-                
+                  className="rounded-3xl"
                 />
               </div>
             </div>

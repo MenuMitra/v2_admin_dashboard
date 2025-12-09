@@ -274,6 +274,7 @@ function EditCustomer() {
               validationType="name"
               onValidation={handleValidation("name")}
               isSubmitAttempted={isSubmitAttempted}
+              className="rounded-3xl"
             />
 
             <div className="relative">
@@ -287,7 +288,7 @@ function EditCustomer() {
                 maxLength={10}
                 placeholder="Enter mobile number"
                 className={`
-                  focus:border-brand-500 focus:ring-brand-500
+                  rounded-3xl focus:border-brand-500 focus:ring-brand-500
                   ${
                     !validationStates.mobile
                       ? "border-error-500"

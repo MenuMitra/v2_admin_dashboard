@@ -353,7 +353,7 @@ function CreateSuperOwner() {
                       value={superOwnerDetails.name}
                       onChange={handleChange}
                       placeholder="Enter name"
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         fieldErrors.name ? 'border-error-500' : 'border-gray-300'
                       }`}
                       required
@@ -377,7 +377,7 @@ function CreateSuperOwner() {
                       placeholder="Enter mobile number"
                       maxLength={10}
                       pattern="[0-9]{10}"
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         fieldErrors.mobile ? 'border-error-500' : 'border-gray-300'
                       }`}
                       required
@@ -399,7 +399,7 @@ function CreateSuperOwner() {
                       value={superOwnerDetails.email}
                       onChange={handleChange}
                       placeholder="Enter email address" 
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         fieldErrors.email ? 'border-error-500' : 'border-gray-300'
                       }`}
                       required
@@ -423,7 +423,7 @@ function CreateSuperOwner() {
                       placeholder="Enter Aadhar number"
                       maxLength={12}
                       pattern="[0-9]{12}"
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         fieldErrors.aadhar_number ? 'border-error-500' : 'border-gray-300'
                       }`}
                       required
@@ -478,7 +478,7 @@ function CreateSuperOwner() {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Search"
-                          className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-10 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                          className="w-full sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-10 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
                         />
                         {searchTerm && (
                           <button
@@ -509,12 +509,12 @@ function CreateSuperOwner() {
                       {fieldErrors.outlets}
                     </p>
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 xl:grid-cols-4 gap-3">
                     {filteredOutlets.map((outlet) => (
                       <div
                         key={outlet.outlet_id}
                         onClick={() => handleOutletSelect(outlet.outlet_id)}
-                        className={`rounded-2xl border bg-white p-4 cursor-pointer transition-all ${
+                        className={`rounded-3xl border bg-white p-4 cursor-pointer transition-all ${
                           selectedOutlets.includes(outlet.outlet_id)
                             ? "border-blue-500"
                             : "border-gray-200 hover:border-blue-300"
