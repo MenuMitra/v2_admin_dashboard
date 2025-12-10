@@ -128,6 +128,16 @@ function CreateOwner() {
     if (!aadhar)
       return { isValid: false, message: "Aadhar number is required" };
     const numbersOnly = aadhar.replace(/[^0-9]/g, "");
+    
+    // Check if Aadhar starts with 0 or 1
+    const firstDigit = numbersOnly.charAt(0);
+    if (firstDigit === "0" || firstDigit === "1") {
+      return {
+        isValid: false,
+        message: "Aadhar number cannot start with 0 or 1",
+      };
+    }
+    
     if (numbersOnly.length !== 12) {
       return {
         isValid: false,
@@ -199,13 +209,25 @@ function CreateOwner() {
       }));
     } else if (name === "aadhar_number") {
       const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 12);
+      const firstDigit = numbersOnly.charAt(0);
+
+      // Prevent entering 0 or 1 as first digit
+      if (firstDigit && (firstDigit === "0" || firstDigit === "1")) {
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: false,
+          aadharMessage: "Aadhar number cannot start with 0 or 1",
+        }));
+        return;
+      }
+
+      setOwnerData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
       const { isValid, message } = isAadharValid(numbersOnly);
       setValidationStates((prev) => ({
         ...prev,
         aadhar_number: isValid,
         aadharMessage: message,
       }));
-      setOwnerData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
     } else {
       setOwnerData((prev) => ({
         ...prev,

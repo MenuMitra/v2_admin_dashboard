@@ -916,7 +916,7 @@ const ReactFlowDemoInner = () => {
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full border rounded-3xl px-2 py-1"
           >
             <option value="module">Module</option>
             <option value="feature">Feature</option>
@@ -930,7 +930,7 @@ const ReactFlowDemoInner = () => {
             <select
               value={selectedModuleId}
               onChange={(e) => setSelectedModuleId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full rounded-3xl border px-2 py-1"
             >
               <option value="">Select module</option>
               {modulesList.map((m) => (
@@ -948,7 +948,7 @@ const ReactFlowDemoInner = () => {
             <select
               value={selectedFeatureId}
               onChange={(e) => setSelectedFeatureId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full border rounded-3xl px-2 py-1"
             >
               <option value="">Select feature</option>
               {featuresList.map((f) => (
@@ -965,7 +965,7 @@ const ReactFlowDemoInner = () => {
           <input
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full rounded-3xl border px-2 py-1"
           />
         </div>
       </Modal>
@@ -1101,7 +1101,7 @@ const ReactFlowDemoInner = () => {
           <input
             value={editType}
             disabled
-            className="w-full border px-2 py-1 bg-gray-100"
+            className="w-full border rounded-3xl px-2 py-1 bg-gray-100"
           />
         </div>
 
@@ -1111,7 +1111,7 @@ const ReactFlowDemoInner = () => {
             <select
               value={editSelectedModuleId}
               onChange={(e) => setEditSelectedModuleId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full border rounded-3xl px-2 py-1"
             >
               <option value="">Select module</option>
               {modulesList.map((m) => (
@@ -1129,7 +1129,7 @@ const ReactFlowDemoInner = () => {
             <select
               value={editSelectedFeatureId}
               onChange={(e) => setEditSelectedFeatureId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full border rounded-3xl px-2 py-1"
             >
               <option value="">Select feature</option>
               {featuresList.map((f) => (
@@ -1146,7 +1146,7 @@ const ReactFlowDemoInner = () => {
           <input
             value={editFormName}
             onChange={(e) => setEditFormName(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full border rounded-3xl px-2 py-1"
           />
         </div>
       </Modal>

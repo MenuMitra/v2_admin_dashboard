@@ -1,0 +1,100 @@
+import React, { useState, useEffect, useRef } from 'react';
+
+const CustomSelect = ({
+  label,
+  options,
+  value,
+  onChange,
+  name,
+  required = false,
+  placeholder = "Select an option",
+  className = "",
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelect = (optionValue) => {
+    onChange({
+      target: {
+        name,
+        value: optionValue,
+      },
+    });
+    setIsOpen(false);
+  };
+
+  const getSelectedText = () => {
+    const selectedOption = options.find(option => option.value === value);
+    return selectedOption ? selectedOption.label : placeholder;
+  };
+
+  return (
+    <div className="relative w-full" ref={dropdownRef}>
+      {/* Label */}
+      {label && (
+        <label className="block text-sm text-gray-500 mb-1">
+          {label}
+          {required && <span className="text-error-600"> *</span>}
+        </label>
+      )}
+
+      {/* Main Button */}
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full px-3 py-2 text-left border border-gray-300 bg-white hover:bg-gray-50 
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer rounded-3xl ${className}`}
+        role="combobox"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+      >
+        <div className="flex items-center justify-between">
+          <span className={`${!value ? 'text-gray-500' : 'text-gray-900'} truncate`}>
+            {getSelectedText()}
+          </span>
+          <svg
+            className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'transform rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Dropdown Panel */}
+      {isOpen && (
+        <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-2xl shadow-lg z-50 overflow-hidden">
+          {/* Options List */}
+          <div className="max-h-60 overflow-y-auto">
+            {options.map((option) => (
+              <div
+                key={option.value}
+                className={`
+                  px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors
+                  ${value === option.value ? 'bg-blue-50 text-blue-600' : 'text-gray-900'}
+                `}
+                onClick={() => handleSelect(option.value)}
+              >
+                {option.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CustomSelect;

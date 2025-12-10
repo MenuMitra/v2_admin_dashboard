@@ -20,6 +20,8 @@ import {
   faChevronRight,
   faTrash,
   faRotate,
+  faToggleOff,
+  faToggleOn,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
@@ -487,18 +489,37 @@ function SuperOwnerDetails() {
                         className="w-5 h-5 text-gray-400"
                       />
                     </div>
-                    <div className="ml-3 w-full">
-                      <ToggleSwitch
-                        label="Account Status"
-                        isOn={
-                          superOwnerData.is_active === 1 ||
-                          superOwnerData.is_active === true
-                        }
-                        onToggle={handleToggleSuperOwnerActive}
+                    <div className="ml-3">
+                      <button
+                        onClick={handleToggleSuperOwnerActive}
                         disabled={isTogglingActive}
-                        onText="Active"
-                        offText="Inactive"
-                      />
+                        style={{ 
+                          width: '100px', 
+                          height: '40px',
+                          minWidth: '40px', 
+                          minHeight: '20px',
+                          padding: '20px 12px',
+                          fontSize: '20px',
+                          gap: '5px'
+                        }}
+                        className={`rounded-full font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center ${
+                          superOwnerData.is_active === 1 || superOwnerData.is_active === true
+                            ? "text-brand-500 "
+                            : "bg-orange-100 text-warning-500 "
+                        } ${
+                          isTogglingActive
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                      >
+                        <FontAwesomeIcon
+                          icon={(superOwnerData.is_active === 1 || superOwnerData.is_active === true) ? faToggleOn : faToggleOff}
+                          style={{ fontSize: '40px', width: '40px', height: '40px' }}
+                          className={(superOwnerData.is_active === 1 || superOwnerData.is_active === true) ? "text-brand-500" : "text-warning-500"}
+                        />
+                        {(superOwnerData.is_active === 1 || superOwnerData.is_active === true) ? "Active" : "Inactive"}
+                      </button>
+                      <div className="text-sm text-gray-500">Account Status</div>
                     </div>
                   </div>
                 )}
@@ -674,44 +695,4 @@ function SuperOwnerDetails() {
 
 export default SuperOwnerDetails;
 
-// Reusable Toggle Switch (consistent with other details screens)
-const ToggleSwitch = ({
-  label,
-  isOn,
-  onToggle,
-  disabled = false,
-  onText = "On",
-  offText = "Off",
-}) => {
-  return (
-    <div className="flex items-center">
-      <div className="flex items-center gap-2">
-        <div>
-          <h4
-            className={`text-lg font-normal dark:text-white/90 ${
-              isOn ? "text-success-700" : "text-error-700"
-            }`}
-          >
-            {isOn ? onText : offText}
-          </h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-        </div>
-      </div>
-      <div className="flex items-center ml-4">
-        <button
-          onClick={onToggle}
-          disabled={disabled}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-            isOn ? "bg-brand-500" : "bg-gray-300"
-          }`}
-        >
-          <span
-            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-              isOn ? "translate-x-6" : "translate-x-1"
-            }`}
-          />
-        </button>
-      </div>
-    </div>
-  );
-};
+

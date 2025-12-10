@@ -396,6 +396,7 @@ function CreateNotification() {
                 label="Message"
                 name="message"
                 value={formData.message}
+                className="rounded-3xl"
                 onChange={handleInputChange}
                 placeholder="Enter notification message"
                 required
@@ -413,7 +414,7 @@ function CreateNotification() {
                     onClick={() => handleDropdownClick("type")}
                     className={`
                       w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
-                      text-sm font-medium text-gray-700 transition rounded-lg 
+                      text-sm font-medium text-gray-700 transition rounded-3xl 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${
                         dropdownStates.type
@@ -482,7 +483,7 @@ function CreateNotification() {
                     onClick={() => handleDropdownClick("outlet")}
                     className={`
                       w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
-                      text-sm font-medium text-gray-700 transition rounded-lg 
+                      text-sm font-medium text-gray-700 transition rounded-3xl 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${
                         dropdownStates.outlet
@@ -512,7 +513,7 @@ function CreateNotification() {
                         <div className="relative">
                           <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Search outlets..."
                             value={searchTerms.outlet}
                             onChange={(e) =>
@@ -532,7 +533,7 @@ function CreateNotification() {
                                   .querySelector("input");
                                 if (searchInput) searchInput.focus();
                               }}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                              className="absolute rounded-3xl right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                             >
                               <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
                             </button>
@@ -596,7 +597,7 @@ function CreateNotification() {
                     onClick={() => handleDropdownClick("role")}
                     className={`
                       w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
-                      text-sm font-medium text-gray-700 transition rounded-lg 
+                      text-sm font-medium text-gray-700 transition rounded-3xl 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${
                         dropdownStates.role
@@ -629,7 +630,7 @@ function CreateNotification() {
                         <div className="relative">
                           <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Search roles..."
                             value={searchTerms.role}
                             onChange={(e) =>
@@ -710,7 +711,7 @@ function CreateNotification() {
                     onClick={() => handleDropdownClick("user")}
                     className={`
                       w-full md:w-auto inline-flex items-center gap-2 px-4 py-2 
-                      text-sm font-medium text-gray-700 transition rounded-lg 
+                      text-sm font-medium text-gray-700 transition rounded-3xl 
                       border border-gray-300 bg-white hover:bg-gray-50 shadow-sm
                       ${
                         dropdownStates.user
@@ -738,7 +739,7 @@ function CreateNotification() {
                         <div className="relative">
                           <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Search users..."
                             value={searchTerms.user}
                             onChange={(e) =>

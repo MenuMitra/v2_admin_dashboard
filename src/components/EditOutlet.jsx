@@ -11,6 +11,7 @@ import {
   faSave,
   faTimes,
   faLayerGroup,
+  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
@@ -778,14 +779,47 @@ function EditOutlet() {
                 onClick={handleSubmit}
                 disabled={isLoading}
                 className={`
-                inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-brand-500 hover:bg-brand-600 
-                transition shadow-sm
-                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
               `}
+                style={{
+                  borderColor: '#3bdde3',
+                  color: '#3bdde3'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isLoading) {
+                    e.target.style.backgroundColor = '#3bdde3';
+                    e.target.style.color = 'white';
+                    const iconContainer = e.target.querySelector('.icon-container');
+                    const icon = e.target.querySelector('.check-icon');
+                    if (iconContainer) iconContainer.style.borderColor = 'white';
+                    if (icon) icon.style.color = 'white';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) {
+                    e.target.style.backgroundColor = 'white';
+                    e.target.style.color = '#3bdde3';
+                    const iconContainer = e.target.querySelector('.icon-container');
+                    const icon = e.target.querySelector('.check-icon');
+                    if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
+                    if (icon) icon.style.color = '#3bdde3';
+                  }
+                }}
               >
-                <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+                <div 
+                  className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                  style={{ borderColor: '#3bdde3' }}
+                >
+                  <FontAwesomeIcon 
+                    icon={faCheck} 
+                    className="check-icon w-3 h-3 transition-all duration-200" 
+                    style={{ color: '#3bdde3' }}
+                  />
+                </div>
                 <span>Save</span>
               </button>
             </div>

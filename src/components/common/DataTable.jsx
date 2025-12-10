@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import CustomSelect from "./CustomSelect";
 import {
   faSort,
   faSortUp,
@@ -524,26 +525,26 @@ function DataTable({
   const renderOutletSelect = () => {
     if (!showOutletSelect) return null;
 
+    const outletOptions = [
+      { value: "", label: "Outlets" },
+      ...outlets.map((outlet) => ({
+        value: outlet.outlet_id,
+        label: outlet.outlet_name
+      }))
+    ];
+
     return (
-      <div className="relative flex-1 sm:flex-initial">
-        <select
-          className={`w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
-            isLoading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+      <div className="flex-1 sm:flex-initial relative">
+        <CustomSelect
           value={selectedOutlet}
-          onChange={(e) => onOutletChange(e.target.value)}
+          onChange={(value) => onOutletChange(value)}
+          options={outletOptions}
+          placeholder="Outlets"
           disabled={isLoading}
-        >
-          <option value="">Outlets</option>
-          {outlets.map((outlet) => (
-            <option key={outlet.outlet_id} value={outlet.outlet_id}>
-              {outlet.outlet_name}
-              {/* ({outlet.outlet_code}) */}
-            </option>
-          ))}
-        </select>
+          className="w-full sm:w-64"
+        />
         {isLoading && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <FontAwesomeIcon
               icon={faSpinner}
               className="h-4 w-4 animate-spin text-gray-400"
@@ -558,26 +559,26 @@ function DataTable({
   const renderRoleSelect = () => {
     if (!showRoleSelect) return null;
 
+    const roleOptions = [
+      { value: "", label: "Roles" },
+      ...roles.map((role) => ({
+        value: role.role_id,
+        label: role.role_name
+      }))
+    ];
+
     return (
-      <div className="relative flex-1 sm:flex-initial">
-        <select
-          className={`w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
-            isLoading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+      <div className="flex-1 sm:flex-initial relative">
+        <CustomSelect
           value={selectedRole}
-          onChange={(e) => onRoleChange(e.target.value)}
+          onChange={(value) => onRoleChange(value)}
+          options={roleOptions}
+          placeholder="Roles"
           disabled={isLoading}
-        >
-          <option value="">Roles</option>
-          {roles.map((role) => (
-            <option key={role.role_id} value={role.role_id}>
-              {role.role_name}
-              {/* ({role.count}) */}
-            </option>
-          ))}
-        </select>
+          className="w-full sm:w-64"
+        />
         {isLoading && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <FontAwesomeIcon
               icon={faSpinner}
               className="h-4 w-4 animate-spin text-gray-400"
@@ -667,7 +668,7 @@ function DataTable({
             {filter.type === "select" && (
               <div className="relative">
                 <select
-                  className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                  className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em] [&>option]:rounded-3xl [&>option]:p-2"
                   value={filter.value}
                   onChange={(e) => filter.onChange(e.target.value)}
                 >
@@ -919,22 +920,23 @@ function DataTable({
                 <div className="flex flex-wrap items-center gap-3 justify-end">
                   {/* Execution Time Filter - Independent of Status Filter */}
                   {enableExecutionTimeFilter && (
-                    <div className="relative w-56">
-                      <select
+                    <div className="w-56">
+                      <CustomSelect
                         value={executionTimeFilter || "all"}
-                        onChange={(e) => {
-                          onExecutionTimeFilterChange(e.target.value);
+                        onChange={(value) => {
+                          onExecutionTimeFilterChange(value);
                         }}
-                        className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em]"
-                      >
-                        <option value="all">All Execution Time</option>
-                        <option value="5">&gt;5ms</option>
-                        <option value="10">&gt;10ms</option>
-                        <option value="50">&gt;50ms</option>
-                        <option value="100">&gt;100ms</option>
-                        <option value="200">&gt;200ms</option>
-                        <option value="500">&gt;500ms</option>
-                      </select>
+                        options={[
+                          { value: "all", label: "All Execution Time" },
+                          { value: "5", label: ">5ms" },
+                          { value: "10", label: ">10ms" },
+                          { value: "50", label: ">50ms" },
+                          { value: "100", label: ">100ms" },
+                          { value: "200", label: ">200ms" },
+                          { value: "500", label: ">500ms" }
+                        ]}
+                        placeholder="All Execution Time"
+                      />
                     </div>
                   )}
                   {shouldShowTopSearchAndReload && (
@@ -958,7 +960,7 @@ function DataTable({
                         {filter.type === "select" && (
                           <div className="relative">
                             <select
-                              className="w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                              className="w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em] [&>option]:rounded-3xl [&>option]:p-2"
                               value={filter.value}
                               onChange={(e) => filter.onChange(e.target.value)}
                             >
@@ -986,153 +988,163 @@ function DataTable({
               <div className="flex items-center gap-2 px-0 pl-2 mb-4">
                 <div className="flex flex-1 flex-wrap items-center gap-2">
                 {enableStatusFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={statusFilter}
-                      onChange={(e) => onStatusFilterChange(e.target.value)}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Status</option>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
+                      onChange={(value) => onStatusFilterChange(value)}
+                      options={[
+                        { value: "all", label: "All Status" },
+                        { value: "active", label: "Active" },
+                        { value: "inactive", label: "Inactive" }
+                      ]}
+                      placeholder="All Status"
+                    />
                   </div>
                 )}
                 {/* Enquiry Filter */}
                 {enableEnquiry && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={enquiryFilter || "all"}
-                      onChange={onEnquiryFilterChange || (() => {})}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">Enquiry Type</option>
-                      <option value="enquiry">Enquiry</option>
-                      <option value="positive">Positive</option>
-                      <option value="onboard">Onboard</option>
-                    </select>
+                      onChange={(value) => onEnquiryFilterChange && onEnquiryFilterChange(value)}
+                      options={[
+                        { value: "all", label: "Enquiry Type" },
+                        { value: "enquiry", label: "Enquiry" },
+                        { value: "positive", label: "Positive" },
+                        { value: "onboard", label: "Onboard" }
+                      ]}
+                      placeholder="Enquiry Type"
+                    />
                   </div>
                 )}
                 {/* Account Type Filter */}
                 {enableAccountTypeFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={accountType || "all"}
-                      onChange={onAccountTypeChange || (() => {})}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">Account Type</option>
-                      <option value="live">Live</option>
-                      <option value="test">Test</option>
-                    </select>
+                      onChange={(value) => onAccountTypeChange && onAccountTypeChange(value)}
+                      options={[
+                        { value: "all", label: "Account Type" },
+                        { value: "live", label: "Live" },
+                        { value: "test", label: "Test" }
+                      ]}
+                      placeholder="Account Type"
+                    />
                   </div>
                 )}
                 {/* Open/Close Filter */}
                 {enableOpenCloseStatusFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={openCloseStatus || "all"}
-                      onChange={onOpenCloseStatusChange || (() => {})}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">Open/Close</option>
-                      <option value="open">Open</option>
-                      <option value="close">Close</option>
-                    </select>
+                      onChange={(value) => onOpenCloseStatusChange && onOpenCloseStatusChange(value)}
+                      options={[
+                        { value: "all", label: "Open/Close" },
+                        { value: "open", label: "Open" },
+                        { value: "close", label: "Close" }
+                      ]}
+                      placeholder="Open/Close"
+                    />
                   </div>
                 )}
                 {/* Active Session Filter */}
                 {enableActiveSessionFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={activeSessionFilter || "all"}
-                      onChange={(e) => {
-                        onActiveSessionFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onActiveSessionFilterChange(value);
                       }}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Sessions</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="10">10+</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Sessions" },
+                        { value: "0", label: "0" },
+                        { value: "1", label: "1" },
+                        { value: "2", label: "2" },
+                        { value: "3", label: "3" },
+                        { value: "4", label: "4" },
+                        { value: "5", label: "5" },
+                        { value: "10", label: "10+" }
+                      ]}
+                      placeholder="All Sessions"
+                    />
                   </div>
                 )}
                 {/* Outlet Count Filter */}
                 {enableOutletCountFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={outletCountFilter || "all"}
-                      onChange={(e) => {
-                        onOutletCountFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onOutletCountFilterChange(value);
                       }}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Outlets</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="10">10+</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Outlets" },
+                        { value: "0", label: "0" },
+                        { value: "1", label: "1" },
+                        { value: "2", label: "2" },
+                        { value: "3", label: "3" },
+                        { value: "4", label: "4" },
+                        { value: "5", label: "5" },
+                        { value: "10", label: "10+" }
+                      ]}
+                      placeholder="All Outlets"
+                    />
                   </div>
                 )}
                 {/* Outlet Type Filter */}
                 {enableOutletTypeFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={outletTypeFilter || "all"}
-                      onChange={(e) => {
-                        onOutletTypeFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onOutletTypeFilterChange(value);
                       }}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Types</option>
-                      <option value="outlet">Outlet</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Types" },
+                        { value: "outlet", label: "Outlet" }
+                      ]}
+                      placeholder="All Types"
+                    />
                   </div>
                 )}
                 {/* Outlet Mode Filter */}
                 {enableOutletModeFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={outletModeFilter || "all"}
-                      onChange={(e) => {
-                        onOutletModeFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onOutletModeFilterChange(value);
                       }}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Modes</option>
-                      <option value="online">Online</option>
-                      <option value="offline">Offline</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Modes" },
+                        { value: "online", label: "Online" },
+                        { value: "offline", label: "Offline" }
+                      ]}
+                      placeholder="All Modes"
+                    />
                   </div>
                 )}
                 {/* Owner Count Filter */}
                 {enableOwnerCountFilter && (
-                  <div className="relative w-32 mr-2">
-                    <select
+                  <div className="w-32 mr-2">
+                    <CustomSelect
                       value={ownerCountFilter || "all"}
-                      onChange={(e) => {
-                        onOwnerCountFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onOwnerCountFilterChange(value);
                       }}
-                      className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Owners</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="10">10+</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Owners" },
+                        { value: "0", label: "0" },
+                        { value: "1", label: "1" },
+                        { value: "2", label: "2" },
+                        { value: "3", label: "3" },
+                        { value: "4", label: "4" },
+                        { value: "5", label: "5" },
+                        { value: "10", label: "10+" }
+                      ]}
+                      placeholder="All Owners"
+                      className="w-full"
+                    />
                   </div>
                 )}
                 </div>
