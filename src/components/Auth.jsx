@@ -590,7 +590,8 @@ function Auth() {
                       className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
                     >
                       <i
-                        className="ri-google-fill text-2xl text-[#34A853]"
+                        className="ri-google-fill text-2xl"
+                        style={{color: '#4CAF50'}}
                       ></i>
                     </a>
                     <a
@@ -598,7 +599,8 @@ function Auth() {
                       className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
                     >
                       <i
-                        className="ri-facebook-fill text-2xl text-[#1877F2]"
+                        className="ri-facebook-fill text-2xl"
+                        style={{color: '#1877F2'}}
                       ></i>
                     </a>
                     <a
@@ -606,7 +608,8 @@ function Auth() {
                       className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
                     >
                       <i
-                        className="ri-instagram-fill text-2xl text-[#E4405F]"
+                        className="ri-instagram-fill text-2xl"
+                        style={{color: '#E91E63'}}
                       ></i>
                     </a>
                     <a
@@ -614,7 +617,8 @@ function Auth() {
                       className="social-btn flex items-center justify-center w-12 h-12 rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
                     >
                       <i
-                        className="ri-youtube-fill text-2xl text-[#FF0000]"
+                        className="ri-youtube-fill text-2xl"
+                        style={{color: '#FF0000'}}
                       ></i>
                     </a>
                   </div>
