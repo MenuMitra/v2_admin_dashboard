@@ -12,7 +12,7 @@ const getApiBaseUrl = () => {
   }
   
   // Default fallback for local development
-  return "https://menusmitra.xyz/v2";
+  return "https://menu4.xyz/v2";
   
 };
 
