@@ -564,19 +564,19 @@ function Auth() {
                         Home
                       </a>
                       <a
-                        href="https://menumitra.com/book_demo"
+                        href="https://menumitra.com/book-demo"
                         className="hover:text-gray-700"
                       >
-                        Book a demo
+                        Book a demo 
                       </a>
                       <a
-                        href="https://menumitra.com/about_us"
+                        href="https://menumitra.com/about" 
                         className="hover:text-gray-700"
                       >
                         Contact
                       </a>
                       <a
-                        href="https://menumitra.com/support"
+                        href="https://menumitra.com/contact"
                         className="hover:text-gray-700"
                       >
                         Support

@@ -1101,7 +1101,14 @@ function DataTable({
                       }}
                       options={[
                         { value: "all", label: "All Types" },
-                        { value: "outlet", label: "Outlet" }
+                        { value: "outlet", label: "Outlet" },
+                        {value: "Hotel", label: "Hotel"},
+                        {value: "Canteen", label: "Canteen"},
+                        {value: "Mess", label: "Mess"},
+                        {value: "Cafe", label: "Cafe"},
+                        {value: "Bakery", label: "Bakery"},
+
+                        
                       ]}
                       placeholder="All Types"
                     />
