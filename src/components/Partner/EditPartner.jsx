@@ -31,6 +31,7 @@ import {
   isAddressValid,
 } from "../../utils/validations";
 import { toastController } from "../../utils/toastController";
+import SaveButton from "../common/SaveButton";
 
 function EditPartner() {
   const navigate = useNavigate();
@@ -360,53 +361,13 @@ function EditPartner() {
             </h1>
 
             {/* Save Button */}
-            <button
+            <SaveButton
               onClick={handleSubmit}
               disabled={isLoading}
-              className={`
-                inline-flex items-center gap-3 px-6 py-3 
-                text-sm font-medium rounded-full
-                bg-white border-2 transition-all duration-200 shadow-sm
-                hover:shadow-md hover:scale-105 transform
-                ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
-              `}
-              style={{
-                borderColor: '#3bdde3',
-                color: '#3bdde3'
-              }}
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.target.style.backgroundColor = '#3bdde3';
-                  e.target.style.color = 'white';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = 'white';
-                  if (icon) icon.style.color = 'white';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isLoading) {
-                  e.target.style.backgroundColor = 'white';
-                  e.target.style.color = '#3bdde3';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
-                  if (icon) icon.style.color = '#3bdde3';
-                }
-              }}
+              isLoading={isLoading}
             >
-              <div 
-                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
-                style={{ borderColor: '#3bdde3' }}
-              >
-                <FontAwesomeIcon
-                  icon={faCheck} 
-                  className="check-icon w-3 h-3 transition-all duration-200" 
-                  style={{ color: '#3bdde3' }}
-                />
-              </div>
-              <span>Save</span>
-            </button>
+              Save
+            </SaveButton>
           </div>
         </div>
 

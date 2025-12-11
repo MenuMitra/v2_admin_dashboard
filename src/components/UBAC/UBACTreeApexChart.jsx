@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faPlus, faRotate, faMagnifyingGlass, faTimes, faCheck } from "@fortawesome/free-solid-svg-icons";
+import SaveButton from "../common/SaveButton";
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
@@ -748,47 +749,7 @@ const UBACTree = () => {
             >
               Cancel
             </button>
-            <button
-              className={`
-                inline-flex items-center gap-3 px-6 py-3 
-                text-sm font-medium rounded-full
-                bg-white border-2 transition-all duration-200 shadow-sm
-                hover:shadow-md hover:scale-105 transform
-                ${loadingSave || 
-                  (type !== "module" && !selectedModuleId) ||
-                  (type === "action" && !selectedFeatureId) ||
-                  !formName ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
-              `}
-              style={{
-                borderColor: '#3bdde3',
-                color: '#3bdde3'
-              }}
-              onMouseEnter={(e) => {
-                if (!loadingSave && 
-                    !((type !== "module" && !selectedModuleId) ||
-                      (type === "action" && !selectedFeatureId) ||
-                      !formName)) {
-                  e.target.style.backgroundColor = '#3bdde3';
-                  e.target.style.color = 'white';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = 'white';
-                  if (icon) icon.style.color = 'white';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!loadingSave && 
-                    !((type !== "module" && !selectedModuleId) ||
-                      (type === "action" && !selectedFeatureId) ||
-                      !formName)) {
-                  e.target.style.backgroundColor = 'white';
-                  e.target.style.color = '#3bdde3';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
-                  if (icon) icon.style.color = '#3bdde3';
-                }
-              }}
+            <SaveButton
               onClick={async () => {
                 setLoadingSave(true);
                 try {
@@ -879,19 +840,10 @@ const UBACTree = () => {
                 (type === "action" && !selectedFeatureId) ||
                 !formName
               }
+              isLoading={loadingSave}
             >
-              <div 
-                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
-                style={{ borderColor: '#3bdde3' }}
-              >
-                <FontAwesomeIcon
-                  icon={faCheck} 
-                  className="check-icon w-3 h-3 transition-all duration-200" 
-                  style={{ color: '#3bdde3' }}
-                />
-              </div>
-              <span>{loadingSave ? "Saving..." : "Save"}</span>
-            </button>
+              {loadingSave ? "Saving..." : "Save"}
+            </SaveButton>
           </>
         }
       >
@@ -963,53 +915,13 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-6 py-3 border border-2 rounded-3xl"
+              className="px-5 py-1.5 border border-2 rounded-3xl"
               onClick={() => setIsEditModalOpen(false)}
               disabled={editLoadingSave}
             >
               Cancel
             </button>
-            <button
-              className={`
-                inline-flex items-center gap-3 px-6 py-3 
-                text-sm font-medium rounded-full
-                bg-white border-2 transition-all duration-200 shadow-sm
-                hover:shadow-md hover:scale-105 transform
-                ${editLoadingSave ||
-                  !editFormName ||
-                  (editType === "feature" && !editSelectedModuleId) ||
-                  (editType === "action" && !editSelectedFeatureId) ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
-              `}
-              style={{
-                borderColor: '#3bdde3',
-                color: '#3bdde3'
-              }}
-              onMouseEnter={(e) => {
-                if (!editLoadingSave &&
-                    editFormName &&
-                    !(editType === "feature" && !editSelectedModuleId) &&
-                    !(editType === "action" && !editSelectedFeatureId)) {
-                  e.target.style.backgroundColor = '#3bdde3';
-                  e.target.style.color = 'white';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = 'white';
-                  if (icon) icon.style.color = 'white';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!editLoadingSave &&
-                    editFormName &&
-                    !(editType === "feature" && !editSelectedModuleId) &&
-                    !(editType === "action" && !editSelectedFeatureId)) {
-                  e.target.style.backgroundColor = 'white';
-                  e.target.style.color = '#3bdde3';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
-                  if (icon) icon.style.color = '#3bdde3';
-                }
-              }}
+            <SaveButton
               onClick={async () => {
                 setEditLoadingSave(true);
                 try {
@@ -1100,19 +1012,10 @@ const UBACTree = () => {
                 (editType === "feature" && !editSelectedModuleId) ||
                 (editType === "action" && !editSelectedFeatureId)
               }
+              isLoading={editLoadingSave}
             >
-              <div 
-                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
-                style={{ borderColor: '#3bdde3' }}
-              >
-                <FontAwesomeIcon
-                  icon={faCheck} 
-                  className="check-icon w-3 h-3 transition-all duration-200" 
-                  style={{ color: '#3bdde3' }}
-                />
-              </div>
-              <span>{editLoadingSave ? "Saving..." : "Save"}</span>
-            </button>
+              {editLoadingSave ? "Saving..." : "Save"}
+            </SaveButton>
           </>
         }
       >
