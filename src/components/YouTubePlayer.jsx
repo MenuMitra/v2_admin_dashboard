@@ -44,10 +44,9 @@ function YouTubePlayer({ videoId }) {
   return (
     <div
       ref={playerRef}
-      style={{ width: "100%", height: "100%" }}
       className="w-full h-full rounded-2xl overflow-hidden aspect-video"
     />
   );
 }
 
-export default YouTubePlayer; 
+export default YouTubePlayer;

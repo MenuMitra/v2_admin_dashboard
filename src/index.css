@@ -80,3 +80,93 @@ button:focus-visible {
 .blink-dot {
   animation: blink 1.5s ease-in-out infinite;
 }
+/* Custom select dropdown styling for rounded corners */
+select {
+  border-radius: 1.5rem !important;
+}
+
+/* Force rounded corners on select dropdown options - Multiple browser support */
+select option {
+  border-radius: 1.5rem !important;
+  padding: 8px 12px !important;
+  margin: 2px !important;
+}
+
+/* Webkit specific styling for select dropdowns */
+select::-webkit-scrollbar {
+  width: 8px;
+}
+
+select::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 1.5rem;
+}
+
+select::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 1.5rem;
+}
+
+select::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Enhanced dropdown styling for better rounded corners */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Force rounded corners on dropdown menu container */
+select:focus {
+  border-radius: 1.5rem !important;
+}
+
+/* Firefox specific dropdown styling */
+@-moz-document url-prefix() {
+  select {
+    border-radius: 1.5rem !important;
+  }
+  select option {
+    border-radius: 1.5rem !important;
+    padding: 8px 12px !important;
+  }
+}
+
+/* Chrome/Safari specific dropdown styling */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  select {
+    border-radius: 1.5rem !important;
+  }
+  select option {
+    border-radius: 1.5rem !important;
+    padding: 8px 12px !important;
+  }
+}
+
+/* Additional styling to ensure dropdown list has rounded corners */
+select[size]:not([size="1"]) {
+  border-radius: 1.5rem !important;
+}
+
+select[multiple] {
+  border-radius: 1.5rem !important;
+}
+
+/* Force rounded corners on the dropdown list itself */
+select:not([multiple]):not([size]) {
+  border-radius: 1.5rem !important;
+}
+
+/* Ensure dropdown options inherit rounded styling */
+select > option {
+  border-radius: 1.5rem !important;
+  padding: 8px 12px !important;
+  margin: 1px !important;
+}

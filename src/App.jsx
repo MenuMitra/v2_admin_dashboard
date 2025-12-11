@@ -62,6 +62,7 @@ import Stats from "./components/Stats/Stats";
 import DBTablesStats from "./components/Stats/DBTablesStats";
 import CombinedStats from "./components/Stats/CombinedStats";
 import ReactFlowDemo from "./components/ReactFlowDemo";
+import ReleaseUpdate from "./components/ReleaseUpdate/ReleaseUpdate";
 import "remixicon/fonts/remixicon.css";
 
 function App() {
@@ -206,6 +207,7 @@ function App() {
             <Route path="/stats" element={<Stats />} />
             <Route path="/ubac_tree" element={<UBACTreeApexChart />} />
             <Route path="/combined-stats" element={<CombinedStats />} />
+            <Route path="/release-update" element={<ReleaseUpdate />} />
             
             {/* React Flow Demo Route */}
             <Route path="/react-flow-demo" element={<ReactFlowDemo />} />

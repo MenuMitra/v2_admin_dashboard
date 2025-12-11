@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faPlus, faRotate, faMagnifyingGlass, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft, faPlus, faRotate, faMagnifyingGlass, faTimes, faCheck } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
@@ -601,7 +601,7 @@ const UBACTree = () => {
             <div>
               <button
                 onClick={() => window.history.back()}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-3xl border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
                 <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
@@ -620,7 +620,7 @@ const UBACTree = () => {
               <button
                 onClick={refetchUbacTree}
                 disabled={isLoading}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-3xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Reload data"
               >
                 <FontAwesomeIcon
@@ -630,7 +630,7 @@ const UBACTree = () => {
               </button>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-success-500 hover:bg-success-600 shadow-theme-xs"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-3xl bg-success-500 hover:bg-success-600 shadow-theme-xs"
               >
                 <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
                 Create
@@ -680,7 +680,7 @@ const UBACTree = () => {
               </span>
               <input
                 placeholder="Search modules, features, actions..."
-                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
+                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-3xl border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -692,7 +692,7 @@ const UBACTree = () => {
                     e.preventDefault();
                     setSearchTerm("");
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-3xl transition-all duration-200"
                   title="Clear search"
                 >
                   <FontAwesomeIcon icon={faTimes} className="w-3 h-3" />
@@ -727,7 +727,7 @@ const UBACTree = () => {
             <div 
               id="svg-tree" 
               ref={treeContainerRef}
-              style={{ margin: '0 auto', minHeight: '400px' }}
+              className="mx-auto min-h-[400px]"
             />
           )}
         </div>
@@ -742,14 +742,53 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-3 py-1 border rounded"
+              className="px-6 py-3 border rounded-3xl"
               onClick={() => setIsModalOpen(false)}
               disabled={loadingSave}
             >
               Cancel
             </button>
             <button
-              className="px-3 py-1 bg-brand-500 text-white rounded"
+              className={`
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${loadingSave || 
+                  (type !== "module" && !selectedModuleId) ||
+                  (type === "action" && !selectedFeatureId) ||
+                  !formName ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
+              `}
+              style={{
+                borderColor: '#3bdde3',
+                color: '#3bdde3'
+              }}
+              onMouseEnter={(e) => {
+                if (!loadingSave && 
+                    !((type !== "module" && !selectedModuleId) ||
+                      (type === "action" && !selectedFeatureId) ||
+                      !formName)) {
+                  e.target.style.backgroundColor = '#3bdde3';
+                  e.target.style.color = 'white';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = 'white';
+                  if (icon) icon.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loadingSave && 
+                    !((type !== "module" && !selectedModuleId) ||
+                      (type === "action" && !selectedFeatureId) ||
+                      !formName)) {
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#3bdde3';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
+                  if (icon) icon.style.color = '#3bdde3';
+                }
+              }}
               onClick={async () => {
                 setLoadingSave(true);
                 try {
@@ -841,7 +880,17 @@ const UBACTree = () => {
                 !formName
               }
             >
-              {loadingSave ? "Saving..." : "Save"}
+              <div 
+                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                style={{ borderColor: '#3bdde3' }}
+              >
+                <FontAwesomeIcon
+                  icon={faCheck} 
+                  className="check-icon w-3 h-3 transition-all duration-200" 
+                  style={{ color: '#3bdde3' }}
+                />
+              </div>
+              <span>{loadingSave ? "Saving..." : "Save"}</span>
             </button>
           </>
         }
@@ -851,7 +900,7 @@ const UBACTree = () => {
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full border rounded-3xl px-2 py-1"
           >
             <option value="module">Module</option>
             <option value="feature">Feature</option>
@@ -865,7 +914,7 @@ const UBACTree = () => {
             <select
               value={selectedModuleId}
               onChange={(e) => setSelectedModuleId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full rounded-3xl border px-2 py-1"
             >
               <option value="">Select module</option>
               {modulesList.map((m) => (
@@ -883,7 +932,7 @@ const UBACTree = () => {
             <select
               value={selectedFeatureId}
               onChange={(e) => setSelectedFeatureId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full rounded-3xl border px-2 py-1"
             >
               <option value="">Select feature</option>
               {featuresList.map((f) => (
@@ -900,7 +949,7 @@ const UBACTree = () => {
           <input
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full rounded-3xl border px-2 py-1"
           />
         </div>
       </Modal>
@@ -914,14 +963,53 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-3 py-1 border rounded"
+              className="px-6 py-3 border border-2 rounded-3xl"
               onClick={() => setIsEditModalOpen(false)}
               disabled={editLoadingSave}
             >
               Cancel
             </button>
             <button
-              className="px-3 py-1 bg-brand-500 text-white rounded"
+              className={`
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${editLoadingSave ||
+                  !editFormName ||
+                  (editType === "feature" && !editSelectedModuleId) ||
+                  (editType === "action" && !editSelectedFeatureId) ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
+              `}
+              style={{
+                borderColor: '#3bdde3',
+                color: '#3bdde3'
+              }}
+              onMouseEnter={(e) => {
+                if (!editLoadingSave &&
+                    editFormName &&
+                    !(editType === "feature" && !editSelectedModuleId) &&
+                    !(editType === "action" && !editSelectedFeatureId)) {
+                  e.target.style.backgroundColor = '#3bdde3';
+                  e.target.style.color = 'white';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = 'white';
+                  if (icon) icon.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!editLoadingSave &&
+                    editFormName &&
+                    !(editType === "feature" && !editSelectedModuleId) &&
+                    !(editType === "action" && !editSelectedFeatureId)) {
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#3bdde3';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
+                  if (icon) icon.style.color = '#3bdde3';
+                }
+              }}
               onClick={async () => {
                 setEditLoadingSave(true);
                 try {
@@ -1013,7 +1101,17 @@ const UBACTree = () => {
                 (editType === "action" && !editSelectedFeatureId)
               }
             >
-              {editLoadingSave ? "Saving..." : "Save"}
+              <div 
+                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                style={{ borderColor: '#3bdde3' }}
+              >
+                <FontAwesomeIcon
+                  icon={faCheck} 
+                  className="check-icon w-3 h-3 transition-all duration-200" 
+                  style={{ color: '#3bdde3' }}
+                />
+              </div>
+              <span>{editLoadingSave ? "Saving..." : "Save"}</span>
             </button>
           </>
         }
@@ -1037,7 +1135,7 @@ const UBACTree = () => {
                   <select
                     value={editSelectedModuleId}
                     onChange={(e) => setEditSelectedModuleId(e.target.value)}
-                    className="w-full border px-2 py-1"
+                    className="w-full border rounded-3xl px-2 py-1"
                   >
                     <option value="">Select module</option>
                     {modulesList.map((m) => (
@@ -1055,7 +1153,7 @@ const UBACTree = () => {
                   <select
                     value={editSelectedFeatureId}
                     onChange={(e) => setEditSelectedFeatureId(e.target.value)}
-                    className="w-full border px-2 py-1"
+                    className="w-full rounded-3xl border px-2 py-1"
                   >
                     <option value="">Select feature</option>
                     {allFeatures.map((f) => (
@@ -1075,7 +1173,7 @@ const UBACTree = () => {
                 <input
                   value={editFormName}
                   onChange={(e) => setEditFormName(e.target.value)}
-                  className="w-full border px-2 py-1"
+                  className="w-full rounded-3xl border px-2 py-1"
                 />
               </div>
             </>

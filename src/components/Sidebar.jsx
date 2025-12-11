@@ -22,9 +22,9 @@ import {
   faMobileScreenButton,
   faBell,
   faChartLine,
-  faDatabase,
   faEnvelope,
   faCalendarCheck,
+  faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -104,6 +104,16 @@ const menuGroups = [
   },
   {
     items: [{ title: "Stats", path: "/stats", id: "stats", icon: faChartLine }],
+  },
+  {
+    items: [
+      {
+        title: "Release Update",
+        path: "/release-update",
+        id: "release-update",
+        icon: faUpload,
+      },
+    ],
   },
 ];
 
@@ -222,7 +232,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
           <Link
             to={item.path || "#"}
             className={`
-              flex items-center gap-2 rounded-md px-3 py-2
+              flex items-center gap-2 rounded-3xl px-3 py-2
               hover:bg-gray-100 
               ${isActive ? "bg-brand-100 text-brand-600" : ""}
               transition-all duration-300
@@ -253,7 +263,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
             <Link
               to={item.path}
               className={`
-                flex items-center gap-3 rounded-md px-4 py-2.5
+                flex items-center gap-3 rounded-3xl px-4 py-2.5
                 hover:bg-gray-100 
                 ${isActive ? "bg-brand-100 text-brand-600 " : ""}
                 transition-all duration-300

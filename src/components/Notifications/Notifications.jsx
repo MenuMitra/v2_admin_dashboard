@@ -183,7 +183,7 @@ const Notifications = () => {
 
         return (
           <button
-            className={`w-8 h-8 flex items-center justify-center text-white rounded-lg shadow-theme-xs transition ${
+            className={`w-8 h-8 flex items-center justify-center text-white rounded-3xl shadow-theme-xs transition ${
               isResending
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-brand-500 hover:bg-brand-600"

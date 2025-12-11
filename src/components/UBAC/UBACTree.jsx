@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
-import { faTrash, faChevronLeft, faPlus, faRotate, faMagnifyingGlass, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faChevronLeft, faPlus, faRotate, faMagnifyingGlass, faTimes, faCheck } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
@@ -162,7 +162,7 @@ const UBACTree = () => {
                   );
                   setIsEditModalOpen(true);
                 }}
-                className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+                className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
                 title="Edit action"
               >
                 <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
@@ -206,7 +206,7 @@ const UBACTree = () => {
                     toastController.error("Delete failed");
                   }
                 }}
-                className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
                 title="Delete action"
               >
                 <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
@@ -244,7 +244,7 @@ const UBACTree = () => {
                         setEditSelectedModuleId(moduleId);
                         setIsEditModalOpen(true);
                       }}
-                      className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition ml-2"
+                      className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition ml-2"
                       title="Edit feature"
                     >
                       <FontAwesomeIcon
@@ -307,7 +307,7 @@ const UBACTree = () => {
                             toastController.error("Delete failed");
                           }
                         }}
-                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
                         title="Delete feature"
                       >
                         <FontAwesomeIcon
@@ -363,7 +363,7 @@ const UBACTree = () => {
                       setEditFormName(module.name || "");
                       setIsEditModalOpen(true);
                     }}
-                    className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition ml-2"
+                    className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition ml-2"
                     title="Edit module"
                   >
                     <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
@@ -414,7 +414,7 @@ const UBACTree = () => {
                           toastController.error("Delete failed");
                         }
                       }}
-                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition ml-2"
+                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition ml-2"
                       title="Delete module"
                     >
                       <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
@@ -469,7 +469,7 @@ const UBACTree = () => {
               <button
                 onClick={refetchUbacTree}
                 disabled={isLoading}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-3xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Reload data"
               >
                 <FontAwesomeIcon
@@ -529,7 +529,7 @@ const UBACTree = () => {
               </span>
               <input
                 placeholder="Search modules, features, actions..."
-                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
+                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-3xl border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -595,14 +595,53 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-3 py-1 border rounded"
+              className="px-3 py-1 border rounded-3xl"
               onClick={() => setIsModalOpen(false)}
               disabled={loadingSave}
             >
               Cancel
             </button>
             <button
-              className="px-3 py-1 bg-brand-500 text-white rounded"
+              className={`
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${loadingSave || 
+                  (type !== "module" && !selectedModuleId) ||
+                  (type === "action" && !selectedFeatureId) ||
+                  !formName ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
+              `}
+              style={{
+                borderColor: '#3bdde3',
+                color: '#3bdde3'
+              }}
+              onMouseEnter={(e) => {
+                if (!loadingSave && 
+                    !((type !== "module" && !selectedModuleId) ||
+                      (type === "action" && !selectedFeatureId) ||
+                      !formName)) {
+                  e.target.style.backgroundColor = '#3bdde3';
+                  e.target.style.color = 'white';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = 'white';
+                  if (icon) icon.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loadingSave && 
+                    !((type !== "module" && !selectedModuleId) ||
+                      (type === "action" && !selectedFeatureId) ||
+                      !formName)) {
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#3bdde3';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
+                  if (icon) icon.style.color = '#3bdde3';
+                }
+              }}
               onClick={async () => {
                 setLoadingSave(true);
                 try {
@@ -684,7 +723,17 @@ const UBACTree = () => {
                 !formName
               }
             >
-              {loadingSave ? "Saving..." : "Save"}
+              <div 
+                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                style={{ borderColor: '#3bdde3' }}
+              >
+                <FontAwesomeIcon
+                  icon={faCheck} 
+                  className="check-icon w-3 h-3 transition-all duration-200" 
+                  style={{ color: '#3bdde3' }}
+                />
+              </div>
+              <span>{loadingSave ? "Saving..." : "Save"}</span>
             </button>
           </>
         }
@@ -694,7 +743,7 @@ const UBACTree = () => {
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full border px-2 py-1 rounded-3xl"
           >
             <option value="module">Module</option>
             <option value="feature">Feature</option>
@@ -708,7 +757,7 @@ const UBACTree = () => {
             <select
               value={selectedModuleId}
               onChange={(e) => setSelectedModuleId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full border px-2 py-1 rounded-3xl"
             >
               <option value="">Select module</option>
               {modulesList.map((m) => (
@@ -726,7 +775,7 @@ const UBACTree = () => {
             <select
               value={selectedFeatureId}
               onChange={(e) => setSelectedFeatureId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full border px-2 py-1 rounded-3xl"
             >
               <option value="">Select feature</option>
               {featuresList.map((f) => (
@@ -743,7 +792,7 @@ const UBACTree = () => {
           <input
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full rounded-3xl border px-2 py-1"
           />
         </div>
       </Modal>
@@ -764,7 +813,46 @@ const UBACTree = () => {
               Cancel
             </button>
             <button
-              className="px-3 py-1 bg-brand-500 text-white rounded"
+              className={`
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${editLoadingSave ||
+                  !editFormName ||
+                  (editType === "feature" && !editSelectedModuleId) ||
+                  (editType === "action" && !editSelectedFeatureId) ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
+              `}
+              style={{
+                borderColor: '#3bdde3',
+                color: '#3bdde3'
+              }}
+              onMouseEnter={(e) => {
+                if (!editLoadingSave &&
+                    editFormName &&
+                    !(editType === "feature" && !editSelectedModuleId) &&
+                    !(editType === "action" && !editSelectedFeatureId)) {
+                  e.target.style.backgroundColor = '#3bdde3';
+                  e.target.style.color = 'white';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = 'white';
+                  if (icon) icon.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!editLoadingSave &&
+                    editFormName &&
+                    !(editType === "feature" && !editSelectedModuleId) &&
+                    !(editType === "action" && !editSelectedFeatureId)) {
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#3bdde3';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
+                  if (icon) icon.style.color = '#3bdde3';
+                }
+              }}
               onClick={async () => {
                 setEditLoadingSave(true);
                 try {
@@ -856,7 +944,17 @@ const UBACTree = () => {
                 (editType === "action" && !editSelectedFeatureId)
               }
             >
-              {editLoadingSave ? "Saving..." : "Save"}
+              <div 
+                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                style={{ borderColor: '#3bdde3' }}
+              >
+                <FontAwesomeIcon
+                  icon={faCheck} 
+                  className="check-icon w-3 h-3 transition-all duration-200" 
+                  style={{ color: '#3bdde3' }}
+                />
+              </div>
+              <span>{editLoadingSave ? "Saving..." : "Save"}</span>
             </button>
           </>
         }
@@ -880,7 +978,7 @@ const UBACTree = () => {
                   <select
                     value={editSelectedModuleId}
                     onChange={(e) => setEditSelectedModuleId(e.target.value)}
-                    className="w-full border px-2 py-1"
+                    className="w-full border rounded-3xl px-2 py-1"
                   >
                     <option value="">Select module</option>
                     {modulesList.map((m) => (
@@ -898,7 +996,7 @@ const UBACTree = () => {
                   <select
                     value={editSelectedFeatureId}
                     onChange={(e) => setEditSelectedFeatureId(e.target.value)}
-                    className="w-full border px-2 py-1"
+                    className="w-full border rounded-3xl px-2 py-1"
                   >
                     <option value="">Select feature</option>
                     {allFeatures.map((f) => (
@@ -918,7 +1016,7 @@ const UBACTree = () => {
                 <input
                   value={editFormName}
                   onChange={(e) => setEditFormName(e.target.value)}
-                  className="w-full border px-2 py-1"
+                  className="w-full border rounded-3xl px-2 py-1"
                 />
               </div>
             </>

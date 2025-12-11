@@ -11,6 +11,7 @@ import {
   faSave,
   faTimes,
   faLayerGroup,
+  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
@@ -778,14 +779,47 @@ function EditOutlet() {
                 onClick={handleSubmit}
                 disabled={isLoading}
                 className={`
-                inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-brand-500 hover:bg-brand-600 
-                transition shadow-sm
-                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
               `}
+                style={{
+                  borderColor: '#3bdde3',
+                  color: '#3bdde3'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isLoading) {
+                    e.target.style.backgroundColor = '#3bdde3';
+                    e.target.style.color = 'white';
+                    const iconContainer = e.target.querySelector('.icon-container');
+                    const icon = e.target.querySelector('.check-icon');
+                    if (iconContainer) iconContainer.style.borderColor = 'white';
+                    if (icon) icon.style.color = 'white';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isLoading) {
+                    e.target.style.backgroundColor = 'white';
+                    e.target.style.color = '#3bdde3';
+                    const iconContainer = e.target.querySelector('.icon-container');
+                    const icon = e.target.querySelector('.check-icon');
+                    if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
+                    if (icon) icon.style.color = '#3bdde3';
+                  }
+                }}
               >
-                <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+                <div 
+                  className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                  style={{ borderColor: '#3bdde3' }}
+                >
+                  <FontAwesomeIcon 
+                    icon={faCheck} 
+                    className="check-icon w-3 h-3 transition-all duration-200" 
+                    style={{ color: '#3bdde3' }}
+                  />
+                </div>
                 <span>Save</span>
               </button>
             </div>
@@ -825,7 +859,7 @@ function EditOutlet() {
                   <div className="relative">
                     <div
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+                      className="w-full p-2 text-left border rounded-3xl shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
                       role="combobox"
                       aria-expanded={isDropdownOpen}
                       aria-haspopup="listbox"
@@ -877,7 +911,7 @@ function EditOutlet() {
                                     ),
                                   }));
                                 }}
-                                className="ml-1 text-brand-500 hover:text-brand-700"
+                                className="ml-1 rounded-3xl text-brand-500 hover:text-brand-700"
                               >
                                 ×
                               </button>
@@ -890,20 +924,14 @@ function EditOutlet() {
                     {/* Dropdown Panel */}
                     {isDropdownOpen && (
                       <div
-                        className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50"
-                        style={{
-                          width: "100%",
-                          minWidth: "300px",
-                          maxHeight: "350px",
-                          overflowY: "auto",
-                        }}
+                        className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50 w-full min-w-[300px] max-h-[350px] overflow-y-auto"
                       >
                         {/* Search Bar */}
                         <div className="sticky top-0 p-2 border-b bg-white">
                           <div className="relative">
                             <input
                               type="text"
-                              className="w-full px-4 py-2 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              className="w-full px-4 py-2 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                               placeholder="Search by name, mobile or email..."
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
@@ -924,7 +952,7 @@ function EditOutlet() {
                                     searchInput.focus();
                                   }
                                 }}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                className="absolute rounded-3xl right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                               >
                                 <FontAwesomeIcon
                                   icon={faTimes}
@@ -971,7 +999,7 @@ function EditOutlet() {
                                       owner_ids: newOwnerIds,
                                     }));
                                   }}
-                                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-3xl"
                                 />
                                 <div>
                                   <div className="font-medium text-gray-900">
@@ -1034,7 +1062,7 @@ function EditOutlet() {
                   onFocus={() => handleFocus("name")}
                   required
                   className={`
-                    focus:border-brand-500 focus:ring-brand-500
+                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
                     ${
                       validationStates.name
                         ? "border-error-500"
@@ -1055,7 +1083,7 @@ function EditOutlet() {
                     required
                     maxLength={10}
                     className={`
-                      focus:border-brand-500 focus:ring-brand-500
+                      rounded-3xl focus:border-brand-500 focus:ring-brand-500
                       ${
                         validationStates.mobile
                           ? "border-error-500"
@@ -1077,6 +1105,7 @@ function EditOutlet() {
                   value={outletData.email}
                   onChange={handleInputChange}
                   placeholder="Enter Email Address"
+                  className="rounded-3xl"
                 />
 
                 <TextInput
@@ -1086,6 +1115,7 @@ function EditOutlet() {
                   onChange={handleInputChange}
                   placeholder="Enter UPI ID"
                   required
+                  className="rounded-3xl"
                 />
 
                 <SelectInput
@@ -1174,6 +1204,7 @@ function EditOutlet() {
                     placeholder="Enter Address"
                     required
                     rows={3}
+                    className="rounded-3xl"
                   />
                   {validationStates.address && (
                     <p className="text-error-500 text-sm mt-1">
@@ -1219,7 +1250,7 @@ function EditOutlet() {
                     name="service_charges"
                     value={outletData.service_charges}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
 
@@ -1232,7 +1263,7 @@ function EditOutlet() {
                     name="gst"
                     value={outletData.gst}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
 
@@ -1245,7 +1276,7 @@ function EditOutlet() {
                     name="fssainumber"
                     value={outletData.fssainumber}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     maxLength={14}
                   />
                 </div>
@@ -1260,170 +1291,188 @@ function EditOutlet() {
                     value={outletData.gstnumber}
                     maxLength={15}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
-                {/* Opening Time */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Opening Time
-                  </label>
-                  <div className="flex gap-2">
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                      value={openingHour}
-                      onChange={(e) =>
-                        handleOpeningTimeChange("hour", e.target.value)
-                      }
-                    >
-                      <option value="">HH</option>
-                      {[...Array(12)].map((_, i) => {
-                        const val = (i + 1).toString().padStart(2, "0");
-                        return (
-                          <option key={val} value={val}>
-                            {val}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                      value={openingMinute}
-                      onChange={(e) =>
-                        handleOpeningTimeChange("minute", e.target.value)
-                      }
-                    >
-                      <option value="">MM</option>
-                      {["00", "15", "30", "45"].map((min) => (
-                        <option key={min} value={min}>
-                          {min}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      value={openingPeriod}
-                      onChange={(e) =>
-                        handleOpeningTimeChange("period", e.target.value)
-                      }
-                    >
-                      <option value="AM">AM</option>
-                      <option value="PM">PM</option>
-                    </select>
-                  </div>
-                </div>
-                {/* Closing Time */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Closing Time
-                  </label>
-                  <div className="flex gap-2">
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                      value={closingHour}
-                      onChange={(e) =>
-                        handleClosingTimeChange("hour", e.target.value)
-                      }
-                    >
-                      <option value="">HH</option>
-                      {[...Array(12)].map((_, i) => {
-                        const val = (i + 1).toString().padStart(2, "0");
-                        return (
-                          <option key={val} value={val}>
-                            {val}
-                          </option>
-                        );
-                      })}
-                    </select>
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                      value={closingMinute}
-                      onChange={(e) =>
-                        handleClosingTimeChange("minute", e.target.value)
-                      }
-                    >
-                      <option value="">MM</option>
-                      {["00", "15", "30", "45"].map((min) => (
-                        <option key={min} value={min}>
-                          {min}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      value={closingPeriod}
-                      onChange={(e) =>
-                        handleClosingTimeChange("period", e.target.value)
-                      }
-                    >
-                      <option value="AM">AM</option>
-                      <option value="PM">PM</option>
-                    </select>
-                  </div>
-                </div>
-                {/* New boolean dropdowns */}
-                <div className="flex flex-row flex-nowrap items-end gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Has Combo
-                    </label>
-                    <select
-                      name="has_combo"
-                      value={outletData.has_combo !== null ? String(outletData.has_combo) : ""}
-                      onChange={(e) =>
-                        setOutletData((prev) => ({
-                          ...prev,
-                          has_combo: e.target.value ? Number(e.target.value) : null,
-                        }))
-                      }
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    >
-                      <option value="">Select</option>
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
+                <div className="sm:col-span-2 md:col-span-3 xl:col-span-4 w-full space-y-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Opening Time */}
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Opening Time
+                      </label>
+                      <div className="grid grid-cols-3 gap-3 sm:max-w-sm w-full">
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={openingHour}
+                          onChange={(e) =>
+                            handleOpeningTimeChange("hour", e.target.value)
+                          }
+                        >
+                          <option value="">HH</option>
+                          {[...Array(12)].map((_, i) => {
+                            const val = (i + 1).toString().padStart(2, "0");
+                            return (
+                              <option key={val} value={val}>
+                                {val}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={openingMinute}
+                          onChange={(e) =>
+                            handleOpeningTimeChange("minute", e.target.value)
+                          }
+                        >
+                          <option value="">MM</option>
+                          {["00", "15", "30", "45"].map((min) => (
+                            <option key={min} value={min}>
+                              {min}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={openingPeriod}
+                          onChange={(e) =>
+                            handleOpeningTimeChange("period", e.target.value)
+                          }
+                        >
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Closing Time */}
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Closing Time
+                      </label>
+                      <div className="grid grid-cols-3 gap-3 sm:max-w-sm w-full">
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={closingHour}
+                          onChange={(e) =>
+                            handleClosingTimeChange("hour", e.target.value)
+                          }
+                        >
+                          <option value="">HH</option>
+                          {[...Array(12)].map((_, i) => {
+                            const val = (i + 1).toString().padStart(2, "0");
+                            return (
+                              <option key={val} value={val}>
+                                {val}
+                              </option>
+                            );
+                          })}
+                        </select>
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={closingMinute}
+                          onChange={(e) =>
+                            handleClosingTimeChange("minute", e.target.value)
+                          }
+                        >
+                          <option value="">MM</option>
+                          {["00", "15", "30", "45"].map((min) => (
+                            <option key={min} value={min}>
+                              {min}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                          value={closingPeriod}
+                          onChange={(e) =>
+                            handleClosingTimeChange("period", e.target.value)
+                          }
+                        >
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Has Denomination
-                    </label>
-                    <select
-                      name="has_denomination"
-                      value={outletData.has_denomination !== null ? String(outletData.has_denomination) : ""}
-                      onChange={(e) =>
-                        setOutletData((prev) => ({
-                          ...prev,
-                          has_denomination: e.target.value ? Number(e.target.value) : null,
-                        }))
-                      }
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    >
-                      <option value="">Select</option>
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
-                  </div>
+                  {/* Boolean dropdowns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has Combo
+                      </label>
+                      <select
+                        name="has_combo"
+                        value={
+                          outletData.has_combo !== null
+                            ? String(outletData.has_combo)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            has_combo: e.target.value ? Number(e.target.value) : null,
+                          }))
+                        }
+                        className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      >
+                        <option value="">Select</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                      </select>
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Reserve Table
-                    </label>
-                    <select
-                      name="reserve_table"
-                      value={outletData.reserve_table !== null ? String(outletData.reserve_table) : ""}
-                      onChange={(e) =>
-                        setOutletData((prev) => ({
-                          ...prev,
-                          reserve_table: e.target.value ? Number(e.target.value) : null,
-                        }))
-                      }
-                      className="w-22 h-11 border border-gray-300 rounded-lg bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    >
-                      <option value="">Select</option>
-                      <option value="0">No</option>
-                      <option value="1">Yes</option>
-                    </select>
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has Denomination
+                      </label>
+                      <select
+                        name="has_denomination"
+                        value={
+                          outletData.has_denomination !== null
+                            ? String(outletData.has_denomination)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            has_denomination: e.target.value ? Number(e.target.value) : null,
+                          }))
+                        }
+                        className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      >
+                        <option value="">Select</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                      </select>
+                    </div>
+
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reserve Table
+                      </label>
+                      <select
+                        name="reserve_table"
+                        value={
+                          outletData.reserve_table !== null
+                            ? String(outletData.reserve_table)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            reserve_table: e.target.value ? Number(e.target.value) : null,
+                          }))
+                        }
+                        className="w-full h-11 border border-gray-300 rounded-3xl bg-white text-left focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      >
+                        <option value="">Select</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1449,7 +1498,7 @@ function EditOutlet() {
                     type="text"
                     value={planName}
                     onChange={(e) => setPlanName(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter plan name"
                   />
                 </div>
@@ -1463,7 +1512,7 @@ function EditOutlet() {
                     step="0.01"
                     value={planPrice}
                     onChange={(e) => setPlanPrice(e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter price"
                   />
                 </div>
@@ -1479,7 +1528,7 @@ function EditOutlet() {
                         e.target.value ? Number(e.target.value) : null
                       )
                     }
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   >
                     <option value="">Select months</option>
                     {ALLOWED_TENURES.map((m) => (
@@ -1516,7 +1565,7 @@ function EditOutlet() {
                             setSelectedModuleIds([]);
                           }
                         }}
-                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded mr-2"
+                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-3xl mr-2"
                       />
                       Check All
                     </label>
@@ -1541,7 +1590,7 @@ function EditOutlet() {
                               checked={checked}
                               onChange={() => handleModuleToggle(m.module_id)}
                               onClick={(e) => e.stopPropagation()}
-                              className="form-checkbox h-4 w-4 text-blue-600"
+                              className="form-checkbox rounded-3xl h-4 w-4 text-blue-600"
                             />
                             <span className="uppercase">
                               {m.name?.split("_").join(" ")}
@@ -1583,6 +1632,7 @@ function EditOutlet() {
                 value={outletData.website}
                 onChange={handleInputChange}
                 placeholder="https://example.com"
+                className="rounded-3xl"
               />
 
               <TextInput
@@ -1592,6 +1642,7 @@ function EditOutlet() {
                 value={outletData.facebook}
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/yourpage"
+                className="rounded-3xl"
               />
 
               <TextInput
@@ -1601,6 +1652,7 @@ function EditOutlet() {
                 value={outletData.instagram}
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/yourhandle"
+                className="rounded-3xl"
               />
 
               <TextInput
@@ -1610,6 +1662,7 @@ function EditOutlet() {
                 value={outletData.google_business_link}
                 onChange={handleInputChange}
                 placeholder="https://business.google.com/yourpage"
+                className="rounded-3xl"
               />
 
               <TextInput
@@ -1619,6 +1672,7 @@ function EditOutlet() {
                 value={outletData.google_review}
                 onChange={handleInputChange}
                 placeholder="https://g.page/r/yourreviewpage"
+                className="rounded-3xl"
               />
             </div>
           </section>

@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
   faChevronLeft as faBack,
+  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
@@ -363,14 +364,47 @@ function EditPartner() {
               onClick={handleSubmit}
               disabled={isLoading}
               className={`
-                inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
-                transition shadow-sm
-                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
               `}
+              style={{
+                borderColor: '#3bdde3',
+                color: '#3bdde3'
+              }}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.target.style.backgroundColor = '#3bdde3';
+                  e.target.style.color = 'white';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = 'white';
+                  if (icon) icon.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isLoading) {
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#3bdde3';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
+                  if (icon) icon.style.color = '#3bdde3';
+                }
+              }}
             >
-              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+              <div 
+                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                style={{ borderColor: '#3bdde3' }}
+              >
+                <FontAwesomeIcon
+                  icon={faCheck} 
+                  className="check-icon w-3 h-3 transition-all duration-200" 
+                  style={{ color: '#3bdde3' }}
+                />
+              </div>
               <span>Save</span>
             </button>
           </div>
@@ -389,6 +423,7 @@ function EditPartner() {
                 placeholder="Enter full name"
                 required
                 error={validationErrors.name}
+                className="rounded-3xl"
               />
 
               <TextInput
@@ -402,6 +437,7 @@ function EditPartner() {
                 pattern="[6-9][0-9]{9}"
                 maxLength="10"
                 error={validationErrors.mobile}
+                className="rounded-3xl"
               />
 
               <TextInput
@@ -412,6 +448,7 @@ function EditPartner() {
                 onChange={handleChange}
                 placeholder="Enter email address"
                 error={validationErrors.email}
+                className="rounded-3xl"
               />
 
               <DateInput
@@ -420,6 +457,7 @@ function EditPartner() {
                 value={partnerDetails.dob}
                 onChange={handleChange}
                 placeholder="Select date of birth"
+                className="rounded-3xl"
               />
 
               <TextInput
@@ -430,6 +468,7 @@ function EditPartner() {
                 placeholder="Enter 12-digit Aadhar number"
                 maxLength="12"
                 error={validationErrors.aadhar_number}
+                className="rounded-3xl"
               />
 
               {/* Active Partner Checkbox */}
@@ -457,6 +496,7 @@ function EditPartner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
+                  className="rounded-3xl"
                 />
               </div>
 

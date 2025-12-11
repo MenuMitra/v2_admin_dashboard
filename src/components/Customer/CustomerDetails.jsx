@@ -8,6 +8,9 @@ import {
   faSpinner,
   faChevronLeft as faBack,
   faRotate,
+  faToggleOff,
+  faToggleOn,
+  faUserCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
@@ -89,7 +92,14 @@ function CustomerDetails() {
         error: (err) => err.response?.data?.msg || "Failed to update customer",
       });
 
-      await fetchCustomerData();
+      // Update state directly instead of refetching to avoid reload
+      setCustomerData(prevData => ({
+        ...prevData,
+        customer_details: {
+          ...prevData.customer_details,
+          is_active: nextIsActive
+        }
+      }));
     } catch (e) {
       // error toast handled in promise above
     } finally {
@@ -186,16 +196,49 @@ function CustomerDetails() {
         )}
 
         {/* Account Status */}
-        <div>
-          <ToggleSwitch
-            label="Account Status"
-            isOn={!!customerData?.customer_details?.is_active}
-            onToggle={handleToggleCustomerActive}
-            disabled={isTogglingActive}
-            onText="Active"
-            offText="Inactive"
-          />
-        </div>
+        {customerData?.customer_details?.is_active !== null &&
+          customerData?.customer_details?.is_active !== undefined && (
+            <div className="flex items-center p-3 rounded-lg">
+              <div className="w-8 h-8 flex items-center justify-center">
+                <FontAwesomeIcon
+                  icon={faUserCheck}
+                  className="w-5 h-5 text-gray-400"
+                />
+              </div>
+              <div className="ml-3">
+                <button
+                  onClick={handleToggleCustomerActive}
+                  disabled={isTogglingActive}
+                  style={{ 
+                    width: '100px', 
+                    height: '40px',
+                    minWidth: '40px', 
+                    minHeight: '20px',
+                    padding: '20px 12px',
+                    fontSize: '20px',
+                    gap: '5px'
+                  }}
+                  className={`rounded-full font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center ${
+                    customerData?.customer_details?.is_active
+                      ? "text-brand-500 "
+                      : "bg-orange-100 text-warning-500 "
+                  } ${
+                    isTogglingActive
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                >
+                  <FontAwesomeIcon
+                    icon={customerData?.customer_details?.is_active ? faToggleOn : faToggleOff}
+                    style={{ fontSize: '40px', width: '40px', height: '40px' }}
+                    className={customerData?.customer_details?.is_active ? "text-brand-500" : "text-warning-500"}
+                  />
+                  {customerData?.customer_details?.is_active ? "Active" : "Inactive"}
+                </button>
+                <div className="text-sm text-gray-500">Account Status</div>
+              </div>
+            </div>
+          )}
 
         {/* Address - Only show if not null */}
         {customerData?.customer_details?.address && (
@@ -352,8 +395,7 @@ function CustomerDetails() {
               </button>
               <button
                 onClick={() => navigate(`/edit-customer/${customerId}`)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-                style={{ backgroundColor: "#f7941d" }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full shadow-theme-xs bg-warning-500 hover:bg-warning-600"
               >
                 <svg
                   className="w-4 h-4"
@@ -410,47 +452,4 @@ function CustomerDetails() {
 
 export default CustomerDetails;
 
-// Reusable Toggle Switch (consistent with Owner/Admin/Partner)
-const ToggleSwitch = ({
-  label,
-  isOn,
-  onToggle,
-  disabled = false,
-  onText = "On",
-  offText = "Off",
-}) => {
-  return (
-    <div className="flex items-center ">
-      <div className="flex items-center gap-2">
-        <div>
-          <h4
-            className={`text-lg font-normal ${
-              isOn ? "text-success-700" : "text-error-700"
-            }`}
-          >
-            {isOn ? onText : offText}
-          </h4>
-          <p className="text-sm text-gray-500">{label}</p>
-        </div>
-      </div>
-      <div className="flex items-center ml-4">
-        <button
-          onClick={onToggle}
-          disabled={disabled}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-            isOn ? "bg-brand-500" : "bg-gray-300"
-          }`}
-        >
-          <span
-            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-              isOn ? "translate-x-6" : "translate-x-1"
-            }`}
-            style={{
-              transform: isOn ? "translateX(1.5rem)" : "translateX(0.25rem)",
-            }}
-          />
-        </button>
-      </div>
-    </div>
-  );
-};
+

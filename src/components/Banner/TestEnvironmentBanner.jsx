@@ -45,11 +45,10 @@ const TestEnvironmentBanner = () => {
       >
         Prod
         <svg
-          style={{ width: "0.68em", height: "0.68em" }}
           viewBox="0 0 10 10"
           xmlns="http://www.w3.org/2000/svg"
           aria-hidden="true"
-          className="ml-1 mt-0 w-[0.68em] h-[0.68em] ml-3"
+          className="ml-3 mt-0 w-[0.68em] h-[0.68em]"
         >
           <path
             d="M1.004 9.166 9.337.833m0 0v8.333m0-8.333H1.004"

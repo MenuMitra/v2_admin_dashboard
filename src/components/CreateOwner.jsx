@@ -128,6 +128,16 @@ function CreateOwner() {
     if (!aadhar)
       return { isValid: false, message: "Aadhar number is required" };
     const numbersOnly = aadhar.replace(/[^0-9]/g, "");
+    
+    // Check if Aadhar starts with 0 or 1
+    const firstDigit = numbersOnly.charAt(0);
+    if (firstDigit === "0" || firstDigit === "1") {
+      return {
+        isValid: false,
+        message: "Aadhar number cannot start with 0 or 1",
+      };
+    }
+    
     if (numbersOnly.length !== 12) {
       return {
         isValid: false,
@@ -199,13 +209,25 @@ function CreateOwner() {
       }));
     } else if (name === "aadhar_number") {
       const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 12);
+      const firstDigit = numbersOnly.charAt(0);
+
+      // Prevent entering 0 or 1 as first digit
+      if (firstDigit && (firstDigit === "0" || firstDigit === "1")) {
+        setValidationStates((prev) => ({
+          ...prev,
+          aadhar_number: false,
+          aadharMessage: "Aadhar number cannot start with 0 or 1",
+        }));
+        return;
+      }
+
+      setOwnerData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
       const { isValid, message } = isAadharValid(numbersOnly);
       setValidationStates((prev) => ({
         ...prev,
         aadhar_number: isValid,
         aadharMessage: message,
       }));
-      setOwnerData((prev) => ({ ...prev, aadhar_number: numbersOnly }));
     } else {
       setOwnerData((prev) => ({
         ...prev,
@@ -358,6 +380,7 @@ function CreateOwner() {
                 validationType="name"
                 onValidation={handleValidation("name")}
                 isSubmitAttempted={isSubmitAttempted}
+                className="rounded-3xl"
               />
 
               <div className="relative">
@@ -371,7 +394,7 @@ function CreateOwner() {
                   required
                   maxLength={10}
                   className={`
-                    focus:border-brand-500 focus:ring-brand-500
+                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
                     ${
                       !validationStates.mobile
                         ? "border-error-500"
@@ -395,6 +418,7 @@ function CreateOwner() {
                 placeholder="Enter email address"
                 validationType="email"
                 onValidation={handleValidation("email")}
+                className="rounded-3xl"
               />
 
               <DateInput
@@ -403,6 +427,7 @@ function CreateOwner() {
                 value={ownerData.dob}
                 onChange={handleChange}
                 placeholder="Select Date of birth"
+                className="rounded-3xl"
               />
             </div>
 
@@ -417,7 +442,7 @@ function CreateOwner() {
                   required
                   maxLength={12}
                   className={`
-                    focus:border-brand-500 focus:ring-brand-500
+                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
                     ${
                       !validationStates.aadhar_number
                         ? "border-error-500"
@@ -442,6 +467,7 @@ function CreateOwner() {
                   searchKeys={["outlet_name"]}
                   placeholder="Select outlets"
                   searchPlaceholder="Search outlets..."
+                  className="rounded-3xl"
                 />
               </div>
             </div>
@@ -454,6 +480,7 @@ function CreateOwner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
+                  className="rounded-3xl"
                 />
                 {validationStates.address && (
                   <p className="text-error-500 text-sm mt-1">

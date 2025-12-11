@@ -7,6 +7,7 @@ import axios from "axios";
 import { API_CONFIG } from "../../config/appConfig";
 import { queryKeys } from "../../lib/react-query/queryKeys";
 import Breadcrumb from "../Breadcrumb";
+import CustomSelect from "../common/CustomSelect";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSave,
@@ -402,7 +403,7 @@ function EditSuperOwner() {
                       name="name"
                       value={superOwnerDetails.name}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                     {fieldErrors.name && (
@@ -423,7 +424,7 @@ function EditSuperOwner() {
                       onChange={handleChange}
                       maxLength={10}
                       pattern="[0-9]{10}"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                     {fieldErrors.mobile && (
@@ -442,7 +443,7 @@ function EditSuperOwner() {
                       name="email"
                       value={superOwnerDetails.email}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     {fieldErrors.email && (
                       <p className="text-error-500 text-sm mt-1">
@@ -462,7 +463,7 @@ function EditSuperOwner() {
                       onChange={handleChange}
                       maxLength={12}
                       pattern="[0-9]{12}"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                     {fieldErrors.aadhar_number && (
@@ -473,19 +474,17 @@ function EditSuperOwner() {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-gray-500 mb-1">
-                      Status
-                    </label>
-                    <select
+                    <CustomSelect
+                      label="Status"
                       name="is_active"
                       value={superOwnerDetails.is_active}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      options={[
+                        { value: true, label: "Active" },
+                        { value: false, label: "Inactive" }
+                      ]}
                       required
-                    >
-                      <option value={true}>Active</option>
-                      <option value={false}>Inactive</option>
-                    </select>
+                    />
                   </div>
                 </div>
 
@@ -495,28 +494,32 @@ function EditSuperOwner() {
                     <h3 className="text-sm font-semibold">Select Outlets</h3>
                     <div className="flex flex-wrap gap-3">
                       {/* Open/Close Filter */}
-                      <div className="relative w-40">
-                        <select
+                      <div className="w-40">
+                        <CustomSelect
+                          name="openCloseStatus"
                           value={openCloseStatus}
                           onChange={(e) => setOpenCloseStatus(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">Open/Close</option>
-                          <option value="open">Open</option>
-                          <option value="close">Close</option>
-                        </select>
+                          options={[
+                            { value: "all", label: "Open/Close" },
+                            { value: "open", label: "Open" },
+                            { value: "close", label: "Close" }
+                          ]}
+                          className="text-sm text-gray-700"
+                        />
                       </div>
                       {/* Active/Inactive Filter */}
-                      <div className="relative w-40">
-                        <select
+                      <div className="w-40">
+                        <CustomSelect
+                          name="activeStatus"
                           value={activeStatus}
                           onChange={(e) => setActiveStatus(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">All Status</option>
-                          <option value="active">Active</option>
-                          <option value="inactive">Inactive</option>
-                        </select>
+                          options={[
+                            { value: "all", label: "All Status" },
+                            { value: "active", label: "Active" },
+                            { value: "inactive", label: "Inactive" }
+                          ]}
+                          className="text-sm text-gray-700"
+                        />
                       </div>
                       {/* Search Bar */}
                       <div className="relative">
@@ -531,7 +534,7 @@ function EditSuperOwner() {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Search location"
-                          className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                          className="w-full sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
                         />
                         {searchTerm && (
                           <button
@@ -590,14 +593,11 @@ function EditSuperOwner() {
                           )}
                           <div className="flex flex-col items-end gap-2 min-w-[70px]">
                             <span
-                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100`}
-                              style={{
-                                color:
-                                  outlet.outlet_status === 1 ||
-                                  outlet.outlet_status === "1"
-                                    ? "#16a34a" // Tailwind green-600
-                                    : "#dc2626", // Tailwind red-600
-                              }}
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
+                                outlet.outlet_status === 1 || outlet.outlet_status === "1"
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                              }`}
                             >
                               {outlet.outlet_status === 1 ||
                               outlet.outlet_status === "1"
@@ -605,13 +605,11 @@ function EditSuperOwner() {
                                 : "Inactive"}
                             </span>
                             <span
-                              className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100"
-                              style={{
-                                color:
-                                  outlet.is_open === 1 || outlet.is_open === "1"
-                                    ? "#2563eb" // Tailwind blue-600
-                                    : "#6b7280", // Tailwind gray-500
-                              }}
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
+                                outlet.is_open === 1 || outlet.is_open === "1"
+                                  ? "text-blue-600"
+                                  : "text-gray-500"
+                              }`}
                             >
                               {outlet.is_open === 1 || outlet.is_open === "1"
                                 ? "Open"

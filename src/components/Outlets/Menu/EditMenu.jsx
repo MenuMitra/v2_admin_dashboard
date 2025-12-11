@@ -681,12 +681,7 @@ function EditMenu() {
                 {existingImages.map((img) => (
                   <div 
                     key={img.id}
-                    className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden"
-                    style={{
-                      width: '100px',
-                      aspectRatio: '1/1',
-                      opacity: img.flag === 0 ? 0.5 : 1
-                    }}
+                    className={`relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-[100px] aspect-square ${img.flag === 0 ? 'opacity-50' : 'opacity-100'}`}
                   >
                     <img
                       src={img.url}
@@ -715,11 +710,7 @@ function EditMenu() {
                 {previews.map((preview, index) => (
                   <div 
                     key={`new-${index}`}
-                    className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden"
-                    style={{
-                      width: '100px',
-                      aspectRatio: '1/1',
-                    }}
+                    className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-[100px] aspect-square"
                   >
                     <img
                       src={preview}
@@ -750,8 +741,7 @@ function EditMenu() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2 rounded-lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
-              style={{ display: 'none' }}
+              className="hidden w-full py-2 rounded-3xl bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
             >
               {loading ? 'Updating...' : 'Update Menu'}
             </button>

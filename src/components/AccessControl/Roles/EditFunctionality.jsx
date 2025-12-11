@@ -228,8 +228,7 @@ function EditFunctionality() {
               </div>
               <div className="relative">
                 <div
-                  className="border rounded-lg"
-                  style={{ maxHeight: "350px", overflowY: "auto" }}
+                  className="border rounded-lg max-h-[350px] overflow-y-auto"
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 p-4">
                     {Array.isArray(allFunctionalities) &&
@@ -293,7 +292,7 @@ function EditFunctionality() {
               )}
               <button
                 onClick={() => navigate(-1)}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-3xl hover:bg-gray-50"
                 disabled={isSaving}
               >
                 Cancel
@@ -301,7 +300,7 @@ function EditFunctionality() {
               <button
                 onClick={handleSaveChanges}
                 disabled={isSaving}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 rounded-3xl hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving ? (
                   <>

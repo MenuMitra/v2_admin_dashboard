@@ -113,7 +113,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
         <div className="flex items-center gap-4">
           {/* Hamburger Toggle Button */}
           <button
-            className={`flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 ${
+            className={`flex h-10 w-10 items-center justify-center rounded-3xl border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 ${
               sidebarToggle ? "bg-gray-100 dark:bg-gray-800" : ""
             }`}
             onClick={() => setSidebarToggle(!sidebarToggle)}
@@ -144,7 +144,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
           <div className="flex items-center">
             <div className="relative" ref={dropdownRef}>
               <button
-                className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                className="flex items-center gap-2 rounded-3xl px-2 py-1.5 pr-2 text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
@@ -179,7 +179,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                   </Link>
                   <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
                   <button
-                    className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-error-600 hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-950"
+                    className="flex w-full items-center gap-2 rounded-3xl px-2 py-2 text-sm text-error-600 hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-950"
                     onClick={() => setShowLogoutConfirm(true)}
                   >
                     <FontAwesomeIcon icon={faSignOutAlt} className="h-4 w-4" />

@@ -21,6 +21,8 @@ import {
   faChevronRight,
   faTrash,
   faRotate,
+  faToggleOff,
+  faToggleOn,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import ActiveSessionsTable from "./common/ActiveSessionsTable";
@@ -450,15 +452,37 @@ function OwnerDetails() {
                         className="w-5 h-5 text-gray-400"
                       />
                     </div>
-                    <div className="ml-3 w-full">
-                      <ToggleSwitch
-                        label="Account Status"
-                        isOn={ownerData.is_active === 1}
-                        onToggle={handleToggleOwnerActive}
+                    <div className="ml-3">
+                      <button
+                        onClick={handleToggleOwnerActive}
                         disabled={isTogglingActive}
-                        onText="Active"
-                        offText="Inactive"
-                      />
+                        style={{ 
+                          width: '100px', 
+                          height: '40px',
+                          minWidth: '40px', 
+                          minHeight: '20px',
+                          padding: '20px 12px',
+                          fontSize: '20px',
+                          gap: '5px'
+                        }}
+                        className={`rounded-full font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center ${
+                          ownerData.is_active === 1
+                            ? "text-brand-500 "
+                            : "bg-orange-100 text-warning-500 "
+                        } ${
+                          isTogglingActive
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
+                      >
+                        <FontAwesomeIcon
+                          icon={ownerData.is_active === 1 ? faToggleOn : faToggleOff}
+                          style={{ fontSize: '40px', width: '40px', height: '40px' }}
+                          className={ownerData.is_active === 1 ? "text-brand-500" : "text-warning-500"}
+                        />
+                        {ownerData.is_active === 1 ? "Active" : "Inactive"}
+                      </button>
+                      <div className="text-sm text-gray-500">Account Status</div>
                     </div>
                   </div>
                 )}
@@ -643,47 +667,4 @@ function toTitleCase(str) {
 
 export default OwnerDetails;
 
-// Reusable Toggle Switch (copied style from ViewOutlet)
-const ToggleSwitch = ({
-  label,
-  isOn,
-  onToggle,
-  disabled = false,
-  onText = "On",
-  offText = "Off",
-}) => {
-  return (
-    <div className="flex items-center ">
-      <div className="flex items-center gap-0">
-        <div>
-          <h4
-            className={`text-lg font-normal dark:text-white/90 ${
-              isOn ? "text-success-700" : "text-error-700"
-            }`}
-          >
-            {isOn ? onText : offText}
-          </h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-        </div>
-      </div>
-      <div className="flex items-center ml-4">
-        <button
-          onClick={onToggle}
-          disabled={disabled}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-            isOn ? "bg-brand-500" : "bg-gray-300"
-          }`}
-        >
-          <span
-            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-              isOn ? "translate-x-6" : "translate-x-1"
-            }`}
-            style={{
-              transform: isOn ? "translateX(1.5rem)" : "translateX(0.25rem)",
-            }}
-          />
-        </button>
-      </div>
-    </div>
-  );
-};
+

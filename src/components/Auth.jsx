@@ -439,7 +439,7 @@ function Auth() {
                             onKeyPress={handleMobileKeyPress}
                             placeholder="Enter your mobile number"
                             disabled={isOtpSent}
-                            className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-black bg-transparent px-4 pl-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-black focus:outline-none dark:border-black dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
+                            className={`dark:bg-dark-900 h-11 w-full rounded-3xl border border-black bg-transparent px-4 pl-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-black focus:outline-none dark:border-black dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
                               isOtpSent
                                 ? "bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
                                 : ""
@@ -476,7 +476,7 @@ function Auth() {
                                 }
                                 onKeyDown={(e) => handleKeyDown(index, e)}
                                 onKeyPress={handleOtpKeyPress}
-                                className={`dark:bg-dark-900 otp-input h-11 w-full rounded-lg border bg-transparent px-4 py-2.5 text-center text-xl font-semibold placeholder:text-gray-400 focus:outline-none dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
+                                className={`dark:bg-dark-900 otp-input h-11 w-full rounded-3xl border bg-transparent px-4 py-2.5 text-center text-xl font-semibold placeholder:text-gray-400 focus:outline-none dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
                                   invalidOtpError
                                     ? "border-error-500 text-error-700"
                                     : "border-black text-gray-800"
@@ -496,7 +496,7 @@ function Auth() {
                               : verifyLoading ||
                                 otp.some((digit) => digit === "")
                           }
-                          className={`flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg shadow-theme-xs ${
+                          className={`flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-3xl shadow-theme-xs ${
                             (!isOtpSent && (loading || mobile.length !== 10)) ||
                             (isOtpSent &&
                               (verifyLoading ||
@@ -564,19 +564,19 @@ function Auth() {
                         Home
                       </a>
                       <a
-                        href="https://menumitra.com/book_demo"
+                        href="https://menumitra.com/book-demo"
                         className="hover:text-gray-700"
                       >
-                        Book a demo
+                        Book a demo 
                       </a>
                       <a
-                        href="https://menumitra.com/about_us"
+                        href="https://menumitra.com/about" 
                         className="hover:text-gray-700"
                       >
                         Contact
                       </a>
                       <a
-                        href="https://menumitra.com/support"
+                        href="https://menumitra.com/contact"
                         className="hover:text-gray-700"
                       >
                         Support
@@ -591,7 +591,7 @@ function Auth() {
                     >
                       <i
                         className="ri-google-fill text-2xl"
-                        style={{ color: "#34A853" }}
+                        style={{color: '#4CAF50'}}
                       ></i>
                     </a>
                     <a
@@ -600,7 +600,7 @@ function Auth() {
                     >
                       <i
                         className="ri-facebook-fill text-2xl"
-                        style={{ color: "#1877F2" }}
+                        style={{color: '#1877F2'}}
                       ></i>
                     </a>
                     <a
@@ -609,7 +609,7 @@ function Auth() {
                     >
                       <i
                         className="ri-instagram-fill text-2xl"
-                        style={{ color: "#E4405F" }}
+                        style={{color: '#E91E63'}}
                       ></i>
                     </a>
                     <a
@@ -618,7 +618,7 @@ function Auth() {
                     >
                       <i
                         className="ri-youtube-fill text-2xl"
-                        style={{ color: "#FF0000" }}
+                        style={{color: '#FF0000'}}
                       ></i>
                     </a>
                   </div>

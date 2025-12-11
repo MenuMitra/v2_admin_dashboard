@@ -178,8 +178,7 @@ function StaffDetails() {
               </button>
               <button
                 onClick={() => navigate(`/edit-staff/${outletId}/${userId}`)}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full bg-brand-500 shadow-theme-xs hover:bg-brand-600"
-                style={{ backgroundColor: "#f7941d" }}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-full shadow-theme-xs bg-[#f7941d] hover:bg-[#e08419]"
               >
                 <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                 <span className="hidden sm:inline">Edit</span>

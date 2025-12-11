@@ -263,7 +263,7 @@ function Stats() {
                   reloadAppUsage();
                 }}
                 disabled={apiUsageStatsIsLoading || dbIsLoading || appUsageIsLoading}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-3xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Reload data"
               >
                 <FontAwesomeIcon
@@ -353,14 +353,14 @@ function Stats() {
           <h2 className="text-sm font-semibold">App Usage</h2>
         </div>
 
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between mb-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between mb-2">
           <div className="flex flex-wrap items-end gap-3 flex-1 min-w-[320px]">
-            <div className="w-40 sm:w-44">
+            <div className="w-40 mb-2 sm:w-44">
               <label className="block text-xs text-gray-600 mb-1">
                 Select App
               </label>
               <select
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-gray-700"
+                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-gray-700"
                 value={appUsageAppSource}
                 onChange={(e) => setAppUsageAppSource(e.target.value)}
               >
@@ -383,7 +383,7 @@ function Stats() {
                   handleAppUsageFilterChange("start_date", e.target.value)
                 }
                 placeholder="Start date"
-                className="w-full text-xs py-1 px-2"
+                className="w-full text-xs py-1 px-2 rounded-3xl"
               />
             </div>
 
@@ -397,7 +397,7 @@ function Stats() {
                   handleAppUsageFilterChange("end_date", e.target.value)
                 }
                 placeholder="End date"
-                className="w-full text-xs py-1 px-2"
+                className="w-full text-xs py-1 px-2 rounded-3xl"
               />
             </div>
           </div>
@@ -413,7 +413,7 @@ function Stats() {
                 value={appUsageSearchTerm}
                 onChange={(e) => setAppUsageSearchTerm(e.target.value)}
                 placeholder="Search"
-                className="w-full h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                className="w-full mb-2 h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
               />
             </div>
 
@@ -421,7 +421,7 @@ function Stats() {
               type="button"
               onClick={() => reloadAppUsage()}
               disabled={appUsageIsLoading}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-3xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
               title="Reload data"
             >
               <FontAwesomeIcon

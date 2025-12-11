@@ -353,7 +353,7 @@ function CreateSuperOwner() {
                       value={superOwnerDetails.name}
                       onChange={handleChange}
                       placeholder="Enter name"
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         fieldErrors.name ? 'border-error-500' : 'border-gray-300'
                       }`}
                       required
@@ -377,7 +377,7 @@ function CreateSuperOwner() {
                       placeholder="Enter mobile number"
                       maxLength={10}
                       pattern="[0-9]{10}"
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         fieldErrors.mobile ? 'border-error-500' : 'border-gray-300'
                       }`}
                       required
@@ -399,7 +399,7 @@ function CreateSuperOwner() {
                       value={superOwnerDetails.email}
                       onChange={handleChange}
                       placeholder="Enter email address" 
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         fieldErrors.email ? 'border-error-500' : 'border-gray-300'
                       }`}
                       required
@@ -423,7 +423,7 @@ function CreateSuperOwner() {
                       placeholder="Enter Aadhar number"
                       maxLength={12}
                       pattern="[0-9]{12}"
-                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         fieldErrors.aadhar_number ? 'border-error-500' : 'border-gray-300'
                       }`}
                       required
@@ -446,7 +446,7 @@ function CreateSuperOwner() {
                         <select
                           value={openCloseStatus}
                           onChange={(e) => setOpenCloseStatus(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">Open/Close</option>
                           <option value="open">Open</option>
@@ -458,7 +458,7 @@ function CreateSuperOwner() {
                         <select
                           value={activeStatus}
                           onChange={(e) => setActiveStatus(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
                         >
                           <option value="all">All Status</option>
                           <option value="active">Active</option>
@@ -478,7 +478,7 @@ function CreateSuperOwner() {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Search"
-                          className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-10 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                          className="w-full sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-10 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
                         />
                         {searchTerm && (
                           <button
@@ -509,12 +509,12 @@ function CreateSuperOwner() {
                       {fieldErrors.outlets}
                     </p>
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2  md:grid-cols-3 xl:grid-cols-4 gap-3">
                     {filteredOutlets.map((outlet) => (
                       <div
                         key={outlet.outlet_id}
                         onClick={() => handleOutletSelect(outlet.outlet_id)}
-                        className={`rounded-2xl border bg-white p-4 cursor-pointer transition-all ${
+                        className={`rounded-3xl border bg-white p-4 cursor-pointer transition-all ${
                           selectedOutlets.includes(outlet.outlet_id)
                             ? "border-blue-500"
                             : "border-gray-200 hover:border-blue-300"
@@ -537,14 +537,11 @@ function CreateSuperOwner() {
                           </div>
                           <div className="flex flex-col items-end gap-2 min-w-[70px]">
                             <span
-                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100`}
-                              style={{
-                                color:
-                                  outlet.outlet_status === 1 ||
-                                  outlet.outlet_status === "1"
-                                    ? "#16a34a" // Tailwind green-600
-                                    : "#dc2626", // Tailwind red-600
-                              }}
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
+                                outlet.outlet_status === 1 || outlet.outlet_status === "1"
+                                  ? "text-green-600"
+                                  : "text-red-600"
+                              }`}
                             >
                               {outlet.outlet_status === 1 ||
                               outlet.outlet_status === "1"
@@ -552,13 +549,11 @@ function CreateSuperOwner() {
                                 : "Inactive"}
                             </span>
                             <span
-                              className="inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100"
-                              style={{
-                                color:
-                                  outlet.is_open === 1 || outlet.is_open === "1"
-                                    ? "#2563eb" // Tailwind blue-600
-                                    : "#6b7280", // Tailwind gray-500
-                              }}
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
+                                outlet.is_open === 1 || outlet.is_open === "1"
+                                  ? "text-blue-600"
+                                  : "text-gray-500"
+                              }`}
                             >
                               {outlet.is_open === 1 || outlet.is_open === "1"
                                 ? "Open"

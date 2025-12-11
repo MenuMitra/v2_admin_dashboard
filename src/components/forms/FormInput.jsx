@@ -63,7 +63,7 @@ const FormSelect = ({
       )}
       <div className="relative z-20 bg-transparent">
         <select
-          className="dark:bg-dark-900 z-20 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+          className="dark:bg-dark-900 z-20 h-11 w-full appearance-none rounded-3xl border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
           {...props}
         >
           {options.map((option, index) => (
@@ -122,14 +122,14 @@ const FormLayout = ({
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white rounded-lg bg-brand-500 hover:bg-brand-600"
+                className="flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white rounded-3xl bg-brand-500 hover:bg-brand-600"
               >
                 {submitText}
               </button>
               {showCancel && (
                 <button
                   type="button"
-                  className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+                  className="flex items-center justify-center gap-2 rounded-3xl border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                 >
                   Cancel
                 </button>

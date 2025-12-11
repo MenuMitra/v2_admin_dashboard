@@ -13,6 +13,7 @@ const MultiSelectDropdown = ({
   required,
   placeholder = "Select items",
   searchPlaceholder = "Search...",
+  className = "",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,8 +59,8 @@ const MultiSelectDropdown = ({
       {/* Main Button */}
       <div
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full p-2 text-left border rounded-lg shadow-sm bg-white hover:bg-gray-50 
-                   focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer min-h-[42px]"
+        className={`w-full p-2 text-left border shadow-sm bg-white hover:bg-gray-50 
+                   focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer min-h-[42px] ${className || 'rounded-lg'}`}
         role="combobox"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
@@ -108,12 +109,7 @@ const MultiSelectDropdown = ({
       {/* Dropdown Panel */}
       {isOpen && (
         <div 
-          className="absolute left-0 right-0 mt-[17px] bg-white border rounded-lg shadow-xl z-50"
-          style={{
-            width: '100%',
-            minWidth: '250px',
-            maxHeight: '350px',
-          }}
+          className="absolute left-0 right-0 mt-[17px] bg-white border rounded-lg shadow-xl z-50 w-full min-w-[250px] max-h-[350px]"
         >
           {/* Search Bar */}
           <div className="sticky top-0 p-2 border-b bg-white z-10">
@@ -161,7 +157,7 @@ const MultiSelectDropdown = ({
           </div>
 
           {/* Options List */}
-          <div className="overflow-y-auto" style={{ maxHeight: 'calc(350px - 57px)' }}>
+          <div className="overflow-y-auto max-h-[calc(350px-57px)]">
             {filteredOptions.length === 0 ? (
               <div className="p-3 text-center text-gray-500">
                 No results found

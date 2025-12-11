@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import CustomSelect from "./CustomSelect";
 import {
   faSort,
   faSortUp,
@@ -26,6 +27,27 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
+
+const defaultGetRowId = (item) => {
+  if (!item || typeof item !== "object") return null;
+  const possibleKeys = [
+    "id",
+    "user_id",
+    "outlet_id",
+    "menu_id",
+    "role_id",
+    "notification_id",
+    "enquiry_id",
+    "uuid",
+    "_id",
+  ];
+  for (const key of possibleKeys) {
+    if (item[key] !== undefined && item[key] !== null) {
+      return item[key];
+    }
+  }
+  return null;
+};
 
 function DataTable({
   data = [],
@@ -124,6 +146,7 @@ function DataTable({
   executionTimeFilter = "all",
   onExecutionTimeFilterChange = () => {},
   forceTopControls = false,
+  getRowId = defaultGetRowId,
 }) {
   // Add data validation at the start of the component
   const safeData = Array.isArray(data) ? data : [];
@@ -160,6 +183,7 @@ function DataTable({
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
+  const actionDropdownRef = useRef(null);
 
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
@@ -225,7 +249,10 @@ function DataTable({
 
     return (
       <span className="inline-flex justify-center items-center ml-1 w-4">
-        <FontAwesomeIcon icon={icon} className={iconClass} style={style} />
+        <FontAwesomeIcon 
+          icon={icon} 
+          className={`${iconClass} ${sortField === field && sortOrder === "asc" ? "translate-y-0.5" : sortField === field && sortOrder === "desc" ? "-translate-y-0.5" : ""}`} 
+        />
       </span>
     );
   };
@@ -336,7 +363,7 @@ function DataTable({
           <li key={i}>
             <button
               onClick={() => handlePageChange(i)}
-              className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium ${
+              className={`flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium ${
                 currentPage === i
                   ? "bg-brand-500 text-white"
                   : `text-gray-700 hover:bg-brand-500 hover:text-white ${
@@ -366,7 +393,7 @@ function DataTable({
           <li key={currentPage - 1}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${
+              className={`flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${
                 darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
               }`}
             >
@@ -380,7 +407,7 @@ function DataTable({
         <li key={currentPage}>
           <button
             onClick={() => handlePageChange(currentPage)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium bg-brand-500 text-white"
+            className="flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium bg-brand-500 text-white"
           >
             {currentPage}
           </button>
@@ -392,7 +419,7 @@ function DataTable({
           <li key={currentPage + 1}>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${
+              className={`flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${
                 darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
               }`}
             >
@@ -459,11 +486,22 @@ function DataTable({
   };
 
   // Add selection handling functions
+  const resolveRowId = (item) => {
+    if (!item) return null;
+    try {
+      const value = getRowId(item);
+      return value !== undefined ? value : null;
+    } catch {
+      return null;
+    }
+  };
+
   const handleSelectAll = (e) => {
     if (e.target.checked) {
       const selectableIds = currentItems
         .filter((item) => isItemSelectable(item))
-        .map((item) => item.id || item.user_id);
+        .map((item) => resolveRowId(item))
+        .filter((id) => id !== null && id !== undefined);
       setSelectedItems(selectableIds);
       onSelectionChange(selectableIds);
     } else {
@@ -473,6 +511,7 @@ function DataTable({
   };
 
   const handleSelectItem = (id) => {
+    if (id === null || id === undefined) return;
     setSelectedItems((prev) => {
       const newSelection = prev.includes(id)
         ? prev.filter((itemId) => itemId !== id)
@@ -486,26 +525,26 @@ function DataTable({
   const renderOutletSelect = () => {
     if (!showOutletSelect) return null;
 
+    const outletOptions = [
+      { value: "", label: "Outlets" },
+      ...outlets.map((outlet) => ({
+        value: outlet.outlet_id,
+        label: outlet.outlet_name
+      }))
+    ];
+
     return (
-      <div className="relative flex-1 sm:flex-initial">
-        <select
-          className={`w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
-            isLoading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+      <div className="flex-1 sm:flex-initial relative">
+        <CustomSelect
           value={selectedOutlet}
-          onChange={(e) => onOutletChange(e.target.value)}
+          onChange={(value) => onOutletChange(value)}
+          options={outletOptions}
+          placeholder="Outlets"
           disabled={isLoading}
-        >
-          <option value="">Outlets</option>
-          {outlets.map((outlet) => (
-            <option key={outlet.outlet_id} value={outlet.outlet_id}>
-              {outlet.outlet_name}
-              {/* ({outlet.outlet_code}) */}
-            </option>
-          ))}
-        </select>
+          className="w-full sm:w-64"
+        />
         {isLoading && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <FontAwesomeIcon
               icon={faSpinner}
               className="h-4 w-4 animate-spin text-gray-400"
@@ -520,26 +559,26 @@ function DataTable({
   const renderRoleSelect = () => {
     if (!showRoleSelect) return null;
 
+    const roleOptions = [
+      { value: "", label: "Roles" },
+      ...roles.map((role) => ({
+        value: role.role_id,
+        label: role.role_name
+      }))
+    ];
+
     return (
-      <div className="relative flex-1 sm:flex-initial">
-        <select
-          className={`w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 ${
-            isLoading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
+      <div className="flex-1 sm:flex-initial relative">
+        <CustomSelect
           value={selectedRole}
-          onChange={(e) => onRoleChange(e.target.value)}
+          onChange={(value) => onRoleChange(value)}
+          options={roleOptions}
+          placeholder="Roles"
           disabled={isLoading}
-        >
-          <option value="">Roles</option>
-          {roles.map((role) => (
-            <option key={role.role_id} value={role.role_id}>
-              {role.role_name}
-              {/* ({role.count}) */}
-            </option>
-          ))}
-        </select>
+          className="w-full sm:w-64"
+        />
         {isLoading && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <FontAwesomeIcon
               icon={faSpinner}
               className="h-4 w-4 animate-spin text-gray-400"
@@ -559,7 +598,7 @@ function DataTable({
   const shouldDisableNavigation = {
     prev: () => currentPage === 1,
     next: () => currentPage === totalPages,
-  };
+  }; 
 
   // Add this helper function
   const isAllCurrentItemsSelected = () => {
@@ -567,10 +606,39 @@ function DataTable({
       isItemSelectable(item)
     );
     if (selectableItems.length === 0) return false;
-    return selectableItems.every((item) =>
-      selectedItems.includes(item.id || item.user_id)
-    );
+    return selectableItems.every((item) => {
+      const rowId = resolveRowId(item);
+      if (rowId === null || rowId === undefined) return false;
+      return selectedItems.includes(rowId);
+    });
   };
+
+  useEffect(() => {
+    if (!isActionDropdownOpen) return;
+
+    const handleClickOutside = (event) => {
+      if (
+        actionDropdownRef.current &&
+        !actionDropdownRef.current.contains(event.target)
+      ) {
+        setIsActionDropdownOpen(false);
+      }
+    };
+
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsActionDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isActionDropdownOpen]);
 
   // Update renderStatus to use normalized values
   const renderStatus = (value) => (
@@ -593,14 +661,14 @@ function DataTable({
         {customFilters.map((filter, index) => (
           <React.Fragment key={index}>
             {filter.type === "custom" && (
-              <div className="relative" style={{ zIndex: 3 }}>
+              <div className="relative z-[3]">
                 {filter.component}
               </div>
             )}
             {filter.type === "select" && (
               <div className="relative">
                 <select
-                  className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                  className="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em] [&>option]:rounded-3xl [&>option]:p-2"
                   value={filter.value}
                   onChange={(e) => filter.onChange(e.target.value)}
                 >
@@ -628,7 +696,7 @@ function DataTable({
       <button
         onClick={onReload}
         disabled={isLoading}
-        className={`inline-flex items-center justify-center w-10 h-10 mr-2 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed ${extraClasses}`}
+        className={`inline-flex items-center justify-center w-10 h-10 mr-2 rounded-3xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed ${extraClasses}`}
         title="Reload data"
       >
         <FontAwesomeIcon
@@ -649,7 +717,7 @@ function DataTable({
         </span>
         <input
           placeholder={searchPlaceholder}
-          className="sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+          className="sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
           type="text"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
@@ -706,8 +774,18 @@ function DataTable({
         className: "text-error-600 hover:bg-error-50",
       },
     ];
-    const resolvedBulkActionOptions =
-      bulkActionOptions || defaultBulkActionOptions;
+    const defaultOptionIcons = {
+      active: faCheck,
+      inactive: faXmark,
+      delete: faTrash,
+    };
+    const resolvedBulkActionOptions = (bulkActionOptions || defaultBulkActionOptions).map(
+      (option) => ({
+        ...option,
+        // Ensure icons appear for standard actions even when parent omits them
+        icon: option.icon || defaultOptionIcons[option.key] || null,
+      })
+    );
 
     return (
       <div
@@ -842,29 +920,23 @@ function DataTable({
                 <div className="flex flex-wrap items-center gap-3 justify-end">
                   {/* Execution Time Filter - Independent of Status Filter */}
                   {enableExecutionTimeFilter && (
-                    <div className="relative w-56">
-                      <select
+                    <div className="w-56">
+                      <CustomSelect
                         value={executionTimeFilter || "all"}
-                        onChange={(e) => {
-                          onExecutionTimeFilterChange(e.target.value);
+                        onChange={(value) => {
+                          onExecutionTimeFilterChange(value);
                         }}
-                        className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none"
-                        style={{
-                          backgroundImage:
-                            "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e\")",
-                          backgroundPosition: "right 0.75rem center",
-                          backgroundRepeat: "no-repeat",
-                          backgroundSize: "1.5em 1.5em",
-                        }}
-                      >
-                        <option value="all">All Execution Time</option>
-                        <option value="5">&gt;5ms</option>
-                        <option value="10">&gt;10ms</option>
-                        <option value="50">&gt;50ms</option>
-                        <option value="100">&gt;100ms</option>
-                        <option value="200">&gt;200ms</option>
-                        <option value="500">&gt;500ms</option>
-                      </select>
+                        options={[
+                          { value: "all", label: "All Execution Time" },
+                          { value: "5", label: ">5ms" },
+                          { value: "10", label: ">10ms" },
+                          { value: "50", label: ">50ms" },
+                          { value: "100", label: ">100ms" },
+                          { value: "200", label: ">200ms" },
+                          { value: "500", label: ">500ms" }
+                        ]}
+                        placeholder="All Execution Time"
+                      />
                     </div>
                   )}
                   {shouldShowTopSearchAndReload && (
@@ -881,14 +953,14 @@ function DataTable({
                     {customFilters.map((filter, index) => (
                       <React.Fragment key={index}>
                         {filter.type === "custom" && (
-                          <div className="relative" style={{ zIndex: 3 }}>
+                          <div className="relative z-[3]">
                             {filter.component}
                           </div>
                         )}
                         {filter.type === "select" && (
                           <div className="relative">
                             <select
-                              className="w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
+                              className="w-full sm:w-64 px-4 pr-10 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em] [&>option]:rounded-3xl [&>option]:p-2"
                               value={filter.value}
                               onChange={(e) => filter.onChange(e.target.value)}
                             >
@@ -916,154 +988,170 @@ function DataTable({
               <div className="flex items-center gap-2 px-0 pl-2 mb-4">
                 <div className="flex flex-1 flex-wrap items-center gap-2">
                 {enableStatusFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={statusFilter}
-                      onChange={(e) => onStatusFilterChange(e.target.value)}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Status</option>
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
+                      onChange={(value) => onStatusFilterChange(value)}
+                      options={[
+                        { value: "all", label: "All Status" },
+                        { value: "active", label: "Active" },
+                        { value: "inactive", label: "Inactive" }
+                      ]}
+                      placeholder="All Status"
+                    />
                   </div>
                 )}
                 {/* Enquiry Filter */}
                 {enableEnquiry && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={enquiryFilter || "all"}
-                      onChange={onEnquiryFilterChange || (() => {})}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">Enquiry Type</option>
-                      <option value="enquiry">Enquiry</option>
-                      <option value="positive">Positive</option>
-                      <option value="onboard">Onboard</option>
-                    </select>
+                      onChange={(value) => onEnquiryFilterChange && onEnquiryFilterChange(value)}
+                      options={[
+                        { value: "all", label: "Enquiry Type" },
+                        { value: "enquiry", label: "Enquiry" },
+                        { value: "positive", label: "Positive" },
+                        { value: "onboard", label: "Onboard" }
+                      ]}
+                      placeholder="Enquiry Type"
+                    />
                   </div>
                 )}
                 {/* Account Type Filter */}
                 {enableAccountTypeFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={accountType || "all"}
-                      onChange={onAccountTypeChange || (() => {})}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">Account Type</option>
-                      <option value="live">Live</option>
-                      <option value="test">Test</option>
-                    </select>
+                      onChange={(value) => onAccountTypeChange && onAccountTypeChange(value)}
+                      options={[
+                        { value: "all", label: "Account Type" },
+                        { value: "live", label: "Live" },
+                        { value: "test", label: "Test" }
+                      ]}
+                      placeholder="Account Type"
+                    />
                   </div>
                 )}
                 {/* Open/Close Filter */}
                 {enableOpenCloseStatusFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={openCloseStatus || "all"}
-                      onChange={onOpenCloseStatusChange || (() => {})}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">Open/Close</option>
-                      <option value="open">Open</option>
-                      <option value="close">Close</option>
-                    </select>
+                      onChange={(value) => onOpenCloseStatusChange && onOpenCloseStatusChange(value)}
+                      options={[
+                        { value: "all", label: "Open/Close" },
+                        { value: "open", label: "Open" },
+                        { value: "close", label: "Close" }
+                      ]}
+                      placeholder="Open/Close"
+                    />
                   </div>
                 )}
                 {/* Active Session Filter */}
                 {enableActiveSessionFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={activeSessionFilter || "all"}
-                      onChange={(e) => {
-                        onActiveSessionFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onActiveSessionFilterChange(value);
                       }}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Sessions</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="10">10+</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Sessions" },
+                        { value: "0", label: "0" },
+                        { value: "1", label: "1" },
+                        { value: "2", label: "2" },
+                        { value: "3", label: "3" },
+                        { value: "4", label: "4" },
+                        { value: "5", label: "5" },
+                        { value: "10", label: "10+" }
+                      ]}
+                      placeholder="All Sessions"
+                    />
                   </div>
                 )}
                 {/* Outlet Count Filter */}
                 {enableOutletCountFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={outletCountFilter || "all"}
-                      onChange={(e) => {
-                        onOutletCountFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onOutletCountFilterChange(value);
                       }}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Outlets</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="10">10+</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Outlets" },
+                        { value: "0", label: "0" },
+                        { value: "1", label: "1" },
+                        { value: "2", label: "2" },
+                        { value: "3", label: "3" },
+                        { value: "4", label: "4" },
+                        { value: "5", label: "5" },
+                        { value: "10", label: "10+" }
+                      ]}
+                      placeholder="All Outlets"
+                    />
                   </div>
                 )}
                 {/* Outlet Type Filter */}
                 {enableOutletTypeFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={outletTypeFilter || "all"}
-                      onChange={(e) => {
-                        onOutletTypeFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onOutletTypeFilterChange(value);
                       }}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Types</option>
-                      <option value="outlet">Outlet</option>
-                      <option value="cake_shop">Cake Shop</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Types" },
+                        { value: "outlet", label: "Outlet" },
+                        {value: "Hotel", label: "Hotel"},
+                        {value: "Canteen", label: "Canteen"},
+                        {value: "Mess", label: "Mess"},
+                        {value: "Cafe", label: "Cafe"},
+                        {value: "Bakery", label: "Bakery"},
+
+                        
+                      ]}
+                      placeholder="All Types"
+                    />
                   </div>
                 )}
                 {/* Outlet Mode Filter */}
                 {enableOutletModeFilter && (
-                  <div className="relative w-36 mr-2">
-                    <select
+                  <div className="w-36 mr-2">
+                    <CustomSelect
                       value={outletModeFilter || "all"}
-                      onChange={(e) => {
-                        onOutletModeFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onOutletModeFilterChange(value);
                       }}
-                      className="w-full px-3 pr-8 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Modes</option>
-                      <option value="online">Online</option>
-                      <option value="offline">Offline</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Modes" },
+                        { value: "online", label: "Online" },
+                        { value: "offline", label: "Offline" }
+                      ]}
+                      placeholder="All Modes"
+                    />
                   </div>
                 )}
                 {/* Owner Count Filter */}
                 {enableOwnerCountFilter && (
-                  <div className="relative w-32 mr-2">
-                    <select
+                  <div className="w-32 mr-2">
+                    <CustomSelect
                       value={ownerCountFilter || "all"}
-                      onChange={(e) => {
-                        onOwnerCountFilterChange(e.target.value);
+                      onChange={(value) => {
+                        onOwnerCountFilterChange(value);
                       }}
-                      className="w-full px-3 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                    >
-                      <option value="all">All Owners</option>
-                      <option value="0">0</option>
-                      <option value="1">1</option>
-                      <option value="2">2</option>
-                      <option value="3">3</option>
-                      <option value="4">4</option>
-                      <option value="5">5</option>
-                      <option value="10">10+</option>
-                    </select>
+                      options={[
+                        { value: "all", label: "All Owners" },
+                        { value: "0", label: "0" },
+                        { value: "1", label: "1" },
+                        { value: "2", label: "2" },
+                        { value: "3", label: "3" },
+                        { value: "4", label: "4" },
+                        { value: "5", label: "5" },
+                        { value: "10", label: "10+" }
+                      ]}
+                      placeholder="All Owners"
+                      className="w-full"
+                    />
                   </div>
                 )}
                 </div>
@@ -1094,7 +1182,7 @@ function DataTable({
                       type="checkbox"
                       checked={isAllCurrentItemsSelected()}
                       onChange={handleSelectAll}
-                      className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                      className="h-4 w-4 rounded-3xl border-gray-300 text-brand-500 focus:ring-brand-500"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </th>
@@ -1103,16 +1191,13 @@ function DataTable({
                 {/* Bulk Actions column - Only visible when items are selected */}
                 {enableSelection && selectedItems.length > 0 && (
                   <th className="px-0 py-2.5">
-                    <div className="relative">
+                    <div className="relative" ref={actionDropdownRef}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setIsActionDropdownOpen(!isActionDropdownOpen);
                         }}
-                        onBlur={() =>
-                          setTimeout(() => setIsActionDropdownOpen(false), 200)
-                        }
-                        className="inline-flex items-center gap-2 rounded-lg border border-gray-200  px-3 py-1.5 text-sm font-medium  hover:bg-brand-600 hover:text-white outline outline-offset-2"
+                        className="inline-flex items-center gap-2 rounded-3xl border border-gray-200  px-3 py-1.5 text-sm font-medium  hover:bg-brand-600 hover:text-white outline outline-offset-2"
                       >
                         {/* Actions */}
                         {/* <svg
@@ -1138,18 +1223,29 @@ function DataTable({
 
                       {/* Dropdown Menu */}
                       {isActionDropdownOpen && (
-                        <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-2 shadow-lg">
+                        <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-3xl border border-gray-200 bg-white p-2 shadow-lg">
                           <ul className="flex flex-col gap-1">
                             {resolvedBulkActionOptions.map((option) => (
                               <li key={option.key}>
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    onBulkAction(option.key, selectedItems);
+                                    const sanitizedSelection = selectedItems.filter(
+                                      (id) =>
+                                        id !== null &&
+                                        id !== undefined &&
+                                        id !== ""
+                                    );
+                                    if (sanitizedSelection.length === 0) {
+                                      setIsActionDropdownOpen(false);
+                                      return;
+                                    }
+                                    onBulkAction(option.key, sanitizedSelection);
                                     setSelectedItems([]);
+                                    onSelectionChange([]);
                                     setIsActionDropdownOpen(false);
                                   }}
-                                  className={`w-full text-left flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${option.className}`}
+                                  className={`w-full text-left flex items-center gap-2 rounded-3xl px-3 py-2 text-sm font-medium ${option.className}`}
                                 >
                                   {option.customIcon ? (
                                     option.customIcon
@@ -1208,31 +1304,35 @@ function DataTable({
             </thead>
             <tbody>
               {currentItems.length > 0 ? (
-                currentItems.map((item, index) => (
-                  <tr
-                    key={index}
-                    className={`border-t border-gray-100 ${
-                      darkMode ? "dark:border-gray-800" : ""
-                    }`}
-                  >
+                currentItems.map((item, index) => {
+                  const rowId = resolveRowId(item);
+                  return (
+                    <tr
+                      key={index}
+                      className={`border-t border-gray-100 ${
+                        darkMode ? "dark:border-gray-800" : ""
+                      }`}
+                    >
                     {/* Checkbox cell */}
-                    {enableSelection && isItemSelectable(item) && (
+                    {enableSelection &&
+                      isItemSelectable(item) &&
+                      rowId !== null &&
+                      rowId !== undefined && (
                       <td className="px-2 py-2.5 text-center">
                         <input
                           type="checkbox"
-                          checked={selectedItems.includes(
-                            item.id || item.user_id
-                          )}
-                          onChange={() =>
-                            handleSelectItem(item.id || item.user_id)
-                          }
-                          className="h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
+                          checked={selectedItems.includes(rowId)}
+                          onChange={() => handleSelectItem(rowId)}
+                          className="h-4 w-4 rounded-3xl border-gray-300 text-brand-500 focus:ring-brand-500"
                           onClick={(e) => e.stopPropagation()}
                         />
                       </td>
                     )}
                     {/* Add empty cell for non-selectable items when selection is enabled */}
-                    {enableSelection && !isItemSelectable(item) && (
+                    {enableSelection &&
+                      (!isItemSelectable(item) ||
+                        rowId === null ||
+                        rowId === undefined) && (
                       <td className="px-2 py-2.5"></td>
                     )}
 
@@ -1280,7 +1380,8 @@ function DataTable({
                       </td>
                     ))}
                   </tr>
-                ))
+                  );
+                })
               ) : (
                 <tr>
                   <td
@@ -1321,7 +1422,7 @@ function DataTable({
                       onItemsPerPageChange(newItemsPerPage);
                     }
                   }}
-                  className="w-20 px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
+                  className="w-20 px-2 py-1 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
                 >
                   {itemsPerPageOptions.map((option) => (
                     <option key={option} value={option}>
@@ -1358,7 +1459,7 @@ function DataTable({
                   handlePageChange(currentPage - 1)
                 }
                 disabled={shouldDisableNavigation.prev()}
-                className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
+                className={`flex items-center gap-2 rounded-3xl border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
                   darkMode
                     ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     : ""
@@ -1389,7 +1490,7 @@ function DataTable({
                   handlePageChange(currentPage + 1)
                 }
                 disabled={shouldDisableNavigation.next()}
-                className={`flex items-center gap-2 rounded-lg border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
+                className={`flex items-center gap-2 rounded-3xl border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
                   darkMode
                     ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     : ""
@@ -1406,7 +1507,7 @@ function DataTable({
         )}
       </div>
     );
-  } catch (error) {
+  } catch {
     
     // Return a fallback UI
     return (
@@ -1546,7 +1647,7 @@ DataTable.propTypes = {
   ]),
   onOutletCountFilterChange: PropTypes.func,
   enableOutletTypeFilter: PropTypes.bool,
-  outletTypeFilter: PropTypes.oneOf(["all", "outlet", "cake_shop"]),
+  outletTypeFilter: PropTypes.oneOf(["all", "outlet"]),
   onOutletTypeFilterChange: PropTypes.func,
   enableOutletModeFilter: PropTypes.bool,
   outletModeFilter: PropTypes.oneOf(["all", "online", "offline"]),
@@ -1575,6 +1676,7 @@ DataTable.propTypes = {
   ]),
   onExecutionTimeFilterChange: PropTypes.func,
   forceTopControls: PropTypes.bool,
+  getRowId: PropTypes.func,
 };
 
 DataTable.defaultProps = {
@@ -1684,6 +1786,7 @@ DataTable.defaultProps = {
   executionTimeFilter: "all",
   onExecutionTimeFilterChange: () => {},
   forceTopControls: false,
+  getRowId: defaultGetRowId,
 };
 
 export default DataTable;

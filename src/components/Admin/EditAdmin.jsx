@@ -6,7 +6,7 @@ import { TextInput, SelectInput } from '../forms/FormElements';
 import axios from 'axios';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
+import { faSave, faChevronLeft as faBack, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { toastController } from '../../utils/toastController';
 import { API_CONFIG } from '../../config/appConfig';
 
@@ -302,15 +302,47 @@ function EditAdmin() {
               onClick={handleSubmit}
               disabled={isSubmitting || !isFormValid()}
               className={`
-                inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                transition shadow-sm
-                ${isSubmitting || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-success-500 hover:bg-success-600"}
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${isSubmitting || !isFormValid() ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
               `}
+              style={{
+                borderColor: '#3bdde3',
+                color: '#3bdde3'
+              }}
+              onMouseEnter={(e) => {
+                if (!isSubmitting && isFormValid()) {
+                  e.target.style.backgroundColor = '#3bdde3';
+                  e.target.style.color = 'white';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = 'white';
+                  if (icon) icon.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isSubmitting && isFormValid()) {
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#3bdde3';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.check-icon');
+                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
+                  if (icon) icon.style.color = '#3bdde3';
+                }
+              }}
             >
-              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
+              <div 
+                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                style={{ borderColor: '#3bdde3' }}
+              >
+                <FontAwesomeIcon
+                  icon={faCheck} 
+                  className="check-icon w-3 h-3 transition-all duration-200" 
+                  style={{ color: '#3bdde3' }}
+                />
+              </div>
               <span>{isSubmitting ? "Saving..." : "Save"}</span>
             </button>
           </div>
@@ -331,6 +363,7 @@ function EditAdmin() {
                   validationType="name"
                   onValidation={handleValidation("name")}
                   isSubmitAttempted={isSubmitAttempted}
+                  className="rounded-3xl"
                 />
                 {!validationStates.name && (
                   <p className="text-error-500 text-sm mt-1">
@@ -350,7 +383,7 @@ function EditAdmin() {
                   required
                   maxLength={10}
                   className={`
-                    focus:border-brand-500 focus:ring-brand-500
+                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
                     ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
                   `}
                 />
@@ -373,6 +406,7 @@ function EditAdmin() {
                   validationType="email"
                   onValidation={handleValidation("email")}
                   isSubmitAttempted={isSubmitAttempted}
+                  className="rounded-3xl"
                 />
                 {emailApiError && (
                   <p className="text-error-500 text-sm mt-1">{emailApiError}</p>

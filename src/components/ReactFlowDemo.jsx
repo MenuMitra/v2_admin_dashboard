@@ -54,7 +54,7 @@ const CustomNode = ({ data }) => {
               data.onEdit(data);
             }}
             title="Edit"
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-3.5 h-3.5" />
           </button>
@@ -67,7 +67,7 @@ const CustomNode = ({ data }) => {
                 data.onDelete(data);
               }}
               title={`Delete ${data.type}`}
-              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+              className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
             >
               <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
             </button>
@@ -652,7 +652,7 @@ const ReactFlowDemoInner = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div style={{ width: '100%', height: '700px' }} className="flex items-center justify-center">
+      <div className="w-full h-[700px] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading UBAC Tree...</p>
@@ -664,7 +664,7 @@ const ReactFlowDemoInner = () => {
   // Error state
   if (error) {
     return (
-      <div style={{ width: '100%', height: '700px' }} className="flex items-center justify-center">
+      <div className="w-full h-[700px] flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
           <p className="text-red-600 font-semibold mb-2">Failed to load UBAC Tree</p>
@@ -677,7 +677,7 @@ const ReactFlowDemoInner = () => {
   // Empty state
   if (!data?.data?.length) {
     return (
-      <div style={{ width: '100%', height: '700px' }} className="flex items-center justify-center">
+      <div className="w-full h-[700px] flex items-center justify-center">
         <div className="text-center">
           <div className="text-gray-400 text-6xl mb-4">📊</div>
           <p className="text-gray-600 font-semibold mb-2">No UBAC Tree Data</p>
@@ -727,7 +727,7 @@ const ReactFlowDemoInner = () => {
               <button
                 onClick={refetchUbacTree}
                 disabled={isLoading}
-                className="inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-3xl border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Reload data"
               >
                 <FontAwesomeIcon
@@ -766,7 +766,7 @@ const ReactFlowDemoInner = () => {
 
         {/* React Flow Content */}
         <div className="px-6 pb-6">
-          <div style={{ width: '100%', height: '700px' }}>
+          <div className="w-full h-[700px]">
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -916,7 +916,7 @@ const ReactFlowDemoInner = () => {
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full border rounded-3xl px-2 py-1"
           >
             <option value="module">Module</option>
             <option value="feature">Feature</option>
@@ -930,7 +930,7 @@ const ReactFlowDemoInner = () => {
             <select
               value={selectedModuleId}
               onChange={(e) => setSelectedModuleId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full rounded-3xl border px-2 py-1"
             >
               <option value="">Select module</option>
               {modulesList.map((m) => (
@@ -948,7 +948,7 @@ const ReactFlowDemoInner = () => {
             <select
               value={selectedFeatureId}
               onChange={(e) => setSelectedFeatureId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full border rounded-3xl px-2 py-1"
             >
               <option value="">Select feature</option>
               {featuresList.map((f) => (
@@ -965,7 +965,7 @@ const ReactFlowDemoInner = () => {
           <input
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full rounded-3xl border px-2 py-1"
           />
         </div>
       </Modal>
@@ -1101,7 +1101,7 @@ const ReactFlowDemoInner = () => {
           <input
             value={editType}
             disabled
-            className="w-full border px-2 py-1 bg-gray-100"
+            className="w-full border rounded-3xl px-2 py-1 bg-gray-100"
           />
         </div>
 
@@ -1111,7 +1111,7 @@ const ReactFlowDemoInner = () => {
             <select
               value={editSelectedModuleId}
               onChange={(e) => setEditSelectedModuleId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full border rounded-3xl px-2 py-1"
             >
               <option value="">Select module</option>
               {modulesList.map((m) => (
@@ -1129,7 +1129,7 @@ const ReactFlowDemoInner = () => {
             <select
               value={editSelectedFeatureId}
               onChange={(e) => setEditSelectedFeatureId(e.target.value)}
-              className="w-full border px-2 py-1"
+              className="w-full border rounded-3xl px-2 py-1"
             >
               <option value="">Select feature</option>
               {featuresList.map((f) => (
@@ -1146,7 +1146,7 @@ const ReactFlowDemoInner = () => {
           <input
             value={editFormName}
             onChange={(e) => setEditFormName(e.target.value)}
-            className="w-full border px-2 py-1"
+            className="w-full border rounded-3xl px-2 py-1"
           />
         </div>
       </Modal>

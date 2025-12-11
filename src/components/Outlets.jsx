@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
@@ -18,7 +18,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import DataTable from "./common/DataTable";
-import Modal from "./common/Modal";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import { useOutlets } from "../lib/react-query/hooks/useOutlets";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -42,27 +41,13 @@ function Outlets() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const { getToken } = useAuth();
 
-  const {
-    outlets,
-    isLoading,
-    error,
-    deleteOutlet,
-    isDeleting,
-    bulkAction,
-    isBulkActioning,
-  } = useOutlets();
+  const { outlets, isLoading, deleteOutlet, isDeleting, bulkAction, isBulkActioning } =
+    useOutlets();
 
   // UI State
   const [searchQuery, setSearchQuery] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [outletToDelete, setOutletToDelete] = useState(null);
-  const [selectedOutlets, setSelectedOutlets] = useState([]);
-  const [confirmModal, setConfirmModal] = useState({
-    isOpen: false,
-    action: null,
-    title: "",
-    message: "",
-  });
   const [statusFilter, setStatusFilter] = useState("all");
   const [accountType, setAccountType] = useState("all");
   const [openCloseStatus, setOpenCloseStatus] = useState("all");
@@ -216,19 +201,7 @@ function Outlets() {
     });
   };
 
-  // Use useMemo to prevent infinite re-renders
-  const filteredData = useMemo(() => {
-    return getFilteredData();
-  }, [
-    searchQuery,
-    statusFilter,
-    accountType,
-    openCloseStatus,
-    outletTypeFilter,
-    outletModeFilter,
-    ownerCountFilter,
-    outlets,
-  ]);
+  const filteredData = getFilteredData();
 
   // Navigation handlers
   const handleViewOutlet = (outletId) => {
@@ -279,21 +252,6 @@ function Outlets() {
     });
   };
 
-  const handleToggleAccountType = (outletId, currentType) => {
-    
-    if (!outletId) {
-      
-      return;
-    }
-    const newValue = currentType === "live" ? "test" : "live";
-    
-    toggleStatusMutation.mutate({
-      outlet_id: outletId,
-      type: "account_type",
-      value: newValue,
-    });
-  };
-
   const handleToggleOutletMode = (outletId, currentMode) => {
     
     if (!outletId) {
@@ -309,82 +267,16 @@ function Outlets() {
   };
 
   // Add this function to handle bulk actions
-  const handleBulkAction = async (action, selectedIds) => {
-    try {
-      const { title, message } = getConfirmationDetails(action);
-      setConfirmModal({
-        isOpen: true,
-        action,
-        title,
-        message,
-      });
-      setSelectedOutlets(selectedIds.filter((id) => id !== null));
-    } catch (err) {
-      
-    }
-  };
-
-  // Add this function to get confirmation details
-  const getConfirmationDetails = (action) => {
-    switch (action) {
-      case "active":
-        return {
-          title: "Confirm Activation",
-          message: `Are you sure you want to activate ${selectedOutlets.length} selected outlet(s)?`,
-        };
-      case "inactive":
-        return {
-          title: "Confirm Deactivation",
-          message: `Are you sure you want to deactivate ${selectedOutlets.length} selected outlet(s)?`,
-        };
-      case "open":
-        return {
-          title: "Confirm Open",
-          message: `Are you sure you want to open ${selectedOutlets.length} selected outlet(s)?`,
-        };
-      case "close":
-        return {
-          title: "Confirm Close",
-          message: `Are you sure you want to close ${selectedOutlets.length} selected outlet(s)?`,
-        };
-      case "live":
-        return {
-          title: "Confirm Live Mode",
-          message: `Are you sure you want to set ${selectedOutlets.length} selected outlet(s) to live mode?`,
-        };
-      case "test":
-        return {
-          title: "Confirm Test Mode",
-          message: `Are you sure you want to set ${selectedOutlets.length} selected outlet(s) to test mode?`,
-        };
-      case "delete":
-        return {
-          title: "Confirm Delete",
-          message: `Are you sure you want to delete ${selectedOutlets.length} selected outlet(s)? This action cannot be undone.`,
-        };
-      default:
-        return { title: "", message: "" };
-    }
-  };
-
-  // Add this function to execute bulk actions
-  const executeBulkAction = async (action) => {
-    const validOutletIds = selectedOutlets.filter(
-      (id) => id !== null && id !== undefined
+  const handleBulkAction = (action, selectedIds = []) => {
+    const validIds = selectedIds.filter(
+      (id) => id !== null && id !== undefined && id !== ""
     );
-
-    if (validOutletIds.length === 0) {
+    if (validIds.length === 0) {
+      toastController.warning("Select at least one outlet to continue.");
       return;
     }
 
-    await bulkAction({ action, outletIds: validOutletIds });
-    setSelectedOutlets([]);
-    setConfirmModal({
-      isOpen: false,
-      action: null,
-      title: "",
-      message: "",
-    });
+    bulkAction({ action, outletIds: validIds });
   };
 
   const breadcrumbItems = [
@@ -556,15 +448,7 @@ function Outlets() {
           <div className="text-sm font-medium flex items-center gap-1">
             {isLive && (
               <div
-                style={{
-                  width: "8px",
-                  height: "8px",
-                  backgroundColor: "#10b981",
-                  borderRadius: "50%",
-                  animation: "blink 1.5s ease-in-out infinite",
-                  display: "inline-block",
-                  marginRight: "4px",
-                }}
+                className="w-2 h-2 bg-[#10b981] rounded-full inline-block mr-1 animate-[blink_1.5s_ease-in-out_infinite]"
               ></div>
             )}
             <span className={isLive ? "text-success-500" : "text-warning-500"}>
@@ -630,21 +514,21 @@ function Outlets() {
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => handleViewOutlet(row.id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-3xl shadow-theme-xs transition"
             title="View Details"
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleEditOutlet(row.id)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
             title="Edit Outlet"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleDeleteClick(row)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
             title="Delete Outlet"
           >
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
@@ -688,10 +572,7 @@ function Outlets() {
       customIcon: (
         <div className="flex items-center gap-2">
           <div
-            className="w-2 h-2 bg-success-500 rounded-full"
-            style={{
-              animation: "blink 1.5s ease-in-out infinite",
-            }}
+            className="w-2 h-2 bg-success-500 rounded-full animate-[blink_1.5s_ease-in-out_infinite]"
           ></div>
           <span>Live</span>
         </div>
@@ -760,10 +641,6 @@ function Outlets() {
         enablePagination={true}
         enableSearch={true}
         enableSelection={true}
-        selectedItems={selectedOutlets}
-        onSelectionChange={(selectedIds) => {
-          setSelectedOutlets(selectedIds.filter((id) => id !== null));
-        }}
         onBulkAction={handleBulkAction}
         enableStatusFilter={true}
         statusFilter={statusFilter}
@@ -810,62 +687,6 @@ function Outlets() {
           toggleStatusMutation.isPending
         }
         bulkActionOptions={bulkActionOptions}
-      />
-
-      {/* Modal for all bulk actions except delete */}
-      {confirmModal.isOpen && confirmModal.action !== "delete" && (
-        <Modal
-          isOpen={confirmModal.isOpen}
-          onClose={() =>
-            setConfirmModal({
-              isOpen: false,
-              action: null,
-              title: "",
-              message: "",
-            })
-          }
-          title={confirmModal.title}
-          type="warning"
-          size="small"
-        >
-          <p className="mb-6">{confirmModal.message}</p>
-          <div className="flex justify-between items-center w-full gap-3">
-            <button
-              onClick={() =>
-                setConfirmModal({
-                  isOpen: false,
-                  action: null,
-                  title: "",
-                  message: "",
-                })
-              }
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={() => executeBulkAction(confirmModal.action)}
-              className="px-4 py-2 text-sm font-medium text-white rounded-full transition bg-warning-500 hover:bg-warning-600"
-            >
-              <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
-              Confirm
-            </button>
-          </div>
-        </Modal>
-      )}
-
-      {/* DeleteConfirmModal for bulk delete only */}
-      <DeleteConfirmModal
-        isOpen={confirmModal.isOpen && confirmModal.action === "delete"}
-        onClose={() =>
-          setConfirmModal({
-            isOpen: false,
-            action: null,
-            title: "",
-            message: "",
-          })
-        }
-        onDelete={() => executeBulkAction("delete")}
       />
 
       {/* Delete Modal using DeleteConfirmModal */}

@@ -131,14 +131,14 @@ function Partners() {
         <div className="flex items-center justify-center gap-2">
           <button
             onClick={() => navigate(`/partner-details/${partner.user_id}`)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-3xl shadow-theme-xs transition"
             title="View Partner"
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
           <button
             onClick={() => navigate(`/edit-partner/${partner.user_id}`)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
             title="Edit Partner"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
@@ -148,7 +148,7 @@ function Partners() {
               setPartnerToDelete({ user_id: partner.user_id });
               setIsDeleteModalOpen(true);
             }}
-            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
             title="Delete Partner"
           >
             <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />

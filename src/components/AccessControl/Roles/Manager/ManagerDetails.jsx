@@ -215,7 +215,7 @@ function ManagerDetails() {
                   </td>
                   <td className="px-4 py-2 text-sm text-gray-800">
                     <button
-                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-lg shadow-theme-xs transition"
+                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
                       onClick={() => handleLogout(session.device_id)}
                     >
                       <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
