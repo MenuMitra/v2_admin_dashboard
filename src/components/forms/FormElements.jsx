@@ -198,34 +198,25 @@ const SelectInput = React.forwardRef(
         <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
           {required && <span className="text-error-600">*</span>} {label}
         </label>
-        <div className="relative z-20">
+        <div className="relative">
           <select
             ref={ref}
             value={value}
             onChange={onChange}
             onFocus={onFocus}
             className={`
-            w-full px-3 py-2 border rounded-3xl shadow-sm
+            w-full px-3 py-2 pr-10 border rounded-3xl shadow-sm
             focus:outline-none focus:ring-2 focus:ring-brand-500
-            !appearance-none
-            !select-none
-            !pr-11
-            !bg-transparent
+            appearance-none bg-white
             ${error ? "border-error-500" : "border-gray-300"}
-            dark:border-gray-700
-            [appearance:none]
-            [-webkit-appearance:none]
-            [-moz-appearance:none]
-            [&::-ms-expand]{display:none}
-            [&::-webkit-inner-spin-button]{display:none}
-            [&::-webkit-calendar-picker-indicator]{display:none}
-            [&::-webkit-dropdown-button]{display:none}
-            [&::-webkit-select-arrow]{display:none}
-            [&::-moz-select-arrow]{display:none}
-            [&::-ms-select-arrow]{display:none}
-            [&::-o-select-arrow]{display:none}
-            [&::select-arrow]{display:none}
+            dark:border-gray-700 dark:bg-gray-900 dark:text-white
           `}
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+              backgroundPosition: 'right 0.5rem center',
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '1.5em 1.5em'
+            }}
             {...props}
           >
             <option
@@ -244,21 +235,6 @@ const SelectInput = React.forwardRef(
               </option>
             ))}
           </select>
-          <span className="absolute top-1/2 right-4 z-[31] -translate-y-1/2 text-gray-500 dark:text-gray-400 pointer-events-none select-none">
-            <svg
-              className="fill-none stroke-current"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-            >
-              <path
-                d="M6 9L12 15L18 9"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
         </div>
         {error && (
           <p className="text-error-500 text-sm mt-1">

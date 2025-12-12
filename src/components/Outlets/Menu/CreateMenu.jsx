@@ -555,7 +555,7 @@ function CreateMenu() {
                   {previews.map((preview, index) => (
                     <div 
                       key={index}
-                      className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-[100px] aspect-square"
+                      className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-16 h-16"
                     >
                       {/* Image */}
                       <img

@@ -226,7 +226,7 @@ const ImageUploader = ({
           {previews.map((preview, index) => (
             <div
               key={preview.id || index}
-              className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-[100px] aspect-square"
+              className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-16 h-16"
             >
               {/* Remove Button - small, top-left, always visible */}
               <button

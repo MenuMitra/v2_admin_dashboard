@@ -15,7 +15,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
-  SelectInput,
   Textarea,
   Checkbox,
   TimePickerInput,
@@ -32,6 +31,7 @@ import {
   isWhatsappValid,
 } from "../utils/validations";
 import CustomSelectInput from "./common/CustomSelectInput";
+import CustomDropdown from "./common/CustomDropdown";
 
 function formatDateToDDMMMYYYY(dateStr) {
   if (!dateStr) return "";
@@ -1197,12 +1197,11 @@ function CreateOutlet() {
                     )}
                   </div>
 
-                  <SelectInput
+                  <CustomDropdown
                     label="Outlet Type"
                     name="outlet_type"
                     value={outletData.outlet_type}
                     onChange={handleInputChange}
-                    onFocus={() => handleFocus("outlet_type")}
                     error={
                       validationStates.outlet_type && !outletData.outlet_type
                     }
@@ -1218,12 +1217,11 @@ function CreateOutlet() {
                     placeholder="Select Outlet Type"
                   />
 
-                  <SelectInput
+                  <CustomDropdown
                     label="Food Type"
                     name="veg_nonveg"
                     value={outletData.veg_nonveg}
                     onChange={handleInputChange}
-                    onFocus={() => handleFocus("food_type")}
                     error={validationStates.food_type && !outletData.veg_nonveg}
                     required
                     options={[
@@ -1233,12 +1231,11 @@ function CreateOutlet() {
                     placeholder="Select Food Type"
                   />
 
-                  <SelectInput
+                  <CustomDropdown
                     label="Outlet Mode"
                     name="outlet_mode"
                     value={outletData.outlet_mode}
                     onChange={handleInputChange}
-                    onFocus={() => handleFocus("outlet_mode")}
                     error={
                       validationStates.outlet_mode && !outletData.outlet_mode
                     }
@@ -1358,49 +1355,50 @@ function CreateOutlet() {
                     </label>
                     <div className="flex gap-2">
                       {/* Hour Dropdown */}
-                      <select
-                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      <CustomDropdown
+                        className="w-22"
                         value={openingHour}
                         onChange={(e) =>
                           handleOpeningTimeChange("hour", e.target.value)
                         }
-                      >
-                        <option value="">HH</option>
-                        {[...Array(12)].map((_, i) => {
-                          const val = (i + 1).toString().padStart(2, "0");
-                          return (
-                            <option key={val} value={val}>
-                              {val}
-                            </option>
-                          );
-                        })}
-                      </select>
+                        options={[
+                          { value: "", label: "HH" },
+                          ...[...Array(12)].map((_, i) => {
+                            const val = (i + 1).toString().padStart(2, "0");
+                            return { value: val, label: val };
+                          })
+                        ]}
+                        placeholder="HH"
+                      />
                       {/* Minute Dropdown */}
-                      <select
-                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      <CustomDropdown
+                        className="w-22"
                         value={openingMinute}
                         onChange={(e) =>
                           handleOpeningTimeChange("minute", e.target.value)
                         }
-                      >
-                        <option value="">MM</option>
-                        {["00", "15", "30", "45"].map((min) => (
-                          <option key={min} value={min}>
-                            {min}
-                          </option>
-                        ))}
-                      </select>
+                        options={[
+                          { value: "", label: "MM" },
+                          ...["00", "15", "30", "45"].map((min) => ({
+                            value: min,
+                            label: min
+                          }))
+                        ]}
+                        placeholder="MM"
+                      />
                       {/* AM/PM Dropdown */}
-                      <select
-                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      <CustomDropdown
+                        className="w-22"
                         value={openingPeriod}
                         onChange={(e) =>
                           handleOpeningTimeChange("period", e.target.value)
                         }
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
+                        options={[
+                          { value: "AM", label: "AM" },
+                          { value: "PM", label: "PM" }
+                        ]}
+                        placeholder="AM/PM"
+                      />
                     </div>
                   </div>
                   {/* Closing Time */}
@@ -1410,49 +1408,50 @@ function CreateOutlet() {
                     </label>
                     <div className="flex gap-2">
                       {/* Hour Dropdown */}
-                      <select
-                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      <CustomDropdown
+                        className="w-22"
                         value={closingHour}
                         onChange={(e) =>
                           handleClosingTimeChange("hour", e.target.value)
                         }
-                      >
-                        <option value="">HH</option>
-                        {[...Array(12)].map((_, i) => {
-                          const val = (i + 1).toString().padStart(2, "0");
-                          return (
-                            <option key={val} value={val}>
-                              {val}
-                            </option>
-                          );
-                        })}
-                      </select>
+                        options={[
+                          { value: "", label: "HH" },
+                          ...[...Array(12)].map((_, i) => {
+                            const val = (i + 1).toString().padStart(2, "0");
+                            return { value: val, label: val };
+                          })
+                        ]}
+                        placeholder="HH"
+                      />
                       {/* Minute Dropdown */}
-                      <select
-                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                      <CustomDropdown
+                        className="w-22"
                         value={closingMinute}
                         onChange={(e) =>
                           handleClosingTimeChange("minute", e.target.value)
                         }
-                      >
-                        <option value="">MM</option>
-                        {["00", "15", "30", "45"].map((min) => (
-                          <option key={min} value={min}>
-                            {min}
-                          </option>
-                        ))}
-                      </select>
+                        options={[
+                          { value: "", label: "MM" },
+                          ...["00", "15", "30", "45"].map((min) => ({
+                            value: min,
+                            label: min
+                          }))
+                        ]}
+                        placeholder="MM"
+                      />
                       {/* AM/PM Dropdown */}
-                      <select
-                        className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      <CustomDropdown
+                        className="w-22"
                         value={closingPeriod}
                         onChange={(e) =>
                           handleClosingTimeChange("period", e.target.value)
                         }
-                      >
-                        <option value="AM">AM</option>
-                        <option value="PM">PM</option>
-                      </select>
+                        options={[
+                          { value: "AM", label: "AM" },
+                          { value: "PM", label: "PM" }
+                        ]}
+                        placeholder="AM/PM"
+                      />
                     </div>
                   </div>
                   {/* New boolean dropdowns: combo, denomination, reserve_table */}
@@ -1460,8 +1459,9 @@ function CreateOutlet() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Has Combo
                     </label>
-                    <select
+                    <CustomDropdown
                       name="has_combo"
+                      className="w-22"
                       value={
                         outletData.has_combo === null ||
                         outletData.has_combo === undefined
@@ -1474,23 +1474,24 @@ function CreateOutlet() {
                           has_combo: Number(e.target.value),
                         }))
                       }
-                      className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    >
-                      <option value="">Select</option>
-                      {YES_NO_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={String(opt.value)}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      options={[
+                        { value: "", label: "Select" },
+                        ...YES_NO_OPTIONS.map((opt) => ({
+                          value: String(opt.value),
+                          label: opt.label
+                        }))
+                      ]}
+                      placeholder="Select"
+                    />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Has Denomination
                     </label>
-                    <select
+                    <CustomDropdown
                       name="has_denomination"
+                      className="w-22"
                       value={
                         outletData.has_denomination === null ||
                         outletData.has_denomination === undefined
@@ -1503,23 +1504,24 @@ function CreateOutlet() {
                           has_denomination: Number(e.target.value),
                         }))
                       }
-                      className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    >
-                      <option value="">Select</option>
-                      {YES_NO_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={String(opt.value)}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      options={[
+                        { value: "", label: "Select" },
+                        ...YES_NO_OPTIONS.map((opt) => ({
+                          value: String(opt.value),
+                          label: opt.label
+                        }))
+                      ]}
+                      placeholder="Select"
+                    />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Reserve Table
                     </label>
-                    <select
+                    <CustomDropdown
                       name="reserve_table"
+                      className="w-22"
                       value={
                         outletData.reserve_table === null ||
                         outletData.reserve_table === undefined
@@ -1532,15 +1534,15 @@ function CreateOutlet() {
                           reserve_table: Number(e.target.value),
                         }))
                       }
-                      className="w-22 h-11 border border-gray-300 rounded-3xl bg-white text-lg text-center focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-                    >
-                      <option value="">Select</option>
-                      {YES_NO_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={String(opt.value)}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
+                      options={[
+                        { value: "", label: "Select" },
+                        ...YES_NO_OPTIONS.map((opt) => ({
+                          value: String(opt.value),
+                          label: opt.label
+                        }))
+                      ]}
+                      placeholder="Select"
+                    />
                   </div>
                 </div>
               </div>
@@ -1588,23 +1590,23 @@ function CreateOutlet() {
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Tenure (months) <span className="text-error-500">*</span>
                   </label>
-                  <select
+                  <CustomDropdown
                     value={tenureMonths || ""}
                     onChange={(e) =>
                       setTenureMonths(
                         e.target.value ? Number(e.target.value) : null
                       )
                     }
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  >
-                    <option value="">Select months</option>
-                    
-                    {ALLOWED_TENURES.map((m) => (
-                      <option key={m} value={m}>
-                        {m} month{m > 1 ? "s" : ""}
-                      </option>
-                    ))}
-                  </select>
+                    className="mt-1 block w-full"
+                    options={[
+                      { value: "", label: "Select months" },
+                      ...ALLOWED_TENURES.map((m) => ({
+                        value: m,
+                        label: `${m} month${m > 1 ? "s" : ""}`
+                      }))
+                    ]}
+                    placeholder="Select months"
+                  />
                 </div>
               </div>
 
