@@ -312,6 +312,70 @@ function DataTable({
       });
     }
 
+    // Update active session filtering
+    if (enableActiveSessionFilter && activeSessionFilter !== "all") {
+      processedData = processedData.filter((item) => {
+        const sessionCount = item.active_session_count || 0;
+        
+        if (activeSessionFilter === "10") {
+          return sessionCount >= 10;
+        } else {
+          const filterValue = parseInt(activeSessionFilter);
+          return sessionCount === filterValue;
+        }
+      });
+    }
+
+    // Update account type filtering
+    if (enableAccountTypeFilter && accountType !== "all") {
+      processedData = processedData.filter((item) => {
+        const itemAccountType = (item.accountType || "").toLowerCase();
+        return itemAccountType === accountType.toLowerCase();
+      });
+    }
+
+    // Update open/close status filtering
+    if (enableOpenCloseStatusFilter && openCloseStatus !== "all") {
+      processedData = processedData.filter((item) => {
+        if (openCloseStatus === "open") {
+          return item.isOpen === 1;
+        } else if (openCloseStatus === "close") {
+          return item.isOpen === 0;
+        }
+        return true;
+      });
+    }
+
+    // Update outlet type filtering
+    if (enableOutletTypeFilter && outletTypeFilter !== "all") {
+      processedData = processedData.filter((item) => {
+        const itemOutletType = (item.outlet_type || "").toLowerCase();
+        return itemOutletType === outletTypeFilter.toLowerCase();
+      });
+    }
+
+    // Update outlet mode filtering
+    if (enableOutletModeFilter && outletModeFilter !== "all") {
+      processedData = processedData.filter((item) => {
+        const itemOutletMode = (item.outlet_mode || "").toLowerCase();
+        return itemOutletMode === outletModeFilter.toLowerCase();
+      });
+    }
+
+    // Update owner count filtering
+    if (enableOwnerCountFilter && ownerCountFilter !== "all") {
+      processedData = processedData.filter((item) => {
+        const ownerCount = item.ownerCount || 0;
+        
+        if (ownerCountFilter === "10") {
+          return ownerCount >= 10;
+        } else {
+          const filterValue = parseInt(ownerCountFilter);
+          return ownerCount === filterValue;
+        }
+      });
+    }
+
     // Update execution time filtering
     if (enableExecutionTimeFilter && executionTimeFilter !== "all") {
       processedData = processedData.filter((item) => {
@@ -537,7 +601,7 @@ function DataTable({
       <div className="flex-1 sm:flex-initial relative">
         <CustomSelect
           value={selectedOutlet}
-          onChange={(value) => onOutletChange(value)}
+          onChange={(e) => onOutletChange(e.target.value)}
           options={outletOptions}
           placeholder="Outlets"
           disabled={isLoading}
@@ -571,7 +635,7 @@ function DataTable({
       <div className="flex-1 sm:flex-initial relative">
         <CustomSelect
           value={selectedRole}
-          onChange={(value) => onRoleChange(value)}
+          onChange={(e) => onRoleChange(e.target.value)}
           options={roleOptions}
           placeholder="Roles"
           disabled={isLoading}
@@ -923,8 +987,8 @@ function DataTable({
                     <div className="w-56">
                       <CustomSelect
                         value={executionTimeFilter || "all"}
-                        onChange={(value) => {
-                          onExecutionTimeFilterChange(value);
+                        onChange={(e) => {
+                          onExecutionTimeFilterChange(e.target.value);
                         }}
                         options={[
                           { value: "all", label: "All Execution Time" },
@@ -991,7 +1055,7 @@ function DataTable({
                   <div className="w-36 mr-2">
                     <CustomSelect
                       value={statusFilter}
-                      onChange={(value) => onStatusFilterChange(value)}
+                      onChange={(e) => onStatusFilterChange(e.target.value)}
                       options={[
                         { value: "all", label: "All Status" },
                         { value: "active", label: "Active" },
@@ -1006,7 +1070,7 @@ function DataTable({
                   <div className="w-36 mr-2">
                     <CustomSelect
                       value={enquiryFilter || "all"}
-                      onChange={(value) => onEnquiryFilterChange && onEnquiryFilterChange(value)}
+                      onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
                       options={[
                         { value: "all", label: "Enquiry Type" },
                         { value: "enquiry", label: "Enquiry" },
@@ -1022,7 +1086,7 @@ function DataTable({
                   <div className="w-36 mr-2">
                     <CustomSelect
                       value={accountType || "all"}
-                      onChange={(value) => onAccountTypeChange && onAccountTypeChange(value)}
+                      onChange={(e) => onAccountTypeChange && onAccountTypeChange(e.target.value)}
                       options={[
                         { value: "all", label: "Account Type" },
                         { value: "live", label: "Live" },
@@ -1037,7 +1101,7 @@ function DataTable({
                   <div className="w-36 mr-2">
                     <CustomSelect
                       value={openCloseStatus || "all"}
-                      onChange={(value) => onOpenCloseStatusChange && onOpenCloseStatusChange(value)}
+                      onChange={(e) => onOpenCloseStatusChange && onOpenCloseStatusChange(e.target.value)}
                       options={[
                         { value: "all", label: "Open/Close" },
                         { value: "open", label: "Open" },
@@ -1052,8 +1116,8 @@ function DataTable({
                   <div className="w-36 mr-2">
                     <CustomSelect
                       value={activeSessionFilter || "all"}
-                      onChange={(value) => {
-                        onActiveSessionFilterChange(value);
+                      onChange={(e) => {
+                        onActiveSessionFilterChange(e.target.value);
                       }}
                       options={[
                         { value: "all", label: "All Sessions" },
@@ -1074,8 +1138,8 @@ function DataTable({
                   <div className="w-36 mr-2">
                     <CustomSelect
                       value={outletCountFilter || "all"}
-                      onChange={(value) => {
-                        onOutletCountFilterChange(value);
+                      onChange={(e) => {
+                        onOutletCountFilterChange(e.target.value);
                       }}
                       options={[
                         { value: "all", label: "All Outlets" },
@@ -1096,8 +1160,8 @@ function DataTable({
                   <div className="w-36 mr-2">
                     <CustomSelect
                       value={outletTypeFilter || "all"}
-                      onChange={(value) => {
-                        onOutletTypeFilterChange(value);
+                      onChange={(e) => {
+                        onOutletTypeFilterChange(e.target.value);
                       }}
                       options={[
                         { value: "all", label: "All Types" },
@@ -1119,8 +1183,8 @@ function DataTable({
                   <div className="w-36 mr-2">
                     <CustomSelect
                       value={outletModeFilter || "all"}
-                      onChange={(value) => {
-                        onOutletModeFilterChange(value);
+                      onChange={(e) => {
+                        onOutletModeFilterChange(e.target.value);
                       }}
                       options={[
                         { value: "all", label: "All Modes" },
@@ -1136,8 +1200,8 @@ function DataTable({
                   <div className="w-32 mr-2">
                     <CustomSelect
                       value={ownerCountFilter || "all"}
-                      onChange={(value) => {
-                        onOwnerCountFilterChange(value);
+                      onChange={(e) => {
+                        onOwnerCountFilterChange(e.target.value);
                       }}
                       options={[
                         { value: "all", label: "All Owners" },

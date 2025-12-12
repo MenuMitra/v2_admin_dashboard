@@ -228,44 +228,7 @@ function Admins() {
     },
   ];
 
-  const getFilteredData = () => {
-    
 
-    const filtered = admins.filter((admin) => {
-      // Status filter
-      if (statusFilter !== "all") {
-        const isActive = admin.is_active === true || admin.is_active === 1;
-        if (statusFilter === "active" && !isActive) return false;
-        if (statusFilter === "inactive" && isActive) return false;
-      }
-
-      // Active Session filter
-      if (activeSessionFilter !== "all") {
-        const sessionCount = admin.active_session_count || 0;
-        
-
-        if (activeSessionFilter === "10") {
-          if (sessionCount < 10) return false;
-        } else {
-          const filterValue = parseInt(activeSessionFilter);
-          if (sessionCount !== filterValue) return false;
-        }
-      }
-
-      return true;
-    });
-
-    
-
-    if (filtered.length === 0) {
-      return {
-        data: [],
-        message: `No admins found with the selected filters.`,
-      };
-    }
-
-    return { data: filtered };
-  };
 
   if (isLoading) {
     return (
@@ -274,6 +237,8 @@ function Admins() {
       </div>
     );
   }
+
+
 
   return (
     <>
@@ -286,8 +251,8 @@ function Admins() {
       )}
 
       <DataTable
-        data={getFilteredData().data}
-        emptyStateMessage={getFilteredData().message}
+        data={admins}
+        emptyStateMessage="No admins found"
         columns={columns}
         title="Admins"
         searchTerm={searchTerm}
@@ -320,6 +285,7 @@ function Admins() {
         enableSearch={true}
         enableStatusFilter={true}
         statusFilter={statusFilter}
+        statusField="is_active"
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
         }}

@@ -150,58 +150,7 @@ function Outlets() {
     },
   });
 
-  // Update the filtering logic to handle both search and status filters
-  const getFilteredData = () => {
-    if (!outlets.length) return [];
 
-    return outlets.filter((item) => {
-      // Status filter
-      if (statusFilter !== "all") {
-        const isActive = item.outletStatus === 1;
-        if (statusFilter === "active" && !isActive) return false;
-        if (statusFilter === "inactive" && isActive) return false;
-      }
-      // Account Type filter
-      if (accountType !== "all") {
-        if ((item.accountType || "").toLowerCase() !== accountType)
-          return false;
-      }
-      // Open/Close filter
-      if (openCloseStatus !== "all") {
-        if (openCloseStatus === "open" && item.isOpen !== 1) return false;
-        if (openCloseStatus === "close" && item.isOpen !== 0) return false;
-      }
-      // Outlet Type filter
-      if (outletTypeFilter !== "all") {
-        const itemOutletType = (item.outlet_type || "").toLowerCase();
-        if (itemOutletType !== outletTypeFilter) return false;
-      }
-      // Outlet Mode filter
-      if (outletModeFilter !== "all") {
-        const itemOutletMode = (item.outlet_mode || "").toLowerCase();
-        if (itemOutletMode !== outletModeFilter) return false;
-      }
-      // Owner Count filter
-      if (ownerCountFilter !== "all") {
-        const ownerCount = item.ownerCount || 0;
-        if (ownerCountFilter === "10") {
-          if (ownerCount < 10) return false;
-        } else {
-          const filterValue = parseInt(ownerCountFilter);
-          if (ownerCount !== filterValue) return false;
-        }
-      }
-      // Search filter
-      if (searchQuery) {
-        return Object.values(item).some((val) =>
-          val?.toString().toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-      return true;
-    });
-  };
-
-  const filteredData = getFilteredData();
 
   // Navigation handlers
   const handleViewOutlet = (outletId) => {
@@ -609,15 +558,13 @@ function Outlets() {
       <Breadcrumb items={breadcrumbItems} />
 
       <DataTable
-        data={filteredData}
+        data={outlets}
         columns={columns}
         title="Outlets"
         counts={{
-          total: filteredData.length, // Use filteredData which has all filters applied
-          active: filteredData.filter((outlet) => outlet.outletStatus === 1)
-            .length,
-          inactive: filteredData.filter((outlet) => outlet.outletStatus === 0)
-            .length,
+          total: outlets.length,
+          active: outlets.filter((outlet) => outlet.outletStatus === 1).length,
+          inactive: outlets.filter((outlet) => outlet.outletStatus === 0).length,
         }}
         searchTerm={searchQuery}
         onSearchChange={(value) => {
@@ -650,9 +597,9 @@ function Outlets() {
         enableAccountTypeFilter={true}
         enableOpenCloseStatusFilter={true}
         accountType={accountType}
-        onAccountTypeChange={(e) => setAccountType(e.target.value)}
+        onAccountTypeChange={(value) => setAccountType(value)}
         openCloseStatus={openCloseStatus}
-        onOpenCloseStatusChange={(e) => setOpenCloseStatus(e.target.value)}
+        onOpenCloseStatusChange={(value) => setOpenCloseStatus(value)}
         enableOutletTypeFilter={true}
         outletTypeFilter={outletTypeFilter}
         onOutletTypeFilterChange={(value) => setOutletTypeFilter(value)}
@@ -673,13 +620,7 @@ function Outlets() {
             ? item.outletStatus === 1
             : item.outletStatus === 0;
         }}
-        emptyStateMessage={
-          searchQuery
-            ? "No outlets found matching your search criteria."
-            : statusFilter !== "all"
-            ? `No ${statusFilter} outlets found.`
-            : "No outlets available."
-        }
+        emptyStateMessage="No outlets found"
         isLoading={
           isLoading ||
           isDeleting ||
