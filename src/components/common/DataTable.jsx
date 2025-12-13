@@ -69,12 +69,12 @@ function DataTable({
     active: 0,
     inactive: 0,
   },
-  onBackClick = () => {},
+  onBackClick = () => { },
   createButton = {
     show: true,
     label: "Create",
     icon: faPlus,
-    onClick: () => {},
+    onClick: () => { },
     className: "bg-success-500 hover:bg-success-600",
     position: "right",
     showIconOnly: false,
@@ -90,19 +90,19 @@ function DataTable({
   showOutletSelect = false,
   outlets = [],
   selectedOutlet = "",
-  onOutletChange = () => {},
+  onOutletChange = () => { },
   outletSelectPosition = "controls",
-  onShowData = () => {},
+  onShowData = () => { },
   isLoading = false,
   enableSelection = false,
-  onSelectionChange = () => {},
-  onBulkAction = () => {},
+  onSelectionChange = () => { },
+  onBulkAction = () => { },
   enableStatusFilter = true,
-  onStatusFilterChange = () => {},
+  onStatusFilterChange = () => { },
   statusFilter = "all",
   isItemSelectable = () => true,
   bulkActionOptions,
-  onItemsPerPageChange = () => {},
+  onItemsPerPageChange = () => { },
   emptyStateMessage = "No data found.",
   emptyStateMessageByStatus = {
     all: "No data found.",
@@ -113,38 +113,38 @@ function DataTable({
   showRoleSelect = false,
   roles = [],
   selectedRole = "",
-  onRoleChange = () => {},
+  onRoleChange = () => { },
   customFilters = [],
   onReload = null,
   accountType = "all",
-  onAccountTypeChange = () => {},
+  onAccountTypeChange = () => { },
   openCloseStatus = "all",
-  onOpenCloseStatusChange = () => {},
+  onOpenCloseStatusChange = () => { },
   enableAccountTypeFilter = false,
   enableOpenCloseStatusFilter = false,
   enableEnquiry = false,
   enquiryFilter = "all",
-  onEnquiryFilterChange = () => {},
+  onEnquiryFilterChange = () => { },
   enableActiveSessionFilter = false,
   activeSessionFilter = "all",
-  onActiveSessionFilterChange = () => {},
+  onActiveSessionFilterChange = () => { },
   enableOutletCountFilter = false,
   outletCountFilter = "all",
-  onOutletCountFilterChange = () => {},
+  onOutletCountFilterChange = () => { },
   defaultSortField,
   defaultSortOrder,
   enableOutletTypeFilter = false,
   outletTypeFilter = "all",
-  onOutletTypeFilterChange = () => {},
+  onOutletTypeFilterChange = () => { },
   enableOutletModeFilter = false,
   outletModeFilter = "all",
-  onOutletModeFilterChange = () => {},
+  onOutletModeFilterChange = () => { },
   enableOwnerCountFilter = false,
   ownerCountFilter = "all",
-  onOwnerCountFilterChange = () => {},
+  onOwnerCountFilterChange = () => { },
   enableExecutionTimeFilter = false,
   executionTimeFilter = "all",
-  onExecutionTimeFilterChange = () => {},
+  onExecutionTimeFilterChange = () => { },
   forceTopControls = false,
   getRowId = defaultGetRowId,
 }) {
@@ -156,21 +156,21 @@ function DataTable({
   const paddedColumns =
     columns.length < 6
       ? [
-          ...columns.map((col) => ({
-            ...col,
-            textAlign: col.textAlign || "center",
-          })),
-          ...Array(6 - columns.length).fill({
-            field: "",
-            header: "",
-            sortable: false,
-            textAlign: "center",
-          }),
-        ]
-      : columns.map((col) => ({
+        ...columns.map((col) => ({
           ...col,
           textAlign: col.textAlign || "center",
-        }));
+        })),
+        ...Array(6 - columns.length).fill({
+          field: "",
+          header: "",
+          sortable: false,
+          textAlign: "center",
+        }),
+      ]
+      : columns.map((col) => ({
+        ...col,
+        textAlign: col.textAlign || "center",
+      }));
 
   // Set default sortField and sortOrder using props if provided
   const hasCreatedAt = safeData.length > 0 && safeData[0].created_at;
@@ -249,9 +249,9 @@ function DataTable({
 
     return (
       <span className="inline-flex justify-center items-center ml-1 w-4">
-        <FontAwesomeIcon 
-          icon={icon} 
-          className={`${iconClass} ${sortField === field && sortOrder === "asc" ? "translate-y-0.5" : sortField === field && sortOrder === "desc" ? "-translate-y-0.5" : ""}`} 
+        <FontAwesomeIcon
+          icon={icon}
+          className={`${iconClass} ${sortField === field && sortOrder === "asc" ? "translate-y-0.5" : sortField === field && sortOrder === "desc" ? "-translate-y-0.5" : ""}`}
         />
       </span>
     );
@@ -316,7 +316,7 @@ function DataTable({
     if (enableActiveSessionFilter && activeSessionFilter !== "all") {
       processedData = processedData.filter((item) => {
         const sessionCount = item.active_session_count || 0;
-        
+
         if (activeSessionFilter === "10") {
           return sessionCount >= 10;
         } else {
@@ -366,7 +366,7 @@ function DataTable({
     if (enableOwnerCountFilter && ownerCountFilter !== "all") {
       processedData = processedData.filter((item) => {
         const ownerCount = item.ownerCount || 0;
-        
+
         if (ownerCountFilter === "10") {
           return ownerCount >= 10;
         } else {
@@ -427,13 +427,11 @@ function DataTable({
           <li key={i}>
             <button
               onClick={() => handlePageChange(i)}
-              className={`flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium ${
-                currentPage === i
+              className={`flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium ${currentPage === i
                   ? "bg-brand-500 text-white"
-                  : `text-gray-700 hover:bg-brand-500 hover:text-white ${
-                      darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
-                    }`
-              }`}
+                  : `text-gray-700 hover:bg-brand-500 hover:text-white ${darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
+                  }`
+                }`}
             >
               {i}
             </button>
@@ -457,9 +455,8 @@ function DataTable({
           <li key={currentPage - 1}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              className={`flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${
-                darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
-              }`}
+              className={`flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
+                }`}
             >
               {currentPage - 1}
             </button>
@@ -483,9 +480,8 @@ function DataTable({
           <li key={currentPage + 1}>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              className={`flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${
-                darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
-              }`}
+              className={`flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium text-gray-700 hover:bg-brand-500 hover:text-white ${darkMode ? "dark:text-gray-400 dark:hover:text-white" : ""
+                }`}
             >
               {currentPage + 1}
             </button>
@@ -662,7 +658,7 @@ function DataTable({
   const shouldDisableNavigation = {
     prev: () => currentPage === 1,
     next: () => currentPage === totalPages,
-  }; 
+  };
 
   // Add this helper function
   const isAllCurrentItemsSelected = () => {
@@ -709,9 +705,8 @@ function DataTable({
     <div className="flex items-center justify-center gap-2">
       <FontAwesomeIcon
         icon={normalizeStatus(value) ? faCircleCheck : faCircleXmark}
-        className={`w-5 h-5 ${
-          normalizeStatus(value) ? "text-success-500" : "text-error-500"
-        }`}
+        className={`w-5 h-5 ${normalizeStatus(value) ? "text-success-500" : "text-error-500"
+          }`}
       />
     </div>
   );
@@ -853,9 +848,8 @@ function DataTable({
 
     return (
       <div
-        className={`rounded-2xl border border-gray-200 bg-white ${
-          darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""
-        }`}
+        className={`rounded-2xl border border-gray-200 bg-white ${darkMode ? "dark:border-gray-800 dark:bg-white/[0.03]" : ""
+          }`}
       >
         {/* Header Section */}
         {showHeader && (
@@ -864,9 +858,8 @@ function DataTable({
             <div className="flex items-center px-6 mb-3">
               {/* Left Side */}
               <div
-                className={`flex items-center gap-2 ${
-                  mergedCreateButton.position === "left" ? "order-2" : "order-1"
-                }`}
+                className={`flex items-center gap-2 ${mergedCreateButton.position === "left" ? "order-2" : "order-1"
+                  }`}
               >
                 {showBackButton && (
                   <button
@@ -882,11 +875,10 @@ function DataTable({
 
               {/* Center - Title */}
               <div
-                className={`text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90 ${
-                  mergedCreateButton.position === "center"
+                className={`text-lg sm:text-xl font-semibold text-gray-800 dark:text-white/90 ${mergedCreateButton.position === "center"
                     ? "flex items-center gap-4"
                     : "flex-1 text-center"
-                }`}
+                  }`}
               >
                 {title}
                 {mergedCreateButton.position === "center" &&
@@ -895,11 +887,10 @@ function DataTable({
 
               {/* Right Side */}
               <div
-                className={`flex items-center justify-end ${
-                  mergedCreateButton.position === "right"
+                className={`flex items-center justify-end ${mergedCreateButton.position === "right"
                     ? "order-3"
                     : "order-2"
-                }`}
+                  }`}
               >
                 {mergedCreateButton.position === "right" &&
                   renderCreateButton()}
@@ -1051,173 +1042,173 @@ function DataTable({
             {(enableStatusFilter || enableAccountTypeFilter || enableOpenCloseStatusFilter || enableOutletTypeFilter || enableOutletModeFilter || enableOwnerCountFilter || enableEnquiry || showSearch || onReload) && (
               <div className="flex items-center gap-2 px-0 pl-2 mb-4">
                 <div className="flex flex-1 flex-wrap items-center gap-2">
-                {enableStatusFilter && (
-                  <div className="w-36 mr-2">
-                    <CustomSelect
-                      value={statusFilter}
-                      onChange={(e) => onStatusFilterChange(e.target.value)}
-                      options={[
-                        { value: "all", label: "All Status" },
-                        { value: "active", label: "Active" },
-                        { value: "inactive", label: "Inactive" }
-                      ]}
-                      placeholder="All Status"
-                    />
-                  </div>
-                )}
-                {/* Enquiry Filter */}
-                {enableEnquiry && (
-                  <div className="w-36 mr-2">
-                    <CustomSelect
-                      value={enquiryFilter || "all"}
-                      onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
-                      options={[
-                        { value: "all", label: "Enquiry Type" },
-                        { value: "enquiry", label: "Enquiry" },
-                        { value: "positive", label: "Positive" },
-                        { value: "onboard", label: "Onboard" }
-                      ]}
-                      placeholder="Enquiry Type"
-                    />
-                  </div>
-                )}
-                {/* Account Type Filter */}
-                {enableAccountTypeFilter && (
-                  <div className="w-36 mr-2">
-                    <CustomSelect
-                      value={accountType || "all"}
-                      onChange={(e) => onAccountTypeChange && onAccountTypeChange(e.target.value)}
-                      options={[
-                        { value: "all", label: "Account Type" },
-                        { value: "live", label: "Live" },
-                        { value: "test", label: "Test" }
-                      ]}
-                      placeholder="Account Type"
-                    />
-                  </div>
-                )}
-                {/* Open/Close Filter */}
-                {enableOpenCloseStatusFilter && (
-                  <div className="w-36 mr-2">
-                    <CustomSelect
-                      value={openCloseStatus || "all"}
-                      onChange={(e) => onOpenCloseStatusChange && onOpenCloseStatusChange(e.target.value)}
-                      options={[
-                        { value: "all", label: "Open/Close" },
-                        { value: "open", label: "Open" },
-                        { value: "close", label: "Close" }
-                      ]}
-                      placeholder="Open/Close"
-                    />
-                  </div>
-                )}
-                {/* Active Session Filter */}
-                {enableActiveSessionFilter && (
-                  <div className="w-36 mr-2">
-                    <CustomSelect
-                      value={activeSessionFilter || "all"}
-                      onChange={(e) => {
-                        onActiveSessionFilterChange(e.target.value);
-                      }}
-                      options={[
-                        { value: "all", label: "All Sessions" },
-                        { value: "0", label: "0" },
-                        { value: "1", label: "1" },
-                        { value: "2", label: "2" },
-                        { value: "3", label: "3" },
-                        { value: "4", label: "4" },
-                        { value: "5", label: "5" },
-                        { value: "10", label: "10+" }
-                      ]}
-                      placeholder="All Sessions"
-                    />
-                  </div>
-                )}
-                {/* Outlet Count Filter */}
-                {enableOutletCountFilter && (
-                  <div className="w-36 mr-2">
-                    <CustomSelect
-                      value={outletCountFilter || "all"}
-                      onChange={(e) => {
-                        onOutletCountFilterChange(e.target.value);
-                      }}
-                      options={[
-                        { value: "all", label: "All Outlets" },
-                        { value: "0", label: "0" },
-                        { value: "1", label: "1" },
-                        { value: "2", label: "2" },
-                        { value: "3", label: "3" },
-                        { value: "4", label: "4" },
-                        { value: "5", label: "5" },
-                        { value: "10", label: "10+" }
-                      ]}
-                      placeholder="All Outlets"
-                    />
-                  </div>
-                )}
-                {/* Outlet Type Filter */}
-                {enableOutletTypeFilter && (
-                  <div className="w-36 mr-2">
-                    <CustomSelect
-                      value={outletTypeFilter || "all"}
-                      onChange={(e) => {
-                        onOutletTypeFilterChange(e.target.value);
-                      }}
-                      options={[
-                        { value: "all", label: "All Types" },
-                        { value: "outlet", label: "Outlet" },
-                        {value: "Hotel", label: "Hotel"},
-                        {value: "Canteen", label: "Canteen"},
-                        {value: "Mess", label: "Mess"},
-                        {value: "Cafe", label: "Cafe"},
-                        {value: "Bakery", label: "Bakery"},
+                  {enableStatusFilter && (
+                    <div className="w-36 mr-2">
+                      <CustomSelect
+                        value={statusFilter}
+                        onChange={(e) => onStatusFilterChange(e.target.value)}
+                        options={[
+                          { value: "all", label: "All Status" },
+                          { value: "active", label: "Active" },
+                          { value: "inactive", label: "Inactive" }
+                        ]}
+                        placeholder="All Status"
+                      />
+                    </div>
+                  )}
+                  {/* Enquiry Filter */}
+                  {enableEnquiry && (
+                    <div className="w-36 mr-2">
+                      <CustomSelect
+                        value={enquiryFilter || "all"}
+                        onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
+                        options={[
+                          { value: "all", label: "Enquiry Type" },
+                          { value: "enquiry", label: "Enquiry" },
+                          { value: "positive", label: "Positive" },
+                          { value: "onboard", label: "Onboard" }
+                        ]}
+                        placeholder="Enquiry Type"
+                      />
+                    </div>
+                  )}
+                  {/* Account Type Filter */}
+                  {enableAccountTypeFilter && (
+                    <div className="w-36 mr-2">
+                      <CustomSelect
+                        value={accountType || "all"}
+                        onChange={(e) => onAccountTypeChange && onAccountTypeChange(e.target.value)}
+                        options={[
+                          { value: "all", label: "Account Type" },
+                          { value: "live", label: "Live" },
+                          { value: "test", label: "Test" }
+                        ]}
+                        placeholder="Account Type"
+                      />
+                    </div>
+                  )}
+                  {/* Open/Close Filter */}
+                  {enableOpenCloseStatusFilter && (
+                    <div className="w-36 mr-2">
+                      <CustomSelect
+                        value={openCloseStatus || "all"}
+                        onChange={(e) => onOpenCloseStatusChange && onOpenCloseStatusChange(e.target.value)}
+                        options={[
+                          { value: "all", label: "Open/Close" },
+                          { value: "open", label: "Open" },
+                          { value: "close", label: "Close" }
+                        ]}
+                        placeholder="Open/Close"
+                      />
+                    </div>
+                  )}
+                  {/* Active Session Filter */}
+                  {enableActiveSessionFilter && (
+                    <div className="w-36 mr-2">
+                      <CustomSelect
+                        value={activeSessionFilter || "all"}
+                        onChange={(e) => {
+                          onActiveSessionFilterChange(e.target.value);
+                        }}
+                        options={[
+                          { value: "all", label: "All Sessions" },
+                          { value: "0", label: "0" },
+                          { value: "1", label: "1" },
+                          { value: "2", label: "2" },
+                          { value: "3", label: "3" },
+                          { value: "4", label: "4" },
+                          { value: "5", label: "5" },
+                          { value: "10", label: "10+" }
+                        ]}
+                        placeholder="All Sessions"
+                      />
+                    </div>
+                  )}
+                  {/* Outlet Count Filter */}
+                  {enableOutletCountFilter && (
+                    <div className="w-36 mr-2">
+                      <CustomSelect
+                        value={outletCountFilter || "all"}
+                        onChange={(e) => {
+                          onOutletCountFilterChange(e.target.value);
+                        }}
+                        options={[
+                          { value: "all", label: "All Outlets" },
+                          { value: "0", label: "0" },
+                          { value: "1", label: "1" },
+                          { value: "2", label: "2" },
+                          { value: "3", label: "3" },
+                          { value: "4", label: "4" },
+                          { value: "5", label: "5" },
+                          { value: "10", label: "10+" }
+                        ]}
+                        placeholder="All Outlets"
+                      />
+                    </div>
+                  )}
+                  {/* Outlet Type Filter */}
+                  {enableOutletTypeFilter && (
+                    <div className="w-36 mr-2">
+                      <CustomSelect
+                        value={outletTypeFilter || "all"}
+                        onChange={(e) => {
+                          onOutletTypeFilterChange(e.target.value);
+                        }}
+                        options={[
+                          { value: "all", label: "All Types" },
+                          { value: "outlet", label: "Outlet" },
+                          { value: "Hotel", label: "Hotel" },
+                          { value: "Canteen", label: "Canteen" },
+                          { value: "Mess", label: "Mess" },
+                          { value: "Cafe", label: "Cafe" },
+                          { value: "Bakery", label: "Bakery" },
 
-                        
-                      ]}
-                      placeholder="All Types"
-                    />
-                  </div>
-                )}
-                {/* Outlet Mode Filter */}
-                {enableOutletModeFilter && (
-                  <div className="w-36 mr-2">
-                    <CustomSelect
-                      value={outletModeFilter || "all"}
-                      onChange={(e) => {
-                        onOutletModeFilterChange(e.target.value);
-                      }}
-                      options={[
-                        { value: "all", label: "All Modes" },
-                        { value: "online", label: "Online" },
-                        { value: "offline", label: "Offline" }
-                      ]}
-                      placeholder="All Modes"
-                    />
-                  </div>
-                )}
-                {/* Owner Count Filter */}
-                {enableOwnerCountFilter && (
-                  <div className="w-32 mr-2">
-                    <CustomSelect
-                      value={ownerCountFilter || "all"}
-                      onChange={(e) => {
-                        onOwnerCountFilterChange(e.target.value);
-                      }}
-                      options={[
-                        { value: "all", label: "All Owners" },
-                        { value: "0", label: "0" },
-                        { value: "1", label: "1" },
-                        { value: "2", label: "2" },
-                        { value: "3", label: "3" },
-                        { value: "4", label: "4" },
-                        { value: "5", label: "5" },
-                        { value: "10", label: "10+" }
-                      ]}
-                      placeholder="All Owners"
-                      className="w-full"
-                    />
-                  </div>
-                )}
+
+                        ]}
+                        placeholder="All Types"
+                      />
+                    </div>
+                  )}
+                  {/* Outlet Mode Filter */}
+                  {enableOutletModeFilter && (
+                    <div className="w-36 mr-2">
+                      <CustomSelect
+                        value={outletModeFilter || "all"}
+                        onChange={(e) => {
+                          onOutletModeFilterChange(e.target.value);
+                        }}
+                        options={[
+                          { value: "all", label: "All Modes" },
+                          { value: "online", label: "Online" },
+                          { value: "offline", label: "Offline" }
+                        ]}
+                        placeholder="All Modes"
+                      />
+                    </div>
+                  )}
+                  {/* Owner Count Filter */}
+                  {enableOwnerCountFilter && (
+                    <div className="w-32 mr-2">
+                      <CustomSelect
+                        value={ownerCountFilter || "all"}
+                        onChange={(e) => {
+                          onOwnerCountFilterChange(e.target.value);
+                        }}
+                        options={[
+                          { value: "all", label: "All Owners" },
+                          { value: "0", label: "0" },
+                          { value: "1", label: "1" },
+                          { value: "2", label: "2" },
+                          { value: "3", label: "3" },
+                          { value: "4", label: "4" },
+                          { value: "5", label: "5" },
+                          { value: "10", label: "10+" }
+                        ]}
+                        placeholder="All Owners"
+                        className="w-full"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   {/* Reload Button */}
@@ -1235,9 +1226,8 @@ function DataTable({
           <table className="w-full">
             <thead>
               <tr
-                className={`border-t border-gray-100 ${
-                  darkMode ? "dark:border-gray-800" : ""
-                }`}
+                className={`border-t border-gray-100 ${darkMode ? "dark:border-gray-800" : ""
+                  }`}
               >
                 {/* Checkbox column */}
                 {enableSelection && (
@@ -1342,10 +1332,9 @@ function DataTable({
                       ${column.field === "selection" ? "px-2" : "px-6"}
                       py-2.5
                       text-center
-                      ${
-                        enableSort && column.sortable
-                          ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
-                          : ""
+                      ${enableSort && column.sortable
+                        ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
+                        : ""
                       }
                     `}
                     onClick={() =>
@@ -1354,9 +1343,8 @@ function DataTable({
                   >
                     <div className="flex items-center justify-center w-full">
                       <p
-                        className={`font-semibold text-gray-700 text-theme-xs text-center ${
-                          darkMode ? "dark:text-white/90" : ""
-                        }`}
+                        className={`font-semibold text-gray-700 text-theme-xs text-center ${darkMode ? "dark:text-white/90" : ""
+                          }`}
                       >
                         {column.header}
                       </p>
@@ -1373,77 +1361,73 @@ function DataTable({
                   return (
                     <tr
                       key={index}
-                      className={`border-t border-gray-100 ${
-                        darkMode ? "dark:border-gray-800" : ""
-                      }`}
+                      className={`border-t border-gray-100 ${darkMode ? "dark:border-gray-800" : ""
+                        }`}
                     >
-                    {/* Checkbox cell */}
-                    {enableSelection &&
-                      isItemSelectable(item) &&
-                      rowId !== null &&
-                      rowId !== undefined && (
-                      <td className="px-2 py-2.5 text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedItems.includes(rowId)}
-                          onChange={() => handleSelectItem(rowId)}
-                          className="h-4 w-4 rounded-3xl border-gray-300 text-brand-500 focus:ring-brand-500"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      </td>
-                    )}
-                    {/* Add empty cell for non-selectable items when selection is enabled */}
-                    {enableSelection &&
-                      (!isItemSelectable(item) ||
-                        rowId === null ||
-                        rowId === undefined) && (
-                      <td className="px-2 py-2.5"></td>
-                    )}
+                      {/* Checkbox cell */}
+                      {enableSelection &&
+                        isItemSelectable(item) &&
+                        rowId !== null &&
+                        rowId !== undefined && (
+                          <td className="px-2 py-2.5 text-center">
+                            <input
+                              type="checkbox"
+                              checked={selectedItems.includes(rowId)}
+                              onChange={() => handleSelectItem(rowId)}
+                              className="h-4 w-4 rounded-3xl border-gray-300 text-brand-500 focus:ring-brand-500"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </td>
+                        )}
+                      {/* Add empty cell for non-selectable items when selection is enabled */}
+                      {enableSelection &&
+                        (!isItemSelectable(item) ||
+                          rowId === null ||
+                          rowId === undefined) && (
+                          <td className="px-2 py-2.5"></td>
+                        )}
 
-                    {/* Empty cell for bulk actions column when items are selected */}
-                    {enableSelection && selectedItems.length > 0 && (
-                      <td className="px-6 py-2.5"></td>
-                    )}
+                      {/* Empty cell for bulk actions column when items are selected */}
+                      {enableSelection && selectedItems.length > 0 && (
+                        <td className="px-6 py-2.5"></td>
+                      )}
 
-                    {/* Regular cells */}
-                    {paddedColumns.map((column, idx) => (
-                      <td
-                        key={column.field || idx}
-                        className={`
+                      {/* Regular cells */}
+                      {paddedColumns.map((column, idx) => (
+                        <td
+                          key={column.field || idx}
+                          className={`
                           ${column.field === "selection" ? "px-2" : "px-6"}
                           py-2.5
                           text-center
-                          ${
-                            column.field === "name" ||
-                            column.field === "outlet_name"
+                          ${column.field === "name" ||
+                              column.field === "outlet_name"
                               ? "whitespace-nowrap"
                               : ""
-                          }
+                            }
                         `}
-                      >
-                        {column.render && column.field ? (
-                          column.render(item[column.field], item)
-                        ) : column.field === statusField && column.field ? (
-                          <div className="flex items-center justify-center">
-                            {renderStatus(item[column.field])}
-                          </div>
-                        ) : column.field ? (
-                          <p
-                            className={`text-gray-500 text-theme-sm ${
-                              darkMode ? "dark:text-gray-400" : ""
-                            } ${
-                              column.field === "name" ||
-                              column.field === "outlet_name"
-                                ? "whitespace-nowrap"
-                                : ""
-                            }`}
-                          >
-                            {item[column.field]}
-                          </p>
-                        ) : null}
-                      </td>
-                    ))}
-                  </tr>
+                        >
+                          {column.render && column.field ? (
+                            column.render(item[column.field], item)
+                          ) : column.field === statusField && column.field ? (
+                            <div className="flex items-center justify-center">
+                              {renderStatus(item[column.field])}
+                            </div>
+                          ) : column.field ? (
+                            <p
+                              className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
+                                } ${column.field === "name" ||
+                                  column.field === "outlet_name"
+                                  ? "whitespace-nowrap"
+                                  : ""
+                                }`}
+                            >
+                              {item[column.field]}
+                            </p>
+                          ) : null}
+                        </td>
+                      ))}
+                    </tr>
                   );
                 })
               ) : (
@@ -1454,7 +1438,7 @@ function DataTable({
                   >
                     {statusFilter && emptyStateMessageByStatus
                       ? emptyStateMessageByStatus[statusFilter] ||
-                        emptyStateMessage
+                      emptyStateMessage
                       : emptyStateMessage}
                   </td>
                 </tr>
@@ -1470,13 +1454,12 @@ function DataTable({
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <span
-                  className={`text-gray-500 text-theme-sm ${
-                    darkMode ? "dark:text-gray-400" : ""
-                  }`}
+                  className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
+                    }`}
                 >
                   Show
                 </span>
-                <select
+                <CustomSelect
                   value={internalItemsPerPage}
                   onChange={(e) => {
                     const newItemsPerPage = Number(e.target.value);
@@ -1486,18 +1469,15 @@ function DataTable({
                       onItemsPerPageChange(newItemsPerPage);
                     }
                   }}
-                  className="w-20 px-2 py-1 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
-                >
-                  {itemsPerPageOptions.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
+                  options={itemsPerPageOptions.map((option) => ({
+                    value: option,
+                    label: String(option),
+                  }))}
+                  className="w-24"
+                />
                 <span
-                  className={`text-gray-500 text-theme-sm ${
-                    darkMode ? "dark:text-gray-400" : ""
-                  }`}
+                  className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
+                    }`}
                 >
                   entries
                 </span>
@@ -1505,9 +1485,8 @@ function DataTable({
 
               {/* Showing entries text */}
               <div
-                className={`text-gray-500 text-theme-sm ${
-                  darkMode ? "dark:text-gray-400" : ""
-                }`}
+                className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
+                  }`}
               >
                 Showing {indexOfFirstItem + 1} to{" "}
                 {Math.min(indexOfLastItem, processedData.length)} of{" "}
@@ -1523,23 +1502,20 @@ function DataTable({
                   handlePageChange(currentPage - 1)
                 }
                 disabled={shouldDisableNavigation.prev()}
-                className={`flex items-center gap-2 rounded-3xl border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
-                  darkMode
+                className={`flex items-center gap-2 rounded-3xl border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${darkMode
                     ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     : ""
-                } ${
-                  shouldDisableNavigation.prev()
+                  } ${shouldDisableNavigation.prev()
                     ? "opacity-50 cursor-not-allowed"
                     : ""
-                }`}
+                  }`}
               >
                 <FontAwesomeIcon icon={faChevronLeft} className="w-5 h-5" />
               </button>
 
               <span
-                className={`block text-sm font-medium text-gray-700 ${
-                  darkMode ? "dark:text-gray-400" : ""
-                } sm:hidden`}
+                className={`block text-sm font-medium text-gray-700 ${darkMode ? "dark:text-gray-400" : ""
+                  } sm:hidden`}
               >
                 Page {currentPage} of {totalPages}
               </span>
@@ -1554,15 +1530,13 @@ function DataTable({
                   handlePageChange(currentPage + 1)
                 }
                 disabled={shouldDisableNavigation.next()}
-                className={`flex items-center gap-2 rounded-3xl border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${
-                  darkMode
+                className={`flex items-center gap-2 rounded-3xl border border-gray-300 bg-white p-2 sm:p-2.5 text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 ${darkMode
                     ? "dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
                     : ""
-                } ${
-                  shouldDisableNavigation.next()
+                  } ${shouldDisableNavigation.next()
                     ? "opacity-50 cursor-not-allowed"
                     : ""
-                }`}
+                  }`}
               >
                 <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5" />
               </button>
@@ -1572,7 +1546,7 @@ function DataTable({
       </div>
     );
   } catch {
-    
+
     // Return a fallback UI
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-4">
@@ -1752,7 +1726,7 @@ DataTable.defaultProps = {
   enablePagination: true,
   enableSearch: true,
   searchTerm: "",
-  onSearchChange: () => {},
+  onSearchChange: () => { },
   customRowRender: null,
   darkMode: false,
   title: "",
@@ -1762,12 +1736,12 @@ DataTable.defaultProps = {
     active: 0,
     inactive: 0,
   },
-  onBackClick: () => {},
+  onBackClick: () => { },
   createButton: {
     show: true,
     label: "Create",
     icon: faPlus,
-    onClick: () => {},
+    onClick: () => { },
     className: "bg-success-500 hover:bg-success-600",
     position: "right",
     showIconOnly: false,
@@ -1783,15 +1757,15 @@ DataTable.defaultProps = {
   showOutletSelect: false,
   outlets: [],
   selectedOutlet: "",
-  onOutletChange: () => {},
+  onOutletChange: () => { },
   outletSelectPosition: "controls",
-  onShowData: () => {},
+  onShowData: () => { },
   isLoading: false,
   enableSelection: false,
-  onSelectionChange: () => {},
-  onBulkAction: () => {},
+  onSelectionChange: () => { },
+  onBulkAction: () => { },
   enableStatusFilter: true,
-  onStatusFilterChange: () => {},
+  onStatusFilterChange: () => { },
   statusFilter: "all",
   isItemSelectable: () => true,
   bulkActionOptions: [
@@ -1811,7 +1785,7 @@ DataTable.defaultProps = {
       className: "text-error-600 hover:bg-error-50",
     },
   ],
-  onItemsPerPageChange: () => {},
+  onItemsPerPageChange: () => { },
   emptyStateMessage: "No data found.",
   emptyStateMessageByStatus: {
     all: "No data found.",
@@ -1822,13 +1796,13 @@ DataTable.defaultProps = {
   showRoleSelect: false,
   roles: [],
   selectedRole: "",
-  onRoleChange: () => {},
+  onRoleChange: () => { },
   customFilters: [],
   onReload: null,
   accountType: "all",
-  onAccountTypeChange: () => {},
+  onAccountTypeChange: () => { },
   openCloseStatus: "all",
-  onOpenCloseStatusChange: () => {},
+  onOpenCloseStatusChange: () => { },
   enableAccountTypeFilter: false,
   enableOpenCloseStatusFilter: false,
   defaultSortField: "created_at",
@@ -1836,19 +1810,19 @@ DataTable.defaultProps = {
   enableEnquiry: false,
   enableOutletCountFilter: false,
   outletCountFilter: "all",
-  onOutletCountFilterChange: () => {},
+  onOutletCountFilterChange: () => { },
   enableOutletTypeFilter: false,
   outletTypeFilter: "all",
-  onOutletTypeFilterChange: () => {},
+  onOutletTypeFilterChange: () => { },
   enableOutletModeFilter: false,
   outletModeFilter: "all",
-  onOutletModeFilterChange: () => {},
+  onOutletModeFilterChange: () => { },
   enableOwnerCountFilter: false,
   ownerCountFilter: "all",
-  onOwnerCountFilterChange: () => {},
+  onOwnerCountFilterChange: () => { },
   enableExecutionTimeFilter: false,
   executionTimeFilter: "all",
-  onExecutionTimeFilterChange: () => {},
+  onExecutionTimeFilterChange: () => { },
   forceTopControls: false,
   getRowId: defaultGetRowId,
 };

@@ -12,6 +12,7 @@ import {
   faTimes,
   faLayerGroup,
   faCog,
+  faChevronDown,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   TextInput,
@@ -169,7 +170,7 @@ function CreateOutlet() {
           setSelectedModuleIds(modList.map((m) => m.module_id));
         }
       } catch (err) {
-        
+
       } finally {
         setLoadingModules(false);
       }
@@ -337,7 +338,7 @@ function CreateOutlet() {
         setOutletTypes(response.data.outlet_type_list);
       }
     } catch (error) {
-      
+
     }
   };
 
@@ -362,7 +363,7 @@ function CreateOutlet() {
         setAllOwners(response.data);
       }
     } catch (error) {
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -374,7 +375,7 @@ function CreateOutlet() {
     // Don't set to null if no new image is provided
     const base64String = images[0]?.url;
     if (base64String) {
-      
+
       setOutletData((prev) => ({
         ...prev,
         image: base64String,
@@ -451,9 +452,8 @@ function CreateOutlet() {
         setValidationStates((prev) => ({
           ...prev,
           [name]: true,
-          [`${name}Message`]: `${
-            name === "mobile" ? "Mobile" : "WhatsApp"
-          } number must start with 6, 7, 8, or 9`,
+          [`${name}Message`]: `${name === "mobile" ? "Mobile" : "WhatsApp"
+            } number must start with 6, 7, 8, or 9`,
         }));
       } else {
         setOutletData((prev) => ({
@@ -648,8 +648,8 @@ function CreateOutlet() {
       // Keep app_source for compatibility with older endpoints
       payload.app_source = "admin_app";
 
-      
-      
+
+
 
       const response = await toastController.promise(
         axios.post(`${BASE_URL}/common/create_outlet`, payload, {
@@ -673,7 +673,7 @@ function CreateOutlet() {
         navigate(-1);
       }
     } catch (error) {
-      
+
 
       // Handle specific API errors without clearing the image
       if (error.response?.data?.detail) {
@@ -876,10 +876,9 @@ function CreateOutlet() {
                   inline-flex items-center gap-2 px-4 py-2 
                   text-sm font-medium text-white rounded-full
                   transition shadow-sm
-                  ${
-                    !isFormValid || isLoading
-                      ? "bg-gray-400 cursor-not-allowed opacity-50"
-                      : "bg-success-500 hover:bg-success-600"
+                  ${!isFormValid || isLoading
+                    ? "bg-gray-400 cursor-not-allowed opacity-50"
+                    : "bg-success-500 hover:bg-success-600"
                   }
                 `}
                 title={!isFormValid ? "Please fill all required fields" : ""}
@@ -938,11 +937,10 @@ function CreateOutlet() {
                       validationRules={validationRules.name.simple}
                       className={`
                       rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                      ${
-                        validationStates.name
+                      ${validationStates.name
                           ? "border-error-500"
                           : "border-gray-300"
-                      }
+                        }
                     `}
                     />
                   </div>
@@ -951,51 +949,38 @@ function CreateOutlet() {
                       Select Owners
                     </label>
 
-                    <div className="relative" ref={dropdownRef}>
+                    <div className={`relative ${isDropdownOpen ? "z-50" : ""}`} ref={dropdownRef}>
                       <div
                         onClick={handleOwnerClick}
                         className={`
-                        w-full p-2 text-left border rounded-3xl shadow-sm bg-white hover:bg-gray-50 
-                        focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer
-                        ${
-                          validationStates.owner
+                        w-full px-3 py-2 pr-10 border rounded-3xl shadow-sm text-left text-sm
+                        focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500
+                        bg-white hover:bg-gray-50 transition-all duration-200
+                        flex items-center justify-between h-10 cursor-pointer
+                        ${validationStates.owner
                             ? "border-error-500"
                             : "border-gray-300"
-                        }
+                          }
                       `}
                         role="combobox"
                         aria-expanded={isDropdownOpen}
                         aria-haspopup="listbox"
                       >
-                        {outletData.owner_id.length > 0 ? (
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                {outletData.owner_id.length} Owner Selected
-                              </div>
-                            </div>
-                            <svg
-                              className="w-5 h-5 text-gray-400"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </svg>
-                          </div>
-                        ) : (
-                          <div className="text-gray-500">Select Owner</div>
-                        )}
+                        <div className="flex items-center justify-between w-full h-full">
+                          <span className={`${outletData.owner_id.length > 0 ? "text-gray-900" : "text-gray-500"}`}>
+                            {outletData.owner_id.length > 0 ? `${outletData.owner_id.length} Owner Selected` : "Select Owner"}
+                          </span>
+                          <FontAwesomeIcon
+                            icon={faChevronDown}
+                            className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isDropdownOpen ? "rotate-180" : "rotate-0"
+                              }`}
+                          />
+                        </div>
                       </div>
 
                       {isDropdownOpen && (
                         <div
-                          className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl w-full min-w-[300px] z-[9999] max-h-[350px] overflow-y-auto"
+                          className="absolute left-0 right-0 mt-1 bg-white border rounded-3xl shadow-xl w-full min-w-[300px] z-[9999] max-h-[350px] overflow-y-auto"
                         >
                           {outletData.owner_id.length > 0 && (
                             <div className="p-2 border-b bg-gray-50">
@@ -1036,7 +1021,7 @@ function CreateOutlet() {
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
                               <input
                                 type="text"
-                                className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                                 placeholder="Search by name, mobile or email..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -1075,11 +1060,10 @@ function CreateOutlet() {
                                   key={owner.user_id}
                                   className={`
                                   p-3 cursor-pointer hover:bg-gray-50
-                                  ${
-                                    outletData.owner_id.includes(owner.user_id)
+                                  ${outletData.owner_id.includes(owner.user_id)
                                       ? "bg-brand-50 border-l-4 border-brand-500"
                                       : "border-l-4 border-transparent"
-                                  }
+                                    }
                                 `}
                                 >
                                   <div className="flex items-center justify-between">
@@ -1095,15 +1079,15 @@ function CreateOutlet() {
                                             ...prev,
                                             owner_id: e.target.checked
                                               ? [
-                                                  ...prev.owner_id,
-                                                  owner.user_id,
-                                                ]
+                                                ...prev.owner_id,
+                                                owner.user_id,
+                                              ]
                                               : prev.owner_id.filter(
-                                                  (id) => id !== owner.user_id
-                                                ),
+                                                (id) => id !== owner.user_id
+                                              ),
                                           }));
                                         }}
-                                        className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                                        className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-3xl"
                                       />
                                       <div>
                                         <div className="font-medium text-gray-900">
@@ -1147,11 +1131,10 @@ function CreateOutlet() {
                       placeholder="Enter 10 digit mobile number"
                       className={`
                       rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                      ${
-                        validationStates.mobile || apiErrors.mobile
+                      ${validationStates.mobile || apiErrors.mobile
                           ? "border-error-500"
                           : "border-gray-300"
-                      }
+                        }
                     `}
                     />
                     {(validationStates.mobile || apiErrors.mobile) && (
@@ -1183,11 +1166,10 @@ function CreateOutlet() {
                       placeholder="username@bankname"
                       className={`
                       rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                      ${
-                        validationStates.upi
+                      ${validationStates.upi
                           ? "border-error-500"
                           : "border-gray-300"
-                      }
+                        }
                     `}
                     />
                     {validationStates.upi && (
@@ -1264,8 +1246,8 @@ function CreateOutlet() {
                         {!outletData.address
                           ? "Address is required"
                           : outletData.address.length < 5
-                          ? "Minimum 5 characters required"
-                          : "Address must not exceed 50 characters"}
+                            ? "Minimum 5 characters required"
+                            : "Address must not exceed 50 characters"}
                       </p>
                     )}
                   </div>
@@ -1342,8 +1324,8 @@ function CreateOutlet() {
                     {!outletData.gstnumber
                       ? "GST Number is required"
                       : !isGSTNumberValid(outletData.gstnumber)
-                      ? "GST Number must be a 15-digit alphanumeric code"
-                      : ""}
+                        ? "GST Number must be a 15-digit alphanumeric code"
+                        : ""}
                   </p>
                 )}
                 {/* Opening Time */}
@@ -1464,7 +1446,7 @@ function CreateOutlet() {
                       className="w-22"
                       value={
                         outletData.has_combo === null ||
-                        outletData.has_combo === undefined
+                          outletData.has_combo === undefined
                           ? ""
                           : String(outletData.has_combo)
                       }
@@ -1494,7 +1476,7 @@ function CreateOutlet() {
                       className="w-22"
                       value={
                         outletData.has_denomination === null ||
-                        outletData.has_denomination === undefined
+                          outletData.has_denomination === undefined
                           ? ""
                           : String(outletData.has_denomination)
                       }
@@ -1524,7 +1506,7 @@ function CreateOutlet() {
                       className="w-22"
                       value={
                         outletData.reserve_table === null ||
-                        outletData.reserve_table === undefined
+                          outletData.reserve_table === undefined
                           ? ""
                           : String(outletData.reserve_table)
                       }
@@ -1555,7 +1537,7 @@ function CreateOutlet() {
               <h2 className="text-lg font-medium mb-3 flex items-center">
                 <FontAwesomeIcon icon={faLayerGroup} className="w-5 h-5 mr-2" />
                 Assign Subscription{" "}
-               
+
               </h2>
               {/* Plan fields - first row */}
               <div className="flex flex-col sm:flex-row gap-3 mb-4">
@@ -1649,11 +1631,10 @@ function CreateOutlet() {
                         <div
                           key={m.module_id}
                           onClick={() => handleModuleToggle(m.module_id)}
-                          className={`bg-white rounded-lg p-3 shadow-sm border cursor-pointer select-none transition-all duration-200 ease-in-out ${
-                            checked
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-200 hover:border-blue-300"
-                          }`}
+                          className={`bg-white rounded-lg p-3 shadow-sm border cursor-pointer select-none transition-all duration-200 ease-in-out ${checked
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 hover:border-blue-300"
+                            }`}
                         >
                           <label className="flex items-center gap-3 cursor-pointer">
                             <input
@@ -1706,10 +1687,9 @@ function CreateOutlet() {
                   placeholder="https://example.com"
                   className={`
                     rounded-3xl focus:border-brand-500  focus:ring-brand-500
-                    ${
-                      validationStates.website
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${validationStates.website
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -1733,10 +1713,9 @@ function CreateOutlet() {
                   maxLength={10}
                   className={`
                     rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      validationStates.whatsapp
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${validationStates.whatsapp
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -1757,10 +1736,9 @@ function CreateOutlet() {
                   onFocus={() => handleFocus("facebook")}
                   placeholder="https://facebook.com/yourpage"
                   className={`rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      validationStates.facebook
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${validationStates.facebook
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -1782,10 +1760,9 @@ function CreateOutlet() {
                   placeholder="https://instagram.com/yourhandle"
                   className={`
                     rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      validationStates.instagram
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${validationStates.instagram
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -1806,10 +1783,9 @@ function CreateOutlet() {
                   onFocus={() => handleFocus("google_business_link")}
                   placeholder="https://business.google.com/yourpage"
                   className={`rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      validationStates.google_business_link
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${validationStates.google_business_link
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -1830,10 +1806,9 @@ function CreateOutlet() {
                   onFocus={() => handleFocus("google_review")}
                   placeholder="https://g.page/r/yourreviewpage"
                   className={`rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      validationStates.google_review
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${validationStates.google_review
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />

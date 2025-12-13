@@ -15,6 +15,7 @@ import { TextInput, SelectInput } from "../forms/FormElements";
 import { toastController } from "../../utils/toastController";
 import { API_CONFIG } from "../../config/appConfig";
 import SaveButton from "../common/SaveButton";
+import CustomDropdown from "../common/CustomDropdown";
 
 const INITIAL_CUSTOMER_STATE = {
   name: "",
@@ -150,7 +151,7 @@ function EditCustomer() {
       // Navigate back to customers list after successful update
       navigate(-1);
     } catch (error) {
-      
+
     } finally {
       setIsSaving(false);
     }
@@ -273,10 +274,9 @@ function EditCustomer() {
                 placeholder="Enter mobile number"
                 className={`
                   rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                  ${
-                    !validationStates.mobile
-                      ? "border-error-500"
-                      : "border-gray-300"
+                  ${!validationStates.mobile
+                    ? "border-error-500"
+                    : "border-gray-300"
                   }
                 `}
               />
@@ -292,7 +292,7 @@ function EditCustomer() {
             {/* Conditional Outlet Selection */}
             {/* Outlet selection removed */}
 
-            <SelectInput
+            <CustomDropdown
               label="Status"
               name="is_active"
               value={customerData.is_active ? "1" : "0"}
@@ -301,6 +301,7 @@ function EditCustomer() {
                 { value: "1", label: "Active" },
                 { value: "0", label: "Inactive" },
               ]}
+              placeholder="Select Status"
             />
           </div>
         </form>

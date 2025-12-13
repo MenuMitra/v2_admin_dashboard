@@ -32,6 +32,7 @@ import {
 } from "../../utils/validations";
 import { toastController } from "../../utils/toastController";
 import SaveButton from "../common/SaveButton";
+import CustomDropdown from "../common/CustomDropdown";
 
 function EditPartner() {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ function EditPartner() {
     }
   }, [adminData?.user_id, partnerId]);
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
 
   // fetchFunctionalities removed
 
@@ -96,7 +97,7 @@ function EditPartner() {
         setOutlets(outletArray);
       }
     } catch (err) {
-      
+
       setError("Failed to load outlets");
     }
   };
@@ -144,7 +145,7 @@ function EditPartner() {
       setIsLoading(false);
     } catch (err) {
       setError("Failed to fetch partner details");
-      
+
       setIsLoading(false);
     }
   };
@@ -316,7 +317,7 @@ function EditPartner() {
       }
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to update partner");
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -433,7 +434,7 @@ function EditPartner() {
               />
 
               {/* Active Partner Checkbox */}
-              <SelectInput
+              <CustomDropdown
                 label="Partner Status"
                 name="is_active"
                 value={partnerDetails.is_active}

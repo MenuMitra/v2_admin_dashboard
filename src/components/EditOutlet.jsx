@@ -173,7 +173,7 @@ function EditOutlet() {
             Array.isArray(resp.data) ? resp.data : resp.data?.data || []
           );
         } catch (err) {
-          
+
         } finally {
           setLoadingModules(false);
         }
@@ -218,8 +218,8 @@ function EditOutlet() {
         const subscriptionId = respSubscription?.subscription_id
           ? String(respSubscription.subscription_id)
           : data.subscription_id
-          ? String(data.subscription_id)
-          : null;
+            ? String(data.subscription_id)
+            : null;
 
         const initialOwnerIds = data.owners?.map((owner) => owner.owner_id) || [];
         setOutletData({
@@ -337,7 +337,7 @@ function EditOutlet() {
         setIsLoading(false);
       }
     } catch (error) {
-      
+
       toastController.error("Failed to fetch outlet data");
       navigate(-1);
     }
@@ -363,7 +363,7 @@ function EditOutlet() {
         setOutletTypes(response.data.outlet_type_list);
       }
     } catch (error) {
-      
+
     }
   };
 
@@ -387,7 +387,7 @@ function EditOutlet() {
         setVegOrNonveg(response.data.veg_or_nonveg_list);
       }
     } catch (error) {
-      
+
     }
   };
 
@@ -405,7 +405,7 @@ function EditOutlet() {
         setAllOwners(response.data);
       }
     } catch (error) {
-      
+
     }
   };
 
@@ -532,7 +532,7 @@ function EditOutlet() {
     };
 
     // Log validation results for debugging
-    
+
 
     const fieldsValid = Object.entries(requiredFields).every(
       ([, value]) => value
@@ -544,7 +544,7 @@ function EditOutlet() {
         .filter(([, value]) => !value)
         .map(([field]) => field);
 
-      
+
       toastController.error(
         `Please fix the following fields: ${failedFields.join(", ")}`
       );
@@ -654,7 +654,7 @@ function EditOutlet() {
       }
 
       // Log the API payload for debugging
-      
+
 
       // Ensure we include any subscription id available from the cached outlet detail
       // (the view_outlet response may contain the subscription object created during create_outlet)
@@ -728,7 +728,7 @@ function EditOutlet() {
           queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
           queryClient.invalidateQueries(queryKeys.outlets.all);
         } catch (err) {
-          
+
         }
         navigate(`/view-outlet/${outletId}`);
       } else {
@@ -739,7 +739,7 @@ function EditOutlet() {
         toastController.error(msg);
       }
     } catch (error) {
-      
+
 
       // Show more detailed error message
       const errorMessage =
@@ -928,10 +928,9 @@ function EditOutlet() {
                               key={owner.user_id}
                               className={`
                                 p-3 cursor-pointer hover:bg-gray-50
-                                ${
-                                  outletData.owner_ids.includes(owner.user_id)
-                                    ? "bg-brand-50 border-l-4 border-brand-500"
-                                    : "border-l-4 border-transparent"
+                                ${outletData.owner_ids.includes(owner.user_id)
+                                  ? "bg-brand-50 border-l-4 border-brand-500"
+                                  : "border-l-4 border-transparent"
                                 }
                               `}
                             >
@@ -946,11 +945,11 @@ function EditOutlet() {
                                     const newOwnerIds = e.target.checked
                                       ? [...outletData.owner_ids, owner.user_id]
                                       : outletData.owner_ids.filter(
-                                          (id) => id !== owner.user_id
-                                        );
+                                        (id) => id !== owner.user_id
+                                      );
 
-                                    
-                                    
+
+
 
                                     setOutletData((prev) => ({
                                       ...prev,
@@ -1021,10 +1020,9 @@ function EditOutlet() {
                   required
                   className={`
                     rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      validationStates.name
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${validationStates.name
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -1042,10 +1040,9 @@ function EditOutlet() {
                     maxLength={10}
                     className={`
                       rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                      ${
-                        validationStates.mobile
-                          ? "border-error-500"
-                          : "border-gray-300"
+                      ${validationStates.mobile
+                        ? "border-error-500"
+                        : "border-gray-300"
                       }
                     `}
                   />
@@ -1169,8 +1166,8 @@ function EditOutlet() {
                       {!outletData.address
                         ? "Address is required"
                         : outletData.address.length < 5
-                        ? "Minimum 5 characters required"
-                        : "Address must not exceed 50 characters"}
+                          ? "Minimum 5 characters required"
+                          : "Address must not exceed 50 characters"}
                     </p>
                   )}
                 </div>
@@ -1253,195 +1250,208 @@ function EditOutlet() {
                   />
                 </div>
                 <div className="sm:col-span-2 md:col-span-3 xl:col-span-4 w-full">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {/*time*/}
+                  <div className="flex flex-row flex-nowrap items-end gap-10 mb-4">
+                    {/* Opening Time */}
                     <div>
-                      {/* Opening Time */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Opening Time
-                        </label>
-                        <div className="flex gap-2">
-                          <CustomDropdown
-                            className="w-16"
-                            value={openingHour}
-                            onChange={(e) =>
-                              handleOpeningTimeChange("hour", e.target.value)
-                            }
-                            options={[
-                              { value: "", label: "HH" },
-                              ...[...Array(12)].map((_, i) => {
-                                const val = (i + 1).toString().padStart(2, "0");
-                                return { value: val, label: val };
-                              })
-                            ]}
-                            placeholder="HH"
-                          />
-                          <CustomDropdown
-                            className="w-16"
-                            value={openingMinute}
-                            onChange={(e) =>
-                              handleOpeningTimeChange("minute", e.target.value)
-                            }
-                            options={[
-                              { value: "", label: "MM" },
-                              ...["00", "15", "30", "45"].map((min) => ({
-                                value: min,
-                                label: min
-                              }))
-                            ]}
-                            placeholder="MM"
-                          />
-                          <CustomDropdown
-                            className="w-16"
-                            value={openingPeriod}
-                            onChange={(e) =>
-                              handleOpeningTimeChange("period", e.target.value)
-                            }
-                            options={[
-                              { value: "AM", label: "AM" },
-                              { value: "PM", label: "PM" }
-                            ]}
-                            placeholder="AM/PM"
-                          />
-                        </div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Opening Time
+                      </label>
+                      <div className="flex gap-2">
+                        {/* Hour Dropdown */}
+                        <CustomDropdown
+                          className="w-22"
+                          value={openingHour}
+                          onChange={(e) =>
+                            handleOpeningTimeChange("hour", e.target.value)
+                          }
+                          options={[
+                            { value: "", label: "HH" },
+                            ...[...Array(12)].map((_, i) => {
+                              const val = (i + 1).toString().padStart(2, "0");
+                              return { value: val, label: val };
+                            }),
+                          ]}
+                          placeholder="HH"
+                        />
+                        {/* Minute Dropdown */}
+                        <CustomDropdown
+                          className="w-22"
+                          value={openingMinute}
+                          onChange={(e) =>
+                            handleOpeningTimeChange("minute", e.target.value)
+                          }
+                          options={[
+                            { value: "", label: "MM" },
+                            ...["00", "15", "30", "45"].map((min) => ({
+                              value: min,
+                              label: min,
+                            })),
+                          ]}
+                          placeholder="MM"
+                        />
+                        {/* AM/PM Dropdown */}
+                        <CustomDropdown
+                          className="w-22"
+                          value={openingPeriod}
+                          onChange={(e) =>
+                            handleOpeningTimeChange("period", e.target.value)
+                          }
+                          options={[
+                            { value: "AM", label: "AM" },
+                            { value: "PM", label: "PM" },
+                          ]}
+                          placeholder="AM/PM"
+                        />
                       </div>
                     </div>
+                    {/* Closing Time */}
                     <div>
-                                          {/* Closing Time */}
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Closing Time
-                        </label>
-                        <div className="flex gap-2">
-                          <CustomDropdown
-                            className="w-16"
-                            value={closingHour}
-                            onChange={(e) =>
-                              handleClosingTimeChange("hour", e.target.value)
-                            }
-                            options={[
-                              { value: "", label: "HH" },
-                              ...[...Array(12)].map((_, i) => {
-                                const val = (i + 1).toString().padStart(2, "0");
-                                return { value: val, label: val };
-                              })
-                            ]}
-                            placeholder="HH"
-                          />
-                          <CustomDropdown
-                            className="w-16"
-                            value={closingMinute}
-                            onChange={(e) =>
-                              handleClosingTimeChange("minute", e.target.value)
-                            }
-                            options={[
-                              { value: "", label: "MM" },
-                              ...["00", "15", "30", "45"].map((min) => ({
-                                value: min,
-                                label: min
-                              }))
-                            ]}
-                            placeholder="MM"
-                          />
-                          <CustomDropdown
-                            className="w-16"
-                            value={closingPeriod}
-                            onChange={(e) =>
-                              handleClosingTimeChange("period", e.target.value)
-                            }
-                            options={[
-                              { value: "AM", label: "AM" },
-                              { value: "PM", label: "PM" }
-                            ]}
-                            placeholder="AM/PM"
-                          />
-                        </div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Closing Time
+                      </label>
+                      <div className="flex gap-2">
+                        {/* Hour Dropdown */}
+                        <CustomDropdown
+                          className="w-22"
+                          value={closingHour}
+                          onChange={(e) =>
+                            handleClosingTimeChange("hour", e.target.value)
+                          }
+                          options={[
+                            { value: "", label: "HH" },
+                            ...[...Array(12)].map((_, i) => {
+                              const val = (i + 1).toString().padStart(2, "0");
+                              return { value: val, label: val };
+                            }),
+                          ]}
+                          placeholder="HH"
+                        />
+                        {/* Minute Dropdown */}
+                        <CustomDropdown
+                          className="w-22"
+                          value={closingMinute}
+                          onChange={(e) =>
+                            handleClosingTimeChange("minute", e.target.value)
+                          }
+                          options={[
+                            { value: "", label: "MM" },
+                            ...["00", "15", "30", "45"].map((min) => ({
+                              value: min,
+                              label: min,
+                            })),
+                          ]}
+                          placeholder="MM"
+                        />
+                        {/* AM/PM Dropdown */}
+                        <CustomDropdown
+                          className="w-22"
+                          value={closingPeriod}
+                          onChange={(e) =>
+                            handleClosingTimeChange("period", e.target.value)
+                          }
+                          options={[
+                            { value: "AM", label: "AM" },
+                            { value: "PM", label: "PM" },
+                          ]}
+                          placeholder="AM/PM"
+                        />
                       </div>
                     </div>
-
-                    {/* Boolean dropdowns */}
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Has Combo
-                        </label>
-                        <CustomDropdown
-                          name="has_combo"
-                          className="w-40"
-                          value={
-                            outletData.has_combo !== null
-                              ? String(outletData.has_combo)
-                              : ""
-                          }
-                          onChange={(e) =>
-                            setOutletData((prev) => ({
-                              ...prev,
-                              has_combo: e.target.value ? Number(e.target.value) : null,
-                            }))
-                          }
-                          options={[
-                            { value: "", label: "Select" },
-                            { value: "0", label: "No" },
-                            { value: "1", label: "Yes" }
-                          ]}
-                          placeholder="Select"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Has Denomination
-                        </label>
-                        <CustomDropdown
-                          name="has_denomination"
-                          className="w-40"
-                          value={
-                            outletData.has_denomination !== null
-                              ? String(outletData.has_denomination)
-                              : ""
-                          }
-                          onChange={(e) =>
-                            setOutletData((prev) => ({
-                              ...prev,
-                              has_denomination: e.target.value ? Number(e.target.value) : null,
-                            }))
-                          }
-                          options={[
-                            { value: "", label: "Select" },
-                            { value: "0", label: "No" },
-                            { value: "1", label: "Yes" }
-                          ]}
-                          placeholder="Select"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Reserve Table
-                        </label>
-                        <CustomDropdown
-                          name="reserve_table"
-                          className="w-40"
-                          value={
-                            outletData.reserve_table !== null
-                              ? String(outletData.reserve_table)
-                              : ""
-                          }
-                          onChange={(e) =>
-                            setOutletData((prev) => ({
-                              ...prev,
-                              reserve_table: e.target.value ? Number(e.target.value) : null,
-                            }))
-                          }
-                          options={[
-                            { value: "", label: "Select" },
-                            { value: "0", label: "No" },
-                            { value: "1", label: "Yes" }
-                          ]}
-                          placeholder="Select"
-                        />
-                      </div>
+                    {/* Has Combo */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has Combo
+                      </label>
+                      <CustomDropdown
+                        name="has_combo"
+                        className="w-22"
+                        value={
+                          outletData.has_combo !== null &&
+                            outletData.has_combo !== undefined
+                            ? String(outletData.has_combo)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            has_combo: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          }))
+                        }
+                        options={[
+                          { value: "", label: "Select" },
+                          ...YES_NO_OPTIONS.map((opt) => ({
+                            value: String(opt.value),
+                            label: opt.label,
+                          })),
+                        ]}
+                        placeholder="Select"
+                      />
+                    </div>
+                    {/* Has Denomination */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has Denomination
+                      </label>
+                      <CustomDropdown
+                        name="has_denomination"
+                        className="w-22"
+                        value={
+                          outletData.has_denomination !== null &&
+                            outletData.has_denomination !== undefined
+                            ? String(outletData.has_denomination)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            has_denomination: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          }))
+                        }
+                        options={[
+                          { value: "", label: "Select" },
+                          ...YES_NO_OPTIONS.map((opt) => ({
+                            value: String(opt.value),
+                            label: opt.label,
+                          })),
+                        ]}
+                        placeholder="Select"
+                      />
+                    </div>
+                    {/* Reserve Table */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reserve Table
+                      </label>
+                      <CustomDropdown
+                        name="reserve_table"
+                        className="w-22"
+                        value={
+                          outletData.reserve_table !== null &&
+                            outletData.reserve_table !== undefined
+                            ? String(outletData.reserve_table)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            reserve_table: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          }))
+                        }
+                        options={[
+                          { value: "", label: "Select" },
+                          ...YES_NO_OPTIONS.map((opt) => ({
+                            value: String(opt.value),
+                            label: opt.label,
+                          })),
+                        ]}
+                        placeholder="Select"
+                      />
                     </div>
                   </div>
                 </div>
@@ -1549,11 +1559,10 @@ function EditOutlet() {
                         <div
                           key={m.module_id}
                           onClick={() => handleModuleToggle(m.module_id)}
-                          className={`bg-white rounded-lg p-2 shadow-sm border cursor-pointer select-none ${
-                            checked
+                          className={`bg-white rounded-lg p-2 shadow-sm border cursor-pointer select-none ${checked
                               ? "border-blue-500 bg-blue-50"
                               : "border-gray-200"
-                          }`}
+                            }`}
                         >
                           <label className="flex items-center gap-2 cursor-pointer text-xs">
                             <input

@@ -4,6 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import { TextInput, SelectInput } from '../forms/FormElements';
 import axios from 'axios';
+import CustomDropdown from '../common/CustomDropdown';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack, faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -57,7 +58,7 @@ function EditAdmin() {
   const fetchAdminDetails = async () => {
     try {
       setIsLoading(true);
-      
+
       const token = getToken();
       if (!token) {
         throw new Error('No authentication token available');
@@ -84,7 +85,7 @@ function EditAdmin() {
       });
     } catch (error) {
       toastController.error(error.response?.data?.detail || 'Failed to fetch admin details');
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -94,15 +95,15 @@ function EditAdmin() {
     if (!mobile) return { isValid: false, message: 'Mobile number is required' };
     const numbersOnly = mobile.replace(/[^0-9]/g, '');
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
+
+    if (['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
       return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
     }
-    
+
     if (numbersOnly.length !== 10) {
       return { isValid: false, message: 'Mobile number must be 10 digits' };
     }
-    
+
     return { isValid: true, message: '' };
   };
 
@@ -112,8 +113,8 @@ function EditAdmin() {
     if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
-      
-      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
+
+      if (firstDigit && ['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
         setValidationStates(prev => ({
           ...prev,
           mobile: false,
@@ -129,7 +130,7 @@ function EditAdmin() {
         mobile: isValid,
         mobileMessage: message
       }));
-    } 
+    }
     else if (name === 'email') {
       // Gmail validation
       const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
@@ -143,7 +144,7 @@ function EditAdmin() {
         [name]: value
       }));
       return;
-    } 
+    }
     else if (name === 'is_active') {
       const boolValue = value === 'true';
       setAdminDetails(prev => ({
@@ -199,8 +200,8 @@ function EditAdmin() {
 
   const isFormValid = () => {
     return (
-      adminDetails.name?.trim() && 
-      adminDetails.mobile?.trim() && 
+      adminDetails.name?.trim() &&
+      adminDetails.mobile?.trim() &&
       adminDetails.email?.trim() &&
       adminDetails.is_active !== undefined &&
       validationStates.name &&
@@ -213,7 +214,7 @@ function EditAdmin() {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setIsSubmitAttempted(true);
-    
+
     if (!isFormValid()) {
       toastController.error("Please fill all required fields correctly");
       return;
@@ -221,7 +222,7 @@ function EditAdmin() {
 
     try {
       setIsSubmitting(true);
-      
+
       const token = getToken();
       if (!token) {
         throw new Error('No authentication token available');
@@ -256,7 +257,7 @@ function EditAdmin() {
 
       navigate('/admins');
     } catch (error) {
-      
+
     } finally {
       setIsSubmitting(false);
     }
@@ -374,12 +375,11 @@ function EditAdmin() {
                 )}
               </div>
 
-              <SelectInput
+              <CustomDropdown
                 label="Status"
                 name="is_active"
                 value={adminDetails.is_active}
                 onChange={handleChange}
-                onFocus={() => handleFocus('is_active')}
                 error={!validationStates.is_active && isSubmitAttempted}
                 errorMessage="Please select a status"
                 required
