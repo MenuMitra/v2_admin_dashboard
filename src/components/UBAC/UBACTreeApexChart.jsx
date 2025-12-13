@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faPlus, faRotate, faMagnifyingGlass, faTimes, faCheck } from "@fortawesome/free-solid-svg-icons";
+import SaveButton from "../common/SaveButton";
 import Breadcrumb from "../Breadcrumb";
 import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
@@ -8,6 +9,7 @@ import { API_CONFIG } from "../../config/appConfig";
 import Modal from "../common/Modal";
 import { toastController } from "../../utils/toastController";
 import ApexTree from "apextree";
+import CustomDropdown from "../common/CustomDropdown";
 
 const UBACTree = () => {
   const { data, isLoading, refetchUbacTree } = useUbacTree();
@@ -45,53 +47,53 @@ const UBACTree = () => {
   // Color assignment function for module lineage
   const getNodeColor = (moduleIndex, nodeType) => {
     const colorPalette = [
-      { 
+      {
         module: 'linear-gradient(135deg, #FF4757 0%, #FFA502 100%)',  // Red to Orange
-        feature: '#FF6348', 
-        action: '#FFA07A' 
+        feature: '#FF6348',
+        action: '#FFA07A'
       },  // Red-Orange family
-      { 
+      {
         module: 'linear-gradient(135deg, #1E90FF 0%, #00CED1 100%)',  // Blue to Cyan
-        feature: '#4FC3F7', 
-        action: '#81D4FA' 
+        feature: '#4FC3F7',
+        action: '#81D4FA'
       },  // Blue-Cyan family
-      { 
+      {
         module: 'linear-gradient(135deg, #2ECC71 0%, #3498DB 100%)',  // Green to Blue
-        feature: '#5DADE2', 
-        action: '#85C1E9' 
+        feature: '#5DADE2',
+        action: '#85C1E9'
       },  // Green-Blue family
-      { 
+      {
         module: 'linear-gradient(135deg, #9B59B6 0%, #E91E63 100%)',  // Purple to Pink
-        feature: '#BA68C8', 
-        action: '#CE93D8' 
+        feature: '#BA68C8',
+        action: '#CE93D8'
       },  // Purple-Pink family
-      { 
+      {
         module: 'linear-gradient(135deg, #F39C12 0%, #E74C3C 100%)',  // Orange to Red
-        feature: '#FF7043', 
-        action: '#FFAB91' 
+        feature: '#FF7043',
+        action: '#FFAB91'
       },  // Orange-Red family
-      { 
+      {
         module: 'linear-gradient(135deg, #16A085 0%, #F4D03F 100%)',  // Teal to Yellow
-        feature: '#4DB6AC', 
-        action: '#80CBC4' 
+        feature: '#4DB6AC',
+        action: '#80CBC4'
       },  // Teal-Yellow family
-      { 
+      {
         module: 'linear-gradient(135deg, #8E44AD 0%, #3498DB 100%)',  // Purple to Blue
-        feature: '#7986CB', 
-        action: '#9FA8DA' 
+        feature: '#7986CB',
+        action: '#9FA8DA'
       },  // Purple-Blue family
-      { 
+      {
         module: 'linear-gradient(135deg, #C0392B 0%, #F39C12 100%)',  // Dark Red to Orange
-        feature: '#E57373', 
-        action: '#EF9A9A' 
+        feature: '#E57373',
+        action: '#EF9A9A'
       },  // Red-Orange family
-      { 
+      {
         module: 'linear-gradient(135deg, #D35400 0%, #FFC300 100%)',  // Dark Orange to Yellow
-        feature: '#FFB74D', 
-        action: '#FFCC80' 
+        feature: '#FFB74D',
+        action: '#FFCC80'
       },  // Orange-Yellow family
     ];
-    
+
     const paletteIndex = moduleIndex % colorPalette.length;
     return colorPalette[paletteIndex][nodeType];
   };
@@ -110,7 +112,7 @@ const UBACTree = () => {
       });
 
       if (res.status === 401 || res.status === 403) {
-        
+
         setModulesList([]);
         return;
       }
@@ -119,7 +121,7 @@ const UBACTree = () => {
       const data = json.data || json || [];
       setModulesList(Array.isArray(data) ? data : []);
     } catch (err) {
-      
+
       setModulesList([]);
     }
   }, [BASE_URL, getToken]);
@@ -156,13 +158,13 @@ const UBACTree = () => {
       });
 
       if (res.status === 401 || res.status === 403) {
-        
+
         setFeaturesList([]);
         return;
       }
 
       if (!res.ok) {
-       
+
         setFeaturesList([]);
         return;
       }
@@ -174,7 +176,7 @@ const UBACTree = () => {
         : incoming.features || [];
       setFeaturesList(features);
     } catch (err) {
-      
+
       setFeaturesList([]);
     }
   }, [BASE_URL, getToken]);
@@ -188,7 +190,7 @@ const UBACTree = () => {
     // Root node
     const rootNode = {
       id: 'UBAC_Root',
-      data: { 
+      data: {
         name: 'UBAC SYSTEM',
         stats: `${apiResponse.total_modules || 0} Modules | ${apiResponse.total_features || 0} Features | ${apiResponse.total_actions || 0} Actions`,
         nodeType: 'root',
@@ -205,7 +207,7 @@ const UBACTree = () => {
       const hasFeatures = module.features && Array.isArray(module.features) && module.features.length > 0;
       const moduleNode = {
         id: `module_${module.module_id}`,
-        data: { 
+        data: {
           name: cleanFieldName(module.name),
           nodeType: 'module',
           originalId: module.module_id,
@@ -223,7 +225,7 @@ const UBACTree = () => {
           const hasActions = feature.actions && Array.isArray(feature.actions) && feature.actions.length > 0;
           const featureNode = {
             id: `feature_${feature.feature_id}`,
-            data: { 
+            data: {
               name: cleanFieldName(feature.name),
               nodeType: 'feature',
               originalId: feature.feature_id,
@@ -240,7 +242,7 @@ const UBACTree = () => {
             feature.actions.forEach(action => {
               const actionNode = {
                 id: `action_${action.action_id}`,
-                data: { 
+                data: {
                   name: cleanFieldName(action.name),
                   nodeType: 'action',
                   originalId: action.action_id,
@@ -315,13 +317,13 @@ const UBACTree = () => {
   // Handle Delete Node Button Click
   const handleDeleteNode = useCallback(async (nodeId, nodeType) => {
     if (!confirm(`Delete this ${nodeType}? This cannot be undone.`)) return;
-    
+
     try {
       const token = getToken() || localStorage.getItem("token");
       const headers = token
         ? { Authorization: token, "Content-Type": "application/json" }
         : { "Content-Type": "application/json" };
-      
+
       let resp;
       if (nodeType === 'module') {
         resp = await fetch(`${BASE_URL}/admin/delete_modules`, {
@@ -346,17 +348,17 @@ const UBACTree = () => {
           body: JSON.stringify({ action_ids: [Number(nodeId)] }),
         });
       }
-      
+
       if (!resp.ok) {
         const errJson = await resp.json().catch(() => ({}));
         toastController.error(errJson.detail || errJson.message || "Delete failed");
         return;
       }
-      
+
       await refetchUbacTree();
       toastController.success("Deleted successfully");
     } catch (err) {
-      
+
       toastController.error("Delete failed");
     }
   }, [BASE_URL, getToken, refetchUbacTree]);
@@ -421,15 +423,15 @@ const UBACTree = () => {
     container.innerHTML = '';
 
     // Apply search filter if search term exists
-    const filteredData = searchTerm 
+    const filteredData = searchTerm
       ? filterTreeData(data, searchTerm)
       : data;
 
     // Transform API data to ApexTree format
     const treeData = transformUbacDataToTree(filteredData);
-    
+
     if (!treeData) {
-      
+
       return;
     }
 
@@ -452,28 +454,28 @@ const UBACTree = () => {
       nodeTemplate: (content) => {
         const showDelete = !content.hasChildren;
         const showEdit = content.nodeType !== 'root'; // Hide edit button for root node
-        
+
         // Calculate dynamic width based on text length
         // Average character width ~8px, add padding for buttons and spacing
         // const textLength = content.name.length;
         // const baseWidth = Math.max(150, Math.min(400, textLength * 8 + 100));
-        
+
         // Get background color/gradient
         let background = '#fff';
         let textColor = '#000';
         let boxShadow = 'none';
         let border = 'none';
-        
+
         if (content.nodeType === 'root') {
           background = '#94ddff';
           textColor = '#000';
           boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
         } else if (content.moduleIndex !== undefined) {
           background = getNodeColor(content.moduleIndex, content.nodeType);
-          
+
           // ALL non-root nodes get white text
           textColor = '#FFFFFF';  // White text for modules, features, and actions
-          
+
           // Module nodes get special styling
           if (content.nodeType === 'module') {
             boxShadow = '0 6px 16px rgba(0,0,0,0.25)';  // Stronger shadow
@@ -483,7 +485,7 @@ const UBACTree = () => {
             boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
           }
         }
-        
+
         return `
           <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;padding:10px;background:${background} !important;border-radius:8px;box-shadow:${boxShadow};border:${border};color:${textColor};box-sizing:border-box;min-height:100%;">
             <div style="font-weight:bold;font-family:Arial;font-size:14px;text-align:center;word-wrap:break-word;margin-bottom:6px;color:${textColor};">${content.name}</div>
@@ -527,13 +529,13 @@ const UBACTree = () => {
     const handleNodeButtonClick = (e) => {
       const button = e.target.closest('[data-action]');
       if (!button) return;
-      
+
       e.stopPropagation();
-      
+
       const nodeId = button.dataset.nodeId;
       const nodeType = button.dataset.nodeType;
       const action = button.dataset.action;
-      
+
       if (action === 'edit') {
         handleEditNode(nodeId, nodeType);
       } else if (action === 'delete') {
@@ -545,9 +547,9 @@ const UBACTree = () => {
     try {
       const tree = new ApexTree(container, options);
       tree.render(treeData);
-      
+
       container.addEventListener('click', handleNodeButtonClick);
-      
+
       // Alternative: Manually fit content after rendering
       setTimeout(() => {
         if (tree.fit) {
@@ -555,7 +557,7 @@ const UBACTree = () => {
         }
       }, 100);
     } catch (error) {
-      
+
     }
 
     // Cleanup function
@@ -648,27 +650,27 @@ const UBACTree = () => {
               <span className="font-medium text-gray-800">
                 Features: {data && data.data
                   ? data.data.reduce(
-                      (acc, m) =>
-                        acc + (Array.isArray(m.features) ? m.features.length : 0),
-                      0
-                    )
+                    (acc, m) =>
+                      acc + (Array.isArray(m.features) ? m.features.length : 0),
+                    0
+                  )
                   : 0}
               </span>
               <span className="font-medium text-gray-800">
                 Actions: {data && data.data
                   ? data.data.reduce(
-                      (acc, m) =>
-                        acc +
-                        (Array.isArray(m.features)
-                          ? m.features.reduce(
-                              (faAcc, f) =>
-                                faAcc +
-                                (Array.isArray(f.actions) ? f.actions.length : 0),
-                              0
-                            )
-                          : 0),
-                      0
-                    )
+                    (acc, m) =>
+                      acc +
+                      (Array.isArray(m.features)
+                        ? m.features.reduce(
+                          (faAcc, f) =>
+                            faAcc +
+                            (Array.isArray(f.actions) ? f.actions.length : 0),
+                          0
+                        )
+                        : 0),
+                    0
+                  )
                   : 0}
               </span>
             </div>
@@ -724,8 +726,8 @@ const UBACTree = () => {
               </div>
             </div>
           ) : (
-            <div 
-              id="svg-tree" 
+            <div
+              id="svg-tree"
               ref={treeContainerRef}
               className="mx-auto min-h-[400px]"
             />
@@ -748,56 +750,16 @@ const UBACTree = () => {
             >
               Cancel
             </button>
-            <button
-              className={`
-                inline-flex items-center gap-3 px-6 py-3 
-                text-sm font-medium rounded-full
-                bg-white border-2 transition-all duration-200 shadow-sm
-                hover:shadow-md hover:scale-105 transform
-                ${loadingSave || 
-                  (type !== "module" && !selectedModuleId) ||
-                  (type === "action" && !selectedFeatureId) ||
-                  !formName ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
-              `}
-              style={{
-                borderColor: '#3bdde3',
-                color: '#3bdde3'
-              }}
-              onMouseEnter={(e) => {
-                if (!loadingSave && 
-                    !((type !== "module" && !selectedModuleId) ||
-                      (type === "action" && !selectedFeatureId) ||
-                      !formName)) {
-                  e.target.style.backgroundColor = '#3bdde3';
-                  e.target.style.color = 'white';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = 'white';
-                  if (icon) icon.style.color = 'white';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!loadingSave && 
-                    !((type !== "module" && !selectedModuleId) ||
-                      (type === "action" && !selectedFeatureId) ||
-                      !formName)) {
-                  e.target.style.backgroundColor = 'white';
-                  e.target.style.color = '#3bdde3';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
-                  if (icon) icon.style.color = '#3bdde3';
-                }
-              }}
+            <SaveButton
               onClick={async () => {
                 setLoadingSave(true);
                 try {
                   const token = getToken() || localStorage.getItem("token");
                   const headers = token
                     ? {
-                        Authorization: token,
-                        "Content-Type": "application/json",
-                      }
+                      Authorization: token,
+                      "Content-Type": "application/json",
+                    }
                     : { "Content-Type": "application/json" };
 
                   let resp;
@@ -810,7 +772,7 @@ const UBACTree = () => {
                         body: JSON.stringify({ name: formName }),
                       }
                     );
-                    
+
                     // Refetch modules list after creating a module
                     if (resp && resp.ok) {
                       await fetchModules();
@@ -827,7 +789,7 @@ const UBACTree = () => {
                         }),
                       }
                     );
-                    
+
                     // Refetch features list after creating a feature
                     if (resp && resp.ok && selectedModuleId) {
                       await fetchFeatures(selectedModuleId);
@@ -867,7 +829,7 @@ const UBACTree = () => {
                   setSelectedFeatureId("");
                   setSelectedModuleId("");
                 } catch (err) {
-                  
+
                   toastController.error("Save failed");
                 } finally {
                   setLoadingSave(false);
@@ -879,68 +841,60 @@ const UBACTree = () => {
                 (type === "action" && !selectedFeatureId) ||
                 !formName
               }
+              isLoading={loadingSave}
             >
-              <div 
-                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
-                style={{ borderColor: '#3bdde3' }}
-              >
-                <FontAwesomeIcon
-                  icon={faCheck} 
-                  className="check-icon w-3 h-3 transition-all duration-200" 
-                  style={{ color: '#3bdde3' }}
-                />
-              </div>
-              <span>{loadingSave ? "Saving..." : "Save"}</span>
-            </button>
+              {loadingSave ? "Saving..." : "Save"}
+            </SaveButton>
           </>
         }
       >
         <div className="mb-3">
-          <label className="block text-sm mb-1">Type</label>
-          <select
+          <CustomDropdown
+            label="Type"
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full border rounded-3xl px-2 py-1"
-          >
-            <option value="module">Module</option>
-            <option value="feature">Feature</option>
-            <option value="action">Action</option>
-          </select>
+            options={[
+              { value: "module", label: "Module" },
+              { value: "feature", label: "Feature" },
+              { value: "action", label: "Action" },
+            ]}
+            placeholder="Select Type"
+          />
         </div>
 
         {(type === "feature" || type === "action") && (
           <div className="mb-3">
-            <label className="block text-sm mb-1">Module</label>
-            <select
+            <CustomDropdown
+              label="Module"
               value={selectedModuleId}
               onChange={(e) => setSelectedModuleId(e.target.value)}
-              className="w-full rounded-3xl border px-2 py-1"
-            >
-              <option value="">Select module</option>
-              {modulesList.map((m) => (
-                <option key={m.module_id} value={m.module_id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: "", label: "Select module" },
+                ...modulesList.map((m) => ({
+                  value: m.module_id,
+                  label: m.name,
+                })),
+              ]}
+              placeholder="Select module"
+            />
           </div>
         )}
 
         {type === "action" && (
           <div className="mb-3">
-            <label className="block text-sm mb-1">Feature</label>
-            <select
+            <CustomDropdown
+              label="Feature"
               value={selectedFeatureId}
               onChange={(e) => setSelectedFeatureId(e.target.value)}
-              className="w-full rounded-3xl border px-2 py-1"
-            >
-              <option value="">Select feature</option>
-              {featuresList.map((f) => (
-                <option key={f.feature_id} value={f.feature_id}>
-                  {f.name}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: "", label: "Select feature" },
+                ...featuresList.map((f) => ({
+                  value: f.feature_id,
+                  label: f.name,
+                })),
+              ]}
+              placeholder="Select feature"
+            />
           </div>
         )}
 
@@ -963,62 +917,22 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-6 py-3 border border-2 rounded-3xl"
+              className="px-5 py-1.5 border border-2 rounded-3xl"
               onClick={() => setIsEditModalOpen(false)}
               disabled={editLoadingSave}
             >
               Cancel
             </button>
-            <button
-              className={`
-                inline-flex items-center gap-3 px-6 py-3 
-                text-sm font-medium rounded-full
-                bg-white border-2 transition-all duration-200 shadow-sm
-                hover:shadow-md hover:scale-105 transform
-                ${editLoadingSave ||
-                  !editFormName ||
-                  (editType === "feature" && !editSelectedModuleId) ||
-                  (editType === "action" && !editSelectedFeatureId) ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
-              `}
-              style={{
-                borderColor: '#3bdde3',
-                color: '#3bdde3'
-              }}
-              onMouseEnter={(e) => {
-                if (!editLoadingSave &&
-                    editFormName &&
-                    !(editType === "feature" && !editSelectedModuleId) &&
-                    !(editType === "action" && !editSelectedFeatureId)) {
-                  e.target.style.backgroundColor = '#3bdde3';
-                  e.target.style.color = 'white';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = 'white';
-                  if (icon) icon.style.color = 'white';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!editLoadingSave &&
-                    editFormName &&
-                    !(editType === "feature" && !editSelectedModuleId) &&
-                    !(editType === "action" && !editSelectedFeatureId)) {
-                  e.target.style.backgroundColor = 'white';
-                  e.target.style.color = '#3bdde3';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
-                  if (icon) icon.style.color = '#3bdde3';
-                }
-              }}
+            <SaveButton
               onClick={async () => {
                 setEditLoadingSave(true);
                 try {
                   const token = getToken() || localStorage.getItem("token");
                   const headers = token
                     ? {
-                        Authorization: token,
-                        "Content-Type": "application/json",
-                      }
+                      Authorization: token,
+                      "Content-Type": "application/json",
+                    }
                     : { "Content-Type": "application/json" };
 
                   let resp;
@@ -1088,7 +1002,7 @@ const UBACTree = () => {
                   setEditSelectedModuleId("");
                   setEditId(null);
                 } catch (err) {
-                  
+
                   toastController.error("Save failed");
                 } finally {
                   setEditLoadingSave(false);
@@ -1100,19 +1014,10 @@ const UBACTree = () => {
                 (editType === "feature" && !editSelectedModuleId) ||
                 (editType === "action" && !editSelectedFeatureId)
               }
+              isLoading={editLoadingSave}
             >
-              <div 
-                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
-                style={{ borderColor: '#3bdde3' }}
-              >
-                <FontAwesomeIcon
-                  icon={faCheck} 
-                  className="check-icon w-3 h-3 transition-all duration-200" 
-                  style={{ color: '#3bdde3' }}
-                />
-              </div>
-              <span>{editLoadingSave ? "Saving..." : "Save"}</span>
-            </button>
+              {editLoadingSave ? "Saving..." : "Save"}
+            </SaveButton>
           </>
         }
       >
@@ -1131,40 +1036,39 @@ const UBACTree = () => {
             <>
               {editType === "feature" && (
                 <div className="mb-3">
-                  <label className="block text-sm mb-1">Module</label>
-                  <select
+                  <CustomDropdown
+                    label="Module"
                     value={editSelectedModuleId}
                     onChange={(e) => setEditSelectedModuleId(e.target.value)}
-                    className="w-full border rounded-3xl px-2 py-1"
-                  >
-                    <option value="">Select module</option>
-                    {modulesList.map((m) => (
-                      <option key={m.module_id} value={m.module_id}>
-                        {m.name}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: "", label: "Select module" },
+                      ...modulesList.map((m) => ({
+                        value: m.module_id,
+                        label: m.name,
+                      })),
+                    ]}
+                    placeholder="Select module"
+                  />
                 </div>
               )}
 
               {editType === "action" && (
                 <div className="mb-3">
-                  <label className="block text-sm mb-1">Feature</label>
-                  <select
+                  <CustomDropdown
+                    label="Feature"
                     value={editSelectedFeatureId}
                     onChange={(e) => setEditSelectedFeatureId(e.target.value)}
-                    className="w-full rounded-3xl border px-2 py-1"
-                  >
-                    <option value="">Select feature</option>
-                    {allFeatures.map((f) => (
-                      <option key={f.feature_id} value={f.feature_id}>
-                        {`${f.name} (${
-                          modulesList.find((m) => m.module_id === f.module_id)
-                            ?.name || ""
-                        })`}
-                      </option>
-                    ))}
-                  </select>
+                    options={[
+                      { value: "", label: "Select feature" },
+                      ...allFeatures.map((f) => ({
+                        value: f.feature_id,
+                        label: `${f.name} (${modulesList.find((m) => m.module_id === f.module_id)
+                          ?.name || ""
+                          })`,
+                      })),
+                    ]}
+                    placeholder="Select feature"
+                  />
                 </div>
               )}
 

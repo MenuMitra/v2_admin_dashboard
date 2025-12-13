@@ -520,7 +520,7 @@ function ViewOutlet() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <Link
                   to={`/categories/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-3xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon
                     icon={faList}
@@ -533,7 +533,7 @@ function ViewOutlet() {
 
                 <Link
                   to={`/menus/${outletId}`}
-                  className="flex items-center justify-center p-3 sm:p-4 rounded-xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
+                  className="flex items-center justify-center p-3 sm:p-4 rounded-3xl border border-gray-200 bg-white hover:border-brand-500 hover:shadow-lg transition-all duration-200"
                 >
                   <FontAwesomeIcon
                     icon={faUtensils}

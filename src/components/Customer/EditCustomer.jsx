@@ -14,6 +14,8 @@ import Breadcrumb from "../Breadcrumb";
 import { TextInput, SelectInput } from "../forms/FormElements";
 import { toastController } from "../../utils/toastController";
 import { API_CONFIG } from "../../config/appConfig";
+import SaveButton from "../common/SaveButton";
+import CustomDropdown from "../common/CustomDropdown";
 
 const INITIAL_CUSTOMER_STATE = {
   name: "",
@@ -149,7 +151,7 @@ function EditCustomer() {
       // Navigate back to customers list after successful update
       navigate(-1);
     } catch (error) {
-      
+
     } finally {
       setIsSaving(false);
     }
@@ -233,62 +235,13 @@ function EditCustomer() {
               Edit Customer
             </div>
             <div className="flex items-center gap-2">
-              <button
-                type="submit"
-                form="editCustomerForm"
+              <SaveButton
+                onClick={handleSubmit}
                 disabled={isSaving || !isFormValid()}
-                className={`
-                  inline-flex items-center gap-3 px-6 py-3 
-                  text-sm font-medium rounded-full
-                  bg-white border-2 transition-all duration-200 shadow-sm
-                  hover:shadow-md hover:scale-105 transform
-                  ${isSaving || !isFormValid() ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
-                `}
-                style={{
-                  borderColor: '#3bdde3',
-                  color: '#3bdde3'
-                }}
-                onMouseEnter={(e) => {
-                  if (!isSaving && isFormValid()) {
-                    e.target.style.backgroundColor = '#3bdde3';
-                    e.target.style.color = 'white';
-                    const iconContainer = e.target.querySelector('.icon-container');
-                    const icon = e.target.querySelector('.check-icon');
-                    if (iconContainer) iconContainer.style.borderColor = 'white';
-                    if (icon) icon.style.color = 'white';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isSaving && isFormValid()) {
-                    e.target.style.backgroundColor = 'white';
-                    e.target.style.color = '#3bdde3';
-                    const iconContainer = e.target.querySelector('.icon-container');
-                    const icon = e.target.querySelector('.check-icon');
-                    if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
-                    if (icon) icon.style.color = '#3bdde3';
-                  }
-                }}
+                isLoading={isSaving}
               >
-                <div 
-                  className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
-                  style={{ borderColor: '#3bdde3' }}
-                >
-                  {isSaving ? (
-                    <FontAwesomeIcon
-                      icon={faSpinner}
-                      className="w-3 h-3 animate-spin"
-                      style={{ color: '#3bdde3' }}
-                    />
-                  ) : (
-                    <FontAwesomeIcon
-                      icon={faCheck} 
-                      className="check-icon w-3 h-3 transition-all duration-200" 
-                      style={{ color: '#3bdde3' }}
-                    />
-                  )}
-                </div>
-                <span>{isSaving ? "Saving..." : "Save"}</span>
-              </button>
+                {isSaving ? "Saving..." : "Save"}
+              </SaveButton>
             </div>
           </div>
         </div>
@@ -321,10 +274,9 @@ function EditCustomer() {
                 placeholder="Enter mobile number"
                 className={`
                   rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                  ${
-                    !validationStates.mobile
-                      ? "border-error-500"
-                      : "border-gray-300"
+                  ${!validationStates.mobile
+                    ? "border-error-500"
+                    : "border-gray-300"
                   }
                 `}
               />
@@ -340,7 +292,7 @@ function EditCustomer() {
             {/* Conditional Outlet Selection */}
             {/* Outlet selection removed */}
 
-            <SelectInput
+            <CustomDropdown
               label="Status"
               name="is_active"
               value={customerData.is_active ? "1" : "0"}
@@ -349,6 +301,7 @@ function EditCustomer() {
                 { value: "1", label: "Active" },
                 { value: "0", label: "Inactive" },
               ]}
+              placeholder="Select Status"
             />
           </div>
         </form>

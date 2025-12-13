@@ -20,7 +20,9 @@ import {
 import Breadcrumb from "./Breadcrumb";
 import { API_CONFIG } from "../config/appConfig";
 import MultiSelectDropdown from "./common/MultiSelectDropdown";
+import CustomDropdown from "./common/CustomDropdown";
 import { toastController } from "../utils/toastController";
+import SaveButton from "./common/SaveButton";
 
 function EditOwner() {
   const { getToken } = useAuth();
@@ -121,7 +123,7 @@ function EditOwner() {
         setOutlets(outletArray);
       }
     } catch (err) {
-      
+
       setError("Failed to load outlets");
     }
   };
@@ -172,7 +174,7 @@ function EditOwner() {
       setIsLoading(false);
     } catch (err) {
       setError("Failed to fetch owner details");
-      
+
       setIsLoading(false);
     }
   };
@@ -460,7 +462,7 @@ function EditOwner() {
       if (response.data.detail === "Owner updated successfully") {
         // Invalidate owners cache to refresh the list
         queryClient.invalidateQueries({ queryKey: queryKeys.owners.all });
-        
+
         // Handle navigation based on role
         const roleNavigationMap = {
           // Staff roles that require outlet_id
@@ -491,7 +493,7 @@ function EditOwner() {
       }
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to update owner");
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -536,53 +538,13 @@ function EditOwner() {
             </h1>
 
             {/* Save Button */}
-            <button
+            <SaveButton
               onClick={handleSubmit}
               disabled={isLoading || !isFormValid()}
-              className={`
-                inline-flex items-center gap-3 px-6 py-3 
-                text-sm font-medium rounded-full
-                bg-white border-2 transition-all duration-200 shadow-sm
-                hover:shadow-md hover:scale-105 transform
-                ${isLoading || !isFormValid() ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
-              `}
-              style={{
-                borderColor: '#3bdde3',
-                color: '#3bdde3'
-              }}
-              onMouseEnter={(e) => {
-                if (!isLoading && isFormValid()) {
-                  e.target.style.backgroundColor = '#3bdde3';
-                  e.target.style.color = 'white';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = 'white';
-                  if (icon) icon.style.color = 'white';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isLoading && isFormValid()) {
-                  e.target.style.backgroundColor = 'white';
-                  e.target.style.color = '#3bdde3';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
-                  if (icon) icon.style.color = '#3bdde3';
-                }
-              }}
+              isLoading={isLoading}
             >
-              <div 
-                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
-                style={{ borderColor: '#3bdde3' }}
-              >
-                <FontAwesomeIcon
-                  icon={faCheck} 
-                  className="check-icon w-3 h-3 transition-all duration-200" 
-                  style={{ color: '#3bdde3' }}
-                />
-              </div>
-              <span>Save</span>
-            </button>
+              Save
+            </SaveButton>
           </div>
         </div>
 
@@ -612,10 +574,9 @@ function EditOwner() {
                   maxLength={10}
                   className={`
                     rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      !validationStates.mobile
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${!validationStates.mobile
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -664,10 +625,9 @@ function EditOwner() {
                   maxLength={12}
                   className={`
                     rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      !validationStates.aadhar_number
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${!validationStates.aadhar_number
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -678,17 +638,17 @@ function EditOwner() {
                 )}
               </div>{" "}
               {/* Role - Added to the grid */}
-              <SelectInput
+              <CustomDropdown
                 label="Role"
                 name="role"
                 value={ownerData.role}
                 onChange={handleChange}
-                options={[{ value: "super_owner", label: "Superowner" }]}
+                options={roles.length > 0 ? roles.map(r => ({ value: r.role_name, label: r.role_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) })) : [{ value: "super_owner", label: "Superowner" }]}
                 placeholder="Select Role"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
                 {/* Owner Status - Added to the grid */}
-                <SelectInput
+                <CustomDropdown
                   label="Owner Status"
                   name="is_active"
                   value={ownerData.is_active}
@@ -721,8 +681,8 @@ function EditOwner() {
                     {!ownerData.address
                       ? ""
                       : ownerData.address.length < 5
-                      ? "Minimum 5 characters required"
-                      : "Address must not exceed 50 characters"}
+                        ? "Minimum 5 characters required"
+                        : "Address must not exceed 50 characters"}
                   </p>
                 )}
               </div>
@@ -747,7 +707,7 @@ function EditOwner() {
                     />
                   ) : (
                     /* Single-select dropdown for staff roles */
-                    <SelectInput
+                    <CustomDropdown
                       label="Select Staff Outlet"
                       name="staff_outlet"
                       value={staffOutletId}

@@ -4,9 +4,11 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import { TextInput, SelectInput } from '../forms/FormElements';
 import axios from 'axios';
+import CustomDropdown from '../common/CustomDropdown';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack, faCheck } from '@fortawesome/free-solid-svg-icons';
+import SaveButton from '../common/SaveButton';
 import { toastController } from '../../utils/toastController';
 import { API_CONFIG } from '../../config/appConfig';
 
@@ -56,7 +58,7 @@ function EditAdmin() {
   const fetchAdminDetails = async () => {
     try {
       setIsLoading(true);
-      
+
       const token = getToken();
       if (!token) {
         throw new Error('No authentication token available');
@@ -83,7 +85,7 @@ function EditAdmin() {
       });
     } catch (error) {
       toastController.error(error.response?.data?.detail || 'Failed to fetch admin details');
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -93,15 +95,15 @@ function EditAdmin() {
     if (!mobile) return { isValid: false, message: 'Mobile number is required' };
     const numbersOnly = mobile.replace(/[^0-9]/g, '');
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
+
+    if (['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
       return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
     }
-    
+
     if (numbersOnly.length !== 10) {
       return { isValid: false, message: 'Mobile number must be 10 digits' };
     }
-    
+
     return { isValid: true, message: '' };
   };
 
@@ -111,8 +113,8 @@ function EditAdmin() {
     if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
-      
-      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
+
+      if (firstDigit && ['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
         setValidationStates(prev => ({
           ...prev,
           mobile: false,
@@ -128,7 +130,7 @@ function EditAdmin() {
         mobile: isValid,
         mobileMessage: message
       }));
-    } 
+    }
     else if (name === 'email') {
       // Gmail validation
       const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
@@ -142,7 +144,7 @@ function EditAdmin() {
         [name]: value
       }));
       return;
-    } 
+    }
     else if (name === 'is_active') {
       const boolValue = value === 'true';
       setAdminDetails(prev => ({
@@ -198,8 +200,8 @@ function EditAdmin() {
 
   const isFormValid = () => {
     return (
-      adminDetails.name?.trim() && 
-      adminDetails.mobile?.trim() && 
+      adminDetails.name?.trim() &&
+      adminDetails.mobile?.trim() &&
       adminDetails.email?.trim() &&
       adminDetails.is_active !== undefined &&
       validationStates.name &&
@@ -212,7 +214,7 @@ function EditAdmin() {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setIsSubmitAttempted(true);
-    
+
     if (!isFormValid()) {
       toastController.error("Please fill all required fields correctly");
       return;
@@ -220,7 +222,7 @@ function EditAdmin() {
 
     try {
       setIsSubmitting(true);
-      
+
       const token = getToken();
       if (!token) {
         throw new Error('No authentication token available');
@@ -255,7 +257,7 @@ function EditAdmin() {
 
       navigate('/admins');
     } catch (error) {
-      
+
     } finally {
       setIsSubmitting(false);
     }
@@ -298,53 +300,13 @@ function EditAdmin() {
             </h1>
 
             {/* Save Button */}
-            <button
+            <SaveButton
               onClick={handleSubmit}
               disabled={isSubmitting || !isFormValid()}
-              className={`
-                inline-flex items-center gap-3 px-6 py-3 
-                text-sm font-medium rounded-full
-                bg-white border-2 transition-all duration-200 shadow-sm
-                hover:shadow-md hover:scale-105 transform
-                ${isSubmitting || !isFormValid() ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
-              `}
-              style={{
-                borderColor: '#3bdde3',
-                color: '#3bdde3'
-              }}
-              onMouseEnter={(e) => {
-                if (!isSubmitting && isFormValid()) {
-                  e.target.style.backgroundColor = '#3bdde3';
-                  e.target.style.color = 'white';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = 'white';
-                  if (icon) icon.style.color = 'white';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isSubmitting && isFormValid()) {
-                  e.target.style.backgroundColor = 'white';
-                  e.target.style.color = '#3bdde3';
-                  const iconContainer = e.target.querySelector('.icon-container');
-                  const icon = e.target.querySelector('.check-icon');
-                  if (iconContainer) iconContainer.style.borderColor = '#3bdde3';
-                  if (icon) icon.style.color = '#3bdde3';
-                }
-              }}
+              isLoading={isSubmitting}
             >
-              <div 
-                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
-                style={{ borderColor: '#3bdde3' }}
-              >
-                <FontAwesomeIcon
-                  icon={faCheck} 
-                  className="check-icon w-3 h-3 transition-all duration-200" 
-                  style={{ color: '#3bdde3' }}
-                />
-              </div>
-              <span>{isSubmitting ? "Saving..." : "Save"}</span>
-            </button>
+              {isSubmitting ? "Saving..." : "Save"}
+            </SaveButton>
           </div>
         </div>
 
@@ -413,12 +375,11 @@ function EditAdmin() {
                 )}
               </div>
 
-              <SelectInput
+              <CustomDropdown
                 label="Status"
                 name="is_active"
                 value={adminDetails.is_active}
                 onChange={handleChange}
-                onFocus={() => handleFocus('is_active')}
                 error={!validationStates.is_active && isSubmitAttempted}
                 errorMessage="Please select a status"
                 required

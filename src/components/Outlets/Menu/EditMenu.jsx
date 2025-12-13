@@ -13,9 +13,11 @@ import {
 } from '../../forms/FormElements';
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { toastController } from '../../../utils/toastController';
 import { API_CONFIG } from '../../../config/appConfig';
+import SaveButton from '../../common/SaveButton';
+import CustomDropdown from '../../common/CustomDropdown';
 
 function EditMenu() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -439,21 +441,14 @@ function EditMenu() {
             <h2 className="text-lg font-semibold text-gray-800 text-center">
               Edit Menu
             </h2>
-            <button
+            <SaveButton
               onClick={() => formRef.current?.requestSubmit()}
               disabled={loading}
-              className={`
-                inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
-                transition shadow-sm
-                ${loading ? 'opacity-50 cursor-not-allowed' : ''}
-              `}
+              isLoading={loading}
               type="button"
             >
-              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>Save</span>
-            </button>
+              Save
+            </SaveButton>
           </div>
         </div>
 
@@ -468,7 +463,7 @@ function EditMenu() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 text-base">
               <TextInput
                 label="Menu Name"
-                required
+                className="rounded-3xl"
                 value={name}
                 onChange={e => {
                   const value = e.target.value;
@@ -482,7 +477,7 @@ function EditMenu() {
                 placeholder="Enter menu name"
               />
               { nameError && <p className="text-error-500 text-sm mt-1">{nameError}</p> }
-              <SelectInput
+              <CustomDropdown
                 label="Category"
                 required
                 value={menuCatId}
@@ -491,22 +486,26 @@ function EditMenu() {
                   value: cat.menu_cat_id.toString(),
                   label: cat.category_name
                 }))}
+                placeholder="Select Category"
               />
-              <SelectInput
+              <CustomDropdown
                 label="Food Type"
                 required
                 value={foodType}
                 onChange={e => setFoodType(e.target.value)}
                 options={foodTypes}
+                placeholder="Select Food Type"
               />
-              <SelectInput
+              <CustomDropdown
                 label="Spicy Index"
                 value={spicyIndex}
                 onChange={e => setSpicyIndex(e.target.value)}
                 options={spicyIndexOptions}
+                placeholder="Select Spicy Index"
               />
               <TextInput
                 label="Offer (%)"
+                className= "rounded-3xl"
                 value={offer}
                 onChange={e => setOffer(e.target.value)}
                 placeholder="e.g. 10"
@@ -516,6 +515,7 @@ function EditMenu() {
               />
               <TextInput
                 label="Ingredients"
+                className = "rounded-3xl"
                 value={ingredients}
                 onChange={e => setIngredients(e.target.value)}
                 placeholder="e.g. dal, vegetables"
@@ -526,7 +526,7 @@ function EditMenu() {
                   id="is_special"
                   checked={isSpecial}
                   onChange={(e) => setIsSpecial(e.target.checked)}
-                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-3xl"
                 />
                 <label htmlFor="is_special" className="text-sm font-medium text-gray-700">
                   Special Item
@@ -539,6 +539,7 @@ function EditMenu() {
             <div className="sm:col-span-1">
             <Textarea
               label="Description"
+              className="rounded-3xl"
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="Enter menu description"
@@ -557,6 +558,7 @@ function EditMenu() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1">
                     <TextInput
                       placeholder="Portion Name"
+                      className="rounded-3xl"
                       value={portion.portion_name}
                       onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
                       label={idx === 0 ? "Portion Name" : ""}
@@ -564,6 +566,7 @@ function EditMenu() {
                     <TextInput
                       placeholder="Price"
                       type="number"
+                      className="rounded-3xl"
                       value={portion.price}
                       onChange={e => handlePortionChange(idx, 'price', e.target.value)}
                       required={idx === 0}
@@ -572,12 +575,13 @@ function EditMenu() {
                     />
                     <TextInput
                       placeholder="Unit Value"
+                      className="rounded-3xl"
                       type="number"
                       value={portion.unit_value}
                       onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
                       label={idx === 0 ? "Unit Value" : ""}
                     />
-                    <SelectInput
+                    <CustomDropdown
                       value={portion.unit_type}
                       onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
                       options={unitTypeOptions}
