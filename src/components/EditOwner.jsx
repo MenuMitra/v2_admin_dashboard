@@ -20,6 +20,7 @@ import {
 import Breadcrumb from "./Breadcrumb";
 import { API_CONFIG } from "../config/appConfig";
 import MultiSelectDropdown from "./common/MultiSelectDropdown";
+import CustomDropdown from "./common/CustomDropdown";
 import { toastController } from "../utils/toastController";
 import SaveButton from "./common/SaveButton";
 
@@ -122,7 +123,7 @@ function EditOwner() {
         setOutlets(outletArray);
       }
     } catch (err) {
-      
+
       setError("Failed to load outlets");
     }
   };
@@ -173,7 +174,7 @@ function EditOwner() {
       setIsLoading(false);
     } catch (err) {
       setError("Failed to fetch owner details");
-      
+
       setIsLoading(false);
     }
   };
@@ -461,7 +462,7 @@ function EditOwner() {
       if (response.data.detail === "Owner updated successfully") {
         // Invalidate owners cache to refresh the list
         queryClient.invalidateQueries({ queryKey: queryKeys.owners.all });
-        
+
         // Handle navigation based on role
         const roleNavigationMap = {
           // Staff roles that require outlet_id
@@ -492,7 +493,7 @@ function EditOwner() {
       }
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to update owner");
-      
+
     } finally {
       setIsLoading(false);
     }
@@ -573,10 +574,9 @@ function EditOwner() {
                   maxLength={10}
                   className={`
                     rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      !validationStates.mobile
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${!validationStates.mobile
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -625,10 +625,9 @@ function EditOwner() {
                   maxLength={12}
                   className={`
                     rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${
-                      !validationStates.aadhar_number
-                        ? "border-error-500"
-                        : "border-gray-300"
+                    ${!validationStates.aadhar_number
+                      ? "border-error-500"
+                      : "border-gray-300"
                     }
                   `}
                 />
@@ -639,17 +638,17 @@ function EditOwner() {
                 )}
               </div>{" "}
               {/* Role - Added to the grid */}
-              <SelectInput
+              <CustomDropdown
                 label="Role"
                 name="role"
                 value={ownerData.role}
                 onChange={handleChange}
-                options={[{ value: "super_owner", label: "Superowner" }]}
+                options={roles.length > 0 ? roles.map(r => ({ value: r.role_name, label: r.role_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) })) : [{ value: "super_owner", label: "Superowner" }]}
                 placeholder="Select Role"
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
                 {/* Owner Status - Added to the grid */}
-                <SelectInput
+                <CustomDropdown
                   label="Owner Status"
                   name="is_active"
                   value={ownerData.is_active}
@@ -682,8 +681,8 @@ function EditOwner() {
                     {!ownerData.address
                       ? ""
                       : ownerData.address.length < 5
-                      ? "Minimum 5 characters required"
-                      : "Address must not exceed 50 characters"}
+                        ? "Minimum 5 characters required"
+                        : "Address must not exceed 50 characters"}
                   </p>
                 )}
               </div>
@@ -708,7 +707,7 @@ function EditOwner() {
                     />
                   ) : (
                     /* Single-select dropdown for staff roles */
-                    <SelectInput
+                    <CustomDropdown
                       label="Select Staff Outlet"
                       name="staff_outlet"
                       value={staffOutletId}

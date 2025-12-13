@@ -31,7 +31,7 @@ const MultiSelectDropdown = ({
   }, []);
 
   const filteredOptions = options.filter(option => {
-    return searchKeys.some(key => 
+    return searchKeys.some(key =>
       option[key]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     );
   });
@@ -108,7 +108,7 @@ const MultiSelectDropdown = ({
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div 
+        <div
           className="absolute left-0 right-0 mt-[17px] bg-white border rounded-lg shadow-xl z-50 w-full min-w-[250px] max-h-[350px]"
         >
           {/* Search Bar */}
@@ -116,7 +116,7 @@ const MultiSelectDropdown = ({
             <div className="relative">
               <input
                 type="text"
-                className="w-full px-3 py-2 pr-8 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                className="w-full px-3 py-2 pr-8 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
                 placeholder={searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -168,8 +168,8 @@ const MultiSelectDropdown = ({
                   key={option[valueKey]}
                   className={`
                     p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0
-                    ${selectedValues.includes(option[valueKey]) 
-                      ? 'bg-brand-50 border-l-4 border-brand-500' 
+                    ${selectedValues.includes(option[valueKey])
+                      ? 'bg-brand-50 border-l-4 border-brand-500'
                       : 'border-l-4 border-transparent'}
                   `}
                   onClick={() => handleSelect(option[valueKey])}
@@ -180,7 +180,7 @@ const MultiSelectDropdown = ({
                       checked={selectedValues.includes(option[valueKey])}
                       onChange={() => handleSelect(option[valueKey])}
                       onClick={(e) => e.stopPropagation()}
-                      className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded flex-shrink-0"
+                      className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-3xl flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-gray-900 truncate">

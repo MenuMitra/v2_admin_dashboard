@@ -595,34 +595,21 @@ function EditOutlet() {
       // If image is null/undefined, send empty string as per API expectation
       if (imagePayload == null) imagePayload = "";
 
-      // Determine owner additions/removals relative to original owner set
-      const currentOwnerIds = Array.isArray(outletData.owner_ids)
-        ? outletData.owner_ids
-        : [];
-      const removedOwnerIds = originalOwnerIds.filter(
-        (id) => !currentOwnerIds.includes(id)
-      );
-      const addedOwnerIds = currentOwnerIds.filter(
-        (id) => !originalOwnerIds.includes(id)
-      );
-
-      // Prepare API data with new_owner_ids and remove_owner_ids
+      // Prepare API data matching the mandated payload structure
       const apiData = {
-        outlet_id: parseInt(outletId),
         user_id: parseInt(adminData.user_id),
-        new_owner_ids: addedOwnerIds,
-        remove_owner_ids: removedOwnerIds,
+        outlet_id: parseInt(outletId),
+        new_owner_ids: outletData.owner_ids || [],
         name: outletData.name,
         outlet_type: outletData.outlet_type,
         fssainumber: outletData.fssainumber || "",
         gstnumber: outletData.gstnumber || "",
         mobile: outletData.mobile,
         veg_nonveg: outletData.veg_nonveg,
-        service_charges: outletData.service_charges
-          ? outletData.service_charges.toString()
-          : "0",
+        service_charges: outletData.service_charges ? outletData.service_charges.toString() : "0",
         gst: outletData.gst ? outletData.gst.toString() : "0",
         address: outletData.address,
+        outlet_mode: outletData.outlet_mode || "offline",
         is_open: outletData.is_open ? 1 : 0,
         outlet_status: outletData.outlet_status ? 1 : 0,
         upi_id: outletData.upi_id,
@@ -632,79 +619,25 @@ function EditOutlet() {
         instagram: outletData.instagram || "",
         google_business_link: outletData.google_business_link || "",
         google_review: outletData.google_review || "",
-        outlet_mode: outletData.outlet_mode,
+        app_source: "pos_app",
         image: imagePayload,
-        has_combo: outletData.has_combo,
-        has_denomination: outletData.has_denomination,
-        has_reserve_table: outletData.reserve_table,
-        // subscription_id may be present in outletData or in the cached/view response
-        subscription_id: outletData.subscription_id
-          ? parseInt(outletData.subscription_id)
-          : null,
-        subscription_end_date: outletData.subscription_end_date || null,
-        app_source: "admin_app",
+        subscription_id: outletData.subscription_id ? parseInt(outletData.subscription_id) : 11,
+        subscription_name: planName || "Updated Mobile app",
+        subscription_price: planPrice ? Number(planPrice) : 15000.0,
+        subscription_description: "Owner app",
+        subscription_tenure: tenureMonths ? `${Number(tenureMonths) / 12} year` : "1 year",
+        module_ids: selectedModuleIds.length > 0 ? selectedModuleIds.map(Number) : [1],
+        has_denomination: outletData.has_denomination !== undefined ? outletData.has_denomination : 1,
+        has_combo: outletData.has_combo !== undefined ? outletData.has_combo : 1
       };
 
-      // When constructing the payload for saving, format opening_time and closing_time as 'HH:mm:00 AM/PM'
+      // Format opening_time and closing_time if available
       if (openingHour && openingMinute && openingPeriod) {
         apiData.opening_time = `${openingHour}:${openingMinute}:00 ${openingPeriod}`;
       }
       if (closingHour && closingMinute && closingPeriod) {
         apiData.closing_time = `${closingHour}:${closingMinute}:00 ${closingPeriod}`;
       }
-
-      // Log the API payload for debugging
-
-
-      // Ensure we include any subscription id available from the cached outlet detail
-      // (the view_outlet response may contain the subscription object created during create_outlet)
-      try {
-        const cached = queryClient.getQueryData(
-          queryKeys.outlets.detail(outletId)
-        );
-        const cachedSubscription =
-          cached?.subscription ||
-          cached?.data?.subscription ||
-          cached?.data?.subscription_details ||
-          null;
-        const cachedSubscriptionId =
-          cachedSubscription?.subscription_id ||
-          cached?.data?.subscription_id ||
-          null;
-        if (!apiData.subscription_id && cachedSubscriptionId) {
-          apiData.subscription_id = parseInt(cachedSubscriptionId);
-        }
-      } catch (err) {
-        // ignore cache errors
-      }
-
-      // Include subscription payload: module ids + subscription details
-      apiData.module_ids = selectedModuleIds.map((id) => Number(id));
-      apiData.subscription = {
-        name: planName,
-        price: Number(planPrice),
-        tenure_months: Number(tenureMonths),
-      };
-
-      // Remove client-side subscription update: backend will handle creating
-      // or updating subscriptions when `subscription` or legacy top-level
-      // subscription fields are present. For backward compatibility include
-      // legacy top-level fields expected by the API.
-      const formatTenure = (months) => {
-        if (!months) return "";
-        if (months % 12 === 0)
-          return `${months / 12} year${months / 12 > 1 ? "s" : ""}`;
-        return `${months} months`;
-      };
-
-      if (planName) apiData.subscription_name = planName;
-      if (planPrice !== "" && planPrice != null)
-        apiData.subscription_price = Number(planPrice);
-      apiData.subscription_description = planName || "";
-      if (tenureMonths)
-        apiData.subscription_tenure = formatTenure(Number(tenureMonths));
-      // Preserve any caller-provided app_source (e.g., 'pos_app') else default
-      apiData.app_source = outletData.app_source || "admin_app";
 
       const response = await axios.patch(
         `${BASE_URL}/common/update_outlet`,
@@ -1560,8 +1493,8 @@ function EditOutlet() {
                           key={m.module_id}
                           onClick={() => handleModuleToggle(m.module_id)}
                           className={`bg-white rounded-lg p-2 shadow-sm border cursor-pointer select-none ${checked
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-200"
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200"
                             }`}
                         >
                           <label className="flex items-center gap-2 cursor-pointer text-xs">
