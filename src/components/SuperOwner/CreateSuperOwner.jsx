@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import CustomDropdown from "../common/CustomDropdown";
 
 // Utility function to convert a string to title case
 function toTitleCase(str) {
@@ -74,7 +75,7 @@ function CreateSuperOwner() {
         setOutlets(response.data.data.outlets);
       }
     } catch (error) {
-      
+
       setError("Failed to fetch outlets");
     }
   };
@@ -286,11 +287,10 @@ function CreateSuperOwner() {
                 type="submit"
                 form="create-super-owner-form"
                 disabled={loading || !isAuthenticated() || !isFormValid()}
-                className={`inline-flex items-center gap-2 px-6 py-2 text-sm font-medium text-white transition rounded-full ${
-                  loading || !isAuthenticated() || !isFormValid()
+                className={`inline-flex items-center gap-2 px-6 py-2 text-sm font-medium text-white transition rounded-full ${loading || !isAuthenticated() || !isFormValid()
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-success-500 hover:bg-success-600"
-                }`}
+                  }`}
               >
                 {loading ? (
                   <>
@@ -353,9 +353,8 @@ function CreateSuperOwner() {
                       value={superOwnerDetails.name}
                       onChange={handleChange}
                       placeholder="Enter name"
-                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        fieldErrors.name ? 'border-error-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${fieldErrors.name ? 'border-error-500' : 'border-gray-300'
+                        }`}
                       required
                     />
                     {fieldErrors.name && (
@@ -377,9 +376,8 @@ function CreateSuperOwner() {
                       placeholder="Enter mobile number"
                       maxLength={10}
                       pattern="[0-9]{10}"
-                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        fieldErrors.mobile ? 'border-error-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${fieldErrors.mobile ? 'border-error-500' : 'border-gray-300'
+                        }`}
                       required
                     />
                     {fieldErrors.mobile && (
@@ -398,10 +396,9 @@ function CreateSuperOwner() {
                       name="email"
                       value={superOwnerDetails.email}
                       onChange={handleChange}
-                      placeholder="Enter email address" 
-                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        fieldErrors.email ? 'border-error-500' : 'border-gray-300'
-                      }`}
+                      placeholder="Enter email address"
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${fieldErrors.email ? 'border-error-500' : 'border-gray-300'
+                        }`}
                       required
                     />
                     {fieldErrors.email && (
@@ -423,9 +420,8 @@ function CreateSuperOwner() {
                       placeholder="Enter Aadhar number"
                       maxLength={12}
                       pattern="[0-9]{12}"
-                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                        fieldErrors.aadhar_number ? 'border-error-500' : 'border-gray-300'
-                      }`}
+                      className={`w-full px-3 py-2 border rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 ${fieldErrors.aadhar_number ? 'border-error-500' : 'border-gray-300'
+                        }`}
                       required
                     />
                     {fieldErrors.aadhar_number && (
@@ -443,27 +439,31 @@ function CreateSuperOwner() {
                     <div className="flex flex-wrap gap-3">
                       {/* Open/Close Filter */}
                       <div className="relative w-40">
-                        <select
+                        <CustomDropdown
+                          options={[
+                            { value: "all", label: "Open/Close" },
+                            { value: "open", label: "Open" },
+                            { value: "close", label: "Close" },
+                          ]}
                           value={openCloseStatus}
                           onChange={(e) => setOpenCloseStatus(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">Open/Close</option>
-                          <option value="open">Open</option>
-                          <option value="close">Close</option>
-                        </select>
+                          placeholder="Open/Close"
+                          className="w-full"
+                        />
                       </div>
                       {/* Active/Inactive Filter */}
                       <div className="relative w-40">
-                        <select
+                        <CustomDropdown
+                          options={[
+                            { value: "all", label: "All Status" },
+                            { value: "active", label: "Active" },
+                            { value: "inactive", label: "Inactive" },
+                          ]}
                           value={activeStatus}
                           onChange={(e) => setActiveStatus(e.target.value)}
-                          className="w-full px-4 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm text-gray-700"
-                        >
-                          <option value="all">All Status</option>
-                          <option value="active">Active</option>
-                          <option value="inactive">Inactive</option>
-                        </select>
+                          placeholder="All Status"
+                          className="w-full"
+                        />
                       </div>
                       {/* Search Bar */}
                       <div className="relative">
@@ -514,11 +514,10 @@ function CreateSuperOwner() {
                       <div
                         key={outlet.outlet_id}
                         onClick={() => handleOutletSelect(outlet.outlet_id)}
-                        className={`rounded-3xl border bg-white p-4 cursor-pointer transition-all ${
-                          selectedOutlets.includes(outlet.outlet_id)
+                        className={`rounded-3xl border bg-white p-4 cursor-pointer transition-all ${selectedOutlets.includes(outlet.outlet_id)
                             ? "border-blue-500"
                             : "border-gray-200 hover:border-blue-300"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -537,23 +536,21 @@ function CreateSuperOwner() {
                           </div>
                           <div className="flex flex-col items-end gap-2 min-w-[70px]">
                             <span
-                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
-                                outlet.outlet_status === 1 || outlet.outlet_status === "1"
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${outlet.outlet_status === 1 || outlet.outlet_status === "1"
                                   ? "text-green-600"
                                   : "text-red-600"
-                              }`}
+                                }`}
                             >
                               {outlet.outlet_status === 1 ||
-                              outlet.outlet_status === "1"
+                                outlet.outlet_status === "1"
                                 ? "Active"
                                 : "Inactive"}
                             </span>
                             <span
-                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
-                                outlet.is_open === 1 || outlet.is_open === "1"
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${outlet.is_open === 1 || outlet.is_open === "1"
                                   ? "text-blue-600"
                                   : "text-gray-500"
-                              }`}
+                                }`}
                             >
                               {outlet.is_open === 1 || outlet.is_open === "1"
                                 ? "Open"

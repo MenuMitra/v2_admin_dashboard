@@ -59,11 +59,11 @@ const CustomSelect = ({
         aria-haspopup="listbox"
       >
         <div className="flex items-center justify-between">
-          <span className={`${!value ? 'text-gray-500' : 'text-gray-900'} truncate`}>
+          <span className={`${!value ? 'text-gray-500' : 'text-gray-600'} truncate`}>
             {getSelectedText()}
           </span>
           <svg
-            className={`w-4 h-4 text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'transform rotate-180' : ''}`}
+            className={`w-4 h-4 ml-3 text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'transform rotate-180' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -83,7 +83,7 @@ const CustomSelect = ({
                 key={option.value}
                 className={`
                   px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors
-                  ${value === option.value ? 'bg-blue-50 text-blue-600' : 'text-gray-900'}
+                  ${value === option.value ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}
                 `}
                 onClick={() => handleSelect(option.value)}
               >

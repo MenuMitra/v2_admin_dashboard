@@ -594,7 +594,7 @@ function DataTable({
     ];
 
     return (
-      <div className="flex-1 sm:flex-initial relative">
+      <div className="flex-1 sm:flex-initial relative text-gray-600">
         <CustomSelect
           value={selectedOutlet}
           onChange={(e) => onOutletChange(e.target.value)}
@@ -628,7 +628,7 @@ function DataTable({
     ];
 
     return (
-      <div className="flex-1 sm:flex-initial relative">
+      <div className="flex-1 sm:flex-initial text-gray-600 relative">
         <CustomSelect
           value={selectedRole}
           onChange={(e) => onRoleChange(e.target.value)}
@@ -975,7 +975,7 @@ function DataTable({
                 <div className="flex flex-wrap items-center gap-3 justify-end">
                   {/* Execution Time Filter - Independent of Status Filter */}
                   {enableExecutionTimeFilter && (
-                    <div className="w-56">
+                    <div className="w-56 text-gray-600">
                       <CustomSelect
                         value={executionTimeFilter || "all"}
                         onChange={(e) => {
@@ -1043,7 +1043,7 @@ function DataTable({
               <div className="flex items-center gap-2 px-0 pl-2 mb-4">
                 <div className="flex flex-1 flex-wrap items-center gap-2">
                   {enableStatusFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 mr-2 text-gray-600">
                       <CustomSelect
                         value={statusFilter}
                         onChange={(e) => onStatusFilterChange(e.target.value)}
@@ -1058,7 +1058,7 @@ function DataTable({
                   )}
                   {/* Enquiry Filter */}
                   {enableEnquiry && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 text-gray-600 mr-2">
                       <CustomSelect
                         value={enquiryFilter || "all"}
                         onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
@@ -1074,7 +1074,7 @@ function DataTable({
                   )}
                   {/* Account Type Filter */}
                   {enableAccountTypeFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 mr-2 text-gray-600">
                       <CustomSelect
                         value={accountType || "all"}
                         onChange={(e) => onAccountTypeChange && onAccountTypeChange(e.target.value)}
@@ -1089,7 +1089,7 @@ function DataTable({
                   )}
                   {/* Open/Close Filter */}
                   {enableOpenCloseStatusFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 text-gray-600 mr-2">
                       <CustomSelect
                         value={openCloseStatus || "all"}
                         onChange={(e) => onOpenCloseStatusChange && onOpenCloseStatusChange(e.target.value)}
@@ -1104,7 +1104,7 @@ function DataTable({
                   )}
                   {/* Active Session Filter */}
                   {enableActiveSessionFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 text-gray-600 mr-2">
                       <CustomSelect
                         value={activeSessionFilter || "all"}
                         onChange={(e) => {
@@ -1126,7 +1126,7 @@ function DataTable({
                   )}
                   {/* Outlet Count Filter */}
                   {enableOutletCountFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 text-gray-600 mr-2">
                       <CustomSelect
                         value={outletCountFilter || "all"}
                         onChange={(e) => {
@@ -1148,7 +1148,7 @@ function DataTable({
                   )}
                   {/* Outlet Type Filter */}
                   {enableOutletTypeFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 text-gray-600 mr-2">
                       <CustomSelect
                         value={outletTypeFilter || "all"}
                         onChange={(e) => {
@@ -1171,7 +1171,7 @@ function DataTable({
                   )}
                   {/* Outlet Mode Filter */}
                   {enableOutletModeFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 text-gray-600 mr-2">
                       <CustomSelect
                         value={outletModeFilter || "all"}
                         onChange={(e) => {
@@ -1188,7 +1188,7 @@ function DataTable({
                   )}
                   {/* Owner Count Filter */}
                   {enableOwnerCountFilter && (
-                    <div className="w-32 mr-2">
+                    <div className="w-32 text-gray-600 mr-2">
                       <CustomSelect
                         value={ownerCountFilter || "all"}
                         onChange={(e) => {
@@ -1473,7 +1473,7 @@ function DataTable({
                     value: option,
                     label: String(option),
                   }))}
-                  className="w-24"
+                  className="w-24 text-gray-600"
                 />
                 <span
                   className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
