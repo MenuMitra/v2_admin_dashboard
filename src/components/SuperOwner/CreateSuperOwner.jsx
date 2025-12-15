@@ -288,8 +288,8 @@ function CreateSuperOwner() {
                 form="create-super-owner-form"
                 disabled={loading || !isAuthenticated() || !isFormValid()}
                 className={`inline-flex items-center gap-2 px-6 py-2 text-sm font-medium text-white transition rounded-full ${loading || !isAuthenticated() || !isFormValid()
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-success-500 hover:bg-success-600"
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-success-500 hover:bg-success-600"
                   }`}
               >
                 {loading ? (
@@ -515,8 +515,8 @@ function CreateSuperOwner() {
                         key={outlet.outlet_id}
                         onClick={() => handleOutletSelect(outlet.outlet_id)}
                         className={`rounded-3xl border bg-white p-4 cursor-pointer transition-all ${selectedOutlets.includes(outlet.outlet_id)
-                            ? "border-blue-500"
-                            : "border-gray-200 hover:border-blue-300"
+                          ? "border-blue-500"
+                          : "border-gray-200 hover:border-blue-300"
                           }`}
                       >
                         <div className="flex items-center justify-between">
@@ -537,8 +537,8 @@ function CreateSuperOwner() {
                           <div className="flex flex-col items-end gap-2 min-w-[70px]">
                             <span
                               className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${outlet.outlet_status === 1 || outlet.outlet_status === "1"
-                                  ? "text-green-600"
-                                  : "text-red-600"
+                                ? "text-green-600"
+                                : "text-red-600"
                                 }`}
                             >
                               {outlet.outlet_status === 1 ||
@@ -548,8 +548,8 @@ function CreateSuperOwner() {
                             </span>
                             <span
                               className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${outlet.is_open === 1 || outlet.is_open === "1"
-                                  ? "text-blue-600"
-                                  : "text-gray-500"
+                                ? "text-blue-600"
+                                : "text-gray-500"
                                 }`}
                             >
                               {outlet.is_open === 1 || outlet.is_open === "1"

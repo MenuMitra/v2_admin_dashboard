@@ -258,11 +258,11 @@ const Search = () => {
             <div className="flex items-center">
               <button
                 onClick={handleBack}
-                className="inline-flex items-center gap-1 sm:gap-2 px-2 py-1 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+                className="px-5 py-1.5 rounded-3xl inline-flex items-center gap-1 sm:gap-1 sm:px-2 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
                 <FontAwesomeIcon
                   icon={faBack}
-                  className="w-3 h-3 sm:w-4 sm:h-4"
+                  className="w-4  h-4"
                 />
                 <span className="hidden sm:inline">Back</span>
               </button>

@@ -38,7 +38,7 @@ const Breadcrumb = ({ items }) => {
               <span className="text-gray-500 dark:text-gray-400">
                 <ChevronIcon />
               </span>
-              <span>{item.label}</span>
+              <span className='capitalize'>{item.label}</span>
             </li>
           );
         }
@@ -47,7 +47,7 @@ const Breadcrumb = ({ items }) => {
           <li key={index}>
             <Link
               to={item.path}
-              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400"
+              className="flex capitalize items-center gap-1.5 text-sm text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400"
             >
               {index !== 0 && (
                 <span>
@@ -59,7 +59,7 @@ const Breadcrumb = ({ items }) => {
                   <FontAwesomeIcon icon={faHome} className="w-4 h-4" />
                 </span>
               )}
-              <span>{item.label}</span>
+              <span className="capitalize">{item.label}</span>
             </Link>
           </li>
         );

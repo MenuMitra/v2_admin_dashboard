@@ -100,6 +100,7 @@ function EditOutlet() {
     whatsapp: false,
     whatsappMessage: "",
   });
+  console.log(tenureMonths)
   const [originalOwnerIds, setOriginalOwnerIds] = useState([]);
 
   // Subscription-related state removed per request
@@ -625,7 +626,7 @@ function EditOutlet() {
         subscription_name: planName || "Updated Mobile app",
         subscription_price: planPrice ? Number(planPrice) : 15000.0,
         subscription_description: "Owner app",
-        subscription_tenure: tenureMonths ? `${Number(tenureMonths) / 12} year` : "1 year",
+        subscription_tenure: tenureMonths ? `${Number(tenureMonths)} Months` : "",
         module_ids: selectedModuleIds.length > 0 ? selectedModuleIds.map(Number) : [1],
         has_denomination: outletData.has_denomination !== undefined ? outletData.has_denomination : 1,
         has_combo: outletData.has_combo !== undefined ? outletData.has_combo : 1
@@ -1183,16 +1184,16 @@ function EditOutlet() {
                   />
                 </div>
                 <div className="sm:col-span-2 md:col-span-3 xl:col-span-4 w-full">
-                  <div className="flex flex-row flex-nowrap items-end gap-10 mb-4">
+                  <div className="flex flex-row flex-nowrap items-end gap-4 mb-4">
                     {/* Opening Time */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Opening Time
                       </label>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1">
                         {/* Hour Dropdown */}
                         <CustomDropdown
-                          className="w-22"
+                          className="w-16"
                           value={openingHour}
                           onChange={(e) =>
                             handleOpeningTimeChange("hour", e.target.value)
@@ -1208,7 +1209,7 @@ function EditOutlet() {
                         />
                         {/* Minute Dropdown */}
                         <CustomDropdown
-                          className="w-22"
+                          className="w-16"
                           value={openingMinute}
                           onChange={(e) =>
                             handleOpeningTimeChange("minute", e.target.value)
@@ -1224,7 +1225,7 @@ function EditOutlet() {
                         />
                         {/* AM/PM Dropdown */}
                         <CustomDropdown
-                          className="w-22"
+                          className="w-16"
                           value={openingPeriod}
                           onChange={(e) =>
                             handleOpeningTimeChange("period", e.target.value)
@@ -1245,7 +1246,7 @@ function EditOutlet() {
                       <div className="flex gap-2">
                         {/* Hour Dropdown */}
                         <CustomDropdown
-                          className="w-22"
+                          className="w-16"
                           value={closingHour}
                           onChange={(e) =>
                             handleClosingTimeChange("hour", e.target.value)
@@ -1261,7 +1262,7 @@ function EditOutlet() {
                         />
                         {/* Minute Dropdown */}
                         <CustomDropdown
-                          className="w-22"
+                          className="w-16"
                           value={closingMinute}
                           onChange={(e) =>
                             handleClosingTimeChange("minute", e.target.value)
@@ -1277,7 +1278,7 @@ function EditOutlet() {
                         />
                         {/* AM/PM Dropdown */}
                         <CustomDropdown
-                          className="w-22"
+                          className="w-16"
                           value={closingPeriod}
                           onChange={(e) =>
                             handleClosingTimeChange("period", e.target.value)
@@ -1297,7 +1298,7 @@ function EditOutlet() {
                       </label>
                       <CustomDropdown
                         name="has_combo"
-                        className="w-22"
+                        className="w-16"
                         value={
                           outletData.has_combo !== null &&
                             outletData.has_combo !== undefined
@@ -1329,7 +1330,7 @@ function EditOutlet() {
                       </label>
                       <CustomDropdown
                         name="has_denomination"
-                        className="w-22"
+                        className="w-16"
                         value={
                           outletData.has_denomination !== null &&
                             outletData.has_denomination !== undefined
@@ -1361,7 +1362,7 @@ function EditOutlet() {
                       </label>
                       <CustomDropdown
                         name="reserve_table"
-                        className="w-22"
+                        className="w-16"
                         value={
                           outletData.reserve_table !== null &&
                             outletData.reserve_table !== undefined

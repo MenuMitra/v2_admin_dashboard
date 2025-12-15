@@ -744,7 +744,7 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-6 py-3 border rounded-3xl"
+              className="px-5 py-1.5 border border-2 rounded-3xl"
               onClick={() => setIsModalOpen(false)}
               disabled={loadingSave}
             >

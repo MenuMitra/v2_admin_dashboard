@@ -65,7 +65,7 @@ const CustomDropdown = ({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          w-full px-3 py-2 pr-10 border rounded-3xl shadow-sm text-left text-sm
+          w-full px-2 py-1.5 pr-10 border rounded-3xl shadow-sm text-left text-sm
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           bg-white hover:bg-gray-50 transition-all duration-200
           flex items-center justify-between h-10
@@ -81,11 +81,11 @@ const CustomDropdown = ({
         {/* Dropdown Arrow - Pure Tailwind */}
         <FontAwesomeIcon 
           icon={faChevronDown} 
-          className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${
+          className={`w-4 ml-2 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${
             isOpen ? 'rotate-180' : 'rotate-0'
           }`}
         />
-      </button>
+      </button> 
 
       {/* Dropdown Options Container - Pure Tailwind */}
       {isOpen && (
@@ -100,7 +100,7 @@ const CustomDropdown = ({
                   type="button"
                   onClick={() => handleSelect(option)}
                   className={`
-                    w-full text-left px-3 py-2 text-sm transition-colors duration-150
+                    w-small text-left px-3 py-2 text-sm transition-colors duration-150
                     hover:bg-gray-100 focus:outline-none focus:bg-gray-100
                     first:rounded-t-3xl last:rounded-b-3xl
                     ${selectedOption?.value === option.value 
