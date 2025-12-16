@@ -87,33 +87,31 @@ const CustomDropdown = ({
         />
       </button> 
 
-      {/* Dropdown Options Container - Pure Tailwind */}
+      {/* Dropdown Options Container - vertical list with scrolling */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-3xl shadow-lg max-h-60 overflow-hidden">
-          <div className="overflow-y-auto max-h-60">
-            {options.length === 0 ? (
-              <div className="px-3 py-2 text-gray-500 text-sm">No options available</div>
-            ) : (
-              options.map((option, index) => (
-                <button
-                  key={option.value || index}
-                  type="button"
-                  onClick={() => handleSelect(option)}
-                  className={`
-                    w-small text-left px-3 py-2 text-sm transition-colors duration-150
-                    hover:bg-gray-100 focus:outline-none focus:bg-gray-100
-                    first:rounded-t-3xl last:rounded-b-3xl
-                    ${selectedOption?.value === option.value 
-                      ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' 
-                      : 'text-gray-900'
-                    }
-                  `}
-                >
-                  {option.label}
-                </button>
-              ))
-            )}
-          </div>
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-3xl shadow-lg max-h-10 overflow-y-auto flex flex-col">
+          {options.length === 0 ? (
+            <div className="px-3 py-2 text-gray-500 text-sm">No options available</div>
+          ) : (
+            options.map((option, index) => (
+              <button
+                key={option.value || index}
+                type="button"
+                onClick={() => handleSelect(option)}
+                className={`
+                  w-full text-left px-3 py-2 text-sm transition-colors duration-150
+                  hover:bg-gray-100 focus:outline-none focus:bg-gray-100
+                  first:rounded-t-3xl last:rounded-b-3xl
+                  ${selectedOption?.value === option.value 
+                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' 
+                    : 'text-gray-900'
+                  }
+                `}
+              >
+                {option.label}
+              </button>
+            ))
+          )}
         </div>
       )}
 
