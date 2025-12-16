@@ -121,6 +121,16 @@ function CreateSuperOwner() {
     if (name === "aadhar_number") {
       // Only allow numbers, max 12 digits
       let numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 12);
+      
+      // Check if first digit is 0 or 1
+      if (numbersOnly.length > 0 && /^[01]/.test(numbersOnly)) {
+        setFieldErrors((prev) => ({
+          ...prev,
+          aadhar_number: "Aadhar number cannot start with 0 or 1",
+        }));
+        return; // Don't update the value
+      }
+      
       if (value !== numbersOnly) {
         setFieldErrors((prev) => ({
           ...prev,
@@ -171,6 +181,8 @@ function CreateSuperOwner() {
       errors.aadhar_number = "Aadhar number is required";
     } else if (!/^[0-9]{12}$/.test(superOwnerDetails.aadhar_number)) {
       errors.aadhar_number = "Aadhar number must be 12 digits";
+    } else if (/^[01]/.test(superOwnerDetails.aadhar_number)) {
+      errors.aadhar_number = "Aadhar number cannot start with 0 or 1";
     }
     if (selectedOutlets.length === 0) {
       errors.outlets = "Please select at least one outlet";
@@ -523,7 +535,7 @@ function CreateSuperOwner() {
                           <div className="flex items-center gap-3">
                             <div>
                               <h4 className="text-sm font-medium text-gray-800">
-                                {outlet.outlet_name}
+                                {toTitleCase(outlet.outlet_name)}
                               </h4>
                               <p className="text-sm text-gray-500 mt-1">
                                 <FontAwesomeIcon

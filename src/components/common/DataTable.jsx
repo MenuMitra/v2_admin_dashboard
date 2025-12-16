@@ -53,7 +53,7 @@ function DataTable({
   data = [],
   columns,
   itemsPerPage = 50,
-  itemsPerPageOptions = [50, 100, 200],
+  itemsPerPageOptions = [25, 50, 100, 200],
   enableSort = true,
   enablePagination = true,
   enableSearch = true,
@@ -1064,9 +1064,9 @@ function DataTable({
                         onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
                         options={[
                           { value: "all", label: "Enquiry Type" },
-                          { value: "enquiry", label: "Enquiry" },
-                          { value: "positive", label: "Positive" },
-                          { value: "onboard", label: "Onboard" }
+                          { value: "Enquiry", label: "Enquiry" },
+                          { value: "Positive", label: "Positive" },
+                          { value: "Onboard", label: "Onboard" }
                         ]}
                         placeholder="Enquiry Type"
                       />
@@ -1476,21 +1476,21 @@ function DataTable({
                   className="w-24 text-gray-600"
                 />
                 <span
-                  className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
+                  className={`text-gray-500 capitalize text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
                     }`}
                 >
-                  entries
+                  Entries
                 </span>
               </div>
 
               {/* Showing entries text */}
               <div
-                className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
+                className={`text-gray-500 capitalize text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
                   }`}
               >
                 Showing {indexOfFirstItem + 1} to{" "}
                 {Math.min(indexOfLastItem, processedData.length)} of{" "}
-                {processedData.length} entries
+                {processedData.length} Entries
               </div>
             </div>
 
@@ -1721,7 +1721,7 @@ DataTable.defaultProps = {
   data: [],
   columns: [],
   itemsPerPage: 50,
-  itemsPerPageOptions: [50, 100, 200],
+  itemsPerPageOptions: [25, 50, 100, 200],
   enableSort: true,
   enablePagination: true,
   enableSearch: true,

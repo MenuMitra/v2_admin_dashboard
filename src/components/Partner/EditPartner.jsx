@@ -193,6 +193,46 @@ function EditPartner() {
       return;
     }
 
+    // Special handling for Aadhar number
+    if (name === "aadhar_number") {
+      // Only allow digits
+      const onlyDigits = value.replace(/\D/g, "");
+
+      // Check if number starts with 0 or 1
+      if (onlyDigits.length > 0 && /^[01]/.test(onlyDigits)) {
+        // Clear the field and show error
+        setPartnerDetails((prev) => ({
+          ...prev,
+          [name]: "",
+        }));
+        setValidationErrors((prev) => ({
+          ...prev,
+          aadhar_number: "Aadhar number cannot start with 0 or 1",
+        }));
+        return;
+      }
+
+      // Check for length validation
+      if (onlyDigits.length > 0 && onlyDigits.length !== 12) {
+        setValidationErrors((prev) => ({
+          ...prev,
+          aadhar_number: "Aadhar number must be exactly 12 digits",
+        }));
+      } else {
+        // Clear validation error if valid
+        setValidationErrors((prev) => ({
+          ...prev,
+          aadhar_number: "",
+        }));
+      }
+
+      setPartnerDetails((prev) => ({
+        ...prev,
+        [name]: onlyDigits,
+      }));
+      return;
+    }
+
     // Handle other fields
     setPartnerDetails((prev) => ({
       ...prev,
@@ -221,6 +261,15 @@ function EditPartner() {
       errors.mobile = "Mobile number is required";
     } else if (!/^[6-9]\d{9}$/.test(partnerDetails.mobile)) {
       errors.mobile = "Enter a valid 10-digit mobile number starting with 6-9";
+    }
+
+    // Aadhar number validation
+    if (!partnerDetails.aadhar_number.trim()) {
+      errors.aadhar_number = "Aadhar number is required";
+    } else if (partnerDetails.aadhar_number.length !== 12) {
+      errors.aadhar_number = "Aadhar number must be 12 digits";
+    } else if (/^[01]/.test(partnerDetails.aadhar_number)) {
+      errors.aadhar_number = "Aadhar number cannot start with 0 or 1";
     }
 
     setValidationErrors(errors);
@@ -428,6 +477,7 @@ function EditPartner() {
                 value={partnerDetails.aadhar_number}
                 onChange={handleChange}
                 placeholder="Enter 12-digit Aadhar number"
+                required
                 maxLength="12"
                 error={validationErrors.aadhar_number}
                 className="rounded-3xl"

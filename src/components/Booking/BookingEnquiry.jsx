@@ -21,7 +21,7 @@ const BookingEnquiry = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
 
   const navigate = useNavigate();
 
@@ -112,13 +112,14 @@ const BookingEnquiry = () => {
 
       <DataTable
         data={filtered}
-        title="Bookings"
+        title="Website Bookings"
         columns={columns}
         isLoading={isLoading}
         error={error}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         itemsPerPage={itemsPerPage}
+        itemsPerPageOptions={[25, 50, 100, 200]}
         onItemsPerPageChange={setItemsPerPage}
         onBackClick={handleBack}
         enablePagination={true}

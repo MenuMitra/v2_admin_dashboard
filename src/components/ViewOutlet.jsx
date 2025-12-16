@@ -1034,84 +1034,7 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
-          {/* Audit Information section with divider */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                Audit Information
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {/* Created On */}
-              {outletData?.created_on && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.created_on}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Created On
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Created By */}
-              {outletData?.created_by_name && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {toTitleCase(outletData.created_by_name)}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Created By
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Updated On */}
-              {outletData?.updated_on && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.updated_on}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Updated On
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Updated By */}
-              {outletData?.updated_by_name && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {toTitleCase(outletData.updated_by_name)}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Updated By
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          
           {/* Subscription Details section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
@@ -1313,6 +1236,85 @@ function ViewOutlet() {
               )}
             </div>
           </div>
+          {/* Audit Information section with divider */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                Audit Information
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {/* Created On */}
+              {outletData?.created_on && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.created_on}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Created On
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Created By */}
+              {outletData?.created_by_name && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {toTitleCase(outletData.created_by_name)}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Created By
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Updated On */}
+              {outletData?.updated_on && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {outletData.updated_on}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Updated On
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Updated By */}
+              {outletData?.updated_by_name && (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div>
+                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                          {toTitleCase(outletData.updated_by_name)}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Updated By
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
         </div>
       </div>
 

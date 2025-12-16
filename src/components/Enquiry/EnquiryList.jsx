@@ -34,7 +34,7 @@ const EnquiryList = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
   // Default to showing all entries on load
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -289,7 +289,7 @@ const EnquiryList = () => {
 
       <DataTable
         data={getFilteredEnquiries()}
-        title="Enquiries"
+        title="Partner Enquiries"
         columns={columns}
         counts={counts}
         isLoading={isLoading}
@@ -300,6 +300,7 @@ const EnquiryList = () => {
         selectedItems={selectedItems}
         onSelectionChange={setSelectedItems}
         itemsPerPage={itemsPerPage}
+        itemsPerPageOptions={[25, 50, 100, 200]}
         onItemsPerPageChange={setItemsPerPage}
         onBulkAction={handleBulkAction}
         onBackClick={handleBack}

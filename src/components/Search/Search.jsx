@@ -16,6 +16,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
+import CustomSelect from "../common/CustomSelect";
 import { SelectInput, TextInput } from "../forms/FormElements";
 import { useNavigate } from "react-router-dom";
 import { toastController } from "../../utils/toastController";
@@ -251,14 +252,14 @@ const Search = () => {
 
       {/* Main Card */}
       <div className="rounded-xl sm:rounded-2xl border border-gray-200 bg-white">
-        <div className="overflow-hidden pt-3 sm:pt-4">
+        <div className="pt-3 sm:pt-4">
           {/* Header Section */}
           <div className="flex items-center px-4 sm:px-6 mb-2 sm:mb-3">
             {/* Left Side - Back Button */}
             <div className="flex items-center">
               <button
                 onClick={handleBack}
-                className="px-5 py-1.5 rounded-3xl inline-flex items-center gap-1 sm:gap-1 sm:px-2 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+                className="px-3 py-1.5 rounded-3xl inline-flex items-center gap-1 sm:gap-1 sm:px-2 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
                 <FontAwesomeIcon
                   icon={faBack}
@@ -285,30 +286,35 @@ const Search = () => {
               {/* Mobile: Stacked Layout for Filters */}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                 {/* Role Select */}
-                <div className="w-full sm:w-auto sm:min-w-[200px]">
-                  <select
+                <div className="w-full sm:w-auto sm:min-w-[200px] relative z-10">
+                  <CustomSelect
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
-                    className="w-full h-10 sm:h-auto px-4 py-2 pr-10 text-sm border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em] sm:w-max sm:min-w-[200px]"
-                  >
-                    <option value="">All Roles</option>
-                    <option value="super_owner">Super Owner</option>
-                    <option value="owner">Owner</option>
-                    <option value="staff">Staff</option>
-                  </select>
+                    options={[
+                      { value: "", label: "All Roles" },
+                      { value: "super_owner", label: "Super Owner" },
+                      { value: "owner", label: "Owner" },
+                      { value: "customer", label: "Customer" },
+                      { value: "partner", label: "Partner" }
+                    ]}
+                    placeholder="All Roles"
+                    className="w-full sm:w-max sm:min-w-[200px]"
+                  />
                 </div>
 
                 {/* Search Type Select */}
-                <div className="w-full sm:w-auto sm:min-w-[200px]">
-                  <select
+                <div className="w-full sm:w-auto sm:min-w-[200px] relative z-10">
+                  <CustomSelect
                     value={searchType}
                     onChange={(e) => setSearchType(e.target.value)}
-                    className="w-full h-10 sm:h-auto px-4 py-2 pr-10 text-sm border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white appearance-none bg-[url('data:image/svg+xml,%3csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20fill=%27none%27%20viewBox=%270%200%2020%2020%27%3e%3cpath%20stroke=%27%236b7280%27%20stroke-linecap=%27round%27%20stroke-linejoin=%27round%27%20stroke-width=%271.5%27%20d=%27m6%208%204%204%204-4%27/%3e%3c/svg%3e')] bg-[right_0.75rem_center] bg-no-repeat bg-[length:1.5em_1.5em] sm:w-max sm:min-w-[200px]"
-                  >
-                    <option value="name">Name</option>
-                    <option value="mobile">Mobile</option>
-                    <option value="outlet_code">Outlet Code</option>
-                  </select>
+                    options={[
+                      { value: "name", label: "Name" },
+                      { value: "mobile", label: "Mobile" },
+                      { value: "outlet_code", label: "Outlet Code" }
+                    ]}
+                    placeholder="Name"
+                    className="w-full sm:w-max sm:min-w-[200px]"
+                  />
                 </div>
               </div>
 

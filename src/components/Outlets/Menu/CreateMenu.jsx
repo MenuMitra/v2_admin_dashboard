@@ -11,6 +11,8 @@ import {
   FileInput,
   Textarea
 } from '../../forms/FormElements';
+import CustomSelect from '../../common/CustomSelect';
+import SaveButton from '../../common/SaveButton';
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
@@ -334,21 +336,14 @@ function CreateMenu() {
               Create Menu
             </h2>
             {/* Save Button */}
-            <button
+            <SaveButton
               onClick={() => formRef.current?.requestSubmit()}
               disabled={loading}
-              className={`
-                inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
-                transition shadow-sm
-                ${loading ? 'opacity-50 cursor-not-allowed' : ''}
-              `}
+              isLoading={loading}
               type="button"
             >
-              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>Save</span>
-            </button>
+              Save
+            </SaveButton>
           </div>
         </div>
         {/* Form Content */}
@@ -360,37 +355,54 @@ function CreateMenu() {
             encType="multipart/form-data"
           >
             {/* Grid for form fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 text-base">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 text-base relative">
               <TextInput
                 label="Menu Name"
                 required
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Enter menu name"
+                className="rounded-3xl"
               />
-              <SelectInput
-                label="Category"
-                required
-                value={menuCatId}
-                onChange={e => setMenuCatId(e.target.value)}
-                options={categories.map(cat => ({
-                  value: cat.menu_cat_id.toString(),
-                  label: cat.category_name
-                }))}
-              />
-              <SelectInput
-                label="Food Type"
-                required
-                value={foodType}
-                onChange={e => setFoodType(e.target.value)}
-                options={foodTypes}
-              />
-              <SelectInput
-                label="Spicy Index"
-                value={spicyIndex}
-                onChange={e => setSpicyIndex(e.target.value)}
-                options={spicyIndexOptions}
-              />
+              <div className="relative z-40">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                  Category <span className="text-red-500">*</span>
+                </label>
+                <CustomSelect
+                  value={menuCatId}
+                  onChange={(e) => setMenuCatId(e.target.value)}
+                  options={categories.map(cat => ({
+                    value: cat.menu_cat_id.toString(),
+                    label: cat.category_name
+                  }))}
+                  placeholder="Select Category"
+                  className="rounded-3xl"
+                />
+              </div>
+              <div className="relative z-30">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                  Food Type <span className="text-red-500">*</span>
+                </label>
+                <CustomSelect
+                  value={foodType}
+                  onChange={(e) => setFoodType(e.target.value)}
+                  options={foodTypes}
+                  placeholder="Select Food Type"
+                  className="rounded-3xl"
+                />
+              </div>
+              <div className="relative z-20">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                  Spicy Index
+                </label>
+                <CustomSelect
+                  value={spicyIndex}
+                  onChange={(e) => setSpicyIndex(e.target.value)}
+                  options={spicyIndexOptions}
+                  placeholder="Select Spicy Index"
+                  className="rounded-3xl"
+                />
+              </div>
               <TextInput
                 label="Offer (%)"
                 value={offer}
@@ -399,12 +411,14 @@ function CreateMenu() {
                 type="number"
                 min="0"
                 max="100"
+                className="rounded-3xl"
               />
               <TextInput
                 label="Ingredients"
                 value={ingredients}
                 onChange={e => setIngredients(e.target.value)}
                 placeholder="e.g. dal, vegetables"
+                className="rounded-3xl"
               />
             </div>
             {/* Description field outside the grid */}
@@ -426,12 +440,13 @@ function CreateMenu() {
               </label>
               {portionData.map((portion, idx) => (
                 <div key={idx} className="mb-4 flex items-start gap-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1 relative">
                     <TextInput
                       placeholder="Portion Name"
                       value={portion.portion_name}
                       onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
                       label={idx === 0 ? "Portion Name" : ""}
+                      className="rounded-3xl"
                     />
                     <TextInput
                       placeholder="Price"
@@ -441,34 +456,42 @@ function CreateMenu() {
                       required={idx === 0}
                       min="0"
                       label={idx === 0 ? "Price" : ""}
+                      className="rounded-3xl"
                     />
                     <TextInput
                       placeholder="Unit Value"
                       type="number"
                       value={portion.unit_value}
                       onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
-                      required={idx === 0}
                       min="0"
                       label={idx === 0 ? "Unit Value" : ""}
+                      className="rounded-3xl"
                     />
-                    <SelectInput
-                      value={portion.unit_type}
-                      onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
-                      options={unitTypeOptions}
-                      placeholder="Select Unit"
-                      required={idx === 0}
-                      label={idx === 0 ? "Unit Type" : ""}
-                    />
+                    <div className="relative z-10">
+                      {idx === 0 && (
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          Unit Type
+                        </label>
+                      )}
+                      <CustomSelect
+                        value={portion.unit_type}
+                        onChange={(e) => handlePortionChange(idx, 'unit_type', e.target.value)}
+                        options={unitTypeOptions}
+                        placeholder="Select Unit"
+                        className="rounded-3xl"
+                      />
+                    </div>
                   </div>
                   <div className={`pt-${idx === 0 ? '8' : '2'}`}>
-                    <button
-                      type="button"
-                      className="text-error-500 hover:text-error-700 p-2 rounded-full hover:bg-error-50"
-                      onClick={() => removePortion(idx)}
-                      disabled={portionData.length === 1}
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-                    </button>
+                    {portionData.length > 1 && (
+                      <button
+                        type="button"
+                        className="text-error-500 hover:text-error-700 p-2 rounded-full hover:bg-error-50"
+                        onClick={() => removePortion(idx)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

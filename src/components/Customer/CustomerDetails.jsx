@@ -17,6 +17,14 @@ import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal"
 import { toastController } from "../../utils/toastController";
 import { API_CONFIG } from "../../config/appConfig";
 
+// Utility function to convert string to title case
+const toTitleCase = (str) => {
+  if (!str) return "";
+  return str.replace(/\w\S*/g, (txt) =>
+    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  );
+};
+
 function CustomerDetails() {
   const { customerId } = useParams();
   const navigate = useNavigate();
@@ -153,7 +161,7 @@ function CustomerDetails() {
         {/* Name */}
         <div>
           <p className="text-base font-medium text-gray-800">
-            {customerData?.customer_details?.name}
+            {toTitleCase(customerData?.customer_details?.name)}
           </p>
           <p className="text-sm text-gray-500">Name</p>
         </div>

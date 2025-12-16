@@ -275,7 +275,7 @@ const Notifications = () => {
         columns={columns}
         enablePagination={true}
         itemsPerPage={itemsPerPage}
-        itemsPerPageOptions={[10, 25, 50]}
+        itemsPerPageOptions={[25, 50, 100, 200]}
         onItemsPerPageChange={(value) => setItemsPerPage(Number(value))}
         enableSort={true}
         enableSearch={true}

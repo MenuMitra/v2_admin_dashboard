@@ -51,7 +51,8 @@ function CreatePartner() {
       partnerDetails.aadhar_number.trim() &&
       !emailError &&
       partnerDetails.mobile.length === 10 &&
-      partnerDetails.aadhar_number.length === 12
+      partnerDetails.aadhar_number.length === 12 &&
+      !/^[01]/.test(partnerDetails.aadhar_number) // Aadhar cannot start with 0 or 1
     );
   };
 
@@ -76,6 +77,25 @@ function CreatePartner() {
       }
       // Limit to 10 digits
       if (numericValue.length > 10) {
+        return;
+      }
+      setPartnerDetails((prev) => ({
+        ...prev,
+        [name]: numericValue,
+      }));
+      return;
+    }
+
+    // Aadhar number validation: not starting with 0 or 1, max length 12
+    if (name === "aadhar_number") {
+      // Only allow numbers
+      const numericValue = value.replace(/\D/g, "");
+      // Prevent starting with 0 or 1
+      if (numericValue.length > 0 && /^[01]/.test(numericValue)) {
+        return; // Do not update state if first digit is 0 or 1
+      }
+      // Limit to 12 digits
+      if (numericValue.length > 12) {
         return;
       }
       setPartnerDetails((prev) => ({
@@ -130,6 +150,8 @@ function CreatePartner() {
       errors.aadhar_number = "Aadhar number is required";
     } else if (partnerDetails.aadhar_number.length !== 12) {
       errors.aadhar_number = "Aadhar number must be 12 digits";
+    } else if (/^[01]/.test(partnerDetails.aadhar_number)) {
+      errors.aadhar_number = "Aadhar number cannot start with 0 or 1";
     }
     
     setValidationErrors(errors);

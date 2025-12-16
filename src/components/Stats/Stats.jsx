@@ -4,6 +4,7 @@ import {
   faChevronLeft,
   faRotate,
   faMagnifyingGlass,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
@@ -304,7 +305,7 @@ function Stats() {
           isLoading={apiUsageStatsIsLoading}
           error={apiUsageStatsError}
           itemsPerPage={50}
-          itemsPerPageOptions={[50, 100, 200, 500]}
+          itemsPerPageOptions={[25, 50, 100, 200]}
           className="compact-table"
           emptyStateMessage="No API usage stats data available."
           customFilters={[]}
@@ -405,7 +406,7 @@ function Stats() {
           <div className="flex items-end gap-3 w-full lg:w-auto lg:justify-end">
             <div className="relative w-full sm:w-60 lg:w-64">
               <label className="sr-only">Search</label>
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+              <span className="absolute left-4 top-1/2 pb-2 -translate-y-1/2 text-gray-400 pointer-events-none">
                 <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
               </span>
               <input
@@ -413,8 +414,18 @@ function Stats() {
                 value={appUsageSearchTerm}
                 onChange={(e) => setAppUsageSearchTerm(e.target.value)}
                 placeholder="Search"
-                className="w-full mb-2 h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                className="w-full mb-2 h-10 pb-2 rounded-3xl border border-gray-300 bg-transparent py-2 pr-12 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
               />
+              {appUsageSearchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setAppUsageSearchTerm("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors"
+                  title="Clear search"
+                >
+                  <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+                </button>
+              )}
             </div>
 
             <button

@@ -14,8 +14,6 @@ const CORE_FEATURES = [
   "owner_app",
   "pos_app",
   "admin_app",
-  "waiter_app",
-  "captain_app",
   "cds_app",
   "kds_app",
 ];

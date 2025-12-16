@@ -203,6 +203,8 @@ function Partners() {
         searchPlaceholder="Search"
         enableSort={true}
         enablePagination={true}
+        itemsPerPage={50}
+        itemsPerPageOptions={[25, 50, 100, 200]}
         enableSearch={true}
         onBackClick={() => navigate(-1)}
         showBackButton={true}
