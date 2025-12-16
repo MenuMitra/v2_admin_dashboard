@@ -3,6 +3,12 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHome } from "@fortawesome/free-solid-svg-icons";
 
+// Utility function to properly capitalize text
+const capitalizeText = (text) => {
+  if (!text) return '';
+  return text.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
+};
+
 const ChevronIcon = () => (
   <svg 
     className="stroke-current" 
@@ -38,7 +44,7 @@ const Breadcrumb = ({ items }) => {
               <span className="text-gray-500 dark:text-gray-400">
                 <ChevronIcon />
               </span>
-              <span className='capitalize'>{item.label}</span>
+              <span>{capitalizeText(item.label)}</span>
             </li>
           );
         }
@@ -47,7 +53,7 @@ const Breadcrumb = ({ items }) => {
           <li key={index}>
             <Link
               to={item.path}
-              className="flex capitalize items-center gap-1.5 text-sm text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400"
+              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-brand-500 dark:text-gray-400 dark:hover:text-brand-400"
             >
               {index !== 0 && (
                 <span>
@@ -59,7 +65,7 @@ const Breadcrumb = ({ items }) => {
                   <FontAwesomeIcon icon={faHome} className="w-4 h-4" />
                 </span>
               )}
-              <span className="capitalize">{item.label}</span>
+              <span>{capitalizeText(item.label)}</span>
             </Link>
           </li>
         );

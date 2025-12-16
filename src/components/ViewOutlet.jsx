@@ -19,8 +19,6 @@ import {
   faUserCog,
   faUserFriends,
   faUser,
-  faToggleOff,
-  faToggleOn,
   faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import { faAndroid } from "@fortawesome/free-brands-svg-icons";
@@ -29,6 +27,7 @@ import { queryKeys } from "../lib/react-query/queryKeys";
 import Breadcrumb from "./Breadcrumb";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import Modal from "./common/Modal";
+import SimpleToggle from "./common/SimpleToggle";
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 
@@ -49,41 +48,7 @@ function formatCurrency(amount) {
   return `₹${new Intl.NumberFormat("en-IN").format(n)}`;
 }
 
-// Reusable Toggle Switch Component
-const ToggleSwitch = ({
-  label,
-  isOn,
-  onToggle,
-  disabled = false,
-  onText = "On",
-  offText = "Off",
-}) => {
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <div>
-          <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-            {isOn ? onText : offText}
-          </h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-        </div>
-      </div>
-      <div className="flex items-center ml-4">
-        <button
-          onClick={onToggle}
-          disabled={disabled}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${isOn ? "bg-brand-500" : "bg-gray-300"
-            }`}
-        >
-          <span
-            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${isOn ? "translate-x-6" : "translate-x-1"
-              }`}
-          />
-        </button>
-      </div>
-    </div>
-  );
-};
+
 
 // Helper to calculate days since last used
 function getDaysSinceLastUsed(lastUsed) {
@@ -699,7 +664,7 @@ function ViewOutlet() {
             )}
             {/* Outlet Mode */}
             <div className="flex justify-start">
-              <ToggleSwitch
+              <SimpleToggle
                 label="Outlet Mode"
                 isOn={outletData?.outlet_mode === "online"}
                 onToggle={handleToggleOutletMode}
@@ -710,7 +675,7 @@ function ViewOutlet() {
             </div>
             {/* Outlet Status */}
             <div className="flex justify-start">
-              <ToggleSwitch
+              <SimpleToggle
                 label="Outlet Status"
                 isOn={outletData?.outlet_status === 1}
                 onToggle={handleToggleOutletStatus}
@@ -721,7 +686,7 @@ function ViewOutlet() {
             </div>
             {/* Open/Close Status */}
             <div className="flex justify-start">
-              <ToggleSwitch
+              <SimpleToggle
                 label="Open/Close Status"
                 isOn={outletData?.is_open === 1}
                 onToggle={handleToggleOpenStatus}

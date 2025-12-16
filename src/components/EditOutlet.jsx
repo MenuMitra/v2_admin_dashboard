@@ -720,7 +720,7 @@ function EditOutlet() {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {/* Basic Information Section */}
-          <section className="bg-white p-6 rounded-lg shadow">
+          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg
                 className="w-5 h-5 mr-2"
@@ -944,7 +944,7 @@ function EditOutlet() {
               </div>
 
               {/* Rest of the form fields in their own grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 <TextInput
                   label="Outlet Name"
                   name="name"
@@ -1110,7 +1110,7 @@ function EditOutlet() {
           </section>
 
           {/* Business Details Section */}
-          <section className="bg-white p-6 rounded-lg shadow">
+          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
             <div className="border-b border-gray-200 dark:border-gray-800 pb-5">
               <h2 className="text-lg font-medium mb-4 flex items-center">
                 <svg
@@ -1129,9 +1129,9 @@ function EditOutlet() {
                 Business Details
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Service Charges (%)
                   </label>
                   <input
@@ -1139,12 +1139,13 @@ function EditOutlet() {
                     name="service_charges"
                     value={outletData.service_charges}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter service charges"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     GST (%)
                   </label>
                   <input
@@ -1152,12 +1153,13 @@ function EditOutlet() {
                     name="gst"
                     value={outletData.gst}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter GST percentage"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     FSSAI Number
                   </label>
                   <input
@@ -1165,13 +1167,14 @@ function EditOutlet() {
                     name="fssainumber"
                     value={outletData.fssainumber}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter FSSAI number"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     maxLength={14}
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     GST Number
                   </label>
                   <input
@@ -1180,20 +1183,21 @@ function EditOutlet() {
                     value={outletData.gstnumber}
                     maxLength={15}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter GST number"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
                 </div>
-                <div className="sm:col-span-2 md:col-span-3 xl:col-span-4 w-full">
-                  <div className="flex flex-row flex-nowrap items-end gap-4 mb-4">
+                <div className="col-span-full w-full">
+                  <div className="flex flex-col sm:flex-row flex-wrap lg:flex-nowrap items-start sm:items-end gap-3 sm:gap-4 mb-4">
                     {/* Opening Time */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="flex-1 min-w-[200px]">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                         Opening Time
                       </label>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 sm:gap-2">
                         {/* Hour Dropdown */}
                         <CustomDropdown
-                          className="w-16"
+                          className="w-14 sm:w-16"
                           value={openingHour}
                           onChange={(e) =>
                             handleOpeningTimeChange("hour", e.target.value)
@@ -1209,7 +1213,7 @@ function EditOutlet() {
                         />
                         {/* Minute Dropdown */}
                         <CustomDropdown
-                          className="w-16"
+                          className="w-14 sm:w-16"
                           value={openingMinute}
                           onChange={(e) =>
                             handleOpeningTimeChange("minute", e.target.value)
@@ -1225,7 +1229,7 @@ function EditOutlet() {
                         />
                         {/* AM/PM Dropdown */}
                         <CustomDropdown
-                          className="w-16"
+                          className="w-16 sm:w-20"
                           value={openingPeriod}
                           onChange={(e) =>
                             handleOpeningTimeChange("period", e.target.value)
@@ -1239,14 +1243,14 @@ function EditOutlet() {
                       </div>
                     </div>
                     {/* Closing Time */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="flex-1 min-w-[200px]">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                         Closing Time
                       </label>
-                      <div className="flex gap-2">
+                      <div className="flex gap-1 sm:gap-2">
                         {/* Hour Dropdown */}
                         <CustomDropdown
-                          className="w-16"
+                          className="w-14 sm:w-16"
                           value={closingHour}
                           onChange={(e) =>
                             handleClosingTimeChange("hour", e.target.value)
@@ -1262,7 +1266,7 @@ function EditOutlet() {
                         />
                         {/* Minute Dropdown */}
                         <CustomDropdown
-                          className="w-16"
+                          className="w-14 sm:w-16"
                           value={closingMinute}
                           onChange={(e) =>
                             handleClosingTimeChange("minute", e.target.value)
@@ -1278,7 +1282,7 @@ function EditOutlet() {
                         />
                         {/* AM/PM Dropdown */}
                         <CustomDropdown
-                          className="w-16"
+                          className="w-16 sm:w-20"
                           value={closingPeriod}
                           onChange={(e) =>
                             handleClosingTimeChange("period", e.target.value)
@@ -1292,13 +1296,13 @@ function EditOutlet() {
                       </div>
                     </div>
                     {/* Has Combo */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="flex-1 min-w-[120px]">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                         Has Combo
                       </label>
                       <CustomDropdown
                         name="has_combo"
-                        className="w-16"
+                        className="w-full"
                         value={
                           outletData.has_combo !== null &&
                             outletData.has_combo !== undefined
@@ -1324,13 +1328,13 @@ function EditOutlet() {
                       />
                     </div>
                     {/* Has Denomination */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="flex-1 min-w-[140px]">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                         Has Denomination
                       </label>
                       <CustomDropdown
                         name="has_denomination"
-                        className="w-16"
+                        className="w-full"
                         value={
                           outletData.has_denomination !== null &&
                             outletData.has_denomination !== undefined
@@ -1356,13 +1360,13 @@ function EditOutlet() {
                       />
                     </div>
                     {/* Reserve Table */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="flex-1 min-w-[120px]">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                         Reserve Table
                       </label>
                       <CustomDropdown
                         name="reserve_table"
-                        className="w-16"
+                        className="w-full"
                         value={
                           outletData.reserve_table !== null &&
                             outletData.reserve_table !== undefined
@@ -1403,8 +1407,8 @@ function EditOutlet() {
               </h2>
 
               {/* Plan fields - first row */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                <div className="flex-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
+                <div className="w-full">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Plan Name <span className="text-error-500">*</span>
                   </label>
@@ -1412,12 +1416,12 @@ function EditOutlet() {
                     type="text"
                     value={planName}
                     onChange={(e) => setPlanName(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     placeholder="Enter plan name"
                   />
                 </div>
 
-                <div className="flex-1">
+                <div className="w-full">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Price <span className="text-error-500">*</span>
                   </label>
@@ -1426,12 +1430,12 @@ function EditOutlet() {
                     step="0.01"
                     value={planPrice}
                     onChange={(e) => setPlanPrice(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     placeholder="Enter price"
                   />
                 </div>
 
-                <div className="flex-1">
+                <div className="w-full">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Tenure (months) <span className="text-error-500">*</span>
                   </label>
