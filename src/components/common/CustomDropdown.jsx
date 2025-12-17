@@ -100,7 +100,7 @@ const CustomDropdown = ({
                 type="button"
                 onClick={() => handleSelect(option)}
                 className={`
-                  w-full text-left px-3 py-0 text-sm transition-colors duration-150
+                  w-full text-left px-3 py-1 text-sm transition-colors duration-150
                   hover:bg-gray-100 focus:outline-none focus:bg-gray-100
                   first:rounded-t-3xl last:rounded-b-3xl
                   ${selectedOption?.value === option.value
