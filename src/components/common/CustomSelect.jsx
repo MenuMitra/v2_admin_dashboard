@@ -42,7 +42,7 @@ const CustomSelect = ({
   };
 
   return (
-    <div className="relative w-full" ref={dropdownRef}>
+    <div className={`relative w-full ${isOpen ? 'z-[9999]' : 'z-auto'}`} ref={dropdownRef}>
       {/* Label */}
       {label && (
         <label className="block text-sm text-gray-500 mb-1">
@@ -77,7 +77,7 @@ const CustomSelect = ({
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-2xl shadow-lg z-[9999] overflow-hidden">
+        <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-2xl shadow-xl z-[99999] overflow-hidden" style={{ zIndex: 99999 }}>
           {/* Options List */}
           <div className="max-h-60 overflow-y-auto">
             {options.map((option) => (
