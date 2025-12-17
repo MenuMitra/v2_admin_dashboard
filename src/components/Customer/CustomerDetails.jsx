@@ -8,12 +8,11 @@ import {
   faSpinner,
   faChevronLeft as faBack,
   faRotate,
-  faToggleOff,
-  faToggleOn,
   faUserCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import StatusToggleButton from "../common/StatusToggleButton";
 import { toastController } from "../../utils/toastController";
 import { API_CONFIG } from "../../config/appConfig";
 
@@ -108,7 +107,7 @@ function CustomerDetails() {
           is_active: nextIsActive
         }
       }));
-    } catch (e) {
+    } catch {
       // error toast handled in promise above
     } finally {
       setIsTogglingActive(false);
@@ -213,37 +212,28 @@ function CustomerDetails() {
                   className="w-5 h-5 text-gray-400"
                 />
               </div>
-              <div className="ml-3">
-                <button
-                  onClick={handleToggleCustomerActive}
+              <div className="ml-1.5 flex items-center">
+                <div>
+                  <p
+                    className={`text-base font-medium ${
+                      customerData.customer_details.is_active
+                        ? "text-success-700"
+                        : "text-error-700"
+                    }`}
+                  >
+                    {customerData.customer_details.is_active
+                      ? "Active"
+                      : "Inactive"}
+                  </p>
+                  <div className="text-sm text-gray-500">Account Status</div>
+                </div>
+                <StatusToggleButton
+                  isActive={customerData.customer_details.is_active === 1}
+                  onToggle={handleToggleCustomerActive}
                   disabled={isTogglingActive}
-                  style={{ 
-                    width: '100px', 
-                    height: '40px',
-                    minWidth: '40px', 
-                    minHeight: '20px',
-                    padding: '20px 12px',
-                    fontSize: '20px',
-                    gap: '5px'
-                  }}
-                  className={`rounded-full font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center ${
-                    customerData?.customer_details?.is_active
-                      ? "text-brand-500 "
-                      : "bg-orange-100 text-warning-500 "
-                  } ${
-                    isTogglingActive
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  }`}
-                >
-                  <FontAwesomeIcon
-                    icon={customerData?.customer_details?.is_active ? faToggleOn : faToggleOff}
-                    style={{ fontSize: '40px', width: '40px', height: '40px' }}
-                    className={customerData?.customer_details?.is_active ? "text-brand-500" : "text-warning-500"}
-                  />
-                  {customerData?.customer_details?.is_active ? "Active" : "Inactive"}
-                </button>
-                <div className="text-sm text-gray-500">Account Status</div>
+                  activeLabel=""
+                  inactiveLabel=""
+                />
               </div>
             </div>
           )}

@@ -21,12 +21,11 @@ import {
   faChevronRight,
   faTrash,
   faRotate,
-  faToggleOff,
-  faToggleOn,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import ActiveSessionsTable from "./common/ActiveSessionsTable";
 import Breadcrumb from "./Breadcrumb";
+import StatusToggleButton from "./common/StatusToggleButton";
 import { useOwnerDetails } from "../lib/react-query/hooks/useOwnerDetails";
 import { useAdmin } from "../hooks/useAdmin";
 import { useAuth } from "../hooks/useAuth";
@@ -200,9 +199,8 @@ function OwnerDetails() {
         `Owner marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
       );
       await refetch();
-    } catch (e) {
+    } catch {
       // already toasting in failure path
-      
     } finally {
       setIsTogglingActive(false);
     }
@@ -452,37 +450,28 @@ function OwnerDetails() {
                         className="w-5 h-5 text-gray-400"
                       />
                     </div>
-                    <div className="ml-3">
-                      <button
-                        onClick={handleToggleOwnerActive}
-                        disabled={isTogglingActive}
-                        style={{ 
-                          width: '100px', 
-                          height: '40px',
-                          minWidth: '40px', 
-                          minHeight: '20px',
-                          padding: '20px 12px',
-                          fontSize: '20px',
-                          gap: '5px'
-                        }}
-                        className={`rounded-full font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center ${
-                          ownerData.is_active === 1
-                            ? "text-brand-500 "
-                            : "bg-orange-100 text-warning-500 "
-                        } ${
-                          isTogglingActive
-                            ? "opacity-50 cursor-not-allowed"
-                            : ""
-                        }`}
-                      >
-                        <FontAwesomeIcon
-                          icon={ownerData.is_active === 1 ? faToggleOn : faToggleOff}
-                          style={{ fontSize: '40px', width: '40px', height: '40px' }}
-                          className={ownerData.is_active === 1 ? "text-brand-500" : "text-warning-500"}
+                    <div className="ml-2 flex items-center">
+                      <div>
+                        <p
+                          className={`text-base font-medium ${
+                            ownerData.is_active === 1
+                              ? "text-success-700"
+                              : "text-error-700"
+                          }`}
+                        >
+                          {ownerData.is_active === 1 ? "Active" : "Inactive"}
+                        </p>
+                        <div className="text-sm text-gray-500">Account Status</div>
+                      </div>
+                      <div className="ml-2">
+                        <StatusToggleButton
+                          isActive={ownerData.is_active === 1}
+                          onToggle={handleToggleOwnerActive}
+                          disabled={isTogglingActive}
+                          activeLabel=""
+                          inactiveLabel=""
                         />
-                        {ownerData.is_active === 1 ? "Active" : "Inactive"}
-                      </button>
-                      <div className="text-sm text-gray-500">Account Status</div>
+                      </div>
                     </div>
                   </div>
                 )}

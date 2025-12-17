@@ -84,7 +84,7 @@ const CustomSelect = ({
               <div
                 key={option.value}
                 className={`
-                  px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors
+                  px-3 py-1 h-8 cursor-pointer hover:bg-gray-50 transition-colors
                   ${(value === option.value || String(value) === String(option.value)) ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}
                 `}
                 onClick={() => handleSelect(option.value)}
