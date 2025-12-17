@@ -12,7 +12,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.outletfillterColor{
+
+.outletfillterColor {
   color: #50d975 !important;
 }
 
@@ -21,6 +22,7 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
@@ -49,9 +51,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -62,9 +66,11 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }
@@ -72,10 +78,14 @@ button:focus-visible {
 
 /* Custom blinking animation for status dots */
 @keyframes blink {
-  0%, 50% {
+
+  0%,
+  50% {
     opacity: 1;
   }
-  51%, 100% {
+
+  51%,
+  100% {
     opacity: 0.3;
   }
 }
@@ -83,13 +93,15 @@ button:focus-visible {
 .blink-dot {
   animation: blink 1.5s ease-in-out infinite;
 }
+
 /* Basic select styling for native selects (keeping minimal for compatibility) */
 select {
   border-radius: 1.75rem;
 }
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
+
+background-repeat: no-repeat;
+background-size: 1.5em 1.5em;
+padding-right: 2.5rem;
 }
 
 /* Force rounded corners on dropdown menu container */
@@ -102,6 +114,7 @@ select:focus {
   select {
     border-radius: 1.5rem !important;
   }
+
   select option {
     border-radius: 1.5rem !important;
     padding: 8px 12px !important;
@@ -113,6 +126,7 @@ select:focus {
   select {
     border-radius: 1.5rem !important;
   }
+
   select option {
     border-radius: 1.5rem !important;
     padding: 8px 12px !important;

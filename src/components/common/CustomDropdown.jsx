@@ -40,7 +40,7 @@ const CustomDropdown = ({
   const handleSelect = (option) => {
     setSelectedOption(option);
     setIsOpen(false);
-    
+
     // Create synthetic event for compatibility
     const syntheticEvent = {
       target: {
@@ -48,7 +48,7 @@ const CustomDropdown = ({
         name: props.name
       }
     };
-    
+
     onChange?.(syntheticEvent);
   };
 
@@ -79,15 +79,14 @@ const CustomDropdown = ({
         <span className={selectedOption ? "text-gray-900" : "text-gray-400"}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        
+
         {/* Dropdown Arrow - Pure Tailwind */}
-        <FontAwesomeIcon 
-          icon={faChevronDown} 
-          className={`w-4 ml-2 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${
-            isOpen ? 'rotate-180' : 'rotate-0'
-          }`}
+        <FontAwesomeIcon
+          icon={faChevronDown}
+          className={`w-4 ml-2 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isOpen ? 'rotate-180' : 'rotate-0'
+            }`}
         />
-      </button> 
+      </button>
 
       {/* Dropdown Options Container - vertical list with scrolling */}
       {isOpen && (
@@ -104,8 +103,8 @@ const CustomDropdown = ({
                   w-full text-left px-3 py-0 text-sm transition-colors duration-150
                   hover:bg-gray-100 focus:outline-none focus:bg-gray-100
                   first:rounded-t-3xl last:rounded-b-3xl
-                  ${selectedOption?.value === option.value 
-                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' 
+                  ${selectedOption?.value === option.value
+                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                     : 'text-gray-900'
                   }
                 `}
