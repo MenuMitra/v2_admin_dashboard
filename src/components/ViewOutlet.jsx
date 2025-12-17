@@ -27,7 +27,7 @@ import { queryKeys } from "../lib/react-query/queryKeys";
 import Breadcrumb from "./Breadcrumb";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
 import Modal from "./common/Modal";
-import SimpleToggle from "./common/SimpleToggle";
+import StatusToggleButton from "./common/StatusToggleButton";
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 
@@ -664,36 +664,42 @@ function ViewOutlet() {
             )}
             {/* Outlet Mode */}
             <div className="flex justify-start">
-              <SimpleToggle
-                label="Outlet Mode"
-                isOn={outletData?.outlet_mode === "online"}
-                onToggle={handleToggleOutletMode}
-                disabled={toggleStatusMutation.isPending}
-                onText="Online"
-                offText="Offline"
-              />
+              <div>
+                <StatusToggleButton
+                  isActive={outletData?.outlet_mode === "online"}
+                  onToggle={handleToggleOutletMode}
+                  disabled={toggleStatusMutation.isPending}
+                  activeLabel="Online"
+                  inactiveLabel="Offline"
+                />
+                <div className="text-sm text-gray-500 mt-1">Outlet Mode</div>
+              </div>
             </div>
             {/* Outlet Status */}
             <div className="flex justify-start">
-              <SimpleToggle
-                label="Outlet Status"
-                isOn={outletData?.outlet_status === 1}
-                onToggle={handleToggleOutletStatus}
-                disabled={toggleStatusMutation.isPending}
-                onText="Active"
-                offText="Inactive"
-              />
+              <div>
+                <StatusToggleButton
+                  isActive={outletData?.outlet_status === 1}
+                  onToggle={handleToggleOutletStatus}
+                  disabled={toggleStatusMutation.isPending}
+                  activeLabel="Active"
+                  inactiveLabel="Inactive"
+                />
+                <div className="text-sm text-gray-500 mt-1">Outlet Status</div>
+              </div>
             </div>
             {/* Open/Close Status */}
             <div className="flex justify-start">
-              <SimpleToggle
-                label="Open/Close Status"
-                isOn={outletData?.is_open === 1}
-                onToggle={handleToggleOpenStatus}
-                disabled={toggleStatusMutation.isPending}
-                onText="Open"
-                offText="Closed"
-              />
+              <div>
+                <StatusToggleButton
+                  isActive={outletData?.is_open === 1}
+                  onToggle={handleToggleOpenStatus}
+                  disabled={toggleStatusMutation.isPending}
+                  activeLabel="Open"
+                  inactiveLabel="Closed"
+                />
+                <div className="text-sm text-gray-500 mt-1">Open/Close Status</div>
+              </div>
             </div>
           </div>
           {/* Business Details section with divider */}
