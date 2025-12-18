@@ -9670,6 +9670,11 @@ button.swiper-pagination-bullet {
   scrollbar-color: #cbd5e1 transparent;
 }
 
+/* Relax overscroll behavior only on Outlet listing page */
+.outlets-page .custom-scrollbar {
+  overscroll-behavior-y: auto;
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }
@@ -9677,7 +9682,7 @@ button.swiper-pagination-bullet {
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
+   background-color: #cbd5e1;
   border-radius: 20px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
