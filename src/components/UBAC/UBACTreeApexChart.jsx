@@ -744,7 +744,33 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-5 py-1.5 border border-2 rounded-3xl"
+              className={`
+                px-4 py-2 border-2 rounded-full
+                text-sm font-medium bg-white 
+                hover:shadow-md hover:scale-105 transform
+                focus:outline-none focus:ring-2 focus:ring-offset-2
+                transition-all duration-200
+                disabled:opacity-50 disabled:cursor-not-allowed
+                w-24
+              `}
+              style={{
+                borderColor: '#6b7280',
+                color: '#6b7280',
+                backgroundColor: 'white',
+                minWidth: '96px'
+              }}
+              onMouseEnter={(e) => {
+                if (!loadingSave) {
+                  e.target.style.setProperty('background-color', '#f3f4f6', 'important');
+                  e.target.style.setProperty('border-color', '#4b5563', 'important');
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loadingSave) {
+                  e.target.style.setProperty('background-color', 'white', 'important');
+                  e.target.style.setProperty('border-color', '#6b7280', 'important');
+                }
+              }}
               onClick={() => setIsModalOpen(false)}
               disabled={loadingSave}
             >
@@ -917,7 +943,33 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-5 py-1.5 border border-2 rounded-3xl"
+              className={`
+                px-4 py-2 border-2 rounded-full
+                text-sm font-medium bg-white 
+                hover:shadow-md hover:scale-105 transform
+                focus:outline-none focus:ring-2 focus:ring-offset-2
+                transition-all duration-200
+                disabled:opacity-50 disabled:cursor-not-allowed
+                w-24
+              `}
+              style={{
+                borderColor: '#6b7280',
+                color: '#6b7280',
+                backgroundColor: 'white',
+                minWidth: '96px'
+              }}
+              onMouseEnter={(e) => {
+                if (!editLoadingSave) {
+                  e.target.style.setProperty('background-color', '#f3f4f6', 'important');
+                  e.target.style.setProperty('border-color', '#4b5563', 'important');
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!editLoadingSave) {
+                  e.target.style.setProperty('background-color', 'white', 'important');
+                  e.target.style.setProperty('border-color', '#6b7280', 'important');
+                }
+              }}
               onClick={() => setIsEditModalOpen(false)}
               disabled={editLoadingSave}
             >

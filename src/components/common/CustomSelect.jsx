@@ -11,6 +11,8 @@ const CustomSelect = ({
   className = "",
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const [hoveredOption, setHoveredOption] = useState(null);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -79,31 +81,59 @@ const CustomSelect = ({
       {isOpen && (
         <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-2xl shadow-xl z-[99999] overflow-hidden" style={{ zIndex: 99999 }}>
           {/* Options List */}
-          <div className="max-h-60 overflow-y-auto">
-            {options.map((option) => (
-              <div
-                key={option.value}
-                className={`
-                  px-2 py-0.5 text-sm cursor-pointer transition-colors flex items-center leading-tight
-                  ${(value === option.value || String(value) === String(option.value)) ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-blue-500 hover:text-white'}
-                `}
-                onClick={() => handleSelect(option.value)}
-                onMouseEnter={(e) => {
-                  if (!(value === option.value || String(value) === String(option.value))) {
-                    e.target.style.backgroundColor = '#3b82f6';
-                    e.target.style.color = '#ffffff';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!(value === option.value || String(value) === String(option.value))) {
-                    e.target.style.backgroundColor = '';
-                    e.target.style.color = '#4b5563';
-                  }
-                }}
-              >
-                {option.label}
-              </div>
-            ))}
+          <div 
+            className="max-h-60 overflow-y-auto"
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => {
+              setIsHovering(false);
+              setHoveredOption(null);
+            }}
+          >
+            {options.map((option) => {
+              const isSelected = (value === option.value || String(value) === String(option.value));
+              const isCurrentlyHovered = (hoveredOption === option.value);
+              
+              // Determine colors based on plan:
+              // State 1 (Not hovering): Selected item = blue, others = transparent
+              // State 2 (Hovering): Only hovered item = blue, all others = transparent (including selected)
+              let backgroundColor, textColor;
+              
+              if (isHovering) {
+                // State 2: Hovering - only hovered item gets blue
+                if (isCurrentlyHovered) {
+                  backgroundColor = '#3b82f6';
+                  textColor = '#ffffff';
+                } else {
+                  backgroundColor = 'transparent';
+                  textColor = '#4b5563';
+                }
+              } else {
+                // State 1: Not hovering - only selected item gets blue
+                if (isSelected) {
+                  backgroundColor = '#3b82f6';
+                  textColor = '#ffffff';
+                } else {
+                  backgroundColor = 'transparent';
+                  textColor = '#4b5563';
+                }
+              }
+
+              return (
+                <div
+                  key={option.value}
+                  className="px-2 py-0.5 text-sm cursor-pointer transition-colors flex items-center leading-tight"
+                  style={{
+                    backgroundColor: backgroundColor,
+                    color: textColor
+                  }}
+                  onClick={() => handleSelect(option.value)}
+                  onMouseEnter={() => setHoveredOption(option.value)}
+                  onMouseLeave={() => setHoveredOption(null)}
+                >
+                  {option.label}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

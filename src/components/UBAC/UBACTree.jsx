@@ -595,11 +595,51 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-3 py-1 border rounded-3xl"
+              className={`
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${loadingSave ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
+              `}
+              style={{
+                borderColor: '#dc2626',
+                color: '#dc2626'
+              }}
+              onMouseEnter={(e) => {
+                if (!loadingSave) {
+                  e.target.style.backgroundColor = '#dc2626';
+                  e.target.style.color = 'white';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.times-icon');
+                  if (iconContainer) iconContainer.style.borderColor = 'white';
+                  if (icon) icon.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loadingSave) {
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#dc2626';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.times-icon');
+                  if (iconContainer) iconContainer.style.borderColor = '#dc2626';
+                  if (icon) icon.style.color = '#dc2626';
+                }
+              }}
               onClick={() => setIsModalOpen(false)}
               disabled={loadingSave}
             >
-              Cancel
+              <div 
+                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                style={{ borderColor: '#dc2626' }}
+              >
+                <FontAwesomeIcon
+                  icon={faTimes} 
+                  className="times-icon w-3 h-3 transition-all duration-200" 
+                  style={{ color: '#dc2626' }}
+                />
+              </div>
+              <span>Cancel</span>
             </button>
             <button
               className={`
@@ -806,11 +846,51 @@ const UBACTree = () => {
         actionButtons={
           <>
             <button
-              className="px-3 py-1 border rounded"
+              className={`
+                inline-flex items-center gap-3 px-6 py-3 
+                text-sm font-medium rounded-full
+                bg-white border-2 transition-all duration-200 shadow-sm
+                hover:shadow-md hover:scale-105 transform
+                ${editLoadingSave ? "opacity-50 cursor-not-allowed" : "hover:bg-opacity-10"}
+              `}
+              style={{
+                borderColor: '#dc2626',
+                color: '#dc2626'
+              }}
+              onMouseEnter={(e) => {
+                if (!editLoadingSave) {
+                  e.target.style.backgroundColor = '#dc2626';
+                  e.target.style.color = 'white';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.times-icon');
+                  if (iconContainer) iconContainer.style.borderColor = 'white';
+                  if (icon) icon.style.color = 'white';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!editLoadingSave) {
+                  e.target.style.backgroundColor = 'white';
+                  e.target.style.color = '#dc2626';
+                  const iconContainer = e.target.querySelector('.icon-container');
+                  const icon = e.target.querySelector('.times-icon');
+                  if (iconContainer) iconContainer.style.borderColor = '#dc2626';
+                  if (icon) icon.style.color = '#dc2626';
+                }
+              }}
               onClick={() => setIsEditModalOpen(false)}
               disabled={editLoadingSave}
             >
-              Cancel
+              <div 
+                className="icon-container w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-200"
+                style={{ borderColor: '#dc2626' }}
+              >
+                <FontAwesomeIcon
+                  icon={faTimes} 
+                  className="times-icon w-3 h-3 transition-all duration-200" 
+                  style={{ color: '#dc2626' }}
+                />
+              </div>
+              <span>Cancel</span>
             </button>
             <button
               className={`
