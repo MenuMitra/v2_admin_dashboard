@@ -375,7 +375,7 @@ function CustomerDetails() {
 
             {/* Title */}
             <div className="flex-1 text-center text-lg sm:text-xl font-semibold text-gray-800">
-              Customer Details
+              Personal Information
             </div>
 
             {/* Action Buttons */}

@@ -861,7 +861,7 @@ function EditOutlet() {
                             <div
                               key={owner.user_id}
                               className={`
-                                p-3 cursor-pointer hover:bg-gray-50
+                                p-3 cursor-pointer hover:bg-gray-50 
                                 ${outletData.owner_ids.includes(owner.user_id)
                                   ? "bg-brand-50 border-l-4 border-brand-500"
                                   : "border-l-4 border-transparent"
@@ -1188,16 +1188,16 @@ function EditOutlet() {
                   />
                 </div>
                 <div className="col-span-full w-full">
-                  <div className="flex flex-col sm:flex-row flex-wrap lg:flex-nowrap items-start sm:items-end gap-3 sm:gap-4 mb-4">
+                  <div className="flex flex-row flex-nowrap items-end gap-10 mb-4">
                     {/* Opening Time */}
-                    <div className="flex-1 min-w-[200px]">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Opening Time
                       </label>
-                      <div className="flex gap-1 sm:gap-2">
+                      <div className="flex gap-2">
                         {/* Hour Dropdown */}
                         <CustomDropdown
-                          className="w-14 sm:w-16"
+                          className="w-22"
                           value={openingHour}
                           onChange={(e) =>
                             handleOpeningTimeChange("hour", e.target.value)
@@ -1213,7 +1213,7 @@ function EditOutlet() {
                         />
                         {/* Minute Dropdown */}
                         <CustomDropdown
-                          className="w-14 sm:w-16"
+                          className="w-22"
                           value={openingMinute}
                           onChange={(e) =>
                             handleOpeningTimeChange("minute", e.target.value)
@@ -1229,7 +1229,7 @@ function EditOutlet() {
                         />
                         {/* AM/PM Dropdown */}
                         <CustomDropdown
-                          className="w-16 sm:w-20"
+                          className="w-22"
                           value={openingPeriod}
                           onChange={(e) =>
                             handleOpeningTimeChange("period", e.target.value)
@@ -1243,14 +1243,14 @@ function EditOutlet() {
                       </div>
                     </div>
                     {/* Closing Time */}
-                    <div className="flex-1 min-w-[200px]">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Closing Time
                       </label>
-                      <div className="flex gap-1 sm:gap-2">
+                      <div className="flex gap-2">
                         {/* Hour Dropdown */}
                         <CustomDropdown
-                          className="w-14 sm:w-16"
+                          className="w-22"
                           value={closingHour}
                           onChange={(e) =>
                             handleClosingTimeChange("hour", e.target.value)
@@ -1266,7 +1266,7 @@ function EditOutlet() {
                         />
                         {/* Minute Dropdown */}
                         <CustomDropdown
-                          className="w-14 sm:w-16"
+                          className="w-22"
                           value={closingMinute}
                           onChange={(e) =>
                             handleClosingTimeChange("minute", e.target.value)
@@ -1282,7 +1282,7 @@ function EditOutlet() {
                         />
                         {/* AM/PM Dropdown */}
                         <CustomDropdown
-                          className="w-16 sm:w-20"
+                          className="w-22"
                           value={closingPeriod}
                           onChange={(e) =>
                             handleClosingTimeChange("period", e.target.value)
@@ -1296,13 +1296,13 @@ function EditOutlet() {
                       </div>
                     </div>
                     {/* Has Combo */}
-                    <div className="flex-1 min-w-[120px]">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Has Combo
                       </label>
                       <CustomDropdown
                         name="has_combo"
-                        className="w-full"
+                        className="w-22"
                         value={
                           outletData.has_combo !== null &&
                             outletData.has_combo !== undefined
@@ -1328,13 +1328,13 @@ function EditOutlet() {
                       />
                     </div>
                     {/* Has Denomination */}
-                    <div className="flex-1 min-w-[140px]">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Has Denomination
                       </label>
                       <CustomDropdown
                         name="has_denomination"
-                        className="w-full"
+                        className="w-22"
                         value={
                           outletData.has_denomination !== null &&
                             outletData.has_denomination !== undefined
@@ -1360,13 +1360,13 @@ function EditOutlet() {
                       />
                     </div>
                     {/* Reserve Table */}
-                    <div className="flex-1 min-w-[120px]">
-                      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
                         Reserve Table
                       </label>
                       <CustomDropdown
                         name="reserve_table"
-                        className="w-full"
+                        className="w-22"
                         value={
                           outletData.reserve_table !== null &&
                             outletData.reserve_table !== undefined

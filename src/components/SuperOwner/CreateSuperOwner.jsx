@@ -552,6 +552,11 @@ function CreateSuperOwner() {
                                 ? "text-green-600"
                                 : "text-red-600"
                                 }`}
+                              style={{
+                                color: outlet.outlet_status === 1 || outlet.outlet_status === "1"
+                                  ? "#059669"  // Green for Active
+                                  : "#dc2626"  // Red for Inactive
+                              }}
                             >
                               {outlet.outlet_status === 1 ||
                                 outlet.outlet_status === "1"
@@ -563,6 +568,11 @@ function CreateSuperOwner() {
                                 ? "text-blue-600"
                                 : "text-gray-500"
                                 }`}
+                              style={{
+                                color: outlet.is_open === 1 || outlet.is_open === "1"
+                                  ? "#2563eb"  // Blue for Open
+                                  : "#6b7280"  // Grey for Close
+                              }}
                             >
                               {outlet.is_open === 1 || outlet.is_open === "1"
                                 ? "Open"

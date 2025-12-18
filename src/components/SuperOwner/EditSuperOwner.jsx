@@ -564,23 +564,31 @@ function EditSuperOwner() {
                           )}
                           <div className="flex flex-col items-end gap-2 min-w-[70px]">
                             <span
-                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
-                                outlet.outlet_status === 1 || outlet.outlet_status === "1"
-                                  ? "text-green-600"
-                                  : "text-red-600"
-                              }`}
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${outlet.outlet_status === 1 || outlet.outlet_status === "1"
+                                ? "text-green-600"
+                                : "text-red-600"
+                                }`}
+                              style={{
+                                color: outlet.outlet_status === 1 || outlet.outlet_status === "1"
+                                  ? "#059669"  // Green for Active
+                                  : "#dc2626"  // Red for Inactive
+                              }}
                             >
                               {outlet.outlet_status === 1 ||
-                              outlet.outlet_status === "1"
+                                outlet.outlet_status === "1"
                                 ? "Active"
                                 : "Inactive"}
                             </span>
                             <span
-                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
-                                outlet.is_open === 1 || outlet.is_open === "1"
-                                  ? "text-blue-600"
-                                  : "text-gray-500"
-                              }`}
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${outlet.is_open === 1 || outlet.is_open === "1"
+                                ? "text-blue-600"
+                                : "text-gray-500"
+                                }`}
+                              style={{
+                                color: outlet.is_open === 1 || outlet.is_open === "1"
+                                  ? "#2563eb"  // Blue for Open
+                                  : "#6b7280"  // Grey for Close
+                              }}
                             >
                               {outlet.is_open === 1 || outlet.is_open === "1"
                                 ? "Open"

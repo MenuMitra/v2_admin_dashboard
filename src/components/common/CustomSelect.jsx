@@ -84,10 +84,22 @@ const CustomSelect = ({
               <div
                 key={option.value}
                 className={`
-                  px-3 py-1 h-8 cursor-pointer hover:bg-gray-50 transition-colors
-                  ${(value === option.value || String(value) === String(option.value)) ? 'bg-blue-50 text-blue-600' : 'text-gray-600'}
+                  px-2 py-0.5 text-sm cursor-pointer transition-colors flex items-center leading-tight
+                  ${(value === option.value || String(value) === String(option.value)) ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-blue-500 hover:text-white'}
                 `}
                 onClick={() => handleSelect(option.value)}
+                onMouseEnter={(e) => {
+                  if (!(value === option.value || String(value) === String(option.value))) {
+                    e.target.style.backgroundColor = '#3b82f6';
+                    e.target.style.color = '#ffffff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!(value === option.value || String(value) === String(option.value))) {
+                    e.target.style.backgroundColor = '';
+                    e.target.style.color = '#4b5563';
+                  }
+                }}
               >
                 {option.label}
               </div>

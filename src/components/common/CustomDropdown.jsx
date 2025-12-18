@@ -99,12 +99,25 @@ const CustomDropdown = ({
                 key={option.value || index}
                 type="button"
                 onClick={() => handleSelect(option)}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#3b82f6';
+                  e.target.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedOption?.value === option.value) {
+                    e.target.style.backgroundColor = '#eff6ff';
+                    e.target.style.color = '#1d4ed8';
+                  } else {
+                    e.target.style.backgroundColor = '';
+                    e.target.style.color = '#111827';
+                  }
+                }}
                 className={`
                   w-full text-left px-3 py-1 text-sm transition-colors duration-150
-                  hover:bg-gray-100 focus:outline-none focus:bg-gray-100
+                  hover:bg-blue-500 hover:text-white focus:outline-none focus:bg-blue-500 focus:text-white
                   first:rounded-t-3xl last:rounded-b-3xl
                   ${selectedOption?.value === option.value
-                    ? 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                    ? 'bg-blue-50 text-blue-700'
                     : 'text-gray-900'
                   }
                 `}
