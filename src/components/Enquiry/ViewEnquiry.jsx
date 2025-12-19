@@ -288,22 +288,30 @@ function ViewEnquiry() {
                       icon={
                         enquiry.enquiry_status === "Active"
                           ? faCheckCircle
+                          : enquiry.enquiry_status === "Positive"
+                          ? faCheckCircle
                           : faTimesCircle
                       }
-                      className={`w-5 h-5 ${
-                        enquiry.enquiry_status === "Active"
-                          ? "text-success-500"
-                          : "text-error-500"
-                      }`}
+                      className={`w-5 h-5`}
+                      style={{
+                        color: enquiry.enquiry_status === "Active" 
+                          ? "#12b76a" 
+                          : enquiry.enquiry_status === "Positive"
+                          ? "#1d4ed8"
+                          : "#f04438"
+                      }}
                     />
                   </div>
                   <div className="ml-3">
                     <div
-                      className={`text-base font-medium ${
-                        enquiry.enquiry_status === "Active"
-                          ? "text-success-700"
-                          : "text-error-700"
-                      }`}
+                      className="text-base font-medium"
+                      style={{
+                        color: enquiry.enquiry_status === "Active" 
+                          ? "#027a48" 
+                          : enquiry.enquiry_status === "Positive"
+                          ? "#1d4ed8"
+                          : "#b42318"
+                      }}
                     >
                       {enquiry.enquiry_status}
                     </div>

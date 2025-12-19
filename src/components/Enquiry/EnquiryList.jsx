@@ -152,7 +152,7 @@ const EnquiryList = () => {
             statusClass = "bg-warning-100 text-warning-500";
             break;
           case "Positive":
-            statusClass = "text-brand-500";
+            statusClass = "bg-blue-100 text-blue-700";
             break;
           case "Onboard":
             statusClass = "bg-success-100 text-success-700";
