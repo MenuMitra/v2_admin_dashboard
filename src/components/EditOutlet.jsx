@@ -29,6 +29,7 @@ import { toastController } from "../utils/toastController";
 import CustomSelectInput from "./common/CustomSelectInput";
 import CustomDropdown from "./common/CustomDropdown";
 import SaveButton from "./common/SaveButton";
+import MultiSelectDropdown from "./common/MultiSelectDropdown";
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -84,10 +85,7 @@ function EditOutlet() {
   const [planPrice, setPlanPrice] = useState("");
   const [tenureMonths, setTenureMonths] = useState(null);
   const ALLOWED_TENURES = [1, 3, 6, 12, 18, 24];
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [validationStates, setValidationStates] = useState({
-    owner: false,
     name: false,
     mobile: false,
     mobileMessage: "",
@@ -420,13 +418,6 @@ function EditOutlet() {
 
   // Subscription popup and related handlers removed
 
-  const filteredOwners = allOwners.filter(
-    (owner) =>
-      owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      owner.mobile.includes(searchTerm) ||
-      owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   // Add breadcrumb items
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
@@ -743,176 +734,24 @@ function EditOutlet() {
               {/* Select Owner and Image Upload in same grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 {/* Select Owner */}
-                <div className="relative">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    Select Owner(s)
-                  </label>
-
-                  <div className="relative">
-                    <div
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="w-full p-2 text-left border rounded-3xl shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
-                      role="combobox"
-                      aria-expanded={isDropdownOpen}
-                      aria-haspopup="listbox"
-                    >
-                      {outletData.owner_ids.length > 0 ? (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {outletData.owner_ids.length} Owner(s) Selected
-                            </div>
-                          </div>
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      ) : (
-                        <div className="text-gray-500">Select Owner(s)</div>
-                      )}
-                    </div>
-
-                    {/* Selected Owners Display */}
-                    {outletData.owner_ids.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {outletData.owner_ids.map((id) => {
-                          const owner = allOwners.find((o) => o.user_id === id);
-                          return owner ? (
-                            <div
-                              key={owner.user_id}
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-sm"
-                            >
-                              <span>{owner.name}</span>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOutletData((prev) => ({
-                                    ...prev,
-                                    owner_ids: prev.owner_ids.filter(
-                                      (ownerId) => ownerId !== id
-                                    ),
-                                  }));
-                                }}
-                                className="ml-1 rounded-3xl text-brand-500 hover:text-brand-700"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-
-                    {/* Dropdown Panel */}
-                    {isDropdownOpen && (
-                      <div
-                        className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50 w-full min-w-[300px] max-h-[350px] overflow-y-auto"
-                      >
-                        {/* Search Bar */}
-                        <div className="sticky top-0 p-2 border-b bg-white">
-                          <div className="relative">
-                            <input
-                              type="text"
-                              className="w-full px-4 py-2 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
-                              placeholder="Search by name, mobile or email..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              autoFocus
-                            />
-                            {searchTerm && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setSearchTerm("");
-                                  // Keep focus on the search input
-                                  const searchInput = e.target
-                                    .closest(".relative")
-                                    .querySelector("input");
-                                  if (searchInput) {
-                                    searchInput.focus();
-                                  }
-                                }}
-                                className="absolute rounded-3xl right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                              >
-                                <FontAwesomeIcon
-                                  icon={faTimes}
-                                  className="w-4 h-4"
-                                />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Owners List */}
-                        <div className="overflow-y-auto">
-                          {filteredOwners.map((owner) => (
-                            <div
-                              key={owner.user_id}
-                              className={`
-                                p-3 cursor-pointer hover:bg-gray-50 
-                                ${outletData.owner_ids.includes(owner.user_id)
-                                  ? "bg-brand-50 border-l-4 border-brand-500"
-                                  : "border-l-4 border-transparent"
-                                }
-                              `}
-                            >
-                              <div className="flex items-center gap-3">
-                                <input
-                                  type="checkbox"
-                                  checked={outletData.owner_ids.includes(
-                                    owner.user_id
-                                  )}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    const newOwnerIds = e.target.checked
-                                      ? [...outletData.owner_ids, owner.user_id]
-                                      : outletData.owner_ids.filter(
-                                        (id) => id !== owner.user_id
-                                      );
-
-
-
-
-                                    setOutletData((prev) => ({
-                                      ...prev,
-                                      owner_ids: newOwnerIds,
-                                    }));
-                                  }}
-                                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-3xl"
-                                />
-                                <div>
-                                  <div className="font-medium text-gray-900">
-                                    {owner.name}
-                                  </div>
-                                  <div className="text-sm text-gray-500">
-                                    <span>{owner.mobile}</span>
-                                    {owner.email && (
-                                      <>
-                                        <span className="mx-2">•</span>
-                                        <span>{owner.email}</span>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                <div className="flex flex-col">
+                  <MultiSelectDropdown
+                    label="Select Owner(s)"
+                    options={allOwners}
+                    selectedValues={outletData.owner_ids}
+                    onChange={(newOwnerIds) => {
+                      setOutletData((prev) => ({
+                        ...prev,
+                        owner_ids: newOwnerIds,
+                      }));
+                    }}
+                    displayKey="name"
+                    valueKey="user_id"
+                    searchKeys={["name", "mobile", "email"]}
+                    placeholder="Select owners"
+                    searchPlaceholder="Search by name, mobile or email..."
+                    className="rounded-3xl"
+                  />
                 </div>
 
                 {/* Image Upload */}

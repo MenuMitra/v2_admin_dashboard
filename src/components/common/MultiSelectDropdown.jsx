@@ -1,6 +1,7 @@
 // src/components/common/MultiSelectDropdown.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import './MultiSelectDropdown.css';
 
 const MultiSelectDropdown = ({
   label,
@@ -49,7 +50,7 @@ const MultiSelectDropdown = ({
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col" ref={dropdownRef}>
+    <div className="relative w-full h-full flex flex-col multi-select-dropdown" ref={dropdownRef}>
       {/* Label */}
       <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
         {required && <span className="text-error-600 text-red-500 mr-1">*</span>}
@@ -90,7 +91,7 @@ const MultiSelectDropdown = ({
                 key={value}
                 className="inline-flex items-center gap-1 px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-sm"
               >
-                <span className="truncate max-w-[150px]">{option[displayKey]}</span>
+                <span className="truncate max-w-[150px]" style={{ textTransform: 'capitalize' }}>{option[displayKey]}</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -108,11 +109,9 @@ const MultiSelectDropdown = ({
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div
-          className="absolute left-0 right-0 mt-[17px] bg-white border rounded-lg shadow-xl z-50 w-full min-w-[250px] max-h-[350px]"
-        >
+        <div className="absolute left-0 right-0 mt-[17px] bg-white border rounded-lg shadow-xl z-50 w-full min-w-[250px]">
           {/* Search Bar */}
-          <div className="sticky top-0 p-2 border-b bg-white z-10">
+          <div className="p-2 border-b bg-white">
             <div className="relative">
               <input
                 type="text"
@@ -156,8 +155,15 @@ const MultiSelectDropdown = ({
             </div>
           </div>
 
-          {/* Options List */}
-          <div className="overflow-y-auto max-h-[calc(350px-57px)]">
+          {/* Options List with Fixed Height and Scrolling */}
+          <div 
+            style={{
+              height: '250px',
+              maxHeight: '250px',
+              overflowY: 'auto',
+              overflowX: 'hidden'
+            }}
+          >
             {filteredOptions.length === 0 ? (
               <div className="p-3 text-center text-gray-500">
                 No results found
@@ -180,10 +186,10 @@ const MultiSelectDropdown = ({
                       checked={selectedValues.includes(option[valueKey])}
                       onChange={() => handleSelect(option[valueKey])}
                       onClick={(e) => e.stopPropagation()}
-                      className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-3xl flex-shrink-0"
+                      className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">
+                      <div className="font-medium text-gray-900 truncate" style={{ textTransform: 'capitalize' }}>
                         {option[displayKey]}
                       </div>
                       {option.secondary && (
@@ -204,12 +210,12 @@ const MultiSelectDropdown = ({
 };
 
 MultiSelectDropdown.propTypes = {
-  label: PropTypes.string.required,
-  options: PropTypes.arrayOf(PropTypes.object).required,
-  selectedValues: PropTypes.array.required,
-  onChange: PropTypes.func.required,
-  displayKey: PropTypes.string.required,
-  valueKey: PropTypes.string.required,
+  label: PropTypes.string.isRequired,
+  options: PropTypes.arrayOf(PropTypes.object).isRequired,
+  selectedValues: PropTypes.array.isRequired,
+  onChange: PropTypes.func.isRequired,
+  displayKey: PropTypes.string.isRequired,
+  valueKey: PropTypes.string.isRequid,
   searchKeys: PropTypes.arrayOf(PropTypes.string),
   required: PropTypes.bool,
   placeholder: PropTypes.string,

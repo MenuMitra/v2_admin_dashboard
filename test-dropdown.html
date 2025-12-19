@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dropdown Test Instructions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .step {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 10px;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Testing the Select Outlets Dropdown</h1>
+    
+    <div class="highlight">
+        <strong>Development Server:</strong> http://localhost:5175/
+    </div>
+
+    <h2>Test Steps:</h2>
+    
+    <div class="step">
+        <strong>Step 1:</strong> Open browser and navigate to http://localhost:5175/
+    </div>
+    
+    <div class="step">
+        <strong>Step 2:</strong> Add mobile number: 9879879879 and click login button
+    </div>
+    
+    <div class="step">
+        <strong>Step 3:</strong> Enter OTP: 1234 and proceed to home page
+    </div>
+    
+    <div class="step">
+        <strong>Step 4:</strong> Click on "Owners" in the sidebar
+    </div>
+    
+    <div class="step">
+        <strong>Step 5:</strong> Click on "Create" button to open Create Owner page
+    </div>
+    
+    <div class="step">
+        <strong>Step 6:</strong> Find the "Select Outlets" dropdown and test the following:
+        <ul>
+            <li>Click on the dropdown to open it</li>
+            <li>Verify the dropdown has a <strong>fixed height of 300px</strong></li>
+            <li>Check if there are many outlets, the list should be <strong>scrollable vertically</strong></li>
+            <li>Test the search functionality within the dropdown</li>
+            <li>Verify you can select/deselect multiple outlets</li>
+            <li>Check that the dropdown closes when clicking outside</li>
+        </ul>
+    </div>
+
+    <div class="step">
+        <strong>Alternative Test:</strong> You can also test the dropdown directly by visiting:
+        <br><strong>http://localhost:5175/test-dropdown</strong>
+        <br>This page has 50 test outlets to verify scrolling behavior.
+    </div>
+
+    <div class="step">
+        <strong>CreateOutlet Test:</strong> To test the Select Owners dropdown in CreateOutlet:
+        <br>Navigate to: Outlets → Create Outlet → Find "Select Owners" dropdown
+        <br>This dropdown now uses the same MultiSelectDropdown component with fixed height and scrolling.
+    </div>
+
+    <div class="step">
+        <strong>EditOutlet Test:</strong> To test the Select Owner(s) dropdown in EditOutlet:
+        <br>Navigate to: Outlets → Click on any outlet → Edit → Find "Select Owner(s)" dropdown
+        <br>This dropdown also uses the MultiSelectDropdown component with fixed height and scrolling.
+    </div>
+
+    <div class="step">
+        <strong>CreateMenu Test:</strong> To test the Category dropdown in CreateMenu:
+        <br>Navigate to: Outlets → Click on any outlet → Menus → Create Menu → Find "Category" dropdown
+        <br>This dropdown now uses a custom single-select component with fixed height (250px) and vertical scrolling.
+        <br><strong>Features:</strong> Search categories, single selection (no checkboxes), smooth scrolling when many categories exist.
+    </div>
+
+    <div class="step">
+        <strong>EditMenu Test:</strong> To test the Category dropdown in EditMenu:
+        <br>Navigate to: Outlets → Click on any outlet → Menus → Click on any menu → Edit → Find "Category" dropdown
+        <br>This dropdown now uses a custom single-select component with fixed height (250px) and vertical scrolling.
+        <br><strong>Features:</strong> Search categories, single selection (no checkboxes), smooth scrolling when many categories exist.
+    </div>
+
+    <h2>What Was Changed:</h2>
+    <ul>
+        <li>Set fixed height of 250px for the options list area</li>
+        <li>Used inline styles for reliable height and overflow properties</li>
+        <li>Added custom CSS for better scrollbar styling</li>
+        <li>Ensured vertical scrolling with overflowY: 'auto'</li>
+        <li>Prevented horizontal scrolling with overflowX: 'hidden'</li>
+        <li>Simplified the layout structure for better reliability</li>
+    </ul>
+
+    <h2>Expected Behavior:</h2>
+    <ul>
+        <li>Dropdown opens with consistent 250px height for options area</li>
+        <li>If there are more outlets than can fit, vertical scrollbar appears automatically</li>
+        <li>Search bar stays fixed at top while options scroll below</li>
+        <li>Smooth scrolling experience when navigating through many options</li>
+        <li>Custom styled scrollbar (thin, gray) for better UX</li>
+        <li>No horizontal scrolling, content truncates properly</li>
+    </ul>
+
+    <h2>Implementation Notes:</h2>
+    <ul>
+        <li><strong>CreateOwner:</strong> Select Outlets - Full multi-select functionality with checkboxes</li>
+        <li><strong>EditOutlet:</strong> Select Owner(s) - Full multi-select functionality with checkboxes</li>
+        <li><strong>CreateMenu:</strong> Category - Single-select dropdown with vertical scrolling (NO checkboxes)</li>
+        <li><strong>EditMenu:</strong> Category - Single-select dropdown with vertical scrolling (NO checkboxes)</li>
+    </ul>
+</body>
+</html>

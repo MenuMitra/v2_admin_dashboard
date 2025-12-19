@@ -1,0 +1,118 @@
+# Standalone Dropdown Project Template
+
+## Quick Setup Instructions
+
+1. **Create a new React project:**
+```bash
+npx create-react-app dropdown-project
+cd dropdown-project
+```
+
+2. **Install Tailwind CSS:**
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+3. **Configure Tailwind (tailwind.config.js):**
+```javascript
+module.exports = {
+  content: [
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+4. **Add Tailwind to CSS (src/index.css):**
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+5. **Copy the MultiSelectDropdown files:**
+   - Copy `MultiSelectDropdown.jsx` to `src/components/`
+   - Copy `MultiSelectDropdown.css` to `src/components/`
+
+6. **Use in your App.js:**
+```jsx
+import React, { useState } from 'react';
+import MultiSelectDropdown from './components/MultiSelectDropdown';
+import './App.css';
+
+function App() {
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  // Generate test data
+  const testOptions = Array.from({ length: 50 }, (_, index) => ({
+    id: index + 1,
+    name: `Option ${index + 1} - Test Item with Long Name`,
+    category: `Category ${Math.floor(index / 10) + 1}`
+  }));
+
+  const handleChange = (newSelectedIds) => {
+    setSelectedItems(newSelectedIds);
+    console.log('Selected:', newSelectedIds);
+  };
+
+  return (
+    <div className="App p-8 max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-6">Dropdown Test</h1>
+      
+      <MultiSelectDropdown
+        label="Select Options"
+        options={testOptions}
+        selectedValues={selectedItems}
+        onChange={handleChange}
+        displayKey="name"
+        valueKey="id"
+        searchKeys={["name", "category"]}
+        placeholder="Choose options..."
+        searchPlaceholder="Search options..."
+        className="rounded-lg"
+        required
+      />
+
+      <div className="mt-6 p-4 bg-gray-100 rounded">
+        <h3 className="font-semibold">Selected Items:</h3>
+        <p>{selectedItems.length} items selected</p>
+        {selectedItems.length > 0 && (
+          <ul className="mt-2 text-sm">
+            {selectedItems.map(id => {
+              const item = testOptions.find(o => o.id === id);
+              return <li key={id}>• {item?.name}</li>;
+            })}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;
+```
+
+7. **Run the project:**
+```bash
+npm start
+```
+
+## File Structure
+```
+dropdown-project/
+├── src/
+│   ├── components/
+│   │   ├── MultiSelectDropdown.jsx
+│   │   └── MultiSelectDropdown.css
+│   ├── App.js
+│   ├── index.css
+│   └── index.js
+├── package.json
+└── tailwind.config.js
+```
+
+This will give you a working dropdown with 50 test items to verify the scrolling functionality!
