@@ -465,7 +465,7 @@ const DateInput = React.forwardRef(
 
 // Textarea Component
 const Textarea = React.forwardRef(
-  ({ label, required, value, onChange, rows = 4, className = "", ...props }, ref) => {
+  ({ label, required, value, onChange, rows = 4, className = "", maxLength, ...props }, ref) => {
     return (
       <div>
         {label && (
@@ -479,9 +479,15 @@ const Textarea = React.forwardRef(
           onChange={onChange}
           rows={rows}
           required={required}
+          maxLength={maxLength}
           className={`w-full h-11 border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-2 focus:outline-none focus:border-blue-500 ${className || 'rounded-lg'}`}
           {...props}
         />
+        {maxLength && value && value.length >= 3 && (
+          <div className="text-xs text-gray-500 mt-1 text-right">
+            {value.length}/{maxLength}
+          </div>
+        )}
       </div>
     );
   }

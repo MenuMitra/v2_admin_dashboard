@@ -108,10 +108,9 @@ function EditOutlet() {
   // Add essential validation helper functions
   const isNameValid = (name) => name?.length >= 3 && name?.length <= 50;
   const isUpiValid = (upi) => /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/.test(upi);
-  // Address validation function (relaxed for edit view: accept any non-empty value)
+  // Address validation function (consistent with CreateOutlet: 3-50 characters)
   const isAddressValid = (address) => {
-    const len = address ? address.trim().length : 0;
-    return len >= 1 && len <= 200;
+    return address && address.length >= 3 && address.length <= 50;
   };
 
   // Add at the top of the component:
@@ -460,12 +459,9 @@ function EditOutlet() {
     } else if (name === "address") {
       setOutletData((prev) => ({ ...prev, [name]: value }));
 
-      // Real-time address validation
-      if (value && value.length < 5) {
-        setValidationStates((prev) => ({ ...prev, [name]: true }));
-      } else {
-        setValidationStates((prev) => ({ ...prev, [name]: false }));
-      }
+      // Real-time address validation (3-50 characters)
+      const isValid = value && value.length >= 3 && value.length <= 50;
+      setValidationStates((prev) => ({ ...prev, [name]: !isValid }));
     } else {
       setOutletData((prev) => ({
         ...prev,
@@ -932,15 +928,17 @@ function EditOutlet() {
                     placeholder="Enter Address"
                     required
                     rows={3}
+                    maxLength={50}
                     className="rounded-3xl"
                   />
                   {validationStates.address && (
                     <p className="text-error-500 text-sm mt-1">
-                      {!outletData.address
-                        ? "Address is required"
-                        : outletData.address.length < 5
-                          ? "Minimum 5 characters required"
-                          : "Address must not exceed 50 characters"}
+                      {(() => {
+                        if (!outletData.address) return "Address is required";
+                        if (outletData.address.length < 3) return "Minimum 3 characters required";
+                        if (outletData.address.length > 50) return "Address must not exceed 50 characters";
+                        return "";
+                      })()}
                     </p>
                   )}
                 </div>

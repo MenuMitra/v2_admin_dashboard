@@ -1057,14 +1057,15 @@ function CreateOutlet() {
                       placeholder="Enter Address"
                       required
                       rows={3}
+                      maxLength={50}
                       className="rounded-3xl"
                     />
                     {validationStates.address && (
                       <p className="text-error-500 text-sm mt-1">
                         {!outletData.address
                           ? "Address is required"
-                          : outletData.address.length < 5
-                            ? "Minimum 5 characters required"
+                          : outletData.address.length < 3
+                            ? "Minimum 3 characters required"
                             : "Address must not exceed 50 characters"}
                       </p>
                     )}
