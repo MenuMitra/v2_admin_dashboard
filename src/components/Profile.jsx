@@ -89,7 +89,7 @@ const InfoField = ({ label, value, capitalize = false }) => {
       <p className="text-sm font-medium text-gray-800 dark:text-white/90">
         {displayValue || "N/A"}
       </p>
-      <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
+      <p className="mb-2 text-xs leading-normal capitalize text-gray-500 dark:text-gray-400">
         {label}
       </p>
     </div>

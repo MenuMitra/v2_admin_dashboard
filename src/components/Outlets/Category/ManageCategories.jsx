@@ -9,6 +9,8 @@ import {
   faTrash,
   faCircleCheck,
   faCircleXmark,
+  faCheck,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -249,12 +251,26 @@ function MenuCategoryTable({
     {
       key: "active",
       label: "Active",
-      className: "text-gray-700 hover:bg-gray-100",
+      icon: faCheck,
+      className: "hover:bg-gray-100",
+      customIcon: (
+        <div className="flex items-center gap-2" style={{ color: "#059669" }}>
+          <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
+          <span>Active</span>
+        </div>
+      ),
     },
     {
       key: "inactive",
       label: "Inactive",
-      className: "text-gray-700 hover:bg-gray-100",
+      icon: faXmark,
+      className: "hover:bg-gray-100",
+      customIcon: (
+        <div className="flex items-center gap-2" style={{ color: "#ea580c" }}>
+          <FontAwesomeIcon icon={faXmark} className="w-4 h-4" />
+          <span>Inactive</span>
+        </div>
+      ),
     },
   ];
 

@@ -77,7 +77,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       setDropdownOpen(false);
       navigate("/");
     } catch (error) {
-      
+
     }
   };
 
@@ -103,131 +103,129 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
           Testing Environment
         </div>
       )}
-      
+
       <header
         className="sticky top-0 z-99999 flex w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
         style={{ marginTop: shouldShowTestingBanner ? "30px" : "0px" }}
       >
-      <div className="flex w-full items-center justify-between px-4 py-2 lg:px-6">
-        {/* Left Section - Logo and Toggle */}
-        <div className="flex items-center gap-4">
-          {/* Hamburger Toggle Button */}
-          <button
-            className={`flex h-10 w-10 items-center justify-center rounded-3xl border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 ${
-              sidebarToggle ? "bg-gray-100 dark:bg-gray-800" : ""
-            }`}
-            onClick={() => setSidebarToggle(!sidebarToggle)}
-          >
-            <FontAwesomeIcon
-              icon={sidebarToggle ? faBars : faBars}
-              className="h-5 w-5"
-            />
-          </button>
-          {/* Update the search button Link */}
-          <Link to="/search?focus=true">
+        <div className="flex w-full items-center justify-between px-4 py-2 lg:px-6">
+          {/* Left Section - Logo and Toggle */}
+          <div className="flex items-center gap-4">
+            {/* Hamburger Toggle Button */}
             <button
-              className={`flex h-10 w-24 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 w-28`}
+              className={`flex h-10 w-10 items-center justify-center rounded-3xl border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 ${sidebarToggle ? "bg-gray-100 dark:bg-gray-800" : ""
+                }`}
+              onClick={() => setSidebarToggle(!sidebarToggle)}
             >
-              <FontAwesomeIcon icon={faSearch} className="h-5 w-5 pr-1" />
-              Search
+              <FontAwesomeIcon
+                icon={sidebarToggle ? faBars : faBars}
+                className="h-5 w-5"
+              />
             </button>
-          </Link>
-          {/* Logo - Always visible */}
-          {/* <Link to="/" className="flex items-center">
+            {/* Update the search button Link */}
+            <Link to="/search?focus=true">
+              <button
+                className={`flex h-10 w-24 items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 w-28`}
+              >
+                <FontAwesomeIcon icon={faSearch} className="h-5 w-5 pr-1" />
+                Search
+              </button>
+            </Link>
+            {/* Logo - Always visible */}
+            {/* <Link to="/" className="flex items-center">
             <img className="h-8 w-auto dark:hidden" src={logo} alt="Logo" />
             <img className="hidden h-8 w-auto dark:block" src={logo} alt="Logo" />
           </Link> */}
-        </div>
-
-        {/* Right Section - Admin Profile */}
-        {adminData && (
-          <div className="flex items-center">
-            <div className="relative" ref={dropdownRef}>
-              <button
-                className="flex items-center gap-2 rounded-3xl px-2 py-1.5 pr-2 text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                  <FontAwesomeIcon
-                    icon={faUser}
-                    className="text-gray-600 dark:text-gray-400"
-                  />
-                </span>
-                <span className="hidden text-sm font-medium sm:block">
-                  {capitalizeFirstLetter(adminData.name)}
-                </span>
-                <FontAwesomeIcon
-                  icon={faChevronDown}
-                  className={`h-4 w-4 transition-transform ${
-                    dropdownOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-
-              {/* Dropdown Menu */}
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
-                  <Link to="/profile" onClick={() => setDropdownOpen(false)}>
-                    <div className="mb-2 p-2">
-                      <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
-                        {capitalizeFirstLetter(adminData.name)}
-                      </h4>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {adminData.email}
-                      </p>
-                    </div>
-                  </Link>
-                  <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
-                  <button
-                    className="flex w-full items-center gap-2 rounded-3xl px-2 py-2 text-sm text-error-600 hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-950"
-                    onClick={() => setShowLogoutConfirm(true)}
-                  >
-                    <FontAwesomeIcon icon={faSignOutAlt} className="h-4 w-4" />
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
-        )}
-      </div>
-    </header>
 
-    {/* Logout Confirm Modal */}
-    <Modal
-      isOpen={showLogoutConfirm}
-      onClose={() => setShowLogoutConfirm(false)}
-      type="error"
-      size="small"
-      title=""
-      showCloseButton={false}
-    >
-      <div className="flex flex-col items-center gap-4">
-        <FontAwesomeIcon icon={faSignOutAlt} className="w-50 h-50 text-error-700" />
-        <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90 text-center">
-          Are you sure you want to logout?
-        </h3>
-        <div className="flex justify-between w-full gap-4 mt-2">
-          <button
-            type="button"
-            onClick={() => setShowLogoutConfirm(false)}
-            className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setShowLogoutConfirm(false);
-              handleLogout();
-            }}
-            className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs border border-error-300 text-error-400 hover:text-error-600 hover:bg-error-50"
-          >
-            Exit Me
-          </button>
+          {/* Right Section - Admin Profile */}
+          {adminData && (
+            <div className="flex items-center">
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  className="flex items-center gap-2 rounded-3xl px-2 py-1.5 pr-2 text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                    <FontAwesomeIcon
+                      icon={faUser}
+                      className="text-gray-600 dark:text-gray-400"
+                    />
+                  </span>
+                  <span className="hidden text-sm font-medium sm:block">
+                    {capitalizeFirstLetter(adminData.name)}
+                  </span>
+                  <FontAwesomeIcon
+                    icon={faChevronDown}
+                    className={`h-4 w-4 transition-transform ${dropdownOpen ? "rotate-180" : ""
+                      }`}
+                  />
+                </button>
+
+                {/* Dropdown Menu */}
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-64 rounded-lg border border-gray-200 bg-white p-2 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+                    <Link to="/profile" onClick={() => setDropdownOpen(false)}>
+                      <div className="mb-2 p-2">
+                        <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
+                          {capitalizeFirstLetter(adminData.name)}
+                        </h4>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          {adminData.email}
+                        </p>
+                      </div>
+                    </Link>
+                    <div className="h-px bg-gray-200 dark:bg-gray-700"></div>
+                    <button
+                      className="flex w-full items-center gap-2 rounded-3xl px-2 py-2 text-sm text-error-600 hover:bg-error-50 dark:text-error-500 dark:hover:bg-error-950"
+                      onClick={() => setShowLogoutConfirm(true)}
+                    >
+                      <FontAwesomeIcon icon={faSignOutAlt} className="h-4 w-4" />
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-    </Modal>
+      </header>
+
+      {/* Logout Confirm Modal */}
+      <Modal
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+        type="error"
+        size="small"
+        title=""
+        showCloseButton={false}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <FontAwesomeIcon icon={faSignOutAlt} className="w-50 h-50 text-error-700" />
+          <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90 text-center">
+            Are you sure you want to logout?
+          </h3>
+          <div className="flex justify-between w-full gap-4 mt-2">
+            <button
+              type="button"
+              onClick={() => setShowLogoutConfirm(false)}
+              className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowLogoutConfirm(false);
+                handleLogout();
+              }}
+              className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs border border-error-300 text-error-400 hover:bg-error-600 hover:text-white hover:border-error-600 transition-colors duration-200"
+            >
+              Exit Me
+            </button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 };

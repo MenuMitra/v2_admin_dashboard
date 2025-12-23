@@ -278,7 +278,7 @@ function Owners() {
         columns={columns}
         enablePagination={true}
         itemsPerPage={itemsPerPage}
-        itemsPerPageOptions={[50, 100, 200]}
+        itemsPerPageOptions={[25, 50, 100, 200]}
         onItemsPerPageChange={(value) => {
           setItemsPerPage(Number(value));
         }}

@@ -146,12 +146,13 @@ function EditAdmin() {
       return;
     }
     else if (name === 'is_active') {
-      const boolValue = value === 'true';
+      // Handle both boolean and string values
+      const boolValue = value === true || value === 'true';
       setAdminDetails(prev => ({
         ...prev,
         [name]: boolValue
       }));
-      if (value === '') {
+      if (value === '' || value === null || value === undefined) {
         setValidationStates(prev => ({
           ...prev,
           is_active: false

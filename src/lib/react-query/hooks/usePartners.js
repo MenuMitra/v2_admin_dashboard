@@ -95,7 +95,6 @@ export const usePartners = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(queryKeys.partners.list());
-      refetch();
       toastController.success("Bulk action completed successfully");
     },
     onError: (err) => {

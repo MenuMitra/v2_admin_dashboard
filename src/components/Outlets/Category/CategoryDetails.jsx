@@ -235,6 +235,110 @@ function CategoryDetails() {
                 </div>
               )}
             </div>
+
+            {/* Menu Items Section */}
+            {category.menu_list && category.menu_list.length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-lg font-lato text-gray-800 mb-4 flex items-center gap-2">
+                  <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
+                  Menu Items ({category.menu_count})
+                </h3>
+                
+                <div className="flex flex-wrap gap-4 justify-start">
+                  {category.menu_list.map((menu) => (
+                    <div
+                      key={menu.menu_id}
+                      className="group relative bg-white border-1 border-gray-200 rounded-2xl p-3 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer overflow-hidden w-[100px] h-[100px] flex flex-col justify-between flex-shrink-0"
+                      style={{
+                        '--hover-border': '#66c9daff',
+                        '--hover-bg': 'rgba(6, 182, 212, 0.1)',
+                        '--hover-text': '#0891b2'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#a4d7e0ff';
+                        e.currentTarget.style.backgroundColor = 'rgba(173, 226, 235, 0.1)';
+                        const nameEl = e.currentTarget.querySelector('.menu-name');
+                        const iconEl = e.currentTarget.querySelector('.menu-icon');
+                        const foodTypeEl = e.currentTarget.querySelector('.food-type');
+                        const priceEl = e.currentTarget.querySelector('.price-text');
+                        if (nameEl) nameEl.style.color = '#000000ff';
+                        if (iconEl) iconEl.style.color = '#777777ff';
+                        if (foodTypeEl) foodTypeEl.style.color = '#000000ff';
+                        if (priceEl) priceEl.style.color = '#000000ff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.backgroundColor = 'white';
+                        const nameEl = e.currentTarget.querySelector('.menu-name');
+                        const iconEl = e.currentTarget.querySelector('.menu-icon');
+                        const foodTypeEl = e.currentTarget.querySelector('.food-type');
+                        const priceEl = e.currentTarget.querySelector('.price-text');
+                        if (nameEl) nameEl.style.color = '#1f2937';
+                        if (iconEl) iconEl.style.color = '#a5a6a7ff';
+                        if (foodTypeEl) foodTypeEl.style.color = '';
+                        if (priceEl) priceEl.style.color = '#059669';
+                      }}
+                    >
+                      {/* Top Row: Menu Name (Left) + Icon (Right) */}
+                      <div className="flex items-start justify-between mb-2">
+                        {/* Menu Name - Left Top */}
+                        <h4 className="menu-name text-xs font-lato text-gray-900 line-clamp-2 transition-colors duration-300 leading-tight flex-1 pr-1">
+                          {menu.menu_name}
+                        </h4>
+                        
+                        {/* Menu Icon - Right Top */}
+                        <div className="flex-shrink-0">
+                          <div className="w-5 h-5 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                            <FontAwesomeIcon 
+                              icon={faUtensils} 
+                              className="menu-icon w-2.5 h-2.5 text-gray-400 transition-colors duration-300" 
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Row: Food Type (Left) + Price (Right) */}
+                      <div className="flex items-end justify-between mt-auto gap-3 w-full">
+                        {/* Food Type Badge - Left Bottom */}
+                        <span
+                          className={`food-type inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-lato transition-all duration-300 flex-shrink-0 ${
+                            menu.food_type === 'veg'
+                              ? 'bg-green-100 text-green-800 group-hover:bg-green-200'
+                              : menu.food_type === 'nonveg'
+                              ? 'bg-red-100 text-red-800 group-hover:bg-red-200'
+                              : 'bg-gray-100 text-gray-800 group-hover:bg-gray-200'
+                          }`}
+                        >
+                          <span
+                            className={`w-1 h-1 rounded-full mr-0.5 ${
+                              menu.food_type === 'veg'
+                                ? 'bg-green-500'
+                                : menu.food_type === 'nonveg'
+                                ? 'bg-red-500'
+                                : 'bg-gray-500'
+                            }`}
+                          />
+                          {menu.food_type === 'veg' ? 'Veg' : menu.food_type === 'nonveg' ? 'Nonveg' : 'O'}
+                        </span>
+
+                        {/* Price - Right Bottom */}
+                        <span className="price-text text-xs font-lato text-success-600 group-hover:text-success-700 transition-all duration-300 flex-shrink-0 ml-auto">
+                          ₹{menu.price}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Empty State for Menu Items */}
+                {category.menu_count === 0 && (
+                  <div className="text-center py-8">
+                    <FontAwesomeIcon icon={faUtensils} className="w-12 h-12 text-gray-300 mb-4" />
+                    <p className="text-gray-500 text-sm">No menu items found in this category</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
         {/* Delete Confirmation Modal */}

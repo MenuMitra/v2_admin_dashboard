@@ -33,6 +33,7 @@ import {
 } from "../utils/validations";
 import CustomSelectInput from "./common/CustomSelectInput";
 import CustomDropdown from "./common/CustomDropdown";
+import MultiSelectDropdown from "./common/MultiSelectDropdown";
 
 function formatDateToDDMMMYYYY(dateStr) {
   if (!dateStr) return "";
@@ -62,7 +63,7 @@ function CreateOutlet() {
   const [outletTypes, setOutletTypes] = useState({});
   const [allOwners, setAllOwners] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+
   // Subscriptions removed
   const { BASE_URL, API_VERSION } = API_CONFIG;
 
@@ -106,9 +107,7 @@ function CreateOutlet() {
     reserve_table: 0,
   });
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [validationStates, setValidationStates] = useState({
-    owner: false,
     name: false,
     mobile: false,
     mobileMessage: "",
@@ -126,8 +125,6 @@ function CreateOutlet() {
     whatsapp: false,
     whatsappMessage: "",
   });
-
-  const dropdownRef = useRef(null);
 
   const [isFormValid, setIsFormValid] = useState(false);
 
@@ -177,21 +174,7 @@ function CreateOutlet() {
     })();
   }, []);
 
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    }
 
-    if (isDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isDropdownOpen]);
 
   useEffect(() => {
     checkFormValidity();
@@ -698,13 +681,6 @@ function CreateOutlet() {
     }
   };
 
-  const filteredOwners = allOwners.filter(
-    (owner) =>
-      owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      owner.mobile.includes(searchTerm) ||
-      owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const isNameValid = (name) => {
     return name && name.length >= 3 && name.length <= 50;
   };
@@ -713,14 +689,6 @@ function CreateOutlet() {
     setValidationStates((prev) => ({
       ...prev,
       [fieldName]: false,
-    }));
-  };
-
-  const handleOwnerClick = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-    setValidationStates((prev) => ({
-      ...prev,
-      owner: false,
     }));
   };
 
@@ -944,174 +912,24 @@ function CreateOutlet() {
                     `}
                     />
                   </div>
-                  <div className="relative">
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                      Select Owners
-                    </label>
-
-                    <div className={`relative ${isDropdownOpen ? "z-50" : ""}`} ref={dropdownRef}>
-                      <div
-                        onClick={handleOwnerClick}
-                        className={`
-                        w-full px-3 py-2 pr-10 border rounded-3xl shadow-sm text-left text-sm
-                        focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500
-                        bg-white hover:bg-gray-50 transition-all duration-200
-                        flex items-center justify-between h-10 cursor-pointer
-                        ${validationStates.owner
-                            ? "border-error-500"
-                            : "border-gray-300"
-                          }
-                      `}
-                        role="combobox"
-                        aria-expanded={isDropdownOpen}
-                        aria-haspopup="listbox"
-                      >
-                        <div className="flex items-center justify-between w-full h-full">
-                          <span className={`${outletData.owner_id.length > 0 ? "text-gray-900" : "text-gray-500"}`}>
-                            {outletData.owner_id.length > 0 ? `${outletData.owner_id.length} Owner Selected` : "Select Owner"}
-                          </span>
-                          <FontAwesomeIcon
-                            icon={faChevronDown}
-                            className={`w-4 h-4 text-gray-400 transition-transform duration-200 flex-shrink-0 ${isDropdownOpen ? "rotate-180" : "rotate-0"
-                              }`}
-                          />
-                        </div>
-                      </div>
-
-                      {isDropdownOpen && (
-                        <div
-                          className="absolute left-0 right-0 mt-1 bg-white border rounded-3xl shadow-xl w-full min-w-[300px] z-[9999] max-h-[350px] overflow-y-auto"
-                        >
-                          {outletData.owner_id.length > 0 && (
-                            <div className="p-2 border-b bg-gray-50">
-                              <div className="flex flex-wrap gap-2">
-                                {outletData.owner_id.map((id) => {
-                                  const owner = allOwners.find(
-                                    (o) => o.user_id === id
-                                  );
-                                  return owner ? (
-                                    <div
-                                      key={owner.user_id}
-                                      className="inline-flex items-center gap-1 px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-sm"
-                                    >
-                                      <span>{owner.name}</span>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setOutletData((prev) => ({
-                                            ...prev,
-                                            owner_id: prev.owner_id.filter(
-                                              (ownerId) => ownerId !== id
-                                            ),
-                                          }));
-                                        }}
-                                        className="ml-1 text-brand-500 hover:text-brand-700"
-                                      >
-                                        ×
-                                      </button>
-                                    </div>
-                                  ) : null;
-                                })}
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="sticky top-0 p-2 border-b bg-white">
-                            <div className="relative">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></span>
-                              <input
-                                type="text"
-                                className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
-                                placeholder="Search by name, mobile or email..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                autoFocus
-                              />
-                              {searchTerm && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setSearchTerm("");
-                                    // Keep focus on the search input
-                                    const searchInput = e.target
-                                      .closest(".relative")
-                                      .querySelector("input");
-                                    if (searchInput) {
-                                      searchInput.focus();
-                                    }
-                                  }}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                                >
-                                  <FontAwesomeIcon
-                                    icon={faTimes}
-                                    className="w-4 h-4"
-                                  />
-                                </button>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="overflow-y-auto">
-                            {filteredOwners.length > 0 ? (
-                              filteredOwners.map((owner) => (
-                                <div
-                                  key={owner.user_id}
-                                  className={`
-                                  p-3 cursor-pointer hover:bg-gray-50
-                                  ${outletData.owner_id.includes(owner.user_id)
-                                      ? "bg-brand-50 border-l-4 border-brand-500"
-                                      : "border-l-4 border-transparent"
-                                    }
-                                `}
-                                >
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                      <input
-                                        type="checkbox"
-                                        checked={outletData.owner_id.includes(
-                                          owner.user_id
-                                        )}
-                                        onChange={(e) => {
-                                          e.stopPropagation();
-                                          setOutletData((prev) => ({
-                                            ...prev,
-                                            owner_id: e.target.checked
-                                              ? [
-                                                ...prev.owner_id,
-                                                owner.user_id,
-                                              ]
-                                              : prev.owner_id.filter(
-                                                (id) => id !== owner.user_id
-                                              ),
-                                          }));
-                                        }}
-                                        className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-3xl"
-                                      />
-                                      <div>
-                                        <div className="font-medium text-gray-900">
-                                          {owner.name}
-                                        </div>
-                                        <div className="text-sm text-gray-500">
-                                          <span>{owner.mobile}</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))
-                            ) : (
-                              <div className="p-4 text-center text-sm text-gray-500">
-                                {allOwners.length === 0
-                                  ? "No owners available"
-                                  : `No owners found matching "${searchTerm}"`}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex flex-col">
+                    <MultiSelectDropdown
+                      label="Select Owners"
+                      options={allOwners}
+                      selectedValues={outletData.owner_id}
+                      onChange={(newOwnerIds) => {
+                        setOutletData((prev) => ({
+                          ...prev,
+                          owner_id: newOwnerIds,
+                        }));
+                      }}
+                      displayKey="name"
+                      valueKey="user_id"
+                      searchKeys={["name", "mobile", "email"]}
+                      placeholder="Select owners"
+                      searchPlaceholder="Search by name, mobile or email..."
+                      className="rounded-3xl"
+                    />
                   </div>
 
                   <div className="relative">
@@ -1239,14 +1057,15 @@ function CreateOutlet() {
                       placeholder="Enter Address"
                       required
                       rows={3}
+                      maxLength={50}
                       className="rounded-3xl"
                     />
                     {validationStates.address && (
                       <p className="text-error-500 text-sm mt-1">
                         {!outletData.address
                           ? "Address is required"
-                          : outletData.address.length < 5
-                            ? "Minimum 5 characters required"
+                          : outletData.address.length < 3
+                            ? "Minimum 3 characters required"
                             : "Address must not exceed 50 characters"}
                       </p>
                     )}

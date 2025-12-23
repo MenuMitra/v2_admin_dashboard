@@ -53,7 +53,7 @@ function DataTable({
   data = [],
   columns,
   itemsPerPage = 50,
-  itemsPerPageOptions = [50, 100, 200],
+  itemsPerPageOptions = [25, 50, 100, 200],
   enableSort = true,
   enablePagination = true,
   enableSearch = true,
@@ -594,14 +594,14 @@ function DataTable({
     ];
 
     return (
-      <div className="flex-1 sm:flex-initial relative">
+      <div className="flex-1 sm:flex-initial relative text-gray-600">
         <CustomSelect
           value={selectedOutlet}
           onChange={(e) => onOutletChange(e.target.value)}
           options={outletOptions}
           placeholder="Outlets"
           disabled={isLoading}
-          className="w-full sm:w-64"
+          className="w-full sm:w-64 text-sm text-gray-700"
         />
         {isLoading && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -628,14 +628,14 @@ function DataTable({
     ];
 
     return (
-      <div className="flex-1 sm:flex-initial relative">
+      <div className="flex-1 sm:flex-initial text-gray-600 relative">
         <CustomSelect
           value={selectedRole}
           onChange={(e) => onRoleChange(e.target.value)}
           options={roleOptions}
           placeholder="Roles"
           disabled={isLoading}
-          className="w-full sm:w-64"
+          className="w-full sm:w-64 text-sm text-gray-700"
         />
         {isLoading && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -911,7 +911,7 @@ function DataTable({
                     </span>
                   )}
                   {typeof counts.positive === "number" && (
-                    <span className="font-medium  text-brand-500 px-2 py-0.5 rounded">
+                    <span className="font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
                       Positive: {counts.positive}
                     </span>
                   )}
@@ -975,7 +975,7 @@ function DataTable({
                 <div className="flex flex-wrap items-center gap-3 justify-end">
                   {/* Execution Time Filter - Independent of Status Filter */}
                   {enableExecutionTimeFilter && (
-                    <div className="w-56">
+                    <div className="w-40 text-gray-600">
                       <CustomSelect
                         value={executionTimeFilter || "all"}
                         onChange={(e) => {
@@ -991,6 +991,7 @@ function DataTable({
                           { value: "500", label: ">500ms" }
                         ]}
                         placeholder="All Execution Time"
+                        className="text-sm text-gray-700"
                       />
                     </div>
                   )}
@@ -1043,7 +1044,7 @@ function DataTable({
               <div className="flex items-center gap-2 px-0 pl-2 mb-4">
                 <div className="flex flex-1 flex-wrap items-center gap-2">
                   {enableStatusFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-28 mr-2 text-gray-600">
                       <CustomSelect
                         value={statusFilter}
                         onChange={(e) => onStatusFilterChange(e.target.value)}
@@ -1053,28 +1054,30 @@ function DataTable({
                           { value: "inactive", label: "Inactive" }
                         ]}
                         placeholder="All Status"
+                        className="text-sm text-gray-700"
                       />
                     </div>
                   )}
                   {/* Enquiry Filter */}
                   {enableEnquiry && (
-                    <div className="w-36 mr-2">
+                    <div className="w-28 text-gray-600 mr-2">
                       <CustomSelect
                         value={enquiryFilter || "all"}
                         onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
                         options={[
                           { value: "all", label: "Enquiry Type" },
-                          { value: "enquiry", label: "Enquiry" },
-                          { value: "positive", label: "Positive" },
-                          { value: "onboard", label: "Onboard" }
+                          { value: "Enquiry", label: "Enquiry" },
+                          { value: "Positive", label: "Positive" },
+                          { value: "Onboard", label: "Onboard" }
                         ]}
                         placeholder="Enquiry Type"
+                        className="text-sm text-gray-700"
                       />
                     </div>
                   )}
                   {/* Account Type Filter */}
                   {enableAccountTypeFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-28 mr-2 text-gray-600">
                       <CustomSelect
                         value={accountType || "all"}
                         onChange={(e) => onAccountTypeChange && onAccountTypeChange(e.target.value)}
@@ -1084,12 +1087,13 @@ function DataTable({
                           { value: "test", label: "Test" }
                         ]}
                         placeholder="Account Type"
+                        className="text-sm text-gray-700"
                       />
                     </div>
                   )}
                   {/* Open/Close Filter */}
                   {enableOpenCloseStatusFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-28 text-gray-600 mr-2">
                       <CustomSelect
                         value={openCloseStatus || "all"}
                         onChange={(e) => onOpenCloseStatusChange && onOpenCloseStatusChange(e.target.value)}
@@ -1099,12 +1103,13 @@ function DataTable({
                           { value: "close", label: "Close" }
                         ]}
                         placeholder="Open/Close"
+                        className="text-sm text-gray-700"
                       />
                     </div>
                   )}
                   {/* Active Session Filter */}
                   {enableActiveSessionFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-28 text-gray-600 mr-2">
                       <CustomSelect
                         value={activeSessionFilter || "all"}
                         onChange={(e) => {
@@ -1121,12 +1126,13 @@ function DataTable({
                           { value: "10", label: "10+" }
                         ]}
                         placeholder="All Sessions"
+                        className="text-sm text-gray-700"
                       />
                     </div>
                   )}
                   {/* Outlet Count Filter */}
                   {enableOutletCountFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-28 text-gray-600 mr-2">
                       <CustomSelect
                         value={outletCountFilter || "all"}
                         onChange={(e) => {
@@ -1143,12 +1149,13 @@ function DataTable({
                           { value: "10", label: "10+" }
                         ]}
                         placeholder="All Outlets"
+                        className="text-sm text-gray-700"
                       />
                     </div>
                   )}
                   {/* Outlet Type Filter */}
                   {enableOutletTypeFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 text-gray-600 mr-2">
                       <CustomSelect
                         value={outletTypeFilter || "all"}
                         onChange={(e) => {
@@ -1166,12 +1173,13 @@ function DataTable({
 
                         ]}
                         placeholder="All Types"
+                        className="text-sm text-gray-700"
                       />
                     </div>
                   )}
                   {/* Outlet Mode Filter */}
                   {enableOutletModeFilter && (
-                    <div className="w-36 mr-2">
+                    <div className="w-36 text-gray-600 mr-2">
                       <CustomSelect
                         value={outletModeFilter || "all"}
                         onChange={(e) => {
@@ -1183,12 +1191,13 @@ function DataTable({
                           { value: "offline", label: "Offline" }
                         ]}
                         placeholder="All Modes"
+                        className="text-sm text-gray-700"
                       />
                     </div>
                   )}
                   {/* Owner Count Filter */}
                   {enableOwnerCountFilter && (
-                    <div className="w-32 mr-2">
+                    <div className="w-32 text-gray-600 mr-2">
                       <CustomSelect
                         value={ownerCountFilter || "all"}
                         onChange={(e) => {
@@ -1205,7 +1214,7 @@ function DataTable({
                           { value: "10", label: "10+" }
                         ]}
                         placeholder="All Owners"
-                        className="w-full"
+                        className="w-full text-sm text-gray-700"
                       />
                     </div>
                   )}
@@ -1473,24 +1482,24 @@ function DataTable({
                     value: option,
                     label: String(option),
                   }))}
-                  className="w-24"
+                  className="w-24 text-sm text-gray-700"
                 />
                 <span
-                  className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
+                  className={`text-gray-500 capitalize text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
                     }`}
                 >
-                  entries
+                  Entries
                 </span>
               </div>
 
               {/* Showing entries text */}
               <div
-                className={`text-gray-500 text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
+                className={`text-gray-500 capitalize text-theme-sm ${darkMode ? "dark:text-gray-400" : ""
                   }`}
               >
                 Showing {indexOfFirstItem + 1} to{" "}
                 {Math.min(indexOfLastItem, processedData.length)} of{" "}
-                {processedData.length} entries
+                {processedData.length} Entries
               </div>
             </div>
 
@@ -1721,7 +1730,7 @@ DataTable.defaultProps = {
   data: [],
   columns: [],
   itemsPerPage: 50,
-  itemsPerPageOptions: [50, 100, 200],
+  itemsPerPageOptions: [25, 50, 100, 200],
   enableSort: true,
   enablePagination: true,
   enableSearch: true,

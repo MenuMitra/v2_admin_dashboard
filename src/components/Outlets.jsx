@@ -542,7 +542,7 @@ function Outlets() {
   ];
 
   return (
-    <>
+    <div className="outlets-page">
       <style>
         {`
           @keyframes blink {
@@ -612,7 +612,6 @@ function Outlets() {
         statusField="outletStatus"
         onReload={() => {
           queryClient.invalidateQueries(queryKeys.outlets.list());
-          
         }}
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;
@@ -641,7 +640,7 @@ function Outlets() {
         title="Confirm Delete"
         message={"Are you sure ?"}
       />
-    </>
+    </div>
   );
 }
 

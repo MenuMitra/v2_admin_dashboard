@@ -11,11 +11,164 @@ import {
   FileInput,
   Textarea
 } from '../../forms/FormElements';
+import CustomSelect from '../../common/CustomSelect';
+import SaveButton from '../../common/SaveButton';
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { toastController } from '../../../utils/toastController';
 import { API_CONFIG } from '../../../config/appConfig';
+
+// Single Select Dropdown with Vertical Scrolling
+const CategorySingleSelect = ({
+  label,
+  options,
+  selectedValue,
+  onChange,
+  displayKey,
+  valueKey,
+  placeholder = "Select item",
+  searchPlaceholder = "Search...",
+  className = "",
+  required = false
+}) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const dropdownRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option[displayKey]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSelect = (value) => {
+    onChange(value.toString());
+    setIsOpen(false);
+    setSearchTerm('');
+  };
+
+  const getSelectedText = () => {
+    if (!selectedValue) return placeholder;
+    const selectedOption = options.find(option => option[valueKey].toString() === selectedValue);
+    return selectedOption ? selectedOption[displayKey] : placeholder;
+  };
+
+  return (
+    <div className="relative w-full h-full flex flex-col" ref={dropdownRef}>
+      {/* Label */}
+      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+        {required && <span className="text-red-500 mr-1">*</span>}
+        {label}
+      </label>
+
+      {/* Main Button */}
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full p-2 text-left border shadow-sm bg-white hover:bg-gray-50 
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer min-h-[42px] ${className || 'rounded-lg'}`}
+        role="combobox"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+      >
+        <div className="flex items-center justify-between">
+          <span className={`${!selectedValue ? 'text-gray-500' : 'text-gray-900'} truncate`}>
+            {getSelectedText()}
+          </span>
+          <svg
+            className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'transform rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Dropdown Panel */}
+      {isOpen && (
+        <div className="absolute left-0 right-0 mt-[17px] bg-white border rounded-lg shadow-xl z-50 w-full min-w-[250px]">
+          {/* Search Bar */}
+          <div className="p-2 border-b bg-white">
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full px-3 py-2 pr-8 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={searchPlaceholder}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                autoFocus
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSearchTerm("");
+                    const searchInput = e.target.closest(".relative").querySelector("input");
+                    if (searchInput) {
+                      searchInput.focus();
+                    }
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Options List with Fixed Height and Scrolling */}
+          <div 
+            style={{
+              height: '250px',
+              maxHeight: '250px',
+              overflowY: 'auto',
+              overflowX: 'hidden'
+            }}
+          >
+            {filteredOptions.length === 0 ? (
+              <div className="p-3 text-center text-gray-500">
+                No results found
+              </div>
+            ) : (
+              filteredOptions.map((option) => (
+                <div
+                  key={option[valueKey]}
+                  className={`
+                    p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0
+                    ${selectedValue === option[valueKey].toString()
+                      ? 'bg-blue-50 border-l-4 border-blue-500'
+                      : 'border-l-4 border-transparent'}
+                  `}
+                  onClick={() => handleSelect(option[valueKey])}
+                >
+                  <div className="font-medium text-gray-900 truncate" style={{ textTransform: 'capitalize' }}>
+                    {option[displayKey]}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 function CreateMenu() {
   const { outletId } = useParams();
@@ -334,21 +487,14 @@ function CreateMenu() {
               Create Menu
             </h2>
             {/* Save Button */}
-            <button
+            <SaveButton
               onClick={() => formRef.current?.requestSubmit()}
               disabled={loading}
-              className={`
-                inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
-                transition shadow-sm
-                ${loading ? 'opacity-50 cursor-not-allowed' : ''}
-              `}
+              isLoading={loading}
               type="button"
             >
-              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>Save</span>
-            </button>
+              Save
+            </SaveButton>
           </div>
         </div>
         {/* Form Content */}
@@ -360,37 +506,55 @@ function CreateMenu() {
             encType="multipart/form-data"
           >
             {/* Grid for form fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 text-base">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 text-base relative">
               <TextInput
                 label="Menu Name"
                 required
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Enter menu name"
+                className="rounded-3xl"
               />
-              <SelectInput
-                label="Category"
-                required
-                value={menuCatId}
-                onChange={e => setMenuCatId(e.target.value)}
-                options={categories.map(cat => ({
-                  value: cat.menu_cat_id.toString(),
-                  label: cat.category_name
-                }))}
-              />
-              <SelectInput
-                label="Food Type"
-                required
-                value={foodType}
-                onChange={e => setFoodType(e.target.value)}
-                options={foodTypes}
-              />
-              <SelectInput
-                label="Spicy Index"
-                value={spicyIndex}
-                onChange={e => setSpicyIndex(e.target.value)}
-                options={spicyIndexOptions}
-              />
+              <div className="relative z-40">
+                <CategorySingleSelect
+                  label="Category"
+                  options={categories}
+                  selectedValue={menuCatId}
+                  onChange={(categoryId) => {
+                    setMenuCatId(categoryId);
+                  }}
+                  displayKey="category_name"
+                  valueKey="menu_cat_id"
+                  placeholder="Select category"
+                  searchPlaceholder="Search categories..."
+                  className="rounded-3xl"
+                  required
+                />
+              </div>
+              <div className="relative z-30">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                  Food Type <span className="text-red-500">*</span>
+                </label>
+                <CustomSelect
+                  value={foodType}
+                  onChange={(e) => setFoodType(e.target.value)}
+                  options={foodTypes}
+                  placeholder="Select Food Type"
+                  className="rounded-3xl"
+                />
+              </div>
+              <div className="relative z-20">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                  Spicy Index
+                </label>
+                <CustomSelect
+                  value={spicyIndex}
+                  onChange={(e) => setSpicyIndex(e.target.value)}
+                  options={spicyIndexOptions}
+                  placeholder="Select Spicy Index"
+                  className="rounded-3xl"
+                />
+              </div>
               <TextInput
                 label="Offer (%)"
                 value={offer}
@@ -399,12 +563,14 @@ function CreateMenu() {
                 type="number"
                 min="0"
                 max="100"
+                className="rounded-3xl"
               />
               <TextInput
                 label="Ingredients"
                 value={ingredients}
                 onChange={e => setIngredients(e.target.value)}
                 placeholder="e.g. dal, vegetables"
+                className="rounded-3xl"
               />
             </div>
             {/* Description field outside the grid */}
@@ -426,12 +592,13 @@ function CreateMenu() {
               </label>
               {portionData.map((portion, idx) => (
                 <div key={idx} className="mb-4 flex items-start gap-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1 relative">
                     <TextInput
                       placeholder="Portion Name"
                       value={portion.portion_name}
                       onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
                       label={idx === 0 ? "Portion Name" : ""}
+                      className="rounded-3xl"
                     />
                     <TextInput
                       placeholder="Price"
@@ -441,34 +608,42 @@ function CreateMenu() {
                       required={idx === 0}
                       min="0"
                       label={idx === 0 ? "Price" : ""}
+                      className="rounded-3xl"
                     />
                     <TextInput
                       placeholder="Unit Value"
                       type="number"
                       value={portion.unit_value}
                       onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
-                      required={idx === 0}
                       min="0"
                       label={idx === 0 ? "Unit Value" : ""}
+                      className="rounded-3xl"
                     />
-                    <SelectInput
-                      value={portion.unit_type}
-                      onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
-                      options={unitTypeOptions}
-                      placeholder="Select Unit"
-                      required={idx === 0}
-                      label={idx === 0 ? "Unit Type" : ""}
-                    />
+                    <div className="relative" style={{ zIndex: 50 - idx * 10 }}>
+                      {idx === 0 && (
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                          Unit Type
+                        </label>
+                      )}
+                      <CustomSelect
+                        value={portion.unit_type}
+                        onChange={(e) => handlePortionChange(idx, 'unit_type', e.target.value)}
+                        options={unitTypeOptions}
+                        placeholder="Select Unit"
+                        className="rounded-3xl"
+                      />
+                    </div>
                   </div>
                   <div className={`pt-${idx === 0 ? '8' : '2'}`}>
-                    <button
-                      type="button"
-                      className="text-error-500 hover:text-error-700 p-2 rounded-full hover:bg-error-50"
-                      onClick={() => removePortion(idx)}
-                      disabled={portionData.length === 1}
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-                    </button>
+                    {portionData.length > 1 && (
+                      <button
+                        type="button"
+                        className="text-error-500 hover:text-error-700 p-2 rounded-full hover:bg-error-50"
+                        onClick={() => removePortion(idx)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

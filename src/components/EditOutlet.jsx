@@ -29,6 +29,7 @@ import { toastController } from "../utils/toastController";
 import CustomSelectInput from "./common/CustomSelectInput";
 import CustomDropdown from "./common/CustomDropdown";
 import SaveButton from "./common/SaveButton";
+import MultiSelectDropdown from "./common/MultiSelectDropdown";
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -84,10 +85,7 @@ function EditOutlet() {
   const [planPrice, setPlanPrice] = useState("");
   const [tenureMonths, setTenureMonths] = useState(null);
   const ALLOWED_TENURES = [1, 3, 6, 12, 18, 24];
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [validationStates, setValidationStates] = useState({
-    owner: false,
     name: false,
     mobile: false,
     mobileMessage: "",
@@ -100,6 +98,7 @@ function EditOutlet() {
     whatsapp: false,
     whatsappMessage: "",
   });
+  console.log(tenureMonths)
   const [originalOwnerIds, setOriginalOwnerIds] = useState([]);
 
   // Subscription-related state removed per request
@@ -109,10 +108,9 @@ function EditOutlet() {
   // Add essential validation helper functions
   const isNameValid = (name) => name?.length >= 3 && name?.length <= 50;
   const isUpiValid = (upi) => /^[a-zA-Z0-9._-]+@[a-zA-Z]{3,}$/.test(upi);
-  // Address validation function (relaxed for edit view: accept any non-empty value)
+  // Address validation function (consistent with CreateOutlet: 3-50 characters)
   const isAddressValid = (address) => {
-    const len = address ? address.trim().length : 0;
-    return len >= 1 && len <= 200;
+    return address && address.length >= 3 && address.length <= 50;
   };
 
   // Add at the top of the component:
@@ -419,13 +417,6 @@ function EditOutlet() {
 
   // Subscription popup and related handlers removed
 
-  const filteredOwners = allOwners.filter(
-    (owner) =>
-      owner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      owner.mobile.includes(searchTerm) ||
-      owner.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   // Add breadcrumb items
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
@@ -468,12 +459,9 @@ function EditOutlet() {
     } else if (name === "address") {
       setOutletData((prev) => ({ ...prev, [name]: value }));
 
-      // Real-time address validation
-      if (value && value.length < 5) {
-        setValidationStates((prev) => ({ ...prev, [name]: true }));
-      } else {
-        setValidationStates((prev) => ({ ...prev, [name]: false }));
-      }
+      // Real-time address validation (3-50 characters)
+      const isValid = value && value.length >= 3 && value.length <= 50;
+      setValidationStates((prev) => ({ ...prev, [name]: !isValid }));
     } else {
       setOutletData((prev) => ({
         ...prev,
@@ -625,7 +613,7 @@ function EditOutlet() {
         subscription_name: planName || "Updated Mobile app",
         subscription_price: planPrice ? Number(planPrice) : 15000.0,
         subscription_description: "Owner app",
-        subscription_tenure: tenureMonths ? `${Number(tenureMonths) / 12} year` : "1 year",
+        subscription_tenure: tenureMonths ? `${Number(tenureMonths)} Months` : "",
         module_ids: selectedModuleIds.length > 0 ? selectedModuleIds.map(Number) : [1],
         has_denomination: outletData.has_denomination !== undefined ? outletData.has_denomination : 1,
         has_combo: outletData.has_combo !== undefined ? outletData.has_combo : 1
@@ -719,7 +707,7 @@ function EditOutlet() {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
           {/* Basic Information Section */}
-          <section className="bg-white p-6 rounded-lg shadow">
+          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg
                 className="w-5 h-5 mr-2"
@@ -742,176 +730,24 @@ function EditOutlet() {
               {/* Select Owner and Image Upload in same grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                 {/* Select Owner */}
-                <div className="relative">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    Select Owner(s)
-                  </label>
-
-                  <div className="relative">
-                    <div
-                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="w-full p-2 text-left border rounded-3xl shadow-sm bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
-                      role="combobox"
-                      aria-expanded={isDropdownOpen}
-                      aria-haspopup="listbox"
-                    >
-                      {outletData.owner_ids.length > 0 ? (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {outletData.owner_ids.length} Owner(s) Selected
-                            </div>
-                          </div>
-                          <svg
-                            className="w-5 h-5 text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 9l-7 7-7-7"
-                            />
-                          </svg>
-                        </div>
-                      ) : (
-                        <div className="text-gray-500">Select Owner(s)</div>
-                      )}
-                    </div>
-
-                    {/* Selected Owners Display */}
-                    {outletData.owner_ids.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {outletData.owner_ids.map((id) => {
-                          const owner = allOwners.find((o) => o.user_id === id);
-                          return owner ? (
-                            <div
-                              key={owner.user_id}
-                              className="inline-flex items-center gap-1 px-2 py-1 bg-brand-100 text-brand-700 rounded-full text-sm"
-                            >
-                              <span>{owner.name}</span>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOutletData((prev) => ({
-                                    ...prev,
-                                    owner_ids: prev.owner_ids.filter(
-                                      (ownerId) => ownerId !== id
-                                    ),
-                                  }));
-                                }}
-                                className="ml-1 rounded-3xl text-brand-500 hover:text-brand-700"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-
-                    {/* Dropdown Panel */}
-                    {isDropdownOpen && (
-                      <div
-                        className="absolute left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl z-50 w-full min-w-[300px] max-h-[350px] overflow-y-auto"
-                      >
-                        {/* Search Bar */}
-                        <div className="sticky top-0 p-2 border-b bg-white">
-                          <div className="relative">
-                            <input
-                              type="text"
-                              className="w-full px-4 py-2 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
-                              placeholder="Search by name, mobile or email..."
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              autoFocus
-                            />
-                            {searchTerm && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setSearchTerm("");
-                                  // Keep focus on the search input
-                                  const searchInput = e.target
-                                    .closest(".relative")
-                                    .querySelector("input");
-                                  if (searchInput) {
-                                    searchInput.focus();
-                                  }
-                                }}
-                                className="absolute rounded-3xl right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                              >
-                                <FontAwesomeIcon
-                                  icon={faTimes}
-                                  className="w-4 h-4"
-                                />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Owners List */}
-                        <div className="overflow-y-auto">
-                          {filteredOwners.map((owner) => (
-                            <div
-                              key={owner.user_id}
-                              className={`
-                                p-3 cursor-pointer hover:bg-gray-50
-                                ${outletData.owner_ids.includes(owner.user_id)
-                                  ? "bg-brand-50 border-l-4 border-brand-500"
-                                  : "border-l-4 border-transparent"
-                                }
-                              `}
-                            >
-                              <div className="flex items-center gap-3">
-                                <input
-                                  type="checkbox"
-                                  checked={outletData.owner_ids.includes(
-                                    owner.user_id
-                                  )}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    const newOwnerIds = e.target.checked
-                                      ? [...outletData.owner_ids, owner.user_id]
-                                      : outletData.owner_ids.filter(
-                                        (id) => id !== owner.user_id
-                                      );
-
-
-
-
-                                    setOutletData((prev) => ({
-                                      ...prev,
-                                      owner_ids: newOwnerIds,
-                                    }));
-                                  }}
-                                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-3xl"
-                                />
-                                <div>
-                                  <div className="font-medium text-gray-900">
-                                    {owner.name}
-                                  </div>
-                                  <div className="text-sm text-gray-500">
-                                    <span>{owner.mobile}</span>
-                                    {owner.email && (
-                                      <>
-                                        <span className="mx-2">•</span>
-                                        <span>{owner.email}</span>
-                                      </>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                <div className="flex flex-col">
+                  <MultiSelectDropdown
+                    label="Select Owner(s)"
+                    options={allOwners}
+                    selectedValues={outletData.owner_ids}
+                    onChange={(newOwnerIds) => {
+                      setOutletData((prev) => ({
+                        ...prev,
+                        owner_ids: newOwnerIds,
+                      }));
+                    }}
+                    displayKey="name"
+                    valueKey="user_id"
+                    searchKeys={["name", "mobile", "email"]}
+                    placeholder="Select owners"
+                    searchPlaceholder="Search by name, mobile or email..."
+                    className="rounded-3xl"
+                  />
                 </div>
 
                 {/* Image Upload */}
@@ -943,7 +779,7 @@ function EditOutlet() {
               </div>
 
               {/* Rest of the form fields in their own grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 <TextInput
                   label="Outlet Name"
                   name="name"
@@ -1092,15 +928,17 @@ function EditOutlet() {
                     placeholder="Enter Address"
                     required
                     rows={3}
+                    maxLength={50}
                     className="rounded-3xl"
                   />
                   {validationStates.address && (
                     <p className="text-error-500 text-sm mt-1">
-                      {!outletData.address
-                        ? "Address is required"
-                        : outletData.address.length < 5
-                          ? "Minimum 5 characters required"
-                          : "Address must not exceed 50 characters"}
+                      {(() => {
+                        if (!outletData.address) return "Address is required";
+                        if (outletData.address.length < 3) return "Minimum 3 characters required";
+                        if (outletData.address.length > 50) return "Address must not exceed 50 characters";
+                        return "";
+                      })()}
                     </p>
                   )}
                 </div>
@@ -1109,7 +947,7 @@ function EditOutlet() {
           </section>
 
           {/* Business Details Section */}
-          <section className="bg-white p-6 rounded-lg shadow">
+          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
             <div className="border-b border-gray-200 dark:border-gray-800 pb-5">
               <h2 className="text-lg font-medium mb-4 flex items-center">
                 <svg
@@ -1128,9 +966,9 @@ function EditOutlet() {
                 Business Details
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Service Charges (%)
                   </label>
                   <input
@@ -1138,12 +976,13 @@ function EditOutlet() {
                     name="service_charges"
                     value={outletData.service_charges}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter service charges"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     GST (%)
                   </label>
                   <input
@@ -1151,12 +990,13 @@ function EditOutlet() {
                     name="gst"
                     value={outletData.gst}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter GST percentage"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     FSSAI Number
                   </label>
                   <input
@@ -1164,13 +1004,14 @@ function EditOutlet() {
                     name="fssainumber"
                     value={outletData.fssainumber}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter FSSAI number"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     maxLength={14}
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700">
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     GST Number
                   </label>
                   <input
@@ -1179,10 +1020,11 @@ function EditOutlet() {
                     value={outletData.gstnumber}
                     maxLength={15}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Enter GST number"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
                 </div>
-                <div className="sm:col-span-2 md:col-span-3 xl:col-span-4 w-full">
+                <div className="col-span-full w-full">
                   <div className="flex flex-row flex-nowrap items-end gap-10 mb-4">
                     {/* Opening Time */}
                     <div>
@@ -1402,8 +1244,8 @@ function EditOutlet() {
               </h2>
 
               {/* Plan fields - first row */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                <div className="flex-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
+                <div className="w-full">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Plan Name <span className="text-error-500">*</span>
                   </label>
@@ -1411,12 +1253,12 @@ function EditOutlet() {
                     type="text"
                     value={planName}
                     onChange={(e) => setPlanName(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     placeholder="Enter plan name"
                   />
                 </div>
 
-                <div className="flex-1">
+                <div className="w-full">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Price <span className="text-error-500">*</span>
                   </label>
@@ -1425,12 +1267,12 @@ function EditOutlet() {
                     step="0.01"
                     value={planPrice}
                     onChange={(e) => setPlanPrice(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     placeholder="Enter price"
                   />
                 </div>
 
-                <div className="flex-1">
+                <div className="w-full">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Tenure (months) <span className="text-error-500">*</span>
                   </label>

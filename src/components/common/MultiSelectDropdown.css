@@ -1,0 +1,29 @@
+/* Custom scrollbar styles for MultiSelectDropdown */
+.multi-select-dropdown {
+  /* Base styles */
+}
+
+/* Custom scrollbar for webkit browsers */
+.multi-select-dropdown div[style*="overflowY"]::-webkit-scrollbar {
+  width: 8px;
+}
+
+.multi-select-dropdown div[style*="overflowY"]::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.multi-select-dropdown div[style*="overflowY"]::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.multi-select-dropdown div[style*="overflowY"]::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Firefox scrollbar */
+.multi-select-dropdown div[style*="overflowY"] {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}

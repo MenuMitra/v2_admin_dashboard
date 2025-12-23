@@ -4,15 +4,13 @@ import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faCircleCheck,
-  faCircleXmark,
   faChevronLeft as faBack,
   faPenToSquare,
   faRotate,
-  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import ActiveSessionsTable from "../common/ActiveSessionsTable";
+import StatusToggleButton from "../common/StatusToggleButton";
 import { usePartnerDetails } from "../../lib/react-query/hooks/usePartnerDetails";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
@@ -157,7 +155,7 @@ function PartnerDetails() {
       );
       await refetch();
     } catch (e) {
-      
+      console.error("Failed to toggle partner active status", e);
     } finally {
       setIsTogglingActive(false);
     }
@@ -335,15 +333,30 @@ function PartnerDetails() {
                 {/* Active Status */}
                 {partner.is_active !== null &&
                   partner.is_active !== undefined && (
-                    <div className="mt-1">
-                      <ToggleSwitch
-                        label="Active Status"
-                        isOn={partner.is_active === 1}
-                        onToggle={handleTogglePartnerActive}
-                        disabled={isTogglingActive}
-                        onText="Active"
-                        offText="Inactive"
-                      />
+                    <div className="mt-1 flex items-center gap-4">
+                      <div>
+                        <h4
+                          className={`text-lg font-normal dark:text-white/90 ${
+                            partner.is_active === 1
+                              ? "text-success-700"
+                              : "text-error-700"
+                          }`}
+                        >
+                          {partner.is_active === 1 ? "Active" : "Inactive"}
+                        </h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          Active Status
+                        </p>
+                      </div>
+                      <div className="flex items-center">
+                        <StatusToggleButton
+                          isActive={partner.is_active === 1}
+                          onToggle={handleTogglePartnerActive}
+                          disabled={isTogglingActive}
+                          activeLabel=""
+                          inactiveLabel=""
+                        />
+                      </div>
                     </div>
                   )}
               </div>
@@ -447,45 +460,3 @@ function PartnerDetails() {
 }
 
 export default PartnerDetails;
-
-// Reusable Toggle Switch (consistent with Owner/Admin)
-const ToggleSwitch = ({
-  label,
-  isOn,
-  onToggle,
-  disabled = false,
-  onText = "On",
-  offText = "Off",
-}) => {
-  return (
-    <div className="flex items-center ">
-      <div className="flex items-center gap-2">
-        <div>
-          <h4
-            className={`text-lg font-normal dark:text-white/90 ${
-              isOn ? "text-success-700" : "text-error-700"
-            }`}
-          >
-            {isOn ? onText : offText}
-          </h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{label}</p>
-        </div>
-      </div>
-      <div className="flex items-center ml-4">
-        <button
-          onClick={onToggle}
-          disabled={disabled}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-            isOn ? "bg-brand-500" : "bg-gray-300"
-          }`}
-        >
-          <span
-            className={`absolute h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${
-              isOn ? "translate-x-6" : "translate-x-1"
-            }`}
-          />
-        </button>
-      </div>
-    </div>
-  );
-};

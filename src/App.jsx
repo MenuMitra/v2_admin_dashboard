@@ -63,6 +63,7 @@ import DBTablesStats from "./components/Stats/DBTablesStats";
 import CombinedStats from "./components/Stats/CombinedStats";
 import ReactFlowDemo from "./components/ReactFlowDemo";
 import ReleaseUpdate from "./components/ReleaseUpdate/ReleaseUpdate";
+import TestDropdown from "./components/TestDropdown";
 import "remixicon/fonts/remixicon.css";
 
 function App() {
@@ -211,6 +212,9 @@ function App() {
             
             {/* React Flow Demo Route */}
             <Route path="/react-flow-demo" element={<ReactFlowDemo />} />
+            
+            {/* Test Dropdown Route */}
+            <Route path="/test-dropdown" element={<TestDropdown />} />
           </Route>
         </Routes>
       </BrowserRouter>

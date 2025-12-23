@@ -4,10 +4,12 @@ import {
   faChevronLeft,
   faRotate,
   faMagnifyingGlass,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import DatePickerInput from "../common/DatePickerInput";
+import CustomDropdown from "../common/CustomDropdown";
 import { useStats } from "../../lib/react-query/hooks/useStats";
 
 function Stats() {
@@ -51,18 +53,9 @@ function Stats() {
 
   const { data: appSourceOptions = [] } = useAppSources();
 
-  // Debug logging
+  // Debug logging (currently disabled but keep dependency wiring if needed later)
   useEffect(() => {
-    
-
-    // Log the exact format of dates being sent
-    if (appUsagePayload.start_date && appUsagePayload.end_date) {
-      
-      
-      
-      
-      
-    }
+    // Intentionally left blank – hook kept for potential future logging
   }, [appUsagePayload, appUsageData, appUsageIsLoading, appUsageError]);
 
   // Auto-refetch when dates change
@@ -304,7 +297,7 @@ function Stats() {
           isLoading={apiUsageStatsIsLoading}
           error={apiUsageStatsError}
           itemsPerPage={50}
-          itemsPerPageOptions={[50, 100, 200, 500]}
+          itemsPerPageOptions={[25, 50, 100, 200]}
           className="compact-table"
           emptyStateMessage="No API usage stats data available."
           customFilters={[]}
@@ -356,21 +349,15 @@ function Stats() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between mb-2">
           <div className="flex flex-wrap items-end gap-3 flex-1 min-w-[320px]">
             <div className="w-40 mb-2 sm:w-44">
-              <label className="block text-xs text-gray-600 mb-1">
-                Select App
-              </label>
-              <select
-                className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500 text-gray-700"
+              <CustomDropdown
+                label="Select App"
+                options={appSourceOptions}
                 value={appUsageAppSource}
                 onChange={(e) => setAppUsageAppSource(e.target.value)}
-              >
-                <option value="">Select App</option>
-                {appSourceOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                placeholder="Select App"
+                className="w-full"
+                buttonClassName="pl-4"
+              />
             </div>
 
             <div className="w-40 sm:w-44">
@@ -405,7 +392,7 @@ function Stats() {
           <div className="flex items-end gap-3 w-full lg:w-auto lg:justify-end">
             <div className="relative w-full sm:w-60 lg:w-64">
               <label className="sr-only">Search</label>
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+              <span className="absolute left-4 top-1/2 pb-2 -translate-y-1/2 text-gray-400 pointer-events-none">
                 <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
               </span>
               <input
@@ -413,8 +400,18 @@ function Stats() {
                 value={appUsageSearchTerm}
                 onChange={(e) => setAppUsageSearchTerm(e.target.value)}
                 placeholder="Search"
-                className="w-full mb-2 h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                className="w-full mb-2 h-10 pb-2 rounded-3xl border border-gray-300 bg-transparent py-2 pr-12 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
               />
+              {appUsageSearchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setAppUsageSearchTerm("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition-colors"
+                  title="Clear search"
+                >
+                  <FontAwesomeIcon icon={faXmark} className="w-4 pb-1 h-4" />
+                </button>
+              )}
             </div>
 
             <button

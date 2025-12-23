@@ -16,6 +16,7 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import SaveButton from "../common/SaveButton";
+import { toastController } from "../../utils/toastController";
 
 // Utility function to convert a string to title case
 function toTitleCase(str) {
@@ -44,8 +45,6 @@ function EditSuperOwner() {
     is_active: true,
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [outlets, setOutlets] = useState([]);
   const [selectedOutlets, setSelectedOutlets] = useState([]);
   // Add state for field errors
@@ -114,8 +113,8 @@ function EditSuperOwner() {
         }));
       }
     } catch (error) {
-      
-      setError("Failed to fetch super owner details");
+      console.error('Failed to fetch super owner details:', error);
+      toastController.error("Failed to fetch super owner details");
     }
   };
 
@@ -156,8 +155,8 @@ function EditSuperOwner() {
         );
       }
     } catch (error) {
-      
-      setError("Failed to fetch outlets");
+      console.error('Failed to fetch outlets:', error);
+      toastController.error("Failed to fetch outlets");
     }
   };
 
@@ -253,18 +252,16 @@ function EditSuperOwner() {
     e.preventDefault();
 
     if (!isAuthenticated()) {
-      setError("You are not authenticated. Please login again.");
+      toastController.error("You are not authenticated. Please login again.");
       return;
     }
 
     if (!validate()) {
-      setError("Please fill in all required fields correctly.");
+      toastController.error("Please fill in all required fields correctly.");
       return;
     }
 
     setLoading(true);
-    setError("");
-    setSuccess("");
 
     try {
       const token = getToken();
@@ -285,13 +282,31 @@ function EditSuperOwner() {
       );
 
       if (response.data) {
-        setSuccess("Super owner updated successfully!");
+        toastController.success("Super owner updated successfully!");
         // Invalidate super owners cache to refresh the list
         queryClient.invalidateQueries({ queryKey: queryKeys.superOwners.list() });
         navigate("/super-owners");
       }
     } catch (err) {
-      setError(err.response?.data?.detail || "Something went wrong");
+      console.error('Update super owner error:', err);
+      
+      // Handle different error response formats
+      let errorMessage = "Something went wrong";
+      
+      if (err.response?.data) {
+        // Try different common error message fields
+        errorMessage = 
+          err.response.data.detail ||
+          err.response.data.message ||
+          err.response.data.error ||
+          err.response.data.errors ||
+          (typeof err.response.data === 'string' ? err.response.data : errorMessage);
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      // Use toast notification like EditOutlet.jsx
+      toastController.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -347,18 +362,6 @@ function EditSuperOwner() {
 
         {/* Main Content */}
         <div className="p-6 pb-2">
-          {/* Error and Success Messages */}
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-              {success}
-            </div>
-          )}
-
           {/* Form Section */}
           <div className="space-y-6">
             <div className="bg-white rounded-lg">
@@ -564,23 +567,31 @@ function EditSuperOwner() {
                           )}
                           <div className="flex flex-col items-end gap-2 min-w-[70px]">
                             <span
-                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
-                                outlet.outlet_status === 1 || outlet.outlet_status === "1"
-                                  ? "text-green-600"
-                                  : "text-red-600"
-                              }`}
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${outlet.outlet_status === 1 || outlet.outlet_status === "1"
+                                ? "text-green-600"
+                                : "text-red-600"
+                                }`}
+                              style={{
+                                color: outlet.outlet_status === 1 || outlet.outlet_status === "1"
+                                  ? "#059669"  // Green for Active
+                                  : "#dc2626"  // Red for Inactive
+                              }}
                             >
                               {outlet.outlet_status === 1 ||
-                              outlet.outlet_status === "1"
+                                outlet.outlet_status === "1"
                                 ? "Active"
                                 : "Inactive"}
                             </span>
                             <span
-                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${
-                                outlet.is_open === 1 || outlet.is_open === "1"
-                                  ? "text-blue-600"
-                                  : "text-gray-500"
-                              }`}
+                              className={`inline-block px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 ${outlet.is_open === 1 || outlet.is_open === "1"
+                                ? "text-blue-600"
+                                : "text-gray-500"
+                                }`}
+                              style={{
+                                color: outlet.is_open === 1 || outlet.is_open === "1"
+                                  ? "#2563eb"  // Blue for Open
+                                  : "#6b7280"  // Grey for Close
+                              }}
                             >
                               {outlet.is_open === 1 || outlet.is_open === "1"
                                 ? "Open"

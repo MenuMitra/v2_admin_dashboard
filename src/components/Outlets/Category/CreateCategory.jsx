@@ -9,11 +9,11 @@ import { API_CONFIG } from "../../../config/appConfig";
 import { TextInput } from "../../forms/FormElements";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faSave,
   faChevronLeft as faBack,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../Breadcrumb";
 import { toastController } from "../../../utils/toastController";
+import SaveButton from "../../common/SaveButton";
 
 function CreateCategory() {
   const { outletId } = useParams();
@@ -99,21 +99,14 @@ function CreateCategory() {
             </h2>
 
             {/* Save Button */}
-            <button
+            <SaveButton
               onClick={() => formRef.current?.requestSubmit()}
               disabled={loading}
-              className={`
-                inline-flex items-center gap-2 px-4 py-2 
-                text-sm font-medium text-white rounded-full
-                bg-success-500 hover:bg-success-600 
-                transition shadow-sm
-                ${loading ? "opacity-50 cursor-not-allowed" : ""}
-              `}
+              isLoading={loading}
               type="button"
             >
-              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>Save</span>
-            </button>
+              Save
+            </SaveButton>
           </div>
         </div>
 
@@ -126,6 +119,7 @@ function CreateCategory() {
           >
             <div className="sm:col-span-1">
               <TextInput
+                className = "rounded-3xl"
                 label="Category Name"
                 required
                 value={categoryName}

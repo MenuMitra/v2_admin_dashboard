@@ -19,6 +19,157 @@ import { API_CONFIG } from '../../../config/appConfig';
 import SaveButton from '../../common/SaveButton';
 import CustomDropdown from '../../common/CustomDropdown';
 
+// Single Select Dropdown with Vertical Scrolling
+const CategorySingleSelect = ({
+  label,
+  options,
+  selectedValue,
+  onChange,
+  displayKey,
+  valueKey,
+  placeholder = "Select item",
+  searchPlaceholder = "Search...",
+  className = "",
+  required = false
+}) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const dropdownRef = React.useRef(null);
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(option =>
+    option[displayKey]?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleSelect = (value) => {
+    onChange(value.toString());
+    setIsOpen(false);
+    setSearchTerm('');
+  };
+
+  const getSelectedText = () => {
+    if (!selectedValue) return placeholder;
+    const selectedOption = options.find(option => option[valueKey].toString() === selectedValue);
+    return selectedOption ? selectedOption[displayKey] : placeholder;
+  };
+
+  return (
+    <div className="relative w-full h-full flex flex-col" ref={dropdownRef}>
+      {/* Label */}
+      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+        {required && <span className="text-red-500 mr-1">*</span>}
+        {label}
+      </label>
+
+      {/* Main Button */}
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full p-2 text-left border shadow-sm bg-white hover:bg-gray-50 
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer min-h-[42px] ${className || 'rounded-lg'}`}
+        role="combobox"
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+      >
+        <div className="flex items-center justify-between">
+          <span className={`${!selectedValue ? 'text-gray-500' : 'text-gray-900'} truncate`}>
+            {getSelectedText()}
+          </span>
+          <svg
+            className={`w-5 h-5 text-gray-400 transition-transform flex-shrink-0 ${isOpen ? 'transform rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Dropdown Panel */}
+      {isOpen && (
+        <div className="absolute left-0 right-0 mt-[17px] bg-white border rounded-lg shadow-xl z-50 w-full min-w-[250px]">
+          {/* Search Bar */}
+          <div className="p-2 border-b bg-white">
+            <div className="relative">
+              <input
+                type="text"
+                className="w-full px-3 py-2 pr-8 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder={searchPlaceholder}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                autoFocus
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setSearchTerm("");
+                    const searchInput = e.target.closest(".relative").querySelector("input");
+                    if (searchInput) {
+                      searchInput.focus();
+                    }
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Options List with Fixed Height and Scrolling */}
+          <div 
+            style={{
+              height: '250px',
+              maxHeight: '250px',
+              overflowY: 'auto',
+              overflowX: 'hidden'
+            }}
+          >
+            {filteredOptions.length === 0 ? (
+              <div className="p-3 text-center text-gray-500">
+                No results found
+              </div>
+            ) : (
+              filteredOptions.map((option) => (
+                <div
+                  key={option[valueKey]}
+                  className={`
+                    p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0
+                    ${selectedValue === option[valueKey].toString()
+                      ? 'bg-blue-50 border-l-4 border-blue-500'
+                      : 'border-l-4 border-transparent'}
+                  `}
+                  onClick={() => handleSelect(option[valueKey])}
+                >
+                  <div className="font-medium text-gray-900 truncate" style={{ textTransform: 'capitalize' }}>
+                    {option[displayKey]}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 function EditMenu() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const { outletId, menuId } = useParams();
@@ -477,17 +628,22 @@ function EditMenu() {
                 placeholder="Enter menu name"
               />
               { nameError && <p className="text-error-500 text-sm mt-1">{nameError}</p> }
-              <CustomDropdown
-                label="Category"
-                required
-                value={menuCatId}
-                onChange={e => setMenuCatId(e.target.value)}
-                options={categories.map(cat => ({
-                  value: cat.menu_cat_id.toString(),
-                  label: cat.category_name
-                }))}
-                placeholder="Select Category"
-              />
+              <div className="relative z-50">
+                <CategorySingleSelect
+                  label="Category"
+                  options={categories}
+                  selectedValue={menuCatId}
+                  onChange={(categoryId) => {
+                    setMenuCatId(categoryId);
+                  }}
+                  displayKey="category_name"
+                  valueKey="menu_cat_id"
+                  placeholder="Select category"
+                  searchPlaceholder="Search categories..."
+                  className="rounded-3xl"
+                  required
+                />
+              </div>
               <CustomDropdown
                 label="Food Type"
                 required
@@ -581,13 +737,15 @@ function EditMenu() {
                       onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
                       label={idx === 0 ? "Unit Value" : ""}
                     />
-                    <CustomDropdown
-                      value={portion.unit_type}
-                      onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
-                      options={unitTypeOptions}
-                      placeholder="Select Unit"
-                      label={idx === 0 ? "Unit Type" : ""}
-                    />
+                    <div className="relative" style={{ zIndex: 50 - idx * 10 }}>
+                      <CustomDropdown
+                        value={portion.unit_type}
+                        onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
+                        options={unitTypeOptions}
+                        placeholder="Select Unit"
+                        label={idx === 0 ? "Unit Type" : ""}
+                      />
+                    </div>
                   </div>
                   <div className={`pt-${idx === 0 ? '8' : '2'}`}>
                     <button

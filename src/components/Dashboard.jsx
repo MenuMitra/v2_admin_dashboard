@@ -26,6 +26,7 @@ import {
   faEnvelope,
   faShoppingCart,
   faCalendarCheck,
+  faLock,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "./common/DataTable";
 import { useFullscreen } from "./FullscreenContext";
@@ -406,6 +407,18 @@ function Dashboard() {
                 />
                 <span className="text-xs font-medium text-dark">Partners</span>
               </Link>
+              
+              <Link
+                to="/ubac_tree"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+              >
+                <FontAwesomeIcon
+                  icon={faLock}
+                  className="text-brand-500 mb-1"
+                />
+                <span className="text-xs font-medium text-dark">UBAC Tree</span>
+              </Link>
+              
               <Link
                 to="/customer"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
@@ -454,7 +467,7 @@ function Dashboard() {
                   icon={faEnvelope}
                   className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-dark">Enquiries</span>
+                <span className="text-xs font-medium text-dark">Partner Enquiries</span>
               </Link>
 
               <Link
@@ -465,7 +478,7 @@ function Dashboard() {
                   icon={faCalendarCheck}
                   className="text-brand-500 mb-1"
                 />
-                <span className="text-xs font-medium text-dark">Bookings</span>
+                <span className="text-xs font-medium text-dark">Website Bookings</span>
               </Link>
 
               <Link
@@ -505,7 +518,7 @@ function Dashboard() {
               enablePagination={true}
               enableSearch={true}
               itemsPerPage={50}
-              itemsPerPageOptions={[50, 100, 200]}
+              itemsPerPageOptions={[10, 25, 50, 100, 200]}
               darkMode={false}
               enableStatusFilter={true}
               statusFilter={statusFilter}

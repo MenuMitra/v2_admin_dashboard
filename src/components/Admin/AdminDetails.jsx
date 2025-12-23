@@ -10,8 +10,6 @@ import {
   faPenToSquare,
   faTrash,
   faRotate,
-  faToggleOff,
-  faToggleOn,
   faUserCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
@@ -20,6 +18,7 @@ import { useAdminDetails } from "../../lib/react-query/hooks/useAdminDetails";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
+import StatusToggleButton from "../common/StatusToggleButton";
 
 function AdminDetails() {
   const { adminId } = useParams();
@@ -278,41 +277,15 @@ function AdminDetails() {
                         />
                       </div>
                       <div className="ml-3">
-                        <button
-                          onClick={handleToggleAdminActive}
+                        <StatusToggleButton
+                          isActive={admin.is_active}
+                          onToggle={handleToggleAdminActive}
                           disabled={
                             isTogglingActive ||
                             (admin &&
                               PROTECTED_MOBILES.includes(String(admin.mobile)))
                           }
-                          style={{ 
-                            width: '100px', 
-                            height: '40px',
-                            minWidth: '40px', 
-                            minHeight: '20px',
-                            padding: '20px 12px',
-                            fontSize: '20px',
-                            gap: '5px'
-                          }}
-                          className={`rounded-full font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center justify-center ${
-                            admin.is_active
-                              ? "text-brand-500 "
-                              : "bg-orange-100 text-warning-500 "
-                          } ${
-                            isTogglingActive ||
-                            (admin &&
-                              PROTECTED_MOBILES.includes(String(admin.mobile)))
-                              ? "opacity-50 cursor-not-allowed"
-                              : ""
-                          }`}
-                        >
-                          <FontAwesomeIcon
-                            icon={admin.is_active ? faToggleOn : faToggleOff}
-                            style={{ fontSize: '40px', width: '40px', height: '40px' }}
-                            className={admin.is_active ? "text-brand-500" : "text-warning-500"}
-                          />
-                          {admin.is_active ? "Active" : "Inactive"}
-                        </button>
+                        />
                         <div className="text-sm text-gray-500">Account Status</div>
                       </div>
                     </div>
