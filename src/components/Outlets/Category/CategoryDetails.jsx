@@ -262,7 +262,7 @@ function CategoryDetails() {
                         const foodTypeEl = e.currentTarget.querySelector('.food-type');
                         const priceEl = e.currentTarget.querySelector('.price-text');
                         if (nameEl) nameEl.style.color = '#000000ff';
-                        if (iconEl) iconEl.style.color = '#7c7b7bff';
+                        if (iconEl) iconEl.style.color = '#777777ff';
                         if (foodTypeEl) foodTypeEl.style.color = '#000000ff';
                         if (priceEl) priceEl.style.color = '#000000ff';
                       }}
@@ -274,7 +274,7 @@ function CategoryDetails() {
                         const foodTypeEl = e.currentTarget.querySelector('.food-type');
                         const priceEl = e.currentTarget.querySelector('.price-text');
                         if (nameEl) nameEl.style.color = '#1f2937';
-                        if (iconEl) iconEl.style.color = '#4b5563';
+                        if (iconEl) iconEl.style.color = '#a5a6a7ff';
                         if (foodTypeEl) foodTypeEl.style.color = '';
                         if (priceEl) priceEl.style.color = '#059669';
                       }}
@@ -291,7 +291,7 @@ function CategoryDetails() {
                           <div className="w-5 h-5 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-110">
                             <FontAwesomeIcon 
                               icon={faUtensils} 
-                              className="menu-icon w-2.5 h-2.5 text-gray-600 transition-colors duration-300" 
+                              className="menu-icon w-2.5 h-2.5 text-gray-400 transition-colors duration-300" 
                             />
                           </div>
                         </div>
