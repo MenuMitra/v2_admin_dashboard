@@ -239,7 +239,7 @@ function CategoryDetails() {
             {/* Menu Items Section */}
             {category.menu_list && category.menu_list.length > 0 && (
               <div className="mt-8">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-lato text-gray-800 mb-4 flex items-center gap-2">
                   <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
                   Menu Items ({category.menu_count})
                 </h3>
@@ -259,22 +259,30 @@ function CategoryDetails() {
                         e.currentTarget.style.backgroundColor = 'rgba(173, 226, 235, 0.1)';
                         const nameEl = e.currentTarget.querySelector('.menu-name');
                         const iconEl = e.currentTarget.querySelector('.menu-icon');
+                        const foodTypeEl = e.currentTarget.querySelector('.food-type');
+                        const priceEl = e.currentTarget.querySelector('.price-text');
                         if (nameEl) nameEl.style.color = '#000000ff';
-                        if (iconEl) iconEl.style.color = '#000000ff';
+                        if (iconEl) iconEl.style.color = '#343333ff';
+                        if (foodTypeEl) foodTypeEl.style.color = '#000000ff';
+                        if (priceEl) priceEl.style.color = '#000000ff';
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.borderColor = '#e5e7eb';
                         e.currentTarget.style.backgroundColor = 'white';
                         const nameEl = e.currentTarget.querySelector('.menu-name');
                         const iconEl = e.currentTarget.querySelector('.menu-icon');
+                        const foodTypeEl = e.currentTarget.querySelector('.food-type');
+                        const priceEl = e.currentTarget.querySelector('.price-text');
                         if (nameEl) nameEl.style.color = '#1f2937';
                         if (iconEl) iconEl.style.color = '#4b5563';
+                        if (foodTypeEl) foodTypeEl.style.color = '';
+                        if (priceEl) priceEl.style.color = '#059669';
                       }}
                     >
                       {/* Top Row: Menu Name (Left) + Icon (Right) */}
                       <div className="flex items-start justify-between mb-2">
                         {/* Menu Name - Left Top */}
-                        <h4 className="menu-name text-xs font-semibold text-gray-800 line-clamp-2 transition-colors duration-300 leading-tight flex-1 pr-1">
+                        <h4 className="menu-name text-xs font-lato text-gray-900 line-clamp-2 transition-colors duration-300 leading-tight flex-1 pr-1">
                           {menu.menu_name}
                         </h4>
                         
@@ -293,7 +301,7 @@ function CategoryDetails() {
                       <div className="flex items-end justify-between mt-auto gap-3 w-full">
                         {/* Food Type Badge - Left Bottom */}
                         <span
-                          className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium transition-all duration-300 flex-shrink-0 ${
+                          className={`food-type inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-lato transition-all duration-300 flex-shrink-0 ${
                             menu.food_type === 'veg'
                               ? 'bg-green-100 text-green-800 group-hover:bg-green-200'
                               : menu.food_type === 'nonveg'
@@ -314,7 +322,7 @@ function CategoryDetails() {
                         </span>
 
                         {/* Price - Right Bottom */}
-                        <span className="text-xs font-bold text-success-600 group-hover:text-success-700 transition-all duration-300 flex-shrink-0 ml-auto">
+                        <span className="price-text text-xs font-lato text-success-600 group-hover:text-success-700 transition-all duration-300 flex-shrink-0 ml-auto">
                           ₹{menu.price}
                         </span>
                       </div>
