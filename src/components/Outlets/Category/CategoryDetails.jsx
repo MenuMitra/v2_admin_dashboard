@@ -262,7 +262,7 @@ function CategoryDetails() {
                         const foodTypeEl = e.currentTarget.querySelector('.food-type');
                         const priceEl = e.currentTarget.querySelector('.price-text');
                         if (nameEl) nameEl.style.color = '#000000ff';
-                        if (iconEl) iconEl.style.color = '#343333ff';
+                        if (iconEl) iconEl.style.color = '#7c7b7bff';
                         if (foodTypeEl) foodTypeEl.style.color = '#000000ff';
                         if (priceEl) priceEl.style.color = '#000000ff';
                       }}
