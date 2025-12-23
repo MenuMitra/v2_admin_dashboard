@@ -9665,7 +9665,7 @@ button.swiper-pagination-bullet {
 /* Custom Scrollbar */
 .custom-scrollbar {
   overflow-y: auto;
-  overscroll-behavior-y: contain;
+  overscroll-behavior-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
