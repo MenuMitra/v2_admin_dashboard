@@ -66,7 +66,7 @@ const CustomDropdown = ({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          w-full px-2 py-1.5 pr-10 border rounded-3xl shadow-sm text-left text-sm
+          w-full px-2 py-1.5 pr-10 border rounded-lg shadow-sm text-left text-sm
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           bg-white hover:bg-gray-50 transition-all duration-200
           flex items-center justify-between h-10

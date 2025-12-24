@@ -377,7 +377,7 @@ function EditSuperOwner() {
                       name="name"
                       value={superOwnerDetails.name}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                     {fieldErrors.name && (
@@ -398,7 +398,7 @@ function EditSuperOwner() {
                       onChange={handleChange}
                       maxLength={10}
                       pattern="[0-9]{10}"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                     {fieldErrors.mobile && (
@@ -417,7 +417,7 @@ function EditSuperOwner() {
                       name="email"
                       value={superOwnerDetails.email}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     {fieldErrors.email && (
                       <p className="text-error-500 text-sm mt-1">
@@ -437,7 +437,7 @@ function EditSuperOwner() {
                       onChange={handleChange}
                       maxLength={12}
                       pattern="[0-9]{12}"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                     {fieldErrors.aadhar_number && (
@@ -508,7 +508,7 @@ function EditSuperOwner() {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Search location"
-                          className="w-full sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                          className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
                         />
                         {searchTerm && (
                           <button

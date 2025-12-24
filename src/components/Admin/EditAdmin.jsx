@@ -326,7 +326,7 @@ function EditAdmin() {
                   validationType="name"
                   onValidation={handleValidation("name")}
                   isSubmitAttempted={isSubmitAttempted}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
                 {!validationStates.name && (
                   <p className="text-error-500 text-sm mt-1">
@@ -346,7 +346,7 @@ function EditAdmin() {
                   required
                   maxLength={10}
                   className={`
-                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                    rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
                   `}
                 />
@@ -369,7 +369,7 @@ function EditAdmin() {
                   validationType="email"
                   onValidation={handleValidation("email")}
                   isSubmitAttempted={isSubmitAttempted}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
                 {emailApiError && (
                   <p className="text-error-500 text-sm mt-1">{emailApiError}</p>

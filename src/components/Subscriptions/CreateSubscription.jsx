@@ -485,7 +485,7 @@ function CreateSubscription() {
                         e.target.value === "" ? "" : Number(e.target.value),
                     }))
                   }
-                  className="mt-1 block w-full rounded-3xl border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                  className="mt-1 block w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
                 >
                   <option value="" disabled>
                     Select months
@@ -565,7 +565,7 @@ function CreateSubscription() {
                             checked={isSelected}
                             onChange={() => handleModuleToggle(mod.module_id)}
                             onClick={(e) => e.stopPropagation()}
-                            className="form-checkbox h-4 w-4 rounded-3xl border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 cursor-pointer"
+                            className="form-checkbox h-4 w-4 rounded-lg border-gray-300 text-brand-500 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 cursor-pointer"
                           />
                           <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                             {mod.name.split("_").join(" ").toUpperCase()}

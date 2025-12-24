@@ -884,7 +884,7 @@ function CreateOutlet() {
                   outletData.image ? [{ url: outletData.image }] : []
                 }
                 label="Outlet Image"
-                className="w-full rounded-3xl"
+                className="w-full"
                 isOutletImage={true}
                 preserveImageOnValidation={true}
               />
@@ -904,7 +904,7 @@ function CreateOutlet() {
                       validationType="simple"
                       validationRules={validationRules.name.simple}
                       className={`
-                      rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                      rounded-lg focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.name
                           ? "border-error-500"
                           : "border-gray-300"
@@ -928,7 +928,7 @@ function CreateOutlet() {
                       searchKeys={["name", "mobile", "email"]}
                       placeholder="Select owners"
                       searchPlaceholder="Search by name, mobile or email..."
-                      className="rounded-3xl"
+                      className="rounded-lg"
                     />
                   </div>
 
@@ -948,7 +948,7 @@ function CreateOutlet() {
                       maxLength={10}
                       placeholder="Enter 10 digit mobile number"
                       className={`
-                      rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                      rounded-lg focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.mobile || apiErrors.mobile
                           ? "border-error-500"
                           : "border-gray-300"
@@ -969,7 +969,7 @@ function CreateOutlet() {
                     value={outletData.email}
                     onChange={handleInputChange}
                     placeholder="Enter Email Address"
-                    className="rounded-3xl"
+                    className="rounded-lg"
                   />
 
                   <div className="relative">
@@ -983,7 +983,7 @@ function CreateOutlet() {
                       validationRules={validationRules.upi}
                       placeholder="username@bankname"
                       className={`
-                      rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                      rounded-lg focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.upi
                           ? "border-error-500"
                           : "border-gray-300"
@@ -1058,7 +1058,7 @@ function CreateOutlet() {
                       required
                       rows={3}
                       maxLength={50}
-                      className="rounded-3xl"
+                      className="rounded-lg"
                     />
                     {validationStates.address && (
                       <p className="text-error-500 text-sm mt-1">
@@ -1104,7 +1104,7 @@ function CreateOutlet() {
                     onChange={handleInputChange}
                     onFocus={() => handleFocus("service_charges")}
                     placeholder="Enter Service Charges"
-                    className="focus:border-brand-500 rounded-3xl focus:ring-brand-500 border-gray-300"
+                    className="focus:border-brand-500 rounded-lg focus:ring-brand-500 border-gray-300"
                   />
                 </div>
 
@@ -1115,7 +1115,7 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                   maxLength={14}
                   placeholder="Enter FSSAI Number"
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
                 <div className="relative">
                   <TextInput
@@ -1126,7 +1126,7 @@ function CreateOutlet() {
                     onChange={handleInputChange}
                     onFocus={() => handleFocus("gst")}
                     placeholder="Enter GST"
-                    className="rounded-3xl focus:border-brand-500 focus:ring-brand-500 border-gray-300"
+                    className="rounded-lg focus:border-brand-500 focus:ring-brand-500 border-gray-300"
                   />
                 </div>
                 <TextInput
@@ -1136,7 +1136,7 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                   placeholder="Enter GST Number"
                   maxLength={15}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
                 {validationStates.gstnumber && (
                   <p className="text-error-500 text-sm mt-1">
@@ -1368,7 +1368,7 @@ function CreateOutlet() {
                     type="text"
                     value={planName}
                     onChange={(e) => setPlanName(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter plan name"
                   />
                 </div>
@@ -1382,7 +1382,7 @@ function CreateOutlet() {
                     step="0.01"
                     value={planPrice}
                     onChange={(e) => setPlanPrice(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter price"
                   />
                 </div>
@@ -1437,7 +1437,7 @@ function CreateOutlet() {
                             setSelectedModuleIds([]);
                           }
                         }}
-                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-3xl mr-2"
+                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-lg mr-2"
                       />
                       Check All
                     </label>
@@ -1461,7 +1461,7 @@ function CreateOutlet() {
                               checked={checked}
                               onChange={() => handleModuleToggle(m.module_id)}
                               onClick={(e) => e.stopPropagation()}
-                              className="form-checkbox h-4 w-4 mt-0.5 text-blue-600 border-gray-300 rounded-3xl"
+                              className="form-checkbox h-4 w-4 mt-0.5 text-blue-600 border-gray-300 rounded-lg"
                             />
                             <span className="text-xs font-medium uppercase text-gray-800">
                               {m.name?.split("_").join(" ")}
@@ -1476,7 +1476,7 @@ function CreateOutlet() {
             </div>
           </section>
 
-          <section className="bg-white p-2 rounded-3xl shadow">
+          <section className="bg-white p-2 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg
                 className="w-5 h-5 mr-2"
@@ -1505,7 +1505,7 @@ function CreateOutlet() {
                   onFocus={() => handleFocus("website")}
                   placeholder="https://example.com"
                   className={`
-                    rounded-3xl focus:border-brand-500  focus:ring-brand-500
+                    rounded-lg focus:border-brand-500  focus:ring-brand-500
                     ${validationStates.website
                       ? "border-error-500"
                       : "border-gray-300"
@@ -1531,7 +1531,7 @@ function CreateOutlet() {
                   placeholder="Enter 10 digit mobile number"
                   maxLength={10}
                   className={`
-                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                    rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${validationStates.whatsapp
                       ? "border-error-500"
                       : "border-gray-300"
@@ -1554,7 +1554,7 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                   onFocus={() => handleFocus("facebook")}
                   placeholder="https://facebook.com/yourpage"
-                  className={`rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                  className={`rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${validationStates.facebook
                       ? "border-error-500"
                       : "border-gray-300"
@@ -1578,7 +1578,7 @@ function CreateOutlet() {
                   onFocus={() => handleFocus("instagram")}
                   placeholder="https://instagram.com/yourhandle"
                   className={`
-                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                    rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${validationStates.instagram
                       ? "border-error-500"
                       : "border-gray-300"
@@ -1601,7 +1601,7 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                   onFocus={() => handleFocus("google_business_link")}
                   placeholder="https://business.google.com/yourpage"
-                  className={`rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                  className={`rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${validationStates.google_business_link
                       ? "border-error-500"
                       : "border-gray-300"
@@ -1624,7 +1624,7 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                   onFocus={() => handleFocus("google_review")}
                   placeholder="https://g.page/r/yourreviewpage"
-                  className={`rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                  className={`rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${validationStates.google_review
                       ? "border-error-500"
                       : "border-gray-300"

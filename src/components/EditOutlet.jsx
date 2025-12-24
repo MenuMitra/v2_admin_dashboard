@@ -746,7 +746,7 @@ function EditOutlet() {
                     searchKeys={["name", "mobile", "email"]}
                     placeholder="Select owners"
                     searchPlaceholder="Search by name, mobile or email..."
-                    className="rounded-3xl"
+                    className="rounded-lg"
                   />
                 </div>
 
@@ -788,7 +788,7 @@ function EditOutlet() {
                   onFocus={() => handleFocus("name")}
                   required
                   className={`
-                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                    rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${validationStates.name
                       ? "border-error-500"
                       : "border-gray-300"
@@ -808,7 +808,7 @@ function EditOutlet() {
                     required
                     maxLength={10}
                     className={`
-                      rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                      rounded-lg focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.mobile
                         ? "border-error-500"
                         : "border-gray-300"
@@ -829,7 +829,7 @@ function EditOutlet() {
                   value={outletData.email}
                   onChange={handleInputChange}
                   placeholder="Enter Email Address"
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
 
                 <TextInput
@@ -839,7 +839,7 @@ function EditOutlet() {
                   onChange={handleInputChange}
                   placeholder="Enter UPI ID"
                   required
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
 
                 <CustomDropdown
@@ -929,7 +929,7 @@ function EditOutlet() {
                     required
                     rows={3}
                     maxLength={50}
-                    className="rounded-3xl"
+                    className="rounded-lg"
                   />
                   {validationStates.address && (
                     <p className="text-error-500 text-sm mt-1">
@@ -977,7 +977,7 @@ function EditOutlet() {
                     value={outletData.service_charges}
                     onChange={handleInputChange}
                     placeholder="Enter service charges"
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
                 </div>
 
@@ -991,7 +991,7 @@ function EditOutlet() {
                     value={outletData.gst}
                     onChange={handleInputChange}
                     placeholder="Enter GST percentage"
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
                 </div>
 
@@ -1005,7 +1005,7 @@ function EditOutlet() {
                     value={outletData.fssainumber}
                     onChange={handleInputChange}
                     placeholder="Enter FSSAI number"
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     maxLength={14}
                   />
                 </div>
@@ -1021,7 +1021,7 @@ function EditOutlet() {
                     maxLength={15}
                     onChange={handleInputChange}
                     placeholder="Enter GST number"
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
                 </div>
                 <div className="col-span-full w-full">
@@ -1253,7 +1253,7 @@ function EditOutlet() {
                     type="text"
                     value={planName}
                     onChange={(e) => setPlanName(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     placeholder="Enter plan name"
                   />
                 </div>
@@ -1267,7 +1267,7 @@ function EditOutlet() {
                     step="0.01"
                     value={planPrice}
                     onChange={(e) => setPlanPrice(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                     placeholder="Enter price"
                   />
                 </div>
@@ -1321,7 +1321,7 @@ function EditOutlet() {
                             setSelectedModuleIds([]);
                           }
                         }}
-                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-3xl mr-2"
+                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-lg mr-2"
                       />
                       Check All
                     </label>
@@ -1345,7 +1345,7 @@ function EditOutlet() {
                               checked={checked}
                               onChange={() => handleModuleToggle(m.module_id)}
                               onClick={(e) => e.stopPropagation()}
-                              className="form-checkbox rounded-3xl h-4 w-4 text-blue-600"
+                              className="form-checkbox rounded-lg h-4 w-4 text-blue-600"
                             />
                             <span className="uppercase">
                               {m.name?.split("_").join(" ")}
@@ -1387,7 +1387,7 @@ function EditOutlet() {
                 value={outletData.website}
                 onChange={handleInputChange}
                 placeholder="https://example.com"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -1397,7 +1397,7 @@ function EditOutlet() {
                 value={outletData.facebook}
                 onChange={handleInputChange}
                 placeholder="https://facebook.com/yourpage"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -1407,7 +1407,7 @@ function EditOutlet() {
                 value={outletData.instagram}
                 onChange={handleInputChange}
                 placeholder="https://instagram.com/yourhandle"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -1417,7 +1417,7 @@ function EditOutlet() {
                 value={outletData.google_business_link}
                 onChange={handleInputChange}
                 placeholder="https://business.google.com/yourpage"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -1427,7 +1427,7 @@ function EditOutlet() {
                 value={outletData.google_review}
                 onChange={handleInputChange}
                 placeholder="https://g.page/r/yourreviewpage"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
             </div>
           </section>

@@ -614,7 +614,7 @@ function EditMenu() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 text-base">
               <TextInput
                 label="Menu Name"
-                className="rounded-3xl"
+                className="rounded-lg"
                 value={name}
                 onChange={e => {
                   const value = e.target.value;
@@ -640,7 +640,7 @@ function EditMenu() {
                   valueKey="menu_cat_id"
                   placeholder="Select category"
                   searchPlaceholder="Search categories..."
-                  className="rounded-3xl"
+                  className="rounded-lg"
                   required
                 />
               </div>
@@ -661,7 +661,7 @@ function EditMenu() {
               />
               <TextInput
                 label="Offer (%)"
-                className= "rounded-3xl"
+                className= "rounded-lg"
                 value={offer}
                 onChange={e => setOffer(e.target.value)}
                 placeholder="e.g. 10"
@@ -671,7 +671,7 @@ function EditMenu() {
               />
               <TextInput
                 label="Ingredients"
-                className = "rounded-3xl"
+                className = "rounded-lg"
                 value={ingredients}
                 onChange={e => setIngredients(e.target.value)}
                 placeholder="e.g. dal, vegetables"
@@ -682,7 +682,7 @@ function EditMenu() {
                   id="is_special"
                   checked={isSpecial}
                   onChange={(e) => setIsSpecial(e.target.checked)}
-                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-3xl"
+                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-lg"
                 />
                 <label htmlFor="is_special" className="text-sm font-medium text-gray-700">
                   Special Item
@@ -695,7 +695,7 @@ function EditMenu() {
             <div className="sm:col-span-1">
             <Textarea
               label="Description"
-              className="rounded-3xl"
+              className="rounded-lg"
               value={description}
               onChange={e => setDescription(e.target.value)}
               placeholder="Enter menu description"
@@ -714,7 +714,7 @@ function EditMenu() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1">
                     <TextInput
                       placeholder="Portion Name"
-                      className="rounded-3xl"
+                      className="rounded-lg"
                       value={portion.portion_name}
                       onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
                       label={idx === 0 ? "Portion Name" : ""}
@@ -722,7 +722,7 @@ function EditMenu() {
                     <TextInput
                       placeholder="Price"
                       type="number"
-                      className="rounded-3xl"
+                      className="rounded-lg"
                       value={portion.price}
                       onChange={e => handlePortionChange(idx, 'price', e.target.value)}
                       required={idx === 0}
@@ -731,7 +731,7 @@ function EditMenu() {
                     />
                     <TextInput
                       placeholder="Unit Value"
-                      className="rounded-3xl"
+                      className="rounded-lg"
                       type="number"
                       value={portion.unit_value}
                       onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}

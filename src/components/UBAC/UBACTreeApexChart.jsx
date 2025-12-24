@@ -682,7 +682,7 @@ const UBACTree = () => {
               </span>
               <input
                 placeholder="Search modules, features, actions..."
-                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-3xl border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
+                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -929,7 +929,7 @@ const UBACTree = () => {
           <input
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
-            className="w-full rounded-3xl border px-2 py-1"
+            className="w-full rounded-lg border px-2 py-1"
           />
         </div>
       </Modal>
@@ -1129,7 +1129,7 @@ const UBACTree = () => {
                 <input
                   value={editFormName}
                   onChange={(e) => setEditFormName(e.target.value)}
-                  className="w-full rounded-3xl border px-2 py-1"
+                  className="w-full rounded-lg border px-2 py-1"
                 />
               </div>
             </>

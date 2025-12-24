@@ -513,7 +513,7 @@ function CreateMenu() {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Enter menu name"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
               <div className="relative z-40">
                 <CategorySingleSelect
@@ -527,7 +527,7 @@ function CreateMenu() {
                   valueKey="menu_cat_id"
                   placeholder="Select category"
                   searchPlaceholder="Search categories..."
-                  className="rounded-3xl"
+                  className="rounded-lg"
                   required
                 />
               </div>
@@ -540,7 +540,7 @@ function CreateMenu() {
                   onChange={(e) => setFoodType(e.target.value)}
                   options={foodTypes}
                   placeholder="Select Food Type"
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
               </div>
               <div className="relative z-20">
@@ -552,7 +552,7 @@ function CreateMenu() {
                   onChange={(e) => setSpicyIndex(e.target.value)}
                   options={spicyIndexOptions}
                   placeholder="Select Spicy Index"
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
               </div>
               <TextInput
@@ -563,14 +563,14 @@ function CreateMenu() {
                 type="number"
                 min="0"
                 max="100"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
               <TextInput
                 label="Ingredients"
                 value={ingredients}
                 onChange={e => setIngredients(e.target.value)}
                 placeholder="e.g. dal, vegetables"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
             </div>
             {/* Description field outside the grid */}
@@ -598,7 +598,7 @@ function CreateMenu() {
                       value={portion.portion_name}
                       onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
                       label={idx === 0 ? "Portion Name" : ""}
-                      className="rounded-3xl"
+                      className="rounded-lg"
                     />
                     <TextInput
                       placeholder="Price"
@@ -608,7 +608,7 @@ function CreateMenu() {
                       required={idx === 0}
                       min="0"
                       label={idx === 0 ? "Price" : ""}
-                      className="rounded-3xl"
+                      className="rounded-lg"
                     />
                     <TextInput
                       placeholder="Unit Value"
@@ -617,7 +617,7 @@ function CreateMenu() {
                       onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
                       min="0"
                       label={idx === 0 ? "Unit Value" : ""}
-                      className="rounded-3xl"
+                      className="rounded-lg"
                     />
                     <div className="relative" style={{ zIndex: 50 - idx * 10 }}>
                       {idx === 0 && (
@@ -630,7 +630,7 @@ function CreateMenu() {
                         onChange={(e) => handlePortionChange(idx, 'unit_type', e.target.value)}
                         options={unitTypeOptions}
                         placeholder="Select Unit"
-                        className="rounded-3xl"
+                        className="rounded-lg"
                       />
                     </div>
                   </div>

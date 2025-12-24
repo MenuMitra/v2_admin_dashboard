@@ -396,7 +396,7 @@ function CreateNotification() {
                 label="Message"
                 name="message"
                 value={formData.message}
-                className="rounded-3xl"
+                className="rounded-lg"
                 onChange={handleInputChange}
                 placeholder="Enter notification message"
                 required
@@ -513,7 +513,7 @@ function CreateNotification() {
                         <div className="relative">
                           <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Search outlets..."
                             value={searchTerms.outlet}
                             onChange={(e) =>
@@ -630,7 +630,7 @@ function CreateNotification() {
                         <div className="relative">
                           <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Search roles..."
                             value={searchTerms.role}
                             onChange={(e) =>
@@ -739,7 +739,7 @@ function CreateNotification() {
                         <div className="relative">
                           <input
                             type="text"
-                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-3xl focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            className="w-full px-4 py-2 pl-10 pr-10 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                             placeholder="Search users..."
                             value={searchTerms.user}
                             onChange={(e) =>

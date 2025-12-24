@@ -434,7 +434,7 @@ function EditPartner() {
                 placeholder="Enter full name"
                 required
                 error={validationErrors.name}
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -448,7 +448,7 @@ function EditPartner() {
                 pattern="[6-9][0-9]{9}"
                 maxLength="10"
                 error={validationErrors.mobile}
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -459,7 +459,7 @@ function EditPartner() {
                 onChange={handleChange}
                 placeholder="Enter email address"
                 error={validationErrors.email}
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <DateInput
@@ -468,7 +468,7 @@ function EditPartner() {
                 value={partnerDetails.dob}
                 onChange={handleChange}
                 placeholder="Select date of birth"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -480,7 +480,7 @@ function EditPartner() {
                 required
                 maxLength="12"
                 error={validationErrors.aadhar_number}
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               {/* Active Partner Checkbox */}
@@ -508,7 +508,7 @@ function EditPartner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
               </div>
 
