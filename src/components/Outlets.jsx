@@ -459,6 +459,7 @@ function Outlets() {
       field: "actions",
       header: "Actions",
       textAlign: "center",
+      sticky: true,
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
           <button

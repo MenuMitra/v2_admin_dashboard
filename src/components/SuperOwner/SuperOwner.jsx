@@ -189,6 +189,7 @@ function SuperOwner() {
       header: "Actions",
       sortable: false,
       headerClassName: "text-center",
+      sticky: true,
       render: (_, owner) => (
         <div className="flex items-center justify-center gap-2">
           <button

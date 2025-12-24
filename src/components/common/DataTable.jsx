@@ -183,7 +183,9 @@ function DataTable({
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
+  const [isHorizontalScrolling, setIsHorizontalScrolling] = useState(false);
   const actionDropdownRef = useRef(null);
+  const tableContainerRef = useRef(null);
 
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
@@ -199,6 +201,30 @@ function DataTable({
   useEffect(() => {
     setInternalItemsPerPage(itemsPerPage);
   }, [itemsPerPage]);
+
+  // Check for horizontal scrolling
+  useEffect(() => {
+    const checkHorizontalScroll = () => {
+      if (tableContainerRef.current) {
+        const hasHorizontalScroll = tableContainerRef.current.scrollWidth > tableContainerRef.current.clientWidth;
+        setIsHorizontalScrolling(hasHorizontalScroll);
+      }
+    };
+
+    checkHorizontalScroll();
+    
+    const resizeObserver = new ResizeObserver(checkHorizontalScroll);
+    if (tableContainerRef.current) {
+      resizeObserver.observe(tableContainerRef.current);
+    }
+
+    window.addEventListener('resize', checkHorizontalScroll);
+    
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', checkHorizontalScroll);
+    };
+  }, [safeData, columns]);
 
   // Sorting Logic
   const handleSort = (field) => {
@@ -1231,7 +1257,7 @@ function DataTable({
         )}
 
         {/* Table Section */}
-        <div className="max-w-full overflow-x-auto custom-scrollbar">
+        <div ref={tableContainerRef} className="max-w-full overflow-x-auto custom-scrollbar">
           <table className="w-full">
             <thead>
               <tr
@@ -1345,6 +1371,10 @@ function DataTable({
                         ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                         : ""
                       }
+                      ${column.sticky && isHorizontalScrolling 
+                        ? "sticky right-0 bg-white z-10 border-l border-gray-200 shadow-[-2px_0_4px_rgba(0,0,0,0.1)]" 
+                        : ""
+                      }
                     `}
                     onClick={() =>
                       column.sortable ? handleSort(column.field) : null
@@ -1414,6 +1444,10 @@ function DataTable({
                               ? "whitespace-nowrap"
                               : ""
                             }
+                          ${column.sticky && isHorizontalScrolling 
+                            ? "sticky right-0 bg-white z-10 border-l border-gray-200 shadow-[-2px_0_4px_rgba(0,0,0,0.1)]" 
+                            : ""
+                          }
                         `}
                         >
                           {column.render && column.field ? (
