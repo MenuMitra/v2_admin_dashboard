@@ -24,6 +24,7 @@ import {
   faEnvelope,
   faCalendarCheck,
   faUpload,
+  faBuilding,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -39,6 +40,7 @@ const menuGroups = [
     items: [
       { title: "Outlets", path: "/outlets", id: "outlets", icon: faStore },
       { title: "Admins", path: "/admins", id: "admins", icon: faUser },
+      { title: "Companies", path: "/companies", id: "companies", icon: faBuilding },
       {
         title: "Partners",
         path: "/partners",
@@ -182,6 +184,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
           "/staff-details/",
         ],
         admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
+        companies: ["/companies", "/create-company", "/company-details/", "/edit-company/"],
         "super-owners": [
           "/super-owners",
           "/create-super-owner",

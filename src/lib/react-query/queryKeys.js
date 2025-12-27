@@ -49,6 +49,13 @@ export const queryKeys = {
     detail: (id) => [...queryKeys.admins.all, "detail", id],
   },
 
+  // Company related queries
+  companies: {
+    all: ["companies"],
+    list: () => [...queryKeys.companies.all, "list"],
+    detail: (id) => [...queryKeys.companies.all, "detail", id],
+  },
+
   admin: {
     all: ["admin"],
     list: () => [...queryKeys.admin.all, "list"],

@@ -32,6 +32,11 @@ import CreateAdmin from "./components/Admin/CreateAdmin";
 import Admins from "./components/Admin/Admins";
 import AdminDetails from "./components/Admin/AdminDetails";
 import EditAdmin from "./components/Admin/EditAdmin";
+import Companies from "./components/Companies/Companies";
+import CreateCompany from "./components/Companies/CreateCompany";
+import CompanyDetails from "./components/Companies/CompanyDetails";
+import EditCompany from "./components/Companies/EditCompany";
+import CompaniesDebug from "./components/Companies/CompaniesDebug";
 import ManageCategories from "./components/Outlets/Category/ManageCategories";
 import ManageMenus from "./components/Outlets/Menu/ManageMenus";
 import CategoryDetails from "./components/Outlets/Category/CategoryDetails";
@@ -203,6 +208,13 @@ function App() {
             <Route path="/admins" element={<Admins />} />
             <Route path="/admin-details/:adminId" element={<AdminDetails />} />
             <Route path="/edit-admin/:adminId" element={<EditAdmin />} />
+
+            {/* Company Routes */}
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/companies-debug" element={<CompaniesDebug />} />
+            <Route path="/create-company" element={<CreateCompany />} />
+            <Route path="/company-details/:companyId" element={<CompanyDetails />} />
+            <Route path="/edit-company/:companyId" element={<EditCompany />} />
 
             {/* Stats Routes */}
             <Route path="/stats" element={<Stats />} />
