@@ -14,6 +14,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes, faTrash, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
+import CustomSelect from "../common/CustomSelect";
 import { API_CONFIG } from "../../config/appConfig";
 
 function CreateCompany() {
@@ -106,10 +107,43 @@ function CreateCompany() {
   };
 
   const updateContactField = (index, field, value) => {
-    // Validate Contact Number field
+    // Validate Contact Number field - prevent numbers starting with 0-5
     if (field === "contact_number") {
-      const filteredValue = value.replace(/[^0-9]/g, "").slice(0, 10);
-      if (value !== filteredValue) {
+      // Remove all non-digit characters
+      const filteredValue = value.replace(/[^0-9]/g, '');
+      
+      // Check if the first digit is invalid (0-5) and prevent input
+      if (filteredValue.length > 0) {
+        const firstDigit = filteredValue.charAt(0);
+        if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+          // Don't update the value and show error
+          setContactNumberErrors((prev) => ({
+            ...prev,
+            [index]: "Contact number must start with 6, 7, 8, or 9",
+          }));
+          setTimeout(() => {
+            setContactNumberErrors((prev) => {
+              const newErrors = { ...prev };
+              delete newErrors[index];
+              return newErrors;
+            });
+          }, 3000);
+          return; // Don't update the state with invalid value
+        } else {
+          // Clear any existing error for this field
+          setContactNumberErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[index];
+            return newErrors;
+          });
+        }
+      }
+      
+      // Limit to 10 digits and update state
+      const finalValue = filteredValue.slice(0, 10);
+      
+      // Show error if non-numeric characters were removed
+      if (value !== finalValue && value.length > finalValue.length) {
         setContactNumberErrors((prev) => ({
           ...prev,
           [index]: "Only numbers are allowed in contact number",
@@ -121,38 +155,12 @@ function CreateCompany() {
             return newErrors;
           });
         }, 2000);
-      } else if (filteredValue.length > 0) {
-        const firstDigit = filteredValue.charAt(0);
-        if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
-          setContactNumberErrors((prev) => ({
-            ...prev,
-            [index]: "Contact number must start with 6, 7, 8, or 9",
-          }));
-          setTimeout(() => {
-            setContactNumberErrors((prev) => {
-              const newErrors = { ...prev };
-              delete newErrors[index];
-              return newErrors;
-            });
-          }, 2000);
-        } else {
-          setContactNumberErrors((prev) => {
-            const newErrors = { ...prev };
-            delete newErrors[index];
-            return newErrors;
-          });
-        }
-      } else {
-        setContactNumberErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[index];
-          return newErrors;
-        });
       }
+      
       setOwnerData((prev) => ({
         ...prev,
         company_contacts: prev.company_contacts.map((contact, i) =>
-          i === index ? { ...contact, [field]: filteredValue } : contact
+          i === index ? { ...contact, [field]: finalValue } : contact
         ),
       }));
       return;
@@ -256,10 +264,43 @@ function CreateCompany() {
   };
 
   const updateOwner = (index, field, value) => {
-    // Validate Aadhar field
+    // Validate Aadhar field - prevent numbers starting with 0 or 1
     if (field === "aadhar") {
-      const filteredValue = value.replace(/\D/g, "").slice(0, 12);
-      if (value !== filteredValue) {
+      // Remove all non-digit characters
+      const filteredValue = value.replace(/\D/g, '');
+      
+      // Check if the first digit is invalid (0 or 1) and prevent input
+      if (filteredValue.length > 0) {
+        const firstDigit = filteredValue.charAt(0);
+        if (["0", "1"].includes(firstDigit)) {
+          // Don't update the value and show error
+          setOwnerAadharErrors((prev) => ({
+            ...prev,
+            [index]: "Aadhar number cannot start with 0 or 1",
+          }));
+          setTimeout(() => {
+            setOwnerAadharErrors((prev) => {
+              const newErrors = { ...prev };
+              delete newErrors[index];
+              return newErrors;
+            });
+          }, 3000);
+          return; // Don't update the state with invalid value
+        } else {
+          // Clear any existing error for this field
+          setOwnerAadharErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[index];
+            return newErrors;
+          });
+        }
+      }
+      
+      // Limit to 12 digits and update state
+      const finalValue = filteredValue.slice(0, 12);
+      
+      // Show error if non-numeric characters were removed
+      if (value !== finalValue && value.length > finalValue.length) {
         setOwnerAadharErrors((prev) => ({
           ...prev,
           [index]: "Only numbers are allowed in Aadhar number",
@@ -271,17 +312,12 @@ function CreateCompany() {
             return newErrors;
           });
         }, 2000);
-      } else {
-        setOwnerAadharErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[index];
-          return newErrors;
-        });
       }
+      
       setOwnerData((prev) => ({
         ...prev,
         company_owners: prev.company_owners.map((owner, i) =>
-          i === index ? { ...owner, [field]: filteredValue } : owner
+          i === index ? { ...owner, [field]: finalValue } : owner
         ),
       }));
       return;
@@ -318,10 +354,43 @@ function CreateCompany() {
       return;
     }
 
-    // Validate Owner Mobile field
+    // Validate Owner Mobile field - prevent numbers starting with 0-5
     if (field === "mobile") {
-      const filteredValue = value.replace(/[^0-9]/g, "").slice(0, 10);
-      if (value !== filteredValue) {
+      // Remove all non-digit characters
+      const filteredValue = value.replace(/[^0-9]/g, '');
+      
+      // Check if the first digit is invalid (0-5) and prevent input
+      if (filteredValue.length > 0) {
+        const firstDigit = filteredValue.charAt(0);
+        if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
+          // Don't update the value and show error
+          setOwnerMobileErrors((prev) => ({
+            ...prev,
+            [index]: "Mobile number must start with 6, 7, 8, or 9",
+          }));
+          setTimeout(() => {
+            setOwnerMobileErrors((prev) => {
+              const newErrors = { ...prev };
+              delete newErrors[index];
+              return newErrors;
+            });
+          }, 3000);
+          return; // Don't update the state with invalid value
+        } else {
+          // Clear any existing error for this field
+          setOwnerMobileErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[index];
+            return newErrors;
+          });
+        }
+      }
+      
+      // Limit to 10 digits and update state
+      const finalValue = filteredValue.slice(0, 10);
+      
+      // Show error if non-numeric characters were removed
+      if (value !== finalValue && value.length > finalValue.length) {
         setOwnerMobileErrors((prev) => ({
           ...prev,
           [index]: "Only numbers are allowed in mobile number",
@@ -333,38 +402,12 @@ function CreateCompany() {
             return newErrors;
           });
         }, 2000);
-      } else if (filteredValue.length > 0) {
-        const firstDigit = filteredValue.charAt(0);
-        if (["0", "1", "2", "3", "4", "5"].includes(firstDigit)) {
-          setOwnerMobileErrors((prev) => ({
-            ...prev,
-            [index]: "Mobile number must start with 6, 7, 8, or 9",
-          }));
-          setTimeout(() => {
-            setOwnerMobileErrors((prev) => {
-              const newErrors = { ...prev };
-              delete newErrors[index];
-              return newErrors;
-            });
-          }, 2000);
-        } else {
-          setOwnerMobileErrors((prev) => {
-            const newErrors = { ...prev };
-            delete newErrors[index];
-            return newErrors;
-          });
-        }
-      } else {
-        setOwnerMobileErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[index];
-          return newErrors;
-        });
       }
+      
       setOwnerData((prev) => ({
         ...prev,
         company_owners: prev.company_owners.map((owner, i) =>
-          i === index ? { ...owner, [field]: filteredValue } : owner
+          i === index ? { ...owner, [field]: finalValue } : owner
         ),
       }));
       return;
@@ -664,13 +707,14 @@ function CreateCompany() {
                 isSubmitAttempted={isSubmitAttempted}
               />
 
-              <SelectInput
+              <CustomSelect
                 label="Company Type"
                 name="company_type"
                 value={ownerData.company_type}
                 onChange={handleChange}
                 placeholder="Select Company Type"
                 required
+                className="rounded-lg"
                 options={[
                   { value: "proprietorship", label: "Proprietorship" },
                   { value: "partnership_firm", label: "Partnership Firm" },
@@ -811,7 +855,7 @@ function CreateCompany() {
                       errorMessage={contactNumberErrors[index]}
                     />
 
-                    <SelectInput
+                    <CustomSelect
                       label="Type"
                       name={`contact_type_${index}`}
                       value={contact.type}
@@ -820,6 +864,7 @@ function CreateCompany() {
                       }
                       placeholder="Select Contact Type"
                       required={true}
+                      className="rounded-lg"
                       options={[
                         { value: "head_office", label: "Head Office" },
                         { value: "branch_office", label: "Branch Office" },
@@ -889,7 +934,7 @@ function CreateCompany() {
                       errorMessage={pinErrors[index]}
                     />
 
-                    <SelectInput
+                    <CustomSelect
                       label="State"
                       name={`state_${index}`}
                       value={contact.state}
@@ -898,6 +943,7 @@ function CreateCompany() {
                       }
                       placeholder="Select state"
                       required={true}
+                      className="rounded-lg"
                       options={[
                         { value: "AN", label: "Andaman and Nicobar Islands" },
                         { value: "AP", label: "Andhra Pradesh" },

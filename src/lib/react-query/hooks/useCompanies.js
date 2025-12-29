@@ -77,14 +77,16 @@ export function useCompanies(token, userId) {
 
   // Bulk action mutation
   const bulkActionMutation = useMutation({
-    mutationFn: async ({ userIds, action, userId }) => {
+    mutationFn: async ({ companyIds, action }) => {
+      console.log('Bulk action:', { companyIds, action });
+      
       const response = await axios.post(
         `${BASE_URL}/common/bulk_company_action`,
         {
-          user_ids: userIds,
+          user_id: 440, // Use hardcoded user_id as per requirements
           action: action,
-          user_id: parseInt(userId),
-          app_source: "admin_app",
+          app_source: "admin",
+          company_ids: companyIds,
         },
         {
           headers: {
@@ -93,28 +95,30 @@ export function useCompanies(token, userId) {
           },
         }
       );
+      
+      console.log('Bulk action response:', response.data);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Bulk action successful:', data);
       // Invalidate and refetch companies list after successful bulk action
       queryClient.invalidateQueries({ queryKey: queryKeys.companies.list() });
+    },
+    onError: (error) => {
+      console.error('Bulk action mutation error:', error);
     },
   });
 
   return {
-    companies: companiesQuery.data || [],
+    companies: companiesQuery.data ?? [],
     isLoading: companiesQuery.isLoading,
     error: companiesQuery.error,
-    refetch: companiesQuery.refetch,
-    
-    // Delete mutation
     deleteCompany: deleteCompanyMutation.mutate,
-    isDeleting: deleteCompanyMutation.isPending,
+    isDeleting: deleteCompanyMutation.isLoading,
     deleteError: deleteCompanyMutation.error,
-    
-    // Bulk action mutation
     bulkAction: bulkActionMutation.mutate,
-    isBulkActioning: bulkActionMutation.isPending,
+    isBulkActioning: bulkActionMutation.isLoading,
     bulkActionError: bulkActionMutation.error,
+    refetch: companiesQuery.refetch,
   };
 }

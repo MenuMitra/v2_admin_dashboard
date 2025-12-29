@@ -6,6 +6,8 @@ import {
   faPenToSquare,
   faTrash,
   faEye,
+  faCheck,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
@@ -91,31 +93,24 @@ function Companies() {
     }
   };
 
-  const handleBulkAction = async (action) => {
-    if (selectedCompanies.length === 0) {
-      toastController.error("Please select companies to perform bulk action");
-      return;
-    }
-
+  const handleBulkAction = async (action, selectedIds) => {
     try {
-      await bulkAction(
-        { userIds: selectedCompanies, action, userId: adminData?.user_id },
+      bulkAction(
+        { companyIds: selectedIds, action },
         {
           onSuccess: (data) => {
             setSelectedCompanies([]);
-            toastController.success(
-              data.message || `Bulk ${action} completed successfully`
-            );
+            toastController.success(data.detail || `Bulk ${action} successful`);
           },
-          onError: (error) => {
-            const errorMessage =
-              error.response?.data?.message || `Failed to perform bulk ${action}`;
-            toastController.error(errorMessage);
+          onError: (err) => {
+            toastController.error(
+              err.response?.data?.detail || `Failed to ${action} companies`
+            );
           },
         }
       );
-    } catch (error) {
-      console.error("Bulk action error:", error);
+    } catch (err) {
+      console.error("Bulk action error:", err);
     }
   };
 
@@ -205,9 +200,24 @@ function Companies() {
 
   // Bulk action options
   const bulkActionOptions = [
-    { value: "activate", label: "Activate Selected" },
-    { value: "deactivate", label: "Deactivate Selected" },
-    { value: "delete", label: "Delete Selected" },
+    {
+      key: "active",
+      label: "Active",
+      icon: faCheck,
+      className: "text-success-600 hover:bg-success-50",
+    },
+    {
+      key: "inactive",
+      label: "Inactive",
+      icon: faTimes,
+      className: "text-warning-600 hover:bg-warning-50",
+    },
+    {
+      key: "delete",
+      label: "Delete",
+      icon: faTrash,
+      className: "text-error-600 hover:bg-error-50",
+    },
   ];
 
   if (isLoading) {
@@ -270,12 +280,19 @@ function Companies() {
         }}
         showBackButton={true}
         onBackClick={() => navigate(-1)}
+        searchPlaceholder="Search companies"
+        enableSort={true}
+        enablePagination={true}
+        enableSearch={true}
+        enableStatusFilter={true}
         statusFilter={statusFilter}
+        statusField="is_active"
         onStatusFilterChange={setStatusFilter}
-        selectedItems={selectedCompanies}
+        enableSelection={true}
+        onReload={reloadfetchCompanies}
         onSelectionChange={setSelectedCompanies}
-        bulkActionOptions={bulkActionOptions}
         onBulkAction={handleBulkAction}
+        bulkActionOptions={bulkActionOptions}
         isBulkActioning={isBulkActioning}
         isLoading={isLoading}
         getRowId={(company) => company.company_id}

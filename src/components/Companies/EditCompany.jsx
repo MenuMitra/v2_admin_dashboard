@@ -18,6 +18,8 @@ import {
   SelectInput,
 } from "../forms/FormElements.jsx";
 import Breadcrumb from "../Breadcrumb";
+import SaveButton from "../common/SaveButton";
+import CustomSelect from "../common/CustomSelect";
 import { API_CONFIG } from "../../config/appConfig";
 import { validationPatterns } from "../../utils/validationPatterns";
 
@@ -206,8 +208,41 @@ function EditCompany() {
   const updateContact = (index, field, value) => {
     // Validate Contact Number field - only allow numbers and check first digit
     if (field === "contact_number") {
-      const filteredValue = value.replace(/\D/g, '').slice(0, 10);
-      if (value !== filteredValue) {
+      // Remove all non-digit characters
+      const filteredValue = value.replace(/\D/g, '');
+      
+      // Check if the first digit is invalid (0-5) and prevent input
+      if (filteredValue.length > 0) {
+        const firstDigit = filteredValue.charAt(0);
+        if (['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
+          // Don't update the value and show error
+          setContactNumberErrors(prev => ({
+            ...prev,
+            [index]: "Contact number must start with 6, 7, 8, or 9"
+          }));
+          setTimeout(() => {
+            setContactNumberErrors(prev => {
+              const newErrors = { ...prev };
+              delete newErrors[index];
+              return newErrors;
+            });
+          }, 3000);
+          return; // Don't update the state with invalid value
+        } else {
+          // Clear any existing error for this field
+          setContactNumberErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors[index];
+            return newErrors;
+          });
+        }
+      }
+      
+      // Limit to 10 digits and update state
+      const finalValue = filteredValue.slice(0, 10);
+      
+      // Show error if non-numeric characters were removed
+      if (value !== finalValue && value.length > finalValue.length) {
         setContactNumberErrors(prev => ({
           ...prev,
           [index]: "Only numbers are allowed in contact number"
@@ -219,38 +254,12 @@ function EditCompany() {
             return newErrors;
           });
         }, 2000);
-      } else if (filteredValue.length > 0) {
-        const firstDigit = filteredValue.charAt(0);
-        if (['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
-          setContactNumberErrors(prev => ({
-            ...prev,
-            [index]: "Contact number must start with 6, 7, 8, or 9"
-          }));
-          setTimeout(() => {
-            setContactNumberErrors(prev => {
-              const newErrors = { ...prev };
-              delete newErrors[index];
-              return newErrors;
-            });
-          }, 2000);
-        } else {
-          setContactNumberErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[index];
-            return newErrors;
-          });
-        }
-      } else {
-        setContactNumberErrors(prev => {
-          const newErrors = { ...prev };
-          delete newErrors[index];
-          return newErrors;
-        });
       }
+      
       setCompanyData(prev => ({
         ...prev,
         company_contacts: prev.company_contacts.map((contact, i) =>
-          i === index ? { ...contact, [field]: filteredValue } : contact
+          i === index ? { ...contact, [field]: finalValue } : contact
         )
       }));
       return;
@@ -292,6 +301,124 @@ function EditCompany() {
   };
 
   const updateOwner = (index, field, value) => {
+    // Validate Mobile field - only allow numbers and check first digit
+    if (field === "mobile") {
+      // Remove all non-digit characters
+      const filteredValue = value.replace(/\D/g, '');
+      
+      // Check if the first digit is invalid (0-5) and prevent input
+      if (filteredValue.length > 0) {
+        const firstDigit = filteredValue.charAt(0);
+        if (['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
+          // Don't update the value and show error
+          setOwnerMobileErrors(prev => ({
+            ...prev,
+            [index]: "Mobile number must start with 6, 7, 8, or 9"
+          }));
+          setTimeout(() => {
+            setOwnerMobileErrors(prev => {
+              const newErrors = { ...prev };
+              delete newErrors[index];
+              return newErrors;
+            });
+          }, 3000);
+          return; // Don't update the state with invalid value
+        } else {
+          // Clear any existing error for this field
+          setOwnerMobileErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors[index];
+            return newErrors;
+          });
+        }
+      }
+      
+      // Limit to 10 digits and update state
+      const finalValue = filteredValue.slice(0, 10);
+      
+      // Show error if non-numeric characters were removed
+      if (value !== finalValue && value.length > finalValue.length) {
+        setOwnerMobileErrors(prev => ({
+          ...prev,
+          [index]: "Only numbers are allowed in mobile number"
+        }));
+        setTimeout(() => {
+          setOwnerMobileErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors[index];
+            return newErrors;
+          });
+        }, 2000);
+      }
+      
+      setCompanyData(prev => ({
+        ...prev,
+        company_owners: prev.company_owners.map((owner, i) =>
+          i === index ? { ...owner, [field]: finalValue } : owner
+        )
+      }));
+      return;
+    }
+
+    // Validate Aadhar field - only allow numbers and check first digit
+    if (field === "aadhar") {
+      // Remove all non-digit characters
+      const filteredValue = value.replace(/\D/g, '');
+      
+      // Check if the first digit is invalid (0 or 1) and prevent input
+      if (filteredValue.length > 0) {
+        const firstDigit = filteredValue.charAt(0);
+        if (['0', '1'].includes(firstDigit)) {
+          // Don't update the value and show error
+          setOwnerAadharErrors(prev => ({
+            ...prev,
+            [index]: "Aadhar number cannot start with 0 or 1"
+          }));
+          setTimeout(() => {
+            setOwnerAadharErrors(prev => {
+              const newErrors = { ...prev };
+              delete newErrors[index];
+              return newErrors;
+            });
+          }, 3000);
+          return; // Don't update the state with invalid value
+        } else {
+          // Clear any existing error for this field
+          setOwnerAadharErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors[index];
+            return newErrors;
+          });
+        }
+      }
+      
+      // Limit to 12 digits and update state
+      const finalValue = filteredValue.slice(0, 12);
+      
+      // Show error if non-numeric characters were removed
+      if (value !== finalValue && value.length > finalValue.length) {
+        setOwnerAadharErrors(prev => ({
+          ...prev,
+          [index]: "Only numbers are allowed in Aadhar number"
+        }));
+        setTimeout(() => {
+          setOwnerAadharErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors[index];
+            return newErrors;
+          });
+        }, 2000);
+      }
+      
+      setCompanyData(prev => ({
+        ...prev,
+        company_owners: prev.company_owners.map((owner, i) =>
+          i === index ? { ...owner, [field]: finalValue } : owner
+        )
+      }));
+      return;
+    }
+
     setCompanyData(prev => ({
       ...prev,
       company_owners: prev.company_owners.map((owner, i) =>
@@ -383,14 +510,13 @@ function EditCompany() {
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Edit Company
             </h1>
-            <button
+            <SaveButton
               onClick={handleSubmit}
               disabled={isLoading}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition shadow-sm bg-success-500 hover:bg-success-600"
+              isLoading={isLoading}
             >
-              <FontAwesomeIcon icon={faSave} className="w-4 h-4" />
-              <span>Save</span>
-            </button>
+              Save
+            </SaveButton>
           </div>
         </div>
         <div className="p-6">
@@ -412,12 +538,13 @@ function EditCompany() {
                   error={!!companyNameError}
                   errorMessage={companyNameError}
                 />
-                <SelectInput
+                <CustomSelect
                   label="Company Type"
                   name="company_type"
                   value={companyData.company_type}
                   onChange={(e) => setCompanyData(prev => ({ ...prev, company_type: e.target.value }))}
                   required
+                  className="rounded-lg"
                   options={[
                     { value: "proprietorship", label: "Proprietorship" },
                     { value: "partnership_firm", label: "Partnership Firm" },
@@ -534,11 +661,12 @@ function EditCompany() {
                         error={!!contactNumberErrors[index]}
                         errorMessage={contactNumberErrors[index]}
                       />
-                      <SelectInput
+                      <CustomSelect
                         label="Type"
                         name={`contact_type_${index}`}
                         value={contact.type}
                         onChange={(e) => updateContact(index, 'type', e.target.value)}
+                        className="rounded-lg"
                         options={[
                           { value: "head_office", label: "Head Office" },
                           { value: "branch_office", label: "Branch Office" },
@@ -629,6 +757,8 @@ function EditCompany() {
                         placeholder="Enter mobile number"
                         maxLength={10}
                         required={true}
+                        error={!!ownerMobileErrors[index]}
+                        errorMessage={ownerMobileErrors[index]}
                       />
                       <TextInput
                         label="Aadhar"
@@ -638,6 +768,8 @@ function EditCompany() {
                         placeholder="Enter 12-digit Aadhar"
                         maxLength={12}
                         required={true}
+                        error={!!ownerAadharErrors[index]}
+                        errorMessage={ownerAadharErrors[index]}
                       />
                       <TextInput
                         label="PAN"
