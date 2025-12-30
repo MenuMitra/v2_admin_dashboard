@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test UBAC API Response</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .group-item {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 2px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .group-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+            border-color: rgba(255,255,255,0.4);
+        }
+        .api-response {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #007bff;
+        }
+        .test-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>UBAC API Response Test</h1>
+        
+        <div class="api-response">
+            <h3>Expected API Response Structure:</h3>
+            <pre id="expectedResponse">{
+  "detail": "UBAC tree fetched successfully",
+  "total_modules": 6,
+  "total_groups": 13,
+  "total_features": 70,
+  "total_actions": 199,
+  "data": [
+    {
+      "module_id": 76,
+      "name": "AI Generator",
+      "groups": [
+        {
+          "group_id": 18,
+          "group_name": "AI Tools",
+          "features": [
+            {
+              "feature_id": 123,
+              "name": "Text Generation",
+              "actions": [
+                {
+                  "action_id": 456,
+                  "name": "Generate Content"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}</pre>
+        </div>
+
+        <h3>Test Group Name Display:</h3>
+        <div class="group-item" title="Group: AI Tools">
+            AI Tools
+        </div>
+        <div class="group-item" title="Group: Data Management">
+            Data Management
+        </div>
+        <div class="group-item" title="Group: User Interface">
+            User Interface
+        </div>
+
+        <h3>Group Name Handling Test:</h3>
+        <button class="test-button" onclick="testGroupNameHandling()">Test Group Name Extraction</button>
+        <div id="testResults"></div>
+
+        <script>
+            function testGroupNameHandling() {
+                // Simulate the API response structure
+                const mockApiResponse = {
+                    "detail": "UBAC tree fetched successfully",
+                    "total_modules": 1,
+                    "total_groups": 3,
+                    "total_features": 5,
+                    "total_actions": 10,
+                    "data": [
+                        {
+                            "module_id": 76,
+                            "name": "AI Generator",
+                            "groups": [
+                                {
+                                    "group_id": 18,
+                                    "group_name": "AI Tools",
+                                    "features": []
+                                },
+                                {
+                                    "group_id": 19,
+                                    "group_name": "Data Processing",
+                                    "features": []
+                                },
+                                {
+                                    "group_id": 20,
+                                    "name": "Legacy Group", // Some groups might use 'name' instead
+                                    "features": []
+                                }
+                            ]
+                        }
+                    ]
+                };
+
+                const resultsDiv = document.getElementById('testResults');
+                let results = '<h4>Group Name Extraction Results:</h4>';
+                
+                mockApiResponse.data.forEach(module => {
+                    results += `<p><strong>Module:</strong> ${module.name}</p>`;
+                    
+                    if (module.groups) {
+                        module.groups.forEach(group => {
+                            // This is the same logic used in the React components
+                            const groupName = group.group_name || group.name || 'Unnamed Group';
+                            results += `<div class="group-item" title="Group: ${groupName}">${groupName}</div>`;
+                        });
+                    }
+                });
+
+                resultsDiv.innerHTML = results;
+            }
+
+            // Test on page load
+            window.onload = function() {
+                testGroupNameHandling();
+            };
+        </script>
+    </div>
+</body>
+</html>
