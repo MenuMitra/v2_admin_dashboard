@@ -20,6 +20,7 @@ import {
 import Breadcrumb from "../Breadcrumb";
 import SaveButton from "../common/SaveButton";
 import CustomSelect from "../common/CustomSelect";
+import MultiSelectDropdown from "../common/MultiSelectDropdown";
 import { API_CONFIG } from "../../config/appConfig";
 import { validationPatterns } from "../../utils/validationPatterns";
 
@@ -32,6 +33,8 @@ function EditCompany() {
   const [isLoading, setIsLoading] = useState(true);
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [error, setError] = useState(null);
+  const [allOwners, setAllOwners] = useState([]);
+  const [allSuperOwners, setAllSuperOwners] = useState([]);
   const [emailValidationErrors, setEmailValidationErrors] = useState({});
   const [ownerEmailValidationErrors, setOwnerEmailValidationErrors] = useState({});
   const [companyNameError, setCompanyNameError] = useState("");
@@ -99,6 +102,8 @@ function EditCompany() {
         address: ""
       }
     ],
+    selected_owners: [],
+    selected_super_owners: [],
   });
 
   const fetchCompanyDetails = useCallback(async () => {
@@ -154,6 +159,8 @@ function EditCompany() {
             address: ""
           }
         ],
+        selected_owners: data.selected_owners || [],
+        selected_super_owners: data.selected_super_owners || [],
       });
       setIsLoading(false);
     } catch (err) {
@@ -163,11 +170,67 @@ function EditCompany() {
     }
   }, [companyId, getToken, BASE_URL]);
 
-  useEffect(() => {
-    if (companyId) {
-      fetchCompanyDetails();
+  const fetchOwners = useCallback(async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.get(
+        `${BASE_URL}/common/listview_owner/${adminData.user_id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (Array.isArray(response.data)) {
+        setAllOwners(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch owners:", error);
     }
-  }, [companyId, fetchCompanyDetails]);
+  }, [getToken, BASE_URL, adminData.user_id]);
+
+  const fetchSuperOwners = useCallback(async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/admin/listview_super_owner`,
+        { 
+          user_id: adminData.user_id,
+          app_source: 'admin_app'
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const superOwners = response.data?.super_owners || [];
+      if (Array.isArray(superOwners)) {
+        setAllSuperOwners(superOwners);
+      }
+    } catch (error) {
+      console.error("Failed to fetch super owners:", error);
+    }
+  }, [getToken, BASE_URL, adminData.user_id]);
+
+  useEffect(() => {
+    if (companyId && adminData?.user_id) {
+      fetchCompanyDetails();
+      fetchOwners();
+      fetchSuperOwners();
+    }
+  }, [companyId, adminData?.user_id, fetchCompanyDetails, fetchOwners, fetchSuperOwners]);
 
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
@@ -467,6 +530,8 @@ function EditCompany() {
           pan: owner.pan || null,
           address: owner.address || null,
         })),
+        selected_owners: companyData.selected_owners,
+        selected_super_owners: companyData.selected_super_owners,
       };
 
       console.log('Update company payload:', JSON.stringify(payload, null, 2));
@@ -499,24 +564,26 @@ function EditCompany() {
       <Breadcrumb items={breadcrumbItems} />
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between min-h-[60px]">
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm flex-shrink-0"
             >
               <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
               <span>Back</span>
             </button>
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
+            <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90 text-center flex-1 mx-4">
               Edit Company
             </h1>
-            <SaveButton
-              onClick={handleSubmit}
-              disabled={isLoading}
-              isLoading={isLoading}
-            >
-              Save
-            </SaveButton>
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <SaveButton
+                onClick={handleSubmit}
+                disabled={isLoading}
+                isLoading={isLoading}
+              >
+                Save
+              </SaveButton>
+            </div>
           </div>
         </div>
         <div className="p-6">
@@ -604,6 +671,59 @@ function EditCompany() {
                     />
                   </>
                 )}
+              </div>
+
+              {/* Select Owners and Super Owners Section */}
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Assign Owners & Super Owners
+                </h2>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col">
+                    <MultiSelectDropdown
+                      label="Select Owners"
+                      options={allOwners}
+                      selectedValues={companyData.selected_owners}
+                      onChange={(newOwnerIds) => {
+                        setCompanyData((prev) => ({
+                          ...prev,
+                          selected_owners: newOwnerIds,
+                        }));
+                      }}
+                      displayKey="name"
+                      valueKey="user_id"
+                      searchKeys={["name", "mobile", "email"]}
+                      placeholder="Select owners"
+                      searchPlaceholder="Search by name, mobile or email..."
+                      className="rounded-lg"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <MultiSelectDropdown
+                      label="Select Super Owners"
+                      options={allSuperOwners}
+                      selectedValues={companyData.selected_super_owners}
+                      onChange={(newSuperOwnerIds) => {
+                        setCompanyData((prev) => ({
+                          ...prev,
+                          selected_super_owners: newSuperOwnerIds,
+                        }));
+                      }}
+                      displayKey="name"
+                      valueKey="super_owner_id"
+                      searchKeys={["name", "mobile", "email"]}
+                      placeholder="Select super owners"
+                      searchPlaceholder="Search by name, mobile or email..."
+                      className="rounded-lg"
+                    />
+                  </div>
+                </div>
+                
+                <p className="text-sm text-gray-600">
+                  Select owners and super owners to assign to this company
+                </p>
               </div>
 
               {/* Company Contacts Section */}

@@ -30,6 +30,7 @@ import CustomSelectInput from "./common/CustomSelectInput";
 import CustomDropdown from "./common/CustomDropdown";
 import SaveButton from "./common/SaveButton";
 import MultiSelectDropdown from "./common/MultiSelectDropdown";
+import SingleSelectDropdown from "./common/SingleSelectDropdown";
 
 function EditOutlet() {
   const { getToken } = useAuth();
@@ -70,12 +71,14 @@ function EditOutlet() {
     has_combo: 0,
     has_denomination: 0,
     reserve_table: 0,
+    company_id: "",
   });
 
   const [isLoading, setIsLoading] = useState(true);
   const [outletTypes, setOutletTypes] = useState({});
   const [vegOrNonveg, setVegOrNonveg] = useState({});
   const [allOwners, setAllOwners] = useState([]);
+  const [allCompanies, setAllCompanies] = useState([]);
   // Modules for Assign Subscription edit
   const [modules, setModules] = useState([]);
   const [selectedModuleIds, setSelectedModuleIds] = useState([]);
@@ -157,6 +160,7 @@ function EditOutlet() {
       fetchOutletTypes();
       fetchVegOrNonveg();
       fetchOwners();
+      fetchCompanies();
       fetchOutletData();
       // fetch modules for subscription edit
       (async () => {
@@ -258,6 +262,7 @@ function EditOutlet() {
           has_combo: data.has_combo !== undefined ? data.has_combo : null,
           has_denomination: data.has_denomination !== undefined ? data.has_denomination : null,
           reserve_table: data.has_reserve_table !== undefined ? data.has_reserve_table : (data.reserve_table !== undefined ? data.reserve_table : null),
+          company_id: data.company_id || "",
         });
         setOriginalOwnerIds(initialOwnerIds);
 
@@ -401,6 +406,37 @@ function EditOutlet() {
 
       if (Array.isArray(response.data)) {
         setAllOwners(response.data);
+      }
+    } catch (error) {
+
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/admin/list_companies`,
+        {
+          user_id: 440
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Extract companies from the response
+      const companies = response.data.companies || [];
+      
+      if (Array.isArray(companies)) {
+        setAllCompanies(companies);
       }
     } catch (error) {
 
@@ -609,6 +645,7 @@ function EditOutlet() {
         google_review: outletData.google_review || "",
         app_source: "pos_app",
         image: imagePayload,
+        company_id: outletData.company_id ? parseInt(outletData.company_id) : null,
         subscription_id: outletData.subscription_id ? parseInt(outletData.subscription_id) : 11,
         subscription_name: planName || "Updated Mobile app",
         subscription_price: planPrice ? Number(planPrice) : 15000.0,
@@ -704,8 +741,35 @@ function EditOutlet() {
             </div>
           </div>
         </div>
+        
 
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
+                          {/* Image Upload */}
+          <div className="relative">
+                  <ImageUploader
+                    maxImages={1}
+                    onImagesChange={(images) => {
+                      let base64String = images[0]?.url || null;
+                      if (
+                        base64String &&
+                        !base64String.startsWith("data:image/")
+                      ) {
+                        // Default to PNG if type is not available
+                        base64String = `data:image/png;base64,${base64String}`;
+                      }
+                      setOutletData((prev) => ({
+                        ...prev,
+                        image: base64String,
+                      }));
+                    }}
+                    existingImages={
+                      outletData.image ? [{ url: outletData.image }] : []
+                    }
+                    label="Outlet Image"
+                    className="w-full"
+                    isOutletImage={true}
+                  />
+          </div>
           {/* Basic Information Section */}
           <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
             <h2 className="text-lg font-medium mb-4 flex items-center">
@@ -750,32 +814,28 @@ function EditOutlet() {
                   />
                 </div>
 
-                {/* Image Upload */}
-                <div className="relative">
-                  <ImageUploader
-                    maxImages={1}
-                    onImagesChange={(images) => {
-                      let base64String = images[0]?.url || null;
-                      if (
-                        base64String &&
-                        !base64String.startsWith("data:image/")
-                      ) {
-                        // Default to PNG if type is not available
-                        base64String = `data:image/png;base64,${base64String}`;
-                      }
+                {/* Select Company */}
+                <div className="flex flex-col">
+                  <SingleSelectDropdown
+                    label="Select Company"
+                    options={allCompanies}
+                    selectedValue={outletData.company_id}
+                    onChange={(companyId) => {
                       setOutletData((prev) => ({
                         ...prev,
-                        image: base64String,
+                        company_id: companyId,
                       }));
                     }}
-                    existingImages={
-                      outletData.image ? [{ url: outletData.image }] : []
-                    }
-                    label="Outlet Image"
-                    className="w-full"
-                    isOutletImage={true}
+                    displayKey="company_name"
+                    valueKey="company_id"
+                    searchKeys={["company_name", "company_code"]}
+                    placeholder="Select company"
+                    searchPlaceholder="Search by company name or code..."
+                    className="rounded-lg"
                   />
                 </div>
+
+
               </div>
 
               {/* Rest of the form fields in their own grid */}

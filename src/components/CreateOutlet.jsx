@@ -34,6 +34,7 @@ import {
 import CustomSelectInput from "./common/CustomSelectInput";
 import CustomDropdown from "./common/CustomDropdown";
 import MultiSelectDropdown from "./common/MultiSelectDropdown";
+import SingleSelectDropdown from "./common/SingleSelectDropdown";
 
 function formatDateToDDMMMYYYY(dateStr) {
   if (!dateStr) return "";
@@ -62,6 +63,7 @@ function CreateOutlet() {
   const queryClient = useQueryClient();
   const [outletTypes, setOutletTypes] = useState({});
   const [allOwners, setAllOwners] = useState([]);
+  const [allCompanies, setAllCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // Subscriptions removed
@@ -105,6 +107,7 @@ function CreateOutlet() {
     has_combo: 0,
     has_denomination: 0,
     reserve_table: 0,
+    company_id: "",
   });
 
   const [validationStates, setValidationStates] = useState({
@@ -147,6 +150,7 @@ function CreateOutlet() {
   useEffect(() => {
     fetchOutletTypes();
     fetchOwners();
+    fetchCompanies();
     // fetch modules for subscription assign
     (async () => {
       try {
@@ -191,6 +195,7 @@ function CreateOutlet() {
     outletData.has_combo,
     outletData.has_denomination,
     outletData.reserve_table,
+    outletData.company_id,
   ]);
 
   useEffect(() => {
@@ -275,6 +280,7 @@ function CreateOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
+      company_id: !!outletData.company_id,
       subscription_end_date:
         outletData.subscription_id && outletData.subscription_id !== ""
           ? !!outletData.subscription_end_date
@@ -349,6 +355,37 @@ function CreateOutlet() {
 
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchCompanies = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/admin/list_companies`,
+        {
+          user_id: 440
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Extract companies from the response
+      const companies = response.data.companies || [];
+      
+      if (Array.isArray(companies)) {
+        setAllCompanies(companies);
+      }
+    } catch (error) {
+
     }
   };
 
@@ -545,6 +582,7 @@ function CreateOutlet() {
         has_combo: outletData.has_combo,
         has_denomination: outletData.has_denomination,
         reserve_table: outletData.reserve_table,
+        company_id: parseInt(outletData.company_id),
       };
 
       // Attach selected module ids as subscription assignment
@@ -750,6 +788,7 @@ function CreateOutlet() {
       veg_nonveg: !!outletData.veg_nonveg,
       outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
+      company_id: !!outletData.company_id,
       // Subscription validation: if subscription_id exists, subscription_end_date should exist
       subscription_end_date:
         outletData.subscription_id && outletData.subscription_id !== ""
@@ -859,6 +898,39 @@ function CreateOutlet() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-8">
+          {/* Outlet Image Section - Moved to Top */}
+          <div className="mb-8">
+            <section className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-medium mb-4 flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Outlet Image
+              </h2>
+              <ImageUploader
+                maxImages={1}
+                onImagesChange={handleImagesChange}
+                existingImages={
+                  outletData.image ? [{ url: outletData.image }] : []
+                }
+                label="Upload Outlet Image"
+                className="w-full"
+                isOutletImage={true}
+                preserveImageOnValidation={true}
+              />
+            </section>
+          </div>
+
           <div className=" border-b border-gray-200 dark:border-gray-800 pb-5">
             <section className="bg-white rounded-lg shadow ">
               <h2 className="text-lg font-medium mb-4 flex items-center">
@@ -877,17 +949,6 @@ function CreateOutlet() {
                 </svg>
                 Basic Information
               </h2>
-              <ImageUploader
-                maxImages={1}
-                onImagesChange={handleImagesChange}
-                existingImages={
-                  outletData.image ? [{ url: outletData.image }] : []
-                }
-                label="Outlet Image"
-                className="w-full"
-                isOutletImage={true}
-                preserveImageOnValidation={true}
-              />
 
               <div className="grid grid-cols-1 gap-6">
                 <div className="relative"></div>
@@ -929,6 +990,27 @@ function CreateOutlet() {
                       placeholder="Select owners"
                       searchPlaceholder="Search by name, mobile or email..."
                       className="rounded-lg"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <SingleSelectDropdown
+                      label="Select Company"
+                      options={allCompanies}
+                      selectedValue={outletData.company_id}
+                      onChange={(companyId) => {
+                        setOutletData((prev) => ({
+                          ...prev,
+                          company_id: companyId,
+                        }));
+                      }}
+                      displayKey="company_name"
+                      valueKey="company_id"
+                      searchKeys={["company_name", "company_code"]}
+                      placeholder="Select company"
+                      searchPlaceholder="Search by company name or code..."
+                      className="rounded-lg"
+                      required={true}
                     />
                   </div>
 

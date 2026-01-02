@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../hooks/useAuth";
@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes, faTrash, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import CustomSelect from "../common/CustomSelect";
+import MultiSelectDropdown from "../common/MultiSelectDropdown";
 import { API_CONFIG } from "../../config/appConfig";
 
 function CreateCompany() {
@@ -24,6 +25,8 @@ function CreateCompany() {
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [allOwners, setAllOwners] = useState([]);
+  const [allSuperOwners, setAllSuperOwners] = useState([]);
   const { BASE_URL } = API_CONFIG;
 
   const [ownerData, setOwnerData] = useState({
@@ -56,6 +59,8 @@ function CreateCompany() {
         address: "",
       },
     ],
+    selected_owners: [],
+    selected_super_owners: [],
   });
 
   // Validation states
@@ -75,6 +80,66 @@ function CreateCompany() {
     { label: "Companies", path: "/companies" },
     { label: "Create Company", path: "/create-company" },
   ];
+
+  // Fetch owners and superowners on component mount
+  useEffect(() => {
+    fetchOwners();
+    fetchSuperOwners();
+  }, []);
+
+  const fetchOwners = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.get(
+        `${BASE_URL}/common/listview_owner/${adminData.user_id}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (Array.isArray(response.data)) {
+        setAllOwners(response.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch owners:", error);
+    }
+  };
+
+  const fetchSuperOwners = async () => {
+    try {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/admin/listview_super_owner`,
+        { 
+          user_id: adminData.user_id,
+          app_source: 'admin_app'
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const superOwners = response.data?.super_owners || [];
+      if (Array.isArray(superOwners)) {
+        setAllSuperOwners(superOwners);
+      }
+    } catch (error) {
+      console.error("Failed to fetch super owners:", error);
+    }
+  };
 
   // Contact functions
   const addContact = () => {
@@ -503,6 +568,11 @@ function CreateCompany() {
       return false;
     }
 
+    // At least one owner or superowner must be selected
+    if (ownerData.selected_owners.length === 0 && ownerData.selected_super_owners.length === 0) {
+      return false;
+    }
+
     // Check validation errors
     if (
       Object.keys(emailValidationErrors).some((key) => emailValidationErrors[key]) ||
@@ -551,6 +621,8 @@ function CreateCompany() {
           address: "",
         },
       ],
+      selected_owners: [],
+      selected_super_owners: [],
     });
   };
 
@@ -600,6 +672,8 @@ function CreateCompany() {
           email: owner.email,
           address: owner.address,
         })),
+        selected_owners: ownerData.selected_owners,
+        selected_super_owners: ownerData.selected_super_owners,
       };
 
       console.log('Create company payload:', JSON.stringify(payload, null, 2));
@@ -681,7 +755,7 @@ function CreateCompany() {
                 transition shadow-sm
                 ${isLoading || !isFormValid() 
                   ? "bg-gray-400 cursor-not-allowed" 
-                  : "bg-green-500 hover:bg-green-600"}
+                  : "bg-success-500 hover:bg-success-600"}
               `}
             >
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
@@ -771,6 +845,59 @@ function CreateCompany() {
                     />
                   </>
                 )}
+            </div>
+
+            {/* Select Owners and Super Owners Section */}
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-gray-800">
+                Assign Owners & Super Owners
+              </h2>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <MultiSelectDropdown
+                    label="Select Owners"
+                    options={allOwners}
+                    selectedValues={ownerData.selected_owners}
+                    onChange={(newOwnerIds) => {
+                      setOwnerData((prev) => ({
+                        ...prev,
+                        selected_owners: newOwnerIds,
+                      }));
+                    }}
+                    displayKey="name"
+                    valueKey="user_id"
+                    searchKeys={["name", "mobile", "email"]}
+                    placeholder="Select owners"
+                    searchPlaceholder="Search by name, mobile or email..."
+                    className="rounded-lg"
+                  />
+                </div>
+
+                <div className="flex flex-col">
+                  <MultiSelectDropdown
+                    label="Select Super Owners"
+                    options={allSuperOwners}
+                    selectedValues={ownerData.selected_super_owners}
+                    onChange={(newSuperOwnerIds) => {
+                      setOwnerData((prev) => ({
+                        ...prev,
+                        selected_super_owners: newSuperOwnerIds,
+                      }));
+                    }}
+                    displayKey="name"
+                    valueKey="super_owner_id"
+                    searchKeys={["name", "mobile", "email"]}
+                    placeholder="Select super owners"
+                    searchPlaceholder="Search by name, mobile or email..."
+                    className="rounded-lg"
+                  />
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-600">
+                <span className="text-red-500">*</span> At least one owner or super owner must be selected
+              </p>
             </div>
 
             {/* Company Contacts Section */}
