@@ -63,8 +63,10 @@ function CreateOutlet() {
   const queryClient = useQueryClient();
   const [outletTypes, setOutletTypes] = useState({});
   const [allOwners, setAllOwners] = useState([]);
+  const [companyOwners, setCompanyOwners] = useState([]);
   const [allCompanies, setAllCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingCompanyOwners, setIsLoadingCompanyOwners] = useState(false);
 
   // Subscriptions removed
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -106,6 +108,7 @@ function CreateOutlet() {
     action_ids: [],
     has_combo: 0,
     has_denomination: 0,
+    has_udhari: 0,
     reserve_table: 0,
     company_id: "",
   });
@@ -194,6 +197,7 @@ function CreateOutlet() {
     outletData.subscription_end_date,
     outletData.has_combo,
     outletData.has_denomination,
+    outletData.has_udhari,
     outletData.reserve_table,
     outletData.company_id,
   ]);
@@ -389,6 +393,46 @@ function CreateOutlet() {
     }
   };
 
+  const fetchCompanyOwners = async (companyId) => {
+    try {
+      setIsLoadingCompanyOwners(true);
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/admin/get_company_with_owners`,
+        {
+          user_id: adminData.user_id,
+          company_id: parseInt(companyId)
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.detail === "Company details retrieved successfully") {
+        const owners = response.data.data.owners || [];
+        setCompanyOwners(owners);
+        // Clear selected owners when company changes
+        setOutletData((prev) => ({
+          ...prev,
+          owner_id: [],
+        }));
+      }
+    } catch (error) {
+      console.error("Error fetching company owners:", error);
+      setCompanyOwners([]);
+      toastController.error("Failed to fetch company owners");
+    } finally {
+      setIsLoadingCompanyOwners(false);
+    }
+  };
+
   // fetchSubscriptions removed
 
   const handleImagesChange = (images) => {
@@ -581,6 +625,7 @@ function CreateOutlet() {
         upi_id: outletData.upi_id,
         has_combo: outletData.has_combo,
         has_denomination: outletData.has_denomination,
+        has_udhari: outletData.has_udhari,
         reserve_table: outletData.reserve_table,
         company_id: parseInt(outletData.company_id),
       };
@@ -973,25 +1018,7 @@ function CreateOutlet() {
                     `}
                     />
                   </div>
-                  <div className="flex flex-col">
-                    <MultiSelectDropdown
-                      label="Select Owners"
-                      options={allOwners}
-                      selectedValues={outletData.owner_id}
-                      onChange={(newOwnerIds) => {
-                        setOutletData((prev) => ({
-                          ...prev,
-                          owner_id: newOwnerIds,
-                        }));
-                      }}
-                      displayKey="name"
-                      valueKey="user_id"
-                      searchKeys={["name", "mobile", "email"]}
-                      placeholder="Select owners"
-                      searchPlaceholder="Search by name, mobile or email..."
-                      className="rounded-lg"
-                    />
-                  </div>
+                 
 
                   <div className="flex flex-col">
                     <SingleSelectDropdown
@@ -1003,6 +1030,16 @@ function CreateOutlet() {
                           ...prev,
                           company_id: companyId,
                         }));
+                        // Fetch company-specific owners when company is selected
+                        if (companyId) {
+                          fetchCompanyOwners(companyId);
+                        } else {
+                          setCompanyOwners([]);
+                          setOutletData((prev) => ({
+                            ...prev,
+                            owner_id: [],
+                          }));
+                        }
                       }}
                       displayKey="company_name"
                       valueKey="company_id"
@@ -1012,6 +1049,38 @@ function CreateOutlet() {
                       className="rounded-lg"
                       required={true}
                     />
+                  </div>
+                  
+                   <div className="flex flex-col">
+                    <MultiSelectDropdown
+                      label="Select Owners"
+                      options={companyOwners}
+                      selectedValues={outletData.owner_id}
+                      onChange={(newOwnerIds) => {
+                        setOutletData((prev) => ({
+                          ...prev,
+                          owner_id: newOwnerIds,
+                        }));
+                      }}
+                      displayKey="name"
+                      valueKey="user_id"
+                      searchKeys={["name", "mobile", "email"]}
+                      placeholder={
+                        !outletData.company_id 
+                          ? "Please select a company first" 
+                          : isLoadingCompanyOwners 
+                            ? "Loading owners..." 
+                            : "Select owners"
+                      }
+                      searchPlaceholder="Search by name, mobile or email..."
+                      className="rounded-lg"
+                      disabled={!outletData.company_id || isLoadingCompanyOwners}
+                    />
+                    {!outletData.company_id && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Select a company first to see available owners
+                      </p>
+                    )}
                   </div>
 
                   <div className="relative">
@@ -1385,6 +1454,36 @@ function CreateOutlet() {
                         setOutletData((prev) => ({
                           ...prev,
                           has_denomination: Number(e.target.value),
+                        }))
+                      }
+                      options={[
+                        { value: "", label: "Select" },
+                        ...YES_NO_OPTIONS.map((opt) => ({
+                          value: String(opt.value),
+                          label: opt.label
+                        }))
+                      ]}
+                      placeholder="Select"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Has Udhari
+                    </label>
+                    <CustomDropdown
+                      name="has_udhari"
+                      className="w-22"
+                      value={
+                        outletData.has_udhari === null ||
+                          outletData.has_udhari === undefined
+                          ? ""
+                          : String(outletData.has_udhari)
+                      }
+                      onChange={(e) =>
+                        setOutletData((prev) => ({
+                          ...prev,
+                          has_udhari: Number(e.target.value),
                         }))
                       }
                       options={[

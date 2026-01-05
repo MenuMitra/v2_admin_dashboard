@@ -70,6 +70,7 @@ function EditOutlet() {
     subscription_details: null,
     has_combo: 0,
     has_denomination: 0,
+    has_udhari: 0,
     reserve_table: 0,
     company_id: "",
   });
@@ -78,7 +79,9 @@ function EditOutlet() {
   const [outletTypes, setOutletTypes] = useState({});
   const [vegOrNonveg, setVegOrNonveg] = useState({});
   const [allOwners, setAllOwners] = useState([]);
+  const [companyOwners, setCompanyOwners] = useState([]);
   const [allCompanies, setAllCompanies] = useState([]);
+  const [isLoadingCompanyOwners, setIsLoadingCompanyOwners] = useState(false);
   // Modules for Assign Subscription edit
   const [modules, setModules] = useState([]);
   const [selectedModuleIds, setSelectedModuleIds] = useState([]);
@@ -183,6 +186,13 @@ function EditOutlet() {
     }
   }, [adminData?.user_id, outletId]);
 
+  // Fetch company owners when outlet data is loaded and company is selected
+  useEffect(() => {
+    if (outletData.company_id && !isLoading) {
+      fetchCompanyOwners(outletData.company_id);
+    }
+  }, [outletData.company_id, isLoading]);
+
   const fetchOutletData = async () => {
     try {
       const token = getToken();
@@ -261,6 +271,7 @@ function EditOutlet() {
             respSubscription || data.subscription_details || null,
           has_combo: data.has_combo !== undefined ? data.has_combo : null,
           has_denomination: data.has_denomination !== undefined ? data.has_denomination : null,
+          has_udhari: data.has_udhari !== undefined ? data.has_udhari : null,
           reserve_table: data.has_reserve_table !== undefined ? data.has_reserve_table : (data.reserve_table !== undefined ? data.reserve_table : null),
           company_id: data.company_id || "",
         });
@@ -440,6 +451,48 @@ function EditOutlet() {
       }
     } catch (error) {
 
+    }
+  };
+
+  const fetchCompanyOwners = async (companyId) => {
+    try {
+      setIsLoadingCompanyOwners(true);
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/admin/get_company_with_owners`,
+        {
+          user_id: adminData.user_id,
+          company_id: parseInt(companyId)
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.detail === "Company details retrieved successfully") {
+        const owners = response.data.data.owners || [];
+        setCompanyOwners(owners);
+        // Clear selected owners when company changes (only if it's a new company selection)
+        if (!outletData.owner_ids.length || companyId !== outletData.company_id) {
+          setOutletData((prev) => ({
+            ...prev,
+            owner_ids: [],
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching company owners:", error);
+      setCompanyOwners([]);
+      toastController.error("Failed to fetch company owners");
+    } finally {
+      setIsLoadingCompanyOwners(false);
     }
   };
 
@@ -653,7 +706,8 @@ function EditOutlet() {
         subscription_tenure: tenureMonths ? `${Number(tenureMonths)} Months` : "",
         module_ids: selectedModuleIds.length > 0 ? selectedModuleIds.map(Number) : [1],
         has_denomination: outletData.has_denomination !== undefined ? outletData.has_denomination : 1,
-        has_combo: outletData.has_combo !== undefined ? outletData.has_combo : 1
+        has_combo: outletData.has_combo !== undefined ? outletData.has_combo : 1,
+        has_udhari: outletData.has_udhari !== undefined ? outletData.has_udhari : 1
       };
 
       // Format opening_time and closing_time if available
@@ -791,29 +845,8 @@ function EditOutlet() {
 
             {/* Basic Information Fields */}
             <div className="grid grid-cols-1 gap-6">
-              {/* Select Owner and Image Upload in same grid */}
+              {/* Select Company and Select Owner in same grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {/* Select Owner */}
-                <div className="flex flex-col">
-                  <MultiSelectDropdown
-                    label="Select Owner(s)"
-                    options={allOwners}
-                    selectedValues={outletData.owner_ids}
-                    onChange={(newOwnerIds) => {
-                      setOutletData((prev) => ({
-                        ...prev,
-                        owner_ids: newOwnerIds,
-                      }));
-                    }}
-                    displayKey="name"
-                    valueKey="user_id"
-                    searchKeys={["name", "mobile", "email"]}
-                    placeholder="Select owners"
-                    searchPlaceholder="Search by name, mobile or email..."
-                    className="rounded-lg"
-                  />
-                </div>
-
                 {/* Select Company */}
                 <div className="flex flex-col">
                   <SingleSelectDropdown
@@ -825,6 +858,16 @@ function EditOutlet() {
                         ...prev,
                         company_id: companyId,
                       }));
+                      // Fetch company-specific owners when company is selected
+                      if (companyId) {
+                        fetchCompanyOwners(companyId);
+                      } else {
+                        setCompanyOwners([]);
+                        setOutletData((prev) => ({
+                          ...prev,
+                          owner_ids: [],
+                        }));
+                      }
                     }}
                     displayKey="company_name"
                     valueKey="company_id"
@@ -833,6 +876,39 @@ function EditOutlet() {
                     searchPlaceholder="Search by company name or code..."
                     className="rounded-lg"
                   />
+                </div>
+
+                {/* Select Owner */}
+                <div className="flex flex-col">
+                  <MultiSelectDropdown
+                    label="Select Owner(s)"
+                    options={companyOwners}
+                    selectedValues={outletData.owner_ids}
+                    onChange={(newOwnerIds) => {
+                      setOutletData((prev) => ({
+                        ...prev,
+                        owner_ids: newOwnerIds,
+                      }));
+                    }}
+                    displayKey="name"
+                    valueKey="user_id"
+                    searchKeys={["name", "mobile", "email"]}
+                    placeholder={
+                      !outletData.company_id 
+                        ? "Please select a company first" 
+                        : isLoadingCompanyOwners 
+                          ? "Loading owners..." 
+                          : "Select owners"
+                    }
+                    searchPlaceholder="Search by name, mobile or email..."
+                    className="rounded-lg"
+                    disabled={!outletData.company_id || isLoadingCompanyOwners}
+                  />
+                  {!outletData.company_id && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Select a company first to see available owners
+                    </p>
+                  )}
                 </div>
 
 
@@ -1242,6 +1318,38 @@ function EditOutlet() {
                           setOutletData((prev) => ({
                             ...prev,
                             has_denomination: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          }))
+                        }
+                        options={[
+                          { value: "", label: "Select" },
+                          ...YES_NO_OPTIONS.map((opt) => ({
+                            value: String(opt.value),
+                            label: opt.label,
+                          })),
+                        ]}
+                        placeholder="Select"
+                      />
+                    </div>
+                    {/* Has Udhari */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has Udhari
+                      </label>
+                      <CustomDropdown
+                        name="has_udhari"
+                        className="w-22"
+                        value={
+                          outletData.has_udhari !== null &&
+                            outletData.has_udhari !== undefined
+                            ? String(outletData.has_udhari)
+                            : ""
+                        }
+                        onChange={(e) =>
+                          setOutletData((prev) => ({
+                            ...prev,
+                            has_udhari: e.target.value
                               ? Number(e.target.value)
                               : null,
                           }))

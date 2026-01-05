@@ -57,7 +57,7 @@ const CustomSelect = ({
       <div
         onClick={() => setIsOpen(!isOpen)}
         className={`w-full px-3 py-2 text-left border border-gray-300 bg-white hover:bg-gray-50 
-                   focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer rounded-3xl ${className}`}
+                   focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer rounded-lg ${className}`}
         role="combobox"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
@@ -79,7 +79,7 @@ const CustomSelect = ({
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-2xl shadow-xl z-[99999] overflow-hidden" style={{ zIndex: 99999 }}>
+        <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-xl z-[99999] overflow-hidden" style={{ zIndex: 99999 }}>
           {/* Options List */}
           <div 
             className="max-h-60 overflow-y-auto"

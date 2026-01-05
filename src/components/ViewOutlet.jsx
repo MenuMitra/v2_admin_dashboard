@@ -883,6 +883,24 @@ function ViewOutlet() {
                     </div>
                   </div>
                 )}
+              {/* Has Udhari */}
+              {outletData?.has_udhari !== undefined &&
+                outletData?.has_udhari !== null && (
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                            {outletData.has_udhari === 1 ? "Yes" : "No"}
+                          </h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Has Udhari
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               {/* Reserve Table */}
               {outletData?.has_reserve_table !== undefined &&
                 outletData?.has_reserve_table !== null && (
