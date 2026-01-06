@@ -730,25 +730,29 @@ function CreateCompany() {
                 ]}
               />
 
-              <TextInput
-                label="Company PAN Number"
-                name="pan_number"
-                value={ownerData.pan_number}
-                onChange={handleChange}
-                placeholder="Enter 10-digit PAN number"
-                required
-                maxLength={10}
-              />
+              {ownerData.company_type && (
+                <>
+                  <TextInput
+                    label="Company PAN Number"
+                    name="pan_number"
+                    value={ownerData.pan_number}
+                    onChange={handleChange}
+                    placeholder="Enter 10-digit PAN number"
+                    required
+                    maxLength={10}
+                  />
 
-              <TextInput
-                label="Company FSSAI Number"
-                name="fssai_number"
-                value={ownerData.fssai_number}
-                onChange={handleChange}
-                placeholder="Enter 14-digit FSSAI number"
-                required
-                maxLength={14}
-              />
+                  <TextInput
+                    label="Company FSSAI Number"
+                    name="fssai_number"
+                    value={ownerData.fssai_number}
+                    onChange={handleChange}
+                    placeholder="Enter 14-digit FSSAI number"
+                    required
+                    maxLength={14}
+                  />
+                </>
+              )}
 
               {ownerData.company_type &&
                 ["llp", "opc", "private_limited", "limited"].includes(

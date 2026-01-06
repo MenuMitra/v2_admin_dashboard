@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+/*import React, { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +16,7 @@ import CustomDropdown from "../common/CustomDropdown";
 // Utility function to convert a string to title case
 function toTitleCase(str) {
   return str.replace(
-    /\w\S*/g,
+    /\w\Sg,
     (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
   );
 }
@@ -267,15 +267,15 @@ function CreateSuperOwner() {
 
   return (
     <>
-      {/* Add Breadcrumb */}
+      {/* Add Breadcrumb }
       <Breadcrumb items={breadcrumbItems} />
 
-      {/* DataTable-style header */}
+      {/* DataTable-style header }
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
-          {/* Top Row - Back, Title, Actions */}
+          {/* Top Row - Back, Title, Actions }
           <div className="relative flex items-center px-6 mb-3">
-            {/* Left Side - Back Button */}
+            {/* Left Side - Back Button }
             <div className="absolute left-6">
               <button
                 onClick={() => navigate(-1)}
@@ -286,14 +286,14 @@ function CreateSuperOwner() {
               </button>
             </div>
 
-            {/* Center - Title */}
+            {/* Center - Title }
             <div className="flex-1 text-center">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
                 Create Super Owner
               </h2>
             </div>
 
-            {/* Right Side - Create Button */}
+            {/* Right Side - Create Button }
             <div className="absolute right-6">
               <button
                 type="submit"
@@ -347,13 +347,13 @@ function CreateSuperOwner() {
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content }
         <div className="p-6">
-          {/* Form Section */}
+          {/* Form Section }
           <div className="space-y-6">
             <div className="bg-white rounded-lg">
               <form id="create-super-owner-form" onSubmit={handleSubmit}>
-                {/* Basic Information Grid */}
+                {/* Basic Information Grid }
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">
                   <div>
                     <label className="block text-sm text-gray-500 mb-1">
@@ -444,12 +444,12 @@ function CreateSuperOwner() {
                   </div>
                 </div>
 
-                {/* Outlets Grid */}
+                {/* Outlets Grid }
                 <div className="mb-6">
                   <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
                     <h3 className="text-sm font-semibold">Select Outlets</h3>
                     <div className="flex flex-wrap gap-3">
-                      {/* Open/Close Filter */}
+                      {/* Open/Close Filter }
                       <div className="relative w-40">
                         <CustomDropdown
                           options={[
@@ -463,7 +463,7 @@ function CreateSuperOwner() {
                           className="w-full"
                         />
                       </div>
-                      {/* Active/Inactive Filter */}
+                      {/* Active/Inactive Filter }
                       <div className="relative w-40">
                         <CustomDropdown
                           options={[
@@ -477,7 +477,7 @@ function CreateSuperOwner() {
                           className="w-full"
                         />
                       </div>
-                      {/* Search Bar */}
+                      {/* Search Bar }
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                           <FontAwesomeIcon
@@ -600,12 +600,9 @@ function CreateSuperOwner() {
                       </div>
                     ))}
                   </div>
-                </div>
-
-                {/* Modified Buttons Section */}
-                {/* Removed Cancel and Create buttons from here as per new design */}
-              </form>
-            </div>
+                )}
+              </div>
+            </form>
           </div>
         </div>
       </div>
@@ -614,3 +611,5 @@ function CreateSuperOwner() {
 }
 
 export default CreateSuperOwner;
+
+*/

@@ -54,16 +54,16 @@ const menuGroups = [
   {
     items: [{ title: "Owners", path: "/owners", id: "owners", icon: faUsers }],
   },
-  {
-    items: [
-      {
-        title: "Super Owners",
-        path: "/super-owners",
-        id: "super-owners",
-        icon: faUserShield,
-      },
-    ],
-  },
+  // { 
+  //   items: [
+  //     {
+  //       title: "Super Owners",
+  //       path: "/super-owners",
+  //       id: "super-owners",
+  //       icon: faUserShield,
+  //     },
+  //   ],
+  // },
   // {
   //   items: [
   //     {

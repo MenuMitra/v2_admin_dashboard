@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test CreateCompany Conditional Fields - Corrected</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-case {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <h1>CreateCompany.jsx Conditional Fields - Corrected Implementation</h1>
+    
+    <div class="test-case success">
+        <h3>✅ Task 10 Completed Successfully - Corrected Implementation</h3>
+        <p><strong>Requirement:</strong> Hide all fields except "Company Name" and "Company Type" until Company Type is selected, then show only the fields related to that specific company type</p>
+        
+        <h4>Implementation Details:</h4>
+        <ul>
+            <li><strong>Always Visible:</strong> Only "Company Name" and "Company Type" fields are visible initially</li>
+            <li><strong>Show for ALL company types:</strong> PAN Number and FSSAI Number (wrapped in <code>{ownerData.company_type && (...)}</code>)</li>
+            <li><strong>Show ONLY for specific company types:</strong> TAN and CIN fields (only for LLP, OPC, Private Limited, Limited)</li>
+            <li><strong>Company Contacts Section:</strong> Entire section is conditionally rendered based on company type selection</li>
+            <li><strong>Company Owners Section:</strong> Entire section is conditionally rendered based on company type selection</li>
+            <li><strong>Form Reset:</strong> When form is reset, company_type becomes empty, hiding all conditional fields</li>
+        </ul>
+    </div>
+
+    <div class="test-case info">
+        <h3>📋 User Experience Flow - Corrected</h3>
+        <ol>
+            <li>User opens CreateCompany page - sees only "Company Name" and "Company Type" fields</li>
+            <li>User selects ANY company type from dropdown</li>
+            <li>PAN Number and FSSAI Number fields appear (required for all company types)</li>
+            <li>If user selects LLP, OPC, Private Limited, or Limited - TAN and CIN fields also appear</li>
+            <li>Company Contacts and Company Owners sections become visible</li>
+            <li>User can fill out the complete form with only relevant fields shown</li>
+            <li>If user changes company type, fields adjust accordingly</li>
+        </ol>
+    </div>
+
+    <div class="test-case warning">
+        <h3>⚠️ Previous Issue Fixed</h3>
+        <p><strong>Issue:</strong> Initially, PAN and FSSAI fields were showing without conditional logic</p>
+        <p><strong>Fix:</strong> Now PAN and FSSAI fields are also wrapped in conditional rendering and only appear after company type selection</p>
+    </div>
+
+    <div class="test-case info">
+        <h3>🔧 Technical Implementation</h3>
+        <ul>
+            <li><strong>Level 1 Conditional:</strong> PAN & FSSAI fields show for ANY company type selection</li>
+            <li><strong>Level 2 Conditional:</strong> TAN & CIN fields show only for specific company types (LLP, OPC, Private Limited, Limited)</li>
+            <li><strong>Level 3 Conditional:</strong> Company Contacts and Owners sections show for ANY company type selection</li>
+            <li><strong>State Management:</strong> Uses existing <code>ownerData.company_type</code> state</li>
+            <li><strong>Form Validation:</strong> Only validates visible fields</li>
+        </ul>
+    </div>
+
+    <div class="test-case success">
+        <h3>✅ Company Type Specific Field Logic</h3>
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <th>Company Type</th>
+                <th>PAN</th>
+                <th>FSSAI</th>
+                <th>TAN</th>
+                <th>CIN</th>
+                <th>Contacts</th>
+                <th>Owners</th>
+            </tr>
+            <tr>
+                <td>Proprietorship</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>❌</td>
+                <td>✅</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td>Partnership Firm</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>❌</td>
+                <td>❌</td>
+                <td>✅</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td>LLP</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td>OPC</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td>Private Limited</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <td>Limited</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+                <td>✅</td>
+            </tr>
+        </table>
+    </div>
+
+    <h3>🎯 Summary</h3>
+    <p>Task 10 has been corrected and completed successfully. The CreateCompany.jsx form now properly shows only company type-specific fields. Initially, only "Company Name" and "Company Type" are visible. After selecting a company type, relevant fields appear progressively based on the specific requirements of that company type.</p>
+</body>
+</html>

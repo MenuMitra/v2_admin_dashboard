@@ -24,10 +24,11 @@ import ViewEnquiry from "./components/Enquiry/ViewEnquiry";
 import Search from "./components/Search/Search";
 import Customer from "./components/Customer/Customer";
 import CustomerDetails from "./components/Customer/CustomerDetails";
-import SuperOwner from "./components/SuperOwner/SuperOwner";
+/*import SuperOwner from "./components/SuperOwner/SuperOwner";
 import CreateSuperOwner from "./components/SuperOwner/CreateSuperOwner";
 import SuperOwnerDetails from "./components/SuperOwner/SuperOwnerDetails";
 import EditSuperOwner from "./components/SuperOwner/EditSuperOwner";
+*/
 import CreateAdmin from "./components/Admin/CreateAdmin";
 import Admins from "./components/Admin/Admins";
 import AdminDetails from "./components/Admin/AdminDetails";
@@ -191,7 +192,7 @@ function App() {
               element={<EditCustomer />}
             />
 
-            {/* Super Owner Routes */}
+            {/* Super Owner Routes }
             <Route path="/super-owners" element={<SuperOwner />} />
             <Route path="/create-super-owner" element={<CreateSuperOwner />} />
             <Route

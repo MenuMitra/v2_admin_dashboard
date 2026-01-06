@@ -1,3 +1,4 @@
+/*
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import axios from 'axios';
@@ -108,3 +109,5 @@ export const useSuperOwnerDetails = (superOwnerId) => {
     refetch,
   };
 }; 
+
+*/
