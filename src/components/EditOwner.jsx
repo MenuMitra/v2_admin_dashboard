@@ -636,16 +636,7 @@ function EditOwner() {
                     {validationStates.aadharMessage}
                   </p>
                 )}
-              </div>{" "}
-              {/* Role - Added to the grid */}
-              <CustomDropdown
-                label="Role"
-                name="role"
-                value={ownerData.role}
-                onChange={handleChange}
-                options={roles.length > 0 ? roles.map(r => ({ value: r.role_name, label: r.role_name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) })) : [{ value: "super_owner", label: "Superowner" }]}
-                placeholder="Select Role"
-              />
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-2 gap-3">
                 {/* Owner Status - Added to the grid */}
                 <CustomDropdown

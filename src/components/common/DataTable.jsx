@@ -937,7 +937,10 @@ function DataTable({
                     </span>
                   )}
                   {typeof counts.positive === "number" && (
-                    <span className="font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                    <span 
+                      className="font-medium bg-blue-100 px-2 py-0.5 rounded"
+                      style={{ color: "#1d4ed8" }}
+                    >
                       Positive: {counts.positive}
                     </span>
                   )}

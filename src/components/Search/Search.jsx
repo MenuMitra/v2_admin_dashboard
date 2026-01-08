@@ -292,7 +292,6 @@ const Search = () => {
                     onChange={(e) => setSelectedRole(e.target.value)}
                     options={[
                       { value: "", label: "All Roles" },
-                      { value: "super_owner", label: "Super Owner" },
                       { value: "owner", label: "Owner" },
                       { value: "customer", label: "Customer" },
                       { value: "partner", label: "Partner" }
