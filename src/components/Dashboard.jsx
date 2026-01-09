@@ -27,6 +27,7 @@ import {
   faShoppingCart,
   faCalendarCheck,
   faLock,
+  faBuilding,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "./common/DataTable";
 import { useFullscreen } from "./FullscreenContext";
@@ -374,6 +375,16 @@ function Dashboard() {
                 <span className="text-xs font-medium text-dark">Outlets</span>
               </Link>
               <Link
+                to="/companies"
+                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+              >
+                <FontAwesomeIcon
+                  icon={faBuilding}
+                  className="text-brand-500 mb-1"
+                />
+                <span className="text-xs font-medium text-dark">Companies</span>
+              </Link>
+              <Link
                 to="/owners"
                 className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
               >
@@ -384,18 +395,6 @@ function Dashboard() {
                 <span className="text-xs font-medium text-dark">Owners</span>
               </Link>
 
-              <Link
-                to="/super-owners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faUserShield}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">
-                  Super Owners
-                </span>
-              </Link>
 
               <Link
                 to="/partners"
