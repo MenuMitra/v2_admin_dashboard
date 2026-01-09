@@ -16,6 +16,8 @@ const MultiSelectDropdown = ({
   searchPlaceholder = "Search...",
   className = "",
   disabled = false,
+  primaryValue = null,
+  onPrimaryChange = null,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -174,38 +176,63 @@ const MultiSelectDropdown = ({
                 No results found
               </div>
             ) : (
-              filteredOptions.map((option) => (
-                <div
-                  key={option[valueKey]}
-                  className={`
-                    p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0
-                    ${selectedValues.includes(option[valueKey])
-                      ? 'bg-brand-50 border-l-4 border-brand-500'
-                      : 'border-l-4 border-transparent'}
-                  `}
-                  onClick={() => handleSelect(option[valueKey])}
-                >
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedValues.includes(option[valueKey])}
-                      onChange={() => handleSelect(option[valueKey])}
-                      onClick={(e) => e.stopPropagation()}
-                      className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-lg flex-shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate" style={{ textTransform: 'capitalize' }}>
-                        {option[displayKey]}
+              filteredOptions.map((option) => {
+                const isSelected = selectedValues.includes(option[valueKey]);
+                const isPrimary = primaryValue === option[valueKey];
+                
+                return (
+                  <div
+                    key={option[valueKey]}
+                    className={`
+                      p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0
+                      ${isSelected
+                        ? 'bg-brand-50 border-l-4 border-brand-500'
+                        : 'border-l-4 border-transparent'}
+                    `}
+                    onClick={() => handleSelect(option[valueKey])}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleSelect(option[valueKey])}
+                          onClick={(e) => e.stopPropagation()}
+                          className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-lg flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-gray-900 truncate" style={{ textTransform: 'capitalize' }}>
+                            {option[displayKey]}
+                          </div>
+                          {option.secondary && (
+                            <div className="text-sm text-gray-500 truncate">
+                              {option.secondary}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      {option.secondary && (
-                        <div className="text-sm text-gray-500 truncate">
-                          {option.secondary}
+                      
+                      {/* Primary Radio - Only show for selected items */}
+                      {isSelected && onPrimaryChange && (
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-sm text-gray-600">Primary</span>
+                          <input
+                            type="radio"
+                            name="primary-owner"
+                            checked={isPrimary}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              onPrimaryChange(isPrimary ? null : option[valueKey]);
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 flex-shrink-0"
+                          />
                         </div>
                       )}
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
@@ -220,12 +247,14 @@ MultiSelectDropdown.propTypes = {
   selectedValues: PropTypes.array.isRequired,
   onChange: PropTypes.func.isRequired,
   displayKey: PropTypes.string.isRequired,
-  valueKey: PropTypes.string.isRequid,
+  valueKey: PropTypes.string.isRequired,
   searchKeys: PropTypes.arrayOf(PropTypes.string),
   required: PropTypes.bool,
   placeholder: PropTypes.string,
   searchPlaceholder: PropTypes.string,
   disabled: PropTypes.bool,
+  primaryValue: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  onPrimaryChange: PropTypes.func,
 };
 
 export default MultiSelectDropdown;

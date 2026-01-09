@@ -139,7 +139,7 @@ function ViewOutlet() {
     },
     onSuccess: () => {
       setShowDeleteModal(false);
-      queryClient.invalidateQueries(queryKeys.outlets.all);
+      queryClient.invalidateQueries(queryKeys.outlets.list());
       navigate("/outlets");
     },
     onError: (error) => {

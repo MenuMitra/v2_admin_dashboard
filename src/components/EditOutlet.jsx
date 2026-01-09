@@ -80,6 +80,7 @@ function EditOutlet() {
   const [vegOrNonveg, setVegOrNonveg] = useState({});
   const [allOwners, setAllOwners] = useState([]);
   const [companyOwners, setCompanyOwners] = useState([]);
+  const [primaryOwnerId, setPrimaryOwnerId] = useState(null);
   const [allCompanies, setAllCompanies] = useState([]);
   const [isLoadingCompanyOwners, setIsLoadingCompanyOwners] = useState(false);
   // Modules for Assign Subscription edit
@@ -485,6 +486,7 @@ function EditOutlet() {
             ...prev,
             owner_ids: [],
           }));
+          setPrimaryOwnerId(null);
         }
       }
     } catch (error) {
@@ -677,6 +679,7 @@ function EditOutlet() {
         user_id: parseInt(adminData.user_id),
         outlet_id: parseInt(outletId),
         new_owner_ids: outletData.owner_ids || [],
+        ...(primaryOwnerId ? { primary_owner_id: primaryOwnerId } : {}),
         name: outletData.name,
         outlet_type: outletData.outlet_type,
         fssainumber: outletData.fssainumber || "",
@@ -737,8 +740,8 @@ function EditOutlet() {
           "Outlet updated successfully";
         toastController.success(successMessage);
         try {
+          queryClient.invalidateQueries(queryKeys.outlets.list());
           queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
-          queryClient.invalidateQueries(queryKeys.outlets.all);
         } catch (err) {
 
         }
@@ -881,7 +884,7 @@ function EditOutlet() {
                 {/* Select Owner */}
                 <div className="flex flex-col">
                   <MultiSelectDropdown
-                    label="Select Owner(s)"
+                    label={<span><span className="text-red-500">*</span> Select Owner(s)</span>}
                     options={companyOwners}
                     selectedValues={outletData.owner_ids}
                     onChange={(newOwnerIds) => {
@@ -889,6 +892,10 @@ function EditOutlet() {
                         ...prev,
                         owner_ids: newOwnerIds,
                       }));
+                      // Clear primary owner if it's no longer selected
+                      if (!newOwnerIds.includes(primaryOwnerId)) {
+                        setPrimaryOwnerId(null);
+                      }
                     }}
                     displayKey="name"
                     valueKey="user_id"
@@ -903,6 +910,8 @@ function EditOutlet() {
                     searchPlaceholder="Search by name, mobile or email..."
                     className="rounded-lg"
                     disabled={!outletData.company_id || isLoadingCompanyOwners}
+                    primaryValue={primaryOwnerId}
+                    onPrimaryChange={setPrimaryOwnerId}
                   />
                   {!outletData.company_id && (
                     <p className="text-sm text-gray-500 mt-1">

@@ -60,6 +60,7 @@ function EditOwner() {
     aadharMessage: "",
   });
   const [emailError, setEmailError] = useState("");
+  const [originalAadhar, setOriginalAadhar] = useState("");
 
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
@@ -158,6 +159,9 @@ function EditOwner() {
 
       // Store original role
       setOriginalRole(response.data.role || "");
+      
+      // Store original Aadhaar for comparison during update
+      setOriginalAadhar(response.data.aadhar_number || "");
 
       setOwnerData({
         name: response.data.name,
@@ -435,6 +439,7 @@ function EditOwner() {
         mobile: ownerData.mobile,
         address: ownerData.address,
         aadhar_number: ownerData.aadhar_number,
+        original_aadhar_number: originalAadhar,
         dob: dobForApi,
         email: ownerData.email,
         account_type: ownerData.account_type,
@@ -493,6 +498,16 @@ function EditOwner() {
       }
     } catch (err) {
       setError(err.response?.data?.detail || "Failed to update owner");
+      
+      // Handle specific Aadhaar error
+      const errorDetail = err.response?.data?.detail || "";
+      if (errorDetail.toLowerCase().includes("aadhar")) {
+        toastController.error(
+          "Aadhaar already exists for another owner. Please use a different Aadhaar number."
+        );
+      } else {
+        toastController.error(errorDetail || "Failed to update owner");
+      }
 
     } finally {
       setIsLoading(false);

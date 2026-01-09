@@ -108,18 +108,16 @@ function Partners() {
       header: "Status",
       sortable: true,
       render: (value) => (
-        <div className="flex items-center justify-center gap-2">
-          <FontAwesomeIcon
-            icon={value === 1 ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value === 1 ? "text-success-500" : "text-error-500"
-            }`}
-          />
+        <div className="flex items-center justify-center">
           <span
-            className={`text-base font-medium ${
-              value === 1 ? "text-success-700" : "text-error-700"
+            className={`font-medium text-sm ${
+              value === 1
+                ? "text-success-600"
+                : "text-error-600"
             }`}
-          ></span>
+          >
+            {value === 1 ? "Active" : "Inactive"}
+          </span>
         </div>
       ),
     },

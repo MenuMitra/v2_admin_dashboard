@@ -41,7 +41,7 @@ function Outlets() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const { getToken } = useAuth();
 
-  const { outlets, isLoading, deleteOutlet, isDeleting, bulkAction, isBulkActioning } =
+  const { outlets, isLoading, deleteOutlet, isDeleting, bulkAction, isBulkActioning, refetch } =
     useOutlets();
 
   // UI State
@@ -612,7 +612,7 @@ function Outlets() {
         onOwnerCountFilterChange={(value) => setOwnerCountFilter(value)}
         statusField="outletStatus"
         onReload={() => {
-          queryClient.invalidateQueries(queryKeys.outlets.list());
+          refetch();
         }}
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;

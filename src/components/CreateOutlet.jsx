@@ -64,6 +64,7 @@ function CreateOutlet() {
   const [outletTypes, setOutletTypes] = useState({});
   const [allOwners, setAllOwners] = useState([]);
   const [companyOwners, setCompanyOwners] = useState([]);
+  const [primaryOwnerId, setPrimaryOwnerId] = useState(null);
   const [allCompanies, setAllCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCompanyOwners, setIsLoadingCompanyOwners] = useState(false);
@@ -423,6 +424,7 @@ function CreateOutlet() {
           ...prev,
           owner_id: [],
         }));
+        setPrimaryOwnerId(null);
       }
     } catch (error) {
       console.error("Error fetching company owners:", error);
@@ -615,6 +617,8 @@ function CreateOutlet() {
         ...(outletData.owner_id.length > 0
           ? { owner_ids: outletData.owner_id }
           : {}),
+        // Include primary owner if selected
+        ...(primaryOwnerId ? { primary_owner_id: primaryOwnerId } : {}),
         user_id: parseInt(adminData.user_id),
         name: outletData.name,
         mobile: outletData.mobile,
@@ -735,7 +739,7 @@ function CreateOutlet() {
         // Clear any existing API errors
         setApiErrors({});
         // Invalidate outlets cache to refresh the list
-        queryClient.invalidateQueries({ queryKey: queryKeys.outlets.all });
+        queryClient.invalidateQueries(queryKeys.outlets.list());
         navigate(-1);
       }
     } catch (error) {
@@ -1053,7 +1057,7 @@ function CreateOutlet() {
                   
                    <div className="flex flex-col">
                     <MultiSelectDropdown
-                      label="Select Owners"
+                      label={<span><span className="text-red-500">*</span> Select Owners</span>}
                       options={companyOwners}
                       selectedValues={outletData.owner_id}
                       onChange={(newOwnerIds) => {
@@ -1061,6 +1065,10 @@ function CreateOutlet() {
                           ...prev,
                           owner_id: newOwnerIds,
                         }));
+                        // Clear primary owner if it's no longer selected
+                        if (!newOwnerIds.includes(primaryOwnerId)) {
+                          setPrimaryOwnerId(null);
+                        }
                       }}
                       displayKey="name"
                       valueKey="user_id"
@@ -1075,6 +1083,8 @@ function CreateOutlet() {
                       searchPlaceholder="Search by name, mobile or email..."
                       className="rounded-lg"
                       disabled={!outletData.company_id || isLoadingCompanyOwners}
+                      primaryValue={primaryOwnerId}
+                      onPrimaryChange={setPrimaryOwnerId}
                     />
                     {!outletData.company_id && (
                       <p className="text-sm text-gray-500 mt-1">

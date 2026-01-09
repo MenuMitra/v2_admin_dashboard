@@ -68,6 +68,10 @@ function CreateCompany() {
   const [contactNumberErrors, setContactNumberErrors] = useState({});
   const [cityErrors, setCityErrors] = useState({});
   const [pinErrors, setPinErrors] = useState({});
+  const [panError, setPanError] = useState("");
+  const [tanError, setTanError] = useState("");
+  const [fssaiError, setFssaiError] = useState("");
+  const [cinError, setCinError] = useState("");
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
 
   const breadcrumbItems = [
@@ -418,6 +422,18 @@ function CreateCompany() {
       return;
     }
 
+    // Validate PAN field - allow letters and numbers, convert to uppercase
+    if (field === "pan") {
+      const filteredValue = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
+      setOwnerData((prev) => ({
+        ...prev,
+        company_owners: prev.company_owners.map((owner, i) =>
+          i === index ? { ...owner, [field]: filteredValue } : owner
+        ),
+      }));
+      return;
+    }
+
     setOwnerData((prev) => ({
       ...prev,
       company_owners: prev.company_owners.map((owner, i) =>
@@ -434,15 +450,100 @@ function CreateCompany() {
     }
 
     if (name === "pan_number") {
-      const filteredValue = value.replace(/[^A-Z0-9]/g, "").slice(0, 10);
+      const filteredValue = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
       setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
+      // Validate PAN format: 10 characters (5 letters, 4 numbers, 1 letter)
+      if (filteredValue.length === 10) {
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panRegex.test(filteredValue)) {
+          setPanError("PAN format is invalid. Expected format: AAAAA1234A");
+        } else {
+          setPanError("");
+        }
+      } else if (filteredValue.length > 0) {
+        setPanError("PAN must be exactly 10 characters");
+      } else {
+        setPanError("");
+      }
       return;
-    } else {
-      setOwnerData((prev) => ({
-        ...prev,
-        [name]: type === "checkbox" ? checked : value,
-      }));
     }
+
+    if (name === "fssai_number") {
+      const filteredValue = value.replace(/[^0-9]/g, "").slice(0, 14);
+      setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
+      
+      // Validate FSSAI format with specific error messages
+      if (!filteredValue) {
+        setFssaiError("FSSAI number is required");
+      } else if (filteredValue.length < 14) {
+        setFssaiError("FSSAI number must be exactly 14 digits");
+      } else if (filteredValue.length === 14) {
+        // Validate FSSAI format: First 2 digits are state code (01-37)
+        const stateCode = parseInt(filteredValue.substring(0, 2), 10);
+        if (stateCode < 1 || stateCode > 37) {
+          setFssaiError("Invalid state code in FSSAI number");
+        } else {
+          // Additional validation: Check if it looks like a valid FSSAI
+          // FSSAI format: 2 digit state code + 5 digit district code + 5 digit business code + 2 digit check digits
+          setFssaiError("");
+        }
+      }
+      return;
+    }
+
+    if (name === "tan_number") {
+      const filteredValue = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
+      setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
+      
+      // Validate TAN format with specific error messages
+      if (!filteredValue) {
+        setTanError("TAN number is required");
+      } else if (filteredValue.length < 10) {
+        setTanError("TAN number must be exactly 10 characters");
+      } else if (filteredValue.length === 10) {
+        // Validate TAN format: AAAA99999A (4 letters, 5 digits, 1 letter)
+        const tanRegex = /^[A-Z]{4}[0-9]{5}[A-Z]{1}$/;
+        
+        // Check if positions 1-4 are alphabets
+        if (!/^[A-Z]{4}/.test(filteredValue)) {
+          setTanError("Alphabets required in positions 1–4 and 10");
+        }
+        // Check if positions 5-9 are digits
+        else if (!/[0-9]{5}/.test(filteredValue.substring(4, 9))) {
+          setTanError("Digits required in positions 5–9");
+        }
+        // Check if position 10 is alphabet
+        else if (!/[A-Z]$/.test(filteredValue)) {
+          setTanError("Alphabets required in positions 1–4 and 10");
+        }
+        // Check overall format
+        else if (!tanRegex.test(filteredValue)) {
+          setTanError("Invalid TAN format (AAAA99999A)");
+        } else {
+          setTanError("");
+        }
+      }
+      return;
+    }
+
+    if (name === "cin_number") {
+      const filteredValue = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 21).toUpperCase();
+      setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
+      // Validate CIN format: 21 characters
+      if (filteredValue.length === 21) {
+        setCinError("");
+      } else if (filteredValue.length > 0) {
+        setCinError("CIN must be exactly 21 characters");
+      } else {
+        setCinError("");
+      }
+      return;
+    }
+
+    setOwnerData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const isFormValid = () => {
@@ -732,25 +833,37 @@ function CreateCompany() {
 
               {ownerData.company_type && (
                 <>
-                  <TextInput
-                    label="Company PAN Number"
-                    name="pan_number"
-                    value={ownerData.pan_number}
-                    onChange={handleChange}
-                    placeholder="Enter 10-digit PAN number"
-                    required
-                    maxLength={10}
-                  />
+                  <div className="relative">
+                    <TextInput
+                      label="Company PAN Number"
+                      name="pan_number"
+                      value={ownerData.pan_number}
+                      onChange={handleChange}
+                      placeholder="Enter 10-digit PAN number"
+                      required
+                      maxLength={10}
+                      error={!!panError}
+                    />
+                    {panError && (
+                      <p className="text-error-500 text-sm mt-1">{panError}</p>
+                    )}
+                  </div>
 
-                  <TextInput
-                    label="Company FSSAI Number"
-                    name="fssai_number"
-                    value={ownerData.fssai_number}
-                    onChange={handleChange}
-                    placeholder="Enter 14-digit FSSAI number"
-                    required
-                    maxLength={14}
-                  />
+                  <div className="relative">
+                    <TextInput
+                      label="Company FSSAI Number"
+                      name="fssai_number"
+                      value={ownerData.fssai_number}
+                      onChange={handleChange}
+                      placeholder="Enter 14-digit FSSAI number"
+                      required
+                      maxLength={14}
+                      error={!!fssaiError}
+                    />
+                    {fssaiError && (
+                      <p className="text-error-500 text-sm mt-1">{fssaiError}</p>
+                    )}
+                  </div>
                 </>
               )}
 
@@ -759,25 +872,37 @@ function CreateCompany() {
                   ownerData.company_type
                 ) && (
                   <>
-                    <TextInput
-                      label="TAN Number"
-                      name="tan_number"
-                      value={ownerData.tan_number}
-                      onChange={handleChange}
-                      placeholder="Enter 10-digit TAN number"
-                      required={true}
-                      maxLength={10}
-                    />
+                    <div className="relative">
+                      <TextInput
+                        label="TAN Number"
+                        name="tan_number"
+                        value={ownerData.tan_number}
+                        onChange={handleChange}
+                        placeholder="Enter 10-digit TAN number"
+                        required={true}
+                        maxLength={10}
+                        error={!!tanError}
+                      />
+                      {tanError && (
+                        <p className="text-error-500 text-sm mt-1">{tanError}</p>
+                      )}
+                    </div>
 
-                    <TextInput
-                      label="CIN Number"
-                      name="cin_number"
-                      value={ownerData.cin_number}
-                      onChange={handleChange}
-                      placeholder="Enter 21-digit CIN number"
-                      required={true}
-                      maxLength={21}
-                    />
+                    <div className="relative">
+                      <TextInput
+                        label="CIN Number"
+                        name="cin_number"
+                        value={ownerData.cin_number}
+                        onChange={handleChange}
+                        placeholder="Enter 21-digit CIN number"
+                        required={true}
+                        maxLength={21}
+                        error={!!cinError}
+                      />
+                      {cinError && (
+                        <p className="text-error-500 text-sm mt-1">{cinError}</p>
+                      )}
+                    </div>
                   </>
                 )}
             </div>

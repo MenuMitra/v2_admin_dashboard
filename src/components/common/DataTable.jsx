@@ -442,6 +442,10 @@ function DataTable({
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    // Prevent auto-scroll to bottom by scrolling table into view smoothly
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   // Replace renderPaginationNumbers with a version that shows only 3 page numbers at a time (current, previous, next), with ellipsis if needed
@@ -728,12 +732,16 @@ function DataTable({
 
   // Update renderStatus to use normalized values
   const renderStatus = (value) => (
-    <div className="flex items-center justify-center gap-2">
-      <FontAwesomeIcon
-        icon={normalizeStatus(value) ? faCircleCheck : faCircleXmark}
-        className={`w-5 h-5 ${normalizeStatus(value) ? "text-success-500" : "text-error-500"
-          }`}
-      />
+    <div className="flex items-center justify-center">
+      <span
+        className={`font-medium text-sm ${
+          normalizeStatus(value)
+            ? "text-success-600"
+            : "text-error-600"
+        }`}
+      >
+        {normalizeStatus(value) ? "Active" : "Inactive"}
+      </span>
     </div>
   );
 

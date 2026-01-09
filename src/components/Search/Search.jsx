@@ -103,7 +103,38 @@ const Search = () => {
 
   // Update input and clear prior search state when user erases input
   const handleInputChange = useCallback((e) => {
-    const val = e.target.value;
+    let val = e.target.value;
+    
+    // Mobile number validation when search type is "mobile"
+    if (searchType === "mobile") {
+      // Allow only digits
+      const numbersOnly = val.replace(/[^0-9]/g, "");
+      
+      // Limit to 10 digits
+      const limitedNumbers = numbersOnly.slice(0, 10);
+      
+      // Check if first digit is 0-5 and prevent it
+      if (limitedNumbers.length === 1 && ["0", "1", "2", "3", "4", "5"].includes(limitedNumbers.charAt(0))) {
+        setSearchInput("");
+        if (!val.trim()) {
+          setHasSearched(false);
+          setSearchedTerm("");
+          setSearchResults([]);
+          setTotalResults(0);
+          setError(null);
+        }
+        return;
+      }
+      
+      val = limitedNumbers;
+    }
+    
+    // Name search validation - allow only characters and spaces
+    if (searchType === "name") {
+      // Allow only letters (a-z, A-Z) and spaces
+      val = val.replace(/[^a-zA-Z\s]/g, "");
+    }
+    
     setSearchInput(val);
     if (!val.trim()) {
       // clear previous search results / messages when input is empty
@@ -113,7 +144,7 @@ const Search = () => {
       setTotalResults(0);
       setError(null);
     }
-  }, []);
+  }, [searchType]);
 
   // Modified form submit handler to handle search
   const handleSearch = (e) => {
@@ -355,6 +386,16 @@ const Search = () => {
                       </button>
                     )}
                   </div>
+                  {searchType === "mobile" && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter 10 digits starting with 6-9
+                    </p>
+                  )}
+                  {searchType === "name" && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter characters only (letters and spaces)
+                    </p>
+                  )}
                 </div>
 
                 <div className="self-start sm:self-end">
