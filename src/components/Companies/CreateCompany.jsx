@@ -65,6 +65,7 @@ function CreateCompany() {
   const [ownerAadharErrors, setOwnerAadharErrors] = useState({});
   const [ownerNameErrors, setOwnerNameErrors] = useState({});
   const [ownerMobileErrors, setOwnerMobileErrors] = useState({});
+  const [ownerPanErrors, setOwnerPanErrors] = useState({});
   const [contactNumberErrors, setContactNumberErrors] = useState({});
   const [cityErrors, setCityErrors] = useState({});
   const [pinErrors, setPinErrors] = useState({});
@@ -425,6 +426,35 @@ function CreateCompany() {
     // Validate PAN field - allow letters and numbers, convert to uppercase
     if (field === "pan") {
       const filteredValue = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
+      
+      // Validate PAN format: 10 characters (5 letters, 4 numbers, 1 letter)
+      if (filteredValue.length === 10) {
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        if (!panRegex.test(filteredValue)) {
+          setOwnerPanErrors((prev) => ({
+            ...prev,
+            [index]: "PAN format is invalid. Expected format: AAAAA1234A",
+          }));
+        } else {
+          setOwnerPanErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[index];
+            return newErrors;
+          });
+        }
+      } else if (filteredValue.length > 0) {
+        setOwnerPanErrors((prev) => ({
+          ...prev,
+          [index]: "PAN must be exactly 10 characters",
+        }));
+      } else {
+        setOwnerPanErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[index];
+          return newErrors;
+        });
+      }
+      
       setOwnerData((prev) => ({
         ...prev,
         company_owners: prev.company_owners.map((owner, i) =>
@@ -616,6 +646,7 @@ function CreateCompany() {
       Object.keys(ownerAadharErrors).length > 0 ||
       Object.keys(ownerNameErrors).length > 0 ||
       Object.keys(ownerMobileErrors).length > 0 ||
+      Object.keys(ownerPanErrors).length > 0 ||
       Object.keys(contactNumberErrors).length > 0 ||
       Object.keys(cityErrors).length > 0 ||
       Object.keys(pinErrors).length > 0
@@ -1217,6 +1248,8 @@ function CreateCompany() {
                       placeholder="Enter 10-digit PAN"
                       required
                       maxLength={10}
+                      error={!!ownerPanErrors[index]}
+                      errorMessage={ownerPanErrors[index]}
                     />
 
                     <TextInput
