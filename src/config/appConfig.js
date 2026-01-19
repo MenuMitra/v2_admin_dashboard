@@ -12,7 +12,7 @@ const getApiBaseUrl = () => {
   }
   
   // Default fallback for local development
-  return "https://menusmitra.xyz/v2";
+  return "https://menusmitra.xyz/v2.2";
   
 };
 
@@ -30,7 +30,7 @@ const getCustomerAppUrl = () => {
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: getApiBaseUrl(), // Full URL including /v2
+  BASE_URL: getApiBaseUrl(), // Full URL including /v2.2
   CUSTOMER_APP_URL: getCustomerAppUrl(), // Customer app base URL
 };
 

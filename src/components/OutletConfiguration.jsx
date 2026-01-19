@@ -13,7 +13,6 @@ import Breadcrumb from "./Breadcrumb";
 import SaveButton from "./common/SaveButton";
 import CustomDropdown from "./common/CustomDropdown";
 import { TextInput } from "./forms/FormElements.jsx";
-import { YES_NO_OPTIONS } from "../utils/validationPatterns";
 
 function toTitleCase(str) {
   return str
@@ -385,7 +384,7 @@ function OutletConfiguration() {
                 Business Details
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                 <div className="w-full">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     Service Charges (%)
@@ -396,7 +395,7 @@ function OutletConfiguration() {
                     value={configFormData.service_charge_value}
                     onChange={(e) => handleConfigFormChange("service_charge_value", e.target.value)}
                     placeholder="Enter service charges"
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
                   />
                 </div>
 
@@ -406,7 +405,7 @@ function OutletConfiguration() {
                   </label>
                   <CustomDropdown
                     name="service_charge_type"
-                    className="w-full"
+                    className="w-full h-10"
                     value={configFormData.service_charge_type}
                     onChange={(e) => handleConfigFormChange("service_charge_type", e.target.value)}
                     options={[
@@ -427,7 +426,7 @@ function OutletConfiguration() {
                     value={configFormData.gst}
                     onChange={(e) => handleConfigFormChange("gst", e.target.value)}
                     placeholder="Enter GST percentage"
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
                   />
                 </div>
 
@@ -437,7 +436,7 @@ function OutletConfiguration() {
                   </label>
                   <CustomDropdown
                     name="order_number_sequence"
-                    className="w-full"
+                    className="w-full h-10"
                     value={configFormData.order_number_sequence}
                     onChange={(e) => handleConfigFormChange("order_number_sequence", e.target.value)}
                     options={[
@@ -448,245 +447,241 @@ function OutletConfiguration() {
                   />
                 </div>
 
-                <div className="col-span-full w-full">
-                  <div className="flex flex-row flex-nowrap items-end gap-8">
-                    {/* Opening Time */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Opening Time
-                      </label>
-                      <div className="flex gap-1">
-                        <CustomDropdown
-                          className="w-16"
-                          value={openingHour}
-                          onChange={(e) => handleOpeningTimeChange("hour", e.target.value)}
-                          options={[
-                            { value: "", label: "HH" },
-                            ...[...Array(12)].map((_, i) => {
-                              const val = (i + 1).toString().padStart(2, "0");
-                              return { value: val, label: val };
-                            }),
-                          ]}
-                          placeholder="HH"
-                        />
-                        <CustomDropdown
-                          className="w-16"
-                          value={openingMinute}
-                          onChange={(e) => handleOpeningTimeChange("minute", e.target.value)}
-                          options={[
-                            { value: "", label: "MM" },
-                            ...["00", "15", "30", "45"].map((min) => ({
-                              value: min,
-                              label: min,
-                            })),
-                          ]}
-                          placeholder="MM"
-                        />
-                        <CustomDropdown
-                          className="w-16"
-                          value={openingPeriod}
-                          onChange={(e) => handleOpeningTimeChange("period", e.target.value)}
-                          options={[
-                            { value: "AM", label: "AM" },
-                            { value: "PM", label: "PM" },
-                          ]}
-                          placeholder="AM"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Closing Time */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Closing Time
-                      </label>
-                      <div className="flex gap-1">
-                        <CustomDropdown
-                          className="w-16"
-                          value={closingHour}
-                          onChange={(e) => handleClosingTimeChange("hour", e.target.value)}
-                          options={[
-                            { value: "", label: "HH" },
-                            ...[...Array(12)].map((_, i) => {
-                              const val = (i + 1).toString().padStart(2, "0");
-                              return { value: val, label: val };
-                            }),
-                          ]}
-                          placeholder="HH"
-                        />
-                        <CustomDropdown
-                          className="w-16"
-                          value={closingMinute}
-                          onChange={(e) => handleClosingTimeChange("minute", e.target.value)}
-                          options={[
-                            { value: "", label: "MM" },
-                            ...["00", "15", "30", "45"].map((min) => ({
-                              value: min,
-                              label: min,
-                            })),
-                          ]}
-                          placeholder="MM"
-                        />
-                        <CustomDropdown
-                          className="w-16"
-                          value={closingPeriod}
-                          onChange={(e) => handleClosingTimeChange("period", e.target.value)}
-                          options={[
-                            { value: "AM", label: "AM" },
-                            { value: "PM", label: "PM" },
-                          ]}
-                          placeholder="AM"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Has Combo */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Has<br />Combo
-                      </label>
-                      <CustomDropdown
-                        name="has_combo"
-                        className="w-20"
-                        value={
-                          configFormData.has_combo !== null &&
-                          configFormData.has_combo !== undefined
-                            ? String(configFormData.has_combo)
-                            : "0"
-                        }
-                        onChange={(e) =>
-                          handleConfigFormChange(
-                            "has_combo",
-                            e.target.value !== "" ? Number(e.target.value) : null
-                          )
-                        }
-                        options={[
-                          { value: "0", label: "No" },
-                          { value: "1", label: "Yes" },
-                        ]}
-                        placeholder="No"
-                      />
-                    </div>
-
-                    {/* Has Denomination */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Has<br />Denomination
-                      </label>
-                      <CustomDropdown
-                        name="has_denomination"
-                        className="w-20"
-                        value={
-                          configFormData.has_denomination !== null &&
-                          configFormData.has_denomination !== undefined
-                            ? String(configFormData.has_denomination)
-                            : "0"
-                        }
-                        onChange={(e) =>
-                          handleConfigFormChange(
-                            "has_denomination",
-                            e.target.value !== "" ? Number(e.target.value) : null
-                          )
-                        }
-                        options={[
-                          { value: "0", label: "No" },
-                          { value: "1", label: "Yes" },
-                        ]}
-                        placeholder="No"
-                      />
-                    </div>
-
-                    {/* Has Udhari */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Has<br />Udhari
-                      </label>
-                      <CustomDropdown
-                        name="has_udhari"
-                        className="w-20"
-                        value={
-                          configFormData.has_udhari !== null &&
-                          configFormData.has_udhari !== undefined
-                            ? String(configFormData.has_udhari)
-                            : "0"
-                        }
-                        onChange={(e) =>
-                          handleConfigFormChange(
-                            "has_udhari",
-                            e.target.value !== "" ? Number(e.target.value) : null
-                          )
-                        }
-                        options={[
-                          { value: "0", label: "No" },
-                          { value: "1", label: "Yes" },
-                        ]}
-                        placeholder="No"
-                      />
-                    </div>
-
-                    {/* Reserve Table */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Reserve<br />Table
-                      </label>
-                      <CustomDropdown
-                        name="has_reserve_table"
-                        className="w-20"
-                        value={
-                          configFormData.has_reserve_table !== null &&
-                          configFormData.has_reserve_table !== undefined
-                            ? String(configFormData.has_reserve_table)
-                            : "1"
-                        }
-                        onChange={(e) =>
-                          handleConfigFormChange(
-                            "has_reserve_table",
-                            e.target.value !== "" ? Number(e.target.value) : null
-                          )
-                        }
-                        options={[
-                          { value: "0", label: "No" },
-                          { value: "1", label: "Yes" },
-                        ]}
-                        placeholder="Yes"
-                      />
-                    </div>
-
-                    {/* Dynamic Price */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Dynamic<br />Price
-                      </label>
-                      <CustomDropdown
-                        name="has_dynamic_price"
-                        className="w-20"
-                        value={
-                          configFormData.has_dynamic_price !== null &&
-                          configFormData.has_dynamic_price !== undefined
-                            ? String(configFormData.has_dynamic_price)
-                            : "0"
-                        }
-                        onChange={(e) =>
-                          handleConfigFormChange(
-                            "has_dynamic_price",
-                            e.target.value !== "" ? Number(e.target.value) : null
-                          )
-                        }
-                        options={[
-                          { value: "0", label: "No" },
-                          { value: "1", label: "Yes" },
-                        ]}
-                        placeholder="No"
-                      />
-                    </div>
+                {/* Opening Time */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Opening Time
+                  </label>
+                  <div className="flex gap-1 h-10">
+                    <CustomDropdown
+                      className="flex-1 h-10"
+                      value={openingHour}
+                      onChange={(e) => handleOpeningTimeChange("hour", e.target.value)}
+                      options={[
+                        { value: "", label: "HH" },
+                        ...[...Array(12)].map((_, i) => {
+                          const val = (i + 1).toString().padStart(2, "0");
+                          return { value: val, label: val };
+                        }),
+                      ]}
+                      placeholder="HH"
+                    />
+                    <CustomDropdown
+                      className="flex-1 h-10"
+                      value={openingMinute}
+                      onChange={(e) => handleOpeningTimeChange("minute", e.target.value)}
+                      options={[
+                        { value: "", label: "MM" },
+                        ...["00", "15", "30", "45"].map((min) => ({
+                          value: min,
+                          label: min,
+                        })),
+                      ]}
+                      placeholder="MM"
+                    />
+                    <CustomDropdown
+                      className="flex-1 h-10"
+                      value={openingPeriod}
+                      onChange={(e) => handleOpeningTimeChange("period", e.target.value)}
+                      options={[
+                        { value: "AM", label: "AM" },
+                        { value: "PM", label: "PM" },
+                      ]}
+                      placeholder="AM"
+                    />
                   </div>
+                </div>
+
+                {/* Closing Time */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Closing Time
+                  </label>
+                  <div className="flex gap-1 h-10">
+                    <CustomDropdown
+                      className="flex-1 h-10"
+                      value={closingHour}
+                      onChange={(e) => handleClosingTimeChange("hour", e.target.value)}
+                      options={[
+                        { value: "", label: "HH" },
+                        ...[...Array(12)].map((_, i) => {
+                          const val = (i + 1).toString().padStart(2, "0");
+                          return { value: val, label: val };
+                        }),
+                      ]}
+                      placeholder="HH"
+                    />
+                    <CustomDropdown
+                      className="flex-1 h-10"
+                      value={closingMinute}
+                      onChange={(e) => handleClosingTimeChange("minute", e.target.value)}
+                      options={[
+                        { value: "", label: "MM" },
+                        ...["00", "15", "30", "45"].map((min) => ({
+                          value: min,
+                          label: min,
+                        })),
+                      ]}
+                      placeholder="MM"
+                    />
+                    <CustomDropdown
+                      className="flex-1 h-10"
+                      value={closingPeriod}
+                      onChange={(e) => handleClosingTimeChange("period", e.target.value)}
+                      options={[
+                        { value: "AM", label: "AM" },
+                        { value: "PM", label: "PM" },
+                      ]}
+                      placeholder="AM"
+                    />
+                  </div>
+                </div>
+
+                {/* Has Combo */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Has Combo
+                  </label>
+                  <CustomDropdown
+                    name="has_combo"
+                    className="w-full h-10"
+                    value={
+                      configFormData.has_combo !== null &&
+                      configFormData.has_combo !== undefined
+                        ? String(configFormData.has_combo)
+                        : "0"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "has_combo",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "No" },
+                      { value: "1", label: "Yes" },
+                    ]}
+                    placeholder="No"
+                  />
+                </div>
+
+                {/* Has Denomination */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Has Denomination
+                  </label>
+                  <CustomDropdown
+                    name="has_denomination"
+                    className="w-full h-10"
+                    value={
+                      configFormData.has_denomination !== null &&
+                      configFormData.has_denomination !== undefined
+                        ? String(configFormData.has_denomination)
+                        : "0"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "has_denomination",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "No" },
+                      { value: "1", label: "Yes" },
+                    ]}
+                    placeholder="No"
+                  />
+                </div>
+
+                {/* Has Udhari */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Has Udhari
+                  </label>
+                  <CustomDropdown
+                    name="has_udhari"
+                    className="w-full h-10"
+                    value={
+                      configFormData.has_udhari !== null &&
+                      configFormData.has_udhari !== undefined
+                        ? String(configFormData.has_udhari)
+                        : "0"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "has_udhari",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "No" },
+                      { value: "1", label: "Yes" },
+                    ]}
+                    placeholder="No"
+                  />
+                </div>
+
+                {/* Reserve Table */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Reserve Table
+                  </label>
+                  <CustomDropdown
+                    name="has_reserve_table"
+                    className="w-full h-10"
+                    value={
+                      configFormData.has_reserve_table !== null &&
+                      configFormData.has_reserve_table !== undefined
+                        ? String(configFormData.has_reserve_table)
+                        : "1"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "has_reserve_table",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "No" },
+                      { value: "1", label: "Yes" },
+                    ]}
+                    placeholder="Yes"
+                  />
+                </div>
+
+                {/* Dynamic Price */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Dynamic Price
+                  </label>
+                  <CustomDropdown
+                    name="has_dynamic_price"
+                    className="w-full h-10"
+                    value={
+                      configFormData.has_dynamic_price !== null &&
+                      configFormData.has_dynamic_price !== undefined
+                        ? String(configFormData.has_dynamic_price)
+                        : "0"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "has_dynamic_price",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "No" },
+                      { value: "1", label: "Yes" },
+                    ]}
+                    placeholder="No"
+                  />
                 </div>
               </div>
             </div>
           </section>
 
           {/* Social Media Section */}
-          <section className="bg-white rounded-lg shadow mt-6">
+          <section className="bg-white rounded-lg shadow mt-6 p-4 sm:p-6">
             <h2 className="text-lg font-medium mb-4 flex items-center">
               <svg
                 className="w-5 h-5 mr-2"
@@ -704,67 +699,91 @@ function OutletConfiguration() {
               Social Media
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <TextInput
-                label="Website"
-                name="website"
-                type="url"
-                value={configFormData.website}
-                onChange={(e) => handleConfigFormChange("website", e.target.value)}
-                placeholder="https://example.com"
-                className="rounded-lg"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+              <div className="w-full">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Website
+                </label>
+                <input
+                  type="url"
+                  name="website"
+                  value={configFormData.website}
+                  onChange={(e) => handleConfigFormChange("website", e.target.value)}
+                  placeholder="https://example.com"
+                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                />
+              </div>
 
-              <TextInput
-                label="WhatsApp Number"
-                name="whatsapp"
-                type="tel"
-                value={configFormData.whatsapp}
-                onChange={(e) => handleConfigFormChange("whatsapp", e.target.value)}
-                placeholder="Enter 10 digit mobile number"
-                maxLength={10}
-                className="rounded-lg"
-              />
+              <div className="w-full">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  WhatsApp Number
+                </label>
+                <input
+                  type="tel"
+                  name="whatsapp"
+                  value={configFormData.whatsapp}
+                  onChange={(e) => handleConfigFormChange("whatsapp", e.target.value)}
+                  placeholder="Enter 10 digit mobile number"
+                  maxLength={10}
+                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                />
+              </div>
 
-              <TextInput
-                label="Facebook"
-                name="facebook"
-                type="url"
-                value={configFormData.facebook}
-                onChange={(e) => handleConfigFormChange("facebook", e.target.value)}
-                placeholder="https://facebook.com/yourpage"
-                className="rounded-lg"
-              />
+              <div className="w-full">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Facebook
+                </label>
+                <input
+                  type="url"
+                  name="facebook"
+                  value={configFormData.facebook}
+                  onChange={(e) => handleConfigFormChange("facebook", e.target.value)}
+                  placeholder="https://facebook.com/yourpage"
+                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                />
+              </div>
 
-              <TextInput
-                label="Instagram"
-                name="instagram"
-                type="url"
-                value={configFormData.instagram}
-                onChange={(e) => handleConfigFormChange("instagram", e.target.value)}
-                placeholder="https://instagram.com/yourhandle"
-                className="rounded-lg"
-              />
+              <div className="w-full">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Instagram
+                </label>
+                <input
+                  type="url"
+                  name="instagram"
+                  value={configFormData.instagram}
+                  onChange={(e) => handleConfigFormChange("instagram", e.target.value)}
+                  placeholder="https://instagram.com/yourhandle"
+                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                />
+              </div>
 
-              <TextInput
-                label="Google Business Link"
-                name="google_business_link"
-                type="url"
-                value={configFormData.google_business_link}
-                onChange={(e) => handleConfigFormChange("google_business_link", e.target.value)}
-                placeholder="https://business.google.com/yourpage"
-                className="rounded-lg"
-              />
+              <div className="w-full">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Google Business Link
+                </label>
+                <input
+                  type="url"
+                  name="google_business_link"
+                  value={configFormData.google_business_link}
+                  onChange={(e) => handleConfigFormChange("google_business_link", e.target.value)}
+                  placeholder="https://business.google.com/yourpage"
+                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                />
+              </div>
 
-              <TextInput
-                label="Google Review Link"
-                name="google_review"
-                type="url"
-                value={configFormData.google_review}
-                onChange={(e) => handleConfigFormChange("google_review", e.target.value)}
-                placeholder="https://g.page/r/yourreviewpage"
-                className="rounded-lg"
-              />
+              <div className="w-full">
+                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  Google Review Link
+                </label>
+                <input
+                  type="url"
+                  name="google_review"
+                  value={configFormData.google_review}
+                  onChange={(e) => handleConfigFormChange("google_review", e.target.value)}
+                  placeholder="https://g.page/r/yourreviewpage"
+                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                />
+              </div>
             </div>
           </section>
         </div>
