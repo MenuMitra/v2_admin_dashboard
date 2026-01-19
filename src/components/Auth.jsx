@@ -624,7 +624,7 @@ function Auth() {
                   </div>
 
                   <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Version 2.0</span>
+                    <span className="font-medium">Version 2.2</span>
                     <span>|</span>
                     <span>
                       {new Date().toLocaleDateString("en-GB", {
