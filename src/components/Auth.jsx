@@ -272,7 +272,7 @@ function Auth() {
       const response = await toastController.promise(
         axios.post(`${BASE_URL}/admin/admin_verify_otp`, {
           mobile,
-          otp: otpString,
+          otp: parseInt(otpString),
           user_agent_name: browserDetails.userAgentName,
           device_id: deviceId,
           device_model:
