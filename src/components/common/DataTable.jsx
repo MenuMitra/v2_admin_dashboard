@@ -136,9 +136,6 @@ function DataTable({
   enableOutletTypeFilter = false,
   outletTypeFilter = "all",
   onOutletTypeFilterChange = () => { },
-  enableOutletModeFilter = false,
-  outletModeFilter = "all",
-  onOutletModeFilterChange = () => { },
   enableOwnerCountFilter = false,
   ownerCountFilter = "all",
   onOwnerCountFilterChange = () => { },
@@ -377,14 +374,6 @@ function DataTable({
       processedData = processedData.filter((item) => {
         const itemOutletType = (item.outlet_type || "").toLowerCase();
         return itemOutletType === outletTypeFilter.toLowerCase();
-      });
-    }
-
-    // Update outlet mode filtering
-    if (enableOutletModeFilter && outletModeFilter !== "all") {
-      processedData = processedData.filter((item) => {
-        const itemOutletMode = (item.outlet_mode || "").toLowerCase();
-        return itemOutletMode === outletModeFilter.toLowerCase();
       });
     }
 
@@ -1077,7 +1066,7 @@ function DataTable({
             </div>
 
             {/* Filters Row - Below Stats */}
-            {(enableStatusFilter || enableAccountTypeFilter || enableOpenCloseStatusFilter || enableOutletTypeFilter || enableOutletModeFilter || enableOwnerCountFilter || enableEnquiry || showSearch || onReload) && (
+            {(enableStatusFilter || enableAccountTypeFilter || enableOpenCloseStatusFilter || enableOutletTypeFilter || enableOwnerCountFilter || enableEnquiry || showSearch || onReload) && (
               <div className="flex items-center gap-2 px-0 pl-2 mb-4">
                 <div className="flex flex-1 flex-wrap items-center gap-2">
                   {enableStatusFilter && (
@@ -1210,24 +1199,6 @@ function DataTable({
 
                         ]}
                         placeholder="All Types"
-                        className="text-sm text-gray-700"
-                      />
-                    </div>
-                  )}
-                  {/* Outlet Mode Filter */}
-                  {enableOutletModeFilter && (
-                    <div className="w-36 text-gray-600 mr-2">
-                      <CustomSelect
-                        value={outletModeFilter || "all"}
-                        onChange={(e) => {
-                          onOutletModeFilterChange(e.target.value);
-                        }}
-                        options={[
-                          { value: "all", label: "All Modes" },
-                          { value: "online", label: "Online" },
-                          { value: "offline", label: "Offline" }
-                        ]}
-                        placeholder="All Modes"
                         className="text-sm text-gray-700"
                       />
                     </div>
@@ -1741,9 +1712,6 @@ DataTable.propTypes = {
   enableOutletTypeFilter: PropTypes.bool,
   outletTypeFilter: PropTypes.oneOf(["all", "outlet"]),
   onOutletTypeFilterChange: PropTypes.func,
-  enableOutletModeFilter: PropTypes.bool,
-  outletModeFilter: PropTypes.oneOf(["all", "online", "offline"]),
-  onOutletModeFilterChange: PropTypes.func,
   enableOwnerCountFilter: PropTypes.bool,
   ownerCountFilter: PropTypes.oneOf([
     "all",
@@ -1868,9 +1836,6 @@ DataTable.defaultProps = {
   enableOutletTypeFilter: false,
   outletTypeFilter: "all",
   onOutletTypeFilterChange: () => { },
-  enableOutletModeFilter: false,
-  outletModeFilter: "all",
-  onOutletModeFilterChange: () => { },
   enableOwnerCountFilter: false,
   ownerCountFilter: "all",
   onOwnerCountFilterChange: () => { },

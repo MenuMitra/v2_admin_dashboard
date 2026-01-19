@@ -191,9 +191,6 @@ function ViewOutlet() {
           case "is_open":
             newData.is_open = value === "open" ? 1 : 0;
             break;
-          case "outlet_mode":
-            newData.outlet_mode = value;
-            break;
           case "account_type":
             newData.account_type = value;
             break;
@@ -210,7 +207,6 @@ function ViewOutlet() {
         outlet_status: "Outlet status updated successfully!",
         is_open: "Open/Close status updated successfully!",
         account_type: "Account type updated successfully!",
-        outlet_mode: "Outlet mode updated successfully!",
       };
       toastController.success(
         successMessages[variables.type] || "Status updated successfully!"
@@ -287,14 +283,6 @@ function ViewOutlet() {
     const newValue = outletData?.account_type === "test" ? "live" : "test";
 
     toggleStatusMutation.mutate({ type: "account_type", value: newValue });
-  };
-
-  const handleToggleOutletMode = () => {
-
-    const newValue =
-      outletData?.outlet_mode === "online" ? "offline" : "online";
-
-    toggleStatusMutation.mutate({ type: "outlet_mode", value: newValue });
   };
 
   const handleBulkUpload = () => {
@@ -662,19 +650,6 @@ function ViewOutlet() {
                 </div>
               </div>
             )}
-            {/* Outlet Mode */}
-            <div className="flex justify-start">
-              <div>
-                <StatusToggleButton
-                  isActive={outletData?.outlet_mode === "online"}
-                  onToggle={handleToggleOutletMode}
-                  disabled={toggleStatusMutation.isPending}
-                  activeLabel="Online"
-                  inactiveLabel="Offline"
-                />
-                <div className="text-sm text-gray-500 mt-1">Outlet Mode</div>
-              </div>
-            </div>
             {/* Outlet Status */}
             <div className="flex justify-start">
               <div>

@@ -64,7 +64,7 @@ function EditOutlet() {
     email: "",
     opening_time: "",
     closing_time: "",
-    outlet_mode: "",
+    outlet_mode: "online",
     image: null,
     subscription_id: "",
     subscription_details: null,
@@ -99,7 +99,6 @@ function EditOutlet() {
     upi: false,
     outlet_type: false,
     food_type: false,
-    outlet_mode: false,
     address: false,
     fssainumber: false,
   });
@@ -259,7 +258,7 @@ function EditOutlet() {
           email: data.email || "",
           opening_time: data.opening_time || "",
           closing_time: data.closing_time || "",
-          outlet_mode: data.outlet_mode || "",
+          outlet_mode: "online",
           image: data.image || null,
           subscription_id: subscriptionId,
           subscription_end_date:
@@ -604,7 +603,6 @@ function EditOutlet() {
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
-      outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
     };
 
@@ -687,7 +685,7 @@ function EditOutlet() {
         service_charges: outletData.service_charges ? outletData.service_charges.toString() : "0",
         gst: outletData.gst ? outletData.gst.toString() : "0",
         address: outletData.address,
-        outlet_mode: outletData.outlet_mode || "offline",
+        outlet_mode: outletData.outlet_mode || "online",
         is_open: outletData.is_open ? 1 : 0,
         outlet_status: outletData.outlet_status ? 1 : 0,
         upi_id: outletData.upi_id,
@@ -1013,19 +1011,6 @@ function EditOutlet() {
                       value.slice(1).replace(/_/g, " "),
                   }))}
                   placeholder="Select Food Type"
-                />
-
-                <CustomDropdown
-                  label="Outlet Mode"
-                  name="outlet_mode"
-                  value={outletData.outlet_mode}
-                  onChange={handleInputChange}
-                  required
-                  options={[
-                    { value: "offline", label: "Offline" },
-                    { value: "online", label: "Online" },
-                  ]}
-                  placeholder="Select Outlet Mode"
                 />
 
                 <CustomDropdown

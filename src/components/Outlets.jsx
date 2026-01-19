@@ -52,7 +52,6 @@ function Outlets() {
   const [accountType, setAccountType] = useState("all");
   const [openCloseStatus, setOpenCloseStatus] = useState("all");
   const [outletTypeFilter, setOutletTypeFilter] = useState("all");
-  const [outletModeFilter, setOutletModeFilter] = useState("all");
   const [ownerCountFilter, setOwnerCountFilter] = useState("all");
 
   // Toggle status mutation
@@ -105,9 +104,6 @@ function Outlets() {
               case "account_type":
                 updatedOutlet.accountType = value;
                 break;
-              case "outlet_mode":
-                updatedOutlet.outlet_mode = value;
-                break;
             }
             
             return updatedOutlet;
@@ -138,7 +134,6 @@ function Outlets() {
         outlet_status: "Outlet status updated successfully!",
         is_open: "Open/Close status updated successfully!",
         account_type: "Account type updated successfully!",
-        outlet_mode: "Outlet mode updated successfully!",
       };
       toastController.success(
         successMessages[variables.type] || "Status updated successfully!"
@@ -197,20 +192,6 @@ function Outlets() {
     toggleStatusMutation.mutate({
       outlet_id: outletId,
       type: "is_open",
-      value: newValue,
-    });
-  };
-
-  const handleToggleOutletMode = (outletId, currentMode) => {
-    
-    if (!outletId) {
-      
-      return;
-    }
-    const newValue = currentMode === "online" ? "offline" : "online";
-    toggleStatusMutation.mutate({
-      outlet_id: outletId,
-      type: "outlet_mode",
       value: newValue,
     });
   };
@@ -357,39 +338,6 @@ function Outlets() {
             ? value.charAt(0).toUpperCase() + value.slice(1).replace(/_/g, " ")
             : "-"}
         </span>
-      ),
-    },
-    {
-      field: "outlet_mode",
-      header: "Mode",
-      sortable: true,
-      render: (value, row) => (
-        <button
-          onClick={() => {
-            
-            handleToggleOutletMode(row.outlet_id || row.id, value);
-          }}
-          disabled={toggleStatusMutation.isPending}
-          className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2 ${
-            value === "online"
-              ? "text-brand-500 "
-              : value === "offline"
-              ? "bg-orange-100 text-warning-500 "
-              : "bg-gray-100 text-gray-700 border-gray-200"
-          } ${
-            toggleStatusMutation.isPending
-              ? "opacity-50 cursor-not-allowed"
-              : ""
-          }`}
-        >
-          <FontAwesomeIcon
-            icon={value === "online" ? faToggleOn : faToggleOff}
-            className={`w-4 h-4 ${
-              value === "online" ? "text-brand-500" : "text-warning-500"
-            }`}
-          />
-          {value ? value.charAt(0).toUpperCase() + value.slice(1) : "-"}
-        </button>
       ),
     },
     {
@@ -617,9 +565,6 @@ function Outlets() {
         enableOutletTypeFilter={true}
         outletTypeFilter={outletTypeFilter}
         onOutletTypeFilterChange={(value) => setOutletTypeFilter(value)}
-        enableOutletModeFilter={true}
-        outletModeFilter={outletModeFilter}
-        onOutletModeFilterChange={(value) => setOutletModeFilter(value)}
         enableOwnerCountFilter={true}
         ownerCountFilter={ownerCountFilter}
         onOwnerCountFilterChange={(value) => setOwnerCountFilter(value)}

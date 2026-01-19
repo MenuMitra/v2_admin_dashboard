@@ -88,7 +88,7 @@ function CreateOutlet() {
     service_charges: "",
     gst: "",
     address: "",
-    outlet_mode: "",
+    outlet_mode: "online",
     is_open: true,
     outlet_status: true,
     upi_id: "",
@@ -121,7 +121,6 @@ function CreateOutlet() {
     upi: false,
     outlet_type: false,
     food_type: false,
-    outlet_mode: false,
     address: false,
     fssainumber: false,
     website: false,
@@ -193,7 +192,6 @@ function CreateOutlet() {
     outletData.upi_id,
     outletData.outlet_type,
     outletData.veg_nonveg,
-    outletData.outlet_mode,
     outletData.address,
     outletData.subscription_end_date,
     outletData.has_combo,
@@ -270,9 +268,8 @@ function CreateOutlet() {
       ...prev,
       outlet_type: !outletData.outlet_type && prev.outlet_type,
       food_type: !outletData.veg_nonveg && prev.food_type,
-      outlet_mode: !outletData.outlet_mode && prev.outlet_mode,
     }));
-  }, [outletData.outlet_type, outletData.veg_nonveg, outletData.outlet_mode]);
+  }, [outletData.outlet_type, outletData.veg_nonveg]);
 
   useEffect(() => {
     // Overall form validation
@@ -283,7 +280,6 @@ function CreateOutlet() {
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
-      outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
       company_id: !!outletData.company_id,
       subscription_end_date:
@@ -835,7 +831,6 @@ function CreateOutlet() {
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
-      outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
       company_id: !!outletData.company_id,
       // Subscription validation: if subscription_id exists, subscription_end_date should exist
@@ -1190,22 +1185,6 @@ function CreateOutlet() {
                       { value: "nonveg", label: "Non-Veg" },
                     ]}
                     placeholder="Select Food Type"
-                  />
-
-                  <CustomDropdown
-                    label="Outlet Mode"
-                    name="outlet_mode"
-                    value={outletData.outlet_mode}
-                    onChange={handleInputChange}
-                    error={
-                      validationStates.outlet_mode && !outletData.outlet_mode
-                    }
-                    required
-                    options={[
-                      { value: "offline", label: "Offline" },
-                      { value: "online", label: "Online" },
-                    ]}
-                    placeholder="Select Outlet Mode"
                   />
 
                   <div className="sm:col-span-1">
