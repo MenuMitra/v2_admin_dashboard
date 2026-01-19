@@ -6,7 +6,7 @@ import { API_CONFIG } from "../../../config/appConfig";
 import { queryKeys } from "../queryKeys";
 import { toastController } from "../../../utils/toastController";
 
-const { BASE_URL, API_VERSION } = API_CONFIG;
+const { BASE_URL } = API_CONFIG;
 
 // Transform outlet data to match UI structure
 const transformOutletData = (outlets) => {

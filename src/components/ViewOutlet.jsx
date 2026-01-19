@@ -74,7 +74,7 @@ function ViewOutlet() {
     : null;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { BASE_URL, API_VERSION, CUSTOMER_APP_URL } = API_CONFIG;
+  const { BASE_URL, CUSTOMER_APP_URL } = API_CONFIG;
 
   // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);

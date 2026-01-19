@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,6 +13,7 @@ import {
   faToggleOn,
   faPlay,
   faPause,
+  faGear,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -38,7 +38,7 @@ function Outlets() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
   const queryClient = useQueryClient();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
   const { getToken } = useAuth();
 
   const { outlets, isLoading, deleteOutlet, isDeleting, bulkAction, isBulkActioning, refetch } =
@@ -226,6 +226,12 @@ function Outlets() {
     }
 
     bulkAction({ action, outletIds: validIds });
+  };
+
+  // Outlet Configuration handler - navigate to configuration page
+  const handleOutletConfiguration = (outlet) => {
+    const outletId = outlet.outlet_id || outlet.id;
+    navigate(`/outlet-configuration/${outletId}`);
   };
 
   const breadcrumbItems = [
@@ -475,6 +481,13 @@ function Outlets() {
             title="Edit Outlet"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleOutletConfiguration(row)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-gray-500 hover:bg-gray-600 rounded-3xl shadow-theme-xs transition"
+            title="Outlet Configuration"
+          >
+            <FontAwesomeIcon icon={faGear} className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleDeleteClick(row)}

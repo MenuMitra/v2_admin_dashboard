@@ -24,7 +24,7 @@ import Breadcrumb from "./Breadcrumb";
 import ImageUploader from "./common/ImageUploader";
 import { API_CONFIG } from "../config/appConfig";
 import { YES_NO_OPTIONS } from "../utils/validationPatterns";
-import { isMobileValid, isWhatsappValid } from "../utils/validations";
+import { isMobileValid } from "../utils/validations";
 import { toastController } from "../utils/toastController";
 import CustomSelectInput from "./common/CustomSelectInput";
 import CustomDropdown from "./common/CustomDropdown";
@@ -38,7 +38,7 @@ function EditOutlet() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { outletId } = useParams();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
   const [outletData, setOutletData] = useState({
     outlet_id: "",
     user_id: "",
@@ -102,8 +102,6 @@ function EditOutlet() {
     outlet_mode: false,
     address: false,
     fssainumber: false,
-    whatsapp: false,
-    whatsappMessage: "",
   });
   console.log(tenureMonths)
   const [originalOwnerIds, setOriginalOwnerIds] = useState([]);
@@ -527,7 +525,7 @@ function EditOutlet() {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === "mobile" || name === "whatsapp") {
+    if (name === "mobile") {
       const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
 
@@ -1114,34 +1112,6 @@ function EditOutlet() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 <div className="w-full">
                   <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    Service Charges (%)
-                  </label>
-                  <input
-                    type="number"
-                    name="service_charges"
-                    value={outletData.service_charges}
-                    onChange={handleInputChange}
-                    placeholder="Enter service charges"
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    GST (%)
-                  </label>
-                  <input
-                    type="number"
-                    name="gst"
-                    value={outletData.gst}
-                    onChange={handleInputChange}
-                    placeholder="Enter GST percentage"
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
                     FSSAI Number
                   </label>
                   <input
@@ -1168,244 +1138,6 @@ function EditOutlet() {
                     placeholder="Enter GST number"
                     className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
                   />
-                </div>
-                <div className="col-span-full w-full">
-                  <div className="flex flex-row flex-nowrap items-end gap-10 mb-4">
-                    {/* Opening Time */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Opening Time
-                      </label>
-                      <div className="flex gap-2">
-                        {/* Hour Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={openingHour}
-                          onChange={(e) =>
-                            handleOpeningTimeChange("hour", e.target.value)
-                          }
-                          options={[
-                            { value: "", label: "HH" },
-                            ...[...Array(12)].map((_, i) => {
-                              const val = (i + 1).toString().padStart(2, "0");
-                              return { value: val, label: val };
-                            }),
-                          ]}
-                          placeholder="HH"
-                        />
-                        {/* Minute Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={openingMinute}
-                          onChange={(e) =>
-                            handleOpeningTimeChange("minute", e.target.value)
-                          }
-                          options={[
-                            { value: "", label: "MM" },
-                            ...["00", "15", "30", "45"].map((min) => ({
-                              value: min,
-                              label: min,
-                            })),
-                          ]}
-                          placeholder="MM"
-                        />
-                        {/* AM/PM Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={openingPeriod}
-                          onChange={(e) =>
-                            handleOpeningTimeChange("period", e.target.value)
-                          }
-                          options={[
-                            { value: "AM", label: "AM" },
-                            { value: "PM", label: "PM" },
-                          ]}
-                          placeholder="AM/PM"
-                        />
-                      </div>
-                    </div>
-                    {/* Closing Time */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Closing Time
-                      </label>
-                      <div className="flex gap-2">
-                        {/* Hour Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={closingHour}
-                          onChange={(e) =>
-                            handleClosingTimeChange("hour", e.target.value)
-                          }
-                          options={[
-                            { value: "", label: "HH" },
-                            ...[...Array(12)].map((_, i) => {
-                              const val = (i + 1).toString().padStart(2, "0");
-                              return { value: val, label: val };
-                            }),
-                          ]}
-                          placeholder="HH"
-                        />
-                        {/* Minute Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={closingMinute}
-                          onChange={(e) =>
-                            handleClosingTimeChange("minute", e.target.value)
-                          }
-                          options={[
-                            { value: "", label: "MM" },
-                            ...["00", "15", "30", "45"].map((min) => ({
-                              value: min,
-                              label: min,
-                            })),
-                          ]}
-                          placeholder="MM"
-                        />
-                        {/* AM/PM Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={closingPeriod}
-                          onChange={(e) =>
-                            handleClosingTimeChange("period", e.target.value)
-                          }
-                          options={[
-                            { value: "AM", label: "AM" },
-                            { value: "PM", label: "PM" },
-                          ]}
-                          placeholder="AM/PM"
-                        />
-                      </div>
-                    </div>
-                    {/* Has Combo */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Has Combo
-                      </label>
-                      <CustomDropdown
-                        name="has_combo"
-                        className="w-22"
-                        value={
-                          outletData.has_combo !== null &&
-                            outletData.has_combo !== undefined
-                            ? String(outletData.has_combo)
-                            : ""
-                        }
-                        onChange={(e) =>
-                          setOutletData((prev) => ({
-                            ...prev,
-                            has_combo: e.target.value
-                              ? Number(e.target.value)
-                              : null,
-                          }))
-                        }
-                        options={[
-                          { value: "", label: "Select" },
-                          ...YES_NO_OPTIONS.map((opt) => ({
-                            value: String(opt.value),
-                            label: opt.label,
-                          })),
-                        ]}
-                        placeholder="Select"
-                      />
-                    </div>
-                    {/* Has Denomination */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Has Denomination
-                      </label>
-                      <CustomDropdown
-                        name="has_denomination"
-                        className="w-22"
-                        value={
-                          outletData.has_denomination !== null &&
-                            outletData.has_denomination !== undefined
-                            ? String(outletData.has_denomination)
-                            : ""
-                        }
-                        onChange={(e) =>
-                          setOutletData((prev) => ({
-                            ...prev,
-                            has_denomination: e.target.value
-                              ? Number(e.target.value)
-                              : null,
-                          }))
-                        }
-                        options={[
-                          { value: "", label: "Select" },
-                          ...YES_NO_OPTIONS.map((opt) => ({
-                            value: String(opt.value),
-                            label: opt.label,
-                          })),
-                        ]}
-                        placeholder="Select"
-                      />
-                    </div>
-                    {/* Has Udhari */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Has Udhari
-                      </label>
-                      <CustomDropdown
-                        name="has_udhari"
-                        className="w-22"
-                        value={
-                          outletData.has_udhari !== null &&
-                            outletData.has_udhari !== undefined
-                            ? String(outletData.has_udhari)
-                            : ""
-                        }
-                        onChange={(e) =>
-                          setOutletData((prev) => ({
-                            ...prev,
-                            has_udhari: e.target.value
-                              ? Number(e.target.value)
-                              : null,
-                          }))
-                        }
-                        options={[
-                          { value: "", label: "Select" },
-                          ...YES_NO_OPTIONS.map((opt) => ({
-                            value: String(opt.value),
-                            label: opt.label,
-                          })),
-                        ]}
-                        placeholder="Select"
-                      />
-                    </div>
-                    {/* Reserve Table */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Reserve Table
-                      </label>
-                      <CustomDropdown
-                        name="reserve_table"
-                        className="w-22"
-                        value={
-                          outletData.reserve_table !== null &&
-                            outletData.reserve_table !== undefined
-                            ? String(outletData.reserve_table)
-                            : ""
-                        }
-                        onChange={(e) =>
-                          setOutletData((prev) => ({
-                            ...prev,
-                            reserve_table: e.target.value
-                              ? Number(e.target.value)
-                              : null,
-                          }))
-                        }
-                        options={[
-                          { value: "", label: "Select" },
-                          ...YES_NO_OPTIONS.map((opt) => ({
-                            value: String(opt.value),
-                            label: opt.label,
-                          })),
-                        ]}
-                        placeholder="Select"
-                      />
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1534,78 +1266,6 @@ function EditOutlet() {
                   </div>
                 </>
               )}
-            </div>
-          </section>
-
-          {/* Social Media Section */}
-          <section className="bg-white rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                />
-              </svg>
-              Social Media
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <TextInput
-                label="Website"
-                name="website"
-                type="url"
-                value={outletData.website}
-                onChange={handleInputChange}
-                placeholder="https://example.com"
-                className="rounded-lg"
-              />
-
-              <TextInput
-                label="Facebook"
-                name="facebook"
-                type="url"
-                value={outletData.facebook}
-                onChange={handleInputChange}
-                placeholder="https://facebook.com/yourpage"
-                className="rounded-lg"
-              />
-
-              <TextInput
-                label="Instagram"
-                name="instagram"
-                type="url"
-                value={outletData.instagram}
-                onChange={handleInputChange}
-                placeholder="https://instagram.com/yourhandle"
-                className="rounded-lg"
-              />
-
-              <TextInput
-                label="Google Business Link"
-                name="google_business_link"
-                type="url"
-                value={outletData.google_business_link}
-                onChange={handleInputChange}
-                placeholder="https://business.google.com/yourpage"
-                className="rounded-lg"
-              />
-
-              <TextInput
-                label="Google Review Link"
-                name="google_review"
-                type="url"
-                value={outletData.google_review}
-                onChange={handleInputChange}
-                placeholder="https://g.page/r/yourreviewpage"
-                className="rounded-lg"
-              />
             </div>
           </section>
         </form>

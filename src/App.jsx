@@ -11,6 +11,7 @@ import Outlets from "./components/Outlets";
 import CreateOutlet from "./components/CreateOutlet";
 import ViewOutlet from "./components/ViewOutlet";
 import EditOutlet from "./components/EditOutlet";
+import OutletConfiguration from "./components/OutletConfiguration";
 import Owners from "./components/Owners";
 import OwnerDetails from "./components/OwnerDetails";
 import EditOwner from "./components/EditOwner";
@@ -93,6 +94,7 @@ function App() {
             <Route path="/create-outlet" element={<CreateOutlet />} />
             <Route path="/view-outlet/:outletId" element={<ViewOutlet />} />
             <Route path="/edit-outlet/:outletId" element={<EditOutlet />} />
+            <Route path="/outlet-configuration/:outletId" element={<OutletConfiguration />} />
             <Route
               path="/categories/:outletId"
               element={<ManageCategories />}

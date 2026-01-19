@@ -1,0 +1,776 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
+import { useAuth } from "../hooks/useAuth";
+import { useAdmin } from "../hooks/useAdmin";
+import { API_CONFIG } from "../config/appConfig";
+import { toastController } from "../utils/toastController";
+import { queryKeys } from "../lib/react-query/queryKeys";
+import Breadcrumb from "./Breadcrumb";
+import SaveButton from "./common/SaveButton";
+import CustomDropdown from "./common/CustomDropdown";
+import { TextInput } from "./forms/FormElements.jsx";
+import { YES_NO_OPTIONS } from "../utils/validationPatterns";
+
+function toTitleCase(str) {
+  return str
+    ? str.replace(
+        /\w\S*/g,
+        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "";
+}
+
+function OutletConfiguration() {
+  const { outletId } = useParams();
+  const navigate = useNavigate();
+  const { getToken } = useAuth();
+  const { adminData } = useAdmin();
+  const { BASE_URL } = API_CONFIG;
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [configFormData, setConfigFormData] = useState({
+    service_charge_value: "",
+    service_charge_type: "percent",
+    gst: "",
+    fssainumber: "",
+    gstnumber: "",
+    has_combo: null,
+    has_denomination: null,
+    has_udhari: null,
+    has_reserve_table: null,
+    has_dynamic_price: null,
+    is_open: null,
+    opening_time: "",
+    closing_time: "",
+    order_number_sequence: "daily",
+    website: "",
+    whatsapp: "",
+    facebook: "",
+    instagram: "",
+    google_business_link: "",
+    google_review: "",
+  });
+
+  // Time state for dropdowns
+  const [openingHour, setOpeningHour] = useState("");
+  const [openingMinute, setOpeningMinute] = useState("");
+  const [openingPeriod, setOpeningPeriod] = useState("AM");
+  const [closingHour, setClosingHour] = useState("");
+  const [closingMinute, setClosingMinute] = useState("");
+  const [closingPeriod, setClosingPeriod] = useState("AM");
+
+  // Fetch outlet details (for name display)
+  const { data: outletResponse, isLoading: isLoadingOutlet } = useQuery({
+    queryKey: queryKeys.outlets.detail(outletId),
+    queryFn: async () => {
+      const response = await axios.post(
+        `${BASE_URL}/common/view_outlet`,
+        {
+          outlet_id: outletId,
+          user_id: adminData?.user_id,
+          app_source: "admin_app",
+        },
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    },
+    enabled: Boolean(outletId) && Boolean(adminData?.user_id),
+  });
+
+  // Fetch outlet configuration
+  const { data: configResponse, isLoading: isLoadingConfig } = useQuery({
+    queryKey: ["outletConfig", outletId],
+    queryFn: async () => {
+      const response = await axios.get(
+        `${BASE_URL}/admin/get_outlet_config/${outletId}`,
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    },
+    enabled: Boolean(outletId),
+  });
+
+  const outletData = outletResponse?.data || null;
+  const configData = configResponse || null;
+
+  // Helper function to parse time in HH:MM format to hour, minute, period
+  const parseTime = (timeStr) => {
+    if (!timeStr) return { hour: "", minute: "", period: "AM" };
+    
+    // Handle HH:MM format (24-hour)
+    const [hourStr, minuteStr] = timeStr.split(":");
+    let hour = parseInt(hourStr, 10);
+    const minute = minuteStr ? minuteStr.substring(0, 2) : "00";
+    
+    let period = "AM";
+    if (hour >= 12) {
+      period = "PM";
+      if (hour > 12) hour -= 12;
+    }
+    if (hour === 0) hour = 12;
+    
+    return {
+      hour: hour.toString().padStart(2, "0"),
+      minute: minute,
+      period: period,
+    };
+  };
+
+  // Prefill form data from outlet config API response
+  useEffect(() => {
+    if (configData) {
+      setConfigFormData({
+        service_charge_value: configData.service_charge_value ?? "",
+        service_charge_type: configData.service_charge_type || "percent",
+        gst: configData.gst ?? "",
+        fssainumber: configData.fssainumber || "",
+        gstnumber: configData.gstnumber || "",
+        has_combo: configData.has_combo === true ? 1 : configData.has_combo === false ? 0 : null,
+        has_denomination: configData.has_denomination === true ? 1 : configData.has_denomination === false ? 0 : null,
+        has_udhari: configData.has_udhari === true ? 1 : configData.has_udhari === false ? 0 : null,
+        has_reserve_table: configData.has_reserve_table === true ? 1 : configData.has_reserve_table === false ? 0 : null,
+        has_dynamic_price: configData.has_dynamic_price === true ? 1 : configData.has_dynamic_price === false ? 0 : null,
+        is_open: configData.is_open === true ? 1 : configData.is_open === false ? 0 : null,
+        opening_time: configData.opening_time || "",
+        closing_time: configData.closing_time || "",
+        order_number_sequence: configData.order_number_sequence || "daily",
+        website: configData.website || "",
+        whatsapp: configData.whatsapp || "",
+        facebook: configData.facebook || "",
+        instagram: configData.instagram || "",
+        google_business_link: configData.google_business_link || "",
+        google_review: configData.google_review || "",
+      });
+
+      // Parse opening time
+      if (configData.opening_time) {
+        const parsed = parseTime(configData.opening_time);
+        setOpeningHour(parsed.hour);
+        setOpeningMinute(parsed.minute);
+        setOpeningPeriod(parsed.period);
+      }
+
+      // Parse closing time
+      if (configData.closing_time) {
+        const parsed = parseTime(configData.closing_time);
+        setClosingHour(parsed.hour);
+        setClosingMinute(parsed.minute);
+        setClosingPeriod(parsed.period);
+      }
+    }
+  }, [configData]);
+
+  const isLoading = isLoadingOutlet || isLoadingConfig;
+
+  const handleConfigFormChange = (field, value) => {
+    setConfigFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleOpeningTimeChange = (type, value) => {
+    if (type === "hour") setOpeningHour(value);
+    if (type === "minute") setOpeningMinute(value);
+    if (type === "period") setOpeningPeriod(value);
+    const hour = type === "hour" ? value : openingHour;
+    const minute = type === "minute" ? value : openingMinute;
+    const period = type === "period" ? value : openingPeriod;
+    if (hour && minute && period) {
+      setConfigFormData((prev) => ({
+        ...prev,
+        opening_time: `${hour}:${minute} ${period}`,
+      }));
+    }
+  };
+
+  const handleClosingTimeChange = (type, value) => {
+    if (type === "hour") setClosingHour(value);
+    if (type === "minute") setClosingMinute(value);
+    if (type === "period") setClosingPeriod(value);
+    const hour = type === "hour" ? value : closingHour;
+    const minute = type === "minute" ? value : closingMinute;
+    const period = type === "period" ? value : closingPeriod;
+    if (hour && minute && period) {
+      setConfigFormData((prev) => ({
+        ...prev,
+        closing_time: `${hour}:${minute} ${period}`,
+      }));
+    }
+  };
+
+  // Helper function to convert 12-hour time to 24-hour format (HH:MM)
+  const convertTo24Hour = (hour, minute, period) => {
+    if (!hour || !minute) return null;
+    let h = parseInt(hour, 10);
+    if (period === "PM" && h !== 12) h += 12;
+    if (period === "AM" && h === 12) h = 0;
+    return `${h.toString().padStart(2, "0")}:${minute}`;
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const payload = {
+        outlet_id: Number(outletId),
+        user_id: adminData?.user_id,
+        is_open: configFormData.is_open === 1,
+        has_udhari: configFormData.has_udhari === 1,
+        whatsapp: configFormData.whatsapp || "",
+        facebook: configFormData.facebook || "",
+        instagram: configFormData.instagram || "",
+        website: configFormData.website || "",
+      };
+
+      // Add closing time in 24-hour format (HH:MM) if set
+      if (closingHour && closingMinute) {
+        payload.closing_time = convertTo24Hour(closingHour, closingMinute, closingPeriod);
+      }
+
+      // Add opening time in 24-hour format (HH:MM) if set
+      if (openingHour && openingMinute) {
+        payload.opening_time = convertTo24Hour(openingHour, openingMinute, openingPeriod);
+      }
+
+      // Add other optional fields if they have values
+      if (configFormData.service_charge_value) {
+        payload.service_charge_value = Number(configFormData.service_charge_value);
+      }
+      if (configFormData.service_charge_type) {
+        payload.service_charge_type = configFormData.service_charge_type;
+      }
+      if (configFormData.gst) {
+        payload.gst = Number(configFormData.gst);
+      }
+      if (configFormData.has_combo !== null) {
+        payload.has_combo = configFormData.has_combo === 1;
+      }
+      if (configFormData.has_denomination !== null) {
+        payload.has_denomination = configFormData.has_denomination === 1;
+      }
+      if (configFormData.has_reserve_table !== null) {
+        payload.has_reserve_table = configFormData.has_reserve_table === 1;
+      }
+      if (configFormData.has_dynamic_price !== null) {
+        payload.has_dynamic_price = configFormData.has_dynamic_price === 1;
+      }
+      if (configFormData.order_number_sequence) {
+        payload.order_number_sequence = configFormData.order_number_sequence;
+      }
+      if (configFormData.google_business_link) {
+        payload.google_business_link = configFormData.google_business_link;
+      }
+      if (configFormData.google_review) {
+        payload.google_review = configFormData.google_review;
+      }
+
+      const response = await axios.patch(
+        `${BASE_URL}/admin/update_outlet_config/${outletId}`,
+        payload,
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data) {
+        toastController.success(
+          response.data.message || "Outlet configuration updated successfully"
+        );
+        navigate(-1);
+      }
+    } catch (error) {
+      toastController.error(
+        error.response?.data?.message || "Failed to update outlet configuration"
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const breadcrumbItems = [
+    { label: "Home", path: "/Home" },
+    { label: "Outlets", path: "/outlets" },
+    { label: outletData?.name || "Outlet", path: `/view-outlet/${outletId}` },
+    { label: "Configuration" },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" />
+      </div>
+    );
+  }
+
+
+  return (
+    <>
+      {/* Breadcrumb */}
+      <div className="mb-6">
+        <Breadcrumb items={breadcrumbItems} />
+      </div>
+
+      {/* Main Card */}
+      <div className="rounded-2xl border border-gray-200 bg-white">
+        <div className="overflow-hidden pt-4">
+          {/* Top Row - Back, Title, Save Button */}
+          <div className="flex items-center px-6 mb-3">
+            {/* Left Side - Back Button */}
+            <div>
+              <button
+                onClick={() => navigate(-1)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
+              >
+                <FontAwesomeIcon icon={faChevronLeft} className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
+              </button>
+            </div>
+
+            {/* Center - Title */}
+            <div className="flex-1 text-center">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                {toTitleCase(outletData?.name) || "Outlet"} - Configuration
+              </h2>
+            </div>
+
+            {/* Right Side - Save Button */}
+            <div>
+              <SaveButton
+                onClick={handleSave}
+                disabled={isSaving}
+                isLoading={isSaving}
+              >
+                {isSaving ? "Saving..." : "Save"}
+              </SaveButton>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="px-6 pb-6">
+          {/* Business Details Section */}
+          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
+            <div className="border-b border-gray-200 dark:border-gray-800 pb-5">
+              <h2 className="text-lg font-medium mb-4 flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Business Details
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Service Charges (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="service_charge_value"
+                    value={configFormData.service_charge_value}
+                    onChange={(e) => handleConfigFormChange("service_charge_value", e.target.value)}
+                    placeholder="Enter service charges"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Service Charge Type
+                  </label>
+                  <CustomDropdown
+                    name="service_charge_type"
+                    className="w-full"
+                    value={configFormData.service_charge_type}
+                    onChange={(e) => handleConfigFormChange("service_charge_type", e.target.value)}
+                    options={[
+                      { value: "percent", label: "Percent" },
+                      { value: "fixed", label: "Fixed" },
+                    ]}
+                    placeholder="Select"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    GST (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="gst"
+                    value={configFormData.gst}
+                    onChange={(e) => handleConfigFormChange("gst", e.target.value)}
+                    placeholder="Enter GST percentage"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                  />
+                </div>
+
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Order Number Sequence
+                  </label>
+                  <CustomDropdown
+                    name="order_number_sequence"
+                    className="w-full"
+                    value={configFormData.order_number_sequence}
+                    onChange={(e) => handleConfigFormChange("order_number_sequence", e.target.value)}
+                    options={[
+                      { value: "daily", label: "Daily" },
+                      { value: "continuous", label: "Continuous" },
+                    ]}
+                    placeholder="Select"
+                  />
+                </div>
+
+                <div className="col-span-full w-full">
+                  <div className="flex flex-row flex-nowrap items-end gap-8">
+                    {/* Opening Time */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Opening Time
+                      </label>
+                      <div className="flex gap-1">
+                        <CustomDropdown
+                          className="w-16"
+                          value={openingHour}
+                          onChange={(e) => handleOpeningTimeChange("hour", e.target.value)}
+                          options={[
+                            { value: "", label: "HH" },
+                            ...[...Array(12)].map((_, i) => {
+                              const val = (i + 1).toString().padStart(2, "0");
+                              return { value: val, label: val };
+                            }),
+                          ]}
+                          placeholder="HH"
+                        />
+                        <CustomDropdown
+                          className="w-16"
+                          value={openingMinute}
+                          onChange={(e) => handleOpeningTimeChange("minute", e.target.value)}
+                          options={[
+                            { value: "", label: "MM" },
+                            ...["00", "15", "30", "45"].map((min) => ({
+                              value: min,
+                              label: min,
+                            })),
+                          ]}
+                          placeholder="MM"
+                        />
+                        <CustomDropdown
+                          className="w-16"
+                          value={openingPeriod}
+                          onChange={(e) => handleOpeningTimeChange("period", e.target.value)}
+                          options={[
+                            { value: "AM", label: "AM" },
+                            { value: "PM", label: "PM" },
+                          ]}
+                          placeholder="AM"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Closing Time */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Closing Time
+                      </label>
+                      <div className="flex gap-1">
+                        <CustomDropdown
+                          className="w-16"
+                          value={closingHour}
+                          onChange={(e) => handleClosingTimeChange("hour", e.target.value)}
+                          options={[
+                            { value: "", label: "HH" },
+                            ...[...Array(12)].map((_, i) => {
+                              const val = (i + 1).toString().padStart(2, "0");
+                              return { value: val, label: val };
+                            }),
+                          ]}
+                          placeholder="HH"
+                        />
+                        <CustomDropdown
+                          className="w-16"
+                          value={closingMinute}
+                          onChange={(e) => handleClosingTimeChange("minute", e.target.value)}
+                          options={[
+                            { value: "", label: "MM" },
+                            ...["00", "15", "30", "45"].map((min) => ({
+                              value: min,
+                              label: min,
+                            })),
+                          ]}
+                          placeholder="MM"
+                        />
+                        <CustomDropdown
+                          className="w-16"
+                          value={closingPeriod}
+                          onChange={(e) => handleClosingTimeChange("period", e.target.value)}
+                          options={[
+                            { value: "AM", label: "AM" },
+                            { value: "PM", label: "PM" },
+                          ]}
+                          placeholder="AM"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Has Combo */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has<br />Combo
+                      </label>
+                      <CustomDropdown
+                        name="has_combo"
+                        className="w-20"
+                        value={
+                          configFormData.has_combo !== null &&
+                          configFormData.has_combo !== undefined
+                            ? String(configFormData.has_combo)
+                            : "0"
+                        }
+                        onChange={(e) =>
+                          handleConfigFormChange(
+                            "has_combo",
+                            e.target.value !== "" ? Number(e.target.value) : null
+                          )
+                        }
+                        options={[
+                          { value: "0", label: "No" },
+                          { value: "1", label: "Yes" },
+                        ]}
+                        placeholder="No"
+                      />
+                    </div>
+
+                    {/* Has Denomination */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has<br />Denomination
+                      </label>
+                      <CustomDropdown
+                        name="has_denomination"
+                        className="w-20"
+                        value={
+                          configFormData.has_denomination !== null &&
+                          configFormData.has_denomination !== undefined
+                            ? String(configFormData.has_denomination)
+                            : "0"
+                        }
+                        onChange={(e) =>
+                          handleConfigFormChange(
+                            "has_denomination",
+                            e.target.value !== "" ? Number(e.target.value) : null
+                          )
+                        }
+                        options={[
+                          { value: "0", label: "No" },
+                          { value: "1", label: "Yes" },
+                        ]}
+                        placeholder="No"
+                      />
+                    </div>
+
+                    {/* Has Udhari */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Has<br />Udhari
+                      </label>
+                      <CustomDropdown
+                        name="has_udhari"
+                        className="w-20"
+                        value={
+                          configFormData.has_udhari !== null &&
+                          configFormData.has_udhari !== undefined
+                            ? String(configFormData.has_udhari)
+                            : "0"
+                        }
+                        onChange={(e) =>
+                          handleConfigFormChange(
+                            "has_udhari",
+                            e.target.value !== "" ? Number(e.target.value) : null
+                          )
+                        }
+                        options={[
+                          { value: "0", label: "No" },
+                          { value: "1", label: "Yes" },
+                        ]}
+                        placeholder="No"
+                      />
+                    </div>
+
+                    {/* Reserve Table */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reserve<br />Table
+                      </label>
+                      <CustomDropdown
+                        name="has_reserve_table"
+                        className="w-20"
+                        value={
+                          configFormData.has_reserve_table !== null &&
+                          configFormData.has_reserve_table !== undefined
+                            ? String(configFormData.has_reserve_table)
+                            : "1"
+                        }
+                        onChange={(e) =>
+                          handleConfigFormChange(
+                            "has_reserve_table",
+                            e.target.value !== "" ? Number(e.target.value) : null
+                          )
+                        }
+                        options={[
+                          { value: "0", label: "No" },
+                          { value: "1", label: "Yes" },
+                        ]}
+                        placeholder="Yes"
+                      />
+                    </div>
+
+                    {/* Dynamic Price */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Dynamic<br />Price
+                      </label>
+                      <CustomDropdown
+                        name="has_dynamic_price"
+                        className="w-20"
+                        value={
+                          configFormData.has_dynamic_price !== null &&
+                          configFormData.has_dynamic_price !== undefined
+                            ? String(configFormData.has_dynamic_price)
+                            : "0"
+                        }
+                        onChange={(e) =>
+                          handleConfigFormChange(
+                            "has_dynamic_price",
+                            e.target.value !== "" ? Number(e.target.value) : null
+                          )
+                        }
+                        options={[
+                          { value: "0", label: "No" },
+                          { value: "1", label: "Yes" },
+                        ]}
+                        placeholder="No"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Social Media Section */}
+          <section className="bg-white rounded-lg shadow mt-6">
+            <h2 className="text-lg font-medium mb-4 flex items-center">
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
+                />
+              </svg>
+              Social Media
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <TextInput
+                label="Website"
+                name="website"
+                type="url"
+                value={configFormData.website}
+                onChange={(e) => handleConfigFormChange("website", e.target.value)}
+                placeholder="https://example.com"
+                className="rounded-lg"
+              />
+
+              <TextInput
+                label="WhatsApp Number"
+                name="whatsapp"
+                type="tel"
+                value={configFormData.whatsapp}
+                onChange={(e) => handleConfigFormChange("whatsapp", e.target.value)}
+                placeholder="Enter 10 digit mobile number"
+                maxLength={10}
+                className="rounded-lg"
+              />
+
+              <TextInput
+                label="Facebook"
+                name="facebook"
+                type="url"
+                value={configFormData.facebook}
+                onChange={(e) => handleConfigFormChange("facebook", e.target.value)}
+                placeholder="https://facebook.com/yourpage"
+                className="rounded-lg"
+              />
+
+              <TextInput
+                label="Instagram"
+                name="instagram"
+                type="url"
+                value={configFormData.instagram}
+                onChange={(e) => handleConfigFormChange("instagram", e.target.value)}
+                placeholder="https://instagram.com/yourhandle"
+                className="rounded-lg"
+              />
+
+              <TextInput
+                label="Google Business Link"
+                name="google_business_link"
+                type="url"
+                value={configFormData.google_business_link}
+                onChange={(e) => handleConfigFormChange("google_business_link", e.target.value)}
+                placeholder="https://business.google.com/yourpage"
+                className="rounded-lg"
+              />
+
+              <TextInput
+                label="Google Review Link"
+                name="google_review"
+                type="url"
+                value={configFormData.google_review}
+                onChange={(e) => handleConfigFormChange("google_review", e.target.value)}
+                placeholder="https://g.page/r/yourreviewpage"
+                className="rounded-lg"
+              />
+            </div>
+          </section>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default OutletConfiguration;
