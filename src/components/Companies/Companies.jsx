@@ -26,7 +26,7 @@ const toTitleCase = (str) =>
     : "";
 
 function Companies() {
-  const { getToken } = useAuth();
+  const { getToken, getUserId } = useAuth();
   const { adminData } = useAdmin();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");

@@ -6,7 +6,7 @@ import { queryKeys } from "../queryKeys";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
-export const useCompanyDetails = (companyId, token) => {
+export const useCompanyDetails = (companyId, token, userId) => {
   const queryClient = useQueryClient();
 
   // Format date helper function
@@ -59,7 +59,7 @@ export const useCompanyDetails = (companyId, token) => {
         `${BASE_URL}/admin/view_company`,
         { 
           company_id: parseInt(companyId), 
-          user_id: 440, // Use hardcoded user_id as per requirements
+          user_id: userId || 440, // Use dynamic user_id, fallback to 440 for backward compatibility
         },
         {
           headers: {
@@ -78,7 +78,7 @@ export const useCompanyDetails = (companyId, token) => {
         err.response?.data?.message || "Failed to fetch company details";
       toastController.error(errorMessage);
     },
-    enabled: !!companyId && !!token, // Only need companyId and token (user_id is hardcoded)
+    enabled: !!companyId && !!token, // Only need companyId and token (user_id is dynamic)
   });
 
   // Delete company mutation
@@ -92,7 +92,7 @@ export const useCompanyDetails = (companyId, token) => {
         `${BASE_URL}/admin/delete_company`,
         {
           company_id: parseInt(companyId),
-          user_id: 440, // Use hardcoded user_id as per requirements
+          user_id: userId || 440, // Use dynamic user_id, fallback to 440 for backward compatibility
           app_source: "admin",
         },
         {

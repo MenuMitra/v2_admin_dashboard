@@ -33,7 +33,7 @@ import MultiSelectDropdown from "./common/MultiSelectDropdown";
 import SingleSelectDropdown from "./common/SingleSelectDropdown";
 
 function EditOutlet() {
-  const { getToken } = useAuth();
+  const { getToken, getUserId } = useAuth();
   const { adminData } = useAdmin();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -409,7 +409,7 @@ function EditOutlet() {
       if (!token) throw new Error("No authentication token available");
 
       const response = await axios.get(
-        `${BASE_URL}/common/listview_owner/${adminData.user_id}`,
+        `${BASE_URL}/common/listview_owner/${getUserId() || adminData?.user_id}`,
         { headers: { Authorization: token } }
       );
 
@@ -431,7 +431,7 @@ function EditOutlet() {
       const response = await axios.post(
         `${BASE_URL}/admin/list_companies`,
         {
-          user_id: 440
+          user_id: getUserId()
         },
         {
           headers: {
@@ -463,7 +463,7 @@ function EditOutlet() {
       const response = await axios.post(
         `${BASE_URL}/admin/get_company_with_owners`,
         {
-          user_id: adminData.user_id,
+          user_id: getUserId() || adminData?.user_id,
           company_id: parseInt(companyId)
         },
         {

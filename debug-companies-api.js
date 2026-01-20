@@ -3,8 +3,8 @@ const axios = require('axios');
 
 async function testCompaniesAPI() {
   try {
-    const response = await axios.post('https://menusmitra.xyz/v2/admin/list_companies', {
-      user_id: 440
+    const response = await axios.post('https://menusmitra.xyz/v2.2/admin/list_companies', {
+      user_id: userId
     }, {
       headers: {
         'Content-Type': 'application/json',

@@ -287,17 +287,22 @@ function Auth() {
         }
       );
 
-      if (response.data.detail === "Login successful") {
+      if (response.data.access_token && response.data.user_id) {
+        console.log('Login successful, response data:', response.data);
+        
         // Use the login function from useAuth hook for consistent token management
         login(response);
 
         const adminData = {
           user_id: response.data.user_id,
           name: response.data.name,
-          mobile: response.data.mobile,
+          mobile: response.data.mobile || mobile, // Use mobile from form if not in response
           email: response.data.email,
           role: response.data.role,
         };
+        
+        console.log('Storing adminData:', adminData);
+        
         // Save device info returned from server (if any) for admin details view
         if (response.data.active_sessions) {
           localStorage.setItem(
@@ -306,6 +311,8 @@ function Auth() {
           );
         }
         localStorage.setItem("adminData", JSON.stringify(adminData));
+        
+        console.log('Navigating to /home');
         navigate("/home");
       }
     } catch (err) {

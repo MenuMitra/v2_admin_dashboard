@@ -24,7 +24,7 @@ function CompanyDetails() {
   const { companyId } = useParams();
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const { getToken } = useAuth();
+  const { getToken, getUserId } = useAuth();
 
   const { 
     company: companyData, 
@@ -32,7 +32,7 @@ function CompanyDetails() {
     error, 
     deleteCompany, 
     refetch 
-  } = useCompanyDetails(companyId, getToken());
+  } = useCompanyDetails(companyId, getToken(), getUserId());
 
   // Add breadcrumb configuration
   const breadcrumbItems = [

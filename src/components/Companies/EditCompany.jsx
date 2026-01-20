@@ -24,7 +24,7 @@ import { API_CONFIG } from "../../config/appConfig";
 import { validationPatterns } from "../../utils/validationPatterns";
 
 function EditCompany() {
-  const { getToken } = useAuth();
+  const { getToken, getUserId } = useAuth();
   const { adminData } = useAdmin();
   const { companyId } = useParams();
   const navigate = useNavigate();
@@ -117,7 +117,7 @@ function EditCompany() {
         `${BASE_URL}/admin/view_company`,
         {
           company_id: Number(companyId),
-          user_id: 440, // Use hardcoded user_id as per requirements
+          user_id: getUserId(), // Use dynamic user_id from auth
         },
         {
           headers: {
@@ -457,7 +457,7 @@ function EditCompany() {
       const payload = {
         app_source: "admin_panel",
         company_id: parseInt(companyId),
-        user_id: 440,
+        user_id: getUserId(),
         company_name: companyData.name,
         company_type: companyData.company_type,
         pan: companyData.pan_number || null,

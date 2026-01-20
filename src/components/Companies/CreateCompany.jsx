@@ -19,7 +19,7 @@ import { API_CONFIG } from "../../config/appConfig";
 
 function CreateCompany() {
   const navigate = useNavigate();
-  const { getToken } = useAuth();
+  const { getToken, getUserId } = useAuth();
   const { adminData } = useAdmin();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
@@ -711,7 +711,7 @@ function CreateCompany() {
 
       const payload = {
         app_source: "admin_panel",
-        user_id: 440, // Use hardcoded user_id as per requirements
+        user_id: getUserId(), // Use dynamic user_id from auth
         company_name: ownerData.company_name,
         company_type: ownerData.company_type,
         pan: ownerData.pan_number,

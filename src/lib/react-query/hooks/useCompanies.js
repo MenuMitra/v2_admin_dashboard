@@ -15,7 +15,7 @@ export function useCompanies(token, userId) {
       const response = await axios.post(
         `${BASE_URL}/admin/list_companies`,
         {
-          user_id: 440  // Use hardcoded user_id as per requirements
+          user_id: userId || 440  // Use dynamic user_id, fallback to 440 for backward compatibility
         },
         {
           headers: {
@@ -37,7 +37,7 @@ export function useCompanies(token, userId) {
       
       return companies;
     },
-    enabled: !!token, // Only run if token exists (user_id is hardcoded to 440)
+    enabled: !!token, // Only run if token exists (user_id is dynamic)
     retry: 2, // Retry failed requests twice
     retryDelay: 1000, // Wait 1 second between retries
   });
@@ -51,7 +51,7 @@ export function useCompanies(token, userId) {
         `${BASE_URL}/admin/delete_company`,
         {
           company_id: companyId,
-          user_id: 440, // Use hardcoded user_id as per requirements
+          user_id: userId || 440, // Use dynamic user_id, fallback to 440 for backward compatibility
           app_source: "admin",
         },
         {
@@ -83,7 +83,7 @@ export function useCompanies(token, userId) {
       const response = await axios.post(
         `${BASE_URL}/common/bulk_company_action`,
         {
-          user_id: 440, // Use hardcoded user_id as per requirements
+          user_id: userId || 440, // Use dynamic user_id, fallback to 440 for backward compatibility
           action: action,
           app_source: "admin",
           company_ids: companyIds,
