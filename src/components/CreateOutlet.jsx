@@ -111,6 +111,9 @@ function CreateOutlet() {
     has_denomination: 0,
     has_udhari: 0,
     reserve_table: 0,
+    reset_kot_number: "daily",
+    reset_bill_number: "daily",
+    show_customer_count: 0,
     company_id: "",
   });
 
@@ -575,6 +578,9 @@ function CreateOutlet() {
     e.preventDefault();
 
     if (!isFormValid) {
+      console.log("Form validation failed");
+      console.log("Validation states:", validationStates);
+      console.log("Outlet data:", outletData);
       return;
     }
 
@@ -582,6 +588,17 @@ function CreateOutlet() {
       const token = getToken();
       if (!token) {
         throw new Error("No authentication token available");
+      }
+
+      console.log("Starting outlet creation...");
+      console.log("Auth token present:", !!token);
+      console.log("Admin data:", adminData);
+
+      // Validate admin data
+      if (!adminData || !adminData.user_id) {
+        console.error("Admin data not available:", adminData);
+        toastController.error("User session invalid. Please refresh and try again.");
+        return;
       }
 
       const currentDate = new Date().toISOString().split("T")[0];
@@ -616,42 +633,53 @@ function CreateOutlet() {
         // Include primary owner if selected
         ...(primaryOwnerId ? { primary_owner_id: primaryOwnerId } : {}),
         user_id: parseInt(adminData.user_id),
-        name: outletData.name,
+        name: outletData.name.trim(),
         mobile: outletData.mobile,
-        address: outletData.address,
+        address: outletData.address.trim(),
         outlet_type: outletData.outlet_type,
         outlet_mode: outletData.outlet_mode,
         veg_nonveg: outletData.veg_nonveg,
-        upi_id: outletData.upi_id,
-        has_combo: outletData.has_combo,
-        has_denomination: outletData.has_denomination,
-        has_udhari: outletData.has_udhari,
-        reserve_table: outletData.reserve_table,
+        upi_id: outletData.upi_id.trim(),
+        has_combo: parseInt(outletData.has_combo),
+        has_denomination: parseInt(outletData.has_denomination),
+        has_udhari: parseInt(outletData.has_udhari),
+        reserve_table: parseInt(outletData.reserve_table),
+        reset_kot_number: outletData.reset_kot_number,
+        reset_bill_number: outletData.reset_bill_number,
+        show_customer_count: parseInt(outletData.show_customer_count),
         company_id: parseInt(outletData.company_id),
+        is_open: outletData.is_open ? 1 : 0,
+        outlet_status: outletData.outlet_status ? 1 : 0,
+        app_source: "admin_app",
       };
 
       // Attach selected module ids as subscription assignment
-      payload.module_ids = selectedModuleIds.map((id) => Number(id));
+      if (Array.isArray(selectedModuleIds) && selectedModuleIds.length > 0) {
+        payload.module_ids = selectedModuleIds.map((id) => Number(id));
+      }
 
       // Attach subscription plan details
-      payload.subscription = {
-        name: planName,
-        price: Number(planPrice),
-        tenure_months: Number(tenureMonths),
-      };
+      if (planName && planPrice && tenureMonths) {
+        payload.subscription = {
+          name: planName.trim(),
+          price: Number(planPrice),
+          tenure_months: Number(tenureMonths),
+        };
 
-      // Also include selected module ids inside subscription object for backend compatibility
-      if (Array.isArray(selectedModuleIds) && selectedModuleIds.length > 0) {
-        payload.subscription.module_ids = selectedModuleIds.map((id) =>
-          Number(id)
-        );
+        // Also include selected module ids inside subscription object for backend compatibility
+        if (Array.isArray(selectedModuleIds) && selectedModuleIds.length > 0) {
+          payload.subscription.module_ids = selectedModuleIds.map((id) =>
+            Number(id)
+          );
+        }
       }
 
-      if (outletData.service_charges !== "") {
-        payload.service_charges = outletData.service_charges.toString();
+      // Add optional fields with proper validation
+      if (outletData.service_charges !== "" && outletData.service_charges !== null) {
+        payload.service_charges = Number(outletData.service_charges);
       }
-      if (outletData.gst !== "") {
-        payload.gst = outletData.gst.toString();
+      if (outletData.gst !== "" && outletData.gst !== null) {
+        payload.gst = Number(outletData.gst);
       }
 
       const optionalFields = [
@@ -663,11 +691,12 @@ function CreateOutlet() {
         "website",
         "google_business_link",
         "google_review",
+        "email",
       ];
 
       optionalFields.forEach((field) => {
-        if (outletData[field]) {
-          payload[field] = outletData[field];
+        if (outletData[field] && outletData[field].trim() !== "") {
+          payload[field] = outletData[field].trim();
         }
       });
 
@@ -691,28 +720,32 @@ function CreateOutlet() {
         payload.image = outletData.image;
       }
 
-      // Subscription creation removed: the server will handle subscription
-      // assignment when `subscription` object is provided in the outlet payload.
-      // We keep the `payload.subscription` object but DO NOT call
-      // the `admin/create_subscription` API from the client.
-      // However the backend still validates for legacy top-level subscription
-      // fields (`subscription_name`, `subscription_price`, `subscription_tenure`),
-      // so include them for backward compatibility.
+      // Format tenure for backward compatibility
       const formatTenure = (months) => {
         if (!months) return "";
-        if (months % 12 === 0)
-          return `${months / 12} year${months / 12 > 1 ? "s" : ""}`;
+        if (months === 1) return "1 month";
+        if (months % 12 === 0) {
+          const years = months / 12;
+          return `${years} year${years > 1 ? "s" : ""}`;
+        }
         return `${months} months`;
       };
 
-      if (planName) payload.subscription_name = planName;
-      if (planPrice !== "" && planPrice != null)
+      // Add legacy subscription fields for backward compatibility
+      if (planName && planName.trim()) {
+        payload.subscription_name = planName.trim();
+      }
+      if (planPrice !== "" && planPrice != null && !isNaN(Number(planPrice))) {
         payload.subscription_price = Number(planPrice);
-      payload.subscription_description = planName || "";
-      if (tenureMonths)
+      }
+      if (planName && planName.trim()) {
+        payload.subscription_description = planName.trim();
+      }
+      if (tenureMonths && !isNaN(Number(tenureMonths))) {
         payload.subscription_tenure = formatTenure(Number(tenureMonths));
-      // Keep app_source for compatibility with older endpoints
-      payload.app_source = "admin_app";
+      }
+
+      console.log("Final payload being sent:", JSON.stringify(payload, null, 2));
 
 
 
@@ -739,7 +772,10 @@ function CreateOutlet() {
         navigate(-1);
       }
     } catch (error) {
-
+      console.error("Create outlet error:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      console.error("Payload sent:", payload);
 
       // Handle specific API errors without clearing the image
       if (error.response?.data?.detail) {
@@ -1253,6 +1289,50 @@ function CreateOutlet() {
                   maxLength={15}
                   className="rounded-lg"
                 />
+
+                {/* Reset KOT Number */}
+                <CustomDropdown
+                  label="Reset KOT Number"
+                  name="reset_kot_number"
+                  value={outletData.reset_kot_number}
+                  onChange={handleInputChange}
+                  options={[
+                    { value: "daily", label: "Daily" },
+                    { value: "monthly", label: "Monthly" },
+                    { value: "yearly", label: "Yearly" },
+                    { value: "never", label: "Never" },
+                  ]}
+                  placeholder="Select reset frequency"
+                />
+
+                {/* Reset Bill Number */}
+                <CustomDropdown
+                  label="Reset Bill Number"
+                  name="reset_bill_number"
+                  value={outletData.reset_bill_number}
+                  onChange={handleInputChange}
+                  options={[
+                    { value: "daily", label: "Daily" },
+                    { value: "monthly", label: "Monthly" },
+                    { value: "yearly", label: "Yearly" },
+                    { value: "never", label: "Never" },
+                  ]}
+                  placeholder="Select reset frequency"
+                />
+
+                {/* Show Customer Count */}
+                <CustomDropdown
+                  label="Show Customer Count"
+                  name="show_customer_count"
+                  value={outletData.show_customer_count}
+                  onChange={handleInputChange}
+                  options={[
+                    { value: 0, label: "No" },
+                    { value: 1, label: "Yes" },
+                  ]}
+                  placeholder="Select option"
+                />
+
                 {validationStates.gstnumber && (
                   <p className="text-error-500 text-sm mt-1">
                     {!outletData.gstnumber

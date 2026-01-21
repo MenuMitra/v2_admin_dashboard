@@ -46,6 +46,9 @@ function OutletConfiguration() {
     opening_time: "",
     closing_time: "",
     order_number_sequence: "daily",
+    reset_kot_number: "daily",
+    reset_bill_number: "daily", 
+    show_customer_count: null,
     website: "",
     whatsapp: "",
     facebook: "",
@@ -147,6 +150,9 @@ function OutletConfiguration() {
         opening_time: configData.opening_time || "",
         closing_time: configData.closing_time || "",
         order_number_sequence: configData.order_number_sequence || "daily",
+        reset_kot_number: configData.reset_kot_number || "daily",
+        reset_bill_number: configData.reset_bill_number || "daily",
+        show_customer_count: configData.show_customer_count === true ? 1 : configData.show_customer_count === false ? 0 : null,
         website: configData.website || "",
         whatsapp: configData.whatsapp || "",
         facebook: configData.facebook || "",
@@ -212,40 +218,43 @@ function OutletConfiguration() {
     }
   };
 
-  // Helper function to convert 12-hour time to 24-hour format (HH:MM)
-  const convertTo24Hour = (hour, minute, period) => {
-    if (!hour || !minute) return null;
-    let h = parseInt(hour, 10);
-    if (period === "PM" && h !== 12) h += 12;
-    if (period === "AM" && h === 12) h = 0;
-    return `${h.toString().padStart(2, "0")}:${minute}`;
-  };
-
   const handleSave = async () => {
     setIsSaving(true);
     try {
       const payload = {
         outlet_id: Number(outletId),
         user_id: adminData?.user_id,
-        is_open: configFormData.is_open === 1,
-        has_udhari: configFormData.has_udhari === 1,
-        whatsapp: configFormData.whatsapp || "",
-        facebook: configFormData.facebook || "",
-        instagram: configFormData.instagram || "",
-        website: configFormData.website || "",
       };
 
-      // Add closing time in 24-hour format (HH:MM) if set
+      // Add configuration fields
+      if (configFormData.is_open !== null) {
+        payload.is_open = configFormData.is_open === 1;
+      }
+      if (configFormData.has_udhari !== null) {
+        payload.has_udhari = configFormData.has_udhari === 1;
+      }
+      if (configFormData.whatsapp) {
+        payload.whatsapp = configFormData.whatsapp;
+      }
+      if (configFormData.facebook) {
+        payload.facebook = configFormData.facebook;
+      }
+      if (configFormData.instagram) {
+        payload.instagram = configFormData.instagram;
+      }
+      if (configFormData.website) {
+        payload.website = configFormData.website;
+      }
+
+      // Add time fields in HH:MM:SS AM/PM format if set
       if (closingHour && closingMinute) {
-        payload.closing_time = convertTo24Hour(closingHour, closingMinute, closingPeriod);
+        payload.closing_time = `${closingHour}:${closingMinute}:00 ${closingPeriod}`;
       }
-
-      // Add opening time in 24-hour format (HH:MM) if set
       if (openingHour && openingMinute) {
-        payload.opening_time = convertTo24Hour(openingHour, openingMinute, openingPeriod);
+        payload.opening_time = `${openingHour}:${openingMinute}:00 ${openingPeriod}`;
       }
 
-      // Add other optional fields if they have values
+      // Add other configuration fields
       if (configFormData.service_charge_value) {
         payload.service_charge_value = Number(configFormData.service_charge_value);
       }
@@ -270,6 +279,15 @@ function OutletConfiguration() {
       if (configFormData.order_number_sequence) {
         payload.order_number_sequence = configFormData.order_number_sequence;
       }
+      if (configFormData.reset_kot_number) {
+        payload.reset_kot_number = configFormData.reset_kot_number;
+      }
+      if (configFormData.reset_bill_number) {
+        payload.reset_bill_number = configFormData.reset_bill_number;
+      }
+      if (configFormData.show_customer_count !== null) {
+        payload.show_customer_count = configFormData.show_customer_count === 1;
+      }
       if (configFormData.google_business_link) {
         payload.google_business_link = configFormData.google_business_link;
       }
@@ -277,8 +295,10 @@ function OutletConfiguration() {
         payload.google_review = configFormData.google_review;
       }
 
+      console.log("Outlet Configuration payload:", payload);
+
       const response = await axios.patch(
-        `${BASE_URL}/admin/update_outlet_config/${outletId}`,
+        `${BASE_URL}/admin/update_outlet_config`,
         payload,
         {
           headers: {
@@ -290,13 +310,18 @@ function OutletConfiguration() {
 
       if (response.data) {
         toastController.success(
-          response.data.message || "Outlet configuration updated successfully"
+          "Outlet configuration updated successfully"
         );
         navigate(-1);
       }
     } catch (error) {
+      console.error("Update outlet config error:", error);
+      console.error("Error response:", error.response?.data);
+      
       toastController.error(
-        error.response?.data?.message || "Failed to update outlet configuration"
+        error.response?.data?.message || 
+        error.response?.data?.detail || 
+        "Failed to update outlet configuration"
       );
     } finally {
       setIsSaving(false);
@@ -444,6 +469,74 @@ function OutletConfiguration() {
                       { value: "continuous", label: "Continuous" },
                     ]}
                     placeholder="Select"
+                  />
+                </div>
+
+                {/* Reset KOT Number */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Reset KOT Number
+                  </label>
+                  <CustomDropdown
+                    name="reset_kot_number"
+                    className="w-full h-10"
+                    value={configFormData.reset_kot_number}
+                    onChange={(e) => handleConfigFormChange("reset_kot_number", e.target.value)}
+                    options={[
+                      { value: "daily", label: "Daily" },
+                      { value: "monthly", label: "Monthly" },
+                      { value: "yearly", label: "Yearly" },
+                      { value: "never", label: "Never" },
+                    ]}
+                    placeholder="Select"
+                  />
+                </div>
+
+                {/* Reset Bill Number */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Reset Bill Number
+                  </label>
+                  <CustomDropdown
+                    name="reset_bill_number"
+                    className="w-full h-10"
+                    value={configFormData.reset_bill_number}
+                    onChange={(e) => handleConfigFormChange("reset_bill_number", e.target.value)}
+                    options={[
+                      { value: "daily", label: "Daily" },
+                      { value: "monthly", label: "Monthly" },
+                      { value: "yearly", label: "Yearly" },
+                      { value: "never", label: "Never" },
+                    ]}
+                    placeholder="Select"
+                  />
+                </div>
+
+                {/* Show Customer Count */}
+                <div className="w-full">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                    Show Customer Count
+                  </label>
+                  <CustomDropdown
+                    name="show_customer_count"
+                    className="w-full h-10"
+                    value={
+                      configFormData.show_customer_count !== null &&
+                      configFormData.show_customer_count !== undefined
+                        ? String(configFormData.show_customer_count)
+                        : "0"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "show_customer_count",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "No" },
+                      { value: "1", label: "Yes" },
+                    ]}
+                    placeholder="No"
                   />
                 </div>
 
