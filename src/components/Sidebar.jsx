@@ -51,9 +51,7 @@ const menuGroups = [
       { title: "UBAC Tree", path: "/ubac_tree", id: "ubac-tree", icon: faLock },  
     ],
   },
-  {
-    items: [{ title: "Owners", path: "/owners", id: "owners", icon: faUsers }],
-  },
+ 
   // { 
   //   items: [
   //     {
@@ -140,7 +138,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
           }`}
         /> */}
       </h3>
-      <ul className="mb-6 flex flex-col gap-4">
+      <ul className="flex flex-col gap-4 mb-6">
         {items.map((item, index) => (
           <MenuItem key={index} item={item} />
         ))}
@@ -352,7 +350,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
                     />
                     {subItem.name}
                     {(subItem.pro || subItem.new) && (
-                      <span className="absolute right-3 flex items-center gap-1">
+                      <span className="absolute flex items-center gap-1 right-3">
                         {subItem.new && (
                           <span className="menu-dropdown-badge">New</span>
                         )}
@@ -385,7 +383,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
       {/* Sidebar Header - Desktop */}
       <div
         className={`
-          hidden lg:flex items-center justify-center gap-2 pt-6 pb-5 px-4
+          hidden lg:flex items-center justify-center gap-2 pt-8 pb-5 px-4
           ${sidebarToggle ? "justify-center" : "justify-center"}
         `}
       >
@@ -400,9 +398,9 @@ const Sidebar = ({ sidebarToggle = false }) => {
           </span>
         </div>
       </div>
-      <hr className="my-2 border-t border-brand-600 w-2" />
+      <hr className="w-2 my-2 border-t border-brand-600" />
       {/* Menu Items */}
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear px-4 pb-10">
+      <div className="flex flex-col px-4 pb-10 overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav>
           {menuGroups.map((group, idx) => (
             <React.Fragment key={idx}>

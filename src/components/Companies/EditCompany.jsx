@@ -7,7 +7,6 @@ import axios from "axios";
 import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faSave,
   faChevronLeft as faBack,
   faPlus,
   faTimes,
@@ -21,7 +20,6 @@ import Breadcrumb from "../Breadcrumb";
 import SaveButton from "../common/SaveButton";
 import CustomSelect from "../common/CustomSelect";
 import { API_CONFIG } from "../../config/appConfig";
-import { validationPatterns } from "../../utils/validationPatterns";
 
 function EditCompany() {
   const { getToken, getUserId } = useAuth();
@@ -32,19 +30,17 @@ function EditCompany() {
   const [isLoading, setIsLoading] = useState(true);
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [error, setError] = useState(null);
-  const [emailValidationErrors, setEmailValidationErrors] = useState({});
-  const [ownerEmailValidationErrors, setOwnerEmailValidationErrors] = useState({});
-  const [companyNameError, setCompanyNameError] = useState("");
   const [ownerAadharErrors, setOwnerAadharErrors] = useState({});
-  const [ownerNameErrors, setOwnerNameErrors] = useState({});
   const [ownerMobileErrors, setOwnerMobileErrors] = useState({});
   const [contactNumberErrors, setContactNumberErrors] = useState({});
-  const [cityErrors, setCityErrors] = useState({});
-  const [pinErrors, setPinErrors] = useState({});
   const [panError, setPanError] = useState("");
   const [tanError, setTanError] = useState("");
   const [fssaiError, setFssaiError] = useState("");
   const [cinError, setCinError] = useState("");
+  const [showPanReference, setShowPanReference] = useState(false);
+  const [showFssaiReference, setShowFssaiReference] = useState(false);
+  const [showTanReference, setShowTanReference] = useState(false);
+  const [showCinReference, setShowCinReference] = useState(false);
 
   // Normalize company type strings coming from the API or legacy data to the
   // canonical values expected by the backend.
@@ -165,7 +161,7 @@ function EditCompany() {
       console.error("Error fetching company details:", err);
       setIsLoading(false);
     }
-  }, [companyId, getToken, BASE_URL]);
+  }, [companyId, getToken, getUserId, BASE_URL]);
 
   useEffect(() => {
     if (companyId && adminData?.user_id) {
@@ -518,15 +514,15 @@ function EditCompany() {
           <div className="flex items-center justify-between min-h-[60px]">
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm flex-shrink-0"
+              className="inline-flex items-center flex-shrink-0 gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50"
             >
               <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
               <span>Back</span>
             </button>
-            <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90 text-center flex-1 mx-4">
+            <h1 className="flex-1 mx-4 text-xl font-semibold text-center text-gray-800 dark:text-white/90">
               Edit Company
             </h1>
-            <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex items-center flex-shrink-0 gap-3">
               <SaveButton
                 onClick={handleSubmit}
                 disabled={isLoading}
@@ -540,12 +536,12 @@ function EditCompany() {
         <div className="p-6">
           {isLoading ? (
             <div className="flex items-center justify-center min-h-screen">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              <div className="w-12 h-12 border-b-2 border-blue-500 rounded-full animate-spin"></div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Company Information */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 <TextInput
                   label="Company Name"
                   name="name"
@@ -553,8 +549,6 @@ function EditCompany() {
                   onChange={(e) => setCompanyData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="Enter company name"
                   required
-                  error={!!companyNameError}
-                  errorMessage={companyNameError}
                 />
                 <CustomSelect
                   label="Company Type"
@@ -576,7 +570,7 @@ function EditCompany() {
               </div>
 
               {/* Document Fields */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 <div className="relative">
                   <TextInput
                     label="Company PAN Number"
@@ -599,13 +593,18 @@ function EditCompany() {
                         setPanError("");
                       }
                     }}
+                    onFocus={() => setShowPanReference(true)}
+                    onBlur={() => setShowPanReference(false)}
                     placeholder="Enter 10-digit PAN number"
                     maxLength={10}
                     required={true}
                     error={!!panError}
                   />
                   {panError && (
-                    <p className="text-error-500 text-sm mt-1">{panError}</p>
+                    <p className="mt-1 text-sm text-error-500">{panError}</p>
+                  )}
+                  {showPanReference && (
+                    <p className="mt-1 text-xs text-gray-500">PAN format: AAAAA1234A (5 letters, 4 numbers, 1 letter)</p>
                   )}
                 </div>
                 <div className="relative">
@@ -634,13 +633,18 @@ function EditCompany() {
                         }
                       }
                     }}
+                    onFocus={() => setShowFssaiReference(true)}
+                    onBlur={() => setShowFssaiReference(false)}
                     placeholder="Enter 14-digit FSSAI number"
                     maxLength={14}
                     required={true}
                     error={!!fssaiError}
                   />
                   {fssaiError && (
-                    <p className="text-error-500 text-sm mt-1">{fssaiError}</p>
+                    <p className="mt-1 text-sm text-error-500">{fssaiError}</p>
+                  )}
+                  {showFssaiReference && (
+                    <p className="mt-1 text-xs text-gray-500">FSSAI format: 2-digit state code + 5-digit district code + 5-digit business code + 2-digit check digits</p>
                   )}
                 </div>
                 {companyData.company_type && (
@@ -688,13 +692,18 @@ function EditCompany() {
                             }
                           }
                         }}
+                        onFocus={() => setShowTanReference(true)}
+                        onBlur={() => setShowTanReference(false)}
                         placeholder="Enter 10-digit TAN number"
                         maxLength={10}
                         required={true}
                         error={!!tanError}
                       />
                       {tanError && (
-                        <p className="text-error-500 text-sm mt-1">{tanError}</p>
+                        <p className="mt-1 text-sm text-error-500">{tanError}</p>
+                      )}
+                      {showTanReference && (
+                        <p className="mt-1 text-xs text-gray-500">TAN format: AAAA99999A (4 letters, 5 numbers, 1 letter)</p>
                       )}
                     </div>
                     <div className="relative">
@@ -714,13 +723,18 @@ function EditCompany() {
                             setCinError("");
                           }
                         }}
+                        onFocus={() => setShowCinReference(true)}
+                        onBlur={() => setShowCinReference(false)}
                         placeholder="Enter 21-digit CIN number"
                         maxLength={21}
                         required={true}
                         error={!!cinError}
                       />
                       {cinError && (
-                        <p className="text-error-500 text-sm mt-1">{cinError}</p>
+                        <p className="mt-1 text-sm text-error-500">{cinError}</p>
+                      )}
+                      {showCinReference && (
+                        <p className="mt-1 text-xs text-gray-500">CIN format: L12345MH2014PTC123456 (21 characters alphanumeric)</p>
                       )}
                     </div>
                   </>
@@ -734,7 +748,7 @@ function EditCompany() {
                   <button
                     type="button"
                     onClick={addContact}
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors duration-200 shadow-md hover:shadow-lg border-0 focus:outline-none focus:ring-2 focus:ring-green-300"
+                    className="inline-flex items-center gap-2 px-3 py-2 text-white transition-colors duration-200 bg-green-500 border-0 rounded-full shadow-md hover:bg-green-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300"
                     style={{ backgroundColor: '#10b981' }}
                     title="Add another contact"
                   >
@@ -743,15 +757,15 @@ function EditCompany() {
                   </button>
                 </div>
                 {companyData.company_contacts.map((contact, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <div key={index} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-md font-medium text-gray-700">Contact {index + 1}</h3>
+                      <h3 className="font-medium text-gray-700 text-md">Contact {index + 1}</h3>
                       <div className="flex items-center gap-2">
                         {companyData.company_contacts.length > 1 && index !== 0 && (
                           <button
                             type="button"
                             onClick={() => removeContact(index)}
-                            className="w-8 h-8 flex items-center justify-center border border-red-500 hover:bg-red-600 text-white rounded-full focus:ring-2 focus:ring-red-300"
+                            className="flex items-center justify-center w-8 h-8 text-white border border-red-500 rounded-full hover:bg-red-600 focus:ring-2 focus:ring-red-300"
                             style={{ backgroundColor: '#ef4444' }}
                             title="Remove this contact"
                           >
@@ -760,7 +774,7 @@ function EditCompany() {
                         )}
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                       <TextInput
                         label="Email"
                         name={`contact_email_${index}`}
@@ -834,7 +848,7 @@ function EditCompany() {
                   <button
                     type="button"
                     onClick={addOwner}
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors duration-200 shadow-md hover:shadow-lg border-0 focus:outline-none focus:ring-2 focus:ring-green-300"
+                    className="inline-flex items-center gap-2 px-3 py-2 text-white transition-colors duration-200 bg-green-500 border-0 rounded-full shadow-md hover:bg-green-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300"
                     style={{ backgroundColor: '#10b981' }}
                     title="Add another owner"
                   >
@@ -843,15 +857,15 @@ function EditCompany() {
                   </button>
                 </div>
                 {companyData.company_owners.map((owner, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <div key={index} className="p-4 border border-gray-200 rounded-lg bg-gray-50">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-md font-medium text-gray-700">Owner {index + 1}</h3>
+                      <h3 className="font-medium text-gray-700 text-md">Owner {index + 1}</h3>
                       <div className="flex items-center gap-2">
                         {companyData.company_owners.length > 1 && index !== 0 && (
                           <button
                             type="button"
                             onClick={() => removeOwner(index)}
-                            className="w-8 h-8 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors duration-200 shadow-md hover:shadow-lg border-0 focus:outline-none focus:ring-2 focus:ring-red-300"
+                            className="flex items-center justify-center w-8 h-8 text-white transition-colors duration-200 bg-red-500 border-0 rounded-full shadow-md hover:bg-red-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-300"
                             style={{ backgroundColor: '#ef4444' }}
                             title="Remove this owner"
                           >
@@ -860,7 +874,7 @@ function EditCompany() {
                         )}
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                       <TextInput
                         label="Name"
                         name={`owner_name_${index}`}
@@ -922,7 +936,7 @@ function EditCompany() {
 
               {/* Error Message */}
               {error && (
-                <div className="text-error-500 text-sm mt-2">{error}</div>
+                <div className="mt-2 text-sm text-error-500">{error}</div>
               )}
             </form>
           )}

@@ -337,8 +337,8 @@ function OutletConfiguration() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" />
+      <div className="flex items-center justify-center h-screen">
+        <div className="w-8 h-8 border-b-2 rounded-full animate-spin border-brand-500" />
       </div>
     );
   }
@@ -352,8 +352,8 @@ function OutletConfiguration() {
       </div>
 
       {/* Main Card */}
-      <div className="rounded-2xl border border-gray-200 bg-white">
-        <div className="overflow-hidden pt-4">
+      <div className="bg-white border border-gray-200 rounded-2xl">
+        <div className="pt-4 overflow-hidden">
           {/* Top Row - Back, Title, Save Button */}
           <div className="flex items-center px-6 mb-3">
             {/* Left Side - Back Button */}
@@ -369,7 +369,7 @@ function OutletConfiguration() {
 
             {/* Center - Title */}
             <div className="flex-1 text-center">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+              <h2 className="text-lg font-semibold text-gray-800 sm:text-xl">
                 {toTitleCase(outletData?.name) || "Outlet"} - Configuration
               </h2>
             </div>
@@ -390,9 +390,9 @@ function OutletConfiguration() {
         {/* Main Content */}
         <div className="px-6 pb-6">
           {/* Business Details Section */}
-          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
-            <div className="border-b border-gray-200 dark:border-gray-800 pb-5">
-              <h2 className="text-lg font-medium mb-4 flex items-center">
+          <section className="p-4 bg-white rounded-lg shadow sm:p-6">
+            <div className="pb-5 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="flex items-center mb-4 text-lg font-medium">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="none"
@@ -409,40 +409,40 @@ function OutletConfiguration() {
                 Business Details
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    Service Charges (%)
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                    Service Charge
                   </label>
-                  <input
-                    type="number"
-                    name="service_charge_value"
-                    value={configFormData.service_charge_value}
-                    onChange={(e) => handleConfigFormChange("service_charge_value", e.target.value)}
-                    placeholder="Enter service charges"
-                    className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
-                  />
+                  <div className="flex overflow-hidden border border-gray-300 rounded-lg shadow-sm focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                    {/* Toggle Section - 30% */}
+                    <div className="w-[30%] border-r border-gray-300 bg-gray-50">
+                      <button
+                        type="button"
+                        onClick={() => handleConfigFormChange("service_charge_type", configFormData.service_charge_type === "percent" ? "fixed" : "percent")}
+                        className="flex items-center justify-center w-full h-10 text-sm font-medium text-gray-900 transition-colors bg-blue-500 hover:bg-blue-600"
+                      >
+                        <span className="font-semibold text-black">
+                          {configFormData.service_charge_type === "percent" ? "%" : "₹"}
+                        </span>
+                      </button>
+                    </div>
+                    {/* Input Section - 70% */}
+                    <div className="w-[70%]">
+                      <input
+                        type="number"
+                        name="service_charge_value"
+                        value={configFormData.service_charge_value}
+                        onChange={(e) => handleConfigFormChange("service_charge_value", e.target.value)}
+                        placeholder="Enter amount"
+                        className="w-full h-10 px-3 text-sm border-0 rounded-none focus:ring-0 focus:outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    Service Charge Type
-                  </label>
-                  <CustomDropdown
-                    name="service_charge_type"
-                    className="w-full h-10"
-                    value={configFormData.service_charge_type}
-                    onChange={(e) => handleConfigFormChange("service_charge_type", e.target.value)}
-                    options={[
-                      { value: "percent", label: "Percent" },
-                      { value: "fixed", label: "Fixed" },
-                    ]}
-                    placeholder="Select"
-                  />
-                </div>
-
-                <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     GST (%)
                   </label>
                   <input
@@ -451,12 +451,12 @@ function OutletConfiguration() {
                     value={configFormData.gst}
                     onChange={(e) => handleConfigFormChange("gst", e.target.value)}
                     placeholder="Enter GST percentage"
-                    className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                    className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
 
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Order Number Sequence
                   </label>
                   <CustomDropdown
@@ -474,7 +474,7 @@ function OutletConfiguration() {
 
                 {/* Reset KOT Number */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Reset KOT Number
                   </label>
                   <CustomDropdown
@@ -494,7 +494,7 @@ function OutletConfiguration() {
 
                 {/* Reset Bill Number */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Reset Bill Number
                   </label>
                   <CustomDropdown
@@ -514,7 +514,7 @@ function OutletConfiguration() {
 
                 {/* Show Customer Count */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Show Customer Count
                   </label>
                   <CustomDropdown
@@ -542,10 +542,10 @@ function OutletConfiguration() {
 
                 {/* Opening Time */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Opening Time
                   </label>
-                  <div className="flex gap-1 h-10">
+                  <div className="flex h-10 gap-1">
                     <CustomDropdown
                       className="flex-1 h-10"
                       value={openingHour}
@@ -587,10 +587,10 @@ function OutletConfiguration() {
 
                 {/* Closing Time */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Closing Time
                   </label>
-                  <div className="flex gap-1 h-10">
+                  <div className="flex h-10 gap-1">
                     <CustomDropdown
                       className="flex-1 h-10"
                       value={closingHour}
@@ -632,7 +632,7 @@ function OutletConfiguration() {
 
                 {/* Has Combo */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Has Combo
                   </label>
                   <CustomDropdown
@@ -660,7 +660,7 @@ function OutletConfiguration() {
 
                 {/* Has Denomination */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Has Denomination
                   </label>
                   <CustomDropdown
@@ -688,7 +688,7 @@ function OutletConfiguration() {
 
                 {/* Has Udhari */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Has Udhari
                   </label>
                   <CustomDropdown
@@ -716,7 +716,7 @@ function OutletConfiguration() {
 
                 {/* Reserve Table */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Reserve Table
                   </label>
                   <CustomDropdown
@@ -744,7 +744,7 @@ function OutletConfiguration() {
 
                 {/* Dynamic Price */}
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Dynamic Price
                   </label>
                   <CustomDropdown
@@ -774,8 +774,8 @@ function OutletConfiguration() {
           </section>
 
           {/* Social Media Section */}
-          <section className="bg-white rounded-lg shadow mt-6 p-4 sm:p-6">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
+          <section className="p-4 mt-6 bg-white rounded-lg shadow sm:p-6">
+            <h2 className="flex items-center mb-4 text-lg font-medium">
               <svg
                 className="w-5 h-5 mr-2"
                 fill="none"
@@ -792,9 +792,9 @@ function OutletConfiguration() {
               Social Media
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <div className="w-full">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                   Website
                 </label>
                 <input
@@ -803,12 +803,12 @@ function OutletConfiguration() {
                   value={configFormData.website}
                   onChange={(e) => handleConfigFormChange("website", e.target.value)}
                   placeholder="https://example.com"
-                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="w-full">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                   WhatsApp Number
                 </label>
                 <input
@@ -818,12 +818,12 @@ function OutletConfiguration() {
                   onChange={(e) => handleConfigFormChange("whatsapp", e.target.value)}
                   placeholder="Enter 10 digit mobile number"
                   maxLength={10}
-                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="w-full">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                   Facebook
                 </label>
                 <input
@@ -832,12 +832,12 @@ function OutletConfiguration() {
                   value={configFormData.facebook}
                   onChange={(e) => handleConfigFormChange("facebook", e.target.value)}
                   placeholder="https://facebook.com/yourpage"
-                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="w-full">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                   Instagram
                 </label>
                 <input
@@ -846,12 +846,12 @@ function OutletConfiguration() {
                   value={configFormData.instagram}
                   onChange={(e) => handleConfigFormChange("instagram", e.target.value)}
                   placeholder="https://instagram.com/yourhandle"
-                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="w-full">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                   Google Business Link
                 </label>
                 <input
@@ -860,12 +860,12 @@ function OutletConfiguration() {
                   value={configFormData.google_business_link}
                   onChange={(e) => handleConfigFormChange("google_business_link", e.target.value)}
                   placeholder="https://business.google.com/yourpage"
-                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
               <div className="w-full">
-                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                   Google Review Link
                 </label>
                 <input
@@ -874,7 +874,7 @@ function OutletConfiguration() {
                   value={configFormData.google_review}
                   onChange={(e) => handleConfigFormChange("google_review", e.target.value)}
                   placeholder="https://g.page/r/yourreviewpage"
-                  className="h-10 w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm px-3"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
             </div>

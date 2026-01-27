@@ -191,6 +191,23 @@ function EditOutlet() {
     }
   }, [outletData.company_id, isLoading]);
 
+  // Preserve selected owners when company owners are loaded
+  useEffect(() => {
+    if (companyOwners.length > 0 && outletData.owner_ids.length > 0) {
+      // Ensure selected owners are still valid (exist in the company owners list)
+      const validOwnerIds = outletData.owner_ids.filter(ownerId =>
+        companyOwners.some(owner => owner.user_id === ownerId)
+      );
+      if (validOwnerIds.length !== outletData.owner_ids.length) {
+        // Update owner_ids if some are no longer valid
+        setOutletData(prev => ({
+          ...prev,
+          owner_ids: validOwnerIds
+        }));
+      }
+    }
+  }, [companyOwners, outletData.owner_ids]);
+
   const fetchOutletData = async () => {
     try {
       const token = getToken();
@@ -479,11 +496,14 @@ function EditOutlet() {
         setCompanyOwners(owners);
         // Clear selected owners when company changes (only if it's a new company selection)
         if (!outletData.owner_ids.length || companyId !== outletData.company_id) {
-          setOutletData((prev) => ({
-            ...prev,
-            owner_ids: [],
-          }));
-          setPrimaryOwnerId(null);
+          // Only clear owners if this is a different company, not the initial load
+          if (outletData.company_id && companyId !== outletData.company_id) {
+            setOutletData((prev) => ({
+              ...prev,
+              owner_ids: [],
+            }));
+            setPrimaryOwnerId(null);
+          }
         }
       }
     } catch (error) {

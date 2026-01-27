@@ -12,10 +12,6 @@ import CreateOutlet from "./components/CreateOutlet";
 import ViewOutlet from "./components/ViewOutlet";
 import EditOutlet from "./components/EditOutlet";
 import OutletConfiguration from "./components/OutletConfiguration";
-import Owners from "./components/Owners";
-import OwnerDetails from "./components/OwnerDetails";
-import EditOwner from "./components/EditOwner";
-import CreateOwner from "./components/CreateOwner";
 import Partners from "./components/Partner/Partners";
 import PartnerDetails from "./components/Partner/PartnerDetails";
 import EditPartner from "./components/Partner/EditPartner";
@@ -118,13 +114,6 @@ function App() {
             />
             <Route path="/create-menu/:outletId" element={<CreateMenu />} />
             <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} />
-
-            {/* Owner Routes */}
-            <Route path="/owners" element={<Owners />} />
-            <Route path="/owner-details/:ownerId" element={<OwnerDetails />} />
-            <Route path="/edit-owner/:ownerId" element={<EditOwner />} />
-            <Route path="/create-owner" element={<CreateOwner />} />
-
             {/* Enquiry Routes */}
             <Route path="/enquiries" element={<EnquiryList />} />
             <Route path="/view-enquiry/:enquiry_id" element={<ViewEnquiry />} />

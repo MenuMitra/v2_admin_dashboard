@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../hooks/useAuth";
-import { useAdmin } from "../../hooks/useAdmin";
 import axios from "axios";
 import { queryKeys } from "../../lib/react-query/queryKeys";
 import { toastController } from "../../utils/toastController";
@@ -12,7 +11,7 @@ import {
   SelectInput,
 } from "../forms/FormElements.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTimes, faTrash, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTimes, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import CustomSelect from "../common/CustomSelect";
 import { API_CONFIG } from "../../config/appConfig";
@@ -20,7 +19,6 @@ import { API_CONFIG } from "../../config/appConfig";
 function CreateCompany() {
   const navigate = useNavigate();
   const { getToken, getUserId } = useAuth();
-  const { adminData } = useAdmin();
   const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -74,6 +72,10 @@ function CreateCompany() {
   const [fssaiError, setFssaiError] = useState("");
   const [cinError, setCinError] = useState("");
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
+  const [showPanReference, setShowPanReference] = useState(false);
+  const [showFssaiReference, setShowFssaiReference] = useState(false);
+  const [showTanReference, setShowTanReference] = useState(false);
+  const [showCinReference, setShowCinReference] = useState(false);
 
   const breadcrumbItems = [
     { label: "Home", path: "/Home" },
@@ -774,14 +776,11 @@ function CreateCompany() {
     }
   };
 
-  const handleCreateAndAddMore = (e) => {
-    handleSubmit(e, true);
-  };
 
   if (isLoading && !ownerData.company_name) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="w-12 h-12 border-b-2 border-blue-500 rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -797,7 +796,7 @@ function CreateCompany() {
             {/* Back Button */}
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50"
             >
               <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
               <span>Back</span>
@@ -831,7 +830,7 @@ function CreateCompany() {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Company Information */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 pb-3">
+            <div className="grid grid-cols-1 gap-3 pb-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
               <TextInput
                 label="Company Name"
                 name="company_name"
@@ -870,13 +869,18 @@ function CreateCompany() {
                       name="pan_number"
                       value={ownerData.pan_number}
                       onChange={handleChange}
+                      onFocus={() => setShowPanReference(true)}
+                      onBlur={() => setShowPanReference(false)}
                       placeholder="Enter 10-digit PAN number"
                       required
                       maxLength={10}
                       error={!!panError}
                     />
                     {panError && (
-                      <p className="text-error-500 text-sm mt-1">{panError}</p>
+                      <p className="mt-1 text-sm text-error-500">{panError}</p>
+                    )}
+                    {showPanReference && (
+                      <p className="mt-1 text-xs text-gray-500">PAN format: AAAAA1234A (5 letters, 4 numbers, 1 letter)</p>
                     )}
                   </div>
 
@@ -886,13 +890,18 @@ function CreateCompany() {
                       name="fssai_number"
                       value={ownerData.fssai_number}
                       onChange={handleChange}
+                      onFocus={() => setShowFssaiReference(true)}
+                      onBlur={() => setShowFssaiReference(false)}
                       placeholder="Enter 14-digit FSSAI number"
                       required
                       maxLength={14}
                       error={!!fssaiError}
                     />
                     {fssaiError && (
-                      <p className="text-error-500 text-sm mt-1">{fssaiError}</p>
+                      <p className="mt-1 text-sm text-error-500">{fssaiError}</p>
+                    )}
+                    {showFssaiReference && (
+                      <p className="mt-1 text-xs text-gray-500">FSSAI format: 2-digit state code + 5-digit district code + 5-digit business code + 2-digit check digits</p>
                     )}
                   </div>
                 </>
@@ -909,13 +918,18 @@ function CreateCompany() {
                         name="tan_number"
                         value={ownerData.tan_number}
                         onChange={handleChange}
+                        onFocus={() => setShowTanReference(true)}
+                        onBlur={() => setShowTanReference(false)}
                         placeholder="Enter 10-digit TAN number"
                         required={true}
                         maxLength={10}
                         error={!!tanError}
                       />
                       {tanError && (
-                        <p className="text-error-500 text-sm mt-1">{tanError}</p>
+                        <p className="mt-1 text-sm text-error-500">{tanError}</p>
+                      )}
+                      {showTanReference && (
+                        <p className="mt-1 text-xs text-gray-500">TAN format: AAAA99999A (4 letters, 5 numbers, 1 letter)</p>
                       )}
                     </div>
 
@@ -925,13 +939,18 @@ function CreateCompany() {
                         name="cin_number"
                         value={ownerData.cin_number}
                         onChange={handleChange}
+                        onFocus={() => setShowCinReference(true)}
+                        onBlur={() => setShowCinReference(false)}
                         placeholder="Enter 21-digit CIN number"
                         required={true}
                         maxLength={21}
                         error={!!cinError}
                       />
                       {cinError && (
-                        <p className="text-error-500 text-sm mt-1">{cinError}</p>
+                        <p className="mt-1 text-sm text-error-500">{cinError}</p>
+                      )}
+                      {showCinReference && (
+                        <p className="mt-1 text-xs text-gray-500">CIN format: L12345MH2014PTC123456 (21 characters alphanumeric)</p>
                       )}
                     </div>
                   </>
@@ -947,7 +966,7 @@ function CreateCompany() {
                 <button
                   type="button"
                   onClick={addContact}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300 border-0"
+                  className="inline-flex items-center gap-2 px-3 py-2 text-white transition-colors duration-200 bg-green-500 border-0 rounded-full shadow-md hover:bg-green-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300"
                   style={{ backgroundColor: "#10b981" }}
                   title="Add another contact"
                 >
@@ -959,10 +978,10 @@ function CreateCompany() {
               {ownerData.company_contacts.map((contact, index) => (
                 <div
                   key={index}
-                  className="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-2"
+                  className="p-4 mb-2 border border-gray-200 rounded-lg bg-gray-50"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-md font-medium text-gray-700">
+                    <h3 className="font-medium text-gray-700 text-md">
                       Contact {index + 1}
                     </h3>
                     {ownerData.company_contacts.length > 1 && index !== 0 && (
@@ -970,7 +989,7 @@ function CreateCompany() {
                         <button
                           type="button"
                           onClick={() => removeContact(index)}
-                          className="w-8 h-8 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-red-300 shadow-md hover:shadow-lg transition-colors duration-200"
+                          className="flex items-center justify-center w-8 h-8 text-white transition-colors duration-200 bg-red-500 border-0 rounded-full shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 hover:shadow-lg"
                           style={{ backgroundColor: "#ef4444" }}
                           title="Remove this contact"
                         >
@@ -980,7 +999,7 @@ function CreateCompany() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 pb-5">
+                  <div className="grid grid-cols-1 gap-3 pb-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                     <TextInput
                       label="Email"
                       name={`contact_email_${index}`}
@@ -1040,7 +1059,7 @@ function CreateCompany() {
                   </div>
 
                   {/* Address Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                     <TextInput
                       label="Address Line 1"
                       name={`address_line1_${index}`}
@@ -1162,7 +1181,7 @@ function CreateCompany() {
                 <button
                   type="button"
                   onClick={addOwner}
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-full transition-colors duration-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300 border-0"
+                  className="inline-flex items-center gap-2 px-3 py-2 text-white transition-colors duration-200 bg-green-500 border-0 rounded-full shadow-md hover:bg-green-600 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-300"
                   style={{ backgroundColor: "#10b981" }}
                   title="Add another owner"
                 >
@@ -1174,10 +1193,10 @@ function CreateCompany() {
               {ownerData.company_owners.map((owner, index) => (
                 <div
                   key={index}
-                  className="border border-gray-200 rounded-lg p-4 bg-gray-50 mb-2"
+                  className="p-4 mb-2 border border-gray-200 rounded-lg bg-gray-50"
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-md font-medium text-gray-700">
+                    <h3 className="font-medium text-gray-700 text-md">
                       Owner {index + 1}
                     </h3>
                     {ownerData.company_owners.length > 1 && index !== 0 && (
@@ -1185,7 +1204,7 @@ function CreateCompany() {
                         <button
                           type="button"
                           onClick={() => removeOwner(index)}
-                          className="w-8 h-8 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-red-300 shadow-md hover:shadow-lg transition-colors duration-200"
+                          className="flex items-center justify-center w-8 h-8 text-white transition-colors duration-200 bg-red-500 border-0 rounded-full shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300 hover:shadow-lg"
                           style={{ backgroundColor: "#ef4444" }}
                           title="Remove this owner"
                         >
@@ -1195,7 +1214,7 @@ function CreateCompany() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 pb-5">
+                  <div className="grid grid-cols-1 gap-3 pb-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                     <TextInput
                       label="Name"
                       name={`owner_name_${index}`}
@@ -1293,7 +1312,7 @@ function CreateCompany() {
             </div>
 
             {error && (
-              <div className="text-red-500 text-sm mt-2">{error}</div>
+              <div className="mt-2 text-sm text-red-500">{error}</div>
             )}
           </form>
         </div>
