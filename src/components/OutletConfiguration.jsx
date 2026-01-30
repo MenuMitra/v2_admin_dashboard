@@ -48,6 +48,11 @@ function OutletConfiguration() {
     instagram: "",
     google_business_link: "",
     google_review: "",
+    dynamic_pricing: null,
+    order_number_sequence: "daily",
+    reset_bill_number: null,
+    reset_kot_number: null,
+    is_open: null,
   });
 
   // Time state for dropdowns
@@ -145,6 +150,11 @@ function OutletConfiguration() {
         instagram: configData.instagram || "",
         google_business_link: configData.google_business_link || "",
         google_review: configData.google_review || "",
+        dynamic_pricing: configData.dynamic_pricing === true ? 1 : configData.dynamic_pricing === false ? 0 : null,
+        order_number_sequence: configData.order_number_sequence || "daily",
+        reset_bill_number: configData.reset_bill_number ?? null,
+        reset_kot_number: configData.reset_kot_number ?? null,
+        is_open: configData.is_open === true ? 1 : configData.is_open === false ? 0 : null,
       });
 
       // Parse opening time
@@ -208,24 +218,13 @@ function OutletConfiguration() {
     setIsSaving(true);
     try {
       const payload = {
-        outlet_id: outletId,
+        user_id: adminData?.user_id,
+        outlet_id: parseInt(outletId),
       };
 
-      // Add configuration fields
-      if (configFormData.has_udhari !== null) {
-        payload.has_udhari = configFormData.has_udhari === 1;
-      }
-      if (configFormData.whatsapp) {
-        payload.whatsapp = configFormData.whatsapp;
-      }
-      if (configFormData.facebook) {
-        payload.facebook = configFormData.facebook;
-      }
-      if (configFormData.instagram) {
-        payload.instagram = configFormData.instagram;
-      }
-      if (configFormData.website) {
-        payload.website = configFormData.website;
+      // Add is_open field
+      if (configFormData.is_open !== null) {
+        payload.is_open = configFormData.is_open === 1;
       }
 
       // Add time fields in HH:MM format (24-hour)
@@ -246,6 +245,23 @@ function OutletConfiguration() {
           openingHourNum = 0;
         }
         payload.opening_time = `${openingHourNum.toString().padStart(2, "0")}:${openingMinute}`;
+      }
+
+      // Add configuration fields
+      if (configFormData.has_udhari !== null) {
+        payload.has_udhari = configFormData.has_udhari === 1;
+      }
+      if (configFormData.whatsapp) {
+        payload.whatsapp = configFormData.whatsapp;
+      }
+      if (configFormData.facebook) {
+        payload.facebook = configFormData.facebook;
+      }
+      if (configFormData.instagram) {
+        payload.instagram = configFormData.instagram;
+      }
+      if (configFormData.website) {
+        payload.website = configFormData.website;
       }
 
       // Add other configuration fields
@@ -276,6 +292,18 @@ function OutletConfiguration() {
       if (configFormData.google_review) {
         payload.google_review = configFormData.google_review;
       }
+      if (configFormData.dynamic_pricing !== null) {
+        payload.dynamic_pricing = configFormData.dynamic_pricing === 1;
+      }
+      if (configFormData.order_number_sequence) {
+        payload.order_number_sequence = configFormData.order_number_sequence;
+      }
+      if (configFormData.reset_bill_number !== null) {
+        payload.reset_bill_number = String(configFormData.reset_bill_number);
+      }
+      if (configFormData.reset_kot_number !== null) {
+        payload.reset_kot_number = String(configFormData.reset_kot_number);
+      }
 
       console.log("Outlet Configuration payload:", payload);
 
@@ -290,8 +318,16 @@ function OutletConfiguration() {
         }
       );
 
+      // Handle successful response
       if (response.data?.message) {
         toastController.success(response.data.message);
+        
+        // Log the response for debugging
+        console.log("Outlet Configuration Response:", {
+          message: response.data.message,
+          outlet_configuration_id: response.data.outlet_configuration_id,
+          updated_fields: response.data.updated_fields
+        });
         
         // Refetch the outlet configuration cache to get fresh data
         await queryClient.refetchQueries({
@@ -299,6 +335,17 @@ function OutletConfiguration() {
         });
         
         // Navigate back after successful update
+        setTimeout(() => {
+          navigate(-1);
+        }, 1000);
+      } else if (response.status >= 200 && response.status < 300) {
+        // Handle success even if message is not present
+        toastController.success("Outlet configuration updated successfully");
+        
+        await queryClient.refetchQueries({
+          queryKey: ["outletConfig", outletId],
+        });
+        
         setTimeout(() => {
           navigate(-1);
         }, 1000);
@@ -441,6 +488,34 @@ function OutletConfiguration() {
                     onChange={(e) => handleConfigFormChange("gst", e.target.value)}
                     placeholder="Enter GST percentage"
                     className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Is Open */}
+                <div className="w-full">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                    Outlet Status
+                  </label>
+                  <CustomDropdown
+                    name="is_open"
+                    className="w-full h-10"
+                    value={
+                      configFormData.is_open !== null &&
+                      configFormData.is_open !== undefined
+                        ? String(configFormData.is_open)
+                        : "1"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "is_open",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "Closed" },
+                      { value: "1", label: "Open" },
+                    ]}
+                    placeholder="Open"
                   />
                 </div>
 
@@ -671,6 +746,110 @@ function OutletConfiguration() {
                       { value: "1", label: "Yes" },
                     ]}
                     placeholder="Yes"
+                  />
+                </div>
+
+                {/* Dynamic Pricing */}
+                <div className="w-full">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                    Dynamic Pricing
+                  </label>
+                  <CustomDropdown
+                    name="dynamic_pricing"
+                    className="w-full h-10"
+                    value={
+                      configFormData.dynamic_pricing !== null &&
+                      configFormData.dynamic_pricing !== undefined
+                        ? String(configFormData.dynamic_pricing)
+                        : "0"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "dynamic_pricing",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "No" },
+                      { value: "1", label: "Yes" },
+                    ]}
+                    placeholder="No"
+                  />
+                </div>
+
+                {/* Order Number Sequence */}
+                <div className="w-full">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                    Order Number Sequence
+                  </label>
+                  <CustomDropdown
+                    name="order_number_sequence"
+                    className="w-full h-10"
+                    value={configFormData.order_number_sequence || "daily"}
+                    onChange={(e) =>
+                      handleConfigFormChange("order_number_sequence", e.target.value)
+                    }
+                    options={[
+                      { value: "daily", label: "Daily" },
+                      { value: "since_opening", label: "Continuous" },
+                    ]}
+                    placeholder="Daily"
+                  />
+                </div>
+
+                {/* Reset Bill Number */}
+                <div className="w-full">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                    Reset Bill Number
+                  </label>
+                  <CustomDropdown
+                    name="reset_bill_number"
+                    className="w-full h-10"
+                    value={
+                      configFormData.reset_bill_number !== null &&
+                      configFormData.reset_bill_number !== undefined
+                        ? String(configFormData.reset_bill_number)
+                        : "0"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "reset_bill_number",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "No" },
+                      { value: "1", label: "Yes" },
+                    ]}
+                    placeholder="No"
+                  />
+                </div>
+
+                {/* Reset KOT Number */}
+                <div className="w-full">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                    Reset KOT Number
+                  </label>
+                  <CustomDropdown
+                    name="reset_kot_number"
+                    className="w-full h-10"
+                    value={
+                      configFormData.reset_kot_number !== null &&
+                      configFormData.reset_kot_number !== undefined
+                        ? String(configFormData.reset_kot_number)
+                        : "0"
+                    }
+                    onChange={(e) =>
+                      handleConfigFormChange(
+                        "reset_kot_number",
+                        e.target.value !== "" ? Number(e.target.value) : null
+                      )
+                    }
+                    options={[
+                      { value: "0", label: "No" },
+                      { value: "1", label: "Yes" },
+                    ]}
+                    placeholder="No"
                   />
                 </div>
               </div>
