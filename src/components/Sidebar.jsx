@@ -157,7 +157,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
 
       // Define route patterns for each base route
       const routePatterns = {
-        owners: ["/owners", "/create-owner", "/owner-details/", "/edit-owner/"],
         partners: [
           "/partners",
           "/create-partner",
@@ -183,12 +182,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
         ],
         admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
         companies: ["/companies", "/create-company", "/company-details/", "/edit-company/"],
-        "super-owners": [
-          "/super-owners",
-          "/create-super-owner",
-          "/super-owner-details/",
-          "/edit-super-owner/",
-        ],
         "qr-templates": [
           "/qr-templates",
           "/create-template",

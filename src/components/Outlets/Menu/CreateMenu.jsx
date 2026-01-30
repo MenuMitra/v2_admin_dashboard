@@ -7,15 +7,13 @@ import { useAuth } from '../../../hooks/useAuth';
 import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
-  SelectInput,
-  FileInput,
   Textarea
 } from '../../forms/FormElements';
 import CustomSelect from '../../common/CustomSelect';
 import SaveButton from '../../common/SaveButton';
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { toastController } from '../../../utils/toastController';
 import { API_CONFIG } from '../../../config/appConfig';
 
@@ -178,7 +176,7 @@ function CreateMenu() {
   const location = useLocation();
   const queryClient = useQueryClient();
   const outletName = location.state?.outletName || '';
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
 
   // Add state for menu categories
   const [categories, setCategories] = useState([]);
@@ -505,17 +503,23 @@ function CreateMenu() {
             className="flex flex-col gap-4"
             encType="multipart/form-data"
           >
-            {/* Grid for form fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 text-base relative">
-              <TextInput
-                label="Menu Name"
-                required
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="Enter menu name"
-                className="rounded-lg"
-              />
-              <div className="relative z-40">
+            {/* Grid for form fields - 4 column grid matching OutletConfiguration */}
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="w-full">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                  Menu Name
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="Enter menu name"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="w-full relative z-40">
                 <CategorySingleSelect
                   label="Category"
                   options={categories}
@@ -531,20 +535,23 @@ function CreateMenu() {
                   required
                 />
               </div>
-              <div className="relative z-30">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
-                  Food Type <span className="text-red-500">*</span>
+
+              <div className="w-full relative z-30">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                  Food Type
+                  <span className="text-red-500">*</span>
                 </label>
                 <CustomSelect
                   value={foodType}
                   onChange={(e) => setFoodType(e.target.value)}
                   options={foodTypes}
                   placeholder="Select Food Type"
-                  className="rounded-lg"
+                  className="w-full h-10 rounded-lg"
                 />
               </div>
-              <div className="relative z-20">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+
+              <div className="w-full relative z-20">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                   Spicy Index
                 </label>
                 <CustomSelect
@@ -552,76 +559,111 @@ function CreateMenu() {
                   onChange={(e) => setSpicyIndex(e.target.value)}
                   options={spicyIndexOptions}
                   placeholder="Select Spicy Index"
-                  className="rounded-lg"
+                  className="w-full h-10 rounded-lg"
                 />
               </div>
-              <TextInput
-                label="Offer (%)"
-                value={offer}
-                onChange={e => setOffer(e.target.value)}
-                placeholder="e.g. 10"
-                type="number"
-                min="0"
-                max="100"
-                className="rounded-lg"
-              />
-              <TextInput
-                label="Ingredients"
-                value={ingredients}
-                onChange={e => setIngredients(e.target.value)}
-                placeholder="e.g. dal, vegetables"
-                className="rounded-lg"
-              />
+
+              <div className="w-full">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                  Offer (%)
+                </label>
+                <input
+                  type="number"
+                  value={offer}
+                  onChange={e => setOffer(e.target.value)}
+                  placeholder="e.g. 10"
+                  min="0"
+                  max="100"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="w-full">
+                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                  Ingredients
+                </label>
+                <input
+                  type="text"
+                  value={ingredients}
+                  onChange={e => setIngredients(e.target.value)}
+                  placeholder="e.g. dal, vegetables"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
             </div>
-            {/* Description field outside the grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div className="sm:col-span-1">
-            <Textarea
-              label="Description"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Enter menu description"
-              rows={3}
-            />
-            </div>
+
+            {/* Description field - full width */}
+            <div className="w-full">
+              <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Enter menu description"
+                rows={3}
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
             </div>
             {/* Portion Data */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+              <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                 Portions
               </label>
               {portionData.map((portion, idx) => (
                 <div key={idx} className="mb-4 flex items-start gap-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1 relative">
-                    <TextInput
-                      placeholder="Portion Name"
-                      value={portion.portion_name}
-                      onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
-                      label={idx === 0 ? "Portion Name" : ""}
-                      className="rounded-lg"
-                    />
-                    <TextInput
-                      placeholder="Price"
-                      type="number"
-                      value={portion.price}
-                      onChange={e => handlePortionChange(idx, 'price', e.target.value)}
-                      required={idx === 0}
-                      min="0"
-                      label={idx === 0 ? "Price" : ""}
-                      className="rounded-lg"
-                    />
-                    <TextInput
-                      placeholder="Unit Value"
-                      type="number"
-                      value={portion.unit_value}
-                      onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
-                      min="0"
-                      label={idx === 0 ? "Unit Value" : ""}
-                      className="rounded-lg"
-                    />
-                    <div className="relative" style={{ zIndex: 50 - idx * 10 }}>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 flex-1 relative">
+                    <div className="w-full">
                       {idx === 0 && (
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-400 mb-1">
+                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                          Portion Name
+                        </label>
+                      )}
+                      <input
+                        type="text"
+                        placeholder="Portion Name"
+                        value={portion.portion_name}
+                        onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
+                        className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="w-full">
+                      {idx === 0 && (
+                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                          Price <span className="text-red-500">*</span>
+                        </label>
+                      )}
+                      <input
+                        type="number"
+                        placeholder="Price"
+                        value={portion.price}
+                        onChange={e => handlePortionChange(idx, 'price', e.target.value)}
+                        required={idx === 0}
+                        min="0"
+                        className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="w-full">
+                      {idx === 0 && (
+                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+                          Unit Value
+                        </label>
+                      )}
+                      <input
+                        type="number"
+                        placeholder="Unit Value"
+                        value={portion.unit_value}
+                        onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
+                        min="0"
+                        className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="w-full relative" style={{ zIndex: 50 - idx * 10 }}>
+                      {idx === 0 && (
+                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                           Unit Type
                         </label>
                       )}
@@ -630,10 +672,11 @@ function CreateMenu() {
                         onChange={(e) => handlePortionChange(idx, 'unit_type', e.target.value)}
                         options={unitTypeOptions}
                         placeholder="Select Unit"
-                        className="rounded-lg"
+                        className="w-full h-10 rounded-lg"
                       />
                     </div>
                   </div>
+
                   <div className={`pt-${idx === 0 ? '8' : '2'}`}>
                     {portionData.length > 1 && (
                       <button

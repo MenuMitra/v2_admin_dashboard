@@ -62,7 +62,6 @@ function CreateOutlet() {
   const { adminData } = useAdmin();
   const queryClient = useQueryClient();
   const [outletTypes, setOutletTypes] = useState({});
-  const [allOwners, setAllOwners] = useState([]);
   const [companyOwners, setCompanyOwners] = useState([]);
   const [primaryOwnerId, setPrimaryOwnerId] = useState(null);
   const [allCompanies, setAllCompanies] = useState([]);
@@ -154,34 +153,45 @@ function CreateOutlet() {
   ];
 
   useEffect(() => {
-    fetchOutletTypes();
-    fetchOwners();
-    fetchCompanies();
-    // fetch modules for subscription assign
-    (async () => {
+    const initializeData = async () => {
       try {
-        setLoadingModules(true);
-        const token = getToken();
-        const resp = await axios.get(
-          `${BASE_URL}/admin/get_modules`,
-          {
-            headers: { Authorization: token },
+        setIsLoading(true);
+        await Promise.all([
+          fetchOutletTypes(),
+          fetchCompanies()
+        ]);
+        
+        // fetch modules for subscription assign
+        try {
+          setLoadingModules(true);
+          const token = getToken();
+          const resp = await axios.get(
+            `${BASE_URL}/admin/get_modules`,
+            {
+              headers: { Authorization: token },
+            }
+          );
+          const modList = Array.isArray(resp.data)
+            ? resp.data
+            : resp.data?.data || [];
+          setModules(modList);
+          // Select all modules by default when creating an outlet
+          if (modList.length > 0) {
+            setSelectedModuleIds(modList.map((m) => m.module_id));
           }
-        );
-        const modList = Array.isArray(resp.data)
-          ? resp.data
-          : resp.data?.data || [];
-        setModules(modList);
-        // Select all modules by default when creating an outlet
-        if (modList.length > 0) {
-          setSelectedModuleIds(modList.map((m) => m.module_id));
+        } catch (err) {
+          console.error("Error fetching modules:", err);
+        } finally {
+          setLoadingModules(false);
         }
-      } catch (err) {
-
+      } catch (error) {
+        console.error("Error initializing data:", error);
       } finally {
-        setLoadingModules(false);
+        setIsLoading(false);
       }
-    })();
+    };
+
+    initializeData();
   }, []);
 
 
@@ -191,7 +201,6 @@ function CreateOutlet() {
   }, [
     outletData.name,
     outletData.mobile,
-    outletData.owner_id,
     outletData.upi_id,
     outletData.outlet_type,
     outletData.veg_nonveg,
@@ -294,6 +303,21 @@ function CreateOutlet() {
     // Check if there are any API errors
     const hasApiErrors = Object.values(apiErrors).some((error) => error !== "");
 
+    // Debug logging to help identify validation issues
+    console.log("Form Validation Debug:", {
+      requiredFields,
+      hasApiErrors,
+      outletData: {
+        name: outletData.name,
+        mobile: outletData.mobile,
+        upi_id: outletData.upi_id,
+        outlet_type: outletData.outlet_type,
+        veg_nonveg: outletData.veg_nonveg,
+        address: outletData.address,
+        company_id: outletData.company_id,
+      }
+    });
+
     // Check if all required fields are valid and there are no API errors
     const isValid =
       Object.values(requiredFields).every((field) => field === true) &&
@@ -332,33 +356,6 @@ function CreateOutlet() {
       }
     } catch (error) {
 
-    }
-  };
-
-  const fetchOwners = async () => {
-    try {
-      setIsLoading(true);
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      const response = await axios.get(
-        `${BASE_URL}/common/listview_owner/${getUserId() || adminData?.user_id}`,
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      );
-
-      if (Array.isArray(response.data)) {
-        setAllOwners(response.data);
-      }
-    } catch (error) {
-
-    } finally {
-      setIsLoading(false);
     }
   };
 

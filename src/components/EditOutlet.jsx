@@ -78,7 +78,6 @@ function EditOutlet() {
   const [isLoading, setIsLoading] = useState(true);
   const [outletTypes, setOutletTypes] = useState({});
   const [vegOrNonveg, setVegOrNonveg] = useState({});
-  const [allOwners, setAllOwners] = useState([]);
   const [companyOwners, setCompanyOwners] = useState([]);
   const [primaryOwnerId, setPrimaryOwnerId] = useState(null);
   const [allCompanies, setAllCompanies] = useState([]);
@@ -160,7 +159,6 @@ function EditOutlet() {
     if (adminData?.user_id && outletId) {
       fetchOutletTypes();
       fetchVegOrNonveg();
-      fetchOwners();
       fetchCompanies();
       fetchOutletData();
       // fetch modules for subscription edit
@@ -184,21 +182,32 @@ function EditOutlet() {
     }
   }, [adminData?.user_id, outletId]);
 
-  // Fetch company owners when outlet data is loaded and company is selected
+  // Fetch company owners when company is manually changed (not during initial load)
   useEffect(() => {
-    if (outletData.company_id && !isLoading) {
-      fetchCompanyOwners(outletData.company_id);
+    // Only fetch if not loading and company_id exists and it's a manual change
+    if (outletData.company_id && !isLoading && !isLoadingCompanyOwners) {
+      // This will handle manual company changes in the dropdown
+      console.log("Edit Outlet - Company changed manually, fetching owners for:", outletData.company_id);
     }
-  }, [outletData.company_id, isLoading]);
+  }, [outletData.company_id]);
 
   // Preserve selected owners when company owners are loaded
   useEffect(() => {
     if (companyOwners.length > 0 && outletData.owner_ids.length > 0) {
+      console.log("Edit Outlet - Preserving owners:", {
+        companyOwners: companyOwners.map(o => ({ id: o.user_id, name: o.name })),
+        selectedOwnerIds: outletData.owner_ids
+      });
+      
       // Ensure selected owners are still valid (exist in the company owners list)
       const validOwnerIds = outletData.owner_ids.filter(ownerId =>
         companyOwners.some(owner => owner.user_id === ownerId)
       );
+      
+      console.log("Edit Outlet - Valid owner IDs:", validOwnerIds);
+      
       if (validOwnerIds.length !== outletData.owner_ids.length) {
+        console.log("Edit Outlet - Some owners are invalid, updating...");
         // Update owner_ids if some are no longer valid
         setOutletData(prev => ({
           ...prev,
@@ -232,6 +241,13 @@ function EditOutlet() {
 
       if (response.data.detail === "Successfully retrieved outlet details") {
         const data = response.data.data;
+        
+        // Debug logging to understand the data structure
+        console.log("Edit Outlet - API Response:", {
+          data,
+          owners: data.owners,
+          company_id: data.company_id
+        });
 
         // The API may return subscription info either in `data.subscription_details`,
         // `data.subscription`, or at the top-level `response.data.subscription` (created during outlet creation).
@@ -248,7 +264,15 @@ function EditOutlet() {
             ? String(data.subscription_id)
             : null;
 
-        const initialOwnerIds = data.owners?.map((owner) => owner.owner_id) || [];
+        const initialOwnerIds = data.owners?.map((owner) => owner.user_id || owner.owner_id) || [];
+        console.log("Edit Outlet - Mapped Owner IDs:", initialOwnerIds);
+        
+        // Set primary owner if available in the response
+        const primaryOwner = data.owners?.find(owner => owner.is_primary === 1 || owner.is_primary === true);
+        if (primaryOwner) {
+          setPrimaryOwnerId(primaryOwner.user_id || primaryOwner.owner_id);
+          console.log("Edit Outlet - Primary Owner Set:", primaryOwner.user_id || primaryOwner.owner_id);
+        }
         setOutletData({
           outlet_id: outletId,
           user_id: adminData?.user_id,
@@ -288,7 +312,7 @@ function EditOutlet() {
           has_denomination: data.has_denomination !== undefined ? data.has_denomination : null,
           has_udhari: data.has_udhari !== undefined ? data.has_udhari : null,
           reserve_table: data.has_reserve_table !== undefined ? data.has_reserve_table : (data.reserve_table !== undefined ? data.reserve_table : null),
-          company_id: data.company_id || "",
+          company_id: data.company_id ? String(data.company_id) : "",
         });
         setOriginalOwnerIds(initialOwnerIds);
 
@@ -363,12 +387,21 @@ function EditOutlet() {
           // ignore
         }
 
+        // After setting outlet data, immediately fetch company owners if company_id exists
+        if (data.company_id) {
+          console.log("Edit Outlet - Fetching company owners for company:", data.company_id);
+          // Fetch company owners immediately after setting outlet data, preserving existing owners
+          fetchCompanyOwners(String(data.company_id), true);
+        }
+
         setIsLoading(false);
       }
     } catch (error) {
-
+      console.error("Error fetching outlet data:", error);
       toastController.error("Failed to fetch outlet data");
       navigate(-1);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -420,23 +453,6 @@ function EditOutlet() {
     }
   };
 
-  const fetchOwners = async () => {
-    try {
-      const token = getToken();
-      if (!token) throw new Error("No authentication token available");
-
-      const response = await axios.get(
-        `${BASE_URL}/common/listview_owner/${getUserId() || adminData?.user_id}`,
-        { headers: { Authorization: token } }
-      );
-
-      if (Array.isArray(response.data)) {
-        setAllOwners(response.data);
-      }
-    } catch (error) {
-
-    }
-  };
 
   const fetchCompanies = async () => {
     try {
@@ -469,7 +485,7 @@ function EditOutlet() {
     }
   };
 
-  const fetchCompanyOwners = async (companyId) => {
+  const fetchCompanyOwners = async (companyId, preserveExistingOwners = false) => {
     try {
       setIsLoadingCompanyOwners(true);
       const token = getToken();
@@ -493,16 +509,26 @@ function EditOutlet() {
 
       if (response.data.detail === "Company details retrieved successfully") {
         const owners = response.data.data.owners || [];
+        console.log("Edit Outlet - Company Owners Loaded:", {
+          companyId,
+          owners,
+          currentOwnerIds: outletData.owner_ids,
+          preserveExistingOwners
+        });
         setCompanyOwners(owners);
-        // Clear selected owners when company changes (only if it's a new company selection)
-        if (!outletData.owner_ids.length || companyId !== outletData.company_id) {
-          // Only clear owners if this is a different company, not the initial load
-          if (outletData.company_id && companyId !== outletData.company_id) {
-            setOutletData((prev) => ({
-              ...prev,
-              owner_ids: [],
-            }));
-            setPrimaryOwnerId(null);
+        
+        // Only clear owners if this is a manual company change, not initial load
+        if (!preserveExistingOwners) {
+          // Clear selected owners when company changes (only if it's a new company selection)
+          if (!outletData.owner_ids.length || companyId !== outletData.company_id) {
+            // Only clear owners if this is a different company, not the initial load
+            if (outletData.company_id && companyId !== outletData.company_id) {
+              setOutletData((prev) => ({
+                ...prev,
+                owner_ids: [],
+              }));
+              setPrimaryOwnerId(null);
+            }
           }
         }
       }
@@ -536,10 +562,25 @@ function EditOutlet() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="w-12 h-12 border-b-2 border-blue-500 rounded-full animate-spin"></div>
       </div>
     );
   }
+
+  // Debug logging for current state
+  console.log("Edit Outlet - Current State:", {
+    outletData: {
+      company_id: outletData.company_id,
+      owner_ids: outletData.owner_ids,
+      upi_id: outletData.upi_id,
+      name: outletData.name
+    },
+    companyOwners: companyOwners.map(o => ({ id: o.user_id, name: o.name })),
+    allCompanies: allCompanies.map(c => ({ id: c.company_id, name: c.company_name })),
+    primaryOwnerId,
+    isLoading,
+    isLoadingCompanyOwners
+  });
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -794,7 +835,7 @@ function EditOutlet() {
             {/* Back Button */}
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50"
             >
               <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
               <span>Back</span>
@@ -844,8 +885,8 @@ function EditOutlet() {
                   />
           </div>
           {/* Basic Information Section */}
-          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
+          <section className="p-4 bg-white rounded-lg shadow sm:p-6">
+            <h2 className="flex items-center mb-4 text-lg font-medium">
               <svg
                 className="w-5 h-5 mr-2"
                 fill="none"
@@ -865,7 +906,7 @@ function EditOutlet() {
             {/* Basic Information Fields */}
             <div className="grid grid-cols-1 gap-6">
               {/* Select Company and Select Owner in same grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 {/* Select Company */}
                 <div className="flex flex-col">
                   <SingleSelectDropdown
@@ -873,19 +914,21 @@ function EditOutlet() {
                     options={allCompanies}
                     selectedValue={outletData.company_id}
                     onChange={(companyId) => {
+                      console.log("Edit Outlet - Company changed:", { companyId, previousCompanyId: outletData.company_id });
                       setOutletData((prev) => ({
                         ...prev,
                         company_id: companyId,
                       }));
                       // Fetch company-specific owners when company is selected
                       if (companyId) {
-                        fetchCompanyOwners(companyId);
+                        fetchCompanyOwners(companyId, false); // Don't preserve owners on manual change
                       } else {
                         setCompanyOwners([]);
                         setOutletData((prev) => ({
                           ...prev,
                           owner_ids: [],
                         }));
+                        setPrimaryOwnerId(null);
                       }
                     }}
                     displayKey="company_name"
@@ -895,6 +938,13 @@ function EditOutlet() {
                     searchPlaceholder="Search by company name or code..."
                     className="rounded-lg"
                   />
+                  {/* Debug info for company dropdown */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Debug: Selected Company ID: {outletData.company_id || 'None'} | 
+                      Available Companies: {allCompanies.length}
+                    </div>
+                  )}
                 </div>
 
                 {/* Select Owner */}
@@ -904,6 +954,11 @@ function EditOutlet() {
                     options={companyOwners}
                     selectedValues={outletData.owner_ids}
                     onChange={(newOwnerIds) => {
+                      console.log("Edit Outlet - Owners changed:", { 
+                        newOwnerIds, 
+                        previousOwnerIds: outletData.owner_ids,
+                        availableOwners: companyOwners.map(o => ({ id: o.user_id, name: o.name }))
+                      });
                       setOutletData((prev) => ({
                         ...prev,
                         owner_ids: newOwnerIds,
@@ -929,8 +984,16 @@ function EditOutlet() {
                     primaryValue={primaryOwnerId}
                     onPrimaryChange={setPrimaryOwnerId}
                   />
+                  {/* Debug info for owner dropdown */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Debug: Selected Owners: [{outletData.owner_ids.join(', ') || 'None'}] | 
+                      Available Owners: {companyOwners.length} | 
+                      Primary: {primaryOwnerId || 'None'}
+                    </div>
+                  )}
                   {!outletData.company_id && (
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="mt-1 text-sm text-gray-500">
                       Select a company first to see available owners
                     </p>
                   )}
@@ -940,7 +1003,7 @@ function EditOutlet() {
               </div>
 
               {/* Rest of the form fields in their own grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-4">
                 <TextInput
                   label="Outlet Name"
                   name="name"
@@ -977,7 +1040,7 @@ function EditOutlet() {
                     `}
                   />
                   {validationStates.mobile && (
-                    <p className="text-error-500 text-sm mt-1">
+                    <p className="mt-1 text-sm text-error-500">
                       {validationStates.mobileMessage}
                     </p>
                   )}
@@ -1080,7 +1143,7 @@ function EditOutlet() {
                     className="rounded-lg"
                   />
                   {validationStates.address && (
-                    <p className="text-error-500 text-sm mt-1">
+                    <p className="mt-1 text-sm text-error-500">
                       {(() => {
                         if (!outletData.address) return "Address is required";
                         if (outletData.address.length < 3) return "Minimum 3 characters required";
@@ -1095,9 +1158,9 @@ function EditOutlet() {
           </section>
 
           {/* Business Details Section */}
-          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
-            <div className="border-b border-gray-200 dark:border-gray-800 pb-5">
-              <h2 className="text-lg font-medium mb-4 flex items-center">
+          <section className="p-4 bg-white rounded-lg shadow sm:p-6">
+            <div className="pb-5 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="flex items-center mb-4 text-lg font-medium">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="none"
@@ -1114,9 +1177,9 @@ function EditOutlet() {
                 Business Details
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-4">
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     FSSAI Number
                   </label>
                   <input
@@ -1125,13 +1188,13 @@ function EditOutlet() {
                     value={outletData.fssainumber}
                     onChange={handleInputChange}
                     placeholder="Enter FSSAI number"
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="block w-full mt-1 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     maxLength={14}
                   />
                 </div>
 
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     GST Number
                   </label>
                   <input
@@ -1141,7 +1204,7 @@ function EditOutlet() {
                     maxLength={15}
                     onChange={handleInputChange}
                     placeholder="Enter GST number"
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="block w-full mt-1 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
               </div>
@@ -1149,31 +1212,31 @@ function EditOutlet() {
           </section>
 
           {/* Assign Subscription Section (same as Create) */}
-          <section className="bg-white p-4 rounded-lg shadow">
-            <div className=" border-b border-gray-200 dark:border-gray-800 pb-5">
-              <h2 className="text-lg font-medium mb-3 flex items-center">
+          <section className="p-4 bg-white rounded-lg shadow">
+            <div className="pb-5 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="flex items-center mb-3 text-lg font-medium">
                 <FontAwesomeIcon icon={faLayerGroup} className="w-5 h-5 mr-2" />
                 Assign Subscription{" "}
-                <span className="text-error-500 ml-2">*</span>
+                <span className="ml-2 text-error-500">*</span>
               </h2>
 
               {/* Plan fields - first row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
+              <div className="grid grid-cols-1 gap-3 mb-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-4">
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Plan Name <span className="text-error-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={planName}
                     onChange={(e) => setPlanName(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="block w-full mt-1 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter plan name"
                   />
                 </div>
 
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Price <span className="text-error-500">*</span>
                   </label>
                   <input
@@ -1181,13 +1244,13 @@ function EditOutlet() {
                     step="0.01"
                     value={planPrice}
                     onChange={(e) => setPlanPrice(e.target.value)}
-                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="block w-full mt-1 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter price"
                   />
                 </div>
 
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Tenure (months) <span className="text-error-500">*</span>
                   </label>
                   <CustomDropdown
@@ -1197,7 +1260,7 @@ function EditOutlet() {
                         e.target.value ? Number(e.target.value) : null
                       )
                     }
-                    className="mt-1 block w-full"
+                    className="block w-full mt-1"
                     options={[
                       { value: "", label: "Select months" },
                       ...ALLOWED_TENURES.map((m) => ({
@@ -1235,13 +1298,13 @@ function EditOutlet() {
                             setSelectedModuleIds([]);
                           }
                         }}
-                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-lg mr-2"
+                        className="w-4 h-4 mr-2 text-blue-600 border-gray-300 rounded-lg form-checkbox"
                       />
                       Check All
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                     {modules.map((m) => {
                       const checked = selectedModuleIds.includes(m.module_id);
                       return (
@@ -1253,13 +1316,13 @@ function EditOutlet() {
                             : "border-gray-200"
                             }`}
                         >
-                          <label className="flex items-center gap-2 cursor-pointer text-xs">
+                          <label className="flex items-center gap-2 text-xs cursor-pointer">
                             <input
                               type="checkbox"
                               checked={checked}
                               onChange={() => handleModuleToggle(m.module_id)}
                               onClick={(e) => e.stopPropagation()}
-                              className="form-checkbox rounded-lg h-4 w-4 text-blue-600"
+                              className="w-4 h-4 text-blue-600 rounded-lg form-checkbox"
                             />
                             <span className="uppercase">
                               {m.name?.split("_").join(" ")}

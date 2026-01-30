@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
@@ -12,7 +12,6 @@ import { queryKeys } from "../lib/react-query/queryKeys";
 import Breadcrumb from "./Breadcrumb";
 import SaveButton from "./common/SaveButton";
 import CustomDropdown from "./common/CustomDropdown";
-import { TextInput } from "./forms/FormElements.jsx";
 
 function toTitleCase(str) {
   return str
@@ -26,6 +25,7 @@ function toTitleCase(str) {
 function OutletConfiguration() {
   const { outletId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { BASE_URL } = API_CONFIG;
@@ -35,20 +35,13 @@ function OutletConfiguration() {
     service_charge_value: "",
     service_charge_type: "percent",
     gst: "",
-    fssainumber: "",
-    gstnumber: "",
     has_combo: null,
     has_denomination: null,
     has_udhari: null,
     has_reserve_table: null,
-    has_dynamic_price: null,
-    is_open: null,
+    show_customer_count: null,
     opening_time: "",
     closing_time: "",
-    order_number_sequence: "daily",
-    reset_kot_number: "daily",
-    reset_bill_number: "daily", 
-    show_customer_count: null,
     website: "",
     whatsapp: "",
     facebook: "",
@@ -137,22 +130,15 @@ function OutletConfiguration() {
     if (configData) {
       setConfigFormData({
         service_charge_value: configData.service_charge_value ?? "",
-        service_charge_type: configData.service_charge_type || "percent",
+        service_charge_type: configData.service_charge_type === "percentage" ? "percent" : configData.service_charge_type || "percent",
         gst: configData.gst ?? "",
-        fssainumber: configData.fssainumber || "",
-        gstnumber: configData.gstnumber || "",
         has_combo: configData.has_combo === true ? 1 : configData.has_combo === false ? 0 : null,
         has_denomination: configData.has_denomination === true ? 1 : configData.has_denomination === false ? 0 : null,
         has_udhari: configData.has_udhari === true ? 1 : configData.has_udhari === false ? 0 : null,
         has_reserve_table: configData.has_reserve_table === true ? 1 : configData.has_reserve_table === false ? 0 : null,
-        has_dynamic_price: configData.has_dynamic_price === true ? 1 : configData.has_dynamic_price === false ? 0 : null,
-        is_open: configData.is_open === true ? 1 : configData.is_open === false ? 0 : null,
+        show_customer_count: configData.show_customer_count === true ? 1 : configData.show_customer_count === false ? 0 : null,
         opening_time: configData.opening_time || "",
         closing_time: configData.closing_time || "",
-        order_number_sequence: configData.order_number_sequence || "daily",
-        reset_kot_number: configData.reset_kot_number || "daily",
-        reset_bill_number: configData.reset_bill_number || "daily",
-        show_customer_count: configData.show_customer_count === true ? 1 : configData.show_customer_count === false ? 0 : null,
         website: configData.website || "",
         whatsapp: configData.whatsapp || "",
         facebook: configData.facebook || "",
@@ -222,14 +208,10 @@ function OutletConfiguration() {
     setIsSaving(true);
     try {
       const payload = {
-        outlet_id: Number(outletId),
-        user_id: adminData?.user_id,
+        outlet_id: outletId,
       };
 
       // Add configuration fields
-      if (configFormData.is_open !== null) {
-        payload.is_open = configFormData.is_open === 1;
-      }
       if (configFormData.has_udhari !== null) {
         payload.has_udhari = configFormData.has_udhari === 1;
       }
@@ -246,12 +228,24 @@ function OutletConfiguration() {
         payload.website = configFormData.website;
       }
 
-      // Add time fields in HH:MM:SS AM/PM format if set
+      // Add time fields in HH:MM format (24-hour)
       if (closingHour && closingMinute) {
-        payload.closing_time = `${closingHour}:${closingMinute}:00 ${closingPeriod}`;
+        let closingHourNum = parseInt(closingHour, 10);
+        if (closingPeriod === "PM" && closingHourNum !== 12) {
+          closingHourNum += 12;
+        } else if (closingPeriod === "AM" && closingHourNum === 12) {
+          closingHourNum = 0;
+        }
+        payload.closing_time = `${closingHourNum.toString().padStart(2, "0")}:${closingMinute}`;
       }
       if (openingHour && openingMinute) {
-        payload.opening_time = `${openingHour}:${openingMinute}:00 ${openingPeriod}`;
+        let openingHourNum = parseInt(openingHour, 10);
+        if (openingPeriod === "PM" && openingHourNum !== 12) {
+          openingHourNum += 12;
+        } else if (openingPeriod === "AM" && openingHourNum === 12) {
+          openingHourNum = 0;
+        }
+        payload.opening_time = `${openingHourNum.toString().padStart(2, "0")}:${openingMinute}`;
       }
 
       // Add other configuration fields
@@ -259,7 +253,7 @@ function OutletConfiguration() {
         payload.service_charge_value = Number(configFormData.service_charge_value);
       }
       if (configFormData.service_charge_type) {
-        payload.service_charge_type = configFormData.service_charge_type;
+        payload.service_charge_type = configFormData.service_charge_type === "percent" ? "percentage" : configFormData.service_charge_type;
       }
       if (configFormData.gst) {
         payload.gst = Number(configFormData.gst);
@@ -272,18 +266,6 @@ function OutletConfiguration() {
       }
       if (configFormData.has_reserve_table !== null) {
         payload.has_reserve_table = configFormData.has_reserve_table === 1;
-      }
-      if (configFormData.has_dynamic_price !== null) {
-        payload.has_dynamic_price = configFormData.has_dynamic_price === 1;
-      }
-      if (configFormData.order_number_sequence) {
-        payload.order_number_sequence = configFormData.order_number_sequence;
-      }
-      if (configFormData.reset_kot_number) {
-        payload.reset_kot_number = configFormData.reset_kot_number;
-      }
-      if (configFormData.reset_bill_number) {
-        payload.reset_bill_number = configFormData.reset_bill_number;
       }
       if (configFormData.show_customer_count !== null) {
         payload.show_customer_count = configFormData.show_customer_count === 1;
@@ -308,11 +290,18 @@ function OutletConfiguration() {
         }
       );
 
-      if (response.data) {
-        toastController.success(
-          "Outlet configuration updated successfully"
-        );
-        navigate(-1);
+      if (response.data?.message) {
+        toastController.success(response.data.message);
+        
+        // Refetch the outlet configuration cache to get fresh data
+        await queryClient.refetchQueries({
+          queryKey: ["outletConfig", outletId],
+        });
+        
+        // Navigate back after successful update
+        setTimeout(() => {
+          navigate(-1);
+        }, 1000);
       }
     } catch (error) {
       console.error("Update outlet config error:", error);
@@ -452,63 +441,6 @@ function OutletConfiguration() {
                     onChange={(e) => handleConfigFormChange("gst", e.target.value)}
                     placeholder="Enter GST percentage"
                     className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  />
-                </div>
-
-                <div className="w-full">
-                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                    Order Number Sequence
-                  </label>
-                  <CustomDropdown
-                    name="order_number_sequence"
-                    className="w-full h-10"
-                    value={configFormData.order_number_sequence}
-                    onChange={(e) => handleConfigFormChange("order_number_sequence", e.target.value)}
-                    options={[
-                      { value: "daily", label: "Daily" },
-                      { value: "continuous", label: "Continuous" },
-                    ]}
-                    placeholder="Select"
-                  />
-                </div>
-
-                {/* Reset KOT Number */}
-                <div className="w-full">
-                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                    Reset KOT Number
-                  </label>
-                  <CustomDropdown
-                    name="reset_kot_number"
-                    className="w-full h-10"
-                    value={configFormData.reset_kot_number}
-                    onChange={(e) => handleConfigFormChange("reset_kot_number", e.target.value)}
-                    options={[
-                      { value: "daily", label: "Daily" },
-                      { value: "monthly", label: "Monthly" },
-                      { value: "yearly", label: "Yearly" },
-                      { value: "never", label: "Never" },
-                    ]}
-                    placeholder="Select"
-                  />
-                </div>
-
-                {/* Reset Bill Number */}
-                <div className="w-full">
-                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                    Reset Bill Number
-                  </label>
-                  <CustomDropdown
-                    name="reset_bill_number"
-                    className="w-full h-10"
-                    value={configFormData.reset_bill_number}
-                    onChange={(e) => handleConfigFormChange("reset_bill_number", e.target.value)}
-                    options={[
-                      { value: "daily", label: "Daily" },
-                      { value: "monthly", label: "Monthly" },
-                      { value: "yearly", label: "Yearly" },
-                      { value: "never", label: "Never" },
-                    ]}
-                    placeholder="Select"
                   />
                 </div>
 
@@ -739,34 +671,6 @@ function OutletConfiguration() {
                       { value: "1", label: "Yes" },
                     ]}
                     placeholder="Yes"
-                  />
-                </div>
-
-                {/* Dynamic Price */}
-                <div className="w-full">
-                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                    Dynamic Price
-                  </label>
-                  <CustomDropdown
-                    name="has_dynamic_price"
-                    className="w-full h-10"
-                    value={
-                      configFormData.has_dynamic_price !== null &&
-                      configFormData.has_dynamic_price !== undefined
-                        ? String(configFormData.has_dynamic_price)
-                        : "0"
-                    }
-                    onChange={(e) =>
-                      handleConfigFormChange(
-                        "has_dynamic_price",
-                        e.target.value !== "" ? Number(e.target.value) : null
-                      )
-                    }
-                    options={[
-                      { value: "0", label: "No" },
-                      { value: "1", label: "Yes" },
-                    ]}
-                    placeholder="No"
                   />
                 </div>
               </div>
