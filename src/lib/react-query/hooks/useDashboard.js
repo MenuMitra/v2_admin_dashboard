@@ -34,7 +34,9 @@ export const useDashboard = () => {
       throw new Error("Failed to fetch dashboard data");
     }
 
-    return response.json();
+    const jsonResponse = await response.json();
+    // Extract the nested data object from the API response
+    return jsonResponse.data || jsonResponse;
   };
 
   // Main dashboard data query
