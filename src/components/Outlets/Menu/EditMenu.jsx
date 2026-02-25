@@ -133,7 +133,7 @@ const CategorySingleSelect = ({
           </div>
 
           {/* Options List with Fixed Height and Scrolling */}
-          <div 
+          <div
             style={{
               height: '250px',
               maxHeight: '250px',
@@ -187,13 +187,10 @@ function EditMenu() {
   const [name, setName] = useState('');
   const [menuCatId, setMenuCatId] = useState('');
   const [foodType, setFoodType] = useState('');
-  const [description, setDescription] = useState('');
   const [spicyIndex, setSpicyIndex] = useState('');
   const [ingredients, setIngredients] = useState('');
-  const [offer, setOffer] = useState('');
-  const [portionData, setPortionData] = useState([
-    { menu_portion_id: null, portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
-  ]);
+  const [price, setPrice] = useState('');
+  const [menuPortionId, setMenuPortionId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
@@ -208,14 +205,7 @@ function EditMenu() {
   // Ref for form submission from Save button
   const formRef = React.useRef();
 
-  // Unit type options
-  const unitTypeOptions = [
-    { value: 'gm', label: 'Gram (gm)' },
-    { value: 'kg', label: 'Kilogram (kg)' },
-    { value: 'ml', label: 'Milliliter (ml)' },
-    { value: 'ltr', label: 'Liter (ltr)' },
-    { value: 'pcs', label: 'Pieces (pcs)' }
-  ];
+
 
   // Add new state for outlet name
   const [outletName, setOutletName] = useState('');
@@ -241,7 +231,7 @@ function EditMenu() {
   const handleImageSelect = async (e) => {
     const files = Array.from(e.target.files);
     const maxImages = 5;
-    
+
     if (existingImages.length + images.length + files.length > maxImages) {
       toastController.warning(`Maximum ${maxImages} images allowed`);
       return;
@@ -266,7 +256,7 @@ function EditMenu() {
       setImages(prev => [...prev, ...base64Array]);
       setPreviews(prev => [...prev, ...base64Array]);
     } catch (error) {
-      
+
       toastController.error('Error processing images');
     }
 
@@ -281,9 +271,9 @@ function EditMenu() {
 
   // Remove existing image handler
   const handleRemoveExistingImage = (imageId) => {
-    setExistingImages(prev => 
-      prev.map(img => 
-        img.id === imageId 
+    setExistingImages(prev =>
+      prev.map(img =>
+        img.id === imageId
           ? { ...img, flag: 0 } // Mark for deletion
           : img
       )
@@ -292,9 +282,9 @@ function EditMenu() {
 
   // Restore existing image handler
   const handleRestoreExistingImage = (imageId) => {
-    setExistingImages(prev => 
-      prev.map(img => 
-        img.id === imageId 
+    setExistingImages(prev =>
+      prev.map(img =>
+        img.id === imageId
           ? { ...img, flag: 1 } // Restore image
           : img
       )
@@ -325,10 +315,8 @@ function EditMenu() {
         setOutletName(menuData.outlet_name);
         setMenuCatId(menuData.menu_cat_id.toString());
         setFoodType(menuData.food_type);
-        setDescription(menuData.description);
         setSpicyIndex(menuData.spicy_index?.toString() || '');
         setIngredients(menuData.ingredients);
-        setOffer(menuData.offer?.toString() || '');
         setIsSpecial(menuData.is_special || false);
 
         // Format existing images
@@ -341,14 +329,10 @@ function EditMenu() {
         setExistingImages(formattedExistingImages);
         setPreviews([]); // Clear previews for new images
         setImages([]); // Clear new images array
-        setPortionData(menuData.portions.map((p, idx) => ({
-          menu_portion_id: p.menu_portion_id,
-          portion_name: p.portion_name,
-          price: p.price.toString(),
-          unit_value: p.unit_value,
-          unit_type: p.unit_type,
-          flag: idx === 0 ? 1 : 0
-        })));
+        if (menuData.portions && menuData.portions.length > 0) {
+          setPrice(menuData.portions[0].price.toString());
+          setMenuPortionId(menuData.portions[0].menu_portion_id);
+        }
       } catch (err) {
         toastController.error('Failed to load menu details');
         setError('Failed to load menu details');
@@ -378,7 +362,7 @@ function EditMenu() {
             }
           }
         );
-        
+
         const validCategories = response.data.data.menucat_details.filter(
           cat => cat.menu_cat_id !== null
         );
@@ -407,12 +391,12 @@ function EditMenu() {
             }
           }
         );
-        
+
         const types = Object.entries(response.data.food_type_list).map(([value, label]) => ({
           value,
           label: label.charAt(0).toUpperCase() + label.slice(1)
         }));
-        
+
         setFoodTypes(types);
       } catch (err) {
         toastController.error('Failed to load food types');
@@ -436,12 +420,12 @@ function EditMenu() {
             }
           }
         );
-        
+
         const indexOptions = Object.entries(response.data.spicy_index_list).map(([value, label]) => ({
           value,
           label: `Level ${label}`
         }));
-        
+
         setSpicyIndexOptions(indexOptions);
       } catch (err) {
         toastController.error('Failed to load spicy index options');
@@ -453,37 +437,13 @@ function EditMenu() {
   }, []);
 
   // Portion handlers
-  const handlePortionChange = (idx, field, value) => {
-    setPortionData(prev =>
-      prev.map((portion, i) =>
-        i === idx ? { ...portion, [field]: value } : portion
-      )
-    );
-  };
 
-  const addPortion = () => {
-    setPortionData(prev => [
-      ...prev,
-      { 
-        menu_portion_id: null,
-        portion_name: '', 
-        price: '', 
-        unit_value: '', 
-        unit_type: '', 
-        flag: 0 
-      }
-    ]);
-  };
-
-  const removePortion = (idx) => {
-    setPortionData(prev => prev.filter((_, i) => i !== idx));
-  };
 
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!name || !menuCatId || !foodType || !portionData[0].price) {
+
+    if (!name || !menuCatId || !foodType || !price) {
       toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
       return;
@@ -497,25 +457,11 @@ function EditMenu() {
       const token = getToken();
 
       // Format portion data properly
-      const formattedPortionData = portionData.map((portion, index) => {
-        const basePortionData = {
-          portion_name: portion.portion_name?.trim() || '',
-          price: parseInt(portion.price, 10),
-          unit_value: portion.unit_value?.trim() || '',
-          unit_type: portion.unit_type?.trim() || '',
-          flag: index === 0 ? 1 : 0
-        };
-
-        // Only include menu_portion_id if it exists (for existing portions)
-        if (portion.menu_portion_id) {
-          return {
-            menu_portion_id: portion.menu_portion_id,
-            ...basePortionData
-          };
-        }
-
-        return basePortionData;
-      });
+      const formattedPortionData = [{
+        menu_portion_id: menuPortionId,
+        price: parseInt(price, 10),
+        flag: 1
+      }];
 
       // Construct the JSON payload
       const payload = {
@@ -527,8 +473,6 @@ function EditMenu() {
         food_type: foodType,
         menu_cat_id: Number(menuCatId),
         spicy_index: spicyIndex ? spicyIndex.toString() : null,
-        offer: offer ? Number(offer) : 0,
-        description: description?.trim() || '',
         ingredients: ingredients?.trim() || '',
         is_special: isSpecial,
         images: images,
@@ -556,7 +500,7 @@ function EditMenu() {
       queryClient.invalidateQueries({ queryKey: queryKeys.menus.list(outletId) });
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      
+
       const errorMessage = err.response?.data?.message || err.response?.data?.detail || 'Failed to update menu';
       toastController.error(errorMessage);
       setError(errorMessage);
@@ -627,7 +571,7 @@ function EditMenu() {
                 }}
                 placeholder="Enter menu name"
               />
-              { nameError && <p className="text-error-500 text-sm mt-1">{nameError}</p> }
+              {nameError && <p className="text-error-500 text-sm mt-1">{nameError}</p>}
               <div className="relative z-50">
                 <CategorySingleSelect
                   label="Category"
@@ -652,31 +596,33 @@ function EditMenu() {
                 options={foodTypes}
                 placeholder="Select Food Type"
               />
-              <CustomDropdown
-                label="Spicy Index"
-                value={spicyIndex}
-                onChange={e => setSpicyIndex(e.target.value)}
-                options={spicyIndexOptions}
-                placeholder="Select Spicy Index"
-              />
               <TextInput
-                label="Offer (%)"
-                className= "rounded-lg"
-                value={offer}
-                onChange={e => setOffer(e.target.value)}
-                placeholder="e.g. 10"
+                label="Price"
+                className="rounded-lg"
                 type="number"
+                value={price}
+                onChange={e => setPrice(e.target.value)}
+                placeholder="Enter price"
+                required
                 min="0"
-                max="100"
               />
               <TextInput
                 label="Ingredients"
-                className = "rounded-lg"
+                className="rounded-lg"
                 value={ingredients}
                 onChange={e => setIngredients(e.target.value)}
                 placeholder="e.g. dal, vegetables"
               />
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-col gap-2">
+                <CustomDropdown
+                  label="Spicy Index"
+                  value={spicyIndex}
+                  onChange={e => setSpicyIndex(e.target.value)}
+                  options={spicyIndexOptions}
+                  placeholder="Select Spicy Index"
+                />
+              </div>
+              <div className="flex items-center space-x-2 mt-6">
                 <input
                   type="checkbox"
                   id="is_special"
@@ -690,91 +636,14 @@ function EditMenu() {
               </div>
             </div>
 
-            {/* Description field outside the grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div className="sm:col-span-1">
-            <Textarea
-              label="Description"
-              className="rounded-lg"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Enter menu description"
-              rows={3}
-            />
-            </div>
-            </div>
 
-            {/* Portion Data */}
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Portions
-              </label>
-              {portionData.map((portion, idx) => (
-                <div key={idx} className="mb-4 flex items-start gap-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1">
-                    <TextInput
-                      placeholder="Portion Name"
-                      className="rounded-lg"
-                      value={portion.portion_name}
-                      onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
-                      label={idx === 0 ? "Portion Name" : ""}
-                    />
-                    <TextInput
-                      placeholder="Price"
-                      type="number"
-                      className="rounded-lg"
-                      value={portion.price}
-                      onChange={e => handlePortionChange(idx, 'price', e.target.value)}
-                      required={idx === 0}
-                      min="0"
-                      label={idx === 0 ? "Price" : ""}
-                    />
-                    <TextInput
-                      placeholder="Unit Value"
-                      className="rounded-lg"
-                      type="number"
-                      value={portion.unit_value}
-                      onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
-                      label={idx === 0 ? "Unit Value" : ""}
-                    />
-                    <div className="relative" style={{ zIndex: 50 - idx * 10 }}>
-                      <CustomDropdown
-                        value={portion.unit_type}
-                        onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
-                        options={unitTypeOptions}
-                        placeholder="Select Unit"
-                        label={idx === 0 ? "Unit Type" : ""}
-                      />
-                    </div>
-                  </div>
-                  <div className={`pt-${idx === 0 ? '8' : '2'}`}>
-                    <button
-                      type="button"
-                      className="text-error-500 hover:text-error-700 p-2 rounded-full hover:bg-error-50"
-                      onClick={() => removePortion(idx)}
-                      disabled={portionData.length === 1}
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-full mt-2 shadow-sm"
-                onClick={addPortion}
-              >
-                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-                <span>Add Portion</span>
-              </button>
-            </div>
 
             {/* Images Section */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Menu Images
               </label>
-              
+
               {/* Image Upload Area */}
               <div className="flex items-center justify-center w-full">
                 <label
@@ -796,18 +665,18 @@ function EditMenu() {
                   }}
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg 
-                      className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" 
-                      aria-hidden="true" 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      fill="none" 
+                    <svg
+                      className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
                       viewBox="0 0 20 16"
                     >
-                      <path 
-                        stroke="currentColor" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth="2" 
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
                         d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                       />
                     </svg>
@@ -841,7 +710,7 @@ function EditMenu() {
               <div className="mt-4 flex flex-wrap gap-2">
                 {/* Existing Images */}
                 {existingImages.map((img) => (
-                  <div 
+                  <div
                     key={img.id}
                     className={`relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-[100px] aspect-square ${img.flag === 0 ? 'opacity-50' : 'opacity-100'}`}
                   >
@@ -850,16 +719,16 @@ function EditMenu() {
                       alt="Menu item"
                       className="w-full h-full object-cover"
                     />
-                    
+
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                       <button
                         type="button"
                         onClick={() => img.flag === 1 ? handleRemoveExistingImage(img.id) : handleRestoreExistingImage(img.id)}
                         className={`w-8 h-8 flex items-center justify-center rounded-full 
-                          ${img.flag === 1 ? 'bg-error-500 hover:bg-error-600' : 'bg-success-500 hover:bg-success-600'}
-                          transition-colors duration-200`}
+                              ${img.flag === 1 ? 'bg-error-500 hover:bg-error-600' : 'bg-success-500 hover:bg-success-600'}
+                              transition-colors duration-200`}
                       >
-                        <FontAwesomeIcon 
+                        <FontAwesomeIcon
                           icon={img.flag === 1 ? faTimes : faPlus}
                           className="w-4 h-4 text-white"
                         />
@@ -870,7 +739,7 @@ function EditMenu() {
 
                 {/* New Images */}
                 {previews.map((preview, index) => (
-                  <div 
+                  <div
                     key={`new-${index}`}
                     className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-[100px] aspect-square"
                   >
@@ -879,15 +748,15 @@ function EditMenu() {
                       alt={`New preview ${index + 1}`}
                       className="w-full h-full object-cover"
                     />
-                    
+
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                       <button
                         type="button"
                         onClick={() => handleRemoveNewImage(index)}
                         className="w-8 h-8 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 transition-colors duration-200"
                       >
-                        <FontAwesomeIcon 
-                          icon={faTimes} 
+                        <FontAwesomeIcon
+                          icon={faTimes}
                           className="w-4 h-4 text-white"
                         />
                       </button>

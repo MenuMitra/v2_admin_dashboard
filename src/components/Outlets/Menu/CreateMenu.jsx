@@ -131,7 +131,7 @@ const CategorySingleSelect = ({
           </div>
 
           {/* Options List with Fixed Height and Scrolling */}
-          <div 
+          <div
             style={{
               height: '250px',
               maxHeight: '250px',
@@ -185,13 +185,9 @@ function CreateMenu() {
   const [name, setName] = useState('');
   const [menuCatId, setMenuCatId] = useState('');
   const [foodType, setFoodType] = useState('');
-  const [description, setDescription] = useState('');
   const [spicyIndex, setSpicyIndex] = useState('');
   const [ingredients, setIngredients] = useState('');
-  const [offer, setOffer] = useState('');
-  const [portionData, setPortionData] = useState([
-    { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
-  ]);
+  const [price, setPrice] = useState('');
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -207,14 +203,7 @@ function CreateMenu() {
   // Add state for spicy index options
   const [spicyIndexOptions, setSpicyIndexOptions] = useState([]);
 
-  // Add unit type options
-  const unitTypeOptions = [
-    { value: 'gm', label: 'Gram (gm)' },
-    { value: 'kg', label: 'Kilogram (kg)' },
-    { value: 'ml', label: 'Milliliter (ml)' },
-    { value: 'ltr', label: 'Liter (ltr)' },
-    { value: 'pcs', label: 'Pieces (pcs)' }
-  ];
+
 
   // Add file input ref
   const fileInputRef = React.useRef(null);
@@ -233,7 +222,7 @@ function CreateMenu() {
   const handleImageSelect = async (e) => {
     const files = Array.from(e.target.files);
     const maxImages = 5;
-    
+
     if (images.length + files.length > maxImages) {
       toastController.warning(`Maximum ${maxImages} images allowed`);
       return;
@@ -258,7 +247,7 @@ function CreateMenu() {
       setImages(prev => [...prev, ...base64Array]);
       setPreviews(prev => [...prev, ...base64Array]);
     } catch (error) {
-      
+
       toastController.error('Error processing images');
     }
 
@@ -290,7 +279,7 @@ function CreateMenu() {
             }
           }
         );
-        
+
         const validCategories = response.data.data.menucat_details.filter(
           cat => cat.menu_cat_id !== null
         );
@@ -319,12 +308,12 @@ function CreateMenu() {
             }
           }
         );
-        
+
         const types = Object.entries(response.data.food_type_list).map(([value, label]) => ({
           value,
           label: label.charAt(0).toUpperCase() + label.slice(1)
         }));
-        
+
         setFoodTypes(types);
       } catch (err) {
         toastController.error('Failed to load food types');
@@ -348,12 +337,12 @@ function CreateMenu() {
             }
           }
         );
-        
+
         const indexOptions = Object.entries(response.data.spicy_index_list).map(([value, label]) => ({
           value,
           label: `Level ${label}`
         }));
-        
+
         setSpicyIndexOptions(indexOptions);
       } catch (err) {
         toastController.error('Failed to load spicy index options');
@@ -365,38 +354,22 @@ function CreateMenu() {
   }, []); // Empty dependency array as this only needs to run once
 
   // Portion handlers
-  const handlePortionChange = (idx, field, value) => {
-    setPortionData(prev =>
-      prev.map((portion, i) =>
-        i === idx ? { ...portion, [field]: value } : portion
-      )
-    );
-  };
-  const addPortion = () => {
-    setPortionData(prev => [
-      ...prev,
-      { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 0 }
-    ]);
-  };
-  const removePortion = (idx) => {
-    setPortionData(prev => prev.filter((_, i) => i !== idx));
-  };
+
 
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!name || !menuCatId || !foodType) {
       toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
       return;
     }
 
-    // Add validation for portion prices
-    const missingPrices = portionData.some(portion => !portion.price);
-    if (missingPrices) {
-      toastController.error('Price is required for all portions');
-      setError('Price is required for all portions');
+    // Add validation for price
+    if (!price) {
+      toastController.error('Price is required');
+      setError('Price is required');
       return;
     }
 
@@ -414,18 +387,16 @@ function CreateMenu() {
         user_id: adminData?.user_id,
         name: name.trim(),
         food_type: foodType,
-        description: description.trim(),
+        description: '',
         spicy_index: spicyIndex,
         ingredients: ingredients.trim(),
-        offer: offer || '0',
+        offer: '0',
         app_source: 'admin_app',
-        portion_data: portionData.map((portion, index) => ({
-          portion_name: portion.portion_name.trim(),
-          price: parseInt(portion.price, 10),
-          unit_value: portion.unit_value.trim(),
-          unit_type: portion.unit_type.trim(),
-          flag: index === 0 ? 1 : 0
-        })),
+        portion_data: [{
+          portion_name: '',
+          price: parseInt(price, 10),
+          flag: 1
+        }],
         images: images // This will now directly receive base64 strings from ImageUploader
       };
 
@@ -446,7 +417,7 @@ function CreateMenu() {
       queryClient.invalidateQueries({ queryKey: queryKeys.menus.list(outletId) });
       setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      
+
       const errorMessage = err.response?.data?.message || err.response?.data?.detail || 'Failed to create menu';
       toastController.error(errorMessage);
       setError(errorMessage);
@@ -550,31 +521,18 @@ function CreateMenu() {
                 />
               </div>
 
-              <div className="w-full relative z-20">
-                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  Spicy Index
-                </label>
-                <CustomSelect
-                  value={spicyIndex}
-                  onChange={(e) => setSpicyIndex(e.target.value)}
-                  options={spicyIndexOptions}
-                  placeholder="Select Spicy Index"
-                  className="w-full h-10 rounded-lg"
-                />
-              </div>
-
               <div className="w-full">
                 <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  Offer (%)
+                  Price
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
-                  value={offer}
-                  onChange={e => setOffer(e.target.value)}
-                  placeholder="e.g. 10"
-                  min="0"
-                  max="100"
+                  value={price}
+                  onChange={e => setPrice(e.target.value)}
+                  placeholder="Enter price"
                   className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  min="0"
                 />
               </div>
 
@@ -592,119 +550,12 @@ function CreateMenu() {
               </div>
             </div>
 
-            {/* Description field - full width */}
-            <div className="w-full">
-              <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                placeholder="Enter menu description"
-                rows={3}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            {/* Portion Data */}
-            <div>
-              <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                Portions
-              </label>
-              {portionData.map((portion, idx) => (
-                <div key={idx} className="mb-4 flex items-start gap-3">
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 flex-1 relative">
-                    <div className="w-full">
-                      {idx === 0 && (
-                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                          Portion Name
-                        </label>
-                      )}
-                      <input
-                        type="text"
-                        placeholder="Portion Name"
-                        value={portion.portion_name}
-                        onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
-                        className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div className="w-full">
-                      {idx === 0 && (
-                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                          Price <span className="text-red-500">*</span>
-                        </label>
-                      )}
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={portion.price}
-                        onChange={e => handlePortionChange(idx, 'price', e.target.value)}
-                        required={idx === 0}
-                        min="0"
-                        className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div className="w-full">
-                      {idx === 0 && (
-                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                          Unit Value
-                        </label>
-                      )}
-                      <input
-                        type="number"
-                        placeholder="Unit Value"
-                        value={portion.unit_value}
-                        onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
-                        min="0"
-                        className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div className="w-full relative" style={{ zIndex: 50 - idx * 10 }}>
-                      {idx === 0 && (
-                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                          Unit Type
-                        </label>
-                      )}
-                      <CustomSelect
-                        value={portion.unit_type}
-                        onChange={(e) => handlePortionChange(idx, 'unit_type', e.target.value)}
-                        options={unitTypeOptions}
-                        placeholder="Select Unit"
-                        className="w-full h-10 rounded-lg"
-                      />
-                    </div>
-                  </div>
-
-                  <div className={`pt-${idx === 0 ? '8' : '2'}`}>
-                    {portionData.length > 1 && (
-                      <button
-                        type="button"
-                        className="text-error-500 hover:text-error-700 p-2 rounded-full hover:bg-error-50"
-                        onClick={() => removePortion(idx)}
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-full mt-2 shadow-sm"
-                onClick={addPortion}
-              >
-                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-                <span>Add Portion</span>
-              </button>
-            </div>
             {/* Images */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                 Menu Images
               </label>
-              
+
               {/* Image Upload Area */}
               <div className="flex items-center justify-center w-full">
                 <label
@@ -726,18 +577,18 @@ function CreateMenu() {
                   }}
                 >
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg 
-                      className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" 
-                      aria-hidden="true" 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      fill="none" 
+                    <svg
+                      className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
                       viewBox="0 0 20 16"
                     >
-                      <path 
-                        stroke="currentColor" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round" 
-                        strokeWidth="2" 
+                      <path
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
                         d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                       />
                     </svg>
@@ -771,7 +622,7 @@ function CreateMenu() {
               {previews.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {previews.map((preview, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-16 h-16"
                     >
@@ -781,7 +632,7 @@ function CreateMenu() {
                         alt={`Preview ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
-                      
+
                       {/* Delete Button Overlay */}
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
                         <button
@@ -789,8 +640,8 @@ function CreateMenu() {
                           onClick={() => handleRemoveImage(index)}
                           className="w-8 h-8 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 transition-colors duration-200"
                         >
-                          <FontAwesomeIcon 
-                            icon={faTimes} 
+                          <FontAwesomeIcon
+                            icon={faTimes}
                             className="w-4 h-4 text-white"
                           />
                         </button>

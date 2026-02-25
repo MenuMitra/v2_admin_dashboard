@@ -16,9 +16,9 @@ import CustomDropdown from "./common/CustomDropdown";
 function toTitleCase(str) {
   return str
     ? str.replace(
-        /\w\S*/g,
-        (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-      )
+      /\w\S*/g,
+      (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )
     : "";
 }
 
@@ -110,19 +110,19 @@ function OutletConfiguration() {
   // Helper function to parse time in HH:MM format to hour, minute, period
   const parseTime = (timeStr) => {
     if (!timeStr) return { hour: "", minute: "", period: "AM" };
-    
+
     // Handle HH:MM format (24-hour)
     const [hourStr, minuteStr] = timeStr.split(":");
     let hour = parseInt(hourStr, 10);
     const minute = minuteStr ? minuteStr.substring(0, 2) : "00";
-    
+
     let period = "AM";
     if (hour >= 12) {
       period = "PM";
       if (hour > 12) hour -= 12;
     }
     if (hour === 0) hour = 12;
-    
+
     return {
       hour: hour.toString().padStart(2, "0"),
       minute: minute,
@@ -321,19 +321,19 @@ function OutletConfiguration() {
       // Handle successful response
       if (response.data?.message) {
         toastController.success(response.data.message);
-        
+
         // Log the response for debugging
         console.log("Outlet Configuration Response:", {
           message: response.data.message,
           outlet_configuration_id: response.data.outlet_configuration_id,
           updated_fields: response.data.updated_fields
         });
-        
+
         // Refetch the outlet configuration cache to get fresh data
         await queryClient.refetchQueries({
           queryKey: ["outletConfig", outletId],
         });
-        
+
         // Navigate back after successful update
         setTimeout(() => {
           navigate(-1);
@@ -341,11 +341,11 @@ function OutletConfiguration() {
       } else if (response.status >= 200 && response.status < 300) {
         // Handle success even if message is not present
         toastController.success("Outlet configuration updated successfully");
-        
+
         await queryClient.refetchQueries({
           queryKey: ["outletConfig", outletId],
         });
-        
+
         setTimeout(() => {
           navigate(-1);
         }, 1000);
@@ -353,10 +353,10 @@ function OutletConfiguration() {
     } catch (error) {
       console.error("Update outlet config error:", error);
       console.error("Error response:", error.response?.data);
-      
+
       toastController.error(
-        error.response?.data?.message || 
-        error.response?.data?.detail || 
+        error.response?.data?.message ||
+        error.response?.data?.detail ||
         "Failed to update outlet configuration"
       );
     } finally {
@@ -501,7 +501,7 @@ function OutletConfiguration() {
                     className="w-full h-10"
                     value={
                       configFormData.is_open !== null &&
-                      configFormData.is_open !== undefined
+                        configFormData.is_open !== undefined
                         ? String(configFormData.is_open)
                         : "1"
                     }
@@ -529,7 +529,7 @@ function OutletConfiguration() {
                     className="w-full h-10"
                     value={
                       configFormData.show_customer_count !== null &&
-                      configFormData.show_customer_count !== undefined
+                        configFormData.show_customer_count !== undefined
                         ? String(configFormData.show_customer_count)
                         : "0"
                     }
@@ -647,7 +647,7 @@ function OutletConfiguration() {
                     className="w-full h-10"
                     value={
                       configFormData.has_combo !== null &&
-                      configFormData.has_combo !== undefined
+                        configFormData.has_combo !== undefined
                         ? String(configFormData.has_combo)
                         : "0"
                     }
@@ -675,7 +675,7 @@ function OutletConfiguration() {
                     className="w-full h-10"
                     value={
                       configFormData.has_denomination !== null &&
-                      configFormData.has_denomination !== undefined
+                        configFormData.has_denomination !== undefined
                         ? String(configFormData.has_denomination)
                         : "0"
                     }
@@ -703,7 +703,7 @@ function OutletConfiguration() {
                     className="w-full h-10"
                     value={
                       configFormData.has_udhari !== null &&
-                      configFormData.has_udhari !== undefined
+                        configFormData.has_udhari !== undefined
                         ? String(configFormData.has_udhari)
                         : "0"
                     }
@@ -731,7 +731,7 @@ function OutletConfiguration() {
                     className="w-full h-10"
                     value={
                       configFormData.has_reserve_table !== null &&
-                      configFormData.has_reserve_table !== undefined
+                        configFormData.has_reserve_table !== undefined
                         ? String(configFormData.has_reserve_table)
                         : "1"
                     }
@@ -759,7 +759,7 @@ function OutletConfiguration() {
                     className="w-full h-10"
                     value={
                       configFormData.dynamic_pricing !== null &&
-                      configFormData.dynamic_pricing !== undefined
+                        configFormData.dynamic_pricing !== undefined
                         ? String(configFormData.dynamic_pricing)
                         : "0"
                     }
@@ -807,7 +807,7 @@ function OutletConfiguration() {
                     className="w-full h-10"
                     value={
                       configFormData.reset_bill_number !== null &&
-                      configFormData.reset_bill_number !== undefined
+                        configFormData.reset_bill_number !== undefined
                         ? String(configFormData.reset_bill_number)
                         : "0"
                     }
@@ -835,7 +835,7 @@ function OutletConfiguration() {
                     className="w-full h-10"
                     value={
                       configFormData.reset_kot_number !== null &&
-                      configFormData.reset_kot_number !== undefined
+                        configFormData.reset_kot_number !== undefined
                         ? String(configFormData.reset_kot_number)
                         : "0"
                     }

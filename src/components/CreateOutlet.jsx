@@ -160,7 +160,7 @@ function CreateOutlet() {
           fetchOutletTypes(),
           fetchCompanies()
         ]);
-        
+
         // fetch modules for subscription assign
         try {
           setLoadingModules(true);
@@ -381,7 +381,7 @@ function CreateOutlet() {
 
       // Extract companies from the response
       const companies = response.data.companies || [];
-      
+
       if (Array.isArray(companies)) {
         setAllCompanies(companies);
       }
@@ -1050,7 +1050,7 @@ function CreateOutlet() {
                     `}
                     />
                   </div>
-                 
+
 
                   <div className="flex flex-col">
                     <SingleSelectDropdown
@@ -1082,8 +1082,8 @@ function CreateOutlet() {
                       required={true}
                     />
                   </div>
-                  
-                   <div className="flex flex-col">
+
+                  <div className="flex flex-col">
                     <MultiSelectDropdown
                       label={<span><span className="text-red-500">*</span> Select Owners</span>}
                       options={companyOwners}
@@ -1102,10 +1102,10 @@ function CreateOutlet() {
                       valueKey="user_id"
                       searchKeys={["name", "mobile", "email"]}
                       placeholder={
-                        !outletData.company_id 
-                          ? "Please select a company first" 
-                          : isLoadingCompanyOwners 
-                            ? "Loading owners..." 
+                        !outletData.company_id
+                          ? "Please select a company first"
+                          : isLoadingCompanyOwners
+                            ? "Loading owners..."
                             : "Select owners"
                       }
                       searchPlaceholder="Search by name, mobile or email..."
@@ -1285,49 +1285,6 @@ function CreateOutlet() {
                   placeholder="Enter GST Number"
                   maxLength={15}
                   className="rounded-lg"
-                />
-
-                {/* Reset KOT Number */}
-                <CustomDropdown
-                  label="Reset KOT Number"
-                  name="reset_kot_number"
-                  value={outletData.reset_kot_number}
-                  onChange={handleInputChange}
-                  options={[
-                    { value: "daily", label: "Daily" },
-                    { value: "monthly", label: "Monthly" },
-                    { value: "yearly", label: "Yearly" },
-                    { value: "never", label: "Never" },
-                  ]}
-                  placeholder="Select reset frequency"
-                />
-
-                {/* Reset Bill Number */}
-                <CustomDropdown
-                  label="Reset Bill Number"
-                  name="reset_bill_number"
-                  value={outletData.reset_bill_number}
-                  onChange={handleInputChange}
-                  options={[
-                    { value: "daily", label: "Daily" },
-                    { value: "monthly", label: "Monthly" },
-                    { value: "yearly", label: "Yearly" },
-                    { value: "never", label: "Never" },
-                  ]}
-                  placeholder="Select reset frequency"
-                />
-
-                {/* Show Customer Count */}
-                <CustomDropdown
-                  label="Show Customer Count"
-                  name="show_customer_count"
-                  value={outletData.show_customer_count}
-                  onChange={handleInputChange}
-                  options={[
-                    { value: 0, label: "No" },
-                    { value: 1, label: "Yes" },
-                  ]}
-                  placeholder="Select option"
                 />
 
                 {validationStates.gstnumber && (
