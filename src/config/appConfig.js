@@ -4,15 +4,15 @@
  */
 
 // Get API base URL from environment variable (Netlify)
-// Falls back to testing API if not set
+// Falls back to production API if not set
 const getApiBaseUrl = () => {
   // Check for Vite environment variable (set in Netlify)
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
   }
   
-  // Default fallback for local development
-  return "https://menu4.xyz/v2";
+  // Default fallback for local development (production API)
+  return "https://menu4.xyz/v2.2";
   
 };
 

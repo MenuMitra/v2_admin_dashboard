@@ -1,7 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { API_CONFIG } from "../../config/appConfig";
 
 const TestEnvironmentBanner = () => {
+  const isUsingProductionApi = () =>
+    typeof API_CONFIG?.BASE_URL === "string" &&
+    API_CONFIG.BASE_URL.includes("/v2.2");
+
   // Check if current domain is production
   const isProductionDomain = () => {
     const hostname = window.location.hostname;
@@ -13,8 +18,8 @@ const TestEnvironmentBanner = () => {
     );
   };
 
-  // Return null (render nothing) if on production domain
-  if (isProductionDomain()) {
+  // Return null (render nothing) if on production domain or using production API
+  if (isProductionDomain() || isUsingProductionApi()) {
     return null;
   }
 
