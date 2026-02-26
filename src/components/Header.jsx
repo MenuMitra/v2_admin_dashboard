@@ -17,10 +17,37 @@ import { API_CONFIG } from "../config/appConfig";
 import logo from "../assets/images/logo/logo.png";
 import Modal from "./common/Modal";
 
+// Determine if current domain is a production domain
+const isProductionDomain = () => {
+  if (typeof window === "undefined") return false;
+  const hostname = window.location.hostname;
+  return (
+    hostname === "menumitra.com" ||
+    hostname === "user.menumitra.com" ||
+    hostname === "www.menumitra.com" ||
+    hostname === "www.user.menumitra.com" ||
+    hostname === "admin-v2.menumitra.com" ||
+    hostname === "www.admin-v2.menumitra.com" ||
+    hostname === "admin.menumitra.com" ||
+    hostname === "www.admin.menumitra.com"
+  );
+};
+
 // Helper function to capitalize first letter
 const capitalizeFirstLetter = (str) => {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
+// Determine if current build is production
+const isProductionBuild = () => {
+  if (typeof import.meta !== "undefined" && import.meta.env?.MODE) {
+    return import.meta.env.MODE === "production";
+  }
+  if (typeof process !== "undefined" && process.env?.NODE_ENV) {
+    return process.env.NODE_ENV === "production";
+  }
+  return false;
 };
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
@@ -36,7 +63,14 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       globalThis.process?.env?.VITE_API_BASE_URL) ||
     (typeof import.meta !== "undefined" &&
       import.meta.env?.VITE_API_BASE_URL);
-  const shouldShowTestingBanner = !configuredApiBaseUrl;
+  // Treat menu4.xyz /v2.2 API as production, regardless of frontend hostname
+  const isUsingProductionApi =
+    typeof BASE_URL === "string" && BASE_URL.includes("/v2.2");
+
+  // Show testing banner only when NOT on a production domain,
+  // API env is not configured, and not using the production API
+  const shouldShowTestingBanner =
+    !isProductionDomain() && !configuredApiBaseUrl && !isUsingProductionApi;
 
   useEffect(() => {
     if (!isAuthenticated()) {

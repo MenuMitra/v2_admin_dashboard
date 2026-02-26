@@ -25,23 +25,7 @@ const TestEnvironmentBanner = () => {
 
   return (
     <div className="flex justify-between items-center px-2 py-1 text-white bg-warning-500 shadow-md transition-all duration-300">
-      <div className="flex-grow flex items-center justify-center text-center w-full mx-auto">
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M12.8943 4.55846C12.5318 3.94241 11.4682 3.94241 11.1057 4.55846L2.18046 19.4415C1.81797 20.0576 2.24949 20.8334 2.57476 20.8334H21.4252C21.7505 20.8334 22.182 20.0576 21.8195 19.4415L12.8943 4.55846ZM12 8.33337C12.4606 8.33337 12.8334 8.70615 12.8334 9.16671V13.5001C12.8334 13.9606 12.4606 14.3334 12 14.3334C11.5394 14.3334 11.1667 13.9606 11.1667 13.5001V9.16671C11.1667 8.70615 11.5394 8.33337 12 8.33337ZM12 17.5001C11.5394 17.5001 11.1667 17.1273 11.1667 16.6667C11.1667 16.2062 11.5394 15.8334 12 15.8334C12.4606 15.8334 12.8334 16.2062 12.8334 16.6667C12.8334 17.1273 12.4606 17.5001 12 17.5001Z"
-            fill="currentColor"
-          />
-        </svg>
-        <span className="ml-1 font-semibold tracking-wider text-center">
-          TESTING ENVIRONMENT
-        </span>
-      </div>
+
       <Link
         to="https://admin-v2.menumitra.com"
         className="flex items-center p-3 py-1 bg-gray-50 rounded-full font-semibold text-sm shadow-md transition-all duration-200 text-gray-700"
