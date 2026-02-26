@@ -1,5 +1,25 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+/**
+ * SuperOwnerDetails.jsx - Super Owner Details View Component
+ * 
+ * This component displays comprehensive information about a super owner including:
+ * - Personal information (name, email, mobile, aadhar, etc.)
+ * - Account information (status, role, creation/update details)
+ * - Associated outlets with navigation links
+ * - Active sessions with logout functionality
+ * - Access functionalities as tags
+ * 
+ * Features:
+ * - Real-time status toggle
+ * - Active session management
+ * - Delete functionality with confirmation
+ * - Responsive information display
+ * - Navigation to related entities
+ * 
+
+ 
+
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { API_CONFIG } from "../../config/appConfig";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -14,11 +34,8 @@ import {
   faUserCheck,
   faCalendarPlus,
   faCalendarCheck,
-  faCircleCheck,
-  faCircleXmark,
   faStore,
   faChevronRight,
-  faTrash,
   faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
@@ -30,23 +47,36 @@ import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
 
-// Title-case helper: capitalize first letter of every word
+
+ * Utility function to convert strings to title case
+ * Capitalizes the first letter of each word
+
+ 
 const toTitleCase = (str) =>
   str
-    ? String(str).replace(/\w\S*/g, (txt) =>
+    ? String(str).replace(/\w\S g, (txt) =>
         txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
       )
     : "";
 
+/**
+ * SuperOwnerDetails component for displaying detailed super owner information
+ * Provides comprehensive view with management capabilities
+ * returns {JSX.Element} The super owner details interface
+ 
 function SuperOwnerDetails() {
+  // Hooks for authentication and data management
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const { superOwnerId } = useParams();
   const navigate = useNavigate();
+  
+  // UI state management
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { BASE_URL } = API_CONFIG;
   const [isTogglingActive, setIsTogglingActive] = useState(false);
+  const { BASE_URL } = API_CONFIG;
 
+  // Data fetching with React Query
   const {
     superOwnerDetails,
     isLoading,
@@ -59,74 +89,101 @@ function SuperOwnerDetails() {
   // Local state for active sessions - moved to top to avoid conditional hooks
   const [activeSessions, setActiveSessions] = useState([]);
 
-  // Add breadcrumb items
-  const breadcrumbItems = [
+  /**
+   * Memoized breadcrumb items for navigation
+   * Prevents unnecessary re-renders
+   
+  const breadcrumbItems = useMemo(() => [
     { label: "Home", path: "/Home" },
     { label: "Super Owners", path: "/super-owners" },
-
     {
       label: "Super Owner Details",
       path: `/super-owner-details/${superOwnerId}`,
     },
-  ];
+  ], [superOwnerId]);
 
-  const handleBack = () => {
+  /**
+   * Navigate back to previous page
+   
+  const handleBack = useCallback(() => {
     navigate(-1);
-  };
+  }, [navigate]);
 
-  const handleDelete = async () => {
+  /**
+   * Handle super owner deletion
+   * Shows confirmation modal and deletes on confirmation
+   
+  const handleDelete = useCallback(async () => {
     await deleteSuperOwner();
     setIsModalOpen(false);
     navigate("/super-owners");
-  };
+  }, [deleteSuperOwner, navigate]);
 
-  const handleToggleSuperOwnerActive = async () => {
+  /**
+   * Toggle super owner active/inactive status
+   * Updates the status via API and refreshes data
+   
+  const handleToggleSuperOwnerActive = useCallback(async () => {
     if (!superOwnerDetails?.superOwnerData?.super_owner_id) return;
+    
     const current = superOwnerDetails.superOwnerData.is_active;
     const nextIsActive = current === 1 || current === true ? false : true;
+    
     setIsTogglingActive(true);
+    
     try {
-      const resp = await fetch(
-        `${BASE_URL}/admin/update_super_owner`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: getToken(),
-          },
-          body: JSON.stringify({
-            user_id: adminData?.user_id,
-            super_owner_id: parseInt(superOwnerId),
-            name: superOwnerDetails.superOwnerData.name || "",
-            mobile: superOwnerDetails.superOwnerData.mobile || "",
-            email: superOwnerDetails.superOwnerData.email || "",
-            aadhar_number: superOwnerDetails.superOwnerData.aadhar_number || "",
-            is_active: nextIsActive,
-            app_source: "admin",
-          }),
-        }
-      );
-      const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) {
-        const message =
-          data?.detail || data?.message || "Failed to update super owner";
+      const response = await fetch(`${BASE_URL}/admin/update_super_owner`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: getToken(),
+        },
+        body: JSON.stringify({
+          user_id: adminData?.user_id,
+          super_owner_id: parseInt(superOwnerId),
+          name: superOwnerDetails.superOwnerData.name || "",
+          mobile: superOwnerDetails.superOwnerData.mobile || "",
+          email: superOwnerDetails.superOwnerData.email || "",
+          aadhar_number: superOwnerDetails.superOwnerData.aadhar_number || "",
+          is_active: nextIsActive,
+          app_source: "admin",
+        }),
+      });
+      
+      const data = await response.json().catch(() => ({}));
+      
+      if (!response.ok) {
+        const message = data?.detail || data?.message || "Failed to update super owner";
         toastController.error(message);
         throw new Error(message);
       }
+      
       toastController.success(
         `Super owner marked as ${nextIsActive ? "Active" : "Inactive"}`
       );
+      
       if (typeof refetch === "function") {
         await refetch();
       }
-    } catch (e) {
-      // already handled
+    } catch (error) {
+      // Error already handled above
+      console.error("Toggle status error:", error);
     } finally {
       setIsTogglingActive(false);
     }
-  };
+  }, [
+    superOwnerDetails?.superOwnerData,
+    BASE_URL,
+    getToken,
+    adminData?.user_id,
+    superOwnerId,
+    refetch
+  ]);
 
-  // Update active sessions when superOwnerData changes
+  /**
+   * Update active sessions when superOwnerData changes
+   * Flattens active sessions from all assigned outlets
+   
   useEffect(() => {
     if (superOwnerDetails?.assignedOutlets && superOwnerDetails.assignedOutlets.length > 0) {
       // Flatten all active sessions from all outlets
@@ -137,8 +194,49 @@ function SuperOwnerDetails() {
     } else {
       setActiveSessions([]);
     }
-  }, [superOwnerDetails?.assignedOutlets?.length]); // Only use length to prevent infinite loops
+  }, [superOwnerDetails?.assignedOutlets]);
 
+  /**
+   * Handle user logout from specific device
+   * param {string} device_id - Device ID to logout from
+   
+  const handleLogout = useCallback(async (device_id) => {
+    // Find the session for this device_id to get app_type
+    const session = activeSessions.find((s) => s.device_id === device_id);
+    if (!session) return;
+    
+    try {
+      const response = await fetch(`${BASE_URL}/admin/admin_logout_user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: getToken(),
+        },
+        body: JSON.stringify({
+          admin_id: adminData?.user_id,
+          user_id: superOwnerDetails.superOwnerData.super_owner_id,
+          app_type: session.app_type,
+          device_id: session.device_id,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setActiveSessions((prev) =>
+          prev.filter((s) => s.device_id !== device_id)
+        );
+        toastController.success("Logout successful");
+      } else {
+        toastController.error(data.detail || "Logout failed");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      toastController.error("Logout failed");
+    }
+  }, [activeSessions, BASE_URL, getToken, adminData?.user_id, superOwnerDetails?.superOwnerData?.super_owner_id]);
+
+  // Loading state
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -147,21 +245,35 @@ function SuperOwnerDetails() {
     );
   }
 
+  // Error state
   if (error) {
     return (
-      <div className="p-6">
-        <div className="text-center text-error-500">
-          Error loading super owner details
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-error-500 mb-4">Failed to load super owner details</p>
+          <button
+            onClick={() => refetch()}
+            className="px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
+  // No data state
   if (!superOwnerDetails?.superOwnerData) {
     return (
-      <div className="p-6">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center text-gray-500">
-          No super owner data found
+          <p>No super owner data found</p>
+          <button
+            onClick={() => navigate("/super-owners")}
+            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
+          >
+            Back to Super Owners
+          </button>
         </div>
       </div>
     );
@@ -175,60 +287,16 @@ function SuperOwnerDetails() {
     totalFunctionalities,
   } = superOwnerDetails;
 
-  const handleLogout = async (device_id) => {
-    // Find the session for this device_id to get app_type
-    const session = activeSessions.find((s) => s.device_id === device_id);
-    if (!session) return;
-    try {
-      const res = await fetch(`${BASE_URL}/admin/admin_logout_user`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: getToken(),
-        },
-        body: JSON.stringify({
-          admin_id: adminData?.user_id,
-          user_id: superOwnerData.super_owner_id,
-          app_type: session.app_type,
-          device_id: session.device_id,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setActiveSessions((prev) =>
-          prev.filter((s) => s.device_id !== device_id)
-        );
-        if (window.toastController) {
-          window.toastController.success("Logout successful");
-        } else {
-          alert("Logout successful");
-        }
-      } else {
-        if (window.toastController) {
-          window.toastController.error(data.detail || "Logout failed");
-        } else {
-          alert(data.detail || "Logout failed");
-        }
-      }
-    } catch {
-      if (window.toastController) {
-        window.toastController.error("Logout failed");
-      } else {
-        alert("Logout failed");
-      }
-    }
-  };
-
   return (
     <>
+      {/* Navigation breadcrumb }
       <Breadcrumb items={breadcrumbItems} />
 
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
-          {/* Header Section - Matching DataTable.jsx style */}
+          {/* Header Section - Matching DataTable.jsx style }
           <div className="flex items-center px-6 mb-3">
-            {/* Left Side - Back Button */}
-
+            {/* Left Side - Back Button }
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate(-1)}
@@ -239,13 +307,12 @@ function SuperOwnerDetails() {
               </button>
             </div>
 
-            {/* Center - Title */}
-
+            {/* Center - Title }
             <div className="flex-1 text-center text-base sm:text-lg font-semibold text-gray-800">
               Super Owner Details
             </div>
 
-            {/* Right Side - Action Buttons */}
+            {/* Right Side - Action Buttons }
             <div className="flex items-center gap-2">
               <button
                 onClick={() => refetch()}
@@ -261,14 +328,9 @@ function SuperOwnerDetails() {
               </button>
               <button
                 onClick={() => {
-                  
-                  
                   if (superOwnerData?.super_owner_id) {
-                    
                     navigate(`/edit-super-owner/${superOwnerData.super_owner_id}`);
                   } else {
-                    
-                    
                     toastController.error('Unable to edit: Super owner ID not found');
                   }
                 }}
@@ -316,15 +378,14 @@ function SuperOwnerDetails() {
             </div>
           </div>
 
-          {/* Content Section */}
-
+          {/* Content Section }
           <div className="px-6 py-4">
-            {/* Personal Information Card */}
+            {/* Personal Information Card }
             <h2 className="text-base font-medium mb-4 text-gray-800">
               Personal Information
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {/* Name */}
+              {/* Name}
               {superOwnerData.name && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -342,7 +403,7 @@ function SuperOwnerDetails() {
                 </div>
               )}
 
-              {/* Email */}
+              {/* Email }
               {superOwnerData.email && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -351,7 +412,6 @@ function SuperOwnerDetails() {
                       className="w-5 h-5 text-gray-400"
                     />
                   </div>
-
                   <div className="ml-3">
                     <div className="text-base font-medium">
                       {superOwnerData.email}
@@ -361,7 +421,7 @@ function SuperOwnerDetails() {
                 </div>
               )}
 
-              {/* Mobile */}
+              {/* Mobile }
               {superOwnerData.mobile && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -370,18 +430,16 @@ function SuperOwnerDetails() {
                       className="w-5 h-5 text-gray-400"
                     />
                   </div>
-
                   <div className="ml-3">
                     <div className="text-base font-medium">
                       {superOwnerData.mobile}
                     </div>
-
                     <div className="text-sm text-gray-500">Mobile</div>
                   </div>
                 </div>
               )}
 
-              {/* Date of Birth */}
+              {/* Date of Birth }
               {superOwnerData.dob && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -399,7 +457,7 @@ function SuperOwnerDetails() {
                 </div>
               )}
 
-              {/* Aadhar Number */}
+              {/* Aadhar Number }
               {superOwnerData.aadhar_number && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -417,7 +475,7 @@ function SuperOwnerDetails() {
                 </div>
               )}
 
-              {/* Address */}
+              {/* Address }
               {superOwnerData.address && (
                 <div className="mt-3 flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -436,12 +494,12 @@ function SuperOwnerDetails() {
               )}
             </div>
 
-            {/* Account Information Card */}
+            {/* Account Information Card }
             <h2 className="text-base font-medium mb-4 text-gray-800">
               Account Information
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {/* Role */}
+              {/* Role }
               {superOwnerData.role && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -459,7 +517,7 @@ function SuperOwnerDetails() {
                 </div>
               )}
 
-              {/* Account Type */}
+              {/* Account Type }
               {superOwnerData.account_type && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -472,13 +530,12 @@ function SuperOwnerDetails() {
                     <div className="text-base font-medium">
                       {superOwnerData.account_type?.toUpperCase()}
                     </div>
-
                     <div className="text-sm text-gray-500">Account Type</div>
                   </div>
                 </div>
               )}
 
-              {/* Account Status */}
+              {/* Account Status }
               {superOwnerData.is_active !== null &&
                 superOwnerData.is_active !== undefined && (
                   <div className="flex items-center p-3 rounded-lg">
@@ -514,7 +571,7 @@ function SuperOwnerDetails() {
                   </div>
                 )}
 
-              {/* Created On */}
+              {/* Created On }
               {superOwnerData.created_on && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -532,7 +589,7 @@ function SuperOwnerDetails() {
                 </div>
               )}
 
-              {/* Created By */}
+              {/* Created By }
               {superOwnerData.created_by && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -550,7 +607,7 @@ function SuperOwnerDetails() {
                 </div>
               )}
 
-              {/* Updated On */}
+              {/* Updated On }
               {superOwnerData.updated_on && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -559,7 +616,6 @@ function SuperOwnerDetails() {
                       className="w-5 h-5 text-gray-400"
                     />
                   </div>
-
                   <div className="ml-3">
                     <div className="text-base font-medium">
                       {superOwnerData.updated_on}
@@ -569,7 +625,7 @@ function SuperOwnerDetails() {
                 </div>
               )}
 
-              {/* Updated By */}
+              {/* Updated By }
               {superOwnerData.updated_by && (
                 <div className="flex items-center p-3 rounded-lg">
                   <div className="w-8 h-8 flex items-center justify-center">
@@ -588,7 +644,7 @@ function SuperOwnerDetails() {
               )}
             </div>
 
-            {/* Add new Outlets section */}
+            {/* Add new Outlets section }
             {assignedOutlets && assignedOutlets.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-base font-medium mb-4 text-gray-800">
@@ -631,7 +687,7 @@ function SuperOwnerDetails() {
               </div>
             )}
 
-            {/* Active Sessions Section */}
+            {/* Active Sessions Section }
             {activeSessions && activeSessions.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-base font-medium mb-4 text-gray-800">
@@ -646,7 +702,7 @@ function SuperOwnerDetails() {
               </div>
             )}
 
-            {/* Add new Functionalities section */}
+            {/* Add new Functionalities section }
             {assignedFunctionalities && assignedFunctionalities.length > 0 && (
               <div className="mt-8">
                 <h2 className="text-base font-medium mb-4 text-gray-800">
@@ -673,10 +729,14 @@ function SuperOwnerDetails() {
           </div>
         </div>
 
+        {/* Delete confirmation modal }
         <DeleteConfirmModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onDelete={handleDelete}
+          title="Confirm Delete"
+          message="Are you sure you want to delete this super owner? This action cannot be undone."
+          isLoading={isDeleting}
         />
       </div>
     </>
@@ -685,4 +745,4 @@ function SuperOwnerDetails() {
 
 export default SuperOwnerDetails;
 
-
+*/

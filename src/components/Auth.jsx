@@ -287,17 +287,22 @@ function Auth() {
         }
       );
 
-      if (response.data.detail === "Login successful") {
+      if (response.data.access_token && response.data.user_id) {
+        console.log('Login successful, response data:', response.data);
+        
         // Use the login function from useAuth hook for consistent token management
         login(response);
 
         const adminData = {
           user_id: response.data.user_id,
           name: response.data.name,
-          mobile: response.data.mobile,
+          mobile: response.data.mobile || mobile, // Use mobile from form if not in response
           email: response.data.email,
           role: response.data.role,
         };
+        
+        console.log('Storing adminData:', adminData);
+        
         // Save device info returned from server (if any) for admin details view
         if (response.data.active_sessions) {
           localStorage.setItem(
@@ -306,6 +311,8 @@ function Auth() {
           );
         }
         localStorage.setItem("adminData", JSON.stringify(adminData));
+        
+        console.log('Navigating to /home');
         navigate("/home");
       }
     } catch (err) {
@@ -439,7 +446,7 @@ function Auth() {
                             onKeyPress={handleMobileKeyPress}
                             placeholder="Enter your mobile number"
                             disabled={isOtpSent}
-                            className={`dark:bg-dark-900 h-11 w-full rounded-3xl border border-black bg-transparent px-4 pl-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-black focus:outline-none dark:border-black dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
+                            className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-black bg-transparent px-4 pl-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-black focus:outline-none dark:border-black dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
                               isOtpSent
                                 ? "bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
                                 : ""
@@ -476,7 +483,7 @@ function Auth() {
                                 }
                                 onKeyDown={(e) => handleKeyDown(index, e)}
                                 onKeyPress={handleOtpKeyPress}
-                                className={`dark:bg-dark-900 otp-input h-11 w-full rounded-3xl border bg-transparent px-4 py-2.5 text-center text-xl font-semibold placeholder:text-gray-400 focus:outline-none dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
+                                className={`dark:bg-dark-900 otp-input h-11 w-full rounded-lg border bg-transparent px-4 py-2.5 text-center text-xl font-semibold placeholder:text-gray-400 focus:outline-none dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
                                   invalidOtpError
                                     ? "border-error-500 text-error-700"
                                     : "border-black text-gray-800"
@@ -624,7 +631,7 @@ function Auth() {
                   </div>
 
                   <div className="flex items-center gap-2 mt-3 text-sm text-gray-500 dark:text-gray-400">
-                    <span className="font-medium">Version 2.0</span>
+                    <span className="font-medium">Version 2.2</span>
                     <span>|</span>
                     <span>
                       {new Date().toLocaleDateString("en-GB", {

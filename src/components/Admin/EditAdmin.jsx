@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
+import { useAdmins } from '../../lib/react-query/hooks/useAdmins';
 import { TextInput, SelectInput } from '../forms/FormElements';
 import axios from 'axios';
 import CustomDropdown from '../common/CustomDropdown';
@@ -19,6 +20,7 @@ function EditAdmin() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
+  const { updateAdmin, isUpdating } = useAdmins(getToken());
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adminDetails, setAdminDetails] = useState({
@@ -230,25 +232,28 @@ function EditAdmin() {
       }
 
       await toastController.promise(
-        axios.patch(
-          `${BASE_URL}/admin/update_admin`,
-          {
-            user_id: adminData.user_id,
-            admin_id: parseInt(adminId),
-            name: adminDetails.name,
-            email: adminDetails.email,
-            mobile: adminDetails.mobile,
-            is_active: adminDetails.is_active ? 1 : 0,
-            role: adminDetails.role,
-            app_source: "admin"
-          },
-          {
-            headers: {
-              Authorization: token,
-              'Content-Type': 'application/json'
+        new Promise((resolve, reject) => {
+          updateAdmin(
+            {
+              user_id: adminData.user_id,
+              admin_id: parseInt(adminId),
+              name: adminDetails.name,
+              email: adminDetails.email,
+              mobile: adminDetails.mobile,
+              is_active: adminDetails.is_active ? 1 : 0,
+              role: adminDetails.role,
+              app_source: "admin"
+            },
+            {
+              onSuccess: (data) => {
+                resolve(data);
+              },
+              onError: (error) => {
+                reject(error);
+              }
             }
-          }
-        ),
+          );
+        }),
         {
           loading: "Updating admin...",
           success: "Admin updated successfully",
@@ -303,10 +308,10 @@ function EditAdmin() {
             {/* Save Button */}
             <SaveButton
               onClick={handleSubmit}
-              disabled={isSubmitting || !isFormValid()}
-              isLoading={isSubmitting}
+              disabled={isSubmitting || isUpdating || !isFormValid()}
+              isLoading={isSubmitting || isUpdating}
             >
-              {isSubmitting ? "Saving..." : "Save"}
+              {isSubmitting || isUpdating ? "Saving..." : "Save"}
             </SaveButton>
           </div>
         </div>
@@ -326,7 +331,7 @@ function EditAdmin() {
                   validationType="name"
                   onValidation={handleValidation("name")}
                   isSubmitAttempted={isSubmitAttempted}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
                 {!validationStates.name && (
                   <p className="text-error-500 text-sm mt-1">
@@ -346,7 +351,7 @@ function EditAdmin() {
                   required
                   maxLength={10}
                   className={`
-                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                    rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
                   `}
                 />
@@ -369,7 +374,7 @@ function EditAdmin() {
                   validationType="email"
                   onValidation={handleValidation("email")}
                   isSubmitAttempted={isSubmitAttempted}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
                 {emailApiError && (
                   <p className="text-error-500 text-sm mt-1">{emailApiError}</p>

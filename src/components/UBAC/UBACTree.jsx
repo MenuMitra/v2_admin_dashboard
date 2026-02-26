@@ -7,6 +7,7 @@ import useUbacTree from "../../lib/react-query/hooks/useUbacTree";
 import { useAuth } from "../../hooks/useAuth";
 import { API_CONFIG } from "../../config/appConfig";
 import Modal from "../common/Modal";
+import SingleSelectDropdown from "../common/SingleSelectDropdown";
 import { toastController } from "../../utils/toastController";
 
 const UBACTree = () => {
@@ -15,19 +16,22 @@ const UBACTree = () => {
   const { BASE_URL } = API_CONFIG;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [type, setType] = useState("module"); // module | feature | action
+  const [type, setType] = useState("module"); // module | group | feature | action
   const [modulesList, setModulesList] = useState([]);
+  const [groupsList, setGroupsList] = useState([]);
   const [featuresList, setFeaturesList] = useState([]);
   const [formName, setFormName] = useState("");
   const [selectedModuleId, setSelectedModuleId] = useState("");
+  const [selectedGroupId, setSelectedGroupId] = useState("");
   const [selectedFeatureId, setSelectedFeatureId] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editType, setEditType] = useState("module"); // module | feature | action
+  const [editType, setEditType] = useState("module"); // module | group | feature | action
   const [editId, setEditId] = useState(null);
   const [editFormName, setEditFormName] = useState("");
   const [editSelectedModuleId, setEditSelectedModuleId] = useState("");
+  const [editSelectedGroupId, setEditSelectedGroupId] = useState("");
   const [editSelectedFeatureId, setEditSelectedFeatureId] = useState("");
   const [editLoadingSave, setEditLoadingSave] = useState(false);
   const [expandedModules, setExpandedModules] = useState({});
@@ -137,6 +141,46 @@ const UBACTree = () => {
     fetchFeatures();
   }, [selectedModuleId]);
 
+  // load groups when module is selected
+  useEffect(() => {
+    if (!selectedModuleId) {
+      setGroupsList([]);
+      return;
+    }
+
+    const fetchGroups = async () => {
+      try {
+        const token = getToken() || localStorage.getItem("token");
+        const headers = token
+          ? { Authorization: token, "Content-Type": "application/json" }
+          : { "Content-Type": "application/json" };
+
+        const res = await fetch(`${BASE_URL}/admin/get_groups?module_id=${selectedModuleId}`, {
+          method: "GET",
+          headers,
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          setGroupsList([]);
+          return;
+        }
+
+        if (!res.ok) {
+          setGroupsList([]);
+          return;
+        }
+
+        const json = await res.json();
+        const data = json.data || json || [];
+        setGroupsList(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setGroupsList([]);
+      }
+    };
+
+    fetchGroups();
+  }, [selectedModuleId]);
+
   const items = [
     { label: "Home", path: "/home" },
     { label: "UBAC Tree", path: "/ubac_tree" },
@@ -218,8 +262,136 @@ const UBACTree = () => {
     </div>
   );
 
+  // Render groups vertically with blue styling
+  const renderGroups = (groups, moduleId) => {
+    const isExpanded = Boolean(expandedModules[moduleId]);
+    const visible = isExpanded ? groups : groups.slice(0, 3);
+
+    return (
+      <div className="flex flex-col items-start ml-6">
+        {visible.map((group) => (
+          <div key={group.group_id} className="flex items-center mb-4">
+            <div className="w-6 h-0.5 bg-gray-300 mr-2" />
+            <div className="flex flex-col">
+              <div className="min-w-[140px] max-w-xs px-4 py-2 rounded bg-blue-50 border border-blue-200 shadow-sm text-center font-medium break-words hover:bg-blue-100 hover:border-blue-300 transition-all duration-200 group cursor-pointer">
+                <div className="flex items-center justify-between gap-2">
+                  <span 
+                    className="break-words text-blue-800 hover:text-blue-900 transition-colors duration-200 font-semibold group-hover:scale-105 transform" 
+                    title={`Group: ${group.group_name || group.name || 'Unnamed Group'}`}
+                  >
+                    {group.group_name || group.name || 'Unnamed Group'}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        // open edit modal for group
+                        setEditType("group");
+                        setEditId(group.group_id);
+                        setEditFormName(group.group_name || group.name || "");
+                        setEditSelectedModuleId(moduleId);
+                        setIsEditModalOpen(true);
+                      }}
+                      className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition ml-2"
+                      title="Edit group"
+                    >
+                      <FontAwesomeIcon
+                        icon={faPenToSquare}
+                        className="w-4 h-4"
+                      />
+                    </button>
+                    {/* Delete group - only render if no features assigned */}
+                    {!(
+                      Array.isArray(group.features) &&
+                      group.features.length > 0
+                    ) && (
+                      <button
+                        onClick={async () => {
+                          if (
+                            !confirm(
+                              "Delete group? This will remove the group."
+                            )
+                          )
+                            return;
+                          try {
+                            const token =
+                              getToken() || localStorage.getItem("token");
+                            const headers = token
+                              ? {
+                                  Authorization: token,
+                                  "Content-Type": "application/json",
+                                }
+                              : { "Content-Type": "application/json" };
+
+                            const resp = await fetch(
+                              `${BASE_URL}/admin/delete_groups`,
+                              {
+                                method: "DELETE",
+                                headers,
+                                body: JSON.stringify({
+                                  group_ids: [Number(group.group_id)],
+                                }),
+                              }
+                            );
+
+                            if (!resp.ok) {
+                              const errJson = await resp
+                                .json()
+                                .catch(() => ({}));
+                              toastController.error(
+                                errJson.detail ||
+                                  errJson.message ||
+                                  "Delete failed"
+                              );
+                              return;
+                            }
+
+                            await refetchUbacTree();
+                            toastController.success("Deleted successfully");
+                          } catch (err) {
+                           
+                            toastController.error("Delete failed");
+                          }
+                        }}
+                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
+                        title="Delete group"
+                      >
+                        <FontAwesomeIcon
+                          icon={faTrash}
+                          className="w-3.5 h-3.5"
+                        />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="h-3 w-0.5 bg-gray-300 ml-[70px]" />
+              {group.features && renderFeatures(group.features, moduleId, group.group_id)}
+            </div>
+          </div>
+        ))}
+
+        {groups.length > 3 && (
+          <div className="flex items-center mb-4">
+            <div className="w-6 h-0.5 bg-gray-300 mr-2" />
+            <div
+              className="min-w-[140px] px-4 py-2 rounded bg-white border shadow-sm font-medium cursor-pointer text-center"
+              onClick={() =>
+                setExpandedModules((prev) => ({
+                  ...prev,
+                  [moduleId]: !prev[moduleId],
+                }))
+              }
+            >
+              {isExpanded ? "See less" : `+${groups.length - 3} more`}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Render features vertically; show first 3, then a 'See more' card toggling full list
-  const renderFeatures = (features, moduleId) => {
+  const renderFeatures = (features, moduleId, groupId = null) => {
     const isExpanded = Boolean(expandedModules[moduleId]);
 
     // items to show when not expanded
@@ -345,92 +517,108 @@ const UBACTree = () => {
     );
   };
 
-  // Render modules vertically with connectors to features
+  // Render modules vertically with connectors to groups/features
   const renderModules = (modules) => (
     <div className="flex flex-col gap-6 py-4">
-      {modules.map((module) => (
-        <div key={module.module_id} className="flex items-start">
-          <div className="flex flex-col items-center">
-            <div className="px-4 py-2 rounded bg-gray-100 border font-semibold text-center min-w-[220px]">
-              <div className="flex items-center justify-between gap-2">
-                <span className="break-words">{module.name}</span>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => {
-                      // open edit modal for module
-                      setEditType("module");
-                      setEditId(module.module_id);
-                      setEditFormName(module.name || "");
-                      setIsEditModalOpen(true);
-                    }}
-                    className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition ml-2"
-                    title="Edit module"
-                  >
-                    <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-                  </button>
-                  {/* Delete module - only render if no features assigned */}
-                  {!(
-                    Array.isArray(module.features) && module.features.length > 0
-                  ) && (
+      {modules.map((module) => {
+        // Support both new group structure and legacy features structure
+        const hasGroups = module.groups && Array.isArray(module.groups) && module.groups.length > 0;
+        const hasLegacyFeatures = !hasGroups && module.features && Array.isArray(module.features) && module.features.length > 0;
+        const hasUngroupedFeatures = module.ungrouped_features && Array.isArray(module.ungrouped_features) && module.ungrouped_features.length > 0;
+
+        return (
+          <div key={module.module_id} className="flex items-start">
+            <div className="flex flex-col items-center">
+              <div className="px-4 py-2 rounded bg-gray-100 border font-semibold text-center min-w-[220px]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="break-words">{module.name}</span>
+                  <div className="flex items-center gap-2">
                     <button
-                      onClick={async () => {
-                        if (
-                          !confirm("Delete module? This will remove the module.")
-                        )
-                          return;
-                        try {
-                          const token =
-                            getToken() || localStorage.getItem("token");
-                          const headers = token
-                            ? {
-                                Authorization: token,
-                                "Content-Type": "application/json",
-                              }
-                            : { "Content-Type": "application/json" };
-
-                          const resp = await fetch(
-                            `${BASE_URL}/admin/delete_modules`,
-                            {
-                              method: "DELETE",
-                              headers,
-                              body: JSON.stringify({
-                                module_ids: [Number(module.module_id)],
-                              }),
-                            }
-                          );
-
-                          if (!resp.ok) {
-                            const errJson = await resp.json().catch(() => ({}));
-                            toastController.error(
-                              errJson.detail || errJson.message || "Delete failed"
-                            );
-                            return;
-                          }
-
-                          await refetchUbacTree();
-                          toastController.success("Deleted successfully");
-                        } catch (err) {
-                          
-                          toastController.error("Delete failed");
-                        }
+                      onClick={() => {
+                        // open edit modal for module
+                        setEditType("module");
+                        setEditId(module.module_id);
+                        setEditFormName(module.name || "");
+                        setIsEditModalOpen(true);
                       }}
-                      className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition ml-2"
-                      title="Delete module"
+                      className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition ml-2"
+                      title="Edit module"
                     >
-                      <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+                      <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
                     </button>
-                  )}
+                    {/* Delete module - only render if no groups/features assigned */}
+                    {!hasGroups && !hasLegacyFeatures && !hasUngroupedFeatures && (
+                      <button
+                        onClick={async () => {
+                          if (
+                            !confirm("Delete module? This will remove the module.")
+                          )
+                            return;
+                          try {
+                            const token =
+                              getToken() || localStorage.getItem("token");
+                            const headers = token
+                              ? {
+                                  Authorization: token,
+                                  "Content-Type": "application/json",
+                                }
+                              : { "Content-Type": "application/json" };
+
+                            const resp = await fetch(
+                              `${BASE_URL}/admin/delete_modules`,
+                              {
+                                method: "DELETE",
+                                headers,
+                                body: JSON.stringify({
+                                  module_ids: [Number(module.module_id)],
+                                }),
+                              }
+                            );
+
+                            if (!resp.ok) {
+                              const errJson = await resp.json().catch(() => ({}));
+                              toastController.error(
+                                errJson.detail || errJson.message || "Delete failed"
+                              );
+                              return;
+                            }
+
+                            await refetchUbacTree();
+                            toastController.success("Deleted successfully");
+                          } catch (err) {
+                            
+                            toastController.error("Delete failed");
+                          }
+                        }}
+                        className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition ml-2"
+                        title="Delete module"
+                      >
+                        <FontAwesomeIcon icon={faTrash} className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
+              <div className="w-0.5 h-6 bg-gray-300 mt-2" />
             </div>
-            <div className="w-0.5 h-6 bg-gray-300 mt-2" />
+            <div className="ml-4">
+              {/* Render groups if available */}
+              {hasGroups && renderGroups(module.groups, module.module_id)}
+              
+              {/* Render ungrouped features if available */}
+              {hasUngroupedFeatures && (
+                <div>
+                  <div className="text-sm text-gray-500 mb-2 ml-6">Ungrouped Features:</div>
+                  {renderFeatures(module.ungrouped_features, module.module_id)}
+                </div>
+              )}
+              
+              {/* Fallback to legacy features structure */}
+              {hasLegacyFeatures && renderFeatures(module.features, module.module_id)}
+            </div>
           </div>
-          <div className="ml-4">
-            {module.features &&
-              renderFeatures(module.features, module.module_id)}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 
@@ -492,33 +680,67 @@ const UBACTree = () => {
             {/* Left - Stats */}
             <div className="flex items-center gap-4 text-sm">
               <span className="font-medium text-gray-800">
-                Modules: {data && data.data ? data.data.length : 0}
+                Modules: {data?.total_modules || (data && data.data ? data.data.length : 0)}
               </span>
               <span className="font-medium text-gray-800">
-                Features: {data && data.data
+                Groups: {data?.total_groups || (data && data.data
                   ? data.data.reduce(
                       (acc, m) =>
-                        acc + (Array.isArray(m.features) ? m.features.length : 0),
+                        acc + (Array.isArray(m.groups) ? m.groups.length : 0),
                       0
                     )
-                  : 0}
+                  : 0)}
               </span>
               <span className="font-medium text-gray-800">
-                Actions: {data && data.data
+                Features: {data?.total_features || (data && data.data
                   ? data.data.reduce(
-                      (acc, m) =>
-                        acc +
-                        (Array.isArray(m.features)
-                          ? m.features.reduce(
-                              (faAcc, f) =>
-                                faAcc +
-                                (Array.isArray(f.actions) ? f.actions.length : 0),
-                              0
-                            )
-                          : 0),
+                      (acc, m) => {
+                        // Count features in groups
+                        const groupFeatures = Array.isArray(m.groups) 
+                          ? m.groups.reduce((gAcc, g) => gAcc + (Array.isArray(g.features) ? g.features.length : 0), 0)
+                          : 0;
+                        // Count ungrouped features
+                        const ungroupedFeatures = Array.isArray(m.ungrouped_features) ? m.ungrouped_features.length : 0;
+                        // Count legacy features (fallback)
+                        const legacyFeatures = !Array.isArray(m.groups) && Array.isArray(m.features) ? m.features.length : 0;
+                        return acc + groupFeatures + ungroupedFeatures + legacyFeatures;
+                      },
                       0
                     )
-                  : 0}
+                  : 0)}
+              </span>
+              <span className="font-medium text-gray-800">
+                Actions: {data?.total_actions || (data && data.data
+                  ? data.data.reduce(
+                      (acc, m) => {
+                        let moduleActions = 0;
+                        
+                        // Count actions in grouped features
+                        if (Array.isArray(m.groups)) {
+                          moduleActions += m.groups.reduce((gAcc, g) => 
+                            gAcc + (Array.isArray(g.features) 
+                              ? g.features.reduce((fAcc, f) => 
+                                  fAcc + (Array.isArray(f.actions) ? f.actions.length : 0), 0)
+                              : 0), 0);
+                        }
+                        
+                        // Count actions in ungrouped features
+                        if (Array.isArray(m.ungrouped_features)) {
+                          moduleActions += m.ungrouped_features.reduce((fAcc, f) => 
+                            fAcc + (Array.isArray(f.actions) ? f.actions.length : 0), 0);
+                        }
+                        
+                        // Count actions in legacy features (fallback)
+                        if (!Array.isArray(m.groups) && Array.isArray(m.features)) {
+                          moduleActions += m.features.reduce((fAcc, f) => 
+                            fAcc + (Array.isArray(f.actions) ? f.actions.length : 0), 0);
+                        }
+                        
+                        return acc + moduleActions;
+                      },
+                      0
+                    )
+                  : 0)}
               </span>
             </div>
 
@@ -528,7 +750,7 @@ const UBACTree = () => {
                 <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
               </span>
               <input
-                placeholder="Search modules, features, actions..."
+                placeholder="Search modules, groups, features, actions..."
                 className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-3xl border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
                 type="text"
                 value={searchTerm}
@@ -561,24 +783,36 @@ const UBACTree = () => {
               (data.data || []).filter((m) => {
                 if (!searchTerm) return true;
                 const q = searchTerm.toLowerCase();
+                
                 // match module name
                 if (m.name && m.name.toLowerCase().includes(q)) return true;
-                // match features or actions
-                if (
-                  m.features &&
-                  m.features.some((f) => {
+                
+                // match groups
+                if (m.groups && m.groups.some((g) => {
+                  if ((g.group_name || g.name) && (g.group_name || g.name).toLowerCase().includes(q)) return true;
+                  // match features within groups
+                  if (g.features && g.features.some((f) => {
                     if (f.name && f.name.toLowerCase().includes(q)) return true;
-                    if (
-                      f.actions &&
-                      f.actions.some(
-                        (a) => a.name && a.name.toLowerCase().includes(q)
-                      )
-                    )
-                      return true;
+                    if (f.actions && f.actions.some((a) => a.name && a.name.toLowerCase().includes(q))) return true;
                     return false;
-                  })
-                )
-                  return true;
+                  })) return true;
+                  return false;
+                })) return true;
+                
+                // match ungrouped features
+                if (m.ungrouped_features && m.ungrouped_features.some((f) => {
+                  if (f.name && f.name.toLowerCase().includes(q)) return true;
+                  if (f.actions && f.actions.some((a) => a.name && a.name.toLowerCase().includes(q))) return true;
+                  return false;
+                })) return true;
+                
+                // match legacy features (fallback)
+                if (m.features && m.features.some((f) => {
+                  if (f.name && f.name.toLowerCase().includes(q)) return true;
+                  if (f.actions && f.actions.some((a) => a.name && a.name.toLowerCase().includes(q))) return true;
+                  return false;
+                })) return true;
+                
                 return false;
               })
             )
@@ -703,9 +937,9 @@ const UBACTree = () => {
                         body: JSON.stringify({ name: formName }),
                       }
                     );
-                  } else if (type === "feature") {
+                  } else if (type === "group") {
                     resp = await fetch(
-                      `${BASE_URL}/admin/create_feature`,
+                      `${BASE_URL}/admin/create_group`,
                       {
                         method: "POST",
                         headers,
@@ -713,6 +947,26 @@ const UBACTree = () => {
                           module_id: Number(selectedModuleId),
                           name: formName,
                         }),
+                      }
+                    );
+                  } else if (type === "feature") {
+                    const body = {
+                      name: formName,
+                    };
+                    
+                    // Add group_id if selected, otherwise module_id for ungrouped features
+                    if (selectedGroupId) {
+                      body.group_id = Number(selectedGroupId);
+                    } else {
+                      body.module_id = Number(selectedModuleId);
+                    }
+                    
+                    resp = await fetch(
+                      `${BASE_URL}/admin/create_feature`,
+                      {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify(body),
                       }
                     );
                   } else if (type === "action") {
@@ -748,6 +1002,7 @@ const UBACTree = () => {
                   setIsModalOpen(false);
                   setFormName("");
                   setSelectedFeatureId("");
+                  setSelectedGroupId("");
                   setSelectedModuleId("");
                 } catch (err) {
                  
@@ -786,12 +1041,13 @@ const UBACTree = () => {
             className="w-full border px-2 py-1 rounded-3xl"
           >
             <option value="module">Module</option>
+            <option value="group">Group</option>
             <option value="feature">Feature</option>
             <option value="action">Action</option>
           </select>
         </div>
 
-        {(type === "feature" || type === "action") && (
+        {(type === "group" || type === "feature" || type === "action") && (
           <div className="mb-3">
             <label className="block text-sm mb-1">Module</label>
             <select
@@ -809,6 +1065,24 @@ const UBACTree = () => {
           </div>
         )}
 
+        {(type === "feature" || type === "action") && (
+          <div className="mb-3">
+            <label className="block text-sm mb-1">Group (optional)</label>
+            <select
+              value={selectedGroupId}
+              onChange={(e) => setSelectedGroupId(e.target.value)}
+              className="w-full border px-2 py-1 rounded-3xl"
+            >
+              <option value="">Select group (optional)</option>
+              {groupsList.map((g) => (
+                <option key={g.group_id} value={g.group_id}>
+                  {g.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {type === "action" && (
           <div className="mb-3">
             <label className="block text-sm mb-1">Feature</label>
@@ -820,7 +1094,7 @@ const UBACTree = () => {
               <option value="">Select feature</option>
               {featuresList.map((f) => (
                 <option key={f.feature_id} value={f.feature_id}>
-                  {f.name}
+                  {f.group_name ? `${f.name} (${f.group_name})` : f.name}
                 </option>
               ))}
             </select>
@@ -910,6 +1184,7 @@ const UBACTree = () => {
               onMouseEnter={(e) => {
                 if (!editLoadingSave &&
                     editFormName &&
+                    !(editType === "group" && !editSelectedModuleId) &&
                     !(editType === "feature" && !editSelectedModuleId) &&
                     !(editType === "action" && !editSelectedFeatureId)) {
                   e.target.style.backgroundColor = '#3bdde3';
@@ -923,6 +1198,7 @@ const UBACTree = () => {
               onMouseLeave={(e) => {
                 if (!editLoadingSave &&
                     editFormName &&
+                    !(editType === "group" && !editSelectedModuleId) &&
                     !(editType === "feature" && !editSelectedModuleId) &&
                     !(editType === "action" && !editSelectedFeatureId)) {
                   e.target.style.backgroundColor = 'white';
@@ -957,19 +1233,40 @@ const UBACTree = () => {
                         }),
                       }
                     );
-                  } else if (editType === "feature") {
+                  } else if (editType === "group") {
                     resp = await fetch(
-                      `${BASE_URL}/admin/update_feature`,
+                      `${BASE_URL}/admin/update_group`,
                       {
                         method: "PATCH",
                         headers,
                         body: JSON.stringify({
-                          feature_id: Number(editId),
+                          group_id: Number(editId),
                           name: editFormName,
                           module_id: editSelectedModuleId
                             ? Number(editSelectedModuleId)
                             : undefined,
                         }),
+                      }
+                    );
+                  } else if (editType === "feature") {
+                    const body = {
+                      feature_id: Number(editId),
+                      name: editFormName,
+                    };
+                    
+                    // Add group_id if selected, otherwise module_id for ungrouped features
+                    if (editSelectedGroupId) {
+                      body.group_id = Number(editSelectedGroupId);
+                    } else if (editSelectedModuleId) {
+                      body.module_id = Number(editSelectedModuleId);
+                    }
+                    
+                    resp = await fetch(
+                      `${BASE_URL}/admin/update_feature`,
+                      {
+                        method: "PATCH",
+                        headers,
+                        body: JSON.stringify(body),
                       }
                     );
                   } else if (editType === "action") {
@@ -1008,6 +1305,7 @@ const UBACTree = () => {
                   setIsEditModalOpen(false);
                   setEditFormName("");
                   setEditSelectedFeatureId("");
+                  setEditSelectedGroupId("");
                   setEditSelectedModuleId("");
                   setEditId(null);
                 } catch (err) {
@@ -1020,6 +1318,7 @@ const UBACTree = () => {
               disabled={
                 editLoadingSave ||
                 !editFormName ||
+                (editType === "group" && !editSelectedModuleId) ||
                 (editType === "feature" && !editSelectedModuleId) ||
                 (editType === "action" && !editSelectedFeatureId)
               }
@@ -1041,14 +1340,53 @@ const UBACTree = () => {
       >
         {/* Build a flat list of features for easy selection */}
         {(() => {
-          const allFeatures = modulesList.reduce((acc, m) => {
-            if (Array.isArray(m.features)) {
-              m.features.forEach((f) =>
-                acc.push({ ...f, module_id: m.module_id })
-              );
-            }
-            return acc;
-          }, []);
+          // Extract features from UBAC tree data instead of modulesList
+          const allFeatures = [];
+          
+          if (data?.data) {
+            data.data.forEach(module => {
+              // Extract features from groups (including ungrouped with group_id: null)
+              if (module.groups && Array.isArray(module.groups)) {
+                module.groups.forEach(group => {
+                  if (group.features && Array.isArray(group.features)) {
+                    group.features.forEach(feature => {
+                      allFeatures.push({
+                        ...feature,
+                        module_id: module.module_id,
+                        module_name: module.name,
+                        group_id: group.group_id,
+                        group_name: group.group_name || group.name
+                      });
+                    });
+                  }
+                });
+              }
+
+              // Extract ungrouped features (fallback)
+              if (module.ungrouped_features && Array.isArray(module.ungrouped_features)) {
+                module.ungrouped_features.forEach(feature => {
+                  allFeatures.push({
+                    ...feature,
+                    module_id: module.module_id,
+                    module_name: module.name,
+                    group_id: null,
+                    group_name: 'Ungrouped'
+                  });
+                });
+              }
+
+              // Extract legacy features (fallback)
+              if (!module.groups && module.features && Array.isArray(module.features)) {
+                module.features.forEach(feature => {
+                  allFeatures.push({
+                    ...feature,
+                    module_id: module.module_id,
+                    module_name: module.name
+                  });
+                });
+              }
+            });
+          }
 
           return (
             <>
@@ -1070,24 +1408,47 @@ const UBACTree = () => {
                 </div>
               )}
 
-              {editType === "action" && (
+              {editType === "group" && (
                 <div className="mb-3">
-                  <label className="block text-sm mb-1">Feature</label>
+                  <label className="block text-sm mb-1">Module</label>
                   <select
-                    value={editSelectedFeatureId}
-                    onChange={(e) => setEditSelectedFeatureId(e.target.value)}
+                    value={editSelectedModuleId}
+                    onChange={(e) => setEditSelectedModuleId(e.target.value)}
                     className="w-full border rounded-3xl px-2 py-1"
                   >
-                    <option value="">Select feature</option>
-                    {allFeatures.map((f) => (
-                      <option key={f.feature_id} value={f.feature_id}>
-                        {`${f.name} (${
-                          modulesList.find((m) => m.module_id === f.module_id)
-                            ?.name || ""
-                        })`}
+                    <option value="">Select module</option>
+                    {modulesList.map((m) => (
+                      <option key={m.module_id} value={m.module_id}>
+                        {m.name}
                       </option>
                     ))}
                   </select>
+                </div>
+              )}
+
+              {editType === "action" && (
+                <div className="mb-3">
+                  <SingleSelectDropdown
+                    label="Feature"
+                    options={allFeatures.map((f) => ({
+                      feature_id: f.feature_id,
+                      name: f.group_name 
+                        ? `${f.name} (${f.module_name || f.name} - ${f.group_name})`
+                        : `${f.name} (${f.module_name || modulesList.find((m) => m.module_id === f.module_id)?.name || ""})`,
+                      feature_name: f.name,
+                      module_name: f.module_name,
+                      group_name: f.group_name
+                    }))}
+                    selectedValue={editSelectedFeatureId}
+                    onChange={(value) => setEditSelectedFeatureId(value)}
+                    displayKey="name"
+                    valueKey="feature_id"
+                    searchKeys={["name", "feature_name", "module_name", "group_name"]}
+                    placeholder="Select feature"
+                    searchPlaceholder="Search features..."
+                    required={true}
+                    className="rounded-lg"
+                  />
                 </div>
               )}
 

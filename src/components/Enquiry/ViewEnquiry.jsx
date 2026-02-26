@@ -23,7 +23,8 @@ function ViewEnquiry() {
   const { enquiry_id } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
-  const [enquiry, setEnquiry] = useState(null);
+  const [
+    enquiry, setEnquiry] = useState(null);
   const [loading, setLoading] = useState(true);
   const { BASE_URL } = API_CONFIG;
   const [error, setError] = useState(null);
@@ -286,7 +287,7 @@ function ViewEnquiry() {
                   <div className="w-8 h-8 flex items-center justify-center">
                     <FontAwesomeIcon
                       icon={
-                        enquiry.enquiry_status === "Active"
+                        enquiry.enquiry_status === "Onboard"
                           ? faCheckCircle
                           : enquiry.enquiry_status === "Positive"
                           ? faCheckCircle
@@ -294,7 +295,7 @@ function ViewEnquiry() {
                       }
                       className={`w-5 h-5`}
                       style={{
-                        color: enquiry.enquiry_status === "Active" 
+                        color: enquiry.enquiry_status === "Onboard" 
                           ? "#12b76a" 
                           : enquiry.enquiry_status === "Positive"
                           ? "#1d4ed8"
@@ -306,7 +307,7 @@ function ViewEnquiry() {
                     <div
                       className="text-base font-medium"
                       style={{
-                        color: enquiry.enquiry_status === "Active" 
+                        color: enquiry.enquiry_status === "Onboard" 
                           ? "#027a48" 
                           : enquiry.enquiry_status === "Positive"
                           ? "#1d4ed8"

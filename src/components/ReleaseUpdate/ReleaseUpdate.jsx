@@ -9,6 +9,7 @@ import {
 import axios from "axios";
 import yaml from "js-yaml";
 import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
 import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
 
@@ -27,6 +28,7 @@ const ReleaseUpdate = () => {
   const [uploadProgress, setUploadProgress] = useState(null); // null = idle/unknown, 0-100 when uploading
   const [yamlPreview, setYamlPreview] = useState({ data: null, error: null });
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
   const { BASE_URL } = API_CONFIG;
 
   const disableSubmit = useMemo(() => {
@@ -142,11 +144,15 @@ const ReleaseUpdate = () => {
         throw new Error("No authentication token available");
       }
 
+      if (!adminData?.user_id) {
+        throw new Error("User ID not available. Please login again.");
+      }
+
       const formData = new FormData();
       formData.append("file", formState.binaryFile);
       formData.append("config_file", formState.configFile);
       formData.append("file_type", validation.fileType);
-      formData.append("user_id", "1");
+      formData.append("user_id", adminData?.user_id || "");
       formData.append("app_source", "admin_panel");
 
       const response = await axios.post(

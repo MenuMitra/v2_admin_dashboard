@@ -149,7 +149,7 @@ function EditCategory() {
             <div className="sm:col-span-1">
               <TextInput
                 label="Category Name"
-                className = "rounded-3xl"
+                className = "rounded-lg"
                 required
                 value={categoryName}
                 onChange={(e) => {

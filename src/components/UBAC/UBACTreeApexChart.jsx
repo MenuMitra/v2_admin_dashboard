@@ -10,6 +10,7 @@ import Modal from "../common/Modal";
 import { toastController } from "../../utils/toastController";
 import ApexTree from "apextree";
 import CustomDropdown from "../common/CustomDropdown";
+import SingleSelectDropdown from "../common/SingleSelectDropdown";
 
 const UBACTree = () => {
   const { data, isLoading, refetchUbacTree } = useUbacTree();
@@ -19,19 +20,22 @@ const UBACTree = () => {
 
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [type, setType] = useState("module"); // module | feature | action
+  const [type, setType] = useState("module"); // module | group | feature | action
   const [modulesList, setModulesList] = useState([]);
+  const [groupsList, setGroupsList] = useState([]);
   const [featuresList, setFeaturesList] = useState([]);
   const [formName, setFormName] = useState("");
   const [selectedModuleId, setSelectedModuleId] = useState("");
+  const [selectedGroupId, setSelectedGroupId] = useState("");
   const [selectedFeatureId, setSelectedFeatureId] = useState("");
   const [loadingSave, setLoadingSave] = useState(false);
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editType, setEditType] = useState("module"); // module | feature | action
+  const [editType, setEditType] = useState("module"); // module | group | feature | action
   const [editId, setEditId] = useState(null);
   const [editFormName, setEditFormName] = useState("");
   const [editSelectedModuleId, setEditSelectedModuleId] = useState("");
+  const [editSelectedGroupId, setEditSelectedGroupId] = useState("");
   const [editSelectedFeatureId, setEditSelectedFeatureId] = useState("");
   const [editLoadingSave, setEditLoadingSave] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -187,12 +191,55 @@ const UBACTree = () => {
       return null;
     }
 
+    // Calculate totals including groups (use API totals if available)
+    const totalGroups = apiResponse.total_groups || apiResponse.data.reduce((acc, m) => 
+      acc + (Array.isArray(m.groups) ? m.groups.length : 0), 0);
+    
+    const totalFeatures = apiResponse.total_features || apiResponse.data.reduce((acc, m) => {
+      // Count features in groups
+      const groupFeatures = Array.isArray(m.groups) 
+        ? m.groups.reduce((gAcc, g) => gAcc + (Array.isArray(g.features) ? g.features.length : 0), 0)
+        : 0;
+      // Count ungrouped features
+      const ungroupedFeatures = Array.isArray(m.ungrouped_features) ? m.ungrouped_features.length : 0;
+      // Count legacy features (fallback)
+      const legacyFeatures = !Array.isArray(m.groups) && Array.isArray(m.features) ? m.features.length : 0;
+      return acc + groupFeatures + ungroupedFeatures + legacyFeatures;
+    }, 0);
+
+    const totalActions = apiResponse.total_actions || apiResponse.data.reduce((acc, m) => {
+      let moduleActions = 0;
+      
+      // Count actions in grouped features
+      if (Array.isArray(m.groups)) {
+        moduleActions += m.groups.reduce((gAcc, g) => 
+          gAcc + (Array.isArray(g.features) 
+            ? g.features.reduce((fAcc, f) => 
+                fAcc + (Array.isArray(f.actions) ? f.actions.length : 0), 0)
+            : 0), 0);
+      }
+      
+      // Count actions in ungrouped features
+      if (Array.isArray(m.ungrouped_features)) {
+        moduleActions += m.ungrouped_features.reduce((fAcc, f) => 
+          fAcc + (Array.isArray(f.actions) ? f.actions.length : 0), 0);
+      }
+      
+      // Count actions in legacy features (fallback)
+      if (!Array.isArray(m.groups) && Array.isArray(m.features)) {
+        moduleActions += m.features.reduce((fAcc, f) => 
+          fAcc + (Array.isArray(f.actions) ? f.actions.length : 0), 0);
+      }
+      
+      return acc + moduleActions;
+    }, 0);
+
     // Root node
     const rootNode = {
       id: 'UBAC_Root',
       data: {
         name: 'UBAC SYSTEM',
-        stats: `${apiResponse.total_modules || 0} Modules | ${apiResponse.total_features || 0} Features | ${apiResponse.total_actions || 0} Actions`,
+        stats: `${apiResponse.data.length || 0} Modules | ${totalGroups} Groups | ${totalFeatures} Features | ${totalActions} Actions`,
         nodeType: 'root',
         originalId: 'root',
         hasChildren: true,
@@ -204,7 +251,11 @@ const UBACTree = () => {
 
     // Transform each module
     apiResponse.data.forEach((module, moduleIndex) => {
-      const hasFeatures = module.features && Array.isArray(module.features) && module.features.length > 0;
+      const hasGroups = module.groups && Array.isArray(module.groups) && module.groups.length > 0;
+      const hasLegacyFeatures = !hasGroups && module.features && Array.isArray(module.features) && module.features.length > 0;
+      const hasUngroupedFeatures = module.ungrouped_features && Array.isArray(module.ungrouped_features) && module.ungrouped_features.length > 0;
+      const hasChildren = hasGroups || hasLegacyFeatures || hasUngroupedFeatures;
+      
       const moduleNode = {
         id: `module_${module.module_id}`,
         data: {
@@ -212,15 +263,119 @@ const UBACTree = () => {
           nodeType: 'module',
           originalId: module.module_id,
           moduleIndex: moduleIndex,
-          hasChildren: hasFeatures,
-          childrenCount: hasFeatures ? module.features.length : 0
+          hasChildren: hasChildren,
+          childrenCount: (hasGroups ? module.groups.length : 0) + (hasUngroupedFeatures ? module.ungrouped_features.length : 0) + (hasLegacyFeatures ? module.features.length : 0)
         },
         options: { nodeBGColor: getNodeColor(moduleIndex, 'module') },
         children: []
       };
 
-      // Transform features in this module
-      if (hasFeatures) {
+      // Transform groups in this module
+      if (hasGroups) {
+        module.groups.forEach(group => {
+          const hasFeatures = group.features && Array.isArray(group.features) && group.features.length > 0;
+          const groupNode = {
+            id: `group_${group.group_id}`,
+            data: {
+              name: cleanFieldName(group.group_name || group.name || 'Unnamed Group'),
+              nodeType: 'group',
+              originalId: group.group_id,
+              moduleIndex: moduleIndex,
+              hasChildren: hasFeatures,
+              childrenCount: hasFeatures ? group.features.length : 0
+            },
+            options: { nodeBGColor: '#3b82f6' }, // Blue for groups
+            children: []
+          };
+
+          // Transform features in this group
+          if (hasFeatures) {
+            group.features.forEach(feature => {
+              const hasActions = feature.actions && Array.isArray(feature.actions) && feature.actions.length > 0;
+              const featureNode = {
+                id: `feature_${feature.feature_id}`,
+                data: {
+                  name: cleanFieldName(feature.name),
+                  nodeType: 'feature',
+                  originalId: feature.feature_id,
+                  moduleIndex: moduleIndex,
+                  hasChildren: hasActions,
+                  childrenCount: hasActions ? feature.actions.length : 0
+                },
+                options: { nodeBGColor: getNodeColor(moduleIndex, 'feature') },
+                children: []
+              };
+
+              // Transform actions in this feature
+              if (hasActions) {
+                feature.actions.forEach(action => {
+                  const actionNode = {
+                    id: `action_${action.action_id}`,
+                    data: {
+                      name: cleanFieldName(action.name),
+                      nodeType: 'action',
+                      originalId: action.action_id,
+                      moduleIndex: moduleIndex,
+                      hasChildren: false,
+                      childrenCount: 0
+                    },
+                    options: { nodeBGColor: getNodeColor(moduleIndex, 'action') },
+                  };
+                  featureNode.children.push(actionNode);
+                });
+              }
+
+              groupNode.children.push(featureNode);
+            });
+          }
+
+          moduleNode.children.push(groupNode);
+        });
+      }
+
+      // Transform ungrouped features
+      if (hasUngroupedFeatures) {
+        module.ungrouped_features.forEach(feature => {
+          const hasActions = feature.actions && Array.isArray(feature.actions) && feature.actions.length > 0;
+          const featureNode = {
+            id: `feature_${feature.feature_id}`,
+            data: {
+              name: cleanFieldName(feature.name),
+              nodeType: 'feature',
+              originalId: feature.feature_id,
+              moduleIndex: moduleIndex,
+              hasChildren: hasActions,
+              childrenCount: hasActions ? feature.actions.length : 0
+            },
+            options: { nodeBGColor: getNodeColor(moduleIndex, 'feature') },
+            children: []
+          };
+
+          // Transform actions in this feature
+          if (hasActions) {
+            feature.actions.forEach(action => {
+              const actionNode = {
+                id: `action_${action.action_id}`,
+                data: {
+                  name: cleanFieldName(action.name),
+                  nodeType: 'action',
+                  originalId: action.action_id,
+                  moduleIndex: moduleIndex,
+                  hasChildren: false,
+                  childrenCount: 0
+                },
+                options: { nodeBGColor: getNodeColor(moduleIndex, 'action') },
+              };
+              featureNode.children.push(actionNode);
+            });
+          }
+
+          moduleNode.children.push(featureNode);
+        });
+      }
+
+      // Fallback to legacy features structure
+      if (hasLegacyFeatures) {
         module.features.forEach(feature => {
           const hasActions = feature.actions && Array.isArray(feature.actions) && feature.actions.length > 0;
           const featureNode = {
@@ -274,38 +429,120 @@ const UBACTree = () => {
       setEditId(module.module_id);
       setEditFormName(module.name);
       setIsEditModalOpen(true);
-    } else if (nodeType === 'feature') {
-      // Find feature in modules
-      let feature = null;
+    } else if (nodeType === 'group') {
+      // Find group in modules
+      let group = null;
       let moduleId = null;
       for (const module of data.data) {
-        const f = module.features?.find(f => f.feature_id === Number(nodeId));
-        if (f) {
-          feature = f;
+        const g = module.groups?.find(g => g.group_id === Number(nodeId));
+        if (g) {
+          group = g;
           moduleId = module.module_id;
           break;
         }
       }
+      setEditType('group');
+      setEditId(group.group_id);
+      setEditFormName(group.group_name || group.name || '');
+      setEditSelectedModuleId(moduleId);
+      setIsEditModalOpen(true);
+    } else if (nodeType === 'feature') {
+      // Find feature in modules (could be in groups, ungrouped, or legacy)
+      let feature = null;
+      let moduleId = null;
+      let groupId = null;
+      
+      for (const module of data.data) {
+        // Check in groups
+        if (module.groups) {
+          for (const group of module.groups) {
+            const f = group.features?.find(f => f.feature_id === Number(nodeId));
+            if (f) {
+              feature = f;
+              moduleId = module.module_id;
+              groupId = group.group_id;
+              break;
+            }
+          }
+        }
+        
+        // Check in ungrouped features
+        if (!feature && module.ungrouped_features) {
+          const f = module.ungrouped_features.find(f => f.feature_id === Number(nodeId));
+          if (f) {
+            feature = f;
+            moduleId = module.module_id;
+            break;
+          }
+        }
+        
+        // Check in legacy features
+        if (!feature && module.features) {
+          const f = module.features.find(f => f.feature_id === Number(nodeId));
+          if (f) {
+            feature = f;
+            moduleId = module.module_id;
+            break;
+          }
+        }
+        
+        if (feature) break;
+      }
+      
       setEditType('feature');
       setEditId(feature.feature_id);
       setEditFormName(feature.name);
       setEditSelectedModuleId(moduleId);
+      setEditSelectedGroupId(groupId || "");
       setIsEditModalOpen(true);
     } else if (nodeType === 'action') {
       // Find action in features
       let action = null;
       let featureId = null;
+      
       for (const module of data.data) {
-        for (const feature of module.features || []) {
-          const a = feature.actions?.find(a => a.action_id === Number(nodeId));
-          if (a) {
-            action = a;
-            featureId = feature.feature_id;
-            break;
+        // Check in grouped features
+        if (module.groups) {
+          for (const group of module.groups) {
+            for (const feature of group.features || []) {
+              const a = feature.actions?.find(a => a.action_id === Number(nodeId));
+              if (a) {
+                action = a;
+                featureId = feature.feature_id;
+                break;
+              }
+            }
+            if (action) break;
           }
         }
+        
+        // Check in ungrouped features
+        if (!action && module.ungrouped_features) {
+          for (const feature of module.ungrouped_features) {
+            const a = feature.actions?.find(a => a.action_id === Number(nodeId));
+            if (a) {
+              action = a;
+              featureId = feature.feature_id;
+              break;
+            }
+          }
+        }
+        
+        // Check in legacy features
+        if (!action && module.features) {
+          for (const feature of module.features) {
+            const a = feature.actions?.find(a => a.action_id === Number(nodeId));
+            if (a) {
+              action = a;
+              featureId = feature.feature_id;
+              break;
+            }
+          }
+        }
+        
         if (action) break;
       }
+      
       setEditType('action');
       setEditId(action.action_id);
       setEditFormName(action.name);
@@ -330,6 +567,12 @@ const UBACTree = () => {
           method: "DELETE",
           headers,
           body: JSON.stringify({ module_ids: [Number(nodeId)] }),
+        });
+      } else if (nodeType === 'group') {
+        resp = await fetch(`${BASE_URL}/admin/delete_groups`, {
+          method: "DELETE",
+          headers,
+          body: JSON.stringify({ group_ids: [Number(nodeId)] }),
         });
       } else if (nodeType === 'feature') {
         resp = await fetch(`${BASE_URL}/admin/delete_features`, {
@@ -375,7 +618,85 @@ const UBACTree = () => {
         return true;
       }
 
-      // Check if any feature matches
+      // Check if any group matches
+      if (module.groups && Array.isArray(module.groups)) {
+        const filteredGroups = module.groups.filter(group => {
+          // Check if group name matches
+          if ((group.group_name || group.name || '').toLowerCase().includes(searchTerm.toLowerCase())) {
+            return true;
+          }
+
+          // Check if any feature in group matches
+          if (group.features && Array.isArray(group.features)) {
+            const filteredFeatures = group.features.filter(feature => {
+              // Check if feature name matches
+              if (feature.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                return true;
+              }
+
+              // Check if any action matches
+              if (feature.actions && Array.isArray(feature.actions)) {
+                const filteredActions = feature.actions.filter(action =>
+                  action.name.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                if (filteredActions.length > 0) {
+                  // Update feature with filtered actions
+                  feature.actions = filteredActions;
+                  return true;
+                }
+              }
+
+              return false;
+            });
+
+            if (filteredFeatures.length > 0) {
+              // Update group with filtered features
+              group.features = filteredFeatures;
+              return true;
+            }
+          }
+
+          return false;
+        });
+
+        if (filteredGroups.length > 0) {
+          // Update module with filtered groups
+          module.groups = filteredGroups;
+          return true;
+        }
+      }
+
+      // Check ungrouped features
+      if (module.ungrouped_features && Array.isArray(module.ungrouped_features)) {
+        const filteredUngroupedFeatures = module.ungrouped_features.filter(feature => {
+          // Check if feature name matches
+          if (feature.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+            return true;
+          }
+
+          // Check if any action matches
+          if (feature.actions && Array.isArray(feature.actions)) {
+            const filteredActions = feature.actions.filter(action =>
+              action.name.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            if (filteredActions.length > 0) {
+              // Update feature with filtered actions
+              feature.actions = filteredActions;
+              return true;
+            }
+          }
+
+          return false;
+        });
+
+        if (filteredUngroupedFeatures.length > 0) {
+          // Update module with filtered ungrouped features
+          module.ungrouped_features = filteredUngroupedFeatures;
+          return true;
+        }
+      }
+
+      // Check legacy features (fallback)
       if (module.features && Array.isArray(module.features)) {
         const filteredFeatures = module.features.filter(feature => {
           // Check if feature name matches
@@ -460,35 +781,75 @@ const UBACTree = () => {
         // const textLength = content.name.length;
         // const baseWidth = Math.max(150, Math.min(400, textLength * 8 + 100));
 
-        // Get background color/gradient
+        // Get background color/gradient and hover effects
         let background = '#fff';
         let textColor = '#000';
         let boxShadow = 'none';
         let border = 'none';
+        let hoverEffect = '';
 
         if (content.nodeType === 'root') {
           background = '#94ddff';
           textColor = '#000';
           boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+          hoverEffect = 'transform: scale(1.02); box-shadow: 0 6px 16px rgba(0,0,0,0.2);';
+        } else if (content.nodeType === 'group') {
+          // Special styling for groups to make them more visible
+          background = 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
+          textColor = '#FFFFFF';
+          boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+          border = '2px solid rgba(255,255,255,0.2)';
+          hoverEffect = 'transform: scale(1.05); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4); border-color: rgba(255,255,255,0.4);';
         } else if (content.moduleIndex !== undefined) {
           background = getNodeColor(content.moduleIndex, content.nodeType);
-
-          // ALL non-root nodes get white text
           textColor = '#FFFFFF';  // White text for modules, features, and actions
 
           // Module nodes get special styling
           if (content.nodeType === 'module') {
             boxShadow = '0 6px 16px rgba(0,0,0,0.25)';  // Stronger shadow
             border = '2px solid rgba(255,255,255,0.3)';  // Subtle white border
+            hoverEffect = 'transform: scale(1.03); box-shadow: 0 8px 20px rgba(0,0,0,0.35);';
           } else {
             // Features and actions get lighter shadow
             boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+            hoverEffect = 'transform: scale(1.02); box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
           }
         }
 
         return `
-          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;width:100%;padding:10px;background:${background} !important;border-radius:8px;box-shadow:${boxShadow};border:${border};color:${textColor};box-sizing:border-box;min-height:100%;">
-            <div style="font-weight:bold;font-family:Arial;font-size:14px;text-align:center;word-wrap:break-word;margin-bottom:6px;color:${textColor};">${content.name}</div>
+          <div 
+            style="
+              display:flex;
+              flex-direction:column;
+              align-items:center;
+              justify-content:center;
+              height:100%;
+              width:100%;
+              padding:10px;
+              background:${background} !important;
+              border-radius:8px;
+              box-shadow:${boxShadow};
+              border:${border};
+              color:${textColor};
+              box-sizing:border-box;
+              min-height:100%;
+              cursor:pointer;
+              transition: all 0.3s ease;
+            "
+            onmouseover="this.style.transform='scale(1.05)'"
+            onmouseout="this.style.transform='scale(1)'"
+            title="${content.nodeType === 'group' ? 'Group: ' + content.name : content.name}"
+          >
+            <div style="
+              font-weight:${content.nodeType === 'group' ? 'bold' : 'bold'};
+              font-family:Arial;
+              font-size:${content.nodeType === 'group' ? '15px' : '14px'};
+              text-align:center;
+              word-wrap:break-word;
+              margin-bottom:6px;
+              color:${textColor};
+              text-shadow:${content.nodeType === 'group' ? '0 1px 2px rgba(0,0,0,0.3)' : 'none'};
+            ">${content.name}</div>
             ${content.stats ? `<div style="font-size:10px;color:${textColor === '#FFFFFF' ? 'rgba(255,255,255,0.9)' : '#666'};margin-bottom:6px;text-align:center;">${content.stats}</div>` : ''}
             <div style="display:flex;gap:8px;margin-top:4px;justify-content:center;">
               ${showEdit ? `
@@ -579,6 +940,46 @@ const UBACTree = () => {
     fetchFeatures(selectedModuleId);
   }, [selectedModuleId, fetchFeatures]);
 
+  // load groups when module is selected
+  useEffect(() => {
+    if (!selectedModuleId) {
+      setGroupsList([]);
+      return;
+    }
+
+    const fetchGroups = async () => {
+      try {
+        const token = getToken() || localStorage.getItem("token");
+        const headers = token
+          ? { Authorization: token, "Content-Type": "application/json" }
+          : { "Content-Type": "application/json" };
+
+        const res = await fetch(`${BASE_URL}/admin/get_groups?module_id=${selectedModuleId}`, {
+          method: "GET",
+          headers,
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          setGroupsList([]);
+          return;
+        }
+
+        if (!res.ok) {
+          setGroupsList([]);
+          return;
+        }
+
+        const json = await res.json();
+        const data = json.data || json || [];
+        setGroupsList(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setGroupsList([]);
+      }
+    };
+
+    fetchGroups();
+  }, [selectedModuleId, BASE_URL, getToken]);
+
   const items = [
     { label: "Home", path: "/home" },
     { label: "UBAC Tree", path: "/ubac_tree" },
@@ -648,29 +1049,63 @@ const UBACTree = () => {
                 Modules: {data && data.data ? data.data.length : 0}
               </span>
               <span className="font-medium text-gray-800">
+                Groups: {data && data.data
+                  ? data.data.reduce(
+                      (acc, m) =>
+                        acc + (Array.isArray(m.groups) ? m.groups.length : 0),
+                      0
+                    )
+                  : 0}
+              </span>
+              <span className="font-medium text-gray-800">
                 Features: {data && data.data
                   ? data.data.reduce(
-                    (acc, m) =>
-                      acc + (Array.isArray(m.features) ? m.features.length : 0),
-                    0
-                  )
+                      (acc, m) => {
+                        // Count features in groups
+                        const groupFeatures = Array.isArray(m.groups) 
+                          ? m.groups.reduce((gAcc, g) => gAcc + (Array.isArray(g.features) ? g.features.length : 0), 0)
+                          : 0;
+                        // Count ungrouped features
+                        const ungroupedFeatures = Array.isArray(m.ungrouped_features) ? m.ungrouped_features.length : 0;
+                        // Count legacy features (fallback)
+                        const legacyFeatures = !Array.isArray(m.groups) && Array.isArray(m.features) ? m.features.length : 0;
+                        return acc + groupFeatures + ungroupedFeatures + legacyFeatures;
+                      },
+                      0
+                    )
                   : 0}
               </span>
               <span className="font-medium text-gray-800">
                 Actions: {data && data.data
                   ? data.data.reduce(
-                    (acc, m) =>
-                      acc +
-                      (Array.isArray(m.features)
-                        ? m.features.reduce(
-                          (faAcc, f) =>
-                            faAcc +
-                            (Array.isArray(f.actions) ? f.actions.length : 0),
-                          0
-                        )
-                        : 0),
-                    0
-                  )
+                      (acc, m) => {
+                        let moduleActions = 0;
+                        
+                        // Count actions in grouped features
+                        if (Array.isArray(m.groups)) {
+                          moduleActions += m.groups.reduce((gAcc, g) => 
+                            gAcc + (Array.isArray(g.features) 
+                              ? g.features.reduce((fAcc, f) => 
+                                  fAcc + (Array.isArray(f.actions) ? f.actions.length : 0), 0)
+                              : 0), 0);
+                        }
+                        
+                        // Count actions in ungrouped features
+                        if (Array.isArray(m.ungrouped_features)) {
+                          moduleActions += m.ungrouped_features.reduce((fAcc, f) => 
+                            fAcc + (Array.isArray(f.actions) ? f.actions.length : 0), 0);
+                        }
+                        
+                        // Count actions in legacy features (fallback)
+                        if (!Array.isArray(m.groups) && Array.isArray(m.features)) {
+                          moduleActions += m.features.reduce((fAcc, f) => 
+                            fAcc + (Array.isArray(f.actions) ? f.actions.length : 0), 0);
+                        }
+                        
+                        return acc + moduleActions;
+                      },
+                      0
+                    )
                   : 0}
               </span>
             </div>
@@ -681,8 +1116,8 @@ const UBACTree = () => {
                 <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
               </span>
               <input
-                placeholder="Search modules, features, actions..."
-                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-3xl border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
+                placeholder="Search modules, groups, features, actions..."
+                className="shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 h-10 w-[250px] rounded-lg border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden"
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -803,9 +1238,9 @@ const UBACTree = () => {
                     if (resp && resp.ok) {
                       await fetchModules();
                     }
-                  } else if (type === "feature") {
+                  } else if (type === "group") {
                     resp = await fetch(
-                      `${BASE_URL}/admin/create_feature`,
+                      `${BASE_URL}/admin/create_group`,
                       {
                         method: "POST",
                         headers,
@@ -813,6 +1248,26 @@ const UBACTree = () => {
                           module_id: Number(selectedModuleId),
                           name: formName,
                         }),
+                      }
+                    );
+                  } else if (type === "feature") {
+                    const body = {
+                      name: formName,
+                    };
+                    
+                    // Add group_id if selected, otherwise module_id for ungrouped features
+                    if (selectedGroupId) {
+                      body.group_id = Number(selectedGroupId);
+                    } else {
+                      body.module_id = Number(selectedModuleId);
+                    }
+                    
+                    resp = await fetch(
+                      `${BASE_URL}/admin/create_feature`,
+                      {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify(body),
                       }
                     );
 
@@ -853,6 +1308,7 @@ const UBACTree = () => {
                   setIsModalOpen(false);
                   setFormName("");
                   setSelectedFeatureId("");
+                  setSelectedGroupId("");
                   setSelectedModuleId("");
                 } catch (err) {
 
@@ -881,6 +1337,7 @@ const UBACTree = () => {
             onChange={(e) => setType(e.target.value)}
             options={[
               { value: "module", label: "Module" },
+              { value: "group", label: "Group" },
               { value: "feature", label: "Feature" },
               { value: "action", label: "Action" },
             ]}
@@ -888,7 +1345,7 @@ const UBACTree = () => {
           />
         </div>
 
-        {(type === "feature" || type === "action") && (
+        {(type === "group" || type === "feature" || type === "action") && (
           <div className="mb-3">
             <CustomDropdown
               label="Module"
@@ -902,6 +1359,24 @@ const UBACTree = () => {
                 })),
               ]}
               placeholder="Select module"
+            />
+          </div>
+        )}
+
+        {(type === "feature" || type === "action") && (
+          <div className="mb-3">
+            <CustomDropdown
+              label="Group (optional)"
+              value={selectedGroupId}
+              onChange={(e) => setSelectedGroupId(e.target.value)}
+              options={[
+                { value: "", label: "Select group (optional)" },
+                ...groupsList.map((g) => ({
+                  value: g.group_id,
+                  label: g.name,
+                })),
+              ]}
+              placeholder="Select group (optional)"
             />
           </div>
         )}
@@ -929,7 +1404,7 @@ const UBACTree = () => {
           <input
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
-            className="w-full rounded-3xl border px-2 py-1"
+            className="w-full rounded-lg border px-2 py-1"
           />
         </div>
       </Modal>
@@ -1000,19 +1475,40 @@ const UBACTree = () => {
                         }),
                       }
                     );
-                  } else if (editType === "feature") {
+                  } else if (editType === "group") {
                     resp = await fetch(
-                      `${BASE_URL}/admin/update_feature`,
+                      `${BASE_URL}/admin/update_group`,
                       {
                         method: "PATCH",
                         headers,
                         body: JSON.stringify({
-                          feature_id: Number(editId),
+                          group_id: Number(editId),
                           name: editFormName,
                           module_id: editSelectedModuleId
                             ? Number(editSelectedModuleId)
                             : undefined,
                         }),
+                      }
+                    );
+                  } else if (editType === "feature") {
+                    const body = {
+                      feature_id: Number(editId),
+                      name: editFormName,
+                    };
+                    
+                    // Add group_id if selected, otherwise module_id for ungrouped features
+                    if (editSelectedGroupId) {
+                      body.group_id = Number(editSelectedGroupId);
+                    } else if (editSelectedModuleId) {
+                      body.module_id = Number(editSelectedModuleId);
+                    }
+                    
+                    resp = await fetch(
+                      `${BASE_URL}/admin/update_feature`,
+                      {
+                        method: "PATCH",
+                        headers,
+                        body: JSON.stringify(body),
                       }
                     );
                   } else if (editType === "action") {
@@ -1051,6 +1547,7 @@ const UBACTree = () => {
                   setIsEditModalOpen(false);
                   setEditFormName("");
                   setEditSelectedFeatureId("");
+                  setEditSelectedGroupId("");
                   setEditSelectedModuleId("");
                   setEditId(null);
                 } catch (err) {
@@ -1063,6 +1560,7 @@ const UBACTree = () => {
               disabled={
                 editLoadingSave ||
                 !editFormName ||
+                (editType === "group" && !editSelectedModuleId) ||
                 (editType === "feature" && !editSelectedModuleId) ||
                 (editType === "action" && !editSelectedFeatureId)
               }
@@ -1075,14 +1573,53 @@ const UBACTree = () => {
       >
         {/* Build a flat list of features for easy selection */}
         {(() => {
-          const allFeatures = modulesList.reduce((acc, m) => {
-            if (Array.isArray(m.features)) {
-              m.features.forEach((f) =>
-                acc.push({ ...f, module_id: m.module_id })
-              );
-            }
-            return acc;
-          }, []);
+          // Extract features from UBAC tree data instead of modulesList
+          const allFeatures = [];
+          
+          if (data?.data) {
+            data.data.forEach(module => {
+              // Extract features from groups (including ungrouped with group_id: null)
+              if (module.groups && Array.isArray(module.groups)) {
+                module.groups.forEach(group => {
+                  if (group.features && Array.isArray(group.features)) {
+                    group.features.forEach(feature => {
+                      allFeatures.push({
+                        ...feature,
+                        module_id: module.module_id,
+                        module_name: module.name,
+                        group_id: group.group_id,
+                        group_name: group.group_name || group.name
+                      });
+                    });
+                  }
+                });
+              }
+
+              // Extract ungrouped features (fallback)
+              if (module.ungrouped_features && Array.isArray(module.ungrouped_features)) {
+                module.ungrouped_features.forEach(feature => {
+                  allFeatures.push({
+                    ...feature,
+                    module_id: module.module_id,
+                    module_name: module.name,
+                    group_id: null,
+                    group_name: 'Ungrouped'
+                  });
+                });
+              }
+
+              // Extract legacy features (fallback)
+              if (!module.groups && module.features && Array.isArray(module.features)) {
+                module.features.forEach(feature => {
+                  allFeatures.push({
+                    ...feature,
+                    module_id: module.module_id,
+                    module_name: module.name
+                  });
+                });
+              }
+            });
+          }
 
           return (
             <>
@@ -1104,22 +1641,46 @@ const UBACTree = () => {
                 </div>
               )}
 
-              {editType === "action" && (
+              {editType === "group" && (
                 <div className="mb-3">
                   <CustomDropdown
-                    label="Feature"
-                    value={editSelectedFeatureId}
-                    onChange={(e) => setEditSelectedFeatureId(e.target.value)}
+                    label="Module"
+                    value={editSelectedModuleId}
+                    onChange={(e) => setEditSelectedModuleId(e.target.value)}
                     options={[
-                      { value: "", label: "Select feature" },
-                      ...allFeatures.map((f) => ({
-                        value: f.feature_id,
-                        label: `${f.name} (${modulesList.find((m) => m.module_id === f.module_id)
-                          ?.name || ""
-                          })`,
+                      { value: "", label: "Select module" },
+                      ...modulesList.map((m) => ({
+                        value: m.module_id,
+                        label: m.name,
                       })),
                     ]}
+                    placeholder="Select module"
+                  />
+                </div>
+              )}
+
+              {editType === "action" && (
+                <div className="mb-3">
+                  <SingleSelectDropdown
+                    label="Feature"
+                    options={allFeatures.map((f) => ({
+                      feature_id: f.feature_id,
+                      name: f.group_name 
+                        ? `${f.name} (${f.module_name || f.name} - ${f.group_name})`
+                        : `${f.name} (${f.module_name || modulesList.find((m) => m.module_id === f.module_id)?.name || ""})`,
+                      feature_name: f.name,
+                      module_name: f.module_name,
+                      group_name: f.group_name
+                    }))}
+                    selectedValue={editSelectedFeatureId}
+                    onChange={(value) => setEditSelectedFeatureId(value)}
+                    displayKey="name"
+                    valueKey="feature_id"
+                    searchKeys={["name", "feature_name", "module_name", "group_name"]}
                     placeholder="Select feature"
+                    searchPlaceholder="Search features..."
+                    required={true}
+                    className="rounded-lg"
                   />
                 </div>
               )}
@@ -1129,7 +1690,7 @@ const UBACTree = () => {
                 <input
                   value={editFormName}
                   onChange={(e) => setEditFormName(e.target.value)}
-                  className="w-full rounded-3xl border px-2 py-1"
+                  className="w-full rounded-lg border px-2 py-1"
                 />
               </div>
             </>

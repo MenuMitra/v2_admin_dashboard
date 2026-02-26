@@ -27,6 +27,7 @@ import {
   faShoppingCart,
   faCalendarCheck,
   faLock,
+  faBuilding,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "./common/DataTable";
 import { useFullscreen } from "./FullscreenContext";
@@ -105,7 +106,7 @@ function Dashboard() {
       header: "Status",
       sortable: true,
       render: (_, item) => (
-        <div className="flex items-center gap-2 justify-center">
+        <div className="flex items-center justify-center gap-2">
           <FontAwesomeIcon
             icon={item.is_active === 1 ? faCircleCheck : faCircleXmark}
             className={`w-5 h-5 ${
@@ -137,14 +138,14 @@ function Dashboard() {
         <div className="flex gap-2">
           <button
             onClick={() => handleViewClick(item)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-3xl shadow-theme-xs transition"
+            className="flex items-center justify-center w-8 h-8 text-white transition bg-brand-500 hover:bg-brand-600 rounded-3xl shadow-theme-xs"
             title="View Outlet"
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleEditClick(item)}
-            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
+            className="flex items-center justify-center w-8 h-8 text-white transition bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs"
             title="Edit Outlet"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
@@ -185,7 +186,7 @@ function Dashboard() {
               onClick={() => refetchCardData()}
               disabled={isCardLoading}
               title="Reload"
-              className="p-2 rounded-3xl border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+              className="p-2 bg-white border border-gray-200 shadow-sm rounded-3xl hover:bg-gray-50"
             >
               <FontAwesomeIcon
                 icon={faRotate}
@@ -195,7 +196,7 @@ function Dashboard() {
             <button
               onClick={() => setIsFullscreen((f) => !f)}
               title={isFullscreen ? "Minimize" : "Fullscreen"}
-              className="p-2 rounded-3xl border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+              className="p-2 bg-white border border-gray-200 shadow-sm rounded-3xl hover:bg-gray-50"
             >
               <FontAwesomeIcon
                 icon={isFullscreen ? faCompress : faExpand}
@@ -222,7 +223,7 @@ function Dashboard() {
                   onClick={() => refetchCardData()}
                   disabled={isCardLoading}
                   title="Reload"
-                  className="p-2 rounded-3xl border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+                  className="p-2 bg-white border border-gray-200 shadow-sm rounded-3xl hover:bg-gray-50"
                 >
                   <FontAwesomeIcon
                     icon={faRotate}
@@ -232,7 +233,7 @@ function Dashboard() {
                 <button
                   onClick={() => setIsFullscreen((f) => !f)}
                   title={isFullscreen ? "Minimize" : "Fullscreen"}
-                  className="p-2 rounded-3xl border border-gray-200 bg-white hover:bg-gray-50 shadow-sm"
+                  className="p-2 bg-white border border-gray-200 shadow-sm rounded-3xl hover:bg-gray-50"
                 >
                   <FontAwesomeIcon
                     icon={isFullscreen ? faCompress : faExpand}
@@ -250,29 +251,29 @@ function Dashboard() {
             } justify-center`}
           >
             {/* 1. Enquiry Section */}
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex-1">
+            <div className="flex-1 p-4 border border-gray-200 rounded-lg bg-gray-50">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-gray-700">Enquiry</h3>
                 <FontAwesomeIcon
                   icon={faEnvelope}
-                  className="text-brand-500 text-sm"
+                  className="text-sm text-brand-500"
                 />
               </div>
-              <div className="flex justify-between items-center space-x-4">
-                <div className="text-center flex flex-col items-center">
-                  <div className="font-semibold text-gray-800 text-sm">
+              <div className="flex items-center justify-between space-x-4">
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-sm font-semibold text-gray-800">
                     {cardData.total_enquiries?.toLocaleString() || "0"}
                   </div>
                   <div className="text-xs text-gray-600">Enquiry</div>
                 </div>
-                <div className="text-center flex flex-col items-center">
-                  <div className="font-semibold text-green-600 text-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-sm font-semibold text-green-600">
                     {cardData.onboard_count?.toLocaleString() || "0"}
                   </div>
                   <div className="text-xs text-gray-600">Onboard</div>
                 </div>
-                <div className="text-center flex flex-col items-center">
-                  <div className="font-semibold text-blue-600 text-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-sm font-semibold text-blue-600">
                     {cardData.positive_count?.toLocaleString() || "0"}
                   </div>
                   <div className="text-xs text-gray-600">Positive</div>
@@ -281,29 +282,29 @@ function Dashboard() {
             </div>
 
             {/* 2. Outlet Section */}
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex-1">
+            <div className="flex-1 p-4 border border-gray-200 rounded-lg bg-gray-50">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-gray-700">Outlets</h3>
                 <FontAwesomeIcon
                   icon={faStore}
-                  className="text-brand-500 text-sm"
+                  className="text-sm text-brand-500"
                 />
               </div>
-              <div className="flex justify-between items-center space-x-4">
-                <div className="text-center flex flex-col items-center">
-                  <div className="font-semibold text-gray-800 text-sm">
+              <div className="flex items-center justify-between space-x-4">
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-sm font-semibold text-gray-800">
                     {cardData.total_outlets?.toLocaleString() || "0"}
                   </div>
                   <div className="text-xs text-gray-600">Total</div>
                 </div>
-                <div className="text-center flex flex-col items-center">
-                  <div className="font-semibold text-green-600 text-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-sm font-semibold text-green-600">
                     {cardData.total_live_outlets?.toLocaleString() || "0"}
                   </div>
                   <div className="text-xs text-gray-600">Live</div>
                 </div>
-                <div className="text-center flex flex-col items-center">
-                  <div className="font-semibold text-red-600 text-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-sm font-semibold text-red-600">
                     {cardData.total_inactive_outlets?.toLocaleString() || "0"}
                   </div>
                   <div className="text-xs text-gray-600">Inactive</div>
@@ -312,29 +313,29 @@ function Dashboard() {
             </div>
 
             {/* 3. Order Section */}
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex-1">
+            <div className="flex-1 p-4 border border-gray-200 rounded-lg bg-gray-50">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-gray-700">Orders</h3>
                 <FontAwesomeIcon
                   icon={faShoppingCart}
-                  className="text-brand-500 text-sm"
+                  className="text-sm text-brand-500"
                 />
               </div>
-              <div className="flex justify-between items-center space-x-4">
-                <div className="text-center flex flex-col items-center">
-                  <div className="font-semibold text-blue-600 text-sm">
+              <div className="flex items-center justify-between space-x-4">
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-sm font-semibold text-blue-600">
                     {cardData.total_orders?.toLocaleString() || "0"}
                   </div>
                   <div className="text-xs text-gray-600">Total</div>
                 </div>
-                <div className="text-center flex flex-col items-center">
-                  <div className="font-semibold text-green-600 text-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-sm font-semibold text-green-600">
                     {cardData.paid_orders?.toLocaleString() || "0"}
                   </div>
                   <div className="text-xs text-gray-600">Paid</div>
                 </div>
-                <div className="text-center flex flex-col items-center">
-                  <div className="font-semibold text-orange-600 text-sm">
+                <div className="flex flex-col items-center text-center">
+                  <div className="text-sm font-semibold text-orange-600">
                     {cardData.cooking_orders?.toLocaleString() || "0"}
                   </div>
                   <div className="text-xs text-gray-600">Cooking</div>
@@ -355,77 +356,65 @@ function Dashboard() {
 
               <Link
                 to="/admins"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faUser}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">Admins</span>
               </Link>
               <Link
                 to="/outlets"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faStore}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">Outlets</span>
               </Link>
               <Link
-                to="/owners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                to="/companies"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
-                  icon={faUsers}
-                  className="text-brand-500 mb-1"
+                  icon={faBuilding}
+                  className="mb-1 text-brand-500"
                 />
-                <span className="text-xs font-medium text-dark">Owners</span>
+                <span className="text-xs font-medium text-dark">Companies</span>
               </Link>
 
-              <Link
-                to="/super-owners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
-              >
-                <FontAwesomeIcon
-                  icon={faUserShield}
-                  className="text-brand-500 mb-1"
-                />
-                <span className="text-xs font-medium text-dark">
-                  Super Owners
-                </span>
-              </Link>
 
               <Link
                 to="/partners"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faHandshake}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">Partners</span>
               </Link>
               
               <Link
                 to="/ubac_tree"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faLock}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">UBAC Tree</span>
               </Link>
               
               <Link
                 to="/customer"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faUser}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">Customers</span>
               </Link>
@@ -435,11 +424,11 @@ function Dashboard() {
              
               <Link
                 to="/search"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faSearch}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">Search</span>
               </Link>
@@ -448,11 +437,11 @@ function Dashboard() {
 
               <Link
                 to="/notifications"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faBell}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">
                   Notifications
@@ -461,33 +450,33 @@ function Dashboard() {
 
               <Link
                 to="/enquiries"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faEnvelope}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">Partner Enquiries</span>
               </Link>
 
               <Link
                 to="/bookings"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faCalendarCheck}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">Website Bookings</span>
               </Link>
 
               <Link
                 to="/stats"
-                className="w-40 h-40 flex flex-col items-center justify-center p-3 rounded-3xl border border-gray-200 hover:border-brand-500 hover:shadow-lg bg-white"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
                 <FontAwesomeIcon
                   icon={faChartLine}
-                  className="text-brand-500 mb-1"
+                  className="mb-1 text-brand-500"
                 />
                 <span className="text-xs font-medium text-dark">Stats</span>
               </Link>

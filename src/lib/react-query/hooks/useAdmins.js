@@ -76,6 +76,27 @@ export function useAdmins(token) {
     },
   });
 
+  // Update admin mutation
+  const updateAdminMutation = useMutation({
+    mutationFn: async (adminData) => {
+      const response = await axios.patch(
+        `${BASE_URL}/admin/update_admin`,
+        adminData,
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch admins list after successful update
+      queryClient.invalidateQueries({ queryKey: queryKeys.admins.list() });
+    },
+  });
+
   return {
     admins: adminsQuery.data ?? [],
     isLoading: adminsQuery.isLoading,
@@ -86,6 +107,9 @@ export function useAdmins(token) {
     bulkAction: bulkActionMutation.mutate,
     isBulkActioning: bulkActionMutation.isLoading,
     bulkActionError: bulkActionMutation.error,
+    updateAdmin: updateAdminMutation.mutate,
+    isUpdating: updateAdminMutation.isLoading,
+    updateError: updateAdminMutation.error,
     refetch: adminsQuery.refetch,
   };
 } 

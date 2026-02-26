@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Edit Outlet Companies Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test Edit Outlet Companies Integration</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Companies API</h2>
+        <button onclick="testCompaniesAPI()">Test List Companies API</button>
+        <div id="companies-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test View Outlet API</h2>
+        <button onclick="testViewOutletAPI()">Test View Outlet API</button>
+        <div id="view-outlet-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Update Outlet Payload</h2>
+        <button onclick="testUpdateOutletPayload()">Test Update Outlet with Company ID</button>
+        <div id="update-outlet-result"></div>
+    </div>
+
+    <script>
+        async function testCompaniesAPI() {
+            const resultDiv = document.getElementById('companies-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('https://menusmitra.xyz/v2.2/admin/list_companies', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Note: Replace with actual token for testing
+                        'Authorization': 'Bearer YOUR_TOKEN_HERE'
+                    },
+                    body: JSON.stringify({
+                        user_id: 440
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✓ Companies API Success</div>
+                        <p>Found ${data.companies ? data.companies.length : 0} companies</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">✗ Companies API Failed</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">✗ Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function testViewOutletAPI() {
+            const resultDiv = document.getElementById('view-outlet-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch('https://menusmitra.xyz/v2.2/common/view_outlet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Note: Replace with actual token for testing
+                        'Authorization': 'Bearer YOUR_TOKEN_HERE'
+                    },
+                    body: JSON.stringify({
+                        outlet_id: 123, // Replace with actual outlet ID
+                        user_id: 440,
+                        app_source: "admin_app"
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✓ View Outlet API Success</div>
+                        <p>Outlet data loaded successfully</p>
+                        <p>Company ID: ${data.data?.company_id || 'Not set'}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">✗ View Outlet API Failed</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">✗ Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        function testUpdateOutletPayload() {
+            const resultDiv = document.getElementById('update-outlet-result');
+            
+            // Simulate the payload that would be sent to update outlet API
+            const samplePayload = {
+                user_id: 440,
+                outlet_id: 123,
+                new_owner_ids: [456, 789],
+                name: "Updated Test Outlet",
+                outlet_type: "restaurant",
+                fssainumber: "12345678901234",
+                gstnumber: "22ABCDE1234F1Z5",
+                mobile: "9876543210",
+                veg_nonveg: "veg",
+                service_charges: "10",
+                gst: "18",
+                address: "Updated Test Address",
+                outlet_mode: "online",
+                is_open: 1,
+                outlet_status: 1,
+                upi_id: "test@paytm",
+                website: "https://test.com",
+                whatsapp: "9876543210",
+                facebook: "https://facebook.com/test",
+                instagram: "https://instagram.com/test",
+                google_business_link: "https://business.google.com/test",
+                google_review: "https://g.page/test",
+                app_source: "pos_app",
+                image: "",
+                company_id: 101, // This is the new field we added
+                subscription_id: 11,
+                subscription_name: "Updated Mobile app",
+                subscription_price: 15000.0,
+                subscription_description: "Owner app",
+                subscription_tenure: "12 Months",
+                module_ids: [1, 2, 3],
+                has_denomination: 1,
+                has_combo: 1
+            };
+
+            resultDiv.innerHTML = `
+                <div class="success">✓ Update Outlet Payload Structure</div>
+                <p>The payload now includes company_id field:</p>
+                <pre>${JSON.stringify(samplePayload, null, 2)}</pre>
+                <p><strong>Key Changes:</strong></p>
+                <ul>
+                    <li>Added <code>company_id</code> field to the payload</li>
+                    <li>Company ID will be selected from the companies dropdown</li>
+                    <li>Companies are fetched using <code>/admin/list_companies</code> API with user_id: 440</li>
+                    <li>Existing company selection is loaded from outlet data</li>
+                    <li>Company dropdown is placed in Basic Information section</li>
+                </ul>
+            `;
+        }
+    </script>
+</body>
+</html>

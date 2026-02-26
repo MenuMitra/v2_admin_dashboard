@@ -11,10 +11,7 @@ import Outlets from "./components/Outlets";
 import CreateOutlet from "./components/CreateOutlet";
 import ViewOutlet from "./components/ViewOutlet";
 import EditOutlet from "./components/EditOutlet";
-import Owners from "./components/Owners";
-import OwnerDetails from "./components/OwnerDetails";
-import EditOwner from "./components/EditOwner";
-import CreateOwner from "./components/CreateOwner";
+import OutletConfiguration from "./components/OutletConfiguration";
 import Partners from "./components/Partner/Partners";
 import PartnerDetails from "./components/Partner/PartnerDetails";
 import EditPartner from "./components/Partner/EditPartner";
@@ -24,14 +21,20 @@ import ViewEnquiry from "./components/Enquiry/ViewEnquiry";
 import Search from "./components/Search/Search";
 import Customer from "./components/Customer/Customer";
 import CustomerDetails from "./components/Customer/CustomerDetails";
-import SuperOwner from "./components/SuperOwner/SuperOwner";
+/*import SuperOwner from "./components/SuperOwner/SuperOwner";
 import CreateSuperOwner from "./components/SuperOwner/CreateSuperOwner";
 import SuperOwnerDetails from "./components/SuperOwner/SuperOwnerDetails";
 import EditSuperOwner from "./components/SuperOwner/EditSuperOwner";
+*/
 import CreateAdmin from "./components/Admin/CreateAdmin";
 import Admins from "./components/Admin/Admins";
 import AdminDetails from "./components/Admin/AdminDetails";
 import EditAdmin from "./components/Admin/EditAdmin";
+import Companies from "./components/Companies/Companies";
+import CreateCompany from "./components/Companies/CreateCompany";
+import CompanyDetails from "./components/Companies/CompanyDetails";
+import EditCompany from "./components/Companies/EditCompany";
+import CompaniesDebug from "./components/Companies/CompaniesDebug";
 import ManageCategories from "./components/Outlets/Category/ManageCategories";
 import ManageMenus from "./components/Outlets/Menu/ManageMenus";
 import CategoryDetails from "./components/Outlets/Category/CategoryDetails";
@@ -87,6 +90,7 @@ function App() {
             <Route path="/create-outlet" element={<CreateOutlet />} />
             <Route path="/view-outlet/:outletId" element={<ViewOutlet />} />
             <Route path="/edit-outlet/:outletId" element={<EditOutlet />} />
+            <Route path="/outlet-configuration/:outletId" element={<OutletConfiguration />} />
             <Route
               path="/categories/:outletId"
               element={<ManageCategories />}
@@ -110,13 +114,6 @@ function App() {
             />
             <Route path="/create-menu/:outletId" element={<CreateMenu />} />
             <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} />
-
-            {/* Owner Routes */}
-            <Route path="/owners" element={<Owners />} />
-            <Route path="/owner-details/:ownerId" element={<OwnerDetails />} />
-            <Route path="/edit-owner/:ownerId" element={<EditOwner />} />
-            <Route path="/create-owner" element={<CreateOwner />} />
-
             {/* Enquiry Routes */}
             <Route path="/enquiries" element={<EnquiryList />} />
             <Route path="/view-enquiry/:enquiry_id" element={<ViewEnquiry />} />
@@ -186,7 +183,7 @@ function App() {
               element={<EditCustomer />}
             />
 
-            {/* Super Owner Routes */}
+            {/* Super Owner Routes }
             <Route path="/super-owners" element={<SuperOwner />} />
             <Route path="/create-super-owner" element={<CreateSuperOwner />} />
             <Route
@@ -203,6 +200,13 @@ function App() {
             <Route path="/admins" element={<Admins />} />
             <Route path="/admin-details/:adminId" element={<AdminDetails />} />
             <Route path="/edit-admin/:adminId" element={<EditAdmin />} />
+
+            {/* Company Routes */}
+            <Route path="/companies" element={<Companies />} />
+            <Route path="/companies-debug" element={<CompaniesDebug />} />
+            <Route path="/create-company" element={<CreateCompany />} />
+            <Route path="/company-details/:companyId" element={<CompanyDetails />} />
+            <Route path="/edit-company/:companyId" element={<EditCompany />} />
 
             {/* Stats Routes */}
             <Route path="/stats" element={<Stats />} />

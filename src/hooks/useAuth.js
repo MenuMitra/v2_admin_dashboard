@@ -53,7 +53,8 @@ export const useAuth = () => {
     const newAuthData = {
       access_token: response.data.access_token,
       token_type: response.data.token_type,
-      expires_on: response.data.expires_on || response.data.expires_on, // Handle both field names
+      expires_on: response.data.expires_at || response.data.expires_on, // Handle both field names
+      user_id: response.data.user_id, // Store user_id for dynamic usage
     };
     setAuthData(newAuthData);
   };
@@ -85,12 +86,17 @@ export const useAuth = () => {
     return authData ? `Bearer ${authData.access_token}` : null;
   }, [authData]);
 
+  const getUserId = useCallback(() => {
+    return authData ? authData.user_id : null;
+  }, [authData]);
+
   return {
     authData,
     login,
     logout,
     isAuthenticated,
     getToken,
+    getUserId,
   };
 };
 

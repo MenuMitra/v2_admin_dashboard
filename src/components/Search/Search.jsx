@@ -18,6 +18,7 @@ import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import CustomSelect from "../common/CustomSelect";
 import { SelectInput, TextInput } from "../forms/FormElements";
+import { createAlphanumericValueSetter } from "../../utils/inputValidation";
 import { useNavigate } from "react-router-dom";
 import { toastController } from "../../utils/toastController";
 import { API_CONFIG } from "../../config/appConfig";
@@ -103,7 +104,43 @@ const Search = () => {
 
   // Update input and clear prior search state when user erases input
   const handleInputChange = useCallback((e) => {
-    const val = e.target.value;
+    let val = e.target.value;
+    
+    // Mobile number validation when search type is "mobile"
+    if (searchType === "mobile") {
+      // Allow only digits
+      const numbersOnly = val.replace(/[^0-9]/g, "");
+      
+      // Limit to 10 digits
+      const limitedNumbers = numbersOnly.slice(0, 10);
+      
+      // Check if first digit is 0-5 and prevent it
+      if (limitedNumbers.length === 1 && ["0", "1", "2", "3", "4", "5"].includes(limitedNumbers.charAt(0))) {
+        setSearchInput("");
+        if (!val.trim()) {
+          setHasSearched(false);
+          setSearchedTerm("");
+          setSearchResults([]);
+          setTotalResults(0);
+          setError(null);
+        }
+        return;
+      }
+      
+      val = limitedNumbers;
+    }
+    
+    // Name search validation - allow only characters and spaces
+    if (searchType === "name") {
+      // Allow only letters (a-z, A-Z) and spaces
+      val = val.replace(/[^a-zA-Z\s]/g, "");
+    }
+    
+    // For all other search types, allow only alphanumeric characters
+    else if (searchType !== "mobile") {
+      val = val.replace(/[^a-zA-Z0-9]/g, "");
+    }
+    
     setSearchInput(val);
     if (!val.trim()) {
       // clear previous search results / messages when input is empty
@@ -113,7 +150,7 @@ const Search = () => {
       setTotalResults(0);
       setError(null);
     }
-  }, []);
+  }, [searchType]);
 
   // Modified form submit handler to handle search
   const handleSearch = (e) => {
@@ -292,7 +329,6 @@ const Search = () => {
                     onChange={(e) => setSelectedRole(e.target.value)}
                     options={[
                       { value: "", label: "All Roles" },
-                      { value: "super_owner", label: "Super Owner" },
                       { value: "owner", label: "Owner" },
                       { value: "customer", label: "Customer" },
                       { value: "partner", label: "Partner" }
@@ -328,7 +364,7 @@ const Search = () => {
                       value={searchInput}
                       onChange={handleInputChange}
                       placeholder={`Search by ${searchType}...`}
-                      className="w-full h-10 sm:h-auto px-3 py-2 pr-10 text-sm border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                      className="w-full h-10 sm:h-auto px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                       autoFocus
                     />
                     {searchInput && (
@@ -355,6 +391,16 @@ const Search = () => {
                       </button>
                     )}
                   </div>
+                  {searchType === "mobile" && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter 10 digits starting with 6-9
+                    </p>
+                  )}
+                  {searchType === "name" && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter characters only (letters and spaces)
+                    </p>
+                  )}
                 </div>
 
                 <div className="self-start sm:self-end">

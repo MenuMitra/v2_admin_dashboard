@@ -115,7 +115,7 @@ const Modal = ({
 
           {/* Action Buttons */}
           {actionButtons && (
-            <div className="flex items-center justify-center w-full gap-3 mt-7">
+            <div className="flex items-center justify-between w-full gap-3 mt-7">
               {actionButtons}
             </div>
           )}

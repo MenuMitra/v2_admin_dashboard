@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,6 +13,7 @@ import {
   faToggleOn,
   faPlay,
   faPause,
+  faGear,
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
@@ -38,10 +38,10 @@ function Outlets() {
   const navigate = useNavigate();
   const { adminData } = useAdmin();
   const queryClient = useQueryClient();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
   const { getToken } = useAuth();
 
-  const { outlets, isLoading, deleteOutlet, isDeleting, bulkAction, isBulkActioning } =
+  const { outlets, isLoading, deleteOutlet, isDeleting, bulkAction, isBulkActioning, refetch } =
     useOutlets();
 
   // UI State
@@ -52,7 +52,6 @@ function Outlets() {
   const [accountType, setAccountType] = useState("all");
   const [openCloseStatus, setOpenCloseStatus] = useState("all");
   const [outletTypeFilter, setOutletTypeFilter] = useState("all");
-  const [outletModeFilter, setOutletModeFilter] = useState("all");
   const [ownerCountFilter, setOwnerCountFilter] = useState("all");
 
   // Toggle status mutation
@@ -105,9 +104,6 @@ function Outlets() {
               case "account_type":
                 updatedOutlet.accountType = value;
                 break;
-              case "outlet_mode":
-                updatedOutlet.outlet_mode = value;
-                break;
             }
             
             return updatedOutlet;
@@ -138,7 +134,6 @@ function Outlets() {
         outlet_status: "Outlet status updated successfully!",
         is_open: "Open/Close status updated successfully!",
         account_type: "Account type updated successfully!",
-        outlet_mode: "Outlet mode updated successfully!",
       };
       toastController.success(
         successMessages[variables.type] || "Status updated successfully!"
@@ -201,20 +196,6 @@ function Outlets() {
     });
   };
 
-  const handleToggleOutletMode = (outletId, currentMode) => {
-    
-    if (!outletId) {
-      
-      return;
-    }
-    const newValue = currentMode === "online" ? "offline" : "online";
-    toggleStatusMutation.mutate({
-      outlet_id: outletId,
-      type: "outlet_mode",
-      value: newValue,
-    });
-  };
-
   // Add this function to handle bulk actions
   const handleBulkAction = (action, selectedIds = []) => {
     const validIds = selectedIds.filter(
@@ -226,6 +207,12 @@ function Outlets() {
     }
 
     bulkAction({ action, outletIds: validIds });
+  };
+
+  // Outlet Configuration handler - navigate to configuration page
+  const handleOutletConfiguration = (outlet) => {
+    const outletId = outlet.outlet_id || outlet.id;
+    navigate(`/outlet-configuration/${outletId}`);
   };
 
   const breadcrumbItems = [
@@ -354,39 +341,6 @@ function Outlets() {
       ),
     },
     {
-      field: "outlet_mode",
-      header: "Mode",
-      sortable: true,
-      render: (value, row) => (
-        <button
-          onClick={() => {
-            
-            handleToggleOutletMode(row.outlet_id || row.id, value);
-          }}
-          disabled={toggleStatusMutation.isPending}
-          className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2 ${
-            value === "online"
-              ? "text-brand-500 "
-              : value === "offline"
-              ? "bg-orange-100 text-warning-500 "
-              : "bg-gray-100 text-gray-700 border-gray-200"
-          } ${
-            toggleStatusMutation.isPending
-              ? "opacity-50 cursor-not-allowed"
-              : ""
-          }`}
-        >
-          <FontAwesomeIcon
-            icon={value === "online" ? faToggleOn : faToggleOff}
-            className={`w-4 h-4 ${
-              value === "online" ? "text-brand-500" : "text-warning-500"
-            }`}
-          />
-          {value ? value.charAt(0).toUpperCase() + value.slice(1) : "-"}
-        </button>
-      ),
-    },
-    {
       field: "accountType",
       header: "Acc. Type",
       sortable: true,
@@ -459,6 +413,7 @@ function Outlets() {
       field: "actions",
       header: "Actions",
       textAlign: "center",
+      sticky: true,
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
           <button
@@ -474,6 +429,13 @@ function Outlets() {
             title="Edit Outlet"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleOutletConfiguration(row)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-gray-500 hover:bg-gray-600 rounded-3xl shadow-theme-xs transition"
+            title="Outlet Configuration"
+          >
+            <FontAwesomeIcon icon={faGear} className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleDeleteClick(row)}
@@ -603,15 +565,12 @@ function Outlets() {
         enableOutletTypeFilter={true}
         outletTypeFilter={outletTypeFilter}
         onOutletTypeFilterChange={(value) => setOutletTypeFilter(value)}
-        enableOutletModeFilter={true}
-        outletModeFilter={outletModeFilter}
-        onOutletModeFilterChange={(value) => setOutletModeFilter(value)}
         enableOwnerCountFilter={true}
         ownerCountFilter={ownerCountFilter}
         onOwnerCountFilterChange={(value) => setOwnerCountFilter(value)}
         statusField="outletStatus"
         onReload={() => {
-          queryClient.invalidateQueries(queryKeys.outlets.list());
+          refetch();
         }}
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;

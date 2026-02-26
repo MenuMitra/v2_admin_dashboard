@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+/*import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { API_CONFIG } from '../../../config/appConfig';
 import { useAuth } from '../../../hooks/useAuth';
@@ -105,3 +105,5 @@ export const useSuperOwners = () => {
     bulkActionError: bulkAction.error
   };
 }; 
+
+*/

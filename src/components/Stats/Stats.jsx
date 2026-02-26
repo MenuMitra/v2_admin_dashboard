@@ -370,7 +370,7 @@ function Stats() {
                   handleAppUsageFilterChange("start_date", e.target.value)
                 }
                 placeholder="Start date"
-                className="w-full text-xs py-1 px-2 rounded-3xl"
+                className="w-full text-xs py-1 px-2 rounded-lg"
               />
             </div>
 
@@ -384,7 +384,7 @@ function Stats() {
                   handleAppUsageFilterChange("end_date", e.target.value)
                 }
                 placeholder="End date"
-                className="w-full text-xs py-1 px-2 rounded-3xl"
+                className="w-full text-xs py-1 px-2 rounded-lg"
               />
             </div>
           </div>
@@ -400,7 +400,7 @@ function Stats() {
                 value={appUsageSearchTerm}
                 onChange={(e) => setAppUsageSearchTerm(e.target.value)}
                 placeholder="Search"
-                className="w-full mb-2 h-10 pb-2 rounded-3xl border border-gray-300 bg-transparent py-2 pr-12 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                className="w-full mb-2 h-10 pb-2 rounded-lg border border-gray-300 bg-transparent py-2 pr-12 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
               />
               {appUsageSearchTerm && (
                 <button

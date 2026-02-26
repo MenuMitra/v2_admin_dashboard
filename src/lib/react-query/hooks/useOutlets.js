@@ -6,7 +6,7 @@ import { API_CONFIG } from "../../../config/appConfig";
 import { queryKeys } from "../queryKeys";
 import { toastController } from "../../../utils/toastController";
 
-const { BASE_URL, API_VERSION } = API_CONFIG;
+const { BASE_URL } = API_CONFIG;
 
 // Transform outlet data to match UI structure
 const transformOutletData = (outlets) => {
@@ -53,6 +53,7 @@ export const useOutlets = () => {
     data: outlets = [],
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.outlets.list(),
     queryFn: async () => {
@@ -76,6 +77,8 @@ export const useOutlets = () => {
       throw new Error(response.data.message || "Failed to fetch outlets");
     },
     enabled: !!adminData?.user_id,
+    staleTime: 0, // Data is immediately considered stale
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
   });
 
   // Delete Mutation
@@ -147,5 +150,6 @@ export const useOutlets = () => {
     isDeleting: deleteMutation.isLoading,
     bulkAction: bulkActionMutation.mutate,
     isBulkActioning: bulkActionMutation.isLoading,
+    refetch,
   };
 };

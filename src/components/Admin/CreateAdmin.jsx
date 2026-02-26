@@ -249,7 +249,7 @@ function CreateAdmin() {
                   validationType="name"
                   onValidation={handleValidation("name")}
                   isSubmitAttempted={isSubmitAttempted}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
                 {!validationStates.name && (
                   <p className="text-error-500 text-sm mt-1">
@@ -269,7 +269,7 @@ function CreateAdmin() {
                   required
                   maxLength={10}
                   className={`
-                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                    rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
                   `}
                 />
@@ -287,7 +287,7 @@ function CreateAdmin() {
                   validationType="email"
                   onValidation={handleValidation("email")}
                   isSubmitAttempted={isSubmitAttempted}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
                 {emailApiError && (
                   <p className="text-error-500 text-sm mt-1">{emailApiError}</p>
@@ -305,7 +305,7 @@ function CreateAdmin() {
                 validationType="password"
                 onValidation={handleValidation("password")}
                 isSubmitAttempted={isSubmitAttempted}
-                className="rounded-3xl"
+                className="rounded-lg"
               />
             </div>
           </form>
