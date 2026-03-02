@@ -231,11 +231,10 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
         onClose={() => setShowLogoutConfirm(false)}
         type="error"
         size="small"
-        title=""
-        showCloseButton={false}
+        title={<span className="ml-2">Confirm Logout</span>}
+        showCloseButton={true}
       >
         <div className="flex flex-col items-center gap-4">
-          <FontAwesomeIcon icon={faSignOutAlt} className="w-50 h-50 text-error-700" />
           <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90 text-center">
             Are you sure you want to logout?
           </h3>

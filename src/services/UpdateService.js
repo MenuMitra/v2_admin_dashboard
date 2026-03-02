@@ -1,6 +1,6 @@
 export class UpdateService {
   static get currentVersion() {
-    return "2.1.1";
+    return "2.2.0";
   }
 
   static async checkForUpdates() {

@@ -20,6 +20,7 @@ import Breadcrumb from "../Breadcrumb";
 import SaveButton from "../common/SaveButton";
 import CustomSelect from "../common/CustomSelect";
 import { API_CONFIG } from "../../config/appConfig";
+import { validationPatterns } from "../../utils/validationPatterns";
 
 function EditCompany() {
   const { getToken, getUserId } = useAuth();
@@ -41,6 +42,8 @@ function EditCompany() {
   const [showFssaiReference, setShowFssaiReference] = useState(false);
   const [showTanReference, setShowTanReference] = useState(false);
   const [showCinReference, setShowCinReference] = useState(false);
+  const [emailValidationErrors, setEmailValidationErrors] = useState({});
+  const [ownerEmailValidationErrors, setOwnerEmailValidationErrors] = useState({});
 
   // Normalize company type strings coming from the API or legacy data to the
   // canonical values expected by the backend.
@@ -210,7 +213,7 @@ function EditCompany() {
     if (field === "contact_number") {
       // Remove all non-digit characters
       const filteredValue = value.replace(/\D/g, '');
-      
+
       // Check if the first digit is invalid (0-5) and prevent input
       if (filteredValue.length > 0) {
         const firstDigit = filteredValue.charAt(0);
@@ -237,10 +240,10 @@ function EditCompany() {
           });
         }
       }
-      
+
       // Limit to 10 digits and update state
       const finalValue = filteredValue.slice(0, 10);
-      
+
       // Show error if non-numeric characters were removed
       if (value !== finalValue && value.length > finalValue.length) {
         setContactNumberErrors(prev => ({
@@ -255,7 +258,7 @@ function EditCompany() {
           });
         }, 2000);
       }
-      
+
       setCompanyData(prev => ({
         ...prev,
         company_contacts: prev.company_contacts.map((contact, i) =>
@@ -305,7 +308,7 @@ function EditCompany() {
     if (field === "mobile") {
       // Remove all non-digit characters
       const filteredValue = value.replace(/\D/g, '');
-      
+
       // Check if the first digit is invalid (0-5) and prevent input
       if (filteredValue.length > 0) {
         const firstDigit = filteredValue.charAt(0);
@@ -332,10 +335,10 @@ function EditCompany() {
           });
         }
       }
-      
+
       // Limit to 10 digits and update state
       const finalValue = filteredValue.slice(0, 10);
-      
+
       // Show error if non-numeric characters were removed
       if (value !== finalValue && value.length > finalValue.length) {
         setOwnerMobileErrors(prev => ({
@@ -350,7 +353,7 @@ function EditCompany() {
           });
         }, 2000);
       }
-      
+
       setCompanyData(prev => ({
         ...prev,
         company_owners: prev.company_owners.map((owner, i) =>
@@ -364,7 +367,7 @@ function EditCompany() {
     if (field === "aadhar") {
       // Remove all non-digit characters
       const filteredValue = value.replace(/\D/g, '');
-      
+
       // Check if the first digit is invalid (0 or 1) and prevent input
       if (filteredValue.length > 0) {
         const firstDigit = filteredValue.charAt(0);
@@ -391,10 +394,10 @@ function EditCompany() {
           });
         }
       }
-      
+
       // Limit to 12 digits and update state
       const finalValue = filteredValue.slice(0, 12);
-      
+
       // Show error if non-numeric characters were removed
       if (value !== finalValue && value.length > finalValue.length) {
         setOwnerAadharErrors(prev => ({
@@ -409,7 +412,7 @@ function EditCompany() {
           });
         }, 2000);
       }
-      
+
       setCompanyData(prev => ({
         ...prev,
         company_owners: prev.company_owners.map((owner, i) =>
@@ -615,7 +618,7 @@ function EditCompany() {
                     onChange={(e) => {
                       const filteredValue = e.target.value.replace(/[^0-9]/g, "").slice(0, 14);
                       setCompanyData(prev => ({ ...prev, fssai_number: filteredValue }));
-                      
+
                       // Validate FSSAI format with specific error messages
                       if (!filteredValue) {
                         setFssaiError("FSSAI number is required");
@@ -648,97 +651,97 @@ function EditCompany() {
                   )}
                 </div>
                 {companyData.company_type && (
-                  companyData.company_type === "llp" || 
-                  companyData.company_type === "opc" || 
-                  companyData.company_type === "private_limited" || 
+                  companyData.company_type === "llp" ||
+                  companyData.company_type === "opc" ||
+                  companyData.company_type === "private_limited" ||
                   companyData.company_type === "limited"
                 ) && (
-                  <>
-                    <div className="relative">
-                      <TextInput
-                        label="TAN Number"
-                        name="tan_number"
-                        value={companyData.tan_number}
-                        onChange={(e) => {
-                          const filteredValue = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
-                          setCompanyData(prev => ({ ...prev, tan_number: filteredValue }));
-                          
-                          // Validate TAN format with specific error messages
-                          if (!filteredValue) {
-                            setTanError("TAN number is required");
-                          } else if (filteredValue.length < 10) {
-                            setTanError("TAN number must be exactly 10 characters");
-                          } else if (filteredValue.length === 10) {
-                            // Validate TAN format: AAAA99999A (4 letters, 5 digits, 1 letter)
-                            const tanRegex = /^[A-Z]{4}[0-9]{5}[A-Z]{1}$/;
-                            
-                            // Check if positions 1-4 are alphabets
-                            if (!/^[A-Z]{4}/.test(filteredValue)) {
-                              setTanError("Alphabets required in positions 1–4 and 10");
+                    <>
+                      <div className="relative">
+                        <TextInput
+                          label="TAN Number"
+                          name="tan_number"
+                          value={companyData.tan_number}
+                          onChange={(e) => {
+                            const filteredValue = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
+                            setCompanyData(prev => ({ ...prev, tan_number: filteredValue }));
+
+                            // Validate TAN format with specific error messages
+                            if (!filteredValue) {
+                              setTanError("TAN number is required");
+                            } else if (filteredValue.length < 10) {
+                              setTanError("TAN number must be exactly 10 characters");
+                            } else if (filteredValue.length === 10) {
+                              // Validate TAN format: AAAA99999A (4 letters, 5 digits, 1 letter)
+                              const tanRegex = /^[A-Z]{4}[0-9]{5}[A-Z]{1}$/;
+
+                              // Check if positions 1-4 are alphabets
+                              if (!/^[A-Z]{4}/.test(filteredValue)) {
+                                setTanError("Alphabets required in positions 1–4 and 10");
+                              }
+                              // Check if positions 5-9 are digits
+                              else if (!/[0-9]{5}/.test(filteredValue.substring(4, 9))) {
+                                setTanError("Digits required in positions 5–9");
+                              }
+                              // Check if position 10 is alphabet
+                              else if (!/[A-Z]$/.test(filteredValue)) {
+                                setTanError("Alphabets required in positions 1–4 and 10");
+                              }
+                              // Check overall format
+                              else if (!tanRegex.test(filteredValue)) {
+                                setTanError("Invalid TAN format (AAAA99999A)");
+                              } else {
+                                setTanError("");
+                              }
                             }
-                            // Check if positions 5-9 are digits
-                            else if (!/[0-9]{5}/.test(filteredValue.substring(4, 9))) {
-                              setTanError("Digits required in positions 5–9");
-                            }
-                            // Check if position 10 is alphabet
-                            else if (!/[A-Z]$/.test(filteredValue)) {
-                              setTanError("Alphabets required in positions 1–4 and 10");
-                            }
-                            // Check overall format
-                            else if (!tanRegex.test(filteredValue)) {
-                              setTanError("Invalid TAN format (AAAA99999A)");
+                          }}
+                          onFocus={() => setShowTanReference(true)}
+                          onBlur={() => setShowTanReference(false)}
+                          placeholder="Enter 10-digit TAN number"
+                          maxLength={10}
+                          required={true}
+                          error={!!tanError}
+                        />
+                        {tanError && (
+                          <p className="mt-1 text-sm text-error-500">{tanError}</p>
+                        )}
+                        {showTanReference && (
+                          <p className="mt-1 text-xs text-gray-500">TAN format: AAAA99999A (4 letters, 5 numbers, 1 letter)</p>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <TextInput
+                          label="CIN Number"
+                          name="cin_number"
+                          value={companyData.cin_number}
+                          onChange={(e) => {
+                            const filteredValue = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 21).toUpperCase();
+                            setCompanyData(prev => ({ ...prev, cin_number: filteredValue }));
+                            // Validate CIN format: 21 characters
+                            if (filteredValue.length === 21) {
+                              setCinError("");
+                            } else if (filteredValue.length > 0) {
+                              setCinError("CIN must be exactly 21 characters");
                             } else {
-                              setTanError("");
+                              setCinError("");
                             }
-                          }
-                        }}
-                        onFocus={() => setShowTanReference(true)}
-                        onBlur={() => setShowTanReference(false)}
-                        placeholder="Enter 10-digit TAN number"
-                        maxLength={10}
-                        required={true}
-                        error={!!tanError}
-                      />
-                      {tanError && (
-                        <p className="mt-1 text-sm text-error-500">{tanError}</p>
-                      )}
-                      {showTanReference && (
-                        <p className="mt-1 text-xs text-gray-500">TAN format: AAAA99999A (4 letters, 5 numbers, 1 letter)</p>
-                      )}
-                    </div>
-                    <div className="relative">
-                      <TextInput
-                        label="CIN Number"
-                        name="cin_number"
-                        value={companyData.cin_number}
-                        onChange={(e) => {
-                          const filteredValue = e.target.value.replace(/[^A-Za-z0-9]/g, "").slice(0, 21).toUpperCase();
-                          setCompanyData(prev => ({ ...prev, cin_number: filteredValue }));
-                          // Validate CIN format: 21 characters
-                          if (filteredValue.length === 21) {
-                            setCinError("");
-                          } else if (filteredValue.length > 0) {
-                            setCinError("CIN must be exactly 21 characters");
-                          } else {
-                            setCinError("");
-                          }
-                        }}
-                        onFocus={() => setShowCinReference(true)}
-                        onBlur={() => setShowCinReference(false)}
-                        placeholder="Enter 21-digit CIN number"
-                        maxLength={21}
-                        required={true}
-                        error={!!cinError}
-                      />
-                      {cinError && (
-                        <p className="mt-1 text-sm text-error-500">{cinError}</p>
-                      )}
-                      {showCinReference && (
-                        <p className="mt-1 text-xs text-gray-500">CIN format: L12345MH2014PTC123456 (21 characters alphanumeric)</p>
-                      )}
-                    </div>
-                  </>
-                )}
+                          }}
+                          onFocus={() => setShowCinReference(true)}
+                          onBlur={() => setShowCinReference(false)}
+                          placeholder="Enter 21-digit CIN number"
+                          maxLength={21}
+                          required={true}
+                          error={!!cinError}
+                        />
+                        {cinError && (
+                          <p className="mt-1 text-sm text-error-500">{cinError}</p>
+                        )}
+                        {showCinReference && (
+                          <p className="mt-1 text-xs text-gray-500">CIN format: L12345MH2014PTC123456 (21 characters alphanumeric)</p>
+                        )}
+                      </div>
+                    </>
+                  )}
               </div>
 
               {/* Company Contacts Section */}
@@ -783,6 +786,19 @@ function EditCompany() {
                         onChange={(e) => updateContact(index, 'email', e.target.value)}
                         placeholder="Enter email address"
                         required={true}
+                        validationType="email"
+                        validationRules={{
+                          pattern: validationPatterns.email.pattern,
+                          patternMessage: validationPatterns.email.message,
+                        }}
+                        onValidation={(isValid) => {
+                          setEmailValidationErrors((prev) => ({
+                            ...prev,
+                            [`contact_${index}`]: !isValid,
+                          }));
+                        }}
+                        errorMessage={emailValidationErrors[`contact_${index}`]}
+                        error={!!emailValidationErrors[`contact_${index}`]}
                       />
                       <TextInput
                         label="Contact Number"
@@ -820,6 +836,20 @@ function EditCompany() {
                         required={true}
                       />
                       <TextInput
+                        label="Address Line 2"
+                        name={`address_line2_${index}`}
+                        value={contact.address_line2}
+                        onChange={(e) => updateContact(index, 'address_line2', e.target.value)}
+                        placeholder="Enter address line 2"
+                      />
+                      <TextInput
+                        label="Landmark"
+                        name={`landmark_${index}`}
+                        value={contact.landmark}
+                        onChange={(e) => updateContact(index, 'landmark', e.target.value)}
+                        placeholder="Enter landmark"
+                      />
+                      <TextInput
                         label="City"
                         name={`city_${index}`}
                         value={contact.city}
@@ -835,6 +865,53 @@ function EditCompany() {
                         placeholder="Enter PIN code"
                         maxLength={6}
                         required={true}
+                      />
+                      <CustomSelect
+                        label="State"
+                        name={`state_${index}`}
+                        value={contact.state}
+                        onChange={(e) => updateContact(index, 'state', e.target.value)}
+                        placeholder="Select state"
+                        required={true}
+                        className="rounded-lg"
+                        options={[
+                          { value: "AN", label: "Andaman and Nicobar Islands" },
+                          { value: "AP", label: "Andhra Pradesh" },
+                          { value: "AR", label: "Arunachal Pradesh" },
+                          { value: "AS", label: "Assam" },
+                          { value: "BR", label: "Bihar" },
+                          { value: "CH", label: "Chandigarh" },
+                          { value: "CT", label: "Chhattisgarh" },
+                          { value: "DN", label: "Dadra and Nagar Haveli and Daman and Diu" },
+                          { value: "DL", label: "Delhi" },
+                          { value: "GA", label: "Goa" },
+                          { value: "GJ", label: "Gujarat" },
+                          { value: "HR", label: "Haryana" },
+                          { value: "HP", label: "Himachal Pradesh" },
+                          { value: "JK", label: "Jammu and Kashmir" },
+                          { value: "JH", label: "Jharkhand" },
+                          { value: "KA", label: "Karnataka" },
+                          { value: "KL", label: "Kerala" },
+                          { value: "LA", label: "Ladakh" },
+                          { value: "LD", label: "Lakshadweep" },
+                          { value: "MP", label: "Madhya Pradesh" },
+                          { value: "MH", label: "Maharashtra" },
+                          { value: "MN", label: "Manipur" },
+                          { value: "ML", label: "Meghalaya" },
+                          { value: "MZ", label: "Mizoram" },
+                          { value: "NL", label: "Nagaland" },
+                          { value: "OR", label: "Odisha" },
+                          { value: "PY", label: "Puducherry" },
+                          { value: "PB", label: "Punjab" },
+                          { value: "RJ", label: "Rajasthan" },
+                          { value: "SK", label: "Sikkim" },
+                          { value: "TN", label: "Tamil Nadu" },
+                          { value: "TS", label: "Telangana" },
+                          { value: "TR", label: "Tripura" },
+                          { value: "UK", label: "Uttarakhand" },
+                          { value: "UP", label: "Uttar Pradesh" },
+                          { value: "WB", label: "West Bengal" },
+                        ]}
                       />
                     </div>
                   </div>
@@ -913,6 +990,7 @@ function EditCompany() {
                         onChange={(e) => updateOwner(index, 'pan', e.target.value)}
                         placeholder="Enter 10-digit PAN"
                         maxLength={10}
+                        required={true}
                       />
                       <TextInput
                         label="Email"
@@ -921,6 +999,20 @@ function EditCompany() {
                         value={owner.email}
                         onChange={(e) => updateOwner(index, 'email', e.target.value)}
                         placeholder="Enter email address"
+                        required={true}
+                        validationType="email"
+                        validationRules={{
+                          pattern: validationPatterns.email.pattern,
+                          patternMessage: validationPatterns.email.message,
+                        }}
+                        onValidation={(isValid) => {
+                          setOwnerEmailValidationErrors((prev) => ({
+                            ...prev,
+                            [`owner_${index}`]: !isValid,
+                          }));
+                        }}
+                        errorMessage={ownerEmailValidationErrors[`owner_${index}`]}
+                        error={!!ownerEmailValidationErrors[`owner_${index}`]}
                       />
                       <TextInput
                         label="Address"
@@ -928,6 +1020,7 @@ function EditCompany() {
                         value={owner.address}
                         onChange={(e) => updateOwner(index, 'address', e.target.value)}
                         placeholder="Enter complete address"
+                        required={true}
                       />
                     </div>
                   </div>

@@ -56,7 +56,7 @@ export const useAdminDetails = (adminId) => {
     error,
     refetch,
   } = useQuery({
-    queryKey: queryKeys.admin.detail(adminId),
+    queryKey: queryKeys.admins.detail(adminId),
     queryFn: async () => {
       const token = getToken();
       if (!token) {
@@ -82,6 +82,31 @@ export const useAdminDetails = (adminId) => {
         err.message ||
         "Failed to fetch admin details";
       toastController.error(errorMessage);
+    },
+  });
+
+  // Update admin mutation
+  const updateAdminMutation = useMutation({
+    mutationFn: async (adminData) => {
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+      const response = await axios.patch(
+        `${BASE_URL}/admin/update_admin`,
+        adminData,
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch all admins data
+      queryClient.invalidateQueries({ queryKey: queryKeys.admins.all });
     },
   });
 
@@ -119,7 +144,7 @@ export const useAdminDetails = (adminId) => {
       if (data.detail === "Admin deleted successfully") {
         toastController.success("Admin deleted successfully");
         // Invalidate relevant queries
-        queryClient.invalidateQueries({ queryKey: queryKeys.admin.all });
+        queryClient.invalidateQueries({ queryKey: queryKeys.admins.all });
       }
     },
     onError: (err) => {
@@ -134,6 +159,8 @@ export const useAdminDetails = (adminId) => {
     isLoading,
     error,
     refetch,
+    updateAdmin: updateAdminMutation.mutate,
+    isUpdating: updateAdminMutation.isLoading,
     deleteAdmin: deleteAdminMutation.mutate,
     isDeleting: deleteAdminMutation.isLoading,
     formatDate,

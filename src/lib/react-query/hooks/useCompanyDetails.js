@@ -57,8 +57,8 @@ export const useCompanyDetails = (companyId, token, userId) => {
 
       const response = await axios.post(
         `${BASE_URL}/admin/view_company`,
-        { 
-          company_id: parseInt(companyId), 
+        {
+          company_id: parseInt(companyId),
           user_id: userId || 440, // Use dynamic user_id, fallback to 440 for backward compatibility
         },
         {
@@ -117,6 +117,55 @@ export const useCompanyDetails = (companyId, token, userId) => {
     },
   });
 
+  // Update owner status mutation
+  const updateOwnerStatusMutation = useMutation({
+    mutationFn: async ({ owner, nextIsActive }) => {
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.patch(
+        `${BASE_URL}/admin/update_super_owner`,
+        {
+          user_id: userId || 440,
+          super_owner_id: parseInt(owner.owner_id),
+          name: owner.name || "",
+          mobile: owner.mobile || "",
+          email: owner.email || "",
+          aadhar_number: owner.aadhar || "",
+          is_active: nextIsActive ? 1 : 0,
+          app_source: "admin",
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      return response.data;
+    },
+    onSuccess: (data) => {
+      // Invalidate current company details to refresh owners list
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.companies.detail(companyId),
+      });
+      // Also invalidate super owners list to stay in sync
+      queryClient.invalidateQueries({ queryKey: queryKeys.superOwners.all });
+      toastController.success(
+        data.detail || data.message || "Owner status updated successfully"
+      );
+    },
+    onError: (err) => {
+      const errorMessage =
+        err.response?.data?.detail ||
+        err.response?.data?.message ||
+        "Failed to update owner status";
+      toastController.error(errorMessage);
+    },
+  });
+
   return {
     company,
     isLoading,
@@ -124,6 +173,8 @@ export const useCompanyDetails = (companyId, token, userId) => {
     refetch,
     deleteCompany: deleteCompanyMutation.mutate,
     isDeleting: deleteCompanyMutation.isPending,
+    updateOwnerStatus: updateOwnerStatusMutation.mutate,
+    isUpdatingOwner: updateOwnerStatusMutation.isPending,
     formatDate,
   };
 };

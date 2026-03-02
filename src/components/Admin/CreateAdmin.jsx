@@ -8,13 +8,14 @@ import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import { toastController } from "../../utils/toastController";
+import { useAdmins } from "../../lib/react-query/hooks/useAdmins";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
 
 function CreateAdmin() {
   const navigate = useNavigate();
   const { getToken } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { createAdmin, isCreating: isSubmitting } = useAdmins(getToken());
   const [adminData, setAdminData] = useState({
     name: "",
     mobile: "",
@@ -43,26 +44,26 @@ function CreateAdmin() {
     if (!mobile) return { isValid: false, message: 'Mobile number is required' };
     const numbersOnly = mobile.replace(/[^0-9]/g, '');
     const firstDigit = numbersOnly.charAt(0);
-    
-    if (['0','1','2','3','4','5'].includes(firstDigit)) {
+
+    if (['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
       return { isValid: false, message: 'Mobile number must start with 6, 7, 8, or 9' };
     }
-    
+
     if (numbersOnly.length !== 10) {
       return { isValid: false, message: 'Mobile number must be 10 digits' };
     }
-    
+
     return { isValid: true, message: '' };
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === 'mobile') {
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
-      
-      if (firstDigit && ['0','1','2','3','4','5'].includes(firstDigit)) {
+
+      if (firstDigit && ['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
         setValidationStates(prev => ({
           ...prev,
           mobile: false,
@@ -127,8 +128,8 @@ function CreateAdmin() {
 
   const isFormValid = () => {
     return (
-      adminData.name?.trim() && 
-      adminData.mobile?.trim() && 
+      adminData.name?.trim() &&
+      adminData.mobile?.trim() &&
       adminData.email?.trim() &&
       adminData.password?.trim() &&
       validationStates.name &&
@@ -142,53 +143,26 @@ function CreateAdmin() {
     e.preventDefault();
     setIsSubmitAttempted(true);
     setEmailApiError("");
-    
+
     if (!isFormValid()) {
       toastController.error("Please fill all required fields correctly");
       return;
     }
-
     try {
-      setIsSubmitting(true);
-
-      const token = getToken();
-      if (!token) {
-        throw new Error("No authentication token available");
-      }
-
-      await toastController.promise(
-        axios.post(
-          `${BASE_URL}/admin/create_admin`,
-          adminData,
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
+      createAdmin(adminData, {
+        onSuccess: (data) => {
+          toastController.success("Admin created successfully");
+          navigate("/admins");
+        },
+        onError: (err) => {
+          if (err.response?.data?.detail === "Email format is incorrect") {
+            setEmailApiError("Email format is incorrect");
           }
-        ),
-        {
-          loading: "Creating admin...",
-          success: "Admin created successfully",
-          error: (err) => {
-            if (err.response?.data?.detail === "Email format is incorrect") {
-              setEmailApiError("Email format is incorrect");
-            }
-            return err.response?.data?.detail || "Failed to create admin";
-          }
+          toastController.error(err.response?.data?.detail || "Failed to create admin");
         }
-      );
-
-      if (!emailApiError) {
-        navigate("/admins");
-      }
+      });
     } catch (error) {
-      if (error.response?.data?.detail === "Email format is incorrect") {
-        setEmailApiError("Email format is incorrect");
-      }
-      
-    } finally {
-      setIsSubmitting(false);
+      console.error("Create admin error:", error);
     }
   };
 
@@ -222,8 +196,8 @@ function CreateAdmin() {
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 transition shadow-sm
-                ${isSubmitting || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
+                ${isSubmitting || !isFormValid()
+                  ? "bg-gray-400 cursor-not-allowed"
                   : "bg-success-500 hover:bg-success-600"}
               `}
             >

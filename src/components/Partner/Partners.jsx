@@ -20,8 +20,8 @@ import { toastController } from "../../utils/toastController";
 const toTitleCase = (str) =>
   str
     ? str.replace(/\w\S*/g, (txt) =>
-        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-      )
+      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )
     : "";
 
 function Partners() {
@@ -49,36 +49,29 @@ function Partners() {
       setIsDeleteModalOpen(false);
       setPartnerToDelete(null);
     } catch (error) {
-      toastController.error(
-        error.response?.data?.detail || "Failed to delete partner"
-      );
+      // Error is handled by the mutation hook
     }
   };
 
   const handleBulkAction = async (action, selectedIds) => {
-    try {
-      // Convert normalized IDs back to partner IDs
-      const partner_ids = selectedIds.map((id) => {
-        const partner = partners.find((p) => p.user_id === id);
-        return partner.user_id;
-      });
+    // Convert normalized IDs back to partner IDs
+    const partner_ids = selectedIds.map((id) => {
+      const partner = partners.find((p) => p.user_id === id);
+      return partner.user_id;
+    });
 
-      const payload = {
-        user_id: adminData.user_id,
-        action: action,
-        app_source: "pos_app",
-        partner_ids: partner_ids,
-      };
+    const payload = {
+      user_id: adminData.user_id,
+      action: action,
+      app_source: "pos_app",
+      partner_ids: partner_ids,
+    };
 
-      await bulkAction.mutateAsync(payload);
-      setSelectedItems([]);
-      toastController.success("Bulk action completed successfully!");
-    } catch (error) {
-      
-      toastController.error(
-        error.response?.data?.detail || "Failed to process bulk action"
-      );
-    }
+    bulkAction.mutate(payload, {
+      onSuccess: () => {
+        setSelectedItems([]);
+      }
+    });
   };
 
   // Define columns for DataTable
@@ -96,7 +89,7 @@ function Partners() {
       header: "Mobile",
       sortable: true,
     },
-   
+
     {
       field: "active_session_count",
       header: "Active Session",
@@ -110,11 +103,10 @@ function Partners() {
       render: (value) => (
         <div className="flex items-center justify-center">
           <span
-            className={`font-medium text-sm ${
-              value === 1
+            className={`font-medium text-sm ${value === 1
                 ? "text-success-600"
                 : "text-error-600"
-            }`}
+              }`}
           >
             {value === 1 ? "Active" : "Inactive"}
           </span>

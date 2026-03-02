@@ -18,7 +18,7 @@ function Auth() {
   // const [isOtpScreen, setIsOtpScreen] = useState(false); // Unused variable
   const [mobileError, setMobileError] = useState("");
   const [invalidOtpError, setInvalidOtpError] = useState("");
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL, API_VERSION, VERSION } = API_CONFIG;
   const [countdown, setCountdown] = useState(0);
   const { getToken, login } = useAuth();
 
@@ -132,8 +132,8 @@ function Auth() {
         const languages = Array.isArray(nav.languages)
           ? nav.languages
           : language
-          ? [language]
-          : [];
+            ? [language]
+            : [];
         const touchPoints = nav.maxTouchPoints || 0;
         const uaData = nav.userAgentData || null;
         const brands = uaData?.brands || uaData?.uaList || null;
@@ -206,13 +206,11 @@ function Auth() {
 
         const browserMajor = (browserVersion || "").split(".")[0] || "";
         const osVersionMajor = (osVersion || "").split(/[._]/)[0] || "";
-        const userAgentName = `${browserName}${
-          browserMajor ? ` ${browserMajor}` : ""
-        }${
-          osName && osName !== "Unknown"
+        const userAgentName = `${browserName}${browserMajor ? ` ${browserMajor}` : ""
+          }${osName && osName !== "Unknown"
             ? ` on ${osName}${osVersionMajor ? ` ${osVersionMajor}` : ""}`
             : ""
-        }`;
+          }`;
 
         // Try to extract a more specific device model for Android/iOS
         let deviceModel = null;
@@ -221,7 +219,7 @@ function Auth() {
           if (androidMatch && androidMatch[1]) {
             deviceModel = androidMatch[1].trim();
           }
-        } catch (_) {}
+        } catch (_) { }
 
         if (!deviceModel) {
           const iosMatch = ua.match(/(iPhone|iPad|iPod)/i);
@@ -289,7 +287,7 @@ function Auth() {
 
       if (response.data.access_token && response.data.user_id) {
         console.log('Login successful, response data:', response.data);
-        
+
         // Use the login function from useAuth hook for consistent token management
         login(response);
 
@@ -300,9 +298,9 @@ function Auth() {
           email: response.data.email,
           role: response.data.role,
         };
-        
+
         console.log('Storing adminData:', adminData);
-        
+
         // Save device info returned from server (if any) for admin details view
         if (response.data.active_sessions) {
           localStorage.setItem(
@@ -311,7 +309,7 @@ function Auth() {
           );
         }
         localStorage.setItem("adminData", JSON.stringify(adminData));
-        
+
         console.log('Navigating to /home');
         navigate("/home");
       }
@@ -360,7 +358,7 @@ function Auth() {
       const response = await toastController.promise(
         axios.post(
           `${BASE_URL}/common/resend_otp`,
-          { mobile, app_type: "admin", version: "2.0" },
+          { mobile, app_type: "admin", version: VERSION },
           {
             headers: {
               Authorization: getToken(),
@@ -398,8 +396,11 @@ function Auth() {
                       className="w-14 h-14 object-contain"
                     />
                     <div className="text-center">
-                      <div className="text-xl font-semibold text-gray-800 dark:text-white">
+                      <div className="text-2xl font-bold bg-gradient-to-r from-brand-600 to-brand-400 bg-clip-text text-transparent">
                         MenuMitra
+                      </div>
+                      <div className="text-md font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                        Admin Dashboard
                       </div>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         {!isOtpSent
@@ -446,11 +447,10 @@ function Auth() {
                             onKeyPress={handleMobileKeyPress}
                             placeholder="Enter your mobile number"
                             disabled={isOtpSent}
-                            className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-black bg-transparent px-4 pl-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-black focus:outline-none dark:border-black dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
-                              isOtpSent
+                            className={`dark:bg-dark-900 h-11 w-full rounded-lg border border-black bg-transparent px-4 pl-10 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:border-black focus:outline-none dark:border-black dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${isOtpSent
                                 ? "bg-gray-100 dark:bg-gray-800 cursor-not-allowed"
                                 : ""
-                            }`}
+                              }`}
                           />
                         </div>
                         {mobileError && (
@@ -483,11 +483,10 @@ function Auth() {
                                 }
                                 onKeyDown={(e) => handleKeyDown(index, e)}
                                 onKeyPress={handleOtpKeyPress}
-                                className={`dark:bg-dark-900 otp-input h-11 w-full rounded-lg border bg-transparent px-4 py-2.5 text-center text-xl font-semibold placeholder:text-gray-400 focus:outline-none dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${
-                                  invalidOtpError
+                                className={`dark:bg-dark-900 otp-input h-11 w-full rounded-lg border bg-transparent px-4 py-2.5 text-center text-xl font-semibold placeholder:text-gray-400 focus:outline-none dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${invalidOtpError
                                     ? "border-error-500 text-error-700"
                                     : "border-black text-gray-800"
-                                }`}
+                                  }`}
                               />
                             ))}
                           </div>
@@ -501,24 +500,23 @@ function Auth() {
                             !isOtpSent
                               ? loading || mobile.length !== 10
                               : verifyLoading ||
-                                otp.some((digit) => digit === "")
+                              otp.some((digit) => digit === "")
                           }
-                          className={`flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-3xl shadow-theme-xs ${
-                            (!isOtpSent && (loading || mobile.length !== 10)) ||
-                            (isOtpSent &&
-                              (verifyLoading ||
-                                otp.some((digit) => digit === "")))
+                          className={`flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-3xl shadow-theme-xs ${(!isOtpSent && (loading || mobile.length !== 10)) ||
+                              (isOtpSent &&
+                                (verifyLoading ||
+                                  otp.some((digit) => digit === "")))
                               ? "bg-gray-400 cursor-not-allowed"
                               : "bg-brand-500 hover:bg-brand-600"
-                          } disabled:opacity-70`}
+                            } disabled:opacity-70`}
                         >
                           {!isOtpSent
                             ? loading
                               ? "Sending OTP..."
                               : "Send OTP"
                             : verifyLoading
-                            ? "Verifying..."
-                            : "Verify OTP"}
+                              ? "Verifying..."
+                              : "Verify OTP"}
                         </button>
                       </div>
 
@@ -538,11 +536,10 @@ function Auth() {
                             <span>Didn't receive OTP?</span>
                             <a
                               onClick={handleResendOTP}
-                              className={`cursor-pointer whitespace-nowrap ${
-                                countdown > 0
+                              className={`cursor-pointer whitespace-nowrap ${countdown > 0
                                   ? "text-error-500 cursor-not-allowed"
                                   : "text-error-500 hover:text-error-600 dark:text-error-400"
-                              }`}
+                                }`}
                             >
                               Resend OTP
                               {countdown > 0 ? ` (${countdown}s)` : ""}
@@ -574,10 +571,10 @@ function Auth() {
                         href="https://menumitra.com/book-demo"
                         className="hover:text-gray-700"
                       >
-                        Book a demo 
+                        Book a demo
                       </a>
                       <a
-                        href="https://menumitra.com/about" 
+                        href="https://menumitra.com/about"
                         className="hover:text-gray-700"
                       >
                         Contact
@@ -598,7 +595,7 @@ function Auth() {
                     >
                       <i
                         className="ri-google-fill text-2xl"
-                        style={{color: '#4CAF50'}}
+                        style={{ color: '#4CAF50' }}
                       ></i>
                     </a>
                     <a
@@ -607,7 +604,7 @@ function Auth() {
                     >
                       <i
                         className="ri-facebook-fill text-2xl"
-                        style={{color: '#1877F2'}}
+                        style={{ color: '#1877F2' }}
                       ></i>
                     </a>
                     <a
@@ -616,7 +613,7 @@ function Auth() {
                     >
                       <i
                         className="ri-instagram-fill text-2xl"
-                        style={{color: '#E91E63'}}
+                        style={{ color: '#E91E63' }}
                       ></i>
                     </a>
                     <a
@@ -625,7 +622,7 @@ function Auth() {
                     >
                       <i
                         className="ri-youtube-fill text-2xl"
-                        style={{color: '#FF0000'}}
+                        style={{ color: '#FF0000' }}
                       ></i>
                     </a>
                   </div>
