@@ -22,6 +22,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../../common/DeleteConfirmModal/DeleteConfirmModal";
 
+// Capitalize first letter of every word (title case)
+const toTitleCase = (str) =>
+  str
+    ? str.replace(/\w\S*/g, (txt) =>
+      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )
+    : "";
+
 function ManageMenus() {
   const { outletId } = useParams();
   const { adminData } = useAdmin();
@@ -248,6 +256,7 @@ function ManageMenus() {
       field: "name",
       header: "Name",
       sortable: true,
+      render: (value) => toTitleCase(value),
     },
     {
       field: "category_name",
@@ -255,16 +264,24 @@ function ManageMenus() {
       sortable: true,
     },
     {
+      field: "price",
+      header: "Price",
+      sortable: true,
+      render: (value, row) => {
+        const price = value || row.portions?.[0]?.price || 0;
+        return `₹${price}`;
+      },
+    },
+    {
       field: "food_type",
       header: "Type",
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-            value === "veg"
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
+          className={`px-2 py-0.5 rounded-full text-xs font-medium ${value === "veg"
+            ? "bg-green-100 text-green-800"
+            : "bg-red-100 text-red-800"
+            }`}
         >
           {value?.toUpperCase()}
         </span>
@@ -284,9 +301,8 @@ function ManageMenus() {
         <div className="flex items-center justify-center gap-2">
           <FontAwesomeIcon
             icon={value === 1 ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value === 1 ? "text-success-500" : "text-error-500"
-            }`}
+            className={`w-5 h-5 ${value === 1 ? "text-success-500" : "text-error-500"
+              }`}
           />
         </div>
       ),
