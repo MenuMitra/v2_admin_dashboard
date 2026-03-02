@@ -17,8 +17,17 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import Breadcrumb from "../Breadcrumb";
+import StatusToggleButton from "../common/StatusToggleButton";
 import { useCompanyDetails } from "../../lib/react-query/hooks/useCompanyDetails";
 import { useAuth } from "../../hooks/useAuth";
+
+// Capitalize first letter of every word (title case)
+const toTitleCase = (str) =>
+  str
+    ? str.replace(/\w\S*/g, (txt) =>
+      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )
+    : "";
 
 function CompanyDetails() {
   const { companyId } = useParams();
@@ -26,12 +35,14 @@ function CompanyDetails() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const { getToken, getUserId } = useAuth();
 
-  const { 
-    company: companyData, 
-    isLoading, 
-    error, 
-    deleteCompany, 
-    refetch 
+  const {
+    company: companyData,
+    isLoading,
+    error,
+    deleteCompany,
+    updateOwnerStatus,
+    isUpdatingOwner,
+    refetch
   } = useCompanyDetails(companyId, getToken(), getUserId());
 
   // Add breadcrumb configuration
@@ -44,6 +55,11 @@ function CompanyDetails() {
   const handleDeleteOwner = async () => {
     await deleteCompany();
     navigate(-1);
+  };
+
+  const handleToggleOwnerActive = (owner) => {
+    const nextIsActive = owner.is_active === 1 || owner.is_active === true ? false : true;
+    updateOwnerStatus({ owner, nextIsActive });
   };
 
   if (isLoading) {
@@ -159,7 +175,7 @@ function CompanyDetails() {
                     />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{companyData.company_name?.toUpperCase()}</div>
+                    <div className="text-base font-medium">{toTitleCase(companyData.company_name)}</div>
                     <div className="text-sm text-gray-500">Company Name</div>
                   </div>
                 </div>
@@ -174,7 +190,7 @@ function CompanyDetails() {
                     />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium capitalize">{companyData.company_type.replace('_', ' ')?.toUpperCase()}</div>
+                    <div className="text-base font-medium">{toTitleCase(companyData.company_type.replace('_', ' '))}</div>
                     <div className="text-sm text-gray-500">Company Type</div>
                   </div>
                 </div>
@@ -309,7 +325,7 @@ function CompanyDetails() {
                   {companyData.contact_details.map((contact, index) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <h3 className="text-sm font-medium text-gray-700 mb-3">
-                        Contact {index + 1} - {contact.type?.replace('_', ' ').toUpperCase()}
+                        Contact {index + 1} - {toTitleCase(contact.type?.replace('_', ' '))}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                         {contact.email && (
@@ -353,7 +369,7 @@ function CompanyDetails() {
                                 {contact.address_line1
                                   ? contact.address_line1.charAt(0).toUpperCase() + contact.address_line1.slice(1)
                                   : ""}
-                                {contact.address_line2 && 
+                                {contact.address_line2 &&
                                   `, ${contact.address_line2.charAt(0).toUpperCase() + contact.address_line2.slice(1)}`}
                               </div>
                               <div className="text-sm text-gray-500">Address</div>
@@ -404,7 +420,22 @@ function CompanyDetails() {
                 <div className="space-y-4">
                   {companyData.owners.map((owner, index) => (
                     <div key={owner.owner_id || index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                      <h3 className="text-sm font-medium text-gray-700 mb-3">Owner {index + 1}</h3>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-medium text-gray-700">Owner {index + 1}</h3>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${owner.is_active ? "bg-success-100 text-success-700" : "bg-error-100 text-error-700"
+                            }`}>
+                            {owner.is_active ? "Active" : "Inactive"}
+                          </span>
+                          <StatusToggleButton
+                            isActive={owner.is_active === 1 || owner.is_active === true}
+                            onToggle={() => handleToggleOwnerActive(owner)}
+                            disabled={isUpdatingOwner}
+                            activeLabel=""
+                            inactiveLabel=""
+                          />
+                        </div>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                         {owner.name && (
                           <div className="flex items-center p-3 rounded-lg bg-white">
@@ -415,7 +446,7 @@ function CompanyDetails() {
                               />
                             </div>
                             <div className="ml-3">
-                              <div className="text-base font-medium">{owner.name}</div>
+                              <div className="text-base font-medium">{toTitleCase(owner.name)}</div>
                               <div className="text-sm text-gray-500">Name</div>
                             </div>
                           </div>
@@ -457,9 +488,9 @@ function CompanyDetails() {
                               />
                             </div>
                             <div className="ml-3 flex-1 min-w-0 overflow-hidden">
-                              <div 
+                              <div
                                 className="text-base font-medium whitespace-normal"
-                                style={{ 
+                                style={{
                                   wordBreak: 'break-all',
                                   overflowWrap: 'anywhere'
                                 }}
@@ -522,7 +553,7 @@ function CompanyDetails() {
                               {owner.outlets.map((outlet, outletIndex) => (
                                 <div key={outlet.outlet_code || outletIndex} className="border border-gray-200 rounded-lg p-3 bg-white">
                                   {outlet.outlet_name && (
-                                    <div 
+                                    <div
                                       className="flex items-center p-2 rounded-lg bg-gray-50 cursor-pointer hover:bg-gray-100 hover:border-gray-300 transition-colors relative"
                                       onClick={() => navigate(`/view-outlet/${outlet.outlet_id}`)}
                                     >

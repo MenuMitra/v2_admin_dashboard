@@ -3088,6 +3088,9 @@ span.flatpickr-weekday {
   .overflow-y-visible {
     overflow-y: visible;
   }
+  .max-h-60 {
+    max-height: 15rem; /* 240px */
+  }
   .rounded {
     border-radius: 0.25rem;
   }
