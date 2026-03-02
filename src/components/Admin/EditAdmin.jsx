@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAdmins } from '../../lib/react-query/hooks/useAdmins';
+import { useAdminDetails } from '../../lib/react-query/hooks/useAdminDetails';
 import { TextInput, SelectInput } from '../forms/FormElements';
 import axios from 'axios';
 import CustomDropdown from '../common/CustomDropdown';
