@@ -42,7 +42,6 @@ export const queryKeys = {
     detail: (id) => [...queryKeys.customers.all, "detail", id],
   },
 
-  // Admin related queries
   admins: {
     all: ["admins"],
     list: () => [...queryKeys.admins.all, "list"],
@@ -56,11 +55,6 @@ export const queryKeys = {
     detail: (id) => [...queryKeys.companies.all, "detail", id],
   },
 
-  admin: {
-    all: ["admin"],
-    list: () => [...queryKeys.admin.all, "list"],
-    detail: (id) => [...queryKeys.admin.all, "detail", id],
-  },
 
   // Super Owner related queries
   superOwners: {

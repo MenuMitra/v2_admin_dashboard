@@ -21,7 +21,7 @@ function EditAdmin() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { updateAdmin, isUpdating } = useAdmins(getToken());
-  const [isLoading, setIsLoading] = useState(true);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [adminDetails, setAdminDetails] = useState({
     name: '',
@@ -53,45 +53,20 @@ function EditAdmin() {
     { label: 'Edit Admin', path: `/edit-admin/${adminId}` }
   ];
 
+  const { admin, isLoading } = useAdminDetails(adminId);
+
   useEffect(() => {
-    fetchAdminDetails();
-  }, [adminId]);
-
-  const fetchAdminDetails = async () => {
-    try {
-      setIsLoading(true);
-
-      const token = getToken();
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      const response = await axios.post(
-        `${BASE_URL}/admin/view_admin`,
-        { admin_id: parseInt(adminId), app_source: "admin" },
-        {
-          headers: {
-            Authorization: token,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
+    if (admin) {
       setAdminDetails({
-        name: response.data.name,
-        mobile: response.data.mobile,
-        email: response.data.email,
-        is_active: response.data.is_active,
-        role: 'admin',
-        app_source: "admin"
+        name: admin.name,
+        mobile: admin.mobile,
+        email: admin.email,
+        is_active: admin.is_active,
+        role: "admin",
+        app_source: "admin",
       });
-    } catch (error) {
-      toastController.error(error.response?.data?.detail || 'Failed to fetch admin details');
-
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [admin]);
 
   const isMobileValid = (mobile) => {
     if (!mobile) return { isValid: false, message: 'Mobile number is required' };

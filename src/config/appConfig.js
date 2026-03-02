@@ -10,10 +10,10 @@ const getApiBaseUrl = () => {
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
   }
-  
+
   // Default fallback for local development
   return "https://menusmitra.xyz/v2.2";
-  
+
 };
 
 // Get Customer App base URL from environment variable (Netlify)
@@ -23,7 +23,7 @@ const getCustomerAppUrl = () => {
   if (import.meta.env.VITE_CUSTOMER_APP_URL) {
     return import.meta.env.VITE_CUSTOMER_APP_URL;
   }
-  
+
   // Default fallback for local development
   return 'https://test-menumitra-customer-v2.netlify.app';
 };
@@ -32,6 +32,7 @@ const getCustomerAppUrl = () => {
 export const API_CONFIG = {
   BASE_URL: getApiBaseUrl(), // Full URL including /v2
   CUSTOMER_APP_URL: getCustomerAppUrl(), // Customer app base URL
+  VERSION: "2.2.0",
 };
 
 // Protected Users Configuration

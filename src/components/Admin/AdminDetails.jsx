@@ -35,11 +35,12 @@ function AdminDetails() {
     isDeleting,
     formatDate,
     PROTECTED_MOBILES,
+    updateAdmin,
+    isUpdating: isTogglingActive,
   } = useAdminDetails(adminId);
 
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
-  const [isTogglingActive, setIsTogglingActive] = useState(false);
   const [activeSessions, setActiveSessions] = useState([]);
   useEffect(() => {
     if (admin && admin.active_sessions) {
@@ -112,10 +113,9 @@ function AdminDetails() {
   const handleToggleAdminActive = async () => {
     if (!admin?.admin_id && !admin?.user_id) return;
     const nextIsActive = admin.is_active ? 0 : 1;
-    setIsTogglingActive(true);
-    try {
-      const token = getToken();
-      const payload = {
+
+    updateAdmin(
+      {
         user_id: adminData?.user_id,
         admin_id: Number(admin.admin_id || admin.user_id),
         name: admin.name || "",
@@ -124,31 +124,15 @@ function AdminDetails() {
         is_active: nextIsActive,
         role: admin.role || "admin",
         app_source: "admin",
-      };
-      const resp = await fetch(`${BASE_URL}/admin/update_admin`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        body: JSON.stringify(payload),
-      });
-      const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) {
-        const message =
-          data?.detail || data?.message || "Failed to update admin";
-        toastController.error(message);
-        throw new Error(message);
+      },
+      {
+        onSuccess: () => {
+          toastController.success(
+            `Admin marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
+          );
+        }
       }
-      toastController.success(
-        `Admin marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
-      );
-      await refetch();
-    } catch (e) {
-      
-    } finally {
-      setIsTogglingActive(false);
-    }
+    );
   };
 
   if (isLoading) {
