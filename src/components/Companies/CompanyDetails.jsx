@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -58,8 +58,7 @@ function CompanyDetails() {
   };
 
   const handleToggleOwnerActive = (owner) => {
-    const nextIsActive = owner.is_active === 1 || owner.is_active === true ? false : true;
-    updateOwnerStatus({ owner, nextIsActive });
+    updateOwnerStatus({ ownerUserId: owner.user_id });
   };
 
   if (isLoading) {
@@ -419,20 +418,16 @@ function CompanyDetails() {
                 <h2 className="text-base font-medium mb-4 text-gray-800">Company Owners</h2>
                 <div className="space-y-4">
                   {companyData.owners.map((owner, index) => (
-                    <div key={owner.owner_id || index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                    <div key={owner.user_id || owner.owner_id || index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
                       <div className="flex items-center justify-between mb-3">
                         <h3 className="text-sm font-medium text-gray-700">Owner {index + 1}</h3>
                         <div className="flex items-center gap-2">
-                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${owner.is_active ? "bg-success-100 text-success-700" : "bg-error-100 text-error-700"
-                            }`}>
-                            {owner.is_active ? "Active" : "Inactive"}
-                          </span>
                           <StatusToggleButton
-                            isActive={owner.is_active === 1 || owner.is_active === true}
+                            isActive={[1, "1", true].includes(owner.is_active)}
                             onToggle={() => handleToggleOwnerActive(owner)}
                             disabled={isUpdatingOwner}
-                            activeLabel=""
-                            inactiveLabel=""
+                            activeLabel="Active"
+                            inactiveLabel="Inactive"
                           />
                         </div>
                       </div>
@@ -565,7 +560,7 @@ function CompanyDetails() {
                                       </div>
                                       <div className="ml-2 flex-1">
                                         <div className="text-sm font-medium">
-                                          {outlet.outlet_name} ({outlet.outlet_code && (outlet.outlet_code)})
+                                          {toTitleCase(outlet.outlet_name)} ({outlet.outlet_code && (outlet.outlet_code)})
                                         </div>
                                         <div className="text-xs text-gray-500">
                                           {outlet.outlet_address || "-"}
