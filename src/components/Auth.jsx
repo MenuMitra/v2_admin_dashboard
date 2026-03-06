@@ -653,9 +653,9 @@ function Auth() {
               </div>
 
               <div className="flex flex-col items-center max-w-xs">
-                <a href="index.html" className="block mb-4">
-                  <img src={Logo} alt="Logo" />
-                </a>
+                <div className="block mb-4 select-none">
+                  <img src={Logo} alt="Logo" draggable={false} />
+                </div>
                 <h2 className="text-2xl font-semibold mb-2 text-white">
                   Admin Dashboard
                 </h2>
