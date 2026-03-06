@@ -119,22 +119,15 @@ export const useCompanyDetails = (companyId, token, userId) => {
 
   // Update owner status mutation
   const updateOwnerStatusMutation = useMutation({
-    mutationFn: async ({ owner, nextIsActive }) => {
+    mutationFn: async ({ ownerUserId }) => {
       if (!token) {
         throw new Error("No authentication token available");
       }
 
-      const response = await axios.patch(
-        `${BASE_URL}/admin/update_super_owner`,
+      const response = await axios.post(
+        `${BASE_URL}/admin/toggle_owner_status`,
         {
-          user_id: userId || 440,
-          super_owner_id: parseInt(owner.owner_id),
-          name: owner.name || "",
-          mobile: owner.mobile || "",
-          email: owner.email || "",
-          aadhar_number: owner.aadhar || "",
-          is_active: nextIsActive ? 1 : 0,
-          app_source: "admin",
+          owner_user_id: parseInt(ownerUserId),
         },
         {
           headers: {
@@ -146,23 +139,84 @@ export const useCompanyDetails = (companyId, token, userId) => {
 
       return response.data;
     },
-    onSuccess: (data) => {
-      // Invalidate current company details to refresh owners list
-      queryClient.invalidateQueries({
+    onMutate: async ({ ownerUserId }) => {
+      // 1. Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({
         queryKey: queryKeys.companies.detail(companyId),
       });
-      // Also invalidate super owners list to stay in sync
-      queryClient.invalidateQueries({ queryKey: queryKeys.superOwners.all });
-      toastController.success(
-        data.detail || data.message || "Owner status updated successfully"
+
+      // 2. Snapshot the previous value
+      const previousCompany = queryClient.getQueryData(
+        queryKeys.companies.detail(companyId)
       );
+
+      // 3. Optimistically update the cache
+      queryClient.setQueryData(
+        queryKeys.companies.detail(companyId),
+        (oldData) => {
+          if (!oldData || !oldData.owners) return oldData;
+
+          return {
+            ...oldData,
+            owners: oldData.owners.map((owner) =>
+              owner.user_id === ownerUserId
+                ? { ...owner, is_active: [1, "1", true].includes(owner.is_active) ? 0 : 1 }
+                : owner
+            ),
+          };
+        }
+      );
+
+      // Return a context object with the snapshotted value
+      return { previousCompany };
     },
-    onError: (err) => {
+    onError: (err, variables, context) => {
+      // 4. If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousCompany) {
+        queryClient.setQueryData(
+          queryKeys.companies.detail(companyId),
+          context.previousCompany
+        );
+      }
+
       const errorMessage =
         err.response?.data?.detail ||
         err.response?.data?.message ||
         "Failed to update owner status";
       toastController.error(errorMessage);
+    },
+    onSuccess: (data) => {
+      // 5. Optionally update with exact server data on success
+      const responseData = data.data || data;
+      const finalStatus = responseData.is_active;
+      const updatedUserId = responseData.owner_user_id || responseData.user_id;
+
+      queryClient.setQueryData(
+        queryKeys.companies.detail(companyId),
+        (oldData) => {
+          if (!oldData || !oldData.owners) return oldData;
+
+          return {
+            ...oldData,
+            owners: oldData.owners.map((owner) =>
+              owner.user_id === updatedUserId
+                ? { ...owner, is_active: finalStatus }
+                : owner
+            ),
+          };
+        }
+      );
+
+      toastController.success(
+        data.detail || data.message || "Owner status updated successfully"
+      );
+    },
+    onSettled: () => {
+      // 6. Always refetch after error or success to ensure we are in sync with the server
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.companies.detail(companyId),
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.superOwners.all });
     },
   });
 
