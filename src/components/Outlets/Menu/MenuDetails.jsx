@@ -23,6 +23,7 @@ import {
   faDrumstickBite,
   faEgg,
   faSeedling,
+  faIndianRupeeSign,
 } from '@fortawesome/free-solid-svg-icons';
 import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import Breadcrumb from '../../Breadcrumb';
@@ -40,7 +41,7 @@ function MenuDetails() {
   useEffect(() => {
     const fetchMenuDetails = async () => {
       if (!adminData?.user_id || !menuId || !outletId) return;
-      
+
       setError(null);
       try {
         const token = getToken();
@@ -155,8 +156,8 @@ function MenuDetails() {
               <div className="mb-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                   {menu.images.map((image, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="relative w-full aspect-square border border-gray-200 rounded-lg p-2 bg-white"
                     >
                       <div className="w-full h-full flex items-center justify-center">
@@ -188,31 +189,29 @@ function MenuDetails() {
               {/* Food Type - Always show */}
               <div className="flex items-center p-3">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon 
+                  <FontAwesomeIcon
                     icon={
                       menu.food_type === 'veg' ? faLeaf :
-                      menu.food_type === 'nonveg' ? faDrumstickBite :
-                      menu.food_type === 'vegan' ? faSeedling :
-                      menu.food_type === 'egg' ? faEgg :
-                      faLeaf
-                    } 
-                    className={`w-5 h-5 ${
-                      menu.food_type === 'veg' ? 'text-success-500' :
+                        menu.food_type === 'nonveg' ? faDrumstickBite :
+                          menu.food_type === 'vegan' ? faSeedling :
+                            menu.food_type === 'egg' ? faEgg :
+                              faLeaf
+                    }
+                    className={`w-5 h-5 ${menu.food_type === 'veg' ? 'text-success-500' :
                       menu.food_type === 'nonveg' ? 'text-error-500' :
-                      menu.food_type === 'vegan' ? 'text-emerald-500' :
-                      menu.food_type === 'egg' ? 'text-amber-500' :
-                      'text-success-500'
-                    }`} 
+                        menu.food_type === 'vegan' ? 'text-emerald-500' :
+                          menu.food_type === 'egg' ? 'text-amber-500' :
+                            'text-success-500'
+                      }`}
                   />
                 </div>
                 <div className="ml-3">
-                  <div className={`text-base font-medium ${
-                    menu.food_type === 'veg' ? 'text-success-500' :
+                  <div className={`text-base font-medium ${menu.food_type === 'veg' ? 'text-success-500' :
                     menu.food_type === 'nonveg' ? 'text-error-500' :
-                    menu.food_type === 'vegan' ? 'text-emerald-500' :
-                    menu.food_type === 'egg' ? 'text-amber-500' :
-                    'text-success-500'
-                  }`}>
+                      menu.food_type === 'vegan' ? 'text-emerald-500' :
+                        menu.food_type === 'egg' ? 'text-amber-500' :
+                          'text-success-500'
+                    }`}>
                     {menu.food_type?.toUpperCase()}
                   </div>
                   <div className="text-sm text-gray-500">Food Type</div>
@@ -229,6 +228,71 @@ function MenuDetails() {
                   <div className="text-sm text-gray-500">Category</div>
                 </div>
               </div>
+
+              {/* Default Price - when present */}
+              {(menu.default_price != null && menu.default_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-brand-500" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.default_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Default Price</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Dine-in Price - when present */}
+              {(menu.dine_in_price != null && menu.dine_in_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.dine_in_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Dine-in Price</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Parcel Price - when present */}
+              {(menu.parcel_price != null && menu.parcel_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.parcel_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Parcel Price</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Delivery Price - when present */}
+              {(menu.delivery_price != null && menu.delivery_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.delivery_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Delivery Price</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Drive-through Price - when present */}
+              {(menu.drive_through_price != null && menu.drive_through_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.drive_through_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Drive-through Price</div>
+                  </div>
+                </div>
+              )}
 
               {/* Special Status - Only if true */}
               {menu.is_special && (
@@ -329,9 +393,9 @@ function MenuDetails() {
                 {/* Status */}
                 <div className="flex items-center p-3">
                   <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon 
-                      icon={menu.is_active ? faCircleCheck : faCircleXmark} 
-                      className={menu.is_active ? 'text-success-500' : 'text-error-500'} 
+                    <FontAwesomeIcon
+                      icon={menu.is_active ? faCircleCheck : faCircleXmark}
+                      className={menu.is_active ? 'text-success-500' : 'text-error-500'}
                     />
                   </div>
                   <div className="ml-3">
