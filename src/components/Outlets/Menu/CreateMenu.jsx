@@ -352,37 +352,16 @@ function CreateMenu() {
     fetchSpicyIndexList();
   }, []); // Empty dependency array as this only needs to run once
 
-<<<<<<< HEAD
-  // Portion handlers
-
-
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !menuCatId || !foodType) {
-=======
-  // Form submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
     if (!name || !menuCatId || !foodType || !price) {
->>>>>>> Rushi
       toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
       return;
     }
 
-<<<<<<< HEAD
-    // Add validation for price
-    if (!price) {
-      toastController.error('Price is required');
-      setError('Price is required');
-      return;
-    }
-
-=======
->>>>>>> Rushi
     setLoading(true);
     setError('');
     setSuccessMsg('');
@@ -397,18 +376,6 @@ function CreateMenu() {
         user_id: adminData?.user_id,
         name: name.trim(),
         food_type: foodType,
-<<<<<<< HEAD
-        description: '',
-        spicy_index: spicyIndex,
-        ingredients: ingredients.trim(),
-        offer: '0',
-        app_source: 'admin_app',
-        portion_data: [{
-          portion_name: '',
-          price: parseInt(price, 10),
-          flag: 1
-        }],
-=======
         spicy_index: spicyIndex,
         ingredients: ingredients.trim(),
         app_source: 'admin_app',
@@ -422,7 +389,6 @@ function CreateMenu() {
             flag: 1,
           },
         ],
->>>>>>> Rushi
         images: images // This will now directly receive base64 strings from ImageUploader
       };
 
@@ -549,24 +515,15 @@ function CreateMenu() {
 
               <div className="w-full">
                 <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-<<<<<<< HEAD
-                  Price
-                  <span className="text-red-500">*</span>
-=======
                   Price <span className="text-red-500">*</span>
->>>>>>> Rushi
                 </label>
                 <input
                   type="number"
                   value={price}
                   onChange={e => setPrice(e.target.value)}
                   placeholder="Enter price"
-<<<<<<< HEAD
-=======
                   min="0"
->>>>>>> Rushi
                   className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  min="0"
                 />
               </div>
 
@@ -583,10 +540,6 @@ function CreateMenu() {
                 />
               </div>
             </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> Rushi
             {/* Images */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -669,23 +622,7 @@ function CreateMenu() {
                         alt={`Preview ${index + 1}`}
                         className="w-full h-full object-contain"
                       />
-<<<<<<< HEAD
 
-                      {/* Delete Button Overlay */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(index)}
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 transition-colors duration-200"
-                        >
-                          <FontAwesomeIcon
-                            icon={faTimes}
-                            className="w-4 h-4 text-white"
-                          />
-                        </button>
-                      </div>
-=======
-                      
                       {/* Always-visible delete button in top-right */}
                       <button
                         type="button"
@@ -693,17 +630,17 @@ function CreateMenu() {
                         className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 text-white text-xs transition-colors duration-200"
                         title="Remove image"
                       >
-                        <FontAwesomeIcon 
-                          icon={faTimes} 
+                        <FontAwesomeIcon
+                          icon={faTimes}
                           className="w-3 h-3"
                         />
                       </button>
->>>>>>> Rushi
-                    </div>
-                  ))}
-                </div>
+                    </div >
+                  ))
+                  }
+                </div >
               )}
-            </div>
+            </div >
             {error && <div className="text-error-500 text-center">{error}</div>}
             {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
             <button
@@ -713,10 +650,10 @@ function CreateMenu() {
             >
               {loading ? 'Creating...' : 'Create Menu'}
             </button>
-          </form>
-        </div>
-      </div>
-    </div>
+          </form >
+        </div >
+      </div >
+    </div >
   );
 }
 

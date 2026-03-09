@@ -341,10 +341,6 @@ function MenuDetails() {
               )}
 
 
-<<<<<<< HEAD
-
-
-=======
               {/* Description - Only if not empty */}
               {menu.description?.trim() && (
                 <div className="flex items-start p-3 sm:col-span-2">
@@ -357,7 +353,6 @@ function MenuDetails() {
                   </div>
                 </div>
               )}
->>>>>>> Rushi
 
               {/* Ingredients - Only if not empty */}
               {menu.ingredients?.trim() && (
@@ -373,9 +368,6 @@ function MenuDetails() {
               )}
             </div>
 
-<<<<<<< HEAD
-
-=======
             {/* Portions Section - Only show if portions have valid data */}
             {menu.portions?.some(portion => portion.portion_name || portion.price || portion.unit_value || portion.unit_type) && (
               <div className="mt-6">
@@ -402,7 +394,6 @@ function MenuDetails() {
                 </div>
               </div>
             )}
->>>>>>> Rushi
 
             {/* Status and Meta Info */}
             <div className="mt-6 pt-4 border-t border-gray-200">
