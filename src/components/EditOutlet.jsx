@@ -198,14 +198,14 @@ function EditOutlet() {
         companyOwners: companyOwners.map(o => ({ id: o.user_id, name: o.name })),
         selectedOwnerIds: outletData.owner_ids
       });
-      
+
       // Ensure selected owners are still valid (exist in the company owners list)
       const validOwnerIds = outletData.owner_ids.filter(ownerId =>
         companyOwners.some(owner => owner.user_id === ownerId)
       );
-      
+
       console.log("Edit Outlet - Valid owner IDs:", validOwnerIds);
-      
+
       if (validOwnerIds.length !== outletData.owner_ids.length) {
         console.log("Edit Outlet - Some owners are invalid, updating...");
         // Update owner_ids if some are no longer valid
@@ -241,7 +241,7 @@ function EditOutlet() {
 
       if (response.data.detail === "Successfully retrieved outlet details") {
         const data = response.data.data;
-        
+
         // Debug logging to understand the data structure
         console.log("Edit Outlet - API Response:", {
           data,
@@ -266,7 +266,7 @@ function EditOutlet() {
 
         const initialOwnerIds = data.owners?.map((owner) => owner.user_id || owner.owner_id) || [];
         console.log("Edit Outlet - Mapped Owner IDs:", initialOwnerIds);
-        
+
         // Set primary owner if available in the response
         const primaryOwner = data.owners?.find(owner => owner.is_primary === 1 || owner.is_primary === true);
         if (primaryOwner) {
@@ -312,7 +312,7 @@ function EditOutlet() {
           has_denomination: data.has_denomination !== undefined ? data.has_denomination : null,
           has_udhari: data.has_udhari !== undefined ? data.has_udhari : null,
           reserve_table: data.has_reserve_table !== undefined ? data.has_reserve_table : (data.reserve_table !== undefined ? data.reserve_table : null),
-          company_id: data.company_id ? String(data.company_id) : "",
+          company_id: data.company_id ? Number(data.company_id) : "",
         });
         setOriginalOwnerIds(initialOwnerIds);
 
@@ -476,7 +476,7 @@ function EditOutlet() {
 
       // Extract companies from the response
       const companies = response.data.companies || [];
-      
+
       if (Array.isArray(companies)) {
         setAllCompanies(companies);
       }
@@ -516,7 +516,7 @@ function EditOutlet() {
           preserveExistingOwners
         });
         setCompanyOwners(owners);
-        
+
         // Only clear owners if this is a manual company change, not initial load
         if (!preserveExistingOwners) {
           // Clear selected owners when company changes (only if it's a new company selection)
@@ -855,34 +855,34 @@ function EditOutlet() {
             </div>
           </div>
         </div>
-        
+
 
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
-                          {/* Image Upload */}
+          {/* Image Upload */}
           <div className="relative">
-                  <ImageUploader
-                    maxImages={1}
-                    onImagesChange={(images) => {
-                      let base64String = images[0]?.url || null;
-                      if (
-                        base64String &&
-                        !base64String.startsWith("data:image/")
-                      ) {
-                        // Default to PNG if type is not available
-                        base64String = `data:image/png;base64,${base64String}`;
-                      }
-                      setOutletData((prev) => ({
-                        ...prev,
-                        image: base64String,
-                      }));
-                    }}
-                    existingImages={
-                      outletData.image ? [{ url: outletData.image }] : []
-                    }
-                    label="Outlet Image"
-                    className="w-full"
-                    isOutletImage={true}
-                  />
+            <ImageUploader
+              maxImages={1}
+              onImagesChange={(images) => {
+                let base64String = images[0]?.url || null;
+                if (
+                  base64String &&
+                  !base64String.startsWith("data:image/")
+                ) {
+                  // Default to PNG if type is not available
+                  base64String = `data:image/png;base64,${base64String}`;
+                }
+                setOutletData((prev) => ({
+                  ...prev,
+                  image: base64String,
+                }));
+              }}
+              existingImages={
+                outletData.image ? [{ url: outletData.image }] : []
+              }
+              label="Outlet Image"
+              className="w-full"
+              isOutletImage={true}
+            />
           </div>
           {/* Basic Information Section */}
           <section className="p-4 bg-white rounded-lg shadow sm:p-6">
@@ -941,7 +941,7 @@ function EditOutlet() {
                   {/* Debug info for company dropdown */}
                   {process.env.NODE_ENV === 'development' && (
                     <div className="text-xs text-gray-500 mt-1">
-                      Debug: Selected Company ID: {outletData.company_id || 'None'} | 
+                      Debug: Selected Company ID: {outletData.company_id || 'None'} |
                       Available Companies: {allCompanies.length}
                     </div>
                   )}
@@ -954,8 +954,8 @@ function EditOutlet() {
                     options={companyOwners}
                     selectedValues={outletData.owner_ids}
                     onChange={(newOwnerIds) => {
-                      console.log("Edit Outlet - Owners changed:", { 
-                        newOwnerIds, 
+                      console.log("Edit Outlet - Owners changed:", {
+                        newOwnerIds,
                         previousOwnerIds: outletData.owner_ids,
                         availableOwners: companyOwners.map(o => ({ id: o.user_id, name: o.name }))
                       });
@@ -972,10 +972,10 @@ function EditOutlet() {
                     valueKey="user_id"
                     searchKeys={["name", "mobile", "email"]}
                     placeholder={
-                      !outletData.company_id 
-                        ? "Please select a company first" 
-                        : isLoadingCompanyOwners 
-                          ? "Loading owners..." 
+                      !outletData.company_id
+                        ? "Please select a company first"
+                        : isLoadingCompanyOwners
+                          ? "Loading owners..."
                           : "Select owners"
                     }
                     searchPlaceholder="Search by name, mobile or email..."
@@ -987,8 +987,8 @@ function EditOutlet() {
                   {/* Debug info for owner dropdown */}
                   {process.env.NODE_ENV === 'development' && (
                     <div className="text-xs text-gray-500 mt-1">
-                      Debug: Selected Owners: [{outletData.owner_ids.join(', ') || 'None'}] | 
-                      Available Owners: {companyOwners.length} | 
+                      Debug: Selected Owners: [{outletData.owner_ids.join(', ') || 'None'}] |
+                      Available Owners: {companyOwners.length} |
                       Primary: {primaryOwnerId || 'None'}
                     </div>
                   )}
