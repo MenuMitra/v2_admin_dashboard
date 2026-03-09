@@ -112,8 +112,8 @@ function App() {
               path="/menu-details/:outletId/:menuId"
               element={<MenuDetails />}
             />
-            <Route path="/create-menu/:outletId" element={<CreateMenu />} />
-            <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} />
+            {/* <Route path="/create-menu/:outletId" element={<CreateMenu />} />
+            <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} /> */}
             {/* Enquiry Routes */}
             <Route path="/enquiries" element={<EnquiryList />} />
             <Route path="/view-enquiry/:enquiry_id" element={<ViewEnquiry />} />
@@ -213,10 +213,10 @@ function App() {
             <Route path="/ubac_tree" element={<UBACTreeApexChart />} />
             <Route path="/combined-stats" element={<CombinedStats />} />
             <Route path="/release-update" element={<ReleaseUpdate />} />
-            
+
             {/* React Flow Demo Route */}
             <Route path="/react-flow-demo" element={<ReactFlowDemo />} />
-            
+
             {/* Test Dropdown Route */}
             <Route path="/test-dropdown" element={<TestDropdown />} />
           </Route>

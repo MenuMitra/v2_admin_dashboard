@@ -32,9 +32,9 @@ import Breadcrumb from '../../Breadcrumb';
 const toTitleCase = (str) =>
   str
     ? str
-        .toString()
-        .toLowerCase()
-        .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1))
+      .toString()
+      .toLowerCase()
+      .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1))
     : '';
 
 function MenuDetails() {
@@ -138,7 +138,7 @@ function MenuDetails() {
             </div>
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
-              <button
+              {/* <button
                 onClick={() => navigate(`/edit-menu/${outletId}/${menuId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
               >
@@ -146,7 +146,7 @@ function MenuDetails() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
                 <span className="hidden sm:inline">Edit</span>
-              </button>
+              </button> */}
               <button
                 onClick={() => setShowDeleteModal(true)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"

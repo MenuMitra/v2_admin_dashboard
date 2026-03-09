@@ -334,13 +334,13 @@ function ManageMenus() {
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
-          <button
+          {/* <button
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
             title="Edit Menu"
             onClick={() => handleEdit(row)}
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button>
+          </button> */}
           <button
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
             title="Delete Menu"
@@ -430,7 +430,7 @@ function ManageMenus() {
             : item.is_active === 0;
         }}
         createButton={{
-          show: true,
+          show: false,
           label: (
             <>
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />
