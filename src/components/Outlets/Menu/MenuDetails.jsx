@@ -28,6 +28,15 @@ import {
 import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import Breadcrumb from '../../Breadcrumb';
 
+// Helper to convert strings to Title Case
+const toTitleCase = (str) =>
+  str
+    ? str
+      .toString()
+      .toLowerCase()
+      .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1))
+    : '';
+
 function MenuDetails() {
   const { outletId, menuId } = useParams();
   const { adminData } = useAdmin();
@@ -95,9 +104,9 @@ function MenuDetails() {
   const getBreadcrumbItems = () => [
     { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
-    { label: menu?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: toTitleCase(menu?.outlet_name) || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Menus', path: `/menus/${outletId}` },
-    { label: menu?.name || 'Menu Details' }
+    { label: toTitleCase(menu?.name) || 'Menu Details' }
   ];
 
   if (error) return <div className="text-error-500">{error}</div>;
@@ -129,7 +138,7 @@ function MenuDetails() {
             </div>
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
-              <button
+              {/* <button
                 onClick={() => navigate(`/edit-menu/${outletId}/${menuId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
               >
@@ -137,7 +146,7 @@ function MenuDetails() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
                 <span className="hidden sm:inline">Edit</span>
-              </button>
+              </button> */}
               <button
                 onClick={() => setShowDeleteModal(true)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
@@ -181,7 +190,7 @@ function MenuDetails() {
                   <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{menu.name}</div>
+                  <div className="text-base font-medium">{toTitleCase(menu.name)}</div>
                   <div className="text-sm text-gray-500">Menu Name</div>
                 </div>
               </div>
@@ -212,7 +221,7 @@ function MenuDetails() {
                         menu.food_type === 'egg' ? 'text-amber-500' :
                           'text-success-500'
                     }`}>
-                    {menu.food_type?.toUpperCase()}
+                    {toTitleCase(menu.food_type?.replace('_', ' '))}
                   </div>
                   <div className="text-sm text-gray-500">Food Type</div>
                 </div>
@@ -224,7 +233,7 @@ function MenuDetails() {
                   <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{menu.category_name}</div>
+                  <div className="text-base font-medium">{toTitleCase(menu.category_name)}</div>
                   <div className="text-sm text-gray-500">Category</div>
                 </div>
               </div>
@@ -332,8 +341,18 @@ function MenuDetails() {
               )}
 
 
-
-
+              {/* Description - Only if not empty */}
+              {menu.description?.trim() && (
+                <div className="flex items-start p-3 sm:col-span-2">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium break-words">{toTitleCase(menu.description)}</div>
+                    <div className="text-sm text-gray-500">Description</div>
+                  </div>
+                </div>
+              )}
 
               {/* Ingredients - Only if not empty */}
               {menu.ingredients?.trim() && (
@@ -342,14 +361,39 @@ function MenuDetails() {
                     <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium break-words">{menu.ingredients}</div>
+                    <div className="text-base font-medium break-words">{toTitleCase(menu.ingredients)}</div>
                     <div className="text-sm text-gray-500">Ingredients</div>
                   </div>
                 </div>
               )}
             </div>
 
-
+            {/* Portions Section - Only show if portions have valid data */}
+            {menu.portions?.some(portion => portion.portion_name || portion.price || portion.unit_value || portion.unit_type) && (
+              <div className="mt-6">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Portions</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  {menu.portions.map((portion, idx) => (
+                    <div key={idx} className="flex items-center p-3">
+                      <div className="w-8 h-8 flex items-center justify-center">
+                        <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <div className="ml-3">
+                        <div className="text-base font-medium">{toTitleCase(portion.portion_name)}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-brand-500 font-medium">₹{portion.price}</span>
+                          {(portion.unit_value || portion.unit_type) && (
+                            <span className="text-sm text-gray-500">
+                              {portion.unit_value} {portion.unit_type}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Status and Meta Info */}
             <div className="mt-6 pt-4 border-t border-gray-200">

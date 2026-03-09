@@ -20,6 +20,15 @@ import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmMod
 import Breadcrumb from '../../Breadcrumb';
 import { toastController } from '../../../utils/toastController';
 
+// Helper to convert strings to Title Case
+const toTitleCase = (str) =>
+  str
+    ? str
+        .toString()
+        .toLowerCase()
+        .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1))
+    : '';
+
 function CategoryDetails() {
   const { outletId, menuCategoryId } = useParams();
   const { adminData } = useAdmin();
@@ -31,13 +40,21 @@ function CategoryDetails() {
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Move breadcrumbItems inside the render since it needs category data
+  // Breadcrumb items (uses category data for outlet/category names)
   const getBreadcrumbItems = () => [
     { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
-    { label: category?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
-    { label: 'Categories', path: `/categories/${outletId}` },
-    { label: 'Category Details' }
+    {
+      label: category?.outlet_name ? toTitleCase(category.outlet_name) : 'Outlet',
+      path: `/view-outlet/${outletId}`,
+    },
+    {
+      label: 'Categories',
+      path: `/categories/${outletId}`,
+    },
+    {
+      label: category?.name ? toTitleCase(category.name) : 'Category Details',
+    },
   ];
 
   useEffect(() => {
@@ -161,7 +178,7 @@ function CategoryDetails() {
             <div className="mb-6">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2 flex items-center gap-2">
                 <FontAwesomeIcon icon={faUtensils} className="w-6 h-6 text-brand-500" />
-                {category.name}
+                {toTitleCase(category.name)}
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -205,7 +222,9 @@ function CategoryDetails() {
                     <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{category.created_by}</div>
+                    <div className="text-base font-medium">
+                      {toTitleCase(category.created_by)}
+                    </div>
                     <div className="text-sm text-gray-500">Created By</div>
                   </div>
                 </div>
@@ -229,7 +248,9 @@ function CategoryDetails() {
                     <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{category.updated_by}</div>
+                    <div className="text-base font-medium">
+                      {toTitleCase(category.updated_by)}
+                    </div>
                     <div className="text-sm text-gray-500">Updated By</div>
                   </div>
                 </div>
@@ -283,7 +304,7 @@ function CategoryDetails() {
                       <div className="flex items-start justify-between mb-2">
                         {/* Menu Name - Left Top */}
                         <h4 className="menu-name text-xs font-lato text-gray-900 line-clamp-2 transition-colors duration-300 leading-tight flex-1 pr-1">
-                          {menu.menu_name}
+                          {toTitleCase(menu.menu_name)}
                         </h4>
                         
                         {/* Menu Icon - Right Top */}
@@ -318,13 +339,21 @@ function CategoryDetails() {
                                 : 'bg-gray-500'
                             }`}
                           />
-                          {menu.food_type === 'veg' ? 'Veg' : menu.food_type === 'nonveg' ? 'Nonveg' : 'O'}
+                          {toTitleCase(
+                            menu.food_type === 'veg'
+                              ? 'veg'
+                              : menu.food_type === 'nonveg'
+                              ? 'nonveg'
+                              : menu.food_type || 'other'
+                          )}
                         </span>
 
-                        {/* Price - Right Bottom */}
-                        <span className="price-text text-xs font-lato text-success-600 group-hover:text-success-700 transition-all duration-300 flex-shrink-0 ml-auto">
-                          ₹{menu.price}
-                        </span>
+                        {/* Price - Right Bottom (uses default_price from API) */}
+                        {menu.default_price != null && (
+                          <span className="price-text text-xs font-lato text-success-600 group-hover:text-success-700 transition-all duration-300 flex-shrink-0 ml-auto">
+                            ₹{Number(menu.default_price).toFixed(2)}
+                          </span>
+                        )}
                       </div>
                     </div>
                   ))}

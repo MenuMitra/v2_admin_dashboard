@@ -7,7 +7,6 @@ import { useAuth } from '../../../hooks/useAuth';
 import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
-  Textarea
 } from '../../forms/FormElements';
 import CustomSelect from '../../common/CustomSelect';
 import SaveButton from '../../common/SaveButton';
@@ -353,23 +352,13 @@ function CreateMenu() {
     fetchSpicyIndexList();
   }, []); // Empty dependency array as this only needs to run once
 
-  // Portion handlers
-
-
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !menuCatId || !foodType) {
+    if (!name || !menuCatId || !foodType || !price) {
       toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
-      return;
-    }
-
-    // Add validation for price
-    if (!price) {
-      toastController.error('Price is required');
-      setError('Price is required');
       return;
     }
 
@@ -387,16 +376,19 @@ function CreateMenu() {
         user_id: adminData?.user_id,
         name: name.trim(),
         food_type: foodType,
-        description: '',
         spicy_index: spicyIndex,
         ingredients: ingredients.trim(),
-        offer: '0',
         app_source: 'admin_app',
-        portion_data: [{
-          portion_name: '',
-          price: parseInt(price, 10),
-          flag: 1
-        }],
+        // Backend still expects portion_data; send a single default portion using the main price
+        portion_data: [
+          {
+            portion_name: 'Default',
+            price: parseInt(price, 10),
+            unit_value: '',
+            unit_type: '',
+            flag: 1,
+          },
+        ],
         images: images // This will now directly receive base64 strings from ImageUploader
       };
 
@@ -523,16 +515,15 @@ function CreateMenu() {
 
               <div className="w-full">
                 <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  Price
-                  <span className="text-red-500">*</span>
+                  Price <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
                   value={price}
                   onChange={e => setPrice(e.target.value)}
                   placeholder="Enter price"
-                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   min="0"
+                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
@@ -549,7 +540,6 @@ function CreateMenu() {
                 />
               </div>
             </div>
-
             {/* Images */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -620,37 +610,37 @@ function CreateMenu() {
 
               {/* Image Previews */}
               {previews.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-3">
                   {previews.map((preview, index) => (
                     <div
                       key={index}
-                      className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-16 h-16"
+                      className="relative flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-24 h-24 border"
                     >
                       {/* Image */}
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                       />
 
-                      {/* Delete Button Overlay */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(index)}
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 transition-colors duration-200"
-                        >
-                          <FontAwesomeIcon
-                            icon={faTimes}
-                            className="w-4 h-4 text-white"
-                          />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      {/* Always-visible delete button in top-right */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 text-white text-xs transition-colors duration-200"
+                        title="Remove image"
+                      >
+                        <FontAwesomeIcon
+                          icon={faTimes}
+                          className="w-3 h-3"
+                        />
+                      </button>
+                    </div >
+                  ))
+                  }
+                </div >
               )}
-            </div>
+            </div >
             {error && <div className="text-error-500 text-center">{error}</div>}
             {successMsg && <div className="text-success-600 text-center">{successMsg}</div>}
             <button
@@ -660,10 +650,10 @@ function CreateMenu() {
             >
               {loading ? 'Creating...' : 'Create Menu'}
             </button>
-          </form>
-        </div>
-      </div>
-    </div>
+          </form >
+        </div >
+      </div >
+    </div >
   );
 }
 
