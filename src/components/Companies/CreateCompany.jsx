@@ -758,8 +758,8 @@ function CreateCompany() {
         }
       );
 
-      // Invalidate the companies cache to refresh companies list
-      queryClient.invalidateQueries({ queryKey: queryKeys.companies });
+      // Invalidate the companies list cache so the new company appears immediately
+      queryClient.invalidateQueries({ queryKey: queryKeys.companies.list() });
 
       if (stayOnPage) {
         resetForm();

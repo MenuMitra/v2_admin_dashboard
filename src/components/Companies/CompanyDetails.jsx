@@ -279,7 +279,7 @@ function CompanyDetails() {
                     />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{companyData.created_by}</div>
+                    <div className="text-base font-medium">{toTitleCase(companyData.created_by)}</div>
                     <div className="text-sm text-gray-500">Created By</div>
                   </div>
                 </div>
@@ -309,7 +309,7 @@ function CompanyDetails() {
                     />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium">{companyData.updated_by}</div>
+                    <div className="text-base font-medium">{toTitleCase(companyData.updated_by)}</div>
                     <div className="text-sm text-gray-500">Updated By</div>
                   </div>
                 </div>
@@ -366,10 +366,10 @@ function CompanyDetails() {
                             <div className="ml-3">
                               <div className="text-base font-medium">
                                 {contact.address_line1
-                                  ? contact.address_line1.charAt(0).toUpperCase() + contact.address_line1.slice(1)
+                                  ? toTitleCase(contact.address_line1)
                                   : ""}
                                 {contact.address_line2 &&
-                                  `, ${contact.address_line2.charAt(0).toUpperCase() + contact.address_line2.slice(1)}`}
+                                  `, ${toTitleCase(contact.address_line2)}`}
                               </div>
                               <div className="text-sm text-gray-500">Address</div>
                             </div>
@@ -385,7 +385,7 @@ function CompanyDetails() {
                             </div>
                             <div className="ml-3">
                               <div className="text-base font-medium">
-                                {contact.city}, {contact.state} - {contact.pin}
+                                {toTitleCase(contact.city)}, {toTitleCase(contact.state)} - {contact.pin}
                               </div>
                               <div className="text-sm text-gray-500">City, State, PIN</div>
                             </div>
@@ -400,7 +400,7 @@ function CompanyDetails() {
                               />
                             </div>
                             <div className="ml-3">
-                              <div className="text-base font-medium">{contact.landmark}</div>
+                              <div className="text-base font-medium">{toTitleCase(contact.landmark)}</div>
                               <div className="text-sm text-gray-500">Landmark</div>
                             </div>
                           </div>
@@ -533,7 +533,7 @@ function CompanyDetails() {
                               />
                             </div>
                             <div className="ml-3">
-                              <div className="text-base font-medium">{owner.address}</div>
+                              <div className="text-base font-medium">{toTitleCase(owner.address)}</div>
                               <div className="text-sm text-gray-500">Address</div>
                             </div>
                           </div>
@@ -563,7 +563,7 @@ function CompanyDetails() {
                                           {toTitleCase(outlet.outlet_name)} ({outlet.outlet_code && (outlet.outlet_code)})
                                         </div>
                                         <div className="text-xs text-gray-500">
-                                          {outlet.outlet_address || "-"}
+                                          {toTitleCase(outlet.outlet_address) || "-"}
                                         </div>
                                       </div>
                                       <FontAwesomeIcon

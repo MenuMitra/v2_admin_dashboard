@@ -7,7 +7,6 @@ import { useAuth } from '../../../hooks/useAuth';
 import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
-  Textarea
 } from '../../forms/FormElements';
 import CustomSelect from '../../common/CustomSelect';
 import SaveButton from '../../common/SaveButton';
@@ -353,6 +352,7 @@ function CreateMenu() {
     fetchSpicyIndexList();
   }, []); // Empty dependency array as this only needs to run once
 
+<<<<<<< HEAD
   // Portion handlers
 
 
@@ -361,11 +361,19 @@ function CreateMenu() {
     e.preventDefault();
 
     if (!name || !menuCatId || !foodType) {
+=======
+  // Form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!name || !menuCatId || !foodType || !price) {
+>>>>>>> Rushi
       toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
       return;
     }
 
+<<<<<<< HEAD
     // Add validation for price
     if (!price) {
       toastController.error('Price is required');
@@ -373,6 +381,8 @@ function CreateMenu() {
       return;
     }
 
+=======
+>>>>>>> Rushi
     setLoading(true);
     setError('');
     setSuccessMsg('');
@@ -387,6 +397,7 @@ function CreateMenu() {
         user_id: adminData?.user_id,
         name: name.trim(),
         food_type: foodType,
+<<<<<<< HEAD
         description: '',
         spicy_index: spicyIndex,
         ingredients: ingredients.trim(),
@@ -397,6 +408,21 @@ function CreateMenu() {
           price: parseInt(price, 10),
           flag: 1
         }],
+=======
+        spicy_index: spicyIndex,
+        ingredients: ingredients.trim(),
+        app_source: 'admin_app',
+        // Backend still expects portion_data; send a single default portion using the main price
+        portion_data: [
+          {
+            portion_name: 'Default',
+            price: parseInt(price, 10),
+            unit_value: '',
+            unit_type: '',
+            flag: 1,
+          },
+        ],
+>>>>>>> Rushi
         images: images // This will now directly receive base64 strings from ImageUploader
       };
 
@@ -523,14 +549,22 @@ function CreateMenu() {
 
               <div className="w-full">
                 <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
+<<<<<<< HEAD
                   Price
                   <span className="text-red-500">*</span>
+=======
+                  Price <span className="text-red-500">*</span>
+>>>>>>> Rushi
                 </label>
                 <input
                   type="number"
                   value={price}
                   onChange={e => setPrice(e.target.value)}
                   placeholder="Enter price"
+<<<<<<< HEAD
+=======
+                  min="0"
+>>>>>>> Rushi
                   className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   min="0"
                 />
@@ -549,7 +583,10 @@ function CreateMenu() {
                 />
               </div>
             </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> Rushi
             {/* Images */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -620,18 +657,19 @@ function CreateMenu() {
 
               {/* Image Previews */}
               {previews.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-3">
                   {previews.map((preview, index) => (
                     <div
                       key={index}
-                      className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-16 h-16"
+                      className="relative flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-24 h-24 border"
                     >
                       {/* Image */}
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                       />
+<<<<<<< HEAD
 
                       {/* Delete Button Overlay */}
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
@@ -646,6 +684,21 @@ function CreateMenu() {
                           />
                         </button>
                       </div>
+=======
+                      
+                      {/* Always-visible delete button in top-right */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 text-white text-xs transition-colors duration-200"
+                        title="Remove image"
+                      >
+                        <FontAwesomeIcon 
+                          icon={faTimes} 
+                          className="w-3 h-3"
+                        />
+                      </button>
+>>>>>>> Rushi
                     </div>
                   ))}
                 </div>
