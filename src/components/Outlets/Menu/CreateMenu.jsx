@@ -7,7 +7,6 @@ import { useAuth } from '../../../hooks/useAuth';
 import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
-  Textarea
 } from '../../forms/FormElements';
 import CustomSelect from '../../common/CustomSelect';
 import SaveButton from '../../common/SaveButton';
@@ -185,13 +184,9 @@ function CreateMenu() {
   const [name, setName] = useState('');
   const [menuCatId, setMenuCatId] = useState('');
   const [foodType, setFoodType] = useState('');
-  const [description, setDescription] = useState('');
   const [spicyIndex, setSpicyIndex] = useState('');
   const [ingredients, setIngredients] = useState('');
-  const [offer, setOffer] = useState('');
-  const [portionData, setPortionData] = useState([
-    { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
-  ]);
+  const [price, setPrice] = useState('');
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -364,39 +359,13 @@ function CreateMenu() {
     fetchSpicyIndexList();
   }, []); // Empty dependency array as this only needs to run once
 
-  // Portion handlers
-  const handlePortionChange = (idx, field, value) => {
-    setPortionData(prev =>
-      prev.map((portion, i) =>
-        i === idx ? { ...portion, [field]: value } : portion
-      )
-    );
-  };
-  const addPortion = () => {
-    setPortionData(prev => [
-      ...prev,
-      { portion_name: '', price: '', unit_value: '', unit_type: '', flag: 0 }
-    ]);
-  };
-  const removePortion = (idx) => {
-    setPortionData(prev => prev.filter((_, i) => i !== idx));
-  };
-
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!name || !menuCatId || !foodType) {
+    if (!name || !menuCatId || !foodType || !price) {
       toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
-      return;
-    }
-
-    // Add validation for portion prices
-    const missingPrices = portionData.some(portion => !portion.price);
-    if (missingPrices) {
-      toastController.error('Price is required for all portions');
-      setError('Price is required for all portions');
       return;
     }
 
@@ -414,18 +383,19 @@ function CreateMenu() {
         user_id: adminData?.user_id,
         name: name.trim(),
         food_type: foodType,
-        description: description.trim(),
         spicy_index: spicyIndex,
         ingredients: ingredients.trim(),
-        offer: offer || '0',
         app_source: 'admin_app',
-        portion_data: portionData.map((portion, index) => ({
-          portion_name: portion.portion_name.trim(),
-          price: parseInt(portion.price, 10),
-          unit_value: portion.unit_value.trim(),
-          unit_type: portion.unit_type.trim(),
-          flag: index === 0 ? 1 : 0
-        })),
+        // Backend still expects portion_data; send a single default portion using the main price
+        portion_data: [
+          {
+            portion_name: 'Default',
+            price: parseInt(price, 10),
+            unit_value: '',
+            unit_type: '',
+            flag: 1,
+          },
+        ],
         images: images // This will now directly receive base64 strings from ImageUploader
       };
 
@@ -565,15 +535,14 @@ function CreateMenu() {
 
               <div className="w-full">
                 <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  Offer (%)
+                  Price <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
-                  value={offer}
-                  onChange={e => setOffer(e.target.value)}
-                  placeholder="e.g. 10"
+                  value={price}
+                  onChange={e => setPrice(e.target.value)}
+                  placeholder="Enter price"
                   min="0"
-                  max="100"
                   className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
@@ -590,114 +559,6 @@ function CreateMenu() {
                   className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
-            </div>
-
-            {/* Description field - full width */}
-            <div className="w-full">
-              <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                placeholder="Enter menu description"
-                rows={3}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            {/* Portion Data */}
-            <div>
-              <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                Portions
-              </label>
-              {portionData.map((portion, idx) => (
-                <div key={idx} className="mb-4 flex items-start gap-3">
-                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 flex-1 relative">
-                    <div className="w-full">
-                      {idx === 0 && (
-                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                          Portion Name
-                        </label>
-                      )}
-                      <input
-                        type="text"
-                        placeholder="Portion Name"
-                        value={portion.portion_name}
-                        onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
-                        className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div className="w-full">
-                      {idx === 0 && (
-                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                          Price <span className="text-red-500">*</span>
-                        </label>
-                      )}
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={portion.price}
-                        onChange={e => handlePortionChange(idx, 'price', e.target.value)}
-                        required={idx === 0}
-                        min="0"
-                        className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div className="w-full">
-                      {idx === 0 && (
-                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                          Unit Value
-                        </label>
-                      )}
-                      <input
-                        type="number"
-                        placeholder="Unit Value"
-                        value={portion.unit_value}
-                        onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
-                        min="0"
-                        className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                      />
-                    </div>
-
-                    <div className="w-full relative" style={{ zIndex: 50 - idx * 10 }}>
-                      {idx === 0 && (
-                        <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                          Unit Type
-                        </label>
-                      )}
-                      <CustomSelect
-                        value={portion.unit_type}
-                        onChange={(e) => handlePortionChange(idx, 'unit_type', e.target.value)}
-                        options={unitTypeOptions}
-                        placeholder="Select Unit"
-                        className="w-full h-10 rounded-lg"
-                      />
-                    </div>
-                  </div>
-
-                  <div className={`pt-${idx === 0 ? '8' : '2'}`}>
-                    {portionData.length > 1 && (
-                      <button
-                        type="button"
-                        className="text-error-500 hover:text-error-700 p-2 rounded-full hover:bg-error-50"
-                        onClick={() => removePortion(idx)}
-                      >
-                        <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-full mt-2 shadow-sm"
-                onClick={addPortion}
-              >
-                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-                <span>Add Portion</span>
-              </button>
             </div>
             {/* Images */}
             <div className="mb-4">
@@ -769,32 +630,31 @@ function CreateMenu() {
 
               {/* Image Previews */}
               {previews.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-3">
                   {previews.map((preview, index) => (
                     <div 
                       key={index}
-                      className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-16 h-16"
+                      className="relative flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-24 h-24 border"
                     >
                       {/* Image */}
                       <img
                         src={preview}
                         alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-contain"
                       />
                       
-                      {/* Delete Button Overlay */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveImage(index)}
-                          className="w-8 h-8 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 transition-colors duration-200"
-                        >
-                          <FontAwesomeIcon 
-                            icon={faTimes} 
-                            className="w-4 h-4 text-white"
-                          />
-                        </button>
-                      </div>
+                      {/* Always-visible delete button in top-right */}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 text-white text-xs transition-colors duration-200"
+                        title="Remove image"
+                      >
+                        <FontAwesomeIcon 
+                          icon={faTimes} 
+                          className="w-3 h-3"
+                        />
+                      </button>
                     </div>
                   ))}
                 </div>

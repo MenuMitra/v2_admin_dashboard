@@ -28,6 +28,15 @@ import {
 import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import Breadcrumb from '../../Breadcrumb';
 
+// Helper to convert strings to Title Case
+const toTitleCase = (str) =>
+  str
+    ? str
+        .toString()
+        .toLowerCase()
+        .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1))
+    : '';
+
 function MenuDetails() {
   const { outletId, menuId } = useParams();
   const { adminData } = useAdmin();
@@ -95,9 +104,9 @@ function MenuDetails() {
   const getBreadcrumbItems = () => [
     { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
-    { label: menu?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: toTitleCase(menu?.outlet_name) || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Menus', path: `/menus/${outletId}` },
-    { label: menu?.name || 'Menu Details' }
+    { label: toTitleCase(menu?.name) || 'Menu Details' }
   ];
 
   if (error) return <div className="text-error-500">{error}</div>;
@@ -181,7 +190,7 @@ function MenuDetails() {
                   <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{menu.name}</div>
+                  <div className="text-base font-medium">{toTitleCase(menu.name)}</div>
                   <div className="text-sm text-gray-500">Menu Name</div>
                 </div>
               </div>
@@ -212,7 +221,7 @@ function MenuDetails() {
                         menu.food_type === 'egg' ? 'text-amber-500' :
                           'text-success-500'
                     }`}>
-                    {menu.food_type?.toUpperCase()}
+                    {toTitleCase(menu.food_type?.replace('_', ' '))}
                   </div>
                   <div className="text-sm text-gray-500">Food Type</div>
                 </div>
@@ -224,7 +233,7 @@ function MenuDetails() {
                   <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{menu.category_name}</div>
+                  <div className="text-base font-medium">{toTitleCase(menu.category_name)}</div>
                   <div className="text-sm text-gray-500">Category</div>
                 </div>
               </div>
@@ -340,7 +349,7 @@ function MenuDetails() {
                     <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium break-words">{menu.description}</div>
+                    <div className="text-base font-medium break-words">{toTitleCase(menu.description)}</div>
                     <div className="text-sm text-gray-500">Description</div>
                   </div>
                 </div>
@@ -353,7 +362,7 @@ function MenuDetails() {
                     <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium break-words">{menu.ingredients}</div>
+                    <div className="text-base font-medium break-words">{toTitleCase(menu.ingredients)}</div>
                     <div className="text-sm text-gray-500">Ingredients</div>
                   </div>
                 </div>
@@ -371,7 +380,7 @@ function MenuDetails() {
                         <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
                       </div>
                       <div className="ml-3">
-                        <div className="text-base font-medium">{portion.portion_name}</div>
+                        <div className="text-base font-medium">{toTitleCase(portion.portion_name)}</div>
                         <div className="flex items-center gap-2">
                           <span className="text-brand-500 font-medium">₹{portion.price}</span>
                           {(portion.unit_value || portion.unit_type) && (

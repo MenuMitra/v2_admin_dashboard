@@ -7,9 +7,6 @@ import { useAuth } from '../../../hooks/useAuth';
 import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
-  SelectInput,
-  FileInput,
-  Textarea
 } from '../../forms/FormElements';
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -187,19 +184,13 @@ function EditMenu() {
   const [name, setName] = useState('');
   const [menuCatId, setMenuCatId] = useState('');
   const [foodType, setFoodType] = useState('');
-  const [description, setDescription] = useState('');
   const [spicyIndex, setSpicyIndex] = useState('');
   const [ingredients, setIngredients] = useState('');
-  const [offer, setOffer] = useState('');
-  const [portionData, setPortionData] = useState([
-    { menu_portion_id: null, portion_name: '', price: '', unit_value: '', unit_type: '', flag: 1 }
-  ]);
+  const [price, setPrice] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
 
-  // Add is_special to state
-  const [isSpecial, setIsSpecial] = useState(false);
   const [existingImages, setExistingImages] = useState([]);
 
   // Add state for name error
@@ -320,38 +311,57 @@ function EditMenu() {
           }
         );
 
-        const menuData = response.data.detail;
-        setName(menuData.name);
-        setOutletName(menuData.outlet_name);
-        setMenuCatId(menuData.menu_cat_id.toString());
-        setFoodType(menuData.food_type);
-        setDescription(menuData.description);
-        setSpicyIndex(menuData.spicy_index?.toString() || '');
-        setIngredients(menuData.ingredients);
-        setOffer(menuData.offer?.toString() || '');
-        setIsSpecial(menuData.is_special || false);
-
+        const menuData = response.data.detail || {};
+        setName(menuData.name || '');
+        setOutletName(menuData.outlet_name || '');
+        setMenuCatId(
+          menuData.menu_cat_id !== null && menuData.menu_cat_id !== undefined
+            ? menuData.menu_cat_id.toString()
+            : ''
+        );
+        setFoodType(menuData.food_type || '');
+        setSpicyIndex(
+          menuData.spicy_index !== null && menuData.spicy_index !== undefined
+            ? menuData.spicy_index.toString()
+            : ''
+        );
+        setIngredients(menuData.ingredients || '');
         // Format existing images
-        const formattedExistingImages = menuData.images?.map(img => ({
-          id: img.image_id,
-          url: img.image,
-          flag: 1 // Initially all images are kept
-        })) || [];
+        const formattedExistingImages =
+          Array.isArray(menuData.images)
+            ? menuData.images.map(img => ({
+                id: img.image_id,
+                url: img.image,
+                flag: 1, // Initially all images are kept
+              }))
+            : [];
 
         setExistingImages(formattedExistingImages);
         setPreviews([]); // Clear previews for new images
         setImages([]); // Clear new images array
-        setPortionData(menuData.portions.map((p, idx) => ({
-          menu_portion_id: p.menu_portion_id,
-          portion_name: p.portion_name,
-          price: p.price.toString(),
-          unit_value: p.unit_value,
-          unit_type: p.unit_type,
-          flag: idx === 0 ? 1 : 0
-        })));
+
+        const portions = Array.isArray(menuData.portions)
+          ? menuData.portions
+          : [];
+
+        if (portions.length > 0) {
+          const primary = portions[0];
+          setPrice(
+            primary.price !== null && primary.price !== undefined
+              ? primary.price.toString()
+              : ''
+          );
+        } else if (
+          menuData.default_price !== null &&
+          menuData.default_price !== undefined
+        ) {
+          setPrice(menuData.default_price.toString());
+        } else {
+          setPrice('');
+        }
       } catch (err) {
         toastController.error('Failed to load menu details');
-        setError('Failed to load menu details');
+        // Do not set the global form error here to avoid showing a stuck error message
       }
     };
 
@@ -385,7 +395,7 @@ function EditMenu() {
         setCategories(validCategories);
       } catch (err) {
         toastController.error('Failed to load menu categories');
-        setError('Failed to load menu categories');
+        // Keep this as a toast only; don't show persistent form error
       }
     };
 
@@ -416,7 +426,7 @@ function EditMenu() {
         setFoodTypes(types);
       } catch (err) {
         toastController.error('Failed to load food types');
-        setError('Failed to load food types');
+        // Avoid setting global error so the page doesn't show a permanent error banner
       }
     };
 
@@ -445,45 +455,18 @@ function EditMenu() {
         setSpicyIndexOptions(indexOptions);
       } catch (err) {
         toastController.error('Failed to load spicy index options');
-        setError('Failed to load spicy index options');
+        // Only use a toast for this background error
       }
     };
 
     fetchSpicyIndexList();
   }, []);
 
-  // Portion handlers
-  const handlePortionChange = (idx, field, value) => {
-    setPortionData(prev =>
-      prev.map((portion, i) =>
-        i === idx ? { ...portion, [field]: value } : portion
-      )
-    );
-  };
-
-  const addPortion = () => {
-    setPortionData(prev => [
-      ...prev,
-      { 
-        menu_portion_id: null,
-        portion_name: '', 
-        price: '', 
-        unit_value: '', 
-        unit_type: '', 
-        flag: 0 
-      }
-    ]);
-  };
-
-  const removePortion = (idx) => {
-    setPortionData(prev => prev.filter((_, i) => i !== idx));
-  };
-
   // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!name || !menuCatId || !foodType || !portionData[0].price) {
+    if (!name || !menuCatId || !foodType || !price) {
       toastController.error('Please fill in all required fields');
       setError('Please fill in all required fields');
       return;
@@ -496,26 +479,16 @@ function EditMenu() {
     try {
       const token = getToken();
 
-      // Format portion data properly
-      const formattedPortionData = portionData.map((portion, index) => {
-        const basePortionData = {
-          portion_name: portion.portion_name?.trim() || '',
-          price: parseInt(portion.price, 10),
-          unit_value: portion.unit_value?.trim() || '',
-          unit_type: portion.unit_type?.trim() || '',
-          flag: index === 0 ? 1 : 0
-        };
-
-        // Only include menu_portion_id if it exists (for existing portions)
-        if (portion.menu_portion_id) {
-          return {
-            menu_portion_id: portion.menu_portion_id,
-            ...basePortionData
-          };
-        }
-
-        return basePortionData;
-      });
+      // Build portion data from single price field
+      const formattedPortionData = [
+        {
+          portion_name: 'Default',
+          price: parseInt(price, 10),
+          unit_value: '',
+          unit_type: '',
+          flag: 1,
+        },
+      ];
 
       // Construct the JSON payload
       const payload = {
@@ -523,14 +496,11 @@ function EditMenu() {
         outlet_id: Number(outletId),
         user_id: adminData?.user_id,
         name: name?.trim() || '',
-        portion_data: formattedPortionData, // Use formatted portion data
+        portion_data: formattedPortionData, // Use formatted portion data from single price
         food_type: foodType,
         menu_cat_id: Number(menuCatId),
         spicy_index: spicyIndex ? spicyIndex.toString() : null,
-        offer: offer ? Number(offer) : 0,
-        description: description?.trim() || '',
         ingredients: ingredients?.trim() || '',
-        is_special: isSpecial,
         images: images,
         existing_image_ids: existingImages
           .filter(img => img.flag === 0)
@@ -660,14 +630,13 @@ function EditMenu() {
                 placeholder="Select Spicy Index"
               />
               <TextInput
-                label="Offer (%)"
+                label="Price"
                 className= "rounded-lg"
-                value={offer}
-                onChange={e => setOffer(e.target.value)}
-                placeholder="e.g. 10"
+                value={price}
+                onChange={e => setPrice(e.target.value)}
+                placeholder="Enter price"
                 type="number"
                 min="0"
-                max="100"
               />
               <TextInput
                 label="Ingredients"
@@ -676,97 +645,6 @@ function EditMenu() {
                 onChange={e => setIngredients(e.target.value)}
                 placeholder="e.g. dal, vegetables"
               />
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="is_special"
-                  checked={isSpecial}
-                  onChange={(e) => setIsSpecial(e.target.checked)}
-                  className="h-4 w-4 text-brand-600 focus:ring-brand-500 border-gray-300 rounded-lg"
-                />
-                <label htmlFor="is_special" className="text-sm font-medium text-gray-700">
-                  Special Item
-                </label>
-              </div>
-            </div>
-
-            {/* Description field outside the grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div className="sm:col-span-1">
-            <Textarea
-              label="Description"
-              className="rounded-lg"
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Enter menu description"
-              rows={3}
-            />
-            </div>
-            </div>
-
-            {/* Portion Data */}
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                Portions
-              </label>
-              {portionData.map((portion, idx) => (
-                <div key={idx} className="mb-4 flex items-start gap-3">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 flex-1">
-                    <TextInput
-                      placeholder="Portion Name"
-                      className="rounded-lg"
-                      value={portion.portion_name}
-                      onChange={e => handlePortionChange(idx, 'portion_name', e.target.value)}
-                      label={idx === 0 ? "Portion Name" : ""}
-                    />
-                    <TextInput
-                      placeholder="Price"
-                      type="number"
-                      className="rounded-lg"
-                      value={portion.price}
-                      onChange={e => handlePortionChange(idx, 'price', e.target.value)}
-                      required={idx === 0}
-                      min="0"
-                      label={idx === 0 ? "Price" : ""}
-                    />
-                    <TextInput
-                      placeholder="Unit Value"
-                      className="rounded-lg"
-                      type="number"
-                      value={portion.unit_value}
-                      onChange={e => handlePortionChange(idx, 'unit_value', e.target.value)}
-                      label={idx === 0 ? "Unit Value" : ""}
-                    />
-                    <div className="relative" style={{ zIndex: 50 - idx * 10 }}>
-                      <CustomDropdown
-                        value={portion.unit_type}
-                        onChange={e => handlePortionChange(idx, 'unit_type', e.target.value)}
-                        options={unitTypeOptions}
-                        placeholder="Select Unit"
-                        label={idx === 0 ? "Unit Type" : ""}
-                      />
-                    </div>
-                  </div>
-                  <div className={`pt-${idx === 0 ? '8' : '2'}`}>
-                    <button
-                      type="button"
-                      className="text-error-500 hover:text-error-700 p-2 rounded-full hover:bg-error-50"
-                      onClick={() => removePortion(idx)}
-                      disabled={portionData.length === 1}
-                    >
-                      <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-full mt-2 shadow-sm"
-                onClick={addPortion}
-              >
-                <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
-                <span>Add Portion</span>
-              </button>
             </div>
 
             {/* Images Section */}
@@ -838,33 +716,35 @@ function EditMenu() {
               </div>
 
               {/* Image Previews */}
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-3">
                 {/* Existing Images */}
                 {existingImages.map((img) => (
                   <div 
                     key={img.id}
-                    className={`relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-[100px] aspect-square ${img.flag === 0 ? 'opacity-50' : 'opacity-100'}`}
+                    className={`relative flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-24 h-24 border ${img.flag === 0 ? 'opacity-50' : 'opacity-100'}`}
                   >
                     <img
                       src={img.url}
                       alt="Menu item"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
-                    
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                      <button
-                        type="button"
-                        onClick={() => img.flag === 1 ? handleRemoveExistingImage(img.id) : handleRestoreExistingImage(img.id)}
-                        className={`w-8 h-8 flex items-center justify-center rounded-full 
-                          ${img.flag === 1 ? 'bg-error-500 hover:bg-error-600' : 'bg-success-500 hover:bg-success-600'}
-                          transition-colors duration-200`}
-                      >
-                        <FontAwesomeIcon 
-                          icon={img.flag === 1 ? faTimes : faPlus}
-                          className="w-4 h-4 text-white"
-                        />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        img.flag === 1
+                          ? handleRemoveExistingImage(img.id)
+                          : handleRestoreExistingImage(img.id)
+                      }
+                      className={`absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full text-white text-xs
+                        ${img.flag === 1 ? 'bg-error-500 hover:bg-error-600' : 'bg-success-500 hover:bg-success-600'}
+                        transition-colors duration-200`}
+                      title={img.flag === 1 ? 'Remove image' : 'Restore image'}
+                    >
+                      <FontAwesomeIcon 
+                        icon={img.flag === 1 ? faTimes : faPlus}
+                        className="w-3 h-3"
+                      />
+                    </button>
                   </div>
                 ))}
 
@@ -872,26 +752,24 @@ function EditMenu() {
                 {previews.map((preview, index) => (
                   <div 
                     key={`new-${index}`}
-                    className="relative group flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-[100px] aspect-square"
+                    className="relative flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden w-27 h-27 border"
                   >
                     <img
                       src={preview}
                       alt={`New preview ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
-                    
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveNewImage(index)}
-                        className="w-8 h-8 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 transition-colors duration-200"
-                      >
-                        <FontAwesomeIcon 
-                          icon={faTimes} 
-                          className="w-4 h-4 text-white"
-                        />
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveNewImage(index)}
+                      className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-error-500 hover:bg-error-600 text-white text-xs transition-colors duration-200"
+                      title="Remove image"
+                    >
+                      <FontAwesomeIcon 
+                        icon={faTimes} 
+                        className="w-3 h-3"
+                      />
+                    </button>
                   </div>
                 ))}
               </div>
