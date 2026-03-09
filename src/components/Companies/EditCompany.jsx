@@ -873,6 +873,7 @@ function EditCompany() {
                         onChange={(e) => updateContact(index, 'state', e.target.value)}
                         placeholder="Select state"
                         required={true}
+                        isSearchable={true}
                         className="rounded-lg"
                         options={[
                           { value: "AN", label: "Andaman and Nicobar Islands" },

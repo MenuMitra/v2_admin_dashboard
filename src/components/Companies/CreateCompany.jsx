@@ -123,7 +123,7 @@ function CreateCompany() {
     if (field === "contact_number") {
       // Remove all non-digit characters
       const filteredValue = value.replace(/[^0-9]/g, '');
-      
+
       // Check if the first digit is invalid (0-5) and prevent input
       if (filteredValue.length > 0) {
         const firstDigit = filteredValue.charAt(0);
@@ -150,10 +150,10 @@ function CreateCompany() {
           });
         }
       }
-      
+
       // Limit to 10 digits and update state
       const finalValue = filteredValue.slice(0, 10);
-      
+
       // Show error if non-numeric characters were removed
       if (value !== finalValue && value.length > finalValue.length) {
         setContactNumberErrors((prev) => ({
@@ -168,7 +168,7 @@ function CreateCompany() {
           });
         }, 2000);
       }
-      
+
       setOwnerData((prev) => ({
         ...prev,
         company_contacts: prev.company_contacts.map((contact, i) =>
@@ -280,7 +280,7 @@ function CreateCompany() {
     if (field === "aadhar") {
       // Remove all non-digit characters
       const filteredValue = value.replace(/\D/g, '');
-      
+
       // Check if the first digit is invalid (0 or 1) and prevent input
       if (filteredValue.length > 0) {
         const firstDigit = filteredValue.charAt(0);
@@ -307,10 +307,10 @@ function CreateCompany() {
           });
         }
       }
-      
+
       // Limit to 12 digits and update state
       const finalValue = filteredValue.slice(0, 12);
-      
+
       // Show error if non-numeric characters were removed
       if (value !== finalValue && value.length > finalValue.length) {
         setOwnerAadharErrors((prev) => ({
@@ -325,7 +325,7 @@ function CreateCompany() {
           });
         }, 2000);
       }
-      
+
       setOwnerData((prev) => ({
         ...prev,
         company_owners: prev.company_owners.map((owner, i) =>
@@ -370,7 +370,7 @@ function CreateCompany() {
     if (field === "mobile") {
       // Remove all non-digit characters
       const filteredValue = value.replace(/[^0-9]/g, '');
-      
+
       // Check if the first digit is invalid (0-5) and prevent input
       if (filteredValue.length > 0) {
         const firstDigit = filteredValue.charAt(0);
@@ -397,10 +397,10 @@ function CreateCompany() {
           });
         }
       }
-      
+
       // Limit to 10 digits and update state
       const finalValue = filteredValue.slice(0, 10);
-      
+
       // Show error if non-numeric characters were removed
       if (value !== finalValue && value.length > finalValue.length) {
         setOwnerMobileErrors((prev) => ({
@@ -415,7 +415,7 @@ function CreateCompany() {
           });
         }, 2000);
       }
-      
+
       setOwnerData((prev) => ({
         ...prev,
         company_owners: prev.company_owners.map((owner, i) =>
@@ -428,7 +428,7 @@ function CreateCompany() {
     // Validate PAN field - allow letters and numbers, convert to uppercase
     if (field === "pan") {
       const filteredValue = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
-      
+
       // Validate PAN format: 10 characters (5 letters, 4 numbers, 1 letter)
       if (filteredValue.length === 10) {
         const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
@@ -456,7 +456,7 @@ function CreateCompany() {
           return newErrors;
         });
       }
-      
+
       setOwnerData((prev) => ({
         ...prev,
         company_owners: prev.company_owners.map((owner, i) =>
@@ -503,7 +503,7 @@ function CreateCompany() {
     if (name === "fssai_number") {
       const filteredValue = value.replace(/[^0-9]/g, "").slice(0, 14);
       setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
-      
+
       // Validate FSSAI format with specific error messages
       if (!filteredValue) {
         setFssaiError("FSSAI number is required");
@@ -526,7 +526,7 @@ function CreateCompany() {
     if (name === "tan_number") {
       const filteredValue = value.replace(/[^A-Za-z0-9]/g, "").slice(0, 10).toUpperCase();
       setOwnerData((prev) => ({ ...prev, [name]: filteredValue }));
-      
+
       // Validate TAN format with specific error messages
       if (!filteredValue) {
         setTanError("TAN number is required");
@@ -535,7 +535,7 @@ function CreateCompany() {
       } else if (filteredValue.length === 10) {
         // Validate TAN format: AAAA99999A (4 letters, 5 digits, 1 letter)
         const tanRegex = /^[A-Z]{4}[0-9]{5}[A-Z]{1}$/;
-        
+
         // Check if positions 1-4 are alphabets
         if (!/^[A-Z]{4}/.test(filteredValue)) {
           setTanError("Alphabets required in positions 1–4 and 10");
@@ -815,8 +815,8 @@ function CreateCompany() {
                 inline-flex items-center gap-2 px-4 py-2 
                 text-sm font-medium text-white rounded-full
                 transition shadow-sm
-                ${isLoading || !isFormValid() 
-                  ? "bg-gray-400 cursor-not-allowed" 
+                ${isLoading || !isFormValid()
+                  ? "bg-gray-400 cursor-not-allowed"
                   : "bg-success-500 hover:bg-success-600"}
               `}
             >
@@ -1127,6 +1127,7 @@ function CreateCompany() {
                       }
                       placeholder="Select state"
                       required={true}
+                      isSearchable={true}
                       className="rounded-lg"
                       options={[
                         { value: "AN", label: "Andaman and Nicobar Islands" },
