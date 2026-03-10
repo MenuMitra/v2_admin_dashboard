@@ -261,7 +261,25 @@ function ViewOutlet() {
   const handleDelete = () => setShowDeleteModal(true);
   const confirmDelete = () => deleteMutation.mutate();
   const handleEdit = () => navigate(`/edit-outlet/${outletId}`);
-  const handleOwnerClick = (ownerId) => navigate(`/owner-details/${ownerId}`);
+  // In outlet response, owners are company owners. Redirect to company details.
+  // Prefer company_id from outletData if present; otherwise fallback to owner-details.
+  const handleOwnerClick = (owner) => {
+    const companyId =
+      owner?.company_id ??
+      owner?.companyId ??
+      outletData?.company_id ??
+      outletData?.companyId ??
+      null;
+
+    if (companyId) {
+      navigate(`/company-details/${companyId}`);
+      return;
+    }
+
+    // fallback (older payloads)
+    const ownerId = owner?.owner_id ?? owner;
+    navigate(`/owner-details/${ownerId}`);
+  };
 
   // Toggle handlers
   const handleToggleOutletStatus = () => {
@@ -534,7 +552,7 @@ function ViewOutlet() {
                     {outletData?.owners?.map((owner) => (
                       <div
                         key={owner.owner_id}
-                        onClick={() => handleOwnerClick(owner.owner_id)}
+                        onClick={() => handleOwnerClick(owner)}
                         className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm cursor-pointer
                           ${owner.is_primary
                             ? "bg-brand-100 text-brand-700 border border-brand-200 hover:bg-brand-200"

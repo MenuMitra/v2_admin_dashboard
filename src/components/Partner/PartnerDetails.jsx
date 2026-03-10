@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
@@ -12,6 +13,7 @@ import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal"
 import ActiveSessionsTable from "../common/ActiveSessionsTable";
 import StatusToggleButton from "../common/StatusToggleButton";
 import { usePartnerDetails } from "../../lib/react-query/hooks/usePartnerDetails";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
@@ -29,6 +31,7 @@ function PartnerDetails() {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { BASE_URL } = API_CONFIG;
+  const queryClient = useQueryClient();
 
   const { partner, isLoading, error, deletePartner, isDeleting, refetch } =
     usePartnerDetails(partnerId);
@@ -153,6 +156,9 @@ function PartnerDetails() {
       toastController.success(
         `Partner marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
       );
+      // Immediately update the partners list cache so list view reflects new status
+      queryClient.invalidateQueries({ queryKey: queryKeys.partners.list() });
+      // Refresh this detail view to pick up the latest data
       await refetch();
     } catch (e) {
       console.error("Failed to toggle partner active status", e);
