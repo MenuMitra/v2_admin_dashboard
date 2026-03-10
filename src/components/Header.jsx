@@ -51,6 +51,15 @@ const isProductionBuild = () => {
 };
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
+  // Keep a local helper to avoid runtime "not defined" issues
+  const toTitleCase = (str) =>
+    str
+      ? str.replace(
+          /\w\S*/g,
+          (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+        )
+      : "";
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { adminData, clearAdmin } = useAdmin();
