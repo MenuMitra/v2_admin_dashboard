@@ -40,6 +40,12 @@ function toTitleCase(str) {
     : "";
 }
 
+// Title-case display helper (also replaces underscores with spaces)
+function toTitleDisplay(str) {
+  if (str === null || str === undefined) return "";
+  return toTitleCase(String(str).replace(/_/g, " "));
+}
+
 // Format numbers as currency with comma separators (Indian grouping)
 function formatCurrency(amount) {
   if (amount === null || amount === undefined || amount === "") return "-";
@@ -655,10 +661,7 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData.outlet_type
-                          ? outletData.outlet_type.charAt(0).toUpperCase() +
-                          outletData.outlet_type.slice(1).replace(/_/g, " ")
-                          : "-"}
+                        {outletData.outlet_type ? toTitleDisplay(outletData.outlet_type) : "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Outlet Type
@@ -710,8 +713,7 @@ function ViewOutlet() {
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.veg_nonveg.charAt(0).toUpperCase() +
-                            outletData.veg_nonveg.slice(1)}
+                          {toTitleDisplay(outletData.veg_nonveg)}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Food Type
@@ -1067,7 +1069,9 @@ function ViewOutlet() {
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.subscription_details.subscription_name}
+                          {toTitleDisplay(
+                            outletData.subscription_details.subscription_name
+                          )}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Plan
@@ -1103,7 +1107,7 @@ function ViewOutlet() {
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.subscription_details.tenure}
+                          {toTitleDisplay(outletData.subscription_details.tenure)}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Tenure
@@ -1161,7 +1165,7 @@ function ViewOutlet() {
                     <div className="flex items-center justify-between">
                       <div className="w-full">
                         <h4 className="text-base font-medium text-gray-800 dark:text-white/90 mb-2">
-                          TimeLine
+                          Timeline
                         </h4>
                         {(() => {
                           const msPerDay = 1000 * 60 * 60 * 24;
@@ -1216,10 +1220,10 @@ function ViewOutlet() {
 
                               <div className="flex items-center justify-between mt-2">
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {elapsed} days completed
+                                  {elapsed} Days Completed
                                 </p>
                                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {remaining} days remaining
+                                  {remaining} Days Remaining
                                 </p>
                               </div>
                             </div>
@@ -1239,12 +1243,12 @@ function ViewOutlet() {
                     </h4>
 
                     <div className="flex flex-wrap gap-2">
-                      {outletData.modules.map((mod) => (
+                          {outletData.modules.map((mod) => (
                         <span
                           key={mod.module_id}
                           className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-200 border border-gray-200"
                         >
-                          {mod.name ? mod.name.replace(/_/g, " ") : "-"}
+                              {mod.name ? toTitleDisplay(mod.name) : "-"}
                         </span>
                       ))}
                     </div>
