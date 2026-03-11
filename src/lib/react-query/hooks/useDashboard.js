@@ -70,24 +70,49 @@ export const useDashboard = () => {
         const enquiry = data.enquiry_count || {};
         const orderCount = data.order_count || {};
 
+        const toFiniteNumber = (v) => {
+          const n = Number(v);
+          return Number.isFinite(n) ? n : null;
+        };
+
         const totalOutlets =
-          Number(metrics.total_outlets) ?? Number(counts.outlet_count) ?? 0;
-        const totalLiveOutlets =
-          Number(metrics.total_live_outlets) ??
-          Number(counts.live_outlet_count) ??
+          toFiniteNumber(metrics.total_outlets) ??
+          toFiniteNumber(counts.outlet_count) ??
           0;
+
         const totalInactiveOutlets =
-          Number(metrics.total_inactive_outlets) ??
-          Number(counts.inactive_outlet_count) ??
-          (totalOutlets && totalLiveOutlets !== undefined
-            ? Math.max(totalOutlets - totalLiveOutlets, 0)
-            : 0);
+          toFiniteNumber(metrics.total_inactive_outlets) ??
+          toFiniteNumber(counts.inactive_outlet_count) ??
+          null;
+
+        // Prefer explicit live count if present, otherwise derive from totals.
+        // Also guard against backend occasionally returning live==total while inactive>0.
+        let totalLiveOutlets =
+          toFiniteNumber(metrics.total_live_outlets) ??
+          toFiniteNumber(counts.live_outlet_count) ??
+          null;
+
+        if (totalInactiveOutlets !== null) {
+          const derivedLive = Math.max(totalOutlets - totalInactiveOutlets, 0);
+          if (totalLiveOutlets === null || totalLiveOutlets === totalOutlets) {
+            totalLiveOutlets = derivedLive;
+          }
+        }
+
+        const finalInactive =
+          totalInactiveOutlets !== null
+            ? totalInactiveOutlets
+            : totalLiveOutlets !== null
+              ? Math.max(totalOutlets - totalLiveOutlets, 0)
+              : 0;
+
+        const finalLive = totalLiveOutlets ?? Math.max(totalOutlets - finalInactive, 0);
 
         return {
           // Outlets (from metrics: total_outlets, total_live_outlets, total_inactive_outlets)
           total_outlets: totalOutlets,
-          total_live_outlets: totalLiveOutlets,
-          total_inactive_outlets: totalInactiveOutlets,
+          total_live_outlets: finalLive,
+          total_inactive_outlets: finalInactive,
 
           // Orders (from order_count: total_orders, total_paid, total_cooking)
           total_orders:

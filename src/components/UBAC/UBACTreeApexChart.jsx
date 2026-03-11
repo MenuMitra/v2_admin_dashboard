@@ -430,6 +430,13 @@ const UBACTree = () => {
       setEditFormName(module.name);
       setIsEditModalOpen(true);
     } else if (nodeType === 'group') {
+      // "Ungrouped" is represented without a real group_id in the API/tree.
+      // Guard against null/invalid ids so clicking edit doesn't crash.
+      const numericId = Number(nodeId);
+      if (!Number.isFinite(numericId) || numericId <= 0) {
+        toastController.error("Ungrouped group cannot be edited.");
+        return;
+      }
       // Find group in modules
       let group = null;
       let moduleId = null;
@@ -440,6 +447,11 @@ const UBACTree = () => {
           moduleId = module.module_id;
           break;
         }
+      }
+
+      if (!group) {
+        toastController.error("Group not found.");
+        return;
       }
       setEditType('group');
       setEditId(group.group_id);
@@ -898,6 +910,7 @@ const UBACTree = () => {
       const action = button.dataset.action;
 
       if (action === 'edit') {
+        if (!nodeType) return;
         handleEditNode(nodeId, nodeType);
       } else if (action === 'delete') {
         handleDeleteNode(nodeId, nodeType);
