@@ -79,6 +79,13 @@ export const useCompanyDetails = (companyId, token, userId) => {
       toastController.error(errorMessage);
     },
     enabled: !!companyId && !!token, // Only need companyId and token (user_id is dynamic)
+    staleTime: 0, // Always treat data as stale so we can refetch frequently
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+    refetchOnReconnect: true,
+    // Poll the API so new owner login sessions show up automatically
+    refetchInterval: 5000, // 5 seconds; adjust if needed
+    refetchIntervalInBackground: true,
   });
 
   // Delete company mutation
