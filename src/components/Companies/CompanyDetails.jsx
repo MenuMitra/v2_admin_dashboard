@@ -13,13 +13,18 @@ import {
   faCalendarPlus,
   faRotate,
   faHashtag,
-  faStore
+  faStore,
+  faCalendarCheck,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import Breadcrumb from "../Breadcrumb";
 import StatusToggleButton from "../common/StatusToggleButton";
 import { useCompanyDetails } from "../../lib/react-query/hooks/useCompanyDetails";
 import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
+import { API_CONFIG } from "../../config/appConfig";
+import { toastController } from "../../utils/toastController";
 
 // Capitalize first letter of every word (title case)
 const toTitleCase = (str) =>
@@ -33,7 +38,14 @@ function CompanyDetails() {
   const { companyId } = useParams();
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [sessionDeleteModal, setSessionDeleteModal] = useState({
+    isOpen: false,
+    owner: null,
+    session: null,
+  });
   const { getToken, getUserId } = useAuth();
+  const { adminData } = useAdmin();
+  const { BASE_URL } = API_CONFIG;
 
   const {
     company: companyData,
@@ -59,6 +71,63 @@ function CompanyDetails() {
 
   const handleToggleOwnerActive = (owner) => {
     updateOwnerStatus({ ownerUserId: owner.user_id });
+  };
+
+  const handleLogoutOwnerSession = async (owner, session) => {
+    if (!owner?.user_id || !session?.device_id || !session?.app_type) return;
+
+    try {
+      const response = await fetch(`${BASE_URL}/admin/admin_logout_user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: getToken(),
+        },
+        body: JSON.stringify({
+          admin_id: adminData?.user_id || getUserId(),
+          user_id: owner.user_id,
+          app_type: session.app_type,
+          device_id: session.device_id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toastController.success(
+          data.detail || data.message || "Session logout successful"
+        );
+        refetch();
+      } else {
+        toastController.error(
+          data.detail || data.message || "Failed to logout session"
+        );
+      }
+    } catch (error) {
+      toastController.error("Failed to logout session");
+    }
+  };
+
+  const handleOpenSessionDeleteModal = (owner, session) => {
+    setSessionDeleteModal({
+      isOpen: true,
+      owner,
+      session,
+    });
+  };
+
+  const handleConfirmSessionDelete = async () => {
+    if (!sessionDeleteModal.owner || !sessionDeleteModal.session) {
+      setSessionDeleteModal({ isOpen: false, owner: null, session: null });
+      return;
+    }
+
+    await handleLogoutOwnerSession(
+      sessionDeleteModal.owner,
+      sessionDeleteModal.session
+    );
+
+    setSessionDeleteModal({ isOpen: false, owner: null, session: null });
   };
 
   if (isLoading) {
@@ -578,6 +647,98 @@ function CompanyDetails() {
                           </div>
                         </div>
                       )}
+
+                      {/* Owner Login Sessions Section */}
+                      {Array.isArray(owner.sessions) && (
+                        <div className="mt-4">
+                          <h4 className="text-sm font-medium text-gray-600 mb-3">
+                            Login Sessions
+                            <span className="ml-2 text-xs text-gray-500 font-normal">
+                              ({owner.sessions.length})
+                            </span>
+                          </h4>
+
+                          {owner.sessions.length === 0 ? (
+                            <div className="border border-gray-200 rounded-lg p-3 bg-white text-sm text-gray-500">
+                              No active sessions found.
+                            </div>
+                          ) : (
+                            <div className="overflow-x-auto border border-gray-200 rounded-lg bg-white">
+                              <table className="min-w-full text-xs">
+                                <thead className="bg-gray-50">
+                                  <tr className="text-left text-gray-500">
+                                    <th className="px-3 py-2 font-medium">App</th>
+                                    <th className="px-3 py-2 font-medium">Session ID</th>
+                                    <th className="px-3 py-2 font-medium">Device ID</th>
+                                    <th className="px-3 py-2 font-medium">Public IP</th>
+                                    <th className="px-3 py-2 font-medium">Last login</th>
+                                    <th className="px-3 py-2 font-medium">Last activity</th>
+                                    <th className="px-3 py-2 font-medium">
+                                      <div className="inline-flex items-center gap-1">
+                                        <FontAwesomeIcon icon={faCalendarCheck} className="w-3 h-3" />
+                                        <span>Expires</span>
+                                      </div>
+                                    </th>
+                                    <th className="px-3 py-2 font-medium text-center">
+                                      Action
+                                    </th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                  {owner.sessions.map((session, sessionIndex) => (
+                                    <tr
+                                      key={session.user_session_id || `${owner.user_id || owner.owner_id || index}-session-${sessionIndex}`}
+                                      className="text-gray-700"
+                                    >
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        {toTitleCase(session.app_type || "Session")}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap text-gray-500">
+                                        {session.user_session_id ? `#${session.user_session_id}` : "-"}
+                                      </td>
+                                      <td className="px-3 py-2">
+                                        <div
+                                          className="max-w-xs break-all"
+                                          style={{ overflowWrap: "anywhere" }}
+                                        >
+                                          {session.device_id || "-"}
+                                        </div>
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        {session.public_ip || "-"}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        {session.last_login || "-"}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap">
+                                        {session.last_activity || "-"}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap font-semibold text-gray-800">
+                                        {session.expires_on || "-"}
+                                      </td>
+                                      <td className="px-3 py-2 whitespace-nowrap text-center">
+                                        <button
+                                          type="button"
+                                          className="w-8 h-8 inline-flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
+                                          onClick={() =>
+                                            handleOpenSessionDeleteModal(
+                                              owner,
+                                              session
+                                            )
+                                          }
+                                          title="Delete session"
+                                        >
+                                          <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -589,6 +750,15 @@ function CompanyDetails() {
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}
           onDelete={handleDeleteOwner}
+        />
+        <DeleteConfirmModal
+          isOpen={sessionDeleteModal.isOpen}
+          onClose={() =>
+            setSessionDeleteModal({ isOpen: false, owner: null, session: null })
+          }
+          onDelete={handleConfirmSessionDelete}
+          title="Confirm Session Logout"
+          message="Are you sure you want to logout this session? The user will be logged out from that device."
         />
       </div>
     </>
