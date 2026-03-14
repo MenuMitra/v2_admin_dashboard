@@ -316,17 +316,6 @@ function MenuDetails() {
                 </div>
               )}
 
-              {/* Price - Always show */}
-              <div className="flex items-center p-3">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
-                </div>
-                <div className="ml-3">
-                  <div className="text-base font-medium">₹{menu.portions?.[0]?.price || '0'}</div>
-                  <div className="text-sm text-gray-500">Price</div>
-                </div>
-              </div>
-
               {/* Spicy Index - Only if > 0 */}
               {menu.spicy_index > 0 && (
                 <div className="flex items-center p-3">
