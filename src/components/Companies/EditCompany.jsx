@@ -543,7 +543,7 @@ function EditCompany() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Company Information */}
+              {/* Company Information - single grid so Name, Type, PAN, FSSAI align side by side like Create Company */}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 <TextInput
                   label="Company Name"
@@ -570,10 +570,6 @@ function EditCompany() {
                   ]}
                   placeholder="Select Company Type"
                 />
-              </div>
-
-              {/* Document Fields */}
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                 <div className="relative">
                   <TextInput
                     label="Company PAN Number"
