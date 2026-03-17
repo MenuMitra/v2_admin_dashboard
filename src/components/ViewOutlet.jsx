@@ -997,6 +997,21 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletData?.staff_count ?? "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Staff Count
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.total_menu ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
