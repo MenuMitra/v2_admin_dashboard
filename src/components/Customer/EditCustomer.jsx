@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import axios from "axios";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
@@ -27,6 +29,7 @@ const INITIAL_CUSTOMER_STATE = {
 function EditCustomer() {
   const { customerId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
 
@@ -147,6 +150,8 @@ function EditCustomer() {
         success: "Customer updated successfully",
         error: (err) => err.response?.data?.msg || "Failed to update customer",
       });
+
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
 
       // Navigate back to customers list after successful update
       navigate(-1);
