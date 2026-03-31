@@ -18,8 +18,8 @@ const transformOutletData = (outlets) => {
     code: outlet.outlet_code,
     mobile: outlet.mobile,
     status: getOutletStatus(outlet.outlet_status, outlet.is_open),
-    isOpen: outlet.is_open,
-    outletStatus: outlet.outlet_status,
+    isOpen: Number(outlet.is_open),
+    outletStatus: Number(outlet.outlet_status),
     image: [{}],
     accountType: outlet.account_type,
     ownerCount: outlet.owner_count,
@@ -38,8 +38,10 @@ const transformOutletData = (outlets) => {
 
 // Helper function to determine status
 const getOutletStatus = (outlet_status, is_open) => {
-  if (outlet_status === 1 && is_open === 1) return "success";
-  if (outlet_status === 1 && is_open === 0) return "pending";
+  const status = Number(outlet_status);
+  const open = Number(is_open);
+  if (status === 1 && open === 1) return "success";
+  if (status === 1 && open === 0) return "pending";
   return "failed";
 };
 
