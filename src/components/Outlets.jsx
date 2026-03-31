@@ -174,7 +174,7 @@ function Outlets() {
       
       return;
     }
-    const newValue = currentStatus === 1 ? "inactive" : "active";
+    const newValue = Number(currentStatus) === 1 ? "inactive" : "active";
     toggleStatusMutation.mutate({
       outlet_id: outletId,
       type: "outlet_status",
@@ -188,7 +188,7 @@ function Outlets() {
       
       return;
     }
-    const newValue = currentStatus === 1 ? "close" : "open";
+    const newValue = Number(currentStatus) === 1 ? "close" : "open";
     toggleStatusMutation.mutate({
       outlet_id: outletId,
       type: "is_open",
@@ -373,14 +373,14 @@ function Outlets() {
           }}
           disabled={toggleStatusMutation.isPending}
           className={`text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
-            value === 1 ? "text-success-500" : "text-error-500"
+            Number(value) === 1 ? "text-success-500" : "text-error-500"
           } ${
             toggleStatusMutation.isPending
               ? "opacity-50 cursor-not-allowed"
               : ""
           }`}
         >
-          {value === 1 ? "Open" : "Close"}
+          {Number(value) === 1 ? "Open" : "Close"}
         </button>
       ),
     },
@@ -397,14 +397,14 @@ function Outlets() {
             }}
             disabled={toggleStatusMutation.isPending}
             className={`text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
-              value === 1 ? "text-success-500" : "text-error-500"
+              Number(value) === 1 ? "text-success-500" : "text-error-500"
             } ${
               toggleStatusMutation.isPending
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
           >
-            {value === 1 ? "Active" : "Inactive"}
+            {Number(value) === 1 ? "Active" : "Inactive"}
           </button>
         </div>
       ),
@@ -525,8 +525,10 @@ function Outlets() {
         title="Outlets"
         counts={{
           total: outlets.length,
-          active: outlets.filter((outlet) => outlet.outletStatus === 1).length,
-          inactive: outlets.filter((outlet) => outlet.outletStatus === 0).length,
+          active: outlets.filter((outlet) => Number(outlet.outletStatus) === 1)
+            .length,
+          inactive: outlets.filter((outlet) => Number(outlet.outletStatus) === 0)
+            .length,
         }}
         searchTerm={searchQuery}
         onSearchChange={(value) => {
@@ -575,8 +577,8 @@ function Outlets() {
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;
           return statusFilter === "active"
-            ? item.outletStatus === 1
-            : item.outletStatus === 0;
+            ? Number(item.outletStatus) === 1
+            : Number(item.outletStatus) === 0;
         }}
         emptyStateMessage="No outlets found"
         isLoading={

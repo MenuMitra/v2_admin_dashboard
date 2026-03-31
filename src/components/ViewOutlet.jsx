@@ -233,6 +233,8 @@ function ViewOutlet() {
     onSettled: () => {
       // Always refetch after error or success
       queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
+      // Also refresh list view so going back/refreshing doesn't show stale status.
+      queryClient.invalidateQueries(queryKeys.outlets.list());
     },
   });
 
@@ -289,15 +291,15 @@ function ViewOutlet() {
 
   // Toggle handlers
   const handleToggleOutletStatus = () => {
-
-    const newValue = outletData?.outlet_status === 1 ? "inactive" : "active";
+    const currentOutletStatus = Number(outletData?.outlet_status);
+    const newValue = currentOutletStatus === 1 ? "inactive" : "active";
 
     toggleStatusMutation.mutate({ type: "outlet_status", value: newValue });
   };
 
   const handleToggleOpenStatus = () => {
-
-    const newValue = outletData?.is_open === 1 ? "close" : "open";
+    const currentOpenStatus = Number(outletData?.is_open);
+    const newValue = currentOpenStatus === 1 ? "close" : "open";
 
     toggleStatusMutation.mutate({ type: "is_open", value: newValue });
   };
@@ -675,7 +677,7 @@ function ViewOutlet() {
             <div className="flex justify-start">
               <div>
                 <StatusToggleButton
-                  isActive={outletData?.outlet_status === 1}
+                  isActive={Number(outletData?.outlet_status) === 1}
                   onToggle={handleToggleOutletStatus}
                   disabled={toggleStatusMutation.isPending}
                   activeLabel="Active"
@@ -688,7 +690,7 @@ function ViewOutlet() {
             <div className="flex justify-start">
               <div>
                 <StatusToggleButton
-                  isActive={outletData?.is_open === 1}
+                  isActive={Number(outletData?.is_open) === 1}
                   onToggle={handleToggleOpenStatus}
                   disabled={toggleStatusMutation.isPending}
                   activeLabel="Open"
