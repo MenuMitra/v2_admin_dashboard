@@ -262,6 +262,7 @@ function ManageMenus() {
       field: "category_name",
       header: "Category",
       sortable: true,
+      render: (value) => toTitleCase(value),
     },
     {
       field: "price",
