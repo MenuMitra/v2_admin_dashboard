@@ -46,11 +46,15 @@ const SingleSelectDropdown = ({
 
   const getSelectedText = () => {
     if (!selectedValue) return placeholder;
-    const selectedOption = options.find(opt => opt[valueKey] === selectedValue);
+    const selectedOption = options.find(
+      (opt) => String(opt?.[valueKey]) === String(selectedValue)
+    );
     return selectedOption ? selectedOption[displayKey] : placeholder;
   };
 
-  const selectedOption = options.find(opt => opt[valueKey] === selectedValue);
+  const selectedOption = options.find(
+    (opt) => String(opt?.[valueKey]) === String(selectedValue)
+  );
 
   return (
     <div className="relative w-full h-full flex flex-col single-select-dropdown" ref={dropdownRef}>
@@ -172,7 +176,7 @@ const SingleSelectDropdown = ({
                   key={option[valueKey]}
                   className={`
                     p-3 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0
-                    ${selectedValue === option[valueKey]
+                    ${String(selectedValue) === String(option[valueKey])
                       ? 'bg-brand-50 border-l-4 border-brand-500'
                       : 'border-l-4 border-transparent'}
                   `}
@@ -189,7 +193,7 @@ const SingleSelectDropdown = ({
                         </div>
                       )}
                     </div>
-                    {selectedValue === option[valueKey] && (
+                    {String(selectedValue) === String(option[valueKey]) && (
                       <div className="flex-shrink-0">
                         <svg className="w-5 h-5 text-brand-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
