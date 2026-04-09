@@ -358,20 +358,39 @@ function MenuDetails() {
             </div>
 
             {/* Portions Section - Only show if portions have valid data */}
-            {menu.portions?.some(portion => portion.portion_name || portion.price || portion.unit_value || portion.unit_type) && (
+            {(() => {
+              const portions = menu.portions ?? menu.portions_data ?? [];
+              const hasAnyPortionData = portions.some(
+                (p) =>
+                  p?.portion_name ||
+                  p?.portions_name ||
+                  p?.price != null ||
+                  p?.unit_value != null ||
+                  p?.unit_type
+              );
+
+              if (!hasAnyPortionData) return null;
+
+              return (
               <div className="mt-6">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Portions</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {menu.portions.map((portion, idx) => (
+                  {portions.map((portion, idx) => (
                     <div key={idx} className="flex items-center p-3">
                       <div className="w-8 h-8 flex items-center justify-center">
                         <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
                       </div>
                       <div className="ml-3">
-                        <div className="text-base font-medium">{toTitleCase(portion.portion_name)}</div>
+                        <div className="text-base font-medium">
+                          {toTitleCase(portion.portion_name || portion.portions_name || "-")}
+                        </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-brand-500 font-medium">₹{portion.price}</span>
-                          {(portion.unit_value || portion.unit_type) && (
+                          {portion.price != null && portion.price !== "" && (
+                            <span className="text-brand-500 font-medium">
+                              ₹{portion.price}
+                            </span>
+                          )}
+                          {(portion.unit_value != null || portion.unit_type) && (
                             <span className="text-sm text-gray-500">
                               {portion.unit_value} {portion.unit_type}
                             </span>
@@ -382,7 +401,8 @@ function MenuDetails() {
                   ))}
                 </div>
               </div>
-            )}
+              );
+            })()}
 
             {/* Status and Meta Info */}
             <div className="mt-6 pt-4 border-t border-gray-200">
