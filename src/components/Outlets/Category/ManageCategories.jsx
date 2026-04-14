@@ -5,7 +5,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
   faEye,
-  faPenToSquare,
   faTrash,
   faCircleCheck,
   faCircleXmark,
@@ -289,9 +288,9 @@ function MenuCategoryTable({
   const handleView = (row) => {
     navigate(`/category-details/${row.outlet_id}/${row.menu_cat_id}`);
   };
-  const handleEdit = (row) => {
-    navigate(`/edit-category/${row.outlet_id}/${row.menu_cat_id}`);
-  };
+  // const handleEdit = (row) => {
+  //   navigate(`/edit-category/${row.outlet_id}/${row.menu_cat_id}`);
+  // };
   const handleDelete = (row) => {
     if (onDelete) onDelete(row);
   };
@@ -353,13 +352,13 @@ function MenuCategoryTable({
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
-          <button
+          {/* <button
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
             title="Edit Category"
             onClick={() => handleEdit(row)}
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button>
+          </button> */}
           <button
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
             title="Delete Category"
