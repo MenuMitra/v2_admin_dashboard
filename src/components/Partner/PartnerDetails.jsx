@@ -17,6 +17,7 @@ import { queryKeys } from "../../lib/react-query/queryKeys";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
+import AuditInfo from "../common/AuditInfo";
 
 // Title-case helper: first letter capital for every word
 const toTitleCase = (str) =>
@@ -368,55 +369,6 @@ function PartnerDetails() {
               </div>
             </div>
 
-            {/* Audit Information */}
-            <div className="p-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
-                Audit Information
-              </h2>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-                {partner.created_on && (
-                  <div>
-                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.created_on}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Created On
-                    </p>
-                  </div>
-                )}
-                {partner.created_by && (
-                  <div>
-                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {toTitleCase(partner.created_by)}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Created By
-                    </p>
-                  </div>
-                )}
-                {partner.updated_on && (
-                  <div>
-                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.updated_on}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Updated On
-                    </p>
-                  </div>
-                )}
-                {partner.updated_by && (
-                  <div>
-                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {toTitleCase(partner.updated_by)}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Updated By
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Functionalities */}
             {partner.functionalities && partner.functionalities.length > 0 && (
               <div className="p-6 border-t">
@@ -450,6 +402,39 @@ function PartnerDetails() {
                 />
               </div>
             )}
+
+            <div className="p-6 border-t">
+              <AuditInfo
+                createdOn={partner?.created_on}
+                updatedOn={partner?.updated_on}
+                createdBy={
+                  partner?.created_by_name ||
+                  partner?.created_by_full_name ||
+                  partner?.created_by_user_name ||
+                  partner?.created_by
+                    ? toTitleCase(
+                      partner?.created_by_name ||
+                      partner?.created_by_full_name ||
+                      partner?.created_by_user_name ||
+                      partner?.created_by
+                    )
+                    : null
+                }
+                updatedBy={
+                  partner?.updated_by_name ||
+                  partner?.updated_by_full_name ||
+                  partner?.updated_by_user_name ||
+                  partner?.updated_by
+                    ? toTitleCase(
+                      partner?.updated_by_name ||
+                      partner?.updated_by_full_name ||
+                      partner?.updated_by_user_name ||
+                      partner?.updated_by
+                    )
+                    : null
+                }
+              />
+            </div>
           </>
         )}
       </div>

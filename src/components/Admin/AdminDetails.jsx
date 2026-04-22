@@ -19,6 +19,7 @@ import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
 import StatusToggleButton from "../common/StatusToggleButton";
+import AuditInfo from "../common/AuditInfo";
 
 function AdminDetails() {
   const { adminId } = useParams();
@@ -274,22 +275,6 @@ function AdminDetails() {
                       </div>
                     </div>
                   )}
-                <div>
-                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                    {formatDate(admin.created_on)}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Created On
-                  </p>
-                </div>
-                <div>
-                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                    {formatDate(admin.updated_on)}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Last Updated
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -309,6 +294,25 @@ function AdminDetails() {
                 />
               </div>
             )}
+
+            <div className="px-6 pb-5">
+              <AuditInfo
+                createdOn={admin?.created_on}
+                updatedOn={admin?.updated_on}
+                createdBy={
+                  admin?.created_by_name ||
+                  admin?.created_by_full_name ||
+                  admin?.created_by_user_name ||
+                  admin?.created_by
+                }
+                updatedBy={
+                  admin?.updated_by_name ||
+                  admin?.updated_by_full_name ||
+                  admin?.updated_by_user_name ||
+                  admin?.updated_by
+                }
+              />
+            </div>
           </div>
         </div>
       </div>

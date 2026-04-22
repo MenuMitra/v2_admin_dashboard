@@ -25,6 +25,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import { API_CONFIG } from "../../config/appConfig";
 import { toastController } from "../../utils/toastController";
+import AuditInfo from "../common/AuditInfo";
 
 // Capitalize first letter of every word (title case)
 const toTitleCase = (str) =>
@@ -320,66 +321,6 @@ function CompanyDetails() {
                   <div className="ml-3">
                     <div className="text-base font-medium">{companyData.cin}</div>
                     <div className="text-sm text-gray-500">CIN</div>
-                  </div>
-                </div>
-              )}
-              {/* Created On */}
-              {companyData.created_on && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faCalendarPlus}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">{companyData.created_on}</div>
-                    <div className="text-sm text-gray-500">Created On</div>
-                  </div>
-                </div>
-              )}
-              {/* Created By */}
-              {companyData.created_by && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faUser}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">{toTitleCase(companyData.created_by)}</div>
-                    <div className="text-sm text-gray-500">Created By</div>
-                  </div>
-                </div>
-              )}
-              {/* Updated On */}
-              {companyData.updated_on && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faCalendarPlus}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">{companyData.updated_on}</div>
-                    <div className="text-sm text-gray-500">Updated On</div>
-                  </div>
-                </div>
-              )}
-              {/* Created By */}
-              {companyData.updated_by && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faUser}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">{toTitleCase(companyData.updated_by)}</div>
-                    <div className="text-sm text-gray-500">Updated By</div>
                   </div>
                 </div>
               )}
@@ -744,6 +685,37 @@ function CompanyDetails() {
                 </div>
               </div>
             )}
+
+            <AuditInfo
+              createdOn={companyData?.created_on}
+              updatedOn={companyData?.updated_on}
+              createdBy={
+                companyData?.created_by_name ||
+                companyData?.created_by_full_name ||
+                companyData?.created_by_user_name ||
+                companyData?.created_by
+                  ? toTitleCase(
+                    companyData?.created_by_name ||
+                    companyData?.created_by_full_name ||
+                    companyData?.created_by_user_name ||
+                    companyData?.created_by
+                  )
+                  : null
+              }
+              updatedBy={
+                companyData?.updated_by_name ||
+                companyData?.updated_by_full_name ||
+                companyData?.updated_by_user_name ||
+                companyData?.updated_by
+                  ? toTitleCase(
+                    companyData?.updated_by_name ||
+                    companyData?.updated_by_full_name ||
+                    companyData?.updated_by_user_name ||
+                    companyData?.updated_by
+                  )
+                  : null
+              }
+            />
           </div>
         </div>
         <DeleteConfirmModal
