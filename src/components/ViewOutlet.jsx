@@ -30,6 +30,7 @@ import Modal from "./common/Modal";
 import StatusToggleButton from "./common/StatusToggleButton";
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
+import AuditInfo from "./common/AuditInfo";
 
 function toTitleCase(str) {
   return str
@@ -52,6 +53,97 @@ function formatCurrency(amount) {
   const n = Number(amount);
   if (Number.isNaN(n)) return String(amount);
   return `₹${new Intl.NumberFormat("en-IN").format(n)}`;
+}
+
+function parseDMMMYYYY(dateStr) {
+  if (!dateStr) return null;
+  const s = String(dateStr).trim();
+  const m = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
+  if (!m) {
+    const fallback = new Date(s);
+    return Number.isNaN(fallback.getTime()) ? null : fallback;
+  }
+
+  const day = Number(m[1]);
+  const monStr = m[2].slice(0, 3).toLowerCase();
+  const year = Number(m[3]);
+  const months = {
+    jan: 0,
+    feb: 1,
+    mar: 2,
+    apr: 3,
+    may: 4,
+    jun: 5,
+    jul: 6,
+    aug: 7,
+    sep: 8,
+    oct: 9,
+    nov: 10,
+    dec: 11,
+  };
+
+  const mon = months[monStr];
+  if (mon === undefined || !day || !year) return null;
+  const d = new Date(year, mon, day);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatDMMMYYYY(date) {
+  if (!date) return "-";
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return String(date);
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  return `${String(d.getDate()).padStart(2, "0")} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function parseTenure(tenureStr) {
+  if (!tenureStr) return null;
+  const s = String(tenureStr).trim().toLowerCase();
+
+  const m = s.match(/^(\d+)\s*(day|days|month|months|year|years)$/);
+  if (m) return { count: Number(m[1]), unit: m[2] };
+
+  const m2 = s.match(/^(\d+)\s*(d|m|y)$/);
+  if (m2) {
+    const unitMap = { d: "days", m: "months", y: "years" };
+    return { count: Number(m2[1]), unit: unitMap[m2[2]] };
+  }
+
+  return null;
+}
+
+function addTenure(start, tenure) {
+  if (!start || !tenure) return null;
+  const d = new Date(start);
+  if (Number.isNaN(d.getTime())) return null;
+
+  const unit = tenure.unit;
+  if (unit.startsWith("day")) {
+    d.setDate(d.getDate() + tenure.count);
+    return d;
+  }
+  if (unit.startsWith("month")) {
+    d.setMonth(d.getMonth() + tenure.count);
+    return d;
+  }
+  if (unit.startsWith("year")) {
+    d.setFullYear(d.getFullYear() + tenure.count);
+    return d;
+  }
+  return null;
 }
 
 
@@ -1155,16 +1247,46 @@ function ViewOutlet() {
                 </div>
               )}
               {/* End Date */}
-              {outletData?.subscription_details?.subscription_end_date && (
+              {outletData?.subscription_details?.subscription_end_date &&
+                outletData?.subscription_details?.subscription_start_date && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {
-                            outletData.subscription_details
-                              .subscription_end_date
-                          }
+                          {(() => {
+                            const start = parseDMMMYYYY(
+                              outletData.subscription_details.subscription_start_date
+                            );
+                            const apiEnd = parseDMMMYYYY(
+                              outletData.subscription_details.subscription_end_date
+                            );
+                            const tenure = parseTenure(
+                              outletData.subscription_details.tenure
+                            );
+                            const derivedEnd = start && tenure ? addTenure(start, tenure) : null;
+
+                            if (start && apiEnd && derivedEnd) {
+                              const diffDays = Math.abs(
+                                Math.round(
+                                  (apiEnd.getTime() - derivedEnd.getTime()) /
+                                    (1000 * 60 * 60 * 24)
+                                )
+                              );
+                              // If API end date doesn't match tenure-based end date, prefer tenure-based.
+                              if (diffDays >= 3) {
+                                return (
+                                  <span
+                                    title={`API end date: ${outletData.subscription_details.subscription_end_date} (tenure: ${outletData.subscription_details.tenure})`}
+                                  >
+                                    {formatDMMMYYYY(derivedEnd)}
+                                  </span>
+                                );
+                              }
+                            }
+
+                            return outletData.subscription_details.subscription_end_date;
+                          })()}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           End Date
@@ -1186,20 +1308,56 @@ function ViewOutlet() {
                         </h4>
                         {(() => {
                           const msPerDay = 1000 * 60 * 60 * 24;
-                          const start = new Date(
+                          const startRaw = parseDMMMYYYY(
                             outletData.subscription_details.subscription_start_date
                           );
-                          const end = new Date(
+                          const apiEndRaw = parseDMMMYYYY(
                             outletData.subscription_details.subscription_end_date
                           );
+                          const tenure = parseTenure(
+                            outletData.subscription_details.tenure
+                          );
+                          const derivedEndRaw =
+                            startRaw && tenure ? addTenure(startRaw, tenure) : null;
+
+                          const start = startRaw ? new Date(startRaw) : null;
+                          const apiEnd = apiEndRaw ? new Date(apiEndRaw) : null;
+                          const derivedEnd = derivedEndRaw ? new Date(derivedEndRaw) : null;
                           const now = new Date();
+
+                          if (!start || !apiEnd) {
+                            return (
+                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                                Timeline not available
+                              </div>
+                            );
+                          }
+
+                          // Normalize to midnight so "days remaining" is stable.
+                          start.setHours(0, 0, 0, 0);
+                          apiEnd.setHours(0, 0, 0, 0);
+                          if (derivedEnd) derivedEnd.setHours(0, 0, 0, 0);
+                          now.setHours(0, 0, 0, 0);
+
+                          let end = apiEnd;
+                          let usingDerivedEnd = false;
+                          if (derivedEnd) {
+                            const diffDays = Math.abs(
+                              Math.round((apiEnd - derivedEnd) / msPerDay)
+                            );
+                            if (diffDays >= 3) {
+                              end = derivedEnd;
+                              usingDerivedEnd = true;
+                            }
+                          }
+
                           const total = Math.max(
                             0,
-                            Math.ceil((end - start) / msPerDay)
+                            Math.round((end - start) / msPerDay)
                           );
                           const remaining = Math.max(
                             0,
-                            Math.ceil((end - now) / msPerDay)
+                            Math.round((end - now) / msPerDay)
                           );
                           const elapsed = Math.max(0, total - remaining);
                           const percent =
@@ -1228,6 +1386,11 @@ function ViewOutlet() {
                                 aria-valuemin={0}
                                 aria-valuemax={100}
                                 aria-valuenow={Math.round(percent)}
+                                title={
+                                  usingDerivedEnd
+                                    ? `Timeline computed from tenure (${outletData.subscription_details.tenure}). API end date: ${outletData.subscription_details.subscription_end_date}`
+                                    : `Timeline computed from API dates`
+                                }
                               >
                                 <div
                                   className={`h-2 ${barColorClass} rounded-full transition-all duration-500`}
@@ -1275,83 +1438,37 @@ function ViewOutlet() {
             </div>
           </div>
           {/* Audit Information section with divider */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                Audit Information
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {/* Created On */}
-              {outletData?.created_on && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.created_on}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Created On
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Created By */}
-              {outletData?.created_by_name && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {toTitleCase(outletData.created_by_name)}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Created By
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Updated On */}
-              {outletData?.updated_on && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.updated_on}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Updated On
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Updated By */}
-              {outletData?.updated_by_name && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {toTitleCase(outletData.updated_by_name)}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Updated By
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <AuditInfo
+            createdOn={outletData?.created_on}
+            updatedOn={outletData?.updated_on}
+            createdBy={
+              outletData?.created_by_name ||
+              outletData?.created_by_full_name ||
+              outletData?.created_by_user_name ||
+              outletData?.created_by
+                ? toTitleCase(
+                  outletData?.created_by_name ||
+                  outletData?.created_by_full_name ||
+                  outletData?.created_by_user_name ||
+                  outletData?.created_by
+                )
+                : null
+            }
+            updatedBy={
+              outletData?.updated_by_name ||
+              outletData?.updated_by_full_name ||
+              outletData?.updated_by_user_name ||
+              outletData?.updated_by
+                ? toTitleCase(
+                  outletData?.updated_by_name ||
+                  outletData?.updated_by_full_name ||
+                  outletData?.updated_by_user_name ||
+                  outletData?.updated_by
+                )
+                : null
+            }
+            className="mx-2 sm:mx-0"
+          />
           
         </div>
       </div>
