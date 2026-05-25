@@ -30,9 +30,31 @@ const getCustomerAppUrl = () => {
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: getApiBaseUrl(), // Full URL including /v2
+  BASE_URL: getApiBaseUrl(), // Full URL including /v2.2
   CUSTOMER_APP_URL: getCustomerAppUrl(), // Customer app base URL
   VERSION: "2.2.0",
+  /** Login / verify_pin app type */
+  APP_TYPE: import.meta.env.VITE_APP_TYPE || "admin",
+  /**
+   * Reset PIN flow must match send_reset_pin_otp & verify_reset_pin_otp (usually owner_app).
+   */
+  RESET_APP_TYPE:
+    import.meta.env.VITE_RESET_APP_TYPE ||
+    import.meta.env.VITE_APP_TYPE ||
+    "owner_app",
+  /** Optional outlet_id required by some deployments */
+  OUTLET_ID: import.meta.env.VITE_OUTLET_ID
+    ? parseInt(import.meta.env.VITE_OUTLET_ID, 10)
+    : 123,
+  /** OTP send endpoint (relative to BASE_URL) */
+  OTP_SEND_PATH: import.meta.env.VITE_OTP_SEND_PATH || "common/login",
+  /** OTP verify endpoint (legacy) */
+  OTP_VERIFY_PATH:
+    import.meta.env.VITE_OTP_VERIFY_PATH || "admin/admin_verify_otp",
+  /** PIN verify — POST /common/verify_pin */
+  PIN_VERIFY_PATH:
+    import.meta.env.VITE_PIN_VERIFY_PATH || "common/verify_pin",
+  PIN_LENGTH: 4,
 };
 
 // Protected Users Configuration

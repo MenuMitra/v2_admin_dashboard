@@ -15,7 +15,7 @@ import {
   faPause,
   faGear,
 } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import DataTable from "./common/DataTable";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
@@ -36,6 +36,7 @@ const toTitleCase = (str) =>
 
 function Outlets() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { adminData } = useAdmin();
   const queryClient = useQueryClient();
   const { BASE_URL } = API_CONFIG;
@@ -44,15 +45,52 @@ function Outlets() {
   const { outlets, isLoading, deleteOutlet, isDeleting, bulkAction, isBulkActioning, refetch } =
     useOutlets();
 
-  // UI State
-  const [searchQuery, setSearchQuery] = useState("");
+  // Helpers to map URL params <-> state
+  const getNumberParam = (key, fallback) => {
+    const value = Number(searchParams.get(key));
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+  };
+
+  const getStringParam = (key, fallback) =>
+    searchParams.get(key) ? searchParams.get(key) : fallback;
+
+  const updateParams = (updates) => {
+    const next = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "" || value === "all") {
+        next.delete(key);
+      } else {
+        next.set(key, String(value));
+      }
+    });
+    setSearchParams(next);
+  };
+
+  // UI State (initialized from URL)
+  const [searchQuery, setSearchQuery] = useState(
+    getStringParam("search", "")
+  );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [outletToDelete, setOutletToDelete] = useState(null);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [accountType, setAccountType] = useState("all");
-  const [openCloseStatus, setOpenCloseStatus] = useState("all");
-  const [outletTypeFilter, setOutletTypeFilter] = useState("all");
-  const [ownerCountFilter, setOwnerCountFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState(
+    getStringParam("status", "all")
+  );
+  const [accountType, setAccountType] = useState(
+    getStringParam("account_type", "all")
+  );
+  const [openCloseStatus, setOpenCloseStatus] = useState(
+    getStringParam("open_close", "all")
+  );
+  const [outletTypeFilter, setOutletTypeFilter] = useState(
+    getStringParam("outlet_type", "all")
+  );
+  const [ownerCountFilter, setOwnerCountFilter] = useState(
+    getStringParam("owner_count", "all")
+  );
+
+  const initialPageFromUrl = getNumberParam("page", 1);
+  const initialSortFieldFromUrl = getStringParam("sort_field", "created_at");
+  const initialSortOrderFromUrl = getStringParam("sort_order", "desc");
 
   // Toggle status mutation
   const toggleStatusMutation = useMutation({
@@ -533,6 +571,7 @@ function Outlets() {
         searchTerm={searchQuery}
         onSearchChange={(value) => {
           setSearchQuery(value);
+          updateParams({ search: value || null, page: 1 });
         }}
         createButton={{
           show: true,
@@ -547,8 +586,18 @@ function Outlets() {
         searchPlaceholder="Search outlets..."
         darkMode={false}
         enableSort={true}
-        defaultSortField="created_at"
-        defaultSortOrder="desc"
+        defaultSortField={initialSortFieldFromUrl}
+        defaultSortOrder={initialSortOrderFromUrl}
+        initialPage={initialPageFromUrl}
+        onPageChange={(page) => {
+          updateParams({ page });
+        }}
+        onSortChange={(field, order) => {
+          updateParams({
+            sort_field: field || null,
+            sort_order: order || null,
+          });
+        }}
         enablePagination={true}
         enableSearch={true}
         enableSelection={true}
@@ -557,19 +606,32 @@ function Outlets() {
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
+          updateParams({ status: value, page: 1 });
         }}
         enableAccountTypeFilter={true}
         enableOpenCloseStatusFilter={true}
         accountType={accountType}
-        onAccountTypeChange={(value) => setAccountType(value)}
+        onAccountTypeChange={(value) => {
+          setAccountType(value);
+          updateParams({ account_type: value, page: 1 });
+        }}
         openCloseStatus={openCloseStatus}
-        onOpenCloseStatusChange={(value) => setOpenCloseStatus(value)}
+        onOpenCloseStatusChange={(value) => {
+          setOpenCloseStatus(value);
+          updateParams({ open_close: value, page: 1 });
+        }}
         enableOutletTypeFilter={true}
         outletTypeFilter={outletTypeFilter}
-        onOutletTypeFilterChange={(value) => setOutletTypeFilter(value)}
+        onOutletTypeFilterChange={(value) => {
+          setOutletTypeFilter(value);
+          updateParams({ outlet_type: value, page: 1 });
+        }}
         enableOwnerCountFilter={true}
         ownerCountFilter={ownerCountFilter}
-        onOwnerCountFilterChange={(value) => setOwnerCountFilter(value)}
+        onOwnerCountFilterChange={(value) => {
+          setOwnerCountFilter(value);
+          updateParams({ owner_count: value, page: 1 });
+        }}
         statusField="outletStatus"
         onReload={() => {
           refetch();
