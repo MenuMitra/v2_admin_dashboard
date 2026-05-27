@@ -32,6 +32,7 @@ function EditCompany() {
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [error, setError] = useState(null);
   const [ownerAadharErrors, setOwnerAadharErrors] = useState({});
+  const [ownerPinErrors, setOwnerPinErrors] = useState({});
   const [ownerMobileErrors, setOwnerMobileErrors] = useState({});
   const [contactNumberErrors, setContactNumberErrors] = useState({});
   const [panError, setPanError] = useState("");
@@ -99,10 +100,23 @@ function EditCompany() {
         email: "",
         aadhar: "",
         pan: "",
-        address: ""
+        address: "",
+        pin: "",
       }
     ],
   });
+
+  const mapOwnersFromApi = (owners) =>
+    (owners?.length ? owners : [{}]).map((owner) => ({
+      name: owner.name || "",
+      mobile: owner.mobile || "",
+      email: owner.email || "",
+      aadhar: owner.aadhar || "",
+      pan: owner.pan || "",
+      address: owner.address || "",
+      // Do not prefill login PIN from API (security); admin enters on update
+      pin: "",
+    }));
 
   const fetchCompanyDetails = useCallback(async () => {
     try {
@@ -147,16 +161,7 @@ function EditCompany() {
             landmark: ""
           }
         ],
-        company_owners: data.owners || [
-          {
-            name: "",
-            mobile: "",
-            email: "",
-            aadhar: "",
-            pan: "",
-            address: ""
-          }
-        ],
+        company_owners: mapOwnersFromApi(data.owners),
       });
       setIsLoading(false);
     } catch (err) {
@@ -288,7 +293,8 @@ function EditCompany() {
           email: "",
           aadhar: "",
           pan: "",
-          address: ""
+          address: "",
+          pin: "",
         }
       ]
     }));
@@ -300,6 +306,7 @@ function EditCompany() {
         ...prev,
         company_owners: prev.company_owners.filter((_, i) => i !== index)
       }));
+      setOwnerPinErrors({});
     }
   };
 
@@ -434,6 +441,33 @@ function EditCompany() {
       return;
     }
 
+    // Owner login PIN (4–6 digits, numeric only)
+    if (field === "pin") {
+      const filteredValue = value.replace(/\D/g, "").slice(0, 6);
+      const pinPattern = validationPatterns.ownerLoginPin.pattern;
+
+      if (filteredValue.length > 0 && !pinPattern.test(filteredValue)) {
+        setOwnerPinErrors((prev) => ({
+          ...prev,
+          [index]: validationPatterns.ownerLoginPin.message,
+        }));
+      } else {
+        setOwnerPinErrors((prev) => {
+          const next = { ...prev };
+          delete next[index];
+          return next;
+        });
+      }
+
+      setCompanyData(prev => ({
+        ...prev,
+        company_owners: prev.company_owners.map((owner, i) =>
+          i === index ? { ...owner, pin: filteredValue } : owner
+        )
+      }));
+      return;
+    }
+
     setCompanyData(prev => ({
       ...prev,
       company_owners: prev.company_owners.map((owner, i) =>
@@ -446,6 +480,16 @@ function EditCompany() {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+
+    const ownerPinPattern = validationPatterns.ownerLoginPin.pattern;
+    const hasInvalidOwnerPin = companyData.company_owners.some(
+      (o) => !o.pin?.trim() || !ownerPinPattern.test(o.pin.trim())
+    );
+    if (hasInvalidOwnerPin || Object.keys(ownerPinErrors).length > 0) {
+      setError("Each owner must have a valid PIN (4–6 digits)");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const token = getToken();
@@ -481,10 +525,9 @@ function EditCompany() {
           aadhar: owner.aadhar || null,
           pan: owner.pan || null,
           address: owner.address || null,
+          pin: owner.pin || null,
         })),
       };
-
-      console.log('Update company payload:', JSON.stringify(payload, null, 2));
 
       const response = await axios.post(
         `${BASE_URL}/admin/update_company`,
@@ -1018,6 +1061,38 @@ function EditCompany() {
                         onChange={(e) => updateOwner(index, 'address', e.target.value)}
                         placeholder="Enter complete address"
                         required={true}
+                      />
+                      <TextInput
+                        label="Owner PIN"
+                        name={`owner_login_pin_${index}`}
+                        type="password"
+                        value={owner.pin}
+                        onChange={(e) => updateOwner(index, "pin", e.target.value)}
+                        placeholder="4–6 digit login PIN"
+                        required={true}
+                        maxLength={6}
+                        autoComplete="new-password"
+                        inputMode="numeric"
+                        error={!!ownerPinErrors[index]}
+                        errorMessage={ownerPinErrors[index]}
+                        customValidator={(val) => {
+                          if (!val?.trim()) {
+                            return {
+                              isValid: false,
+                              message: "Owner PIN is required",
+                            };
+                          }
+                          const isValid =
+                            validationPatterns.ownerLoginPin.pattern.test(
+                              val.trim()
+                            );
+                          return {
+                            isValid,
+                            message: isValid
+                              ? ""
+                              : validationPatterns.ownerLoginPin.message,
+                          };
+                        }}
                       />
                     </div>
                   </div>

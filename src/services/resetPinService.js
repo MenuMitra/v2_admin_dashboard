@@ -8,6 +8,9 @@ const RESET_OTP_SEND_PATH =
   import.meta.env.VITE_RESET_OTP_SEND_PATH || "common/send_reset_pin_otp";
 const RESET_OTP_VERIFY_PATH =
   import.meta.env.VITE_RESET_OTP_VERIFY_PATH || "common/verify_reset_pin_otp";
+const RESET_USER_PIN_PATH = (
+  API_CONFIG.RESET_USER_PIN_PATH || "common/reset_user_pin"
+).replace(/^\//, "");
 
 export function normalizeResetError(error) {
   const status = error.response?.status;
@@ -15,7 +18,10 @@ export function normalizeResetError(error) {
   const detail = data?.message || data?.detail;
 
   if (status === 404) {
-    return detail || "Reset PIN service not found. Please try again later.";
+    return (
+      detail ||
+      "Reset PIN service not found. Please check the API endpoint configuration."
+    );
   }
   if (status === 400) {
     return detail || "Invalid or expired OTP.";
@@ -29,38 +35,50 @@ export function normalizeResetError(error) {
   return detail || error.message || "Something went wrong. Please try again.";
 }
 
-/** Payload for send_reset_pin_otp (includes outlet_id) */
-function buildSendResetOtpPayload(mobile) {
+function buildDeviceFields() {
   const device = buildDevicePayload();
   return {
-    mobile,
-    outlet_id: OUTLET_ID ?? 123,
-    app_type: RESET_APP_TYPE,
     device_id: device.device_id,
     device_model: device.device_model,
   };
-}
-
-/**
- * Payload for verify_reset_pin_otp — verify OTP and/or set new PIN.
- * @see POST /common/verify_reset_pin_otp
- */
-export function buildVerifyResetPinPayload(mobile, otp, pin) {
-  const device = buildDevicePayload();
-  const payload = {
-    mobile,
-    otp: String(otp),
-    app_type: RESET_APP_TYPE,
-    device_id: device.device_id,
-    device_model: device.device_model,
-  };
-  if (pin != null && pin !== "") {
-    payload.pin = String(pin);
-  }
-  return payload;
 }
 
 /** POST /common/send_reset_pin_otp */
+export function buildSendResetOtpPayload(mobile) {
+  return {
+    mobile,
+    outlet_id: OUTLET_ID ?? 4,
+    app_type: RESET_APP_TYPE,
+    ...buildDeviceFields(),
+  };
+}
+
+/** POST /common/verify_reset_pin_otp */
+export function buildVerifyResetOtpPayload(mobile, otp) {
+  return {
+    mobile,
+    otp: String(otp),
+    app_type: RESET_APP_TYPE,
+    ...buildDeviceFields(),
+  };
+}
+
+/** POST /common/reset_user_pin */
+export function buildResetUserPinPayload(mobile, otp, newPin, resetToken) {
+  if (!resetToken) {
+    throw new Error("Reset session expired. Please verify OTP again.");
+  }
+  return {
+    mobile,
+    outlet_id: OUTLET_ID ?? 4,
+    otp: String(otp),
+    reset_token: String(resetToken),
+    new_pin: String(newPin),
+    app_type: RESET_APP_TYPE,
+    ...buildDeviceFields(),
+  };
+}
+
 export async function sendResetPinOtp(mobile) {
   const path = RESET_OTP_SEND_PATH.replace(/^\//, "");
   try {
@@ -74,17 +92,13 @@ export async function sendResetPinOtp(mobile) {
   }
 }
 
-/**
- * POST /common/verify_reset_pin_otp
- * - OTP only: verifies OTP → { detail: "OTP verified successfully." }
- * - OTP + pin: verifies and updates PIN on the same endpoint
- */
-export async function verifyResetPinOtp(mobile, otp, pin) {
+/** Verify OTP only — does not update PIN */
+export async function verifyResetPinOtp(mobile, otp) {
   const path = RESET_OTP_VERIFY_PATH.replace(/^\//, "");
   try {
     const response = await axios.post(
       `${BASE_URL}/${path}`,
-      buildVerifyResetPinPayload(mobile, otp, pin),
+      buildVerifyResetOtpPayload(mobile, otp),
       { timeout: 30000 }
     );
     return response;
@@ -93,7 +107,16 @@ export async function verifyResetPinOtp(mobile, otp, pin) {
   }
 }
 
-/** Final step: verify OTP + set new PIN via verify_reset_pin_otp */
-export async function completeResetPin(mobile, pin, otp) {
-  return verifyResetPinOtp(mobile, otp, pin);
+/** Final step — set new PIN after OTP verified (requires reset_token from verify step) */
+export async function resetUserPin(mobile, otp, newPin, resetToken) {
+  const path = RESET_USER_PIN_PATH.replace(/^\//, "");
+  const payload = buildResetUserPinPayload(mobile, otp, newPin, resetToken);
+  try {
+    const response = await axios.post(`${BASE_URL}/${path}`, payload, {
+      timeout: 30000,
+    });
+    return response;
+  } catch (error) {
+    throw new Error(normalizeResetError(error));
+  }
 }

@@ -36,16 +36,13 @@ export const API_CONFIG = {
   /** Login / verify_pin app type */
   APP_TYPE: import.meta.env.VITE_APP_TYPE || "admin",
   /**
-   * Reset PIN flow must match send_reset_pin_otp & verify_reset_pin_otp (usually owner_app).
+   * Reset PIN flow — use owner_app for send/verify/reset_user_pin APIs.
    */
-  RESET_APP_TYPE:
-    import.meta.env.VITE_RESET_APP_TYPE ||
-    import.meta.env.VITE_APP_TYPE ||
-    "owner_app",
-  /** Optional outlet_id required by some deployments */
+  RESET_APP_TYPE: import.meta.env.VITE_RESET_APP_TYPE || "owner_app",
+  /** outlet_id for reset PIN APIs (send_reset_pin_otp, reset_user_pin) */
   OUTLET_ID: import.meta.env.VITE_OUTLET_ID
     ? parseInt(import.meta.env.VITE_OUTLET_ID, 10)
-    : 123,
+    : 4,
   /** OTP send endpoint (relative to BASE_URL) */
   OTP_SEND_PATH: import.meta.env.VITE_OTP_SEND_PATH || "common/login",
   /** OTP verify endpoint (legacy) */
@@ -54,6 +51,9 @@ export const API_CONFIG = {
   /** PIN verify — POST /common/verify_pin */
   PIN_VERIFY_PATH:
     import.meta.env.VITE_PIN_VERIFY_PATH || "common/verify_pin",
+  /** Final reset step — POST /common/reset_user_pin */
+  RESET_USER_PIN_PATH:
+    import.meta.env.VITE_RESET_USER_PIN_PATH || "common/reset_user_pin",
   PIN_LENGTH: 4,
 };
 

@@ -10,6 +10,7 @@ import { verifyPin } from "../services/authService";
 import {
   sendResetPinOtp,
   verifyResetPinOtp,
+  resetUserPin,
 } from "../services/resetPinService";
 import PinInput from "./auth/PinInput";
 import YouTubePlayer from "./YouTubePlayer";
@@ -30,6 +31,7 @@ function Auth() {
   const [mobile, setMobile] = useState("");
   const [pin, setPin] = useState("");
   const [resetOtp, setResetOtp] = useState("");
+  const [resetToken, setResetToken] = useState("");
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [resetOtpVerified, setResetOtpVerified] = useState(false);
@@ -65,6 +67,7 @@ function Auth() {
 
   const clearResetState = () => {
     setResetOtp("");
+    setResetToken("");
     setNewPin("");
     setConfirmPin("");
     setResetOtpVerified(false);
@@ -116,6 +119,8 @@ function Auth() {
         error: (err) => err?.message || "Failed to send OTP",
       });
       setResetOtp("");
+      setResetToken("");
+      setResetOtpVerified(false);
       setStep(STEP.RESET_OTP);
       startOtpTimer();
     } catch (err) {
@@ -136,6 +141,8 @@ function Auth() {
         error: (err) => err?.message || "Failed to resend OTP",
       });
       setResetOtp("");
+      setResetToken("");
+      setResetOtpVerified(false);
       startOtpTimer();
     } catch (err) {
       setOtpError(err.message || "Failed to resend OTP");
@@ -157,12 +164,24 @@ function Auth() {
     setOtpError("");
     setError("");
     try {
-      await toastController.promise(verifyResetPinOtp(mobile, otpValue), {
-        loading: "Verifying OTP...",
-        success: "OTP verified",
-        error: (err) => err?.message || "Incorrect OTP",
-      });
+      const response = await toastController.promise(
+        verifyResetPinOtp(mobile, otpValue),
+        {
+          loading: "Verifying OTP...",
+          success: "OTP verified",
+          error: (err) => err?.message || "Incorrect OTP",
+        }
+      );
+      const token =
+        response?.data?.reset_token ?? response?.data?.data?.reset_token;
+      if (!token) {
+        setOtpError("Verification failed. Please request a new OTP.");
+        setResetToken("");
+        setResetOtpVerified(false);
+        return;
+      }
       setResetOtp(otpValue);
+      setResetToken(token);
       setResetOtpVerified(true);
       setNewPin("");
       setConfirmPin("");
@@ -176,8 +195,14 @@ function Auth() {
 
   const handleUpdatePin = async (e) => {
     e?.preventDefault();
-    if (!resetOtpVerified) {
-      setStep(STEP.RESET_SEND);
+    if (!resetOtpVerified || !resetToken) {
+      setResetPinError("Session expired. Please verify OTP again.");
+      setStep(STEP.RESET_OTP);
+      return;
+    }
+    if (!resetOtp || resetOtp.length !== OTP_LENGTH) {
+      setResetPinError("OTP is required. Please verify OTP again.");
+      setStep(STEP.RESET_OTP);
       return;
     }
     if (newPin.length !== PIN_LENGTH) {
@@ -197,11 +222,14 @@ function Auth() {
     setLoading(true);
     setResetPinError("");
     try {
+      console.log("RESET TOKEN:", resetToken);
       await toastController.promise(
-        verifyResetPinOtp(mobile, resetOtp, newPin),
+        resetUserPin(mobile, resetOtp, newPin, resetToken),
         {
           loading: "Updating PIN...",
-          success: "PIN updated successfully.",
+          success: (res) =>
+            res?.data?.detail ||
+            "PIN updated successfully. Please login with your new PIN.",
           error: (err) => err?.message || "Failed to update PIN",
         }
       );
@@ -354,7 +382,11 @@ function Auth() {
         return resetOtp.length !== OTP_LENGTH;
       case STEP.RESET_NEW_PIN:
         return (
-          newPin.length !== PIN_LENGTH || confirmPin.length !== PIN_LENGTH
+          !resetOtpVerified ||
+          !resetToken ||
+          newPin.length !== PIN_LENGTH ||
+          confirmPin.length !== PIN_LENGTH ||
+          newPin !== confirmPin
         );
       default:
         return true;
@@ -677,7 +709,7 @@ function AuthHero() {
           <img src={Logo} alt="Logo" className="mb-4 h-20 w-20" draggable={false} />
           <h2 className="text-2xl font-semibold text-white">Admin Dashboard</h2>
           <p className="mt-2 max-w-xs text-sm text-brand-100/90">
-            Secure PIN sign-in with OTP-based reset when you forget your PIN.
+          
           </p>
         </div>
         <div className="w-full max-w-md">
