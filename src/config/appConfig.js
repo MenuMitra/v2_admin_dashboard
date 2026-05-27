@@ -12,7 +12,7 @@ const getApiBaseUrl = () => {
   }
 
   // Default fallback for local development
-  return "https://menusmitra.xyz/v2.2";
+  return "https://menusmitra.xyz/v2.3";
 
 };
 
@@ -30,9 +30,9 @@ const getCustomerAppUrl = () => {
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: getApiBaseUrl(), // Full URL including /v2.2
+  BASE_URL: getApiBaseUrl(), // Full URL including /v2.3
   CUSTOMER_APP_URL: getCustomerAppUrl(), // Customer app base URL
-  VERSION: "2.2.0",
+  VERSION: "2.3.0",
   /** Login / verify_pin app type */
   APP_TYPE: import.meta.env.VITE_APP_TYPE || "admin",
   /**
