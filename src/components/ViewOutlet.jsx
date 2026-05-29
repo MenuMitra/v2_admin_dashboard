@@ -146,6 +146,101 @@ function addTenure(start, tenure) {
   return null;
 }
 
+function resolveSubscriptionEndDate(subscriptionDetails) {
+  if (!subscriptionDetails?.subscription_end_date) return null;
+
+  const start = parseDMMMYYYY(subscriptionDetails.subscription_start_date);
+  const apiEnd = parseDMMMYYYY(subscriptionDetails.subscription_end_date);
+  const tenure = parseTenure(subscriptionDetails.tenure);
+  const derivedEnd = start && tenure ? addTenure(start, tenure) : null;
+
+  if (start && apiEnd && derivedEnd) {
+    const diffDays = Math.abs(
+      Math.round(
+        (apiEnd.getTime() - derivedEnd.getTime()) / (1000 * 60 * 60 * 24)
+      )
+    );
+    if (diffDays >= 3) return derivedEnd;
+  }
+
+  return apiEnd;
+}
+
+function computeSubscriptionTimeline(subscriptionDetails) {
+  if (!subscriptionDetails) return null;
+
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const startRaw = parseDMMMYYYY(subscriptionDetails.subscription_start_date);
+  const endRaw = resolveSubscriptionEndDate(subscriptionDetails);
+  if (!endRaw) return null;
+
+  const start = startRaw ? new Date(startRaw) : null;
+  const end = new Date(endRaw);
+  const now = new Date();
+
+  if (start) start.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+  now.setHours(0, 0, 0, 0);
+
+  const isExpired = now > end;
+  const daysUntilEnd = Math.round((end - now) / msPerDay);
+  const expiredDays = isExpired
+    ? Math.max(0, Math.round((now - end) / msPerDay))
+    : 0;
+  const remaining = isExpired ? 0 : Math.max(0, daysUntilEnd);
+
+  let total = null;
+  let elapsed = null;
+  let percent = isExpired ? 100 : 0;
+
+  if (start) {
+    total = Math.max(0, Math.round((end - start) / msPerDay));
+    if (isExpired) {
+      elapsed = total;
+      percent = 100;
+    } else {
+      elapsed = Math.max(0, total - remaining);
+      percent =
+        total > 0 ? Math.min(100, Math.max(0, (elapsed / total) * 100)) : 0;
+    }
+  }
+
+  return {
+    start,
+    end,
+    total,
+    elapsed,
+    remaining,
+    expiredDays,
+    isExpired,
+    percent,
+    endDateLabel: formatDMMMYYYY(end),
+    startDateLabel: start ? formatDMMMYYYY(start) : null,
+  };
+}
+
+function getOutletSubscriptionDetails(outletData) {
+  if (!outletData) return null;
+
+  const nested =
+    outletData.subscription_details || outletData.subscription || {};
+
+  const subscription_end_date =
+    nested.subscription_end_date || outletData.subscription_end_date;
+  const subscription_start_date =
+    nested.subscription_start_date || outletData.subscription_start_date;
+
+  if (!subscription_end_date && !subscription_start_date) {
+    return Object.keys(nested).length ? nested : null;
+  }
+
+  return {
+    ...nested,
+    subscription_end_date,
+    subscription_start_date,
+    tenure: nested.tenure || outletData.tenure,
+  };
+}
 
 
 // Helper to calculate days since last used
@@ -218,6 +313,11 @@ function ViewOutlet() {
   const outletData = React.useMemo(
     () => outletResponse?.data || null,
     [outletResponse]
+  );
+
+  const subscriptionDetails = React.useMemo(
+    () => getOutletSubscriptionDetails(outletData),
+    [outletData]
   );
 
   // Delete mutation
@@ -1247,46 +1347,15 @@ function ViewOutlet() {
                 </div>
               )}
               {/* End Date */}
-              {outletData?.subscription_details?.subscription_end_date &&
-                outletData?.subscription_details?.subscription_start_date && (
+              {subscriptionDetails?.subscription_end_date && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {(() => {
-                            const start = parseDMMMYYYY(
-                              outletData.subscription_details.subscription_start_date
-                            );
-                            const apiEnd = parseDMMMYYYY(
-                              outletData.subscription_details.subscription_end_date
-                            );
-                            const tenure = parseTenure(
-                              outletData.subscription_details.tenure
-                            );
-                            const derivedEnd = start && tenure ? addTenure(start, tenure) : null;
-
-                            if (start && apiEnd && derivedEnd) {
-                              const diffDays = Math.abs(
-                                Math.round(
-                                  (apiEnd.getTime() - derivedEnd.getTime()) /
-                                    (1000 * 60 * 60 * 24)
-                                )
-                              );
-                              // If API end date doesn't match tenure-based end date, prefer tenure-based.
-                              if (diffDays >= 3) {
-                                return (
-                                  <span
-                                    title={`API end date: ${outletData.subscription_details.subscription_end_date} (tenure: ${outletData.subscription_details.tenure})`}
-                                  >
-                                    {formatDMMMYYYY(derivedEnd)}
-                                  </span>
-                                );
-                              }
-                            }
-
-                            return outletData.subscription_details.subscription_end_date;
-                          })()}
+                          {formatDMMMYYYY(
+                            resolveSubscriptionEndDate(subscriptionDetails)
+                          ) || subscriptionDetails.subscription_end_date}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           End Date
@@ -1297,122 +1366,112 @@ function ViewOutlet() {
                 </div>
               )}
 
-              {/* Days Until Expiry */}
-              {outletData?.subscription_details?.subscription_start_date &&
-                outletData?.subscription_details?.subscription_end_date && (
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <div className="w-full">
-                        <h4 className="text-base font-medium text-gray-800 dark:text-white/90 mb-2">
-                          Timeline
+              {/* Subscription timeline — days remaining or days expired */}
+              {(() => {
+                const timeline = computeSubscriptionTimeline(subscriptionDetails);
+                if (!timeline) return null;
+
+                let barColorClass = "bg-success-500";
+                if (timeline.isExpired) {
+                  barColorClass = "bg-error-500";
+                } else if (timeline.remaining <= 5) {
+                  barColorClass = "bg-error-500";
+                } else if (timeline.remaining <= 15) {
+                  barColorClass = "bg-warning-500";
+                }
+
+                const expiredLabel =
+                  timeline.expiredDays === 0
+                    ? "Expired Today"
+                    : `${timeline.expiredDays} Day${timeline.expiredDays === 1 ? "" : "s"} Expired`;
+
+                return (
+                  <div className="col-span-1 sm:col-span-2 md:col-span-3 xl:col-span-4">
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/40">
+                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <h4 className="text-base font-medium text-gray-800 dark:text-white/90">
+                          Subscription Timeline
                         </h4>
-                        {(() => {
-                          const msPerDay = 1000 * 60 * 60 * 24;
-                          const startRaw = parseDMMMYYYY(
-                            outletData.subscription_details.subscription_start_date
-                          );
-                          const apiEndRaw = parseDMMMYYYY(
-                            outletData.subscription_details.subscription_end_date
-                          );
-                          const tenure = parseTenure(
-                            outletData.subscription_details.tenure
-                          );
-                          const derivedEndRaw =
-                            startRaw && tenure ? addTenure(startRaw, tenure) : null;
-
-                          const start = startRaw ? new Date(startRaw) : null;
-                          const apiEnd = apiEndRaw ? new Date(apiEndRaw) : null;
-                          const derivedEnd = derivedEndRaw ? new Date(derivedEndRaw) : null;
-                          const now = new Date();
-
-                          if (!start || !apiEnd) {
-                            return (
-                              <div className="text-sm text-gray-500 dark:text-gray-400">
-                                Timeline not available
-                              </div>
-                            );
-                          }
-
-                          // Normalize to midnight so "days remaining" is stable.
-                          start.setHours(0, 0, 0, 0);
-                          apiEnd.setHours(0, 0, 0, 0);
-                          if (derivedEnd) derivedEnd.setHours(0, 0, 0, 0);
-                          now.setHours(0, 0, 0, 0);
-
-                          let end = apiEnd;
-                          let usingDerivedEnd = false;
-                          if (derivedEnd) {
-                            const diffDays = Math.abs(
-                              Math.round((apiEnd - derivedEnd) / msPerDay)
-                            );
-                            if (diffDays >= 3) {
-                              end = derivedEnd;
-                              usingDerivedEnd = true;
-                            }
-                          }
-
-                          const total = Math.max(
-                            0,
-                            Math.round((end - start) / msPerDay)
-                          );
-                          const remaining = Math.max(
-                            0,
-                            Math.round((end - now) / msPerDay)
-                          );
-                          const elapsed = Math.max(0, total - remaining);
-                          const percent =
-                            total > 0
-                              ? Math.min(
-                                100,
-                                Math.max(0, (elapsed / total) * 100)
-                              )
-                              : 0;
-                          // Choose progress bar color based on remaining days:
-                          // - <=5 days: red (urgent)
-                          // - <=15 days: orange (warning)
-                          // - >15 days: green (healthy)
-                          let barColorClass = "bg-success-500"; // green by default
-                          if (remaining <= 5) {
-                            barColorClass = "bg-error-500"; // red
-                          } else if (remaining <= 15) {
-                            barColorClass = "bg-warning-500"; // orange
-                          }
-
-                          return (
-                            <div>
-                              <div
-                                className="w-full h-2 bg-gray-200 rounded-full overflow-hidden"
-                                role="progressbar"
-                                aria-valuemin={0}
-                                aria-valuemax={100}
-                                aria-valuenow={Math.round(percent)}
-                                title={
-                                  usingDerivedEnd
-                                    ? `Timeline computed from tenure (${outletData.subscription_details.tenure}). API end date: ${outletData.subscription_details.subscription_end_date}`
-                                    : `Timeline computed from API dates`
-                                }
-                              >
-                                <div
-                                  className={`h-2 ${barColorClass} rounded-full transition-all duration-500`}
-                                  style={{ width: `${percent}%` }}
-                                />
-                              </div>
-
-                              <div className="flex items-center justify-between mt-2">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {elapsed} Days Completed
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {remaining} Days Remaining
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })()}
+                        {timeline.isExpired ? (
+                          <span className="inline-flex items-center rounded-full bg-error-100 px-2.5 py-0.5 text-xs font-semibold text-error-700 dark:bg-error-500/20 dark:text-error-400">
+                            Expired
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-success-100 px-2.5 py-0.5 text-xs font-semibold text-success-700 dark:bg-success-500/20 dark:text-success-400">
+                            Active
+                          </span>
+                        )}
                       </div>
+
+                      <p
+                        className={`mb-3 text-2xl font-semibold ${
+                          timeline.isExpired
+                            ? "text-error-600 dark:text-error-400"
+                            : "text-gray-800 dark:text-white/90"
+                        }`}
+                      >
+                        {timeline.isExpired
+                          ? expiredLabel
+                          : `${timeline.remaining} Day${timeline.remaining === 1 ? "" : "s"} Remaining`}
+                      </p>
+
+                      <div
+                        className="h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
+                        role="progressbar"
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={Math.round(timeline.percent)}
+                        aria-label={
+                          timeline.isExpired
+                            ? expiredLabel
+                            : `${timeline.remaining} days remaining`
+                        }
+                      >
+                        <div
+                          className={`h-2.5 rounded-full transition-all duration-500 ${barColorClass}`}
+                          style={{ width: `${timeline.percent}%` }}
+                        />
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
+                        {timeline.startDateLabel ? (
+                          <span>Start: {timeline.startDateLabel}</span>
+                        ) : (
+                          <span />
+                        )}
+                        <span>End: {timeline.endDateLabel}</span>
+                      </div>
+
+                      {timeline.total != null && (
+                        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
+                          {timeline.isExpired ? (
+                            <>
+                              <span>
+                                {timeline.total} Day
+                                {timeline.total === 1 ? "" : "s"} Completed
+                              </span>
+                              <span className="font-medium text-error-600 dark:text-error-400">
+                                {expiredLabel}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span>
+                                {timeline.elapsed} Day
+                                {timeline.elapsed === 1 ? "" : "s"} Completed
+                              </span>
+                              <span>
+                                {timeline.remaining} Day
+                                {timeline.remaining === 1 ? "" : "s"} Remaining
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
+                );
+              })()}
 
               {/* Modules (display only module names) */}
               {outletData?.modules && outletData.modules.length > 0 && (

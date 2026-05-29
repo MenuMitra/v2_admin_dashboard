@@ -470,12 +470,12 @@ function CreateCompany() {
       return;
     }
 
-    // Owner login PIN (4–6 digits, numeric only)
+    // Owner login PIN (4 digits, numeric only)
     if (field === "pin") {
-      const filteredValue = value.replace(/\D/g, "").slice(0, 6);
+      const filteredValue = value.replace(/\D/g, "").slice(0, 4);
       const pinPattern = validationPatterns.ownerLoginPin.pattern;
 
-      if (filteredValue.length > 0 && !pinPattern.test(filteredValue)) {
+      if (filteredValue.length === 4 && !pinPattern.test(filteredValue)) {
         setOwnerPinErrors((prev) => ({
           ...prev,
           [index]: validationPatterns.ownerLoginPin.message,
@@ -1352,9 +1352,9 @@ function CreateCompany() {
                       onChange={(e) =>
                         updateOwner(index, "pin", e.target.value)
                       }
-                      placeholder="4–6 digit login PIN"
+                      placeholder="4-digit login PIN"
                       required
-                      maxLength={6}
+                      maxLength={4}
                       autoComplete="new-password"
                       inputMode="numeric"
                       error={!!ownerPinErrors[index]}

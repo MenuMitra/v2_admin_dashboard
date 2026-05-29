@@ -114,8 +114,9 @@ function EditCompany() {
       aadhar: owner.aadhar || "",
       pan: owner.pan || "",
       address: owner.address || "",
-      // Do not prefill login PIN from API (security); admin enters on update
-      pin: "",
+      pin: String(owner.pin ?? owner.login_pin ?? "")
+        .replace(/\D/g, "")
+        .slice(0, 4),
     }));
 
   const fetchCompanyDetails = useCallback(async () => {
@@ -441,12 +442,15 @@ function EditCompany() {
       return;
     }
 
-    // Owner login PIN (4–6 digits, numeric only)
+    // Owner login PIN (4 digits, numeric only)
     if (field === "pin") {
-      const filteredValue = value.replace(/\D/g, "").slice(0, 6);
+      const filteredValue = value.replace(/\D/g, "").slice(0, 4);
       const pinPattern = validationPatterns.ownerLoginPin.pattern;
 
-      if (filteredValue.length > 0 && !pinPattern.test(filteredValue)) {
+      if (
+        filteredValue.length > 0 &&
+        (filteredValue.length < 4 || !pinPattern.test(filteredValue))
+      ) {
         setOwnerPinErrors((prev) => ({
           ...prev,
           [index]: validationPatterns.ownerLoginPin.message,
@@ -482,11 +486,13 @@ function EditCompany() {
     setError(null);
 
     const ownerPinPattern = validationPatterns.ownerLoginPin.pattern;
-    const hasInvalidOwnerPin = companyData.company_owners.some(
-      (o) => !o.pin?.trim() || !ownerPinPattern.test(o.pin.trim())
-    );
+    const hasInvalidOwnerPin = companyData.company_owners.some((o) => {
+      const pin = o.pin?.trim();
+      if (!pin) return false;
+      return !ownerPinPattern.test(pin);
+    });
     if (hasInvalidOwnerPin || Object.keys(ownerPinErrors).length > 0) {
-      setError("Each owner must have a valid PIN (4–6 digits)");
+      setError("Owner PIN must be exactly 4 digits when provided");
       setIsLoading(false);
       return;
     }
@@ -1065,22 +1071,19 @@ function EditCompany() {
                       <TextInput
                         label="Owner PIN"
                         name={`owner_login_pin_${index}`}
-                        type="password"
+                        type="text"
                         value={owner.pin}
                         onChange={(e) => updateOwner(index, "pin", e.target.value)}
-                        placeholder="4–6 digit login PIN"
-                        required={true}
-                        maxLength={6}
-                        autoComplete="new-password"
+                        placeholder="4-digit login PIN"
+                        required={false}
+                        maxLength={4}
+                        autoComplete="off"
                         inputMode="numeric"
                         error={!!ownerPinErrors[index]}
                         errorMessage={ownerPinErrors[index]}
                         customValidator={(val) => {
                           if (!val?.trim()) {
-                            return {
-                              isValid: false,
-                              message: "Owner PIN is required",
-                            };
+                            return { isValid: true, message: "" };
                           }
                           const isValid =
                             validationPatterns.ownerLoginPin.pattern.test(

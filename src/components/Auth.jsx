@@ -569,6 +569,7 @@ function Auth() {
                             label="Confirm PIN"
                             id="confirm-pin"
                             disabled={loading}
+                            autoFocus={false}
                           />
                           {resetPinError ? (
                             <p className="text-sm font-medium text-error-500">
