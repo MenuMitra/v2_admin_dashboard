@@ -6,7 +6,7 @@ import { API_CONFIG } from "../../../config/appConfig";
 import { queryKeys } from "../queryKeys";
 import { toastController } from "../../../utils/toastController";
 
-const { BASE_URL, API_VERSION } = API_CONFIG;
+const { BASE_URL } = API_CONFIG;
 
 // Transform outlet data to match UI structure
 const transformOutletData = (outlets) => {
@@ -18,8 +18,8 @@ const transformOutletData = (outlets) => {
     code: outlet.outlet_code,
     mobile: outlet.mobile,
     status: getOutletStatus(outlet.outlet_status, outlet.is_open),
-    isOpen: outlet.is_open,
-    outletStatus: outlet.outlet_status,
+    isOpen: Number(outlet.is_open),
+    outletStatus: Number(outlet.outlet_status),
     image: [{}],
     accountType: outlet.account_type,
     ownerCount: outlet.owner_count,
@@ -38,8 +38,10 @@ const transformOutletData = (outlets) => {
 
 // Helper function to determine status
 const getOutletStatus = (outlet_status, is_open) => {
-  if (outlet_status === 1 && is_open === 1) return "success";
-  if (outlet_status === 1 && is_open === 0) return "pending";
+  const status = Number(outlet_status);
+  const open = Number(is_open);
+  if (status === 1 && open === 1) return "success";
+  if (status === 1 && open === 0) return "pending";
   return "failed";
 };
 
@@ -53,6 +55,7 @@ export const useOutlets = () => {
     data: outlets = [],
     isLoading,
     error,
+    refetch,
   } = useQuery({
     queryKey: queryKeys.outlets.list(),
     queryFn: async () => {
@@ -76,6 +79,8 @@ export const useOutlets = () => {
       throw new Error(response.data.message || "Failed to fetch outlets");
     },
     enabled: !!adminData?.user_id,
+    staleTime: 0, // Data is immediately considered stale
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
   });
 
   // Delete Mutation
@@ -147,5 +152,6 @@ export const useOutlets = () => {
     isDeleting: deleteMutation.isLoading,
     bulkAction: bulkActionMutation.mutate,
     isBulkActioning: bulkActionMutation.isLoading,
+    refetch,
   };
 };

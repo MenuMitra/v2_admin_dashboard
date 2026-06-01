@@ -34,71 +34,112 @@ export const useDashboard = () => {
       throw new Error("Failed to fetch dashboard data");
     }
 
-    return response.json();
+    const jsonResponse = await response.json();
+    // Extract the nested data object from the API response
+    return jsonResponse.data || jsonResponse;
   };
 
-  // Main dashboard data query
+  // Main dashboard data query (API returns { detail, data: { outlet_data, counts, ... } })
   const useDashboardData = () => {
     return useQuery({
       queryKey: queryKeys.dashboard.home(),
       queryFn: fetchDashboardData,
-      select: (data) => ({
-        outlet_data: data.outlet_data || [],
-        counts: {
-          customer_count: data.counts?.customer_count || 0,
-          owner_count: data.counts?.owner_count || 0,
-          outlet_count: data.counts?.outlet_count || 0,
-          partner_count: data.counts?.partner_count || 0,
-          guest_count: data.counts?.guest_count || 0,
-        },
-      }),
+      select: (response) => {
+        const data = response?.data ?? response;
+        return {
+          outlet_data: data.outlet_data || [],
+          counts: {
+            customer_count: data.counts?.customer_count || 0,
+            owner_count: data.counts?.owner_count || 0,
+            outlet_count: data.counts?.outlet_count || 0,
+            partner_count: data.counts?.partner_count || 0,
+            guest_count: data.counts?.guest_count || 0,
+          },
+        };
+      },
     });
   };
 
-  // Card data query with auto-refresh
+  // Card data query with auto-refresh (API returns { detail, data: { metrics, enquiry_count, order_count, ... } })
   const useCardData = () => {
     return useQuery({
       queryKey: queryKeys.dashboard.home(),
       queryFn: fetchDashboardData,
-      select: (data) => {
-        // Prefer metrics if available, fallback to counts for backward compatibility
+      select: (response) => {
+        const data = response?.data ?? response;
         const metrics = data.metrics || {};
         const counts = data.counts || {};
         const enquiry = data.enquiry_count || {};
         const orderCount = data.order_count || {};
 
-        const totalOutlets = metrics.total_outlets ?? counts.outlet_count ?? 0;
-        const totalLiveOutlets =
-          metrics.total_live_outlets ?? counts.live_outlet_count ?? 0;
+        const toFiniteNumber = (v) => {
+          const n = Number(v);
+          return Number.isFinite(n) ? n : null;
+        };
+
+        const totalOutlets =
+          toFiniteNumber(metrics.total_outlets) ??
+          toFiniteNumber(counts.outlet_count) ??
+          0;
+
         const totalInactiveOutlets =
-          metrics.total_inactive_outlets ??
-          counts.inactive_outlet_count ??
-          (totalOutlets && totalLiveOutlets !== undefined
-            ? Math.max(totalOutlets - totalLiveOutlets, 0)
-            : 0);
+          toFiniteNumber(metrics.total_inactive_outlets) ??
+          toFiniteNumber(counts.inactive_outlet_count) ??
+          null;
+
+        // Prefer explicit live count if present, otherwise derive from totals.
+        // Also guard against backend occasionally returning live==total while inactive>0.
+        let totalLiveOutlets =
+          toFiniteNumber(metrics.total_live_outlets) ??
+          toFiniteNumber(counts.live_outlet_count) ??
+          null;
+
+        if (totalInactiveOutlets !== null) {
+          const derivedLive = Math.max(totalOutlets - totalInactiveOutlets, 0);
+          if (totalLiveOutlets === null || totalLiveOutlets === totalOutlets) {
+            totalLiveOutlets = derivedLive;
+          }
+        }
+
+        const finalInactive =
+          totalInactiveOutlets !== null
+            ? totalInactiveOutlets
+            : totalLiveOutlets !== null
+              ? Math.max(totalOutlets - totalLiveOutlets, 0)
+              : 0;
+
+        const finalLive = totalLiveOutlets ?? Math.max(totalOutlets - finalInactive, 0);
 
         return {
-          // Outlets
+          // Outlets (from metrics: total_outlets, total_live_outlets, total_inactive_outlets)
           total_outlets: totalOutlets,
-          total_live_outlets: totalLiveOutlets,
-          total_inactive_outlets: totalInactiveOutlets,
+          total_live_outlets: finalLive,
+          total_inactive_outlets: finalInactive,
 
-          // Orders
+          // Orders (from order_count: total_orders, total_paid, total_cooking)
           total_orders:
-            orderCount.total_orders ??
-            metrics.total_orders ??
-            counts.total_order_count ??
+            Number(orderCount.total_orders) ??
+            Number(metrics.total_orders) ??
+            Number(counts.total_order_count) ??
             0,
-          paid_orders: orderCount.total_paid ?? counts.paid_order_count ?? 0,
+          paid_orders:
+            Number(orderCount.total_paid) ?? Number(counts.paid_order_count) ?? 0,
           cooking_orders:
-            orderCount.total_cooking ?? counts.cooking_order_count ?? 0,
+            Number(orderCount.total_cooking) ??
+            Number(counts.cooking_order_count) ??
+            0,
           total_earning:
-            metrics.total_earning ?? counts.total_earning_count ?? 0,
+            Number(metrics.total_earning) ??
+            Number(counts.total_earning_count) ??
+            0,
 
-          // Enquiry
-          total_enquiries: enquiry.enquiry ?? counts.enquiry_count ?? 0,
-          positive_count: enquiry.positive ?? counts.positive_count ?? 0,
-          onboard_count: enquiry.onboard ?? counts.onboard_count ?? 0,
+          // Enquiry (from enquiry_count: enquiry, positive, onboard)
+          total_enquiries:
+            Number(enquiry.enquiry) ?? Number(counts.enquiry_count) ?? 0,
+          positive_count:
+            Number(enquiry.positive) ?? Number(counts.positive_count) ?? 0,
+          onboard_count:
+            Number(enquiry.onboard) ?? Number(counts.onboard_count) ?? 0,
         };
       },
       refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes

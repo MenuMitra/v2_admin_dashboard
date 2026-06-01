@@ -17,10 +17,12 @@ import { API_CONFIG } from "../config/appConfig";
 import logo from "../assets/images/logo/logo.png";
 import Modal from "./common/Modal";
 
-// Helper function to capitalize first letter
-const capitalizeFirstLetter = (str) => {
+// Helper function to convert to Title Case
+const toTitleCase = (str) => {
   if (!str) return str;
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  return str.replace(/\w\S*/g, (txt) =>
+    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  );
 };
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
@@ -153,7 +155,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                     />
                   </span>
                   <span className="hidden text-sm font-medium sm:block">
-                    {capitalizeFirstLetter(adminData.name)}
+                    {toTitleCase(adminData.name)}
                   </span>
                   <FontAwesomeIcon
                     icon={faChevronDown}
@@ -168,7 +170,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
                     <Link to="/profile" onClick={() => setDropdownOpen(false)}>
                       <div className="mb-2 p-2">
                         <h4 className="text-sm font-medium text-gray-800 dark:text-white/90">
-                          {capitalizeFirstLetter(adminData.name)}
+                          {toTitleCase(adminData.name)}
                         </h4>
                         <p className="text-xs text-gray-500 dark:text-gray-400">
                           {adminData.email}
@@ -197,11 +199,10 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
         onClose={() => setShowLogoutConfirm(false)}
         type="error"
         size="small"
-        title=""
-        showCloseButton={false}
+        title={<span className="ml-2">Confirm Logout</span>}
+        showCloseButton={true}
       >
         <div className="flex flex-col items-center gap-4">
-          <FontAwesomeIcon icon={faSignOutAlt} className="w-50 h-50 text-error-700" />
           <h3 className="text-xl font-semibold text-gray-800 dark:text-white/90 text-center">
             Are you sure you want to logout?
           </h3>

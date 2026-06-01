@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import axios from "axios";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faSpinner,
@@ -27,6 +29,7 @@ const toTitleCase = (str) => {
 function CustomerDetails() {
   const { customerId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
   const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -99,6 +102,8 @@ function CustomerDetails() {
         error: (err) => err.response?.data?.msg || "Failed to update customer",
       });
 
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+
       // Update state directly instead of refetching to avoid reload
       setCustomerData(prevData => ({
         ...prevData,
@@ -136,6 +141,7 @@ function CustomerDetails() {
       });
 
       toastController.success("Customer deleted successfully");
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
       setDeleteModal({ isOpen: false, customerId: null });
       navigate(-1);
     } catch (error) {

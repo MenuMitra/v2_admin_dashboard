@@ -34,6 +34,7 @@ import {
 import CustomSelectInput from "./common/CustomSelectInput";
 import CustomDropdown from "./common/CustomDropdown";
 import MultiSelectDropdown from "./common/MultiSelectDropdown";
+import SingleSelectDropdown from "./common/SingleSelectDropdown";
 
 function formatDateToDDMMMYYYY(dateStr) {
   if (!dateStr) return "";
@@ -57,15 +58,18 @@ function formatDateToDDMMMYYYY(dateStr) {
 
 function CreateOutlet() {
   const navigate = useNavigate();
-  const { getToken } = useAuth();
+  const { getToken, getUserId } = useAuth();
   const { adminData } = useAdmin();
   const queryClient = useQueryClient();
   const [outletTypes, setOutletTypes] = useState({});
-  const [allOwners, setAllOwners] = useState([]);
+  const [companyOwners, setCompanyOwners] = useState([]);
+  const [primaryOwnerId, setPrimaryOwnerId] = useState(null);
+  const [allCompanies, setAllCompanies] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingCompanyOwners, setIsLoadingCompanyOwners] = useState(false);
 
   // Subscriptions removed
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
 
   // Subscription plan fields for Assign Subscription
   const [planName, setPlanName] = useState("");
@@ -83,7 +87,7 @@ function CreateOutlet() {
     service_charges: "",
     gst: "",
     address: "",
-    outlet_mode: "",
+    outlet_mode: "online",
     is_open: true,
     outlet_status: true,
     upi_id: "",
@@ -104,7 +108,12 @@ function CreateOutlet() {
     action_ids: [],
     has_combo: 0,
     has_denomination: 0,
+    has_udhari: 0,
     reserve_table: 0,
+    reset_kot_number: "daily",
+    reset_bill_number: "daily",
+    show_customer_count: 0,
+    company_id: "",
   });
 
   const [validationStates, setValidationStates] = useState({
@@ -114,7 +123,6 @@ function CreateOutlet() {
     upi: false,
     outlet_type: false,
     food_type: false,
-    outlet_mode: false,
     address: false,
     fssainumber: false,
     website: false,
@@ -145,33 +153,45 @@ function CreateOutlet() {
   ];
 
   useEffect(() => {
-    fetchOutletTypes();
-    fetchOwners();
-    // fetch modules for subscription assign
-    (async () => {
+    const initializeData = async () => {
       try {
-        setLoadingModules(true);
-        const token = getToken();
-        const resp = await axios.get(
-          `${BASE_URL}/admin/get_modules`,
-          {
-            headers: { Authorization: token },
-          }
-        );
-        const modList = Array.isArray(resp.data)
-          ? resp.data
-          : resp.data?.data || [];
-        setModules(modList);
-        // Select all modules by default when creating an outlet
-        if (modList.length > 0) {
-          setSelectedModuleIds(modList.map((m) => m.module_id));
-        }
-      } catch (err) {
+        setIsLoading(true);
+        await Promise.all([
+          fetchOutletTypes(),
+          fetchCompanies()
+        ]);
 
+        // fetch modules for subscription assign
+        try {
+          setLoadingModules(true);
+          const token = getToken();
+          const resp = await axios.get(
+            `${BASE_URL}/admin/get_modules`,
+            {
+              headers: { Authorization: token },
+            }
+          );
+          const modList = Array.isArray(resp.data)
+            ? resp.data
+            : resp.data?.data || [];
+          setModules(modList);
+          // Select all modules by default when creating an outlet
+          if (modList.length > 0) {
+            setSelectedModuleIds(modList.map((m) => m.module_id));
+          }
+        } catch (err) {
+          console.error("Error fetching modules:", err);
+        } finally {
+          setLoadingModules(false);
+        }
+      } catch (error) {
+        console.error("Error initializing data:", error);
       } finally {
-        setLoadingModules(false);
+        setIsLoading(false);
       }
-    })();
+    };
+
+    initializeData();
   }, []);
 
 
@@ -181,16 +201,16 @@ function CreateOutlet() {
   }, [
     outletData.name,
     outletData.mobile,
-    outletData.owner_id,
     outletData.upi_id,
     outletData.outlet_type,
     outletData.veg_nonveg,
-    outletData.outlet_mode,
     outletData.address,
     outletData.subscription_end_date,
     outletData.has_combo,
     outletData.has_denomination,
+    outletData.has_udhari,
     outletData.reserve_table,
+    outletData.company_id,
   ]);
 
   useEffect(() => {
@@ -260,9 +280,8 @@ function CreateOutlet() {
       ...prev,
       outlet_type: !outletData.outlet_type && prev.outlet_type,
       food_type: !outletData.veg_nonveg && prev.food_type,
-      outlet_mode: !outletData.outlet_mode && prev.outlet_mode,
     }));
-  }, [outletData.outlet_type, outletData.veg_nonveg, outletData.outlet_mode]);
+  }, [outletData.outlet_type, outletData.veg_nonveg]);
 
   useEffect(() => {
     // Overall form validation
@@ -273,8 +292,8 @@ function CreateOutlet() {
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
-      outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
+      company_id: !!outletData.company_id,
       subscription_end_date:
         outletData.subscription_id && outletData.subscription_id !== ""
           ? !!outletData.subscription_end_date
@@ -283,6 +302,21 @@ function CreateOutlet() {
 
     // Check if there are any API errors
     const hasApiErrors = Object.values(apiErrors).some((error) => error !== "");
+
+    // Debug logging to help identify validation issues
+    console.log("Form Validation Debug:", {
+      requiredFields,
+      hasApiErrors,
+      outletData: {
+        name: outletData.name,
+        mobile: outletData.mobile,
+        upi_id: outletData.upi_id,
+        outlet_type: outletData.outlet_type,
+        veg_nonveg: outletData.veg_nonveg,
+        address: outletData.address,
+        company_id: outletData.company_id,
+      }
+    });
 
     // Check if all required fields are valid and there are no API errors
     const isValid =
@@ -325,30 +359,75 @@ function CreateOutlet() {
     }
   };
 
-  const fetchOwners = async () => {
+  const fetchCompanies = async () => {
     try {
-      setIsLoading(true);
       const token = getToken();
       if (!token) {
         throw new Error("No authentication token available");
       }
 
-      const response = await axios.get(
-        `${BASE_URL}/common/listview_owner/${adminData.user_id}`,
+      const response = await axios.post(
+        `${BASE_URL}/admin/list_companies`,
+        {
+          user_id: getUserId()
+        },
         {
           headers: {
             Authorization: token,
+            "Content-Type": "application/json",
           },
         }
       );
 
-      if (Array.isArray(response.data)) {
-        setAllOwners(response.data);
+      // Extract companies from the response
+      const companies = response.data.companies || [];
+
+      if (Array.isArray(companies)) {
+        setAllCompanies(companies);
       }
     } catch (error) {
 
+    }
+  };
+
+  const fetchCompanyOwners = async (companyId) => {
+    try {
+      setIsLoadingCompanyOwners(true);
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/admin/get_company_with_owners`,
+        {
+          user_id: getUserId() || adminData?.user_id,
+          company_id: parseInt(companyId)
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.detail === "Company details retrieved successfully") {
+        const owners = response.data.data.owners || [];
+        setCompanyOwners(owners);
+        // Clear selected owners when company changes
+        setOutletData((prev) => ({
+          ...prev,
+          owner_id: [],
+        }));
+        setPrimaryOwnerId(null);
+      }
+    } catch (error) {
+      console.error("Error fetching company owners:", error);
+      setCompanyOwners([]);
+      toastController.error("Failed to fetch company owners");
     } finally {
-      setIsLoading(false);
+      setIsLoadingCompanyOwners(false);
     }
   };
 
@@ -496,6 +575,9 @@ function CreateOutlet() {
     e.preventDefault();
 
     if (!isFormValid) {
+      console.log("Form validation failed");
+      console.log("Validation states:", validationStates);
+      console.log("Outlet data:", outletData);
       return;
     }
 
@@ -503,6 +585,17 @@ function CreateOutlet() {
       const token = getToken();
       if (!token) {
         throw new Error("No authentication token available");
+      }
+
+      console.log("Starting outlet creation...");
+      console.log("Auth token present:", !!token);
+      console.log("Admin data:", adminData);
+
+      // Validate admin data
+      if (!adminData || !adminData.user_id) {
+        console.error("Admin data not available:", adminData);
+        toastController.error("User session invalid. Please refresh and try again.");
+        return;
       }
 
       const currentDate = new Date().toISOString().split("T")[0];
@@ -534,41 +627,56 @@ function CreateOutlet() {
         ...(outletData.owner_id.length > 0
           ? { owner_ids: outletData.owner_id }
           : {}),
+        // Include primary owner if selected
+        ...(primaryOwnerId ? { primary_owner_id: primaryOwnerId } : {}),
         user_id: parseInt(adminData.user_id),
-        name: outletData.name,
+        name: outletData.name.trim(),
         mobile: outletData.mobile,
-        address: outletData.address,
+        address: outletData.address.trim(),
         outlet_type: outletData.outlet_type,
         outlet_mode: outletData.outlet_mode,
         veg_nonveg: outletData.veg_nonveg,
-        upi_id: outletData.upi_id,
-        has_combo: outletData.has_combo,
-        has_denomination: outletData.has_denomination,
-        reserve_table: outletData.reserve_table,
+        upi_id: outletData.upi_id.trim(),
+        has_combo: parseInt(outletData.has_combo),
+        has_denomination: parseInt(outletData.has_denomination),
+        has_udhari: parseInt(outletData.has_udhari),
+        reserve_table: parseInt(outletData.reserve_table),
+        reset_kot_number: outletData.reset_kot_number,
+        reset_bill_number: outletData.reset_bill_number,
+        show_customer_count: parseInt(outletData.show_customer_count),
+        company_id: parseInt(outletData.company_id),
+        is_open: outletData.is_open ? 1 : 0,
+        outlet_status: outletData.outlet_status ? 1 : 0,
+        app_source: "admin_app",
       };
 
       // Attach selected module ids as subscription assignment
-      payload.module_ids = selectedModuleIds.map((id) => Number(id));
+      if (Array.isArray(selectedModuleIds) && selectedModuleIds.length > 0) {
+        payload.module_ids = selectedModuleIds.map((id) => Number(id));
+      }
 
       // Attach subscription plan details
-      payload.subscription = {
-        name: planName,
-        price: Number(planPrice),
-        tenure_months: Number(tenureMonths),
-      };
+      if (planName && planPrice && tenureMonths) {
+        payload.subscription = {
+          name: planName.trim(),
+          price: Number(planPrice),
+          tenure_months: Number(tenureMonths),
+        };
 
-      // Also include selected module ids inside subscription object for backend compatibility
-      if (Array.isArray(selectedModuleIds) && selectedModuleIds.length > 0) {
-        payload.subscription.module_ids = selectedModuleIds.map((id) =>
-          Number(id)
-        );
+        // Also include selected module ids inside subscription object for backend compatibility
+        if (Array.isArray(selectedModuleIds) && selectedModuleIds.length > 0) {
+          payload.subscription.module_ids = selectedModuleIds.map((id) =>
+            Number(id)
+          );
+        }
       }
 
-      if (outletData.service_charges !== "") {
-        payload.service_charges = outletData.service_charges.toString();
+      // Add optional fields with proper validation
+      if (outletData.service_charges !== "" && outletData.service_charges !== null) {
+        payload.service_charges = Number(outletData.service_charges);
       }
-      if (outletData.gst !== "") {
-        payload.gst = outletData.gst.toString();
+      if (outletData.gst !== "" && outletData.gst !== null) {
+        payload.gst = Number(outletData.gst);
       }
 
       const optionalFields = [
@@ -580,11 +688,12 @@ function CreateOutlet() {
         "website",
         "google_business_link",
         "google_review",
+        "email",
       ];
 
       optionalFields.forEach((field) => {
-        if (outletData[field]) {
-          payload[field] = outletData[field];
+        if (outletData[field] && outletData[field].trim() !== "") {
+          payload[field] = outletData[field].trim();
         }
       });
 
@@ -608,28 +717,32 @@ function CreateOutlet() {
         payload.image = outletData.image;
       }
 
-      // Subscription creation removed: the server will handle subscription
-      // assignment when `subscription` object is provided in the outlet payload.
-      // We keep the `payload.subscription` object but DO NOT call
-      // the `admin/create_subscription` API from the client.
-      // However the backend still validates for legacy top-level subscription
-      // fields (`subscription_name`, `subscription_price`, `subscription_tenure`),
-      // so include them for backward compatibility.
+      // Format tenure for backward compatibility
       const formatTenure = (months) => {
         if (!months) return "";
-        if (months % 12 === 0)
-          return `${months / 12} year${months / 12 > 1 ? "s" : ""}`;
+        if (months === 1) return "1 month";
+        if (months % 12 === 0) {
+          const years = months / 12;
+          return `${years} year${years > 1 ? "s" : ""}`;
+        }
         return `${months} months`;
       };
 
-      if (planName) payload.subscription_name = planName;
-      if (planPrice !== "" && planPrice != null)
+      // Add legacy subscription fields for backward compatibility
+      if (planName && planName.trim()) {
+        payload.subscription_name = planName.trim();
+      }
+      if (planPrice !== "" && planPrice != null && !isNaN(Number(planPrice))) {
         payload.subscription_price = Number(planPrice);
-      payload.subscription_description = planName || "";
-      if (tenureMonths)
+      }
+      if (planName && planName.trim()) {
+        payload.subscription_description = planName.trim();
+      }
+      if (tenureMonths && !isNaN(Number(tenureMonths))) {
         payload.subscription_tenure = formatTenure(Number(tenureMonths));
-      // Keep app_source for compatibility with older endpoints
-      payload.app_source = "admin_app";
+      }
+
+      console.log("Final payload being sent:", JSON.stringify(payload, null, 2));
 
 
 
@@ -652,11 +765,14 @@ function CreateOutlet() {
         // Clear any existing API errors
         setApiErrors({});
         // Invalidate outlets cache to refresh the list
-        queryClient.invalidateQueries({ queryKey: queryKeys.outlets.all });
+        queryClient.invalidateQueries(queryKeys.outlets.list());
         navigate(-1);
       }
     } catch (error) {
-
+      console.error("Create outlet error:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      console.error("Payload sent:", payload);
 
       // Handle specific API errors without clearing the image
       if (error.response?.data?.detail) {
@@ -748,8 +864,8 @@ function CreateOutlet() {
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
-      outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
+      company_id: !!outletData.company_id,
       // Subscription validation: if subscription_id exists, subscription_end_date should exist
       subscription_end_date:
         outletData.subscription_id && outletData.subscription_id !== ""
@@ -859,6 +975,39 @@ function CreateOutlet() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-8">
+          {/* Outlet Image Section - Moved to Top */}
+          <div className="mb-8">
+            <section className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-medium mb-4 flex items-center">
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Outlet Image
+              </h2>
+              <ImageUploader
+                maxImages={1}
+                onImagesChange={handleImagesChange}
+                existingImages={
+                  outletData.image ? [{ url: outletData.image }] : []
+                }
+                label="Upload Outlet Image"
+                className="w-full"
+                isOutletImage={true}
+                preserveImageOnValidation={true}
+              />
+            </section>
+          </div>
+
           <div className=" border-b border-gray-200 dark:border-gray-800 pb-5">
             <section className="bg-white rounded-lg shadow ">
               <h2 className="text-lg font-medium mb-4 flex items-center">
@@ -877,17 +1026,6 @@ function CreateOutlet() {
                 </svg>
                 Basic Information
               </h2>
-              <ImageUploader
-                maxImages={1}
-                onImagesChange={handleImagesChange}
-                existingImages={
-                  outletData.image ? [{ url: outletData.image }] : []
-                }
-                label="Outlet Image"
-                className="w-full rounded-3xl"
-                isOutletImage={true}
-                preserveImageOnValidation={true}
-              />
 
               <div className="grid grid-cols-1 gap-6">
                 <div className="relative"></div>
@@ -904,7 +1042,7 @@ function CreateOutlet() {
                       validationType="simple"
                       validationRules={validationRules.name.simple}
                       className={`
-                      rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                      rounded-lg focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.name
                           ? "border-error-500"
                           : "border-gray-300"
@@ -912,24 +1050,75 @@ function CreateOutlet() {
                     `}
                     />
                   </div>
+
+
+                  <div className="flex flex-col">
+                    <SingleSelectDropdown
+                      label="Select Company"
+                      options={allCompanies}
+                      selectedValue={outletData.company_id}
+                      onChange={(companyId) => {
+                        setOutletData((prev) => ({
+                          ...prev,
+                          company_id: companyId,
+                        }));
+                        // Fetch company-specific owners when company is selected
+                        if (companyId) {
+                          fetchCompanyOwners(companyId);
+                        } else {
+                          setCompanyOwners([]);
+                          setOutletData((prev) => ({
+                            ...prev,
+                            owner_id: [],
+                          }));
+                        }
+                      }}
+                      displayKey="company_name"
+                      valueKey="company_id"
+                      searchKeys={["company_name", "company_code"]}
+                      placeholder="Select company"
+                      searchPlaceholder="Search by company name or code..."
+                      className="rounded-lg"
+                      required={true}
+                    />
+                  </div>
+
                   <div className="flex flex-col">
                     <MultiSelectDropdown
-                      label="Select Owners"
-                      options={allOwners}
+                      label={<span><span className="text-red-500">*</span> Select Owners</span>}
+                      options={companyOwners}
                       selectedValues={outletData.owner_id}
                       onChange={(newOwnerIds) => {
                         setOutletData((prev) => ({
                           ...prev,
                           owner_id: newOwnerIds,
                         }));
+                        // Clear primary owner if it's no longer selected
+                        if (!newOwnerIds.includes(primaryOwnerId)) {
+                          setPrimaryOwnerId(null);
+                        }
                       }}
                       displayKey="name"
                       valueKey="user_id"
                       searchKeys={["name", "mobile", "email"]}
-                      placeholder="Select owners"
+                      placeholder={
+                        !outletData.company_id
+                          ? "Please select a company first"
+                          : isLoadingCompanyOwners
+                            ? "Loading owners..."
+                            : "Select owners"
+                      }
                       searchPlaceholder="Search by name, mobile or email..."
-                      className="rounded-3xl"
+                      className="rounded-lg"
+                      disabled={!outletData.company_id || isLoadingCompanyOwners}
+                      primaryValue={primaryOwnerId}
+                      onPrimaryChange={setPrimaryOwnerId}
                     />
+                    {!outletData.company_id && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        Select a company first to see available owners
+                      </p>
+                    )}
                   </div>
 
                   <div className="relative">
@@ -948,7 +1137,7 @@ function CreateOutlet() {
                       maxLength={10}
                       placeholder="Enter 10 digit mobile number"
                       className={`
-                      rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                      rounded-lg focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.mobile || apiErrors.mobile
                           ? "border-error-500"
                           : "border-gray-300"
@@ -969,7 +1158,7 @@ function CreateOutlet() {
                     value={outletData.email}
                     onChange={handleInputChange}
                     placeholder="Enter Email Address"
-                    className="rounded-3xl"
+                    className="rounded-lg"
                   />
 
                   <div className="relative">
@@ -983,7 +1172,7 @@ function CreateOutlet() {
                       validationRules={validationRules.upi}
                       placeholder="username@bankname"
                       className={`
-                      rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                      rounded-lg focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.upi
                           ? "border-error-500"
                           : "border-gray-300"
@@ -1031,22 +1220,6 @@ function CreateOutlet() {
                     placeholder="Select Food Type"
                   />
 
-                  <CustomDropdown
-                    label="Outlet Mode"
-                    name="outlet_mode"
-                    value={outletData.outlet_mode}
-                    onChange={handleInputChange}
-                    error={
-                      validationStates.outlet_mode && !outletData.outlet_mode
-                    }
-                    required
-                    options={[
-                      { value: "offline", label: "Offline" },
-                      { value: "online", label: "Online" },
-                    ]}
-                    placeholder="Select Outlet Mode"
-                  />
-
                   <div className="sm:col-span-1">
                     <Textarea
                       label="Address"
@@ -1058,7 +1231,7 @@ function CreateOutlet() {
                       required
                       rows={3}
                       maxLength={50}
-                      className="rounded-3xl"
+                      className="rounded-lg"
                     />
                     {validationStates.address && (
                       <p className="text-error-500 text-sm mt-1">
@@ -1095,19 +1268,6 @@ function CreateOutlet() {
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                <div className="relative">
-                  <TextInput
-                    label="Service Charges (%)"
-                    name="service_charges"
-                    type="number"
-                    value={outletData.service_charges}
-                    onChange={handleInputChange}
-                    onFocus={() => handleFocus("service_charges")}
-                    placeholder="Enter Service Charges"
-                    className="focus:border-brand-500 rounded-3xl focus:ring-brand-500 border-gray-300"
-                  />
-                </div>
-
                 <TextInput
                   label="FSSAI Number"
                   name="fssainumber"
@@ -1115,20 +1275,8 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                   maxLength={14}
                   placeholder="Enter FSSAI Number"
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
-                <div className="relative">
-                  <TextInput
-                    label="GST (%)"
-                    name="gst"
-                    type="number"
-                    value={outletData.gst}
-                    onChange={handleInputChange}
-                    onFocus={() => handleFocus("gst")}
-                    placeholder="Enter GST"
-                    className="rounded-3xl focus:border-brand-500 focus:ring-brand-500 border-gray-300"
-                  />
-                </div>
                 <TextInput
                   label="GST Number"
                   name="gstnumber"
@@ -1136,8 +1284,9 @@ function CreateOutlet() {
                   onChange={handleInputChange}
                   placeholder="Enter GST Number"
                   maxLength={15}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
+
                 {validationStates.gstnumber && (
                   <p className="text-error-500 text-sm mt-1">
                     {!outletData.gstnumber
@@ -1147,205 +1296,6 @@ function CreateOutlet() {
                         : ""}
                   </p>
                 )}
-                {/* Opening Time */}
-                <div className="flex flex-row flex-nowrap items-end gap-10 mb-4">
-                  {/* Opening Time */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Opening Time
-                    </label>
-                    <div className="flex gap-2">
-                      {/* Hour Dropdown */}
-                      <CustomDropdown
-                        className="w-22"
-                        value={openingHour}
-                        onChange={(e) =>
-                          handleOpeningTimeChange("hour", e.target.value)
-                        }
-                        options={[
-                          { value: "", label: "HH" },
-                          ...[...Array(12)].map((_, i) => {
-                            const val = (i + 1).toString().padStart(2, "0");
-                            return { value: val, label: val };
-                          })
-                        ]}
-                        placeholder="HH"
-                      />
-                      {/* Minute Dropdown */}
-                      <CustomDropdown
-                        className="w-22"
-                        value={openingMinute}
-                        onChange={(e) =>
-                          handleOpeningTimeChange("minute", e.target.value)
-                        }
-                        options={[
-                          { value: "", label: "MM" },
-                          ...["00", "15", "30", "45"].map((min) => ({
-                            value: min,
-                            label: min
-                          }))
-                        ]}
-                        placeholder="MM"
-                      />
-                      {/* AM/PM Dropdown */}
-                      <CustomDropdown
-                        className="w-22"
-                        value={openingPeriod}
-                        onChange={(e) =>
-                          handleOpeningTimeChange("period", e.target.value)
-                        }
-                        options={[
-                          { value: "AM", label: "AM" },
-                          { value: "PM", label: "PM" }
-                        ]}
-                        placeholder="AM/PM"
-                      />
-                    </div>
-                  </div>
-                  {/* Closing Time */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Closing Time
-                    </label>
-                    <div className="flex gap-2">
-                      {/* Hour Dropdown */}
-                      <CustomDropdown
-                        className="w-22"
-                        value={closingHour}
-                        onChange={(e) =>
-                          handleClosingTimeChange("hour", e.target.value)
-                        }
-                        options={[
-                          { value: "", label: "HH" },
-                          ...[...Array(12)].map((_, i) => {
-                            const val = (i + 1).toString().padStart(2, "0");
-                            return { value: val, label: val };
-                          })
-                        ]}
-                        placeholder="HH"
-                      />
-                      {/* Minute Dropdown */}
-                      <CustomDropdown
-                        className="w-22"
-                        value={closingMinute}
-                        onChange={(e) =>
-                          handleClosingTimeChange("minute", e.target.value)
-                        }
-                        options={[
-                          { value: "", label: "MM" },
-                          ...["00", "15", "30", "45"].map((min) => ({
-                            value: min,
-                            label: min
-                          }))
-                        ]}
-                        placeholder="MM"
-                      />
-                      {/* AM/PM Dropdown */}
-                      <CustomDropdown
-                        className="w-22"
-                        value={closingPeriod}
-                        onChange={(e) =>
-                          handleClosingTimeChange("period", e.target.value)
-                        }
-                        options={[
-                          { value: "AM", label: "AM" },
-                          { value: "PM", label: "PM" }
-                        ]}
-                        placeholder="AM/PM"
-                      />
-                    </div>
-                  </div>
-                  {/* New boolean dropdowns: combo, denomination, reserve_table */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Has Combo
-                    </label>
-                    <CustomDropdown
-                      name="has_combo"
-                      className="w-22"
-                      value={
-                        outletData.has_combo === null ||
-                          outletData.has_combo === undefined
-                          ? ""
-                          : String(outletData.has_combo)
-                      }
-                      onChange={(e) =>
-                        setOutletData((prev) => ({
-                          ...prev,
-                          has_combo: Number(e.target.value),
-                        }))
-                      }
-                      options={[
-                        { value: "", label: "Select" },
-                        ...YES_NO_OPTIONS.map((opt) => ({
-                          value: String(opt.value),
-                          label: opt.label
-                        }))
-                      ]}
-                      placeholder="Select"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Has Denomination
-                    </label>
-                    <CustomDropdown
-                      name="has_denomination"
-                      className="w-22"
-                      value={
-                        outletData.has_denomination === null ||
-                          outletData.has_denomination === undefined
-                          ? ""
-                          : String(outletData.has_denomination)
-                      }
-                      onChange={(e) =>
-                        setOutletData((prev) => ({
-                          ...prev,
-                          has_denomination: Number(e.target.value),
-                        }))
-                      }
-                      options={[
-                        { value: "", label: "Select" },
-                        ...YES_NO_OPTIONS.map((opt) => ({
-                          value: String(opt.value),
-                          label: opt.label
-                        }))
-                      ]}
-                      placeholder="Select"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Reserve Table
-                    </label>
-                    <CustomDropdown
-                      name="reserve_table"
-                      className="w-22"
-                      value={
-                        outletData.reserve_table === null ||
-                          outletData.reserve_table === undefined
-                          ? ""
-                          : String(outletData.reserve_table)
-                      }
-                      onChange={(e) =>
-                        setOutletData((prev) => ({
-                          ...prev,
-                          reserve_table: Number(e.target.value),
-                        }))
-                      }
-                      options={[
-                        { value: "", label: "Select" },
-                        ...YES_NO_OPTIONS.map((opt) => ({
-                          value: String(opt.value),
-                          label: opt.label
-                        }))
-                      ]}
-                      placeholder="Select"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </section>
@@ -1368,7 +1318,7 @@ function CreateOutlet() {
                     type="text"
                     value={planName}
                     onChange={(e) => setPlanName(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter plan name"
                   />
                 </div>
@@ -1382,7 +1332,7 @@ function CreateOutlet() {
                     step="0.01"
                     value={planPrice}
                     onChange={(e) => setPlanPrice(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter price"
                   />
                 </div>
@@ -1437,7 +1387,7 @@ function CreateOutlet() {
                             setSelectedModuleIds([]);
                           }
                         }}
-                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-3xl mr-2"
+                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-lg mr-2"
                       />
                       Check All
                     </label>
@@ -1461,7 +1411,7 @@ function CreateOutlet() {
                               checked={checked}
                               onChange={() => handleModuleToggle(m.module_id)}
                               onClick={(e) => e.stopPropagation()}
-                              className="form-checkbox h-4 w-4 mt-0.5 text-blue-600 border-gray-300 rounded-3xl"
+                              className="form-checkbox h-4 w-4 mt-0.5 text-blue-600 border-gray-300 rounded-lg"
                             />
                             <span className="text-xs font-medium uppercase text-gray-800">
                               {m.name?.split("_").join(" ")}
@@ -1473,170 +1423,6 @@ function CreateOutlet() {
                   </div>
                 </>
               )}
-            </div>
-          </section>
-
-          <section className="bg-white p-2 rounded-3xl shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                />
-              </svg>
-              Social Media
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <div className="relative">
-                <TextInput
-                  label="Website"
-                  name="website"
-                  type="url"
-                  value={outletData.website}
-                  onChange={handleInputChange}
-                  onFocus={() => handleFocus("website")}
-                  placeholder="https://example.com"
-                  className={`
-                    rounded-3xl focus:border-brand-500  focus:ring-brand-500
-                    ${validationStates.website
-                      ? "border-error-500"
-                      : "border-gray-300"
-                    }
-                  `}
-                />
-                {validationStates.website && (
-                  <p className="text-error-500 text-sm mt-1">
-                    Please enter a valid website URL starting with http:// or
-                    https://
-                  </p>
-                )}
-              </div>
-
-              <div className="relative">
-                <TextInput
-                  label="WhatsApp Number"
-                  name="whatsapp"
-                  type="tel"
-                  value={outletData.whatsapp}
-                  onChange={handleInputChange}
-                  onFocus={() => handleFocus("whatsapp")}
-                  placeholder="Enter 10 digit mobile number"
-                  maxLength={10}
-                  className={`
-                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.whatsapp
-                      ? "border-error-500"
-                      : "border-gray-300"
-                    }
-                  `}
-                />
-                {validationStates.whatsapp && (
-                  <p className="text-error-500 text-sm mt-1">
-                    {validationStates.whatsappMessage}
-                  </p>
-                )}
-              </div>
-
-              <div className="relative">
-                <TextInput
-                  label="Facebook"
-                  name="facebook"
-                  type="url"
-                  value={outletData.facebook}
-                  onChange={handleInputChange}
-                  onFocus={() => handleFocus("facebook")}
-                  placeholder="https://facebook.com/yourpage"
-                  className={`rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.facebook
-                      ? "border-error-500"
-                      : "border-gray-300"
-                    }
-                  `}
-                />
-                {validationStates.facebook && (
-                  <p className="text-error-500 text-sm mt-1">
-                    Please enter a valid Facebook URL
-                  </p>
-                )}
-              </div>
-
-              <div className="relative">
-                <TextInput
-                  label="Instagram"
-                  name="instagram"
-                  type="url"
-                  value={outletData.instagram}
-                  onChange={handleInputChange}
-                  onFocus={() => handleFocus("instagram")}
-                  placeholder="https://instagram.com/yourhandle"
-                  className={`
-                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.instagram
-                      ? "border-error-500"
-                      : "border-gray-300"
-                    }
-                  `}
-                />
-                {validationStates.instagram && (
-                  <p className="text-error-500 text-sm mt-1">
-                    Please enter a valid Instagram URL
-                  </p>
-                )}
-              </div>
-
-              <div className="relative">
-                <TextInput
-                  label="Google Business Link"
-                  name="google_business_link"
-                  type="url"
-                  value={outletData.google_business_link}
-                  onChange={handleInputChange}
-                  onFocus={() => handleFocus("google_business_link")}
-                  placeholder="https://business.google.com/yourpage"
-                  className={`rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.google_business_link
-                      ? "border-error-500"
-                      : "border-gray-300"
-                    }
-                  `}
-                />
-                {validationStates.google_business_link && (
-                  <p className="text-error-500 text-sm mt-1">
-                    Please enter a valid Google Business URL
-                  </p>
-                )}
-              </div>
-
-              <div className="relative">
-                <TextInput
-                  label="Google Review Link"
-                  name="google_review"
-                  type="url"
-                  value={outletData.google_review}
-                  onChange={handleInputChange}
-                  onFocus={() => handleFocus("google_review")}
-                  placeholder="https://g.page/r/yourreviewpage"
-                  className={`rounded-3xl focus:border-brand-500 focus:ring-brand-500
-                    ${validationStates.google_review
-                      ? "border-error-500"
-                      : "border-gray-300"
-                    }
-                  `}
-                />
-                {validationStates.google_review && (
-                  <p className="text-error-500 text-sm mt-1">
-                    Please enter a valid Google Review URL
-                  </p>
-                )}
-              </div>
             </div>
           </section>
         </form>

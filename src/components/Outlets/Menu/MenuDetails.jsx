@@ -23,9 +23,19 @@ import {
   faDrumstickBite,
   faEgg,
   faSeedling,
+  faIndianRupeeSign,
 } from '@fortawesome/free-solid-svg-icons';
 import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import Breadcrumb from '../../Breadcrumb';
+
+// Helper to convert strings to Title Case
+const toTitleCase = (str) =>
+  str
+    ? str
+      .toString()
+      .toLowerCase()
+      .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1))
+    : '';
 
 function MenuDetails() {
   const { outletId, menuId } = useParams();
@@ -40,7 +50,7 @@ function MenuDetails() {
   useEffect(() => {
     const fetchMenuDetails = async () => {
       if (!adminData?.user_id || !menuId || !outletId) return;
-      
+
       setError(null);
       try {
         const token = getToken();
@@ -94,9 +104,9 @@ function MenuDetails() {
   const getBreadcrumbItems = () => [
     { label: 'Home', path: '/home' },
     { label: 'Outlets', path: '/outlets' },
-    { label: menu?.outlet_name || 'Outlet', path: `/view-outlet/${outletId}` },
+    { label: toTitleCase(menu?.outlet_name) || 'Outlet', path: `/view-outlet/${outletId}` },
     { label: 'Menus', path: `/menus/${outletId}` },
-    { label: menu?.name || 'Menu Details' }
+    { label: toTitleCase(menu?.name) || 'Menu Details' }
   ];
 
   if (error) return <div className="text-error-500">{error}</div>;
@@ -128,7 +138,7 @@ function MenuDetails() {
             </div>
             {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
-              <button
+              {/* <button
                 onClick={() => navigate(`/edit-menu/${outletId}/${menuId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
               >
@@ -136,7 +146,7 @@ function MenuDetails() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                 </svg>
                 <span className="hidden sm:inline">Edit</span>
-              </button>
+              </button> */}
               <button
                 onClick={() => setShowDeleteModal(true)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
@@ -155,8 +165,8 @@ function MenuDetails() {
               <div className="mb-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
                   {menu.images.map((image, index) => (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="relative w-full aspect-square border border-gray-200 rounded-lg p-2 bg-white"
                     >
                       <div className="w-full h-full flex items-center justify-center">
@@ -180,7 +190,7 @@ function MenuDetails() {
                   <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{menu.name}</div>
+                  <div className="text-base font-medium">{toTitleCase(menu.name)}</div>
                   <div className="text-sm text-gray-500">Menu Name</div>
                 </div>
               </div>
@@ -188,32 +198,30 @@ function MenuDetails() {
               {/* Food Type - Always show */}
               <div className="flex items-center p-3">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon 
+                  <FontAwesomeIcon
                     icon={
                       menu.food_type === 'veg' ? faLeaf :
-                      menu.food_type === 'nonveg' ? faDrumstickBite :
-                      menu.food_type === 'vegan' ? faSeedling :
-                      menu.food_type === 'egg' ? faEgg :
-                      faLeaf
-                    } 
-                    className={`w-5 h-5 ${
-                      menu.food_type === 'veg' ? 'text-success-500' :
+                        menu.food_type === 'nonveg' ? faDrumstickBite :
+                          menu.food_type === 'vegan' ? faSeedling :
+                            menu.food_type === 'egg' ? faEgg :
+                              faLeaf
+                    }
+                    className={`w-5 h-5 ${menu.food_type === 'veg' ? 'text-success-500' :
                       menu.food_type === 'nonveg' ? 'text-error-500' :
-                      menu.food_type === 'vegan' ? 'text-emerald-500' :
-                      menu.food_type === 'egg' ? 'text-amber-500' :
-                      'text-success-500'
-                    }`} 
+                        menu.food_type === 'vegan' ? 'text-emerald-500' :
+                          menu.food_type === 'egg' ? 'text-amber-500' :
+                            'text-success-500'
+                      }`}
                   />
                 </div>
                 <div className="ml-3">
-                  <div className={`text-base font-medium ${
-                    menu.food_type === 'veg' ? 'text-success-500' :
+                  <div className={`text-base font-medium ${menu.food_type === 'veg' ? 'text-success-500' :
                     menu.food_type === 'nonveg' ? 'text-error-500' :
-                    menu.food_type === 'vegan' ? 'text-emerald-500' :
-                    menu.food_type === 'egg' ? 'text-amber-500' :
-                    'text-success-500'
-                  }`}>
-                    {menu.food_type?.toUpperCase()}
+                      menu.food_type === 'vegan' ? 'text-emerald-500' :
+                        menu.food_type === 'egg' ? 'text-amber-500' :
+                          'text-success-500'
+                    }`}>
+                    {toTitleCase(menu.food_type?.replace('_', ' '))}
                   </div>
                   <div className="text-sm text-gray-500">Food Type</div>
                 </div>
@@ -225,10 +233,75 @@ function MenuDetails() {
                   <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">{menu.category_name}</div>
+                  <div className="text-base font-medium">{toTitleCase(menu.category_name)}</div>
                   <div className="text-sm text-gray-500">Category</div>
                 </div>
               </div>
+
+              {/* Default Price - when present */}
+              {(menu.default_price != null && menu.default_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-brand-500" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.default_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Default Price</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Dine-in Price - when present */}
+              {(menu.dine_in_price != null && menu.dine_in_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.dine_in_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Dine-in Price</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Parcel Price - when present */}
+              {(menu.parcel_price != null && menu.parcel_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.parcel_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Parcel Price</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Delivery Price - when present */}
+              {(menu.delivery_price != null && menu.delivery_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.delivery_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Delivery Price</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Drive-through Price - when present */}
+              {(menu.drive_through_price != null && menu.drive_through_price !== '') && (
+                <div className="flex items-center p-3">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faIndianRupeeSign} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">₹{Number(menu.drive_through_price).toFixed(2)}</div>
+                    <div className="text-sm text-gray-500">Drive-through Price</div>
+                  </div>
+                </div>
+              )}
 
               {/* Special Status - Only if true */}
               {menu.is_special && (
@@ -256,18 +329,6 @@ function MenuDetails() {
                 </div>
               )}
 
-              {/* Offer - Only if > 0 */}
-              {menu.offer > 0 && (
-                <div className="flex items-center p-3">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon icon={faPercent} className="w-5 h-5 text-success-500" />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">{menu.offer}%</div>
-                    <div className="text-sm text-gray-500">Offer</div>
-                  </div>
-                </div>
-              )}
 
               {/* Description - Only if not empty */}
               {menu.description?.trim() && (
@@ -276,7 +337,7 @@ function MenuDetails() {
                     <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium break-words">{menu.description}</div>
+                    <div className="text-base font-medium break-words">{toTitleCase(menu.description)}</div>
                     <div className="text-sm text-gray-500">Description</div>
                   </div>
                 </div>
@@ -289,7 +350,7 @@ function MenuDetails() {
                     <FontAwesomeIcon icon={faList} className="w-5 h-5 text-gray-400" />
                   </div>
                   <div className="ml-3">
-                    <div className="text-base font-medium break-words">{menu.ingredients}</div>
+                    <div className="text-base font-medium break-words">{toTitleCase(menu.ingredients)}</div>
                     <div className="text-sm text-gray-500">Ingredients</div>
                   </div>
                 </div>
@@ -297,20 +358,39 @@ function MenuDetails() {
             </div>
 
             {/* Portions Section - Only show if portions have valid data */}
-            {menu.portions?.some(portion => portion.portion_name || portion.price || portion.unit_value || portion.unit_type) && (
+            {(() => {
+              const portions = menu.portions ?? menu.portions_data ?? [];
+              const hasAnyPortionData = portions.some(
+                (p) =>
+                  p?.portion_name ||
+                  p?.portions_name ||
+                  p?.price != null ||
+                  p?.unit_value != null ||
+                  p?.unit_type
+              );
+
+              if (!hasAnyPortionData) return null;
+
+              return (
               <div className="mt-6">
                 <h3 className="text-sm font-medium text-gray-500 mb-2">Portions</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {menu.portions.map((portion, idx) => (
+                  {portions.map((portion, idx) => (
                     <div key={idx} className="flex items-center p-3">
                       <div className="w-8 h-8 flex items-center justify-center">
                         <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
                       </div>
                       <div className="ml-3">
-                        <div className="text-base font-medium">{portion.portion_name}</div>
+                        <div className="text-base font-medium">
+                          {toTitleCase(portion.portion_name || portion.portions_name || "-")}
+                        </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-brand-500 font-medium">₹{portion.price}</span>
-                          {(portion.unit_value || portion.unit_type) && (
+                          {portion.price != null && portion.price !== "" && (
+                            <span className="text-brand-500 font-medium">
+                              ₹{portion.price}
+                            </span>
+                          )}
+                          {(portion.unit_value != null || portion.unit_type) && (
                             <span className="text-sm text-gray-500">
                               {portion.unit_value} {portion.unit_type}
                             </span>
@@ -321,7 +401,8 @@ function MenuDetails() {
                   ))}
                 </div>
               </div>
-            )}
+              );
+            })()}
 
             {/* Status and Meta Info */}
             <div className="mt-6 pt-4 border-t border-gray-200">
@@ -329,9 +410,9 @@ function MenuDetails() {
                 {/* Status */}
                 <div className="flex items-center p-3">
                   <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon 
-                      icon={menu.is_active ? faCircleCheck : faCircleXmark} 
-                      className={menu.is_active ? 'text-success-500' : 'text-error-500'} 
+                    <FontAwesomeIcon
+                      icon={menu.is_active ? faCircleCheck : faCircleXmark}
+                      className={menu.is_active ? 'text-success-500' : 'text-error-500'}
                     />
                   </div>
                   <div className="ml-3">

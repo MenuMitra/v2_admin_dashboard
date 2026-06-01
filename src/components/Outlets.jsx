@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useAdmin } from "../hooks/useAdmin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -14,8 +13,9 @@ import {
   faToggleOn,
   faPlay,
   faPause,
+  faGear,
 } from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Breadcrumb from "./Breadcrumb";
 import DataTable from "./common/DataTable";
 import DeleteConfirmModal from "./common/DeleteConfirmModal/DeleteConfirmModal";
@@ -36,24 +36,61 @@ const toTitleCase = (str) =>
 
 function Outlets() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { adminData } = useAdmin();
   const queryClient = useQueryClient();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
   const { getToken } = useAuth();
 
-  const { outlets, isLoading, deleteOutlet, isDeleting, bulkAction, isBulkActioning } =
+  const { outlets, isLoading, deleteOutlet, isDeleting, bulkAction, isBulkActioning, refetch } =
     useOutlets();
 
-  // UI State
-  const [searchQuery, setSearchQuery] = useState("");
+  // Helpers to map URL params <-> state
+  const getNumberParam = (key, fallback) => {
+    const value = Number(searchParams.get(key));
+    return Number.isFinite(value) && value > 0 ? value : fallback;
+  };
+
+  const getStringParam = (key, fallback) =>
+    searchParams.get(key) ? searchParams.get(key) : fallback;
+
+  const updateParams = (updates) => {
+    const next = new URLSearchParams(searchParams.toString());
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "" || value === "all") {
+        next.delete(key);
+      } else {
+        next.set(key, String(value));
+      }
+    });
+    setSearchParams(next);
+  };
+
+  // UI State (initialized from URL)
+  const [searchQuery, setSearchQuery] = useState(
+    getStringParam("search", "")
+  );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [outletToDelete, setOutletToDelete] = useState(null);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [accountType, setAccountType] = useState("all");
-  const [openCloseStatus, setOpenCloseStatus] = useState("all");
-  const [outletTypeFilter, setOutletTypeFilter] = useState("all");
-  const [outletModeFilter, setOutletModeFilter] = useState("all");
-  const [ownerCountFilter, setOwnerCountFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState(
+    getStringParam("status", "all")
+  );
+  const [accountType, setAccountType] = useState(
+    getStringParam("account_type", "all")
+  );
+  const [openCloseStatus, setOpenCloseStatus] = useState(
+    getStringParam("open_close", "all")
+  );
+  const [outletTypeFilter, setOutletTypeFilter] = useState(
+    getStringParam("outlet_type", "all")
+  );
+  const [ownerCountFilter, setOwnerCountFilter] = useState(
+    getStringParam("owner_count", "all")
+  );
+
+  const initialPageFromUrl = getNumberParam("page", 1);
+  const initialSortFieldFromUrl = getStringParam("sort_field", "created_at");
+  const initialSortOrderFromUrl = getStringParam("sort_order", "desc");
 
   // Toggle status mutation
   const toggleStatusMutation = useMutation({
@@ -105,9 +142,6 @@ function Outlets() {
               case "account_type":
                 updatedOutlet.accountType = value;
                 break;
-              case "outlet_mode":
-                updatedOutlet.outlet_mode = value;
-                break;
             }
             
             return updatedOutlet;
@@ -138,7 +172,6 @@ function Outlets() {
         outlet_status: "Outlet status updated successfully!",
         is_open: "Open/Close status updated successfully!",
         account_type: "Account type updated successfully!",
-        outlet_mode: "Outlet mode updated successfully!",
       };
       toastController.success(
         successMessages[variables.type] || "Status updated successfully!"
@@ -179,7 +212,7 @@ function Outlets() {
       
       return;
     }
-    const newValue = currentStatus === 1 ? "inactive" : "active";
+    const newValue = Number(currentStatus) === 1 ? "inactive" : "active";
     toggleStatusMutation.mutate({
       outlet_id: outletId,
       type: "outlet_status",
@@ -193,24 +226,10 @@ function Outlets() {
       
       return;
     }
-    const newValue = currentStatus === 1 ? "close" : "open";
+    const newValue = Number(currentStatus) === 1 ? "close" : "open";
     toggleStatusMutation.mutate({
       outlet_id: outletId,
       type: "is_open",
-      value: newValue,
-    });
-  };
-
-  const handleToggleOutletMode = (outletId, currentMode) => {
-    
-    if (!outletId) {
-      
-      return;
-    }
-    const newValue = currentMode === "online" ? "offline" : "online";
-    toggleStatusMutation.mutate({
-      outlet_id: outletId,
-      type: "outlet_mode",
       value: newValue,
     });
   };
@@ -226,6 +245,12 @@ function Outlets() {
     }
 
     bulkAction({ action, outletIds: validIds });
+  };
+
+  // Outlet Configuration handler - navigate to configuration page
+  const handleOutletConfiguration = (outlet) => {
+    const outletId = outlet.outlet_id || outlet.id;
+    navigate(`/outlet-configuration/${outletId}`);
   };
 
   const breadcrumbItems = [
@@ -354,39 +379,6 @@ function Outlets() {
       ),
     },
     {
-      field: "outlet_mode",
-      header: "Mode",
-      sortable: true,
-      render: (value, row) => (
-        <button
-          onClick={() => {
-            
-            handleToggleOutletMode(row.outlet_id || row.id, value);
-          }}
-          disabled={toggleStatusMutation.isPending}
-          className={`px-3 py-1 rounded-full text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity flex items-center gap-2 ${
-            value === "online"
-              ? "text-brand-500 "
-              : value === "offline"
-              ? "bg-orange-100 text-warning-500 "
-              : "bg-gray-100 text-gray-700 border-gray-200"
-          } ${
-            toggleStatusMutation.isPending
-              ? "opacity-50 cursor-not-allowed"
-              : ""
-          }`}
-        >
-          <FontAwesomeIcon
-            icon={value === "online" ? faToggleOn : faToggleOff}
-            className={`w-4 h-4 ${
-              value === "online" ? "text-brand-500" : "text-warning-500"
-            }`}
-          />
-          {value ? value.charAt(0).toUpperCase() + value.slice(1) : "-"}
-        </button>
-      ),
-    },
-    {
       field: "accountType",
       header: "Acc. Type",
       sortable: true,
@@ -419,14 +411,14 @@ function Outlets() {
           }}
           disabled={toggleStatusMutation.isPending}
           className={`text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
-            value === 1 ? "text-success-500" : "text-error-500"
+            Number(value) === 1 ? "text-success-500" : "text-error-500"
           } ${
             toggleStatusMutation.isPending
               ? "opacity-50 cursor-not-allowed"
               : ""
           }`}
         >
-          {value === 1 ? "Open" : "Close"}
+          {Number(value) === 1 ? "Open" : "Close"}
         </button>
       ),
     },
@@ -443,14 +435,14 @@ function Outlets() {
             }}
             disabled={toggleStatusMutation.isPending}
             className={`text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
-              value === 1 ? "text-success-500" : "text-error-500"
+              Number(value) === 1 ? "text-success-500" : "text-error-500"
             } ${
               toggleStatusMutation.isPending
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
           >
-            {value === 1 ? "Active" : "Inactive"}
+            {Number(value) === 1 ? "Active" : "Inactive"}
           </button>
         </div>
       ),
@@ -459,6 +451,7 @@ function Outlets() {
       field: "actions",
       header: "Actions",
       textAlign: "center",
+      sticky: true,
       render: (_, row) => (
         <div className="flex items-center justify-center gap-2">
           <button
@@ -474,6 +467,13 @@ function Outlets() {
             title="Edit Outlet"
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => handleOutletConfiguration(row)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-gray-500 hover:bg-gray-600 rounded-3xl shadow-theme-xs transition"
+            title="Outlet Configuration"
+          >
+            <FontAwesomeIcon icon={faGear} className="w-4 h-4" />
           </button>
           <button
             onClick={() => handleDeleteClick(row)}
@@ -563,12 +563,15 @@ function Outlets() {
         title="Outlets"
         counts={{
           total: outlets.length,
-          active: outlets.filter((outlet) => outlet.outletStatus === 1).length,
-          inactive: outlets.filter((outlet) => outlet.outletStatus === 0).length,
+          active: outlets.filter((outlet) => Number(outlet.outletStatus) === 1)
+            .length,
+          inactive: outlets.filter((outlet) => Number(outlet.outletStatus) === 0)
+            .length,
         }}
         searchTerm={searchQuery}
         onSearchChange={(value) => {
           setSearchQuery(value);
+          updateParams({ search: value || null, page: 1 });
         }}
         createButton={{
           show: true,
@@ -583,8 +586,18 @@ function Outlets() {
         searchPlaceholder="Search outlets..."
         darkMode={false}
         enableSort={true}
-        defaultSortField="created_at"
-        defaultSortOrder="desc"
+        defaultSortField={initialSortFieldFromUrl}
+        defaultSortOrder={initialSortOrderFromUrl}
+        initialPage={initialPageFromUrl}
+        onPageChange={(page) => {
+          updateParams({ page });
+        }}
+        onSortChange={(field, order) => {
+          updateParams({
+            sort_field: field || null,
+            sort_order: order || null,
+          });
+        }}
         enablePagination={true}
         enableSearch={true}
         enableSelection={true}
@@ -593,31 +606,41 @@ function Outlets() {
         statusFilter={statusFilter}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
+          updateParams({ status: value, page: 1 });
         }}
         enableAccountTypeFilter={true}
         enableOpenCloseStatusFilter={true}
         accountType={accountType}
-        onAccountTypeChange={(value) => setAccountType(value)}
+        onAccountTypeChange={(value) => {
+          setAccountType(value);
+          updateParams({ account_type: value, page: 1 });
+        }}
         openCloseStatus={openCloseStatus}
-        onOpenCloseStatusChange={(value) => setOpenCloseStatus(value)}
+        onOpenCloseStatusChange={(value) => {
+          setOpenCloseStatus(value);
+          updateParams({ open_close: value, page: 1 });
+        }}
         enableOutletTypeFilter={true}
         outletTypeFilter={outletTypeFilter}
-        onOutletTypeFilterChange={(value) => setOutletTypeFilter(value)}
-        enableOutletModeFilter={true}
-        outletModeFilter={outletModeFilter}
-        onOutletModeFilterChange={(value) => setOutletModeFilter(value)}
+        onOutletTypeFilterChange={(value) => {
+          setOutletTypeFilter(value);
+          updateParams({ outlet_type: value, page: 1 });
+        }}
         enableOwnerCountFilter={true}
         ownerCountFilter={ownerCountFilter}
-        onOwnerCountFilterChange={(value) => setOwnerCountFilter(value)}
+        onOwnerCountFilterChange={(value) => {
+          setOwnerCountFilter(value);
+          updateParams({ owner_count: value, page: 1 });
+        }}
         statusField="outletStatus"
         onReload={() => {
-          queryClient.invalidateQueries(queryKeys.outlets.list());
+          refetch();
         }}
         isItemSelectable={(item) => {
           if (statusFilter === "all") return true;
           return statusFilter === "active"
-            ? item.outletStatus === 1
-            : item.outletStatus === 0;
+            ? Number(item.outletStatus) === 1
+            : Number(item.outletStatus) === 0;
         }}
         emptyStateMessage="No outlets found"
         isLoading={

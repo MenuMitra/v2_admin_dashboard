@@ -46,8 +46,8 @@ export function useAdmins(token) {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate and refetch admins list after successful deletion
-      queryClient.invalidateQueries({ queryKey: queryKeys.admins.list() });
+      // Invalidate and refetch all admins data
+      queryClient.invalidateQueries({ queryKey: queryKeys.admins.all });
     },
   });
 
@@ -71,8 +71,50 @@ export function useAdmins(token) {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate and refetch admins list after successful bulk action
-      queryClient.invalidateQueries({ queryKey: queryKeys.admins.list() });
+      // Invalidate and refetch all admins data
+      queryClient.invalidateQueries({ queryKey: queryKeys.admins.all });
+    },
+  });
+
+  // Update admin mutation
+  const updateAdminMutation = useMutation({
+    mutationFn: async (adminData) => {
+      const response = await axios.patch(
+        `${BASE_URL}/admin/update_admin`,
+        adminData,
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch all admins data
+      queryClient.invalidateQueries({ queryKey: queryKeys.admins.all });
+    },
+  });
+
+  // Create admin mutation
+  const createAdminMutation = useMutation({
+    mutationFn: async (adminData) => {
+      const response = await axios.post(
+        `${BASE_URL}/admin/create_admin`,
+        adminData,
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch all admins data
+      queryClient.invalidateQueries({ queryKey: queryKeys.admins.all });
     },
   });
 
@@ -80,12 +122,18 @@ export function useAdmins(token) {
     admins: adminsQuery.data ?? [],
     isLoading: adminsQuery.isLoading,
     error: adminsQuery.error,
+    createAdmin: createAdminMutation.mutate,
+    isCreating: createAdminMutation.isPending,
+    createError: createAdminMutation.error,
     deleteAdmin: deleteAdminMutation.mutate,
     isDeleting: deleteAdminMutation.isLoading,
     deleteError: deleteAdminMutation.error,
     bulkAction: bulkActionMutation.mutate,
     isBulkActioning: bulkActionMutation.isLoading,
     bulkActionError: bulkActionMutation.error,
+    updateAdmin: updateAdminMutation.mutate,
+    isUpdating: updateAdminMutation.isLoading,
+    updateError: updateAdminMutation.error,
     refetch: adminsQuery.refetch,
   };
 } 

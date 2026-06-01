@@ -152,7 +152,7 @@ const EnquiryList = () => {
             statusClass = "bg-warning-100 text-warning-500";
             break;
           case "Positive":
-            statusClass = "bg-blue-100 text-blue-700";
+            statusClass = "bg-blue-100";
             break;
           case "Onboard":
             statusClass = "bg-success-100 text-success-700";
@@ -162,7 +162,10 @@ const EnquiryList = () => {
         }
 
         return (
-          <span className={`font-medium px-2 py-1 rounded ${statusClass}`}>
+          <span 
+            className={`font-medium px-2 py-1 rounded ${statusClass}`}
+            style={value === "Positive" ? { color: "#2563eb" } : {}}
+          >
             {value}
           </span>
         );

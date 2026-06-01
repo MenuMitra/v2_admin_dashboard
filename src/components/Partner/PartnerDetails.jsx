@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
@@ -12,9 +13,11 @@ import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal"
 import ActiveSessionsTable from "../common/ActiveSessionsTable";
 import StatusToggleButton from "../common/StatusToggleButton";
 import { usePartnerDetails } from "../../lib/react-query/hooks/usePartnerDetails";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
+import AuditInfo from "../common/AuditInfo";
 
 // Title-case helper: first letter capital for every word
 const toTitleCase = (str) =>
@@ -29,6 +32,7 @@ function PartnerDetails() {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { BASE_URL } = API_CONFIG;
+  const queryClient = useQueryClient();
 
   const { partner, isLoading, error, deletePartner, isDeleting, refetch } =
     usePartnerDetails(partnerId);
@@ -153,6 +157,9 @@ function PartnerDetails() {
       toastController.success(
         `Partner marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
       );
+      // Immediately update the partners list cache so list view reflects new status
+      queryClient.invalidateQueries({ queryKey: queryKeys.partners.list() });
+      // Refresh this detail view to pick up the latest data
       await refetch();
     } catch (e) {
       console.error("Failed to toggle partner active status", e);
@@ -362,55 +369,6 @@ function PartnerDetails() {
               </div>
             </div>
 
-            {/* Audit Information */}
-            <div className="p-6 border-t">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
-                Audit Information
-              </h2>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4">
-                {partner.created_on && (
-                  <div>
-                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.created_on}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Created On
-                    </p>
-                  </div>
-                )}
-                {partner.created_by && (
-                  <div>
-                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {toTitleCase(partner.created_by)}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Created By
-                    </p>
-                  </div>
-                )}
-                {partner.updated_on && (
-                  <div>
-                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {partner.updated_on}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Updated On
-                    </p>
-                  </div>
-                )}
-                {partner.updated_by && (
-                  <div>
-                    <h4 className="text-sm font-normal text-gray-800 dark:text-white/90">
-                      {toTitleCase(partner.updated_by)}
-                    </h4>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Updated By
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Functionalities */}
             {partner.functionalities && partner.functionalities.length > 0 && (
               <div className="p-6 border-t">
@@ -444,6 +402,39 @@ function PartnerDetails() {
                 />
               </div>
             )}
+
+            <div className="p-6 border-t">
+              <AuditInfo
+                createdOn={partner?.created_on}
+                updatedOn={partner?.updated_on}
+                createdBy={
+                  partner?.created_by_name ||
+                  partner?.created_by_full_name ||
+                  partner?.created_by_user_name ||
+                  partner?.created_by
+                    ? toTitleCase(
+                      partner?.created_by_name ||
+                      partner?.created_by_full_name ||
+                      partner?.created_by_user_name ||
+                      partner?.created_by
+                    )
+                    : null
+                }
+                updatedBy={
+                  partner?.updated_by_name ||
+                  partner?.updated_by_full_name ||
+                  partner?.updated_by_user_name ||
+                  partner?.updated_by
+                    ? toTitleCase(
+                      partner?.updated_by_name ||
+                      partner?.updated_by_full_name ||
+                      partner?.updated_by_user_name ||
+                      partner?.updated_by
+                    )
+                    : null
+                }
+              />
+            </div>
           </>
         )}
       </div>

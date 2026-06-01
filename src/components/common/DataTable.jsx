@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CustomSelect from "./CustomSelect";
+import { createSearchChangeHandler } from "../../utils/inputValidation";
 import {
   faSort,
   faSortUp,
@@ -136,9 +137,6 @@ function DataTable({
   enableOutletTypeFilter = false,
   outletTypeFilter = "all",
   onOutletTypeFilterChange = () => { },
-  enableOutletModeFilter = false,
-  outletModeFilter = "all",
-  onOutletModeFilterChange = () => { },
   enableOwnerCountFilter = false,
   ownerCountFilter = "all",
   onOwnerCountFilterChange = () => { },
@@ -147,6 +145,9 @@ function DataTable({
   onExecutionTimeFilterChange = () => { },
   forceTopControls = false,
   getRowId = defaultGetRowId,
+  initialPage = 1,
+  onPageChange,
+  onSortChange,
 }) {
   // Add data validation at the start of the component
   const safeData = Array.isArray(data) ? data : [];
@@ -179,54 +180,99 @@ function DataTable({
   );
   const [sortOrder, setSortOrder] = useState(defaultSortOrder || "desc");
   const [sortCount, setSortCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(
+    Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1
+  );
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
+  const [isHorizontalScrolling, setIsHorizontalScrolling] = useState(false);
   const actionDropdownRef = useRef(null);
+  const tableContainerRef = useRef(null);
 
   /* ------------------------------------------------------------
     Make sure we're on a valid page after every filter / data change
     ------------------------------------------------------------ */
   useEffect(() => {
-    // Go back to page-1 whenever the search term changes
-    // or the number of items changes (avoid resetting when parent
-    // passes a new array reference with same contents).
+    // When search term changes, always reset to first page
     setCurrentPage(1);
-  }, [searchTerm, safeData.length]);
+  }, [searchTerm]);
+
+  // Keep internal page in sync when parent changes initialPage (e.g. via URL)
+  useEffect(() => {
+    const next =
+      Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1;
+    setCurrentPage(next);
+  }, [initialPage]);
 
   // Sync internal itemsPerPage with prop changes
   useEffect(() => {
     setInternalItemsPerPage(itemsPerPage);
   }, [itemsPerPage]);
 
+  // Check for horizontal scrolling
+  useEffect(() => {
+    const checkHorizontalScroll = () => {
+      if (tableContainerRef.current) {
+        const hasHorizontalScroll = tableContainerRef.current.scrollWidth > tableContainerRef.current.clientWidth;
+        setIsHorizontalScrolling(hasHorizontalScroll);
+      }
+    };
+
+    checkHorizontalScroll();
+    
+    const resizeObserver = new ResizeObserver(checkHorizontalScroll);
+    if (tableContainerRef.current) {
+      resizeObserver.observe(tableContainerRef.current);
+    }
+
+    window.addEventListener('resize', checkHorizontalScroll);
+    
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', checkHorizontalScroll);
+    };
+  }, [safeData, columns]);
+
   // Sorting Logic
   const handleSort = (field) => {
     if (!enableSort) return;
 
+    let nextField = sortField;
+    let nextOrder = sortOrder;
+    let nextCount = sortCount;
+
     if (sortField === field) {
       if (sortCount === 0) {
-        setSortOrder("asc");
-        setSortCount(1);
+        nextOrder = "asc";
+        nextCount = 1;
       } else if (sortCount === 1) {
-        setSortOrder("desc");
-        setSortCount(2);
+        nextOrder = "desc";
+        nextCount = 2;
       } else {
         // Reset to created_at/desc if available, otherwise clear sort
         if (hasCreatedAt) {
-          setSortField("created_at");
-          setSortOrder("desc");
-          setSortCount(0);
+          nextField = "created_at";
+          nextOrder = "desc";
+          nextCount = 0;
         } else {
-          setSortField(null);
-          setSortOrder("asc");
-          setSortCount(0);
+          nextField = null;
+          nextOrder = "asc";
+          nextCount = 0;
         }
       }
     } else {
-      setSortField(field);
-      setSortOrder("asc");
-      setSortCount(1);
+      nextField = field;
+      nextOrder = "asc";
+      nextCount = 1;
+    }
+
+    setSortField(nextField);
+    setSortOrder(nextOrder);
+    setSortCount(nextCount);
+
+    if (onSortChange) {
+      onSortChange(nextField, nextOrder);
     }
   };
 
@@ -248,7 +294,7 @@ function DataTable({
     }
 
     return (
-      <span className="inline-flex justify-center items-center ml-1 w-4">
+      <span className="inline-flex items-center justify-center w-4 ml-1">
         <FontAwesomeIcon
           icon={icon}
           className={`${iconClass} ${sortField === field && sortOrder === "asc" ? "translate-y-0.5" : sortField === field && sortOrder === "desc" ? "-translate-y-0.5" : ""}`}
@@ -354,14 +400,6 @@ function DataTable({
       });
     }
 
-    // Update outlet mode filtering
-    if (enableOutletModeFilter && outletModeFilter !== "all") {
-      processedData = processedData.filter((item) => {
-        const itemOutletMode = (item.outlet_mode || "").toLowerCase();
-        return itemOutletMode === outletModeFilter.toLowerCase();
-      });
-    }
-
     // Update owner count filtering
     if (enableOwnerCountFilter && ownerCountFilter !== "all") {
       processedData = processedData.filter((item) => {
@@ -416,6 +454,13 @@ function DataTable({
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    if (onPageChange) {
+      onPageChange(pageNumber);
+    }
+    // Prevent auto-scroll to bottom by scrolling table into view smoothly
+    if (tableContainerRef.current) {
+      tableContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   // Replace renderPaginationNumbers with a version that shows only 3 page numbers at a time (current, previous, next), with ellipsis if needed
@@ -443,7 +488,7 @@ function DataTable({
       if (currentPage > 2) {
         pages.push(
           <li key="start-ellipsis">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700">
+            <span className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-700 rounded-lg">
               ...
             </span>
           </li>
@@ -468,7 +513,7 @@ function DataTable({
         <li key={currentPage}>
           <button
             onClick={() => handlePageChange(currentPage)}
-            className="flex h-10 w-10 items-center justify-center rounded-3xl text-sm font-medium bg-brand-500 text-white"
+            className="flex items-center justify-center w-10 h-10 text-sm font-medium text-white rounded-3xl bg-brand-500"
           >
             {currentPage}
           </button>
@@ -491,7 +536,7 @@ function DataTable({
       if (currentPage < totalPages - 1) {
         pages.push(
           <li key="end-ellipsis">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium text-gray-700">
+            <span className="flex items-center justify-center w-10 h-10 text-sm font-medium text-gray-700 rounded-lg">
               ...
             </span>
           </li>
@@ -594,20 +639,20 @@ function DataTable({
     ];
 
     return (
-      <div className="flex-1 sm:flex-initial relative text-gray-600">
+      <div className="relative flex-1 text-gray-600 sm:flex-initial">
         <CustomSelect
           value={selectedOutlet}
           onChange={(e) => onOutletChange(e.target.value)}
           options={outletOptions}
           placeholder="Outlets"
           disabled={isLoading}
-          className="w-full sm:w-64 text-sm text-gray-700"
+          className="w-full text-sm text-gray-700 sm:w-64"
         />
         {isLoading && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          <span className="absolute -translate-y-1/2 pointer-events-none right-3 top-1/2">
             <FontAwesomeIcon
               icon={faSpinner}
-              className="h-4 w-4 animate-spin text-gray-400"
+              className="w-4 h-4 text-gray-400 animate-spin"
             />
           </span>
         )}
@@ -628,20 +673,20 @@ function DataTable({
     ];
 
     return (
-      <div className="flex-1 sm:flex-initial text-gray-600 relative">
+      <div className="relative flex-1 text-gray-600 sm:flex-initial">
         <CustomSelect
           value={selectedRole}
           onChange={(e) => onRoleChange(e.target.value)}
           options={roleOptions}
           placeholder="Roles"
           disabled={isLoading}
-          className="w-full sm:w-64 text-sm text-gray-700"
+          className="w-full text-sm text-gray-700 sm:w-64"
         />
         {isLoading && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+          <span className="absolute -translate-y-1/2 pointer-events-none right-3 top-1/2">
             <FontAwesomeIcon
               icon={faSpinner}
-              className="h-4 w-4 animate-spin text-gray-400"
+              className="w-4 h-4 text-gray-400 animate-spin"
             />
           </span>
         )}
@@ -659,6 +704,25 @@ function DataTable({
     prev: () => currentPage === 1,
     next: () => currentPage === totalPages,
   };
+
+  // Ensure current page is always within valid bounds when data or page size changes
+  useEffect(() => {
+    if (totalPages === 0) {
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+        if (onPageChange) onPageChange(1);
+      }
+      return;
+    }
+
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+      if (onPageChange) onPageChange(totalPages);
+    } else if (currentPage < 1) {
+      setCurrentPage(1);
+      if (onPageChange) onPageChange(1);
+    }
+  }, [totalPages]);
 
   // Add this helper function
   const isAllCurrentItemsSelected = () => {
@@ -702,12 +766,16 @@ function DataTable({
 
   // Update renderStatus to use normalized values
   const renderStatus = (value) => (
-    <div className="flex items-center justify-center gap-2">
-      <FontAwesomeIcon
-        icon={normalizeStatus(value) ? faCircleCheck : faCircleXmark}
-        className={`w-5 h-5 ${normalizeStatus(value) ? "text-success-500" : "text-error-500"
-          }`}
-      />
+    <div className="flex items-center justify-center">
+      <span
+        className={`font-medium text-sm ${
+          normalizeStatus(value)
+            ? "text-success-600"
+            : "text-error-600"
+        }`}
+      >
+        {normalizeStatus(value) ? "Active" : "Inactive"}
+      </span>
     </div>
   );
 
@@ -771,7 +839,7 @@ function DataTable({
 
     return (
       <div className={`relative ${extraWrapperClasses}`}>
-        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
+        <span className="absolute text-gray-400 -translate-y-1/2 left-5 top-1/2">
           <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
         </span>
         <input
@@ -779,7 +847,7 @@ function DataTable({
           className="sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
           type="text"
           value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
+          onChange={createSearchChangeHandler((e) => onSearchChange(e.target.value))}
           ref={(input) => {
             if (input) {
               input.searchInputRef = input;
@@ -797,7 +865,7 @@ function DataTable({
                 searchInput.focus();
               }
             }}
-            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="absolute text-gray-400 transition-colors -translate-y-1/2 right-5 top-1/2 hover:text-gray-600"
           >
             <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
           </button>
@@ -898,10 +966,10 @@ function DataTable({
             </div>
 
             {/* Stats Row */}
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-0 sm:items-center justify-between px-0 pl-2 mb-2">
+            <div className="flex flex-col flex-wrap justify-between gap-4 px-0 pl-2 mb-2 sm:flex-row sm:gap-0 sm:items-center">
               {/* Left: Stats as badges */}
               {counts && (
-                <div className="flex items-center gap-2 text-sm flex-wrap">
+                <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span className="font-medium text-gray-800 dark:text-white/90">
                     Total: {processedData.length}
                   </span>
@@ -911,7 +979,10 @@ function DataTable({
                     </span>
                   )}
                   {typeof counts.positive === "number" && (
-                    <span className="font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                    <span 
+                      className="font-medium bg-blue-100 px-2 py-0.5 rounded"
+                      style={{ color: "#1d4ed8" }}
+                    >
                       Positive: {counts.positive}
                     </span>
                   )}
@@ -964,7 +1035,7 @@ function DataTable({
                 </div>
               )}
               {/* Right: Controls */}
-              <div className="flex flex-1 justify-end items-center gap-4 w-full sm:w-auto flex-wrap">
+              <div className="flex flex-wrap items-center justify-end flex-1 w-full gap-4 sm:w-auto">
                 {/* Reload, Search, etc. */}
                 {dashboardTitle && (
                   <span className="font-medium text-gray-800 dark:text-white/90 shrink-0">
@@ -972,7 +1043,7 @@ function DataTable({
                   </span>
                 )}
 
-                <div className="flex flex-wrap items-center gap-3 justify-end">
+                <div className="flex flex-wrap items-center justify-end gap-3">
                   {/* Execution Time Filter - Independent of Status Filter */}
                   {enableExecutionTimeFilter && (
                     <div className="w-40 text-gray-600">
@@ -1005,7 +1076,7 @@ function DataTable({
 
                 {/* Custom Filters */}
                 {customFilters && customFilters.length > 0 && (
-                  <div className="flex flex-nowrap items-center gap-4">
+                  <div className="flex items-center gap-4 flex-nowrap">
                     {customFilters.map((filter, index) => (
                       <React.Fragment key={index}>
                         {filter.type === "custom" && (
@@ -1040,11 +1111,11 @@ function DataTable({
             </div>
 
             {/* Filters Row - Below Stats */}
-            {(enableStatusFilter || enableAccountTypeFilter || enableOpenCloseStatusFilter || enableOutletTypeFilter || enableOutletModeFilter || enableOwnerCountFilter || enableEnquiry || showSearch || onReload) && (
+            {(enableStatusFilter || enableAccountTypeFilter || enableOpenCloseStatusFilter || enableOutletTypeFilter || enableOwnerCountFilter || enableEnquiry || showSearch || onReload) && (
               <div className="flex items-center gap-2 px-0 pl-2 mb-4">
-                <div className="flex flex-1 flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center flex-1 gap-2">
                   {enableStatusFilter && (
-                    <div className="w-28 mr-2 text-gray-600">
+                    <div className="mr-2 text-gray-600 w-28">
                       <CustomSelect
                         value={statusFilter}
                         onChange={(e) => onStatusFilterChange(e.target.value)}
@@ -1060,7 +1131,7 @@ function DataTable({
                   )}
                   {/* Enquiry Filter */}
                   {enableEnquiry && (
-                    <div className="w-28 text-gray-600 mr-2">
+                    <div className="mr-2 text-gray-600 w-28">
                       <CustomSelect
                         value={enquiryFilter || "all"}
                         onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
@@ -1077,7 +1148,7 @@ function DataTable({
                   )}
                   {/* Account Type Filter */}
                   {enableAccountTypeFilter && (
-                    <div className="w-28 mr-2 text-gray-600">
+                    <div className="mr-2 text-gray-600 w-28">
                       <CustomSelect
                         value={accountType || "all"}
                         onChange={(e) => onAccountTypeChange && onAccountTypeChange(e.target.value)}
@@ -1093,7 +1164,7 @@ function DataTable({
                   )}
                   {/* Open/Close Filter */}
                   {enableOpenCloseStatusFilter && (
-                    <div className="w-28 text-gray-600 mr-2">
+                    <div className="mr-2 text-gray-600 w-28">
                       <CustomSelect
                         value={openCloseStatus || "all"}
                         onChange={(e) => onOpenCloseStatusChange && onOpenCloseStatusChange(e.target.value)}
@@ -1109,7 +1180,7 @@ function DataTable({
                   )}
                   {/* Active Session Filter */}
                   {enableActiveSessionFilter && (
-                    <div className="w-28 text-gray-600 mr-2">
+                    <div className="mr-2 text-gray-600 w-28">
                       <CustomSelect
                         value={activeSessionFilter || "all"}
                         onChange={(e) => {
@@ -1132,7 +1203,7 @@ function DataTable({
                   )}
                   {/* Outlet Count Filter */}
                   {enableOutletCountFilter && (
-                    <div className="w-28 text-gray-600 mr-2">
+                    <div className="mr-2 text-gray-600 w-28">
                       <CustomSelect
                         value={outletCountFilter || "all"}
                         onChange={(e) => {
@@ -1155,7 +1226,7 @@ function DataTable({
                   )}
                   {/* Outlet Type Filter */}
                   {enableOutletTypeFilter && (
-                    <div className="w-36 text-gray-600 mr-2">
+                    <div className="mr-2 text-gray-600 w-36">
                       <CustomSelect
                         value={outletTypeFilter || "all"}
                         onChange={(e) => {
@@ -1177,27 +1248,9 @@ function DataTable({
                       />
                     </div>
                   )}
-                  {/* Outlet Mode Filter */}
-                  {enableOutletModeFilter && (
-                    <div className="w-36 text-gray-600 mr-2">
-                      <CustomSelect
-                        value={outletModeFilter || "all"}
-                        onChange={(e) => {
-                          onOutletModeFilterChange(e.target.value);
-                        }}
-                        options={[
-                          { value: "all", label: "All Modes" },
-                          { value: "online", label: "Online" },
-                          { value: "offline", label: "Offline" }
-                        ]}
-                        placeholder="All Modes"
-                        className="text-sm text-gray-700"
-                      />
-                    </div>
-                  )}
                   {/* Owner Count Filter */}
                   {enableOwnerCountFilter && (
-                    <div className="w-32 text-gray-600 mr-2">
+                    <div className="w-32 mr-2 text-gray-600">
                       <CustomSelect
                         value={ownerCountFilter || "all"}
                         onChange={(e) => {
@@ -1219,7 +1272,7 @@ function DataTable({
                     </div>
                   )}
                 </div>
-                <div className="ml-auto flex items-center gap-2">
+                <div className="flex items-center gap-2 ml-auto">
                   {/* Reload Button */}
                   {shouldShowBottomReload && renderReloadButton("mr-2")}
                   {/* Search Input */}
@@ -1231,7 +1284,7 @@ function DataTable({
         )}
 
         {/* Table Section */}
-        <div className="max-w-full overflow-x-auto custom-scrollbar">
+        <div ref={tableContainerRef} className="max-w-full overflow-x-auto custom-scrollbar">
           <table className="w-full">
             <thead>
               <tr
@@ -1245,7 +1298,7 @@ function DataTable({
                       type="checkbox"
                       checked={isAllCurrentItemsSelected()}
                       onChange={handleSelectAll}
-                      className="h-4 w-4 rounded-3xl border-gray-300 text-brand-500 focus:ring-brand-500"
+                      className="w-4 h-4 border-gray-300 rounded-3xl text-brand-500 focus:ring-brand-500"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </th>
@@ -1286,7 +1339,7 @@ function DataTable({
 
                       {/* Dropdown Menu */}
                       {isActionDropdownOpen && (
-                        <div className="absolute left-0 top-full z-40 mt-2 w-48 rounded-3xl border border-gray-200 bg-white p-2 shadow-lg">
+                        <div className="absolute left-0 z-40 w-48 p-2 mt-2 bg-white border border-gray-200 shadow-lg top-full rounded-3xl">
                           <ul className="flex flex-col gap-1">
                             {resolvedBulkActionOptions.map((option) => (
                               <li key={option.key}>
@@ -1345,6 +1398,10 @@ function DataTable({
                         ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                         : ""
                       }
+                      ${column.sticky && isHorizontalScrolling 
+                        ? "sticky right-0 bg-white z-10 border-l border-gray-200 shadow-[-2px_0_4px_rgba(0,0,0,0.1)]" 
+                        : ""
+                      }
                     `}
                     onClick={() =>
                       column.sortable ? handleSort(column.field) : null
@@ -1383,7 +1440,7 @@ function DataTable({
                               type="checkbox"
                               checked={selectedItems.includes(rowId)}
                               onChange={() => handleSelectItem(rowId)}
-                              className="h-4 w-4 rounded-3xl border-gray-300 text-brand-500 focus:ring-brand-500"
+                              className="w-4 h-4 border-gray-300 rounded-3xl text-brand-500 focus:ring-brand-500"
                               onClick={(e) => e.stopPropagation()}
                             />
                           </td>
@@ -1414,6 +1471,10 @@ function DataTable({
                               ? "whitespace-nowrap"
                               : ""
                             }
+                          ${column.sticky && isHorizontalScrolling 
+                            ? "sticky right-0 bg-white z-10 border-l border-gray-200 shadow-[-2px_0_4px_rgba(0,0,0,0.1)]" 
+                            : ""
+                          }
                         `}
                         >
                           {column.render && column.field ? (
@@ -1458,7 +1519,7 @@ function DataTable({
 
         {/* Pagination Section */}
         {enablePagination && processedData.length > 0 && (
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-800">
+          <div className="flex flex-col gap-4 px-6 py-4 border-t border-gray-100 sm:flex-row sm:items-center sm:justify-between dark:border-gray-800">
             {/* Keep the entries dropdown */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
@@ -1558,8 +1619,8 @@ function DataTable({
 
     // Return a fallback UI
     return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-4">
-        <p className="text-gray-500 text-center">
+      <div className="p-4 bg-white border border-gray-200 rounded-2xl">
+        <p className="text-center text-gray-500">
           Unable to display data at this moment. Please try again later.
         </p>
       </div>
@@ -1696,9 +1757,6 @@ DataTable.propTypes = {
   enableOutletTypeFilter: PropTypes.bool,
   outletTypeFilter: PropTypes.oneOf(["all", "outlet"]),
   onOutletTypeFilterChange: PropTypes.func,
-  enableOutletModeFilter: PropTypes.bool,
-  outletModeFilter: PropTypes.oneOf(["all", "online", "offline"]),
-  onOutletModeFilterChange: PropTypes.func,
   enableOwnerCountFilter: PropTypes.bool,
   ownerCountFilter: PropTypes.oneOf([
     "all",
@@ -1823,9 +1881,6 @@ DataTable.defaultProps = {
   enableOutletTypeFilter: false,
   outletTypeFilter: "all",
   onOutletTypeFilterChange: () => { },
-  enableOutletModeFilter: false,
-  outletModeFilter: "all",
-  onOutletModeFilterChange: () => { },
   enableOwnerCountFilter: false,
   ownerCountFilter: "all",
   onOwnerCountFilterChange: () => { },

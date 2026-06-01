@@ -19,6 +19,7 @@ import { useAdmin } from "../../hooks/useAdmin";
 import { useAuth } from "../../hooks/useAuth";
 import { toastController } from "../../utils/toastController";
 import StatusToggleButton from "../common/StatusToggleButton";
+import AuditInfo from "../common/AuditInfo";
 
 function AdminDetails() {
   const { adminId } = useParams();
@@ -35,11 +36,12 @@ function AdminDetails() {
     isDeleting,
     formatDate,
     PROTECTED_MOBILES,
+    updateAdmin,
+    isUpdating: isTogglingActive,
   } = useAdminDetails(adminId);
 
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
-  const [isTogglingActive, setIsTogglingActive] = useState(false);
   const [activeSessions, setActiveSessions] = useState([]);
   useEffect(() => {
     if (admin && admin.active_sessions) {
@@ -112,10 +114,9 @@ function AdminDetails() {
   const handleToggleAdminActive = async () => {
     if (!admin?.admin_id && !admin?.user_id) return;
     const nextIsActive = admin.is_active ? 0 : 1;
-    setIsTogglingActive(true);
-    try {
-      const token = getToken();
-      const payload = {
+
+    updateAdmin(
+      {
         user_id: adminData?.user_id,
         admin_id: Number(admin.admin_id || admin.user_id),
         name: admin.name || "",
@@ -124,31 +125,15 @@ function AdminDetails() {
         is_active: nextIsActive,
         role: admin.role || "admin",
         app_source: "admin",
-      };
-      const resp = await fetch(`${BASE_URL}/admin/update_admin`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token,
-        },
-        body: JSON.stringify(payload),
-      });
-      const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) {
-        const message =
-          data?.detail || data?.message || "Failed to update admin";
-        toastController.error(message);
-        throw new Error(message);
+      },
+      {
+        onSuccess: () => {
+          toastController.success(
+            `Admin marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
+          );
+        }
       }
-      toastController.success(
-        `Admin marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
-      );
-      await refetch();
-    } catch (e) {
-      
-    } finally {
-      setIsTogglingActive(false);
-    }
+    );
   };
 
   if (isLoading) {
@@ -290,22 +275,6 @@ function AdminDetails() {
                       </div>
                     </div>
                   )}
-                <div>
-                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                    {formatDate(admin.created_on)}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Created On
-                  </p>
-                </div>
-                <div>
-                  <p className="mt-1 text-base font-medium text-gray-900 dark:text-white">
-                    {formatDate(admin.updated_on)}
-                  </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Last Updated
-                  </p>
-                </div>
               </div>
             </div>
 
@@ -325,6 +294,25 @@ function AdminDetails() {
                 />
               </div>
             )}
+
+            <div className="px-6 pb-5">
+              <AuditInfo
+                createdOn={admin?.created_on}
+                updatedOn={admin?.updated_on}
+                createdBy={
+                  admin?.created_by_name ||
+                  admin?.created_by_full_name ||
+                  admin?.created_by_user_name ||
+                  admin?.created_by
+                }
+                updatedBy={
+                  admin?.updated_by_name ||
+                  admin?.updated_by_full_name ||
+                  admin?.updated_by_user_name ||
+                  admin?.updated_by
+                }
+              />
+            </div>
           </div>
         </div>
       </div>

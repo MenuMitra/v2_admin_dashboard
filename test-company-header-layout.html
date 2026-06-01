@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Company Header Layout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Company Header Layout Test</h1>
+    
+    <div class="test-section">
+        <h2>✅ Layout Improvements Applied</h2>
+        
+        <h3>Before (Issues):</h3>
+        <ul>
+            <li>❌ Create button was getting cut off on smaller screens</li>
+            <li>❌ No minimum height for header causing layout shifts</li>
+            <li>❌ Title not properly centered</li>
+            <li>❌ Button text could wrap on smaller screens</li>
+            <li>❌ No flex-shrink protection for buttons</li>
+        </ul>
+
+        <h3>After (Fixed):</h3>
+        <ul>
+            <li>✅ Added <code>min-h-[60px]</code> to prevent layout shifts</li>
+            <li>✅ Added <code>flex-shrink-0</code> to buttons to prevent shrinking</li>
+            <li>✅ Added <code>flex-1 mx-4 text-center</code> to title for proper centering</li>
+            <li>✅ Added <code>whitespace-nowrap</code> to prevent button text wrapping</li>
+            <li>✅ Wrapped create button in container div for better spacing</li>
+            <li>✅ Added proper tooltip for disabled state</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>Header Layout Preview</h2>
+        
+        <h3>CreateCompany Header:</h3>
+        <div class="rounded-2xl border border-gray-200 bg-white mb-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between min-h-[60px]">
+                    <!-- Back Button -->
+                    <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm flex-shrink-0">
+                        ← Back
+                    </button>
+
+                    <!-- Title -->
+                    <h1 class="text-xl font-semibold text-gray-800 text-center flex-1 mx-4">
+                        Create Company
+                    </h1>
+
+                    <!-- Create Button Container -->
+                    <div class="flex items-center gap-3 flex-shrink-0">
+                        <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition shadow-sm whitespace-nowrap bg-green-500 hover:bg-green-600">
+                            + Create
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3>EditCompany Header:</h3>
+        <div class="rounded-2xl border border-gray-200 bg-white mb-4">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex items-center justify-between min-h-[60px]">
+                    <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm flex-shrink-0">
+                        ← Back
+                    </button>
+                    <h1 class="text-xl font-semibold text-gray-800 text-center flex-1 mx-4">
+                        Edit Company
+                    </h1>
+                    <div class="flex items-center gap-3 flex-shrink-0">
+                        <button class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-full transition shadow-sm whitespace-nowrap bg-blue-500 hover:bg-blue-600">
+                            💾 Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Responsive Test</h2>
+        <p>Try resizing the browser window to see how the layout adapts:</p>
+        
+        <div class="info">
+            <h3>Mobile/Small Screens:</h3>
+            <ul>
+                <li>✅ Buttons maintain their size (flex-shrink-0)</li>
+                <li>✅ Title adjusts to available space (flex-1)</li>
+                <li>✅ Button text doesn't wrap (whitespace-nowrap)</li>
+                <li>✅ Minimum height prevents layout collapse</li>
+            </ul>
+        </div>
+
+        <div class="success">
+            <h3>Desktop/Large Screens:</h3>
+            <ul>
+                <li>✅ Title is properly centered</li>
+                <li>✅ Buttons have adequate spacing</li>
+                <li>✅ Layout is balanced and professional</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Key CSS Classes Added</h2>
+        <pre class="bg-gray-100 p-4 rounded">
+Header Container:
+- min-h-[60px]           → Prevents layout shifts
+- flex items-center justify-between → Maintains layout structure
+
+Back Button:
+- flex-shrink-0          → Prevents button from shrinking
+
+Title:
+- text-center flex-1 mx-4 → Centers title and allows it to use available space
+
+Button Container:
+- flex items-center gap-3 flex-shrink-0 → Proper spacing and prevents shrinking
+
+Create Button:
+- whitespace-nowrap      → Prevents text wrapping
+- title attribute        → Shows tooltip when disabled
+        </pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Testing Instructions</h2>
+        <ol>
+            <li>Open CreateCompany page</li>
+            <li>Check that the Create button is fully visible on the right side</li>
+            <li>Try resizing the browser window to different sizes</li>
+            <li>Verify the button remains visible and doesn't get cut off</li>
+            <li>Check that the title stays centered</li>
+            <li>Verify the layout works on mobile devices</li>
+        </ol>
+        
+        <div class="success">
+            <p><strong>Expected Result:</strong> The Create button should now be fully visible and properly positioned on all screen sizes, with improved responsive behavior.</p>
+        </div>
+    </div>
+</body>
+</html>

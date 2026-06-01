@@ -20,7 +20,7 @@ export const useCustomers = (statusFilter = 'all') => {
     error,
     refetch,
   } = useQuery({
-    queryKey: queryKeys.customers.list(),
+    queryKey: [...queryKeys.customers.list(), statusFilter],
     queryFn: async () => {
       const requestData = {
         user_id: adminData?.user_id,
@@ -61,7 +61,7 @@ export const useCustomers = (statusFilter = 'all') => {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.list() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
       toastController.success('Customer deleted successfully');
     },
     onError: (error) => {
@@ -89,7 +89,7 @@ export const useCustomers = (statusFilter = 'all') => {
       );
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.customers.list() });
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
       toastController.success('Bulk action completed successfully');
     },
     onError: (error) => {

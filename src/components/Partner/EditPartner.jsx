@@ -339,6 +339,43 @@ function EditPartner() {
       if (response.data.detail === "Partner updated successfully") {
         // Invalidate partners cache to refresh the list
         queryClient.invalidateQueries({ queryKey: queryKeys.partners.list() });
+        // Also invalidate partner detail cache so Partner Details updates immediately
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.partners.detail(partnerId),
+        });
+
+        // Optimistically patch the detail cache for instant UI update (no wait for refetch)
+        queryClient.setQueryData(queryKeys.partners.detail(partnerId), (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            name: partnerDetails.name,
+            email: partnerDetails.email,
+            mobile: partnerDetails.mobile,
+            dob: formattedDate,
+            aadhar_number: partnerDetails.aadhar_number,
+            address: partnerDetails.address,
+            is_active: partnerDetails.is_active,
+            role: partnerDetails.role,
+            outlet_id: partnerDetails.outlet_id,
+          };
+        });
+
+        // Also patch the partners list cache (so list view updates without waiting)
+        queryClient.setQueryData(queryKeys.partners.list(), (oldList) => {
+          if (!Array.isArray(oldList)) return oldList;
+          return oldList.map((p) =>
+            String(p.user_id) === String(partnerId)
+              ? {
+                  ...p,
+                  name: partnerDetails.name,
+                  email: partnerDetails.email,
+                  mobile: partnerDetails.mobile,
+                  is_active: partnerDetails.is_active,
+                }
+              : p
+          );
+        });
         // Handle navigation based on role
         const roleNavigationMap = {
           // Staff roles that require outlet_id
@@ -434,7 +471,7 @@ function EditPartner() {
                 placeholder="Enter full name"
                 required
                 error={validationErrors.name}
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -448,7 +485,7 @@ function EditPartner() {
                 pattern="[6-9][0-9]{9}"
                 maxLength="10"
                 error={validationErrors.mobile}
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -459,7 +496,7 @@ function EditPartner() {
                 onChange={handleChange}
                 placeholder="Enter email address"
                 error={validationErrors.email}
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <DateInput
@@ -468,7 +505,7 @@ function EditPartner() {
                 value={partnerDetails.dob}
                 onChange={handleChange}
                 placeholder="Select date of birth"
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               <TextInput
@@ -480,7 +517,7 @@ function EditPartner() {
                 required
                 maxLength="12"
                 error={validationErrors.aadhar_number}
-                className="rounded-3xl"
+                className="rounded-lg"
               />
 
               {/* Active Partner Checkbox */}
@@ -508,7 +545,7 @@ function EditPartner() {
                   onChange={handleChange}
                   placeholder="Enter address"
                   rows={3}
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
               </div>
 

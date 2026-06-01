@@ -30,6 +30,7 @@ import Modal from "./common/Modal";
 import StatusToggleButton from "./common/StatusToggleButton";
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
+import AuditInfo from "./common/AuditInfo";
 
 function toTitleCase(str) {
   return str
@@ -40,6 +41,12 @@ function toTitleCase(str) {
     : "";
 }
 
+// Title-case display helper (also replaces underscores with spaces)
+function toTitleDisplay(str) {
+  if (str === null || str === undefined) return "";
+  return toTitleCase(String(str).replace(/_/g, " "));
+}
+
 // Format numbers as currency with comma separators (Indian grouping)
 function formatCurrency(amount) {
   if (amount === null || amount === undefined || amount === "") return "-";
@@ -48,6 +55,192 @@ function formatCurrency(amount) {
   return `₹${new Intl.NumberFormat("en-IN").format(n)}`;
 }
 
+function parseDMMMYYYY(dateStr) {
+  if (!dateStr) return null;
+  const s = String(dateStr).trim();
+  const m = s.match(/^(\d{1,2})\s+([A-Za-z]{3,})\s+(\d{4})$/);
+  if (!m) {
+    const fallback = new Date(s);
+    return Number.isNaN(fallback.getTime()) ? null : fallback;
+  }
+
+  const day = Number(m[1]);
+  const monStr = m[2].slice(0, 3).toLowerCase();
+  const year = Number(m[3]);
+  const months = {
+    jan: 0,
+    feb: 1,
+    mar: 2,
+    apr: 3,
+    may: 4,
+    jun: 5,
+    jul: 6,
+    aug: 7,
+    sep: 8,
+    oct: 9,
+    nov: 10,
+    dec: 11,
+  };
+
+  const mon = months[monStr];
+  if (mon === undefined || !day || !year) return null;
+  const d = new Date(year, mon, day);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatDMMMYYYY(date) {
+  if (!date) return "-";
+  const d = date instanceof Date ? date : new Date(date);
+  if (Number.isNaN(d.getTime())) return String(date);
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  return `${String(d.getDate()).padStart(2, "0")} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function parseTenure(tenureStr) {
+  if (!tenureStr) return null;
+  const s = String(tenureStr).trim().toLowerCase();
+
+  const m = s.match(/^(\d+)\s*(day|days|month|months|year|years)$/);
+  if (m) return { count: Number(m[1]), unit: m[2] };
+
+  const m2 = s.match(/^(\d+)\s*(d|m|y)$/);
+  if (m2) {
+    const unitMap = { d: "days", m: "months", y: "years" };
+    return { count: Number(m2[1]), unit: unitMap[m2[2]] };
+  }
+
+  return null;
+}
+
+function addTenure(start, tenure) {
+  if (!start || !tenure) return null;
+  const d = new Date(start);
+  if (Number.isNaN(d.getTime())) return null;
+
+  const unit = tenure.unit;
+  if (unit.startsWith("day")) {
+    d.setDate(d.getDate() + tenure.count);
+    return d;
+  }
+  if (unit.startsWith("month")) {
+    d.setMonth(d.getMonth() + tenure.count);
+    return d;
+  }
+  if (unit.startsWith("year")) {
+    d.setFullYear(d.getFullYear() + tenure.count);
+    return d;
+  }
+  return null;
+}
+
+function resolveSubscriptionEndDate(subscriptionDetails) {
+  if (!subscriptionDetails?.subscription_end_date) return null;
+
+  const start = parseDMMMYYYY(subscriptionDetails.subscription_start_date);
+  const apiEnd = parseDMMMYYYY(subscriptionDetails.subscription_end_date);
+  const tenure = parseTenure(subscriptionDetails.tenure);
+  const derivedEnd = start && tenure ? addTenure(start, tenure) : null;
+
+  if (start && apiEnd && derivedEnd) {
+    const diffDays = Math.abs(
+      Math.round(
+        (apiEnd.getTime() - derivedEnd.getTime()) / (1000 * 60 * 60 * 24)
+      )
+    );
+    if (diffDays >= 3) return derivedEnd;
+  }
+
+  return apiEnd;
+}
+
+function computeSubscriptionTimeline(subscriptionDetails) {
+  if (!subscriptionDetails) return null;
+
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const startRaw = parseDMMMYYYY(subscriptionDetails.subscription_start_date);
+  const endRaw = resolveSubscriptionEndDate(subscriptionDetails);
+  if (!endRaw) return null;
+
+  const start = startRaw ? new Date(startRaw) : null;
+  const end = new Date(endRaw);
+  const now = new Date();
+
+  if (start) start.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
+  now.setHours(0, 0, 0, 0);
+
+  const isExpired = now > end;
+  const daysUntilEnd = Math.round((end - now) / msPerDay);
+  const expiredDays = isExpired
+    ? Math.max(0, Math.round((now - end) / msPerDay))
+    : 0;
+  const remaining = isExpired ? 0 : Math.max(0, daysUntilEnd);
+
+  let total = null;
+  let elapsed = null;
+  let percent = isExpired ? 100 : 0;
+
+  if (start) {
+    total = Math.max(0, Math.round((end - start) / msPerDay));
+    if (isExpired) {
+      elapsed = total;
+      percent = 100;
+    } else {
+      elapsed = Math.max(0, total - remaining);
+      percent =
+        total > 0 ? Math.min(100, Math.max(0, (elapsed / total) * 100)) : 0;
+    }
+  }
+
+  return {
+    start,
+    end,
+    total,
+    elapsed,
+    remaining,
+    expiredDays,
+    isExpired,
+    percent,
+    endDateLabel: formatDMMMYYYY(end),
+    startDateLabel: start ? formatDMMMYYYY(start) : null,
+  };
+}
+
+function getOutletSubscriptionDetails(outletData) {
+  if (!outletData) return null;
+
+  const nested =
+    outletData.subscription_details || outletData.subscription || {};
+
+  const subscription_end_date =
+    nested.subscription_end_date || outletData.subscription_end_date;
+  const subscription_start_date =
+    nested.subscription_start_date || outletData.subscription_start_date;
+
+  if (!subscription_end_date && !subscription_start_date) {
+    return Object.keys(nested).length ? nested : null;
+  }
+
+  return {
+    ...nested,
+    subscription_end_date,
+    subscription_start_date,
+    tenure: nested.tenure || outletData.tenure,
+  };
+}
 
 
 // Helper to calculate days since last used
@@ -74,7 +267,7 @@ function ViewOutlet() {
     : null;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { BASE_URL, API_VERSION, CUSTOMER_APP_URL } = API_CONFIG;
+  const { BASE_URL, CUSTOMER_APP_URL } = API_CONFIG;
 
   // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -122,6 +315,11 @@ function ViewOutlet() {
     [outletResponse]
   );
 
+  const subscriptionDetails = React.useMemo(
+    () => getOutletSubscriptionDetails(outletData),
+    [outletData]
+  );
+
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -139,7 +337,7 @@ function ViewOutlet() {
     },
     onSuccess: () => {
       setShowDeleteModal(false);
-      queryClient.invalidateQueries(queryKeys.outlets.all);
+      queryClient.invalidateQueries(queryKeys.outlets.list());
       navigate("/outlets");
     },
     onError: (error) => {
@@ -191,9 +389,6 @@ function ViewOutlet() {
           case "is_open":
             newData.is_open = value === "open" ? 1 : 0;
             break;
-          case "outlet_mode":
-            newData.outlet_mode = value;
-            break;
           case "account_type":
             newData.account_type = value;
             break;
@@ -210,7 +405,6 @@ function ViewOutlet() {
         outlet_status: "Outlet status updated successfully!",
         is_open: "Open/Close status updated successfully!",
         account_type: "Account type updated successfully!",
-        outlet_mode: "Outlet mode updated successfully!",
       };
       toastController.success(
         successMessages[variables.type] || "Status updated successfully!"
@@ -231,6 +425,8 @@ function ViewOutlet() {
     onSettled: () => {
       // Always refetch after error or success
       queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
+      // Also refresh list view so going back/refreshing doesn't show stale status.
+      queryClient.invalidateQueries(queryKeys.outlets.list());
     },
   });
 
@@ -265,19 +461,37 @@ function ViewOutlet() {
   const handleDelete = () => setShowDeleteModal(true);
   const confirmDelete = () => deleteMutation.mutate();
   const handleEdit = () => navigate(`/edit-outlet/${outletId}`);
-  const handleOwnerClick = (ownerId) => navigate(`/owner-details/${ownerId}`);
+  // In outlet response, owners are company owners. Redirect to company details.
+  // Prefer company_id from outletData if present; otherwise fallback to owner-details.
+  const handleOwnerClick = (owner) => {
+    const companyId =
+      owner?.company_id ??
+      owner?.companyId ??
+      outletData?.company_id ??
+      outletData?.companyId ??
+      null;
+
+    if (companyId) {
+      navigate(`/company-details/${companyId}`);
+      return;
+    }
+
+    // fallback (older payloads)
+    const ownerId = owner?.owner_id ?? owner;
+    navigate(`/owner-details/${ownerId}`);
+  };
 
   // Toggle handlers
   const handleToggleOutletStatus = () => {
-
-    const newValue = outletData?.outlet_status === 1 ? "inactive" : "active";
+    const currentOutletStatus = Number(outletData?.outlet_status);
+    const newValue = currentOutletStatus === 1 ? "inactive" : "active";
 
     toggleStatusMutation.mutate({ type: "outlet_status", value: newValue });
   };
 
   const handleToggleOpenStatus = () => {
-
-    const newValue = outletData?.is_open === 1 ? "close" : "open";
+    const currentOpenStatus = Number(outletData?.is_open);
+    const newValue = currentOpenStatus === 1 ? "close" : "open";
 
     toggleStatusMutation.mutate({ type: "is_open", value: newValue });
   };
@@ -287,14 +501,6 @@ function ViewOutlet() {
     const newValue = outletData?.account_type === "test" ? "live" : "test";
 
     toggleStatusMutation.mutate({ type: "account_type", value: newValue });
-  };
-
-  const handleToggleOutletMode = () => {
-
-    const newValue =
-      outletData?.outlet_mode === "online" ? "offline" : "online";
-
-    toggleStatusMutation.mutate({ type: "outlet_mode", value: newValue });
   };
 
   const handleBulkUpload = () => {
@@ -546,7 +752,7 @@ function ViewOutlet() {
                     {outletData?.owners?.map((owner) => (
                       <div
                         key={owner.owner_id}
-                        onClick={() => handleOwnerClick(owner.owner_id)}
+                        onClick={() => handleOwnerClick(owner)}
                         className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm cursor-pointer
                           ${owner.is_primary
                             ? "bg-brand-100 text-brand-700 border border-brand-200 hover:bg-brand-200"
@@ -615,7 +821,7 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData.address}
+                        {toTitleCase(outletData.address)}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Address
@@ -649,10 +855,7 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData.outlet_type
-                          ? outletData.outlet_type.charAt(0).toUpperCase() +
-                          outletData.outlet_type.slice(1).replace(/_/g, " ")
-                          : "-"}
+                        {outletData.outlet_type ? toTitleDisplay(outletData.outlet_type) : "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         Outlet Type
@@ -662,24 +865,11 @@ function ViewOutlet() {
                 </div>
               </div>
             )}
-            {/* Outlet Mode */}
-            <div className="flex justify-start">
-              <div>
-                <StatusToggleButton
-                  isActive={outletData?.outlet_mode === "online"}
-                  onToggle={handleToggleOutletMode}
-                  disabled={toggleStatusMutation.isPending}
-                  activeLabel="Online"
-                  inactiveLabel="Offline"
-                />
-                <div className="text-sm text-gray-500 mt-1">Outlet Mode</div>
-              </div>
-            </div>
             {/* Outlet Status */}
             <div className="flex justify-start">
               <div>
                 <StatusToggleButton
-                  isActive={outletData?.outlet_status === 1}
+                  isActive={Number(outletData?.outlet_status) === 1}
                   onToggle={handleToggleOutletStatus}
                   disabled={toggleStatusMutation.isPending}
                   activeLabel="Active"
@@ -692,7 +882,7 @@ function ViewOutlet() {
             <div className="flex justify-start">
               <div>
                 <StatusToggleButton
-                  isActive={outletData?.is_open === 1}
+                  isActive={Number(outletData?.is_open) === 1}
                   onToggle={handleToggleOpenStatus}
                   disabled={toggleStatusMutation.isPending}
                   activeLabel="Open"
@@ -717,8 +907,7 @@ function ViewOutlet() {
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.veg_nonveg.charAt(0).toUpperCase() +
-                            outletData.veg_nonveg.slice(1)}
+                          {toTitleDisplay(outletData.veg_nonveg)}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Food Type
@@ -883,6 +1072,24 @@ function ViewOutlet() {
                     </div>
                   </div>
                 )}
+              {/* Has Udhari */}
+              {outletData?.has_udhari !== undefined &&
+                outletData?.has_udhari !== null && (
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                            {outletData.has_udhari === 1 ? "Yes" : "No"}
+                          </h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Has Udhari
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               {/* Reserve Table */}
               {outletData?.has_reserve_table !== undefined &&
                 outletData?.has_reserve_table !== null && (
@@ -984,6 +1191,21 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletData?.staff_count ?? "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Staff Count
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
                         {outletData?.total_menu ?? "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1056,7 +1278,9 @@ function ViewOutlet() {
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.subscription_details.subscription_name}
+                          {toTitleDisplay(
+                            outletData.subscription_details.subscription_name
+                          )}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Plan
@@ -1092,7 +1316,7 @@ function ViewOutlet() {
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.subscription_details.tenure}
+                          {toTitleDisplay(outletData.subscription_details.tenure)}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           Tenure
@@ -1123,16 +1347,15 @@ function ViewOutlet() {
                 </div>
               )}
               {/* End Date */}
-              {outletData?.subscription_details?.subscription_end_date && (
+              {subscriptionDetails?.subscription_end_date && (
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div>
                         <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {
-                            outletData.subscription_details
-                              .subscription_end_date
-                          }
+                          {formatDMMMYYYY(
+                            resolveSubscriptionEndDate(subscriptionDetails)
+                          ) || subscriptionDetails.subscription_end_date}
                         </h4>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
                           End Date
@@ -1143,81 +1366,112 @@ function ViewOutlet() {
                 </div>
               )}
 
-              {/* Days Until Expiry */}
-              {outletData?.subscription_details?.subscription_start_date &&
-                outletData?.subscription_details?.subscription_end_date && (
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <div className="w-full">
-                        <h4 className="text-base font-medium text-gray-800 dark:text-white/90 mb-2">
-                          TimeLine
+              {/* Subscription timeline — days remaining or days expired */}
+              {(() => {
+                const timeline = computeSubscriptionTimeline(subscriptionDetails);
+                if (!timeline) return null;
+
+                let barColorClass = "bg-success-500";
+                if (timeline.isExpired) {
+                  barColorClass = "bg-error-500";
+                } else if (timeline.remaining <= 5) {
+                  barColorClass = "bg-error-500";
+                } else if (timeline.remaining <= 15) {
+                  barColorClass = "bg-warning-500";
+                }
+
+                const expiredLabel =
+                  timeline.expiredDays === 0
+                    ? "Expired Today"
+                    : `${timeline.expiredDays} Day${timeline.expiredDays === 1 ? "" : "s"} Expired`;
+
+                return (
+                  <div className="col-span-1 sm:col-span-2 md:col-span-3 xl:col-span-4">
+                    <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/40">
+                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <h4 className="text-base font-medium text-gray-800 dark:text-white/90">
+                          Subscription Timeline
                         </h4>
-                        {(() => {
-                          const msPerDay = 1000 * 60 * 60 * 24;
-                          const start = new Date(
-                            outletData.subscription_details.subscription_start_date
-                          );
-                          const end = new Date(
-                            outletData.subscription_details.subscription_end_date
-                          );
-                          const now = new Date();
-                          const total = Math.max(
-                            0,
-                            Math.ceil((end - start) / msPerDay)
-                          );
-                          const remaining = Math.max(
-                            0,
-                            Math.ceil((end - now) / msPerDay)
-                          );
-                          const elapsed = Math.max(0, total - remaining);
-                          const percent =
-                            total > 0
-                              ? Math.min(
-                                100,
-                                Math.max(0, (elapsed / total) * 100)
-                              )
-                              : 0;
-                          // Choose progress bar color based on remaining days:
-                          // - <=5 days: red (urgent)
-                          // - <=15 days: orange (warning)
-                          // - >15 days: green (healthy)
-                          let barColorClass = "bg-success-500"; // green by default
-                          if (remaining <= 5) {
-                            barColorClass = "bg-error-500"; // red
-                          } else if (remaining <= 15) {
-                            barColorClass = "bg-warning-500"; // orange
-                          }
-
-                          return (
-                            <div>
-                              <div
-                                className="w-full h-2 bg-gray-200 rounded-full overflow-hidden"
-                                role="progressbar"
-                                aria-valuemin={0}
-                                aria-valuemax={100}
-                                aria-valuenow={Math.round(percent)}
-                              >
-                                <div
-                                  className={`h-2 ${barColorClass} rounded-full transition-all duration-500`}
-                                  style={{ width: `${percent}%` }}
-                                />
-                              </div>
-
-                              <div className="flex items-center justify-between mt-2">
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {elapsed} days completed
-                                </p>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">
-                                  {remaining} days remaining
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })()}
+                        {timeline.isExpired ? (
+                          <span className="inline-flex items-center rounded-full bg-error-100 px-2.5 py-0.5 text-xs font-semibold text-error-700 dark:bg-error-500/20 dark:text-error-400">
+                            Expired
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-success-100 px-2.5 py-0.5 text-xs font-semibold text-success-700 dark:bg-success-500/20 dark:text-success-400">
+                            Active
+                          </span>
+                        )}
                       </div>
+
+                      <p
+                        className={`mb-3 text-2xl font-semibold ${
+                          timeline.isExpired
+                            ? "text-error-600 dark:text-error-400"
+                            : "text-gray-800 dark:text-white/90"
+                        }`}
+                      >
+                        {timeline.isExpired
+                          ? expiredLabel
+                          : `${timeline.remaining} Day${timeline.remaining === 1 ? "" : "s"} Remaining`}
+                      </p>
+
+                      <div
+                        className="h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
+                        role="progressbar"
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={Math.round(timeline.percent)}
+                        aria-label={
+                          timeline.isExpired
+                            ? expiredLabel
+                            : `${timeline.remaining} days remaining`
+                        }
+                      >
+                        <div
+                          className={`h-2.5 rounded-full transition-all duration-500 ${barColorClass}`}
+                          style={{ width: `${timeline.percent}%` }}
+                        />
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
+                        {timeline.startDateLabel ? (
+                          <span>Start: {timeline.startDateLabel}</span>
+                        ) : (
+                          <span />
+                        )}
+                        <span>End: {timeline.endDateLabel}</span>
+                      </div>
+
+                      {timeline.total != null && (
+                        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm text-gray-500 dark:text-gray-400">
+                          {timeline.isExpired ? (
+                            <>
+                              <span>
+                                {timeline.total} Day
+                                {timeline.total === 1 ? "" : "s"} Completed
+                              </span>
+                              <span className="font-medium text-error-600 dark:text-error-400">
+                                {expiredLabel}
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <span>
+                                {timeline.elapsed} Day
+                                {timeline.elapsed === 1 ? "" : "s"} Completed
+                              </span>
+                              <span>
+                                {timeline.remaining} Day
+                                {timeline.remaining === 1 ? "" : "s"} Remaining
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
+                );
+              })()}
 
               {/* Modules (display only module names) */}
               {outletData?.modules && outletData.modules.length > 0 && (
@@ -1228,12 +1482,12 @@ function ViewOutlet() {
                     </h4>
 
                     <div className="flex flex-wrap gap-2">
-                      {outletData.modules.map((mod) => (
+                          {outletData.modules.map((mod) => (
                         <span
                           key={mod.module_id}
                           className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-200 border border-gray-200"
                         >
-                          {mod.name ? mod.name.replace(/_/g, " ") : "-"}
+                              {mod.name ? toTitleDisplay(mod.name) : "-"}
                         </span>
                       ))}
                     </div>
@@ -1243,83 +1497,37 @@ function ViewOutlet() {
             </div>
           </div>
           {/* Audit Information section with divider */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-              <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                Audit Information
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {/* Created On */}
-              {outletData?.created_on && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.created_on}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Created On
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Created By */}
-              {outletData?.created_by_name && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {toTitleCase(outletData.created_by_name)}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Created By
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Updated On */}
-              {outletData?.updated_on && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {outletData.updated_on}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Updated On
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {/* Updated By */}
-              {outletData?.updated_by_name && (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div>
-                        <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                          {toTitleCase(outletData.updated_by_name)}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Updated By
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <AuditInfo
+            createdOn={outletData?.created_on}
+            updatedOn={outletData?.updated_on}
+            createdBy={
+              outletData?.created_by_name ||
+              outletData?.created_by_full_name ||
+              outletData?.created_by_user_name ||
+              outletData?.created_by
+                ? toTitleCase(
+                  outletData?.created_by_name ||
+                  outletData?.created_by_full_name ||
+                  outletData?.created_by_user_name ||
+                  outletData?.created_by
+                )
+                : null
+            }
+            updatedBy={
+              outletData?.updated_by_name ||
+              outletData?.updated_by_full_name ||
+              outletData?.updated_by_user_name ||
+              outletData?.updated_by
+                ? toTitleCase(
+                  outletData?.updated_by_name ||
+                  outletData?.updated_by_full_name ||
+                  outletData?.updated_by_user_name ||
+                  outletData?.updated_by
+                )
+                : null
+            }
+            className="mx-2 sm:mx-0"
+          />
           
         </div>
       </div>

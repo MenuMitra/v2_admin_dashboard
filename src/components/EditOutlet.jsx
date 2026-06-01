@@ -24,20 +24,21 @@ import Breadcrumb from "./Breadcrumb";
 import ImageUploader from "./common/ImageUploader";
 import { API_CONFIG } from "../config/appConfig";
 import { YES_NO_OPTIONS } from "../utils/validationPatterns";
-import { isMobileValid, isWhatsappValid } from "../utils/validations";
+import { isMobileValid } from "../utils/validations";
 import { toastController } from "../utils/toastController";
 import CustomSelectInput from "./common/CustomSelectInput";
 import CustomDropdown from "./common/CustomDropdown";
 import SaveButton from "./common/SaveButton";
 import MultiSelectDropdown from "./common/MultiSelectDropdown";
+import SingleSelectDropdown from "./common/SingleSelectDropdown";
 
 function EditOutlet() {
-  const { getToken } = useAuth();
+  const { getToken, getUserId } = useAuth();
   const { adminData } = useAdmin();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { outletId } = useParams();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
   const [outletData, setOutletData] = useState({
     outlet_id: "",
     user_id: "",
@@ -63,19 +64,24 @@ function EditOutlet() {
     email: "",
     opening_time: "",
     closing_time: "",
-    outlet_mode: "",
+    outlet_mode: "online",
     image: null,
     subscription_id: "",
     subscription_details: null,
     has_combo: 0,
     has_denomination: 0,
+    has_udhari: 0,
     reserve_table: 0,
+    company_id: "",
   });
 
   const [isLoading, setIsLoading] = useState(true);
   const [outletTypes, setOutletTypes] = useState({});
   const [vegOrNonveg, setVegOrNonveg] = useState({});
-  const [allOwners, setAllOwners] = useState([]);
+  const [companyOwners, setCompanyOwners] = useState([]);
+  const [primaryOwnerId, setPrimaryOwnerId] = useState(null);
+  const [allCompanies, setAllCompanies] = useState([]);
+  const [isLoadingCompanyOwners, setIsLoadingCompanyOwners] = useState(false);
   // Modules for Assign Subscription edit
   const [modules, setModules] = useState([]);
   const [selectedModuleIds, setSelectedModuleIds] = useState([]);
@@ -92,11 +98,8 @@ function EditOutlet() {
     upi: false,
     outlet_type: false,
     food_type: false,
-    outlet_mode: false,
     address: false,
     fssainumber: false,
-    whatsapp: false,
-    whatsappMessage: "",
   });
   console.log(tenureMonths)
   const [originalOwnerIds, setOriginalOwnerIds] = useState([]);
@@ -156,7 +159,7 @@ function EditOutlet() {
     if (adminData?.user_id && outletId) {
       fetchOutletTypes();
       fetchVegOrNonveg();
-      fetchOwners();
+      fetchCompanies();
       fetchOutletData();
       // fetch modules for subscription edit
       (async () => {
@@ -178,6 +181,41 @@ function EditOutlet() {
       })();
     }
   }, [adminData?.user_id, outletId]);
+
+  // Fetch company owners when company is manually changed (not during initial load)
+  useEffect(() => {
+    // Only fetch if not loading and company_id exists and it's a manual change
+    if (outletData.company_id && !isLoading && !isLoadingCompanyOwners) {
+      // This will handle manual company changes in the dropdown
+      console.log("Edit Outlet - Company changed manually, fetching owners for:", outletData.company_id);
+    }
+  }, [outletData.company_id]);
+
+  // Preserve selected owners when company owners are loaded
+  useEffect(() => {
+    if (companyOwners.length > 0 && outletData.owner_ids.length > 0) {
+      console.log("Edit Outlet - Preserving owners:", {
+        companyOwners: companyOwners.map(o => ({ id: o.user_id, name: o.name })),
+        selectedOwnerIds: outletData.owner_ids
+      });
+
+      // Ensure selected owners are still valid (exist in the company owners list)
+      const validOwnerIds = outletData.owner_ids.filter(ownerId =>
+        companyOwners.some(owner => owner.user_id === ownerId)
+      );
+
+      console.log("Edit Outlet - Valid owner IDs:", validOwnerIds);
+
+      if (validOwnerIds.length !== outletData.owner_ids.length) {
+        console.log("Edit Outlet - Some owners are invalid, updating...");
+        // Update owner_ids if some are no longer valid
+        setOutletData(prev => ({
+          ...prev,
+          owner_ids: validOwnerIds
+        }));
+      }
+    }
+  }, [companyOwners, outletData.owner_ids]);
 
   const fetchOutletData = async () => {
     try {
@@ -204,6 +242,13 @@ function EditOutlet() {
       if (response.data.detail === "Successfully retrieved outlet details") {
         const data = response.data.data;
 
+        // Debug logging to understand the data structure
+        console.log("Edit Outlet - API Response:", {
+          data,
+          owners: data.owners,
+          company_id: data.company_id
+        });
+
         // The API may return subscription info either in `data.subscription_details`,
         // `data.subscription`, or at the top-level `response.data.subscription` (created during outlet creation).
         const respSubscription =
@@ -219,7 +264,15 @@ function EditOutlet() {
             ? String(data.subscription_id)
             : null;
 
-        const initialOwnerIds = data.owners?.map((owner) => owner.owner_id) || [];
+        const initialOwnerIds = data.owners?.map((owner) => owner.user_id || owner.owner_id) || [];
+        console.log("Edit Outlet - Mapped Owner IDs:", initialOwnerIds);
+
+        // Set primary owner if available in the response
+        const primaryOwner = data.owners?.find(owner => owner.is_primary === 1 || owner.is_primary === true);
+        if (primaryOwner) {
+          setPrimaryOwnerId(primaryOwner.user_id || primaryOwner.owner_id);
+          console.log("Edit Outlet - Primary Owner Set:", primaryOwner.user_id || primaryOwner.owner_id);
+        }
         setOutletData({
           outlet_id: outletId,
           user_id: adminData?.user_id,
@@ -234,8 +287,8 @@ function EditOutlet() {
           service_charges: data.service_charges || "",
           gst: data.gst || "",
           address: (data.address || "").trim(),
-          is_open: data.is_open === 1,
-          outlet_status: data.outlet_status === 1,
+          is_open: Number(data.is_open) === 1,
+          outlet_status: Number(data.outlet_status) === 1,
           upi_id: data.upi_id || "",
           website: data.website || "",
           whatsapp: data.whatsapp?.replace(/\D/g, "") || "",
@@ -246,7 +299,7 @@ function EditOutlet() {
           email: data.email || "",
           opening_time: data.opening_time || "",
           closing_time: data.closing_time || "",
-          outlet_mode: data.outlet_mode || "",
+          outlet_mode: "online",
           image: data.image || null,
           subscription_id: subscriptionId,
           subscription_end_date:
@@ -257,7 +310,9 @@ function EditOutlet() {
             respSubscription || data.subscription_details || null,
           has_combo: data.has_combo !== undefined ? data.has_combo : null,
           has_denomination: data.has_denomination !== undefined ? data.has_denomination : null,
+          has_udhari: data.has_udhari !== undefined ? data.has_udhari : null,
           reserve_table: data.has_reserve_table !== undefined ? data.has_reserve_table : (data.reserve_table !== undefined ? data.reserve_table : null),
+          company_id: data.company_id ? Number(data.company_id) : "",
         });
         setOriginalOwnerIds(initialOwnerIds);
 
@@ -332,12 +387,21 @@ function EditOutlet() {
           // ignore
         }
 
+        // After setting outlet data, immediately fetch company owners if company_id exists
+        if (data.company_id) {
+          console.log("Edit Outlet - Fetching company owners for company:", data.company_id);
+          // Fetch company owners immediately after setting outlet data, preserving existing owners
+          fetchCompanyOwners(String(data.company_id), true);
+        }
+
         setIsLoading(false);
       }
     } catch (error) {
-
+      console.error("Error fetching outlet data:", error);
       toastController.error("Failed to fetch outlet data");
       navigate(-1);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -389,21 +453,91 @@ function EditOutlet() {
     }
   };
 
-  const fetchOwners = async () => {
+
+  const fetchCompanies = async () => {
     try {
       const token = getToken();
-      if (!token) throw new Error("No authentication token available");
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
 
-      const response = await axios.get(
-        `${BASE_URL}/common/listview_owner/${adminData.user_id}`,
-        { headers: { Authorization: token } }
+      const response = await axios.post(
+        `${BASE_URL}/admin/list_companies`,
+        {
+          user_id: getUserId()
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
       );
 
-      if (Array.isArray(response.data)) {
-        setAllOwners(response.data);
+      // Extract companies from the response
+      const companies = response.data.companies || [];
+
+      if (Array.isArray(companies)) {
+        setAllCompanies(companies);
       }
     } catch (error) {
 
+    }
+  };
+
+  const fetchCompanyOwners = async (companyId, preserveExistingOwners = false) => {
+    try {
+      setIsLoadingCompanyOwners(true);
+      const token = getToken();
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await axios.post(
+        `${BASE_URL}/admin/get_company_with_owners`,
+        {
+          user_id: getUserId() || adminData?.user_id,
+          company_id: parseInt(companyId)
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.detail === "Company details retrieved successfully") {
+        const owners = response.data.data.owners || [];
+        console.log("Edit Outlet - Company Owners Loaded:", {
+          companyId,
+          owners,
+          currentOwnerIds: outletData.owner_ids,
+          preserveExistingOwners
+        });
+        setCompanyOwners(owners);
+
+        // Only clear owners if this is a manual company change, not initial load
+        if (!preserveExistingOwners) {
+          // Clear selected owners when company changes (only if it's a new company selection)
+          if (!outletData.owner_ids.length || companyId !== outletData.company_id) {
+            // Only clear owners if this is a different company, not the initial load
+            if (outletData.company_id && companyId !== outletData.company_id) {
+              setOutletData((prev) => ({
+                ...prev,
+                owner_ids: [],
+              }));
+              setPrimaryOwnerId(null);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching company owners:", error);
+      setCompanyOwners([]);
+      toastController.error("Failed to fetch company owners");
+    } finally {
+      setIsLoadingCompanyOwners(false);
     }
   };
 
@@ -428,15 +562,30 @@ function EditOutlet() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="w-12 h-12 border-b-2 border-blue-500 rounded-full animate-spin"></div>
       </div>
     );
   }
 
+  // Debug logging for current state
+  console.log("Edit Outlet - Current State:", {
+    outletData: {
+      company_id: outletData.company_id,
+      owner_ids: outletData.owner_ids,
+      upi_id: outletData.upi_id,
+      name: outletData.name
+    },
+    companyOwners: companyOwners.map(o => ({ id: o.user_id, name: o.name })),
+    allCompanies: allCompanies.map(c => ({ id: c.company_id, name: c.company_name })),
+    primaryOwnerId,
+    isLoading,
+    isLoadingCompanyOwners
+  });
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === "mobile" || name === "whatsapp") {
+    if (name === "mobile") {
       const numbersOnly = value.replace(/[^0-9]/g, "").slice(0, 10);
       const firstDigit = numbersOnly.charAt(0);
 
@@ -515,7 +664,6 @@ function EditOutlet() {
       upi_id: isUpiValid(outletData.upi_id),
       outlet_type: !!outletData.outlet_type,
       veg_nonveg: !!outletData.veg_nonveg,
-      outlet_mode: !!outletData.outlet_mode,
       address: isAddressValid(outletData.address),
     };
 
@@ -588,6 +736,7 @@ function EditOutlet() {
         user_id: parseInt(adminData.user_id),
         outlet_id: parseInt(outletId),
         new_owner_ids: outletData.owner_ids || [],
+        ...(primaryOwnerId ? { primary_owner_id: primaryOwnerId } : {}),
         name: outletData.name,
         outlet_type: outletData.outlet_type,
         fssainumber: outletData.fssainumber || "",
@@ -597,7 +746,7 @@ function EditOutlet() {
         service_charges: outletData.service_charges ? outletData.service_charges.toString() : "0",
         gst: outletData.gst ? outletData.gst.toString() : "0",
         address: outletData.address,
-        outlet_mode: outletData.outlet_mode || "offline",
+        outlet_mode: outletData.outlet_mode || "online",
         is_open: outletData.is_open ? 1 : 0,
         outlet_status: outletData.outlet_status ? 1 : 0,
         upi_id: outletData.upi_id,
@@ -609,6 +758,7 @@ function EditOutlet() {
         google_review: outletData.google_review || "",
         app_source: "pos_app",
         image: imagePayload,
+        company_id: outletData.company_id ? parseInt(outletData.company_id) : null,
         subscription_id: outletData.subscription_id ? parseInt(outletData.subscription_id) : 11,
         subscription_name: planName || "Updated Mobile app",
         subscription_price: planPrice ? Number(planPrice) : 15000.0,
@@ -616,7 +766,8 @@ function EditOutlet() {
         subscription_tenure: tenureMonths ? `${Number(tenureMonths)} Months` : "",
         module_ids: selectedModuleIds.length > 0 ? selectedModuleIds.map(Number) : [1],
         has_denomination: outletData.has_denomination !== undefined ? outletData.has_denomination : 1,
-        has_combo: outletData.has_combo !== undefined ? outletData.has_combo : 1
+        has_combo: outletData.has_combo !== undefined ? outletData.has_combo : 1,
+        has_udhari: outletData.has_udhari !== undefined ? outletData.has_udhari : 1
       };
 
       // Format opening_time and closing_time if available
@@ -646,8 +797,8 @@ function EditOutlet() {
           "Outlet updated successfully";
         toastController.success(successMessage);
         try {
+          queryClient.invalidateQueries(queryKeys.outlets.list());
           queryClient.invalidateQueries(queryKeys.outlets.detail(outletId));
-          queryClient.invalidateQueries(queryKeys.outlets.all);
         } catch (err) {
 
         }
@@ -684,7 +835,7 @@ function EditOutlet() {
             {/* Back Button */}
             <button
               onClick={() => navigate(-1)}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50"
             >
               <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
               <span>Back</span>
@@ -705,10 +856,37 @@ function EditOutlet() {
           </div>
         </div>
 
+
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
+          {/* Image Upload */}
+          <div className="relative">
+            <ImageUploader
+              maxImages={1}
+              onImagesChange={(images) => {
+                let base64String = images[0]?.url || null;
+                if (
+                  base64String &&
+                  !base64String.startsWith("data:image/")
+                ) {
+                  // Default to PNG if type is not available
+                  base64String = `data:image/png;base64,${base64String}`;
+                }
+                setOutletData((prev) => ({
+                  ...prev,
+                  image: base64String,
+                }));
+              }}
+              existingImages={
+                outletData.image ? [{ url: outletData.image }] : []
+              }
+              label="Outlet Image"
+              className="w-full"
+              isOutletImage={true}
+            />
+          </div>
           {/* Basic Information Section */}
-          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
+          <section className="p-4 bg-white rounded-lg shadow sm:p-6">
+            <h2 className="flex items-center mb-4 text-lg font-medium">
               <svg
                 className="w-5 h-5 mr-2"
                 fill="none"
@@ -727,59 +905,105 @@ function EditOutlet() {
 
             {/* Basic Information Fields */}
             <div className="grid grid-cols-1 gap-6">
-              {/* Select Owner and Image Upload in same grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {/* Select Company and Select Owner in same grid */}
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                {/* Select Company */}
+                <div className="flex flex-col">
+                  <SingleSelectDropdown
+                    label="Select Company"
+                    options={allCompanies}
+                    selectedValue={outletData.company_id}
+                    onChange={(companyId) => {
+                      console.log("Edit Outlet - Company changed:", { companyId, previousCompanyId: outletData.company_id });
+                      setOutletData((prev) => ({
+                        ...prev,
+                        company_id: companyId,
+                      }));
+                      // Fetch company-specific owners when company is selected
+                      if (companyId) {
+                        fetchCompanyOwners(companyId, false); // Don't preserve owners on manual change
+                      } else {
+                        setCompanyOwners([]);
+                        setOutletData((prev) => ({
+                          ...prev,
+                          owner_ids: [],
+                        }));
+                        setPrimaryOwnerId(null);
+                      }
+                    }}
+                    displayKey="company_name"
+                    valueKey="company_id"
+                    searchKeys={["company_name", "company_code"]}
+                    placeholder="Select company"
+                    searchPlaceholder="Search by company name or code..."
+                    className="rounded-lg"
+                  />
+                  {/* Debug info for company dropdown */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Debug: Selected Company ID: {outletData.company_id || 'None'} |
+                      Available Companies: {allCompanies.length}
+                    </div>
+                  )}
+                </div>
+
                 {/* Select Owner */}
                 <div className="flex flex-col">
                   <MultiSelectDropdown
-                    label="Select Owner(s)"
-                    options={allOwners}
+                    label={<span><span className="text-red-500">*</span> Select Owner(s)</span>}
+                    options={companyOwners}
                     selectedValues={outletData.owner_ids}
                     onChange={(newOwnerIds) => {
+                      console.log("Edit Outlet - Owners changed:", {
+                        newOwnerIds,
+                        previousOwnerIds: outletData.owner_ids,
+                        availableOwners: companyOwners.map(o => ({ id: o.user_id, name: o.name }))
+                      });
                       setOutletData((prev) => ({
                         ...prev,
                         owner_ids: newOwnerIds,
                       }));
+                      // Clear primary owner if it's no longer selected
+                      if (!newOwnerIds.includes(primaryOwnerId)) {
+                        setPrimaryOwnerId(null);
+                      }
                     }}
                     displayKey="name"
                     valueKey="user_id"
                     searchKeys={["name", "mobile", "email"]}
-                    placeholder="Select owners"
+                    placeholder={
+                      !outletData.company_id
+                        ? "Please select a company first"
+                        : isLoadingCompanyOwners
+                          ? "Loading owners..."
+                          : "Select owners"
+                    }
                     searchPlaceholder="Search by name, mobile or email..."
-                    className="rounded-3xl"
+                    className="rounded-lg"
+                    disabled={!outletData.company_id || isLoadingCompanyOwners}
+                    primaryValue={primaryOwnerId}
+                    onPrimaryChange={setPrimaryOwnerId}
                   />
+                  {/* Debug info for owner dropdown */}
+                  {process.env.NODE_ENV === 'development' && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Debug: Selected Owners: [{outletData.owner_ids.join(', ') || 'None'}] |
+                      Available Owners: {companyOwners.length} |
+                      Primary: {primaryOwnerId || 'None'}
+                    </div>
+                  )}
+                  {!outletData.company_id && (
+                    <p className="mt-1 text-sm text-gray-500">
+                      Select a company first to see available owners
+                    </p>
+                  )}
                 </div>
 
-                {/* Image Upload */}
-                <div className="relative">
-                  <ImageUploader
-                    maxImages={1}
-                    onImagesChange={(images) => {
-                      let base64String = images[0]?.url || null;
-                      if (
-                        base64String &&
-                        !base64String.startsWith("data:image/")
-                      ) {
-                        // Default to PNG if type is not available
-                        base64String = `data:image/png;base64,${base64String}`;
-                      }
-                      setOutletData((prev) => ({
-                        ...prev,
-                        image: base64String,
-                      }));
-                    }}
-                    existingImages={
-                      outletData.image ? [{ url: outletData.image }] : []
-                    }
-                    label="Outlet Image"
-                    className="w-full"
-                    isOutletImage={true}
-                  />
-                </div>
+
               </div>
 
               {/* Rest of the form fields in their own grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-4">
                 <TextInput
                   label="Outlet Name"
                   name="name"
@@ -788,7 +1012,7 @@ function EditOutlet() {
                   onFocus={() => handleFocus("name")}
                   required
                   className={`
-                    rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                    rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${validationStates.name
                       ? "border-error-500"
                       : "border-gray-300"
@@ -808,7 +1032,7 @@ function EditOutlet() {
                     required
                     maxLength={10}
                     className={`
-                      rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                      rounded-lg focus:border-brand-500 focus:ring-brand-500
                       ${validationStates.mobile
                         ? "border-error-500"
                         : "border-gray-300"
@@ -816,7 +1040,7 @@ function EditOutlet() {
                     `}
                   />
                   {validationStates.mobile && (
-                    <p className="text-error-500 text-sm mt-1">
+                    <p className="mt-1 text-sm text-error-500">
                       {validationStates.mobileMessage}
                     </p>
                   )}
@@ -829,7 +1053,7 @@ function EditOutlet() {
                   value={outletData.email}
                   onChange={handleInputChange}
                   placeholder="Enter Email Address"
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
 
                 <TextInput
@@ -839,7 +1063,7 @@ function EditOutlet() {
                   onChange={handleInputChange}
                   placeholder="Enter UPI ID"
                   required
-                  className="rounded-3xl"
+                  className="rounded-lg"
                 />
 
                 <CustomDropdown
@@ -870,19 +1094,6 @@ function EditOutlet() {
                       value.slice(1).replace(/_/g, " "),
                   }))}
                   placeholder="Select Food Type"
-                />
-
-                <CustomDropdown
-                  label="Outlet Mode"
-                  name="outlet_mode"
-                  value={outletData.outlet_mode}
-                  onChange={handleInputChange}
-                  required
-                  options={[
-                    { value: "offline", label: "Offline" },
-                    { value: "online", label: "Online" },
-                  ]}
-                  placeholder="Select Outlet Mode"
                 />
 
                 <CustomDropdown
@@ -929,10 +1140,10 @@ function EditOutlet() {
                     required
                     rows={3}
                     maxLength={50}
-                    className="rounded-3xl"
+                    className="rounded-lg"
                   />
                   {validationStates.address && (
-                    <p className="text-error-500 text-sm mt-1">
+                    <p className="mt-1 text-sm text-error-500">
                       {(() => {
                         if (!outletData.address) return "Address is required";
                         if (outletData.address.length < 3) return "Minimum 3 characters required";
@@ -947,9 +1158,9 @@ function EditOutlet() {
           </section>
 
           {/* Business Details Section */}
-          <section className="bg-white p-4 sm:p-6 rounded-lg shadow">
-            <div className="border-b border-gray-200 dark:border-gray-800 pb-5">
-              <h2 className="text-lg font-medium mb-4 flex items-center">
+          <section className="p-4 bg-white rounded-lg shadow sm:p-6">
+            <div className="pb-5 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="flex items-center mb-4 text-lg font-medium">
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="none"
@@ -966,37 +1177,9 @@ function EditOutlet() {
                 Business Details
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-4">
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    Service Charges (%)
-                  </label>
-                  <input
-                    type="number"
-                    name="service_charges"
-                    value={outletData.service_charges}
-                    onChange={handleInputChange}
-                    placeholder="Enter service charges"
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-                    GST (%)
-                  </label>
-                  <input
-                    type="number"
-                    name="gst"
-                    value={outletData.gst}
-                    onChange={handleInputChange}
-                    placeholder="Enter GST percentage"
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
-                  />
-                </div>
-
-                <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     FSSAI Number
                   </label>
                   <input
@@ -1005,13 +1188,13 @@ function EditOutlet() {
                     value={outletData.fssainumber}
                     onChange={handleInputChange}
                     placeholder="Enter FSSAI number"
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="block w-full mt-1 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     maxLength={14}
                   />
                 </div>
 
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     GST Number
                   </label>
                   <input
@@ -1021,245 +1204,39 @@ function EditOutlet() {
                     maxLength={15}
                     onChange={handleInputChange}
                     placeholder="Enter GST number"
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="block w-full mt-1 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
-                </div>
-                <div className="col-span-full w-full">
-                  <div className="flex flex-row flex-nowrap items-end gap-10 mb-4">
-                    {/* Opening Time */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Opening Time
-                      </label>
-                      <div className="flex gap-2">
-                        {/* Hour Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={openingHour}
-                          onChange={(e) =>
-                            handleOpeningTimeChange("hour", e.target.value)
-                          }
-                          options={[
-                            { value: "", label: "HH" },
-                            ...[...Array(12)].map((_, i) => {
-                              const val = (i + 1).toString().padStart(2, "0");
-                              return { value: val, label: val };
-                            }),
-                          ]}
-                          placeholder="HH"
-                        />
-                        {/* Minute Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={openingMinute}
-                          onChange={(e) =>
-                            handleOpeningTimeChange("minute", e.target.value)
-                          }
-                          options={[
-                            { value: "", label: "MM" },
-                            ...["00", "15", "30", "45"].map((min) => ({
-                              value: min,
-                              label: min,
-                            })),
-                          ]}
-                          placeholder="MM"
-                        />
-                        {/* AM/PM Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={openingPeriod}
-                          onChange={(e) =>
-                            handleOpeningTimeChange("period", e.target.value)
-                          }
-                          options={[
-                            { value: "AM", label: "AM" },
-                            { value: "PM", label: "PM" },
-                          ]}
-                          placeholder="AM/PM"
-                        />
-                      </div>
-                    </div>
-                    {/* Closing Time */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Closing Time
-                      </label>
-                      <div className="flex gap-2">
-                        {/* Hour Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={closingHour}
-                          onChange={(e) =>
-                            handleClosingTimeChange("hour", e.target.value)
-                          }
-                          options={[
-                            { value: "", label: "HH" },
-                            ...[...Array(12)].map((_, i) => {
-                              const val = (i + 1).toString().padStart(2, "0");
-                              return { value: val, label: val };
-                            }),
-                          ]}
-                          placeholder="HH"
-                        />
-                        {/* Minute Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={closingMinute}
-                          onChange={(e) =>
-                            handleClosingTimeChange("minute", e.target.value)
-                          }
-                          options={[
-                            { value: "", label: "MM" },
-                            ...["00", "15", "30", "45"].map((min) => ({
-                              value: min,
-                              label: min,
-                            })),
-                          ]}
-                          placeholder="MM"
-                        />
-                        {/* AM/PM Dropdown */}
-                        <CustomDropdown
-                          className="w-22"
-                          value={closingPeriod}
-                          onChange={(e) =>
-                            handleClosingTimeChange("period", e.target.value)
-                          }
-                          options={[
-                            { value: "AM", label: "AM" },
-                            { value: "PM", label: "PM" },
-                          ]}
-                          placeholder="AM/PM"
-                        />
-                      </div>
-                    </div>
-                    {/* Has Combo */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Has Combo
-                      </label>
-                      <CustomDropdown
-                        name="has_combo"
-                        className="w-22"
-                        value={
-                          outletData.has_combo !== null &&
-                            outletData.has_combo !== undefined
-                            ? String(outletData.has_combo)
-                            : ""
-                        }
-                        onChange={(e) =>
-                          setOutletData((prev) => ({
-                            ...prev,
-                            has_combo: e.target.value
-                              ? Number(e.target.value)
-                              : null,
-                          }))
-                        }
-                        options={[
-                          { value: "", label: "Select" },
-                          ...YES_NO_OPTIONS.map((opt) => ({
-                            value: String(opt.value),
-                            label: opt.label,
-                          })),
-                        ]}
-                        placeholder="Select"
-                      />
-                    </div>
-                    {/* Has Denomination */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Has Denomination
-                      </label>
-                      <CustomDropdown
-                        name="has_denomination"
-                        className="w-22"
-                        value={
-                          outletData.has_denomination !== null &&
-                            outletData.has_denomination !== undefined
-                            ? String(outletData.has_denomination)
-                            : ""
-                        }
-                        onChange={(e) =>
-                          setOutletData((prev) => ({
-                            ...prev,
-                            has_denomination: e.target.value
-                              ? Number(e.target.value)
-                              : null,
-                          }))
-                        }
-                        options={[
-                          { value: "", label: "Select" },
-                          ...YES_NO_OPTIONS.map((opt) => ({
-                            value: String(opt.value),
-                            label: opt.label,
-                          })),
-                        ]}
-                        placeholder="Select"
-                      />
-                    </div>
-                    {/* Reserve Table */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Reserve Table
-                      </label>
-                      <CustomDropdown
-                        name="reserve_table"
-                        className="w-22"
-                        value={
-                          outletData.reserve_table !== null &&
-                            outletData.reserve_table !== undefined
-                            ? String(outletData.reserve_table)
-                            : ""
-                        }
-                        onChange={(e) =>
-                          setOutletData((prev) => ({
-                            ...prev,
-                            reserve_table: e.target.value
-                              ? Number(e.target.value)
-                              : null,
-                          }))
-                        }
-                        options={[
-                          { value: "", label: "Select" },
-                          ...YES_NO_OPTIONS.map((opt) => ({
-                            value: String(opt.value),
-                            label: opt.label,
-                          })),
-                        ]}
-                        placeholder="Select"
-                      />
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
           </section>
 
           {/* Assign Subscription Section (same as Create) */}
-          <section className="bg-white p-4 rounded-lg shadow">
-            <div className=" border-b border-gray-200 dark:border-gray-800 pb-5">
-              <h2 className="text-lg font-medium mb-3 flex items-center">
+          <section className="p-4 bg-white rounded-lg shadow">
+            <div className="pb-5 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="flex items-center mb-3 text-lg font-medium">
                 <FontAwesomeIcon icon={faLayerGroup} className="w-5 h-5 mr-2" />
                 Assign Subscription{" "}
-                <span className="text-error-500 ml-2">*</span>
+                <span className="ml-2 text-error-500">*</span>
               </h2>
 
               {/* Plan fields - first row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
+              <div className="grid grid-cols-1 gap-3 mb-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-4">
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Plan Name <span className="text-error-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={planName}
                     onChange={(e) => setPlanName(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="block w-full mt-1 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter plan name"
                   />
                 </div>
 
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Price <span className="text-error-500">*</span>
                   </label>
                   <input
@@ -1267,13 +1244,13 @@ function EditOutlet() {
                     step="0.01"
                     value={planPrice}
                     onChange={(e) => setPlanPrice(e.target.value)}
-                    className="mt-1 block w-full rounded-3xl border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
+                    className="block w-full mt-1 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Enter price"
                   />
                 </div>
 
                 <div className="w-full">
-                  <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
                     Tenure (months) <span className="text-error-500">*</span>
                   </label>
                   <CustomDropdown
@@ -1283,7 +1260,7 @@ function EditOutlet() {
                         e.target.value ? Number(e.target.value) : null
                       )
                     }
-                    className="mt-1 block w-full"
+                    className="block w-full mt-1"
                     options={[
                       { value: "", label: "Select months" },
                       ...ALLOWED_TENURES.map((m) => ({
@@ -1321,13 +1298,13 @@ function EditOutlet() {
                             setSelectedModuleIds([]);
                           }
                         }}
-                        className="form-checkbox h-4 w-4 text-blue-600 border-gray-300 rounded-3xl mr-2"
+                        className="w-4 h-4 mr-2 text-blue-600 border-gray-300 rounded-lg form-checkbox"
                       />
                       Check All
                     </label>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
                     {modules.map((m) => {
                       const checked = selectedModuleIds.includes(m.module_id);
                       return (
@@ -1339,13 +1316,13 @@ function EditOutlet() {
                             : "border-gray-200"
                             }`}
                         >
-                          <label className="flex items-center gap-2 cursor-pointer text-xs">
+                          <label className="flex items-center gap-2 text-xs cursor-pointer">
                             <input
                               type="checkbox"
                               checked={checked}
                               onChange={() => handleModuleToggle(m.module_id)}
                               onClick={(e) => e.stopPropagation()}
-                              className="form-checkbox rounded-3xl h-4 w-4 text-blue-600"
+                              className="w-4 h-4 text-blue-600 rounded-lg form-checkbox"
                             />
                             <span className="uppercase">
                               {m.name?.split("_").join(" ")}
@@ -1357,78 +1334,6 @@ function EditOutlet() {
                   </div>
                 </>
               )}
-            </div>
-          </section>
-
-          {/* Social Media Section */}
-          <section className="bg-white rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4 flex items-center">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                />
-              </svg>
-              Social Media
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              <TextInput
-                label="Website"
-                name="website"
-                type="url"
-                value={outletData.website}
-                onChange={handleInputChange}
-                placeholder="https://example.com"
-                className="rounded-3xl"
-              />
-
-              <TextInput
-                label="Facebook"
-                name="facebook"
-                type="url"
-                value={outletData.facebook}
-                onChange={handleInputChange}
-                placeholder="https://facebook.com/yourpage"
-                className="rounded-3xl"
-              />
-
-              <TextInput
-                label="Instagram"
-                name="instagram"
-                type="url"
-                value={outletData.instagram}
-                onChange={handleInputChange}
-                placeholder="https://instagram.com/yourhandle"
-                className="rounded-3xl"
-              />
-
-              <TextInput
-                label="Google Business Link"
-                name="google_business_link"
-                type="url"
-                value={outletData.google_business_link}
-                onChange={handleInputChange}
-                placeholder="https://business.google.com/yourpage"
-                className="rounded-3xl"
-              />
-
-              <TextInput
-                label="Google Review Link"
-                name="google_review"
-                type="url"
-                value={outletData.google_review}
-                onChange={handleInputChange}
-                placeholder="https://g.page/r/yourreviewpage"
-                className="rounded-3xl"
-              />
             </div>
           </section>
         </form>

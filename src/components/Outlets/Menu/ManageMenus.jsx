@@ -22,6 +22,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import DeleteConfirmModal from "../../common/DeleteConfirmModal/DeleteConfirmModal";
 
+// Capitalize first letter of every word (title case)
+const toTitleCase = (str) =>
+  str
+    ? str.replace(/\w\S*/g, (txt) =>
+      txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    )
+    : "";
+
 function ManageMenus() {
   const { outletId } = useParams();
   const { adminData } = useAdmin();
@@ -248,11 +256,22 @@ function ManageMenus() {
       field: "name",
       header: "Name",
       sortable: true,
+      render: (value) => toTitleCase(value),
     },
     {
       field: "category_name",
       header: "Category",
       sortable: true,
+      render: (value) => toTitleCase(value),
+    },
+    {
+      field: "price",
+      header: "Price",
+      sortable: true,
+      render: (value, row) => {
+        const price = value || row.portions?.[0]?.price || 0;
+        return `₹${price}`;
+      },
     },
     {
       field: "food_type",
@@ -260,11 +279,10 @@ function ManageMenus() {
       sortable: true,
       render: (value) => (
         <span
-          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-            value === "veg"
-              ? "bg-green-100 text-green-800"
-              : "bg-red-100 text-red-800"
-          }`}
+          className={`px-2 py-0.5 rounded-full text-xs font-medium ${value === "veg"
+            ? "bg-green-100 text-green-800"
+            : "bg-red-100 text-red-800"
+            }`}
         >
           {value?.toUpperCase()}
         </span>
@@ -284,9 +302,8 @@ function ManageMenus() {
         <div className="flex items-center justify-center gap-2">
           <FontAwesomeIcon
             icon={value === 1 ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value === 1 ? "text-success-500" : "text-error-500"
-            }`}
+            className={`w-5 h-5 ${value === 1 ? "text-success-500" : "text-error-500"
+              }`}
           />
         </div>
       ),
@@ -318,13 +335,13 @@ function ManageMenus() {
           >
             <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
           </button>
-          <button
+          {/* <button
             className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
             title="Edit Menu"
             onClick={() => handleEdit(row)}
           >
             <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
-          </button>
+          </button> */}
           <button
             className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
             title="Delete Menu"
@@ -414,7 +431,7 @@ function ManageMenus() {
             : item.is_active === 0;
         }}
         createButton={{
-          show: true,
+          show: false,
           label: (
             <>
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />

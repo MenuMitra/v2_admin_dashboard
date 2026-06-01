@@ -25,6 +25,11 @@ export const validationPatterns = {
     message:
       "Name must be 2-50 characters long and contain only letters and spaces",
   },
+  /** Owner login PIN (4 digits) */
+  ownerLoginPin: {
+    pattern: /^[0-9]{4}$/,
+    message: "PIN must be exactly 4 digits",
+  },
   // Add more patterns as needed
 };
 

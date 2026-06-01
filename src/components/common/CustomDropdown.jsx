@@ -66,7 +66,7 @@ const CustomDropdown = ({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          w-full px-2 py-1.5 pr-10 border rounded-3xl shadow-sm text-left text-sm
+          w-full px-2 py-1.5 pr-4 border rounded-lg shadow-sm text-left text-sm
           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
           bg-white hover:bg-gray-50 transition-all duration-200
           flex items-center justify-between h-10
@@ -90,7 +90,7 @@ const CustomDropdown = ({
 
       {/* Dropdown Options Container - vertical list with scrolling */}
       {isOpen && (
-        <div className="absolute z-[99999] w-full mt-1 bg-white border border-gray-300 rounded-3xl shadow-xl max-h-60 overflow-y-auto flex flex-col" style={{ zIndex: 99999 }}>
+        <div className="absolute z-[99999] w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-xl max-h-60 overflow-y-auto flex flex-col" style={{ zIndex: 99999 }}>
           {options.length === 0 ? (
             <div className="px-3 py-2 text-gray-500 text-sm">No options available</div>
           ) : (
@@ -115,7 +115,7 @@ const CustomDropdown = ({
                 className={`
                   w-full text-left px-3 py-1 text-sm transition-colors duration-150
                   hover:bg-blue-500 hover:text-white focus:outline-none focus:bg-blue-500 focus:text-white
-                  first:rounded-t-3xl last:rounded-b-3xl
+                  first:rounded-t-lg last:rounded-b-lg
                   ${selectedOption?.value === option.value
                     ? 'bg-blue-50 text-blue-700'
                     : 'text-gray-900'

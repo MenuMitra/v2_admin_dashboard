@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+/*import React, { useState, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import { useNavigate, useParams } from "react-router-dom";
@@ -21,7 +21,7 @@ import { toastController } from "../../utils/toastController";
 // Utility function to convert a string to title case
 function toTitleCase(str) {
   return str.replace(
-    /\w\S*/g,
+    /\w\Sg,
     (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
   );
 }
@@ -321,15 +321,15 @@ function EditSuperOwner() {
 
   return (
     <>
-      {/* Add Breadcrumb */}
+      {/* Add Breadcrumb }
       <Breadcrumb items={breadcrumbItems} />
 
-      {/* DataTable-style header */}
+      {/* DataTable-style header }
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
-          {/* Top Row - Back, Title, Actions */}
+          {/* Top Row - Back, Title, Actions }
           <div className="relative flex items-center px-6 mb-3">
-            {/* Left Side - Back Button */}
+            {/* Left Side - Back Button }
             <div className="absolute left-6">
               <button
                 onClick={() => navigate(-1)}
@@ -340,14 +340,14 @@ function EditSuperOwner() {
               </button>
             </div>
 
-            {/* Center - Title */}
+            {/* Center - Title }
             <div className="flex-1 text-center">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
                 Edit Super Owner
               </h2>
             </div>
 
-            {/* Right Side - Save Button */}
+            {/* Right Side - Save Button }
             <div className="absolute right-6">
               <SaveButton
                 onClick={handleSubmit}
@@ -360,13 +360,13 @@ function EditSuperOwner() {
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content }
         <div className="p-6 pb-2">
-          {/* Form Section */}
+          {/* Form Section }
           <div className="space-y-6">
             <div className="bg-white rounded-lg">
               <form id="superOwnerForm" onSubmit={handleSubmit}>
-                {/* Basic Information Grid */}
+                {/* Basic Information Grid }
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 mb-6">
                   <div>
                     <label className="block text-sm text-gray-500 mb-1">
@@ -377,7 +377,7 @@ function EditSuperOwner() {
                       name="name"
                       value={superOwnerDetails.name}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                     {fieldErrors.name && (
@@ -398,7 +398,7 @@ function EditSuperOwner() {
                       onChange={handleChange}
                       maxLength={10}
                       pattern="[0-9]{10}"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                     {fieldErrors.mobile && (
@@ -417,7 +417,7 @@ function EditSuperOwner() {
                       name="email"
                       value={superOwnerDetails.email}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     {fieldErrors.email && (
                       <p className="text-error-500 text-sm mt-1">
@@ -437,7 +437,7 @@ function EditSuperOwner() {
                       onChange={handleChange}
                       maxLength={12}
                       pattern="[0-9]{12}"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                       required
                     />
                     {fieldErrors.aadhar_number && (
@@ -462,12 +462,12 @@ function EditSuperOwner() {
                   </div>
                 </div>
 
-                {/* Outlets Grid */}
+                {/* Outlets Grid }
                 <div className="mb-6">
                   <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
                     <h3 className="text-sm font-semibold">Select Outlets</h3>
                     <div className="flex flex-wrap gap-3">
-                      {/* Open/Close Filter */}
+                      {/* Open/Close Filter }
                       <div className="w-40">
                         <CustomSelect
                           name="openCloseStatus"
@@ -481,7 +481,7 @@ function EditSuperOwner() {
                           className="text-sm text-gray-700"
                         />
                       </div>
-                      {/* Active/Inactive Filter */}
+                      {/* Active/Inactive Filter }
                       <div className="w-40">
                         <CustomSelect
                           name="activeStatus"
@@ -495,7 +495,7 @@ function EditSuperOwner() {
                           className="text-sm text-gray-700"
                         />
                       </div>
-                      {/* Search Bar */}
+                      {/* Search Bar }
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                           <FontAwesomeIcon
@@ -508,7 +508,7 @@ function EditSuperOwner() {
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           placeholder="Search location"
-                          className="w-full sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+                          className="w-full sm:w-[250px] h-10 rounded-lg border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
                         />
                         {searchTerm && (
                           <button
@@ -613,3 +613,5 @@ function EditSuperOwner() {
 }
 
 export default EditSuperOwner;
+
+*/

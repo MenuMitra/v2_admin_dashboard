@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../../hooks/useAuth";
 import { useAdmin } from "../../hooks/useAdmin";
 import axios from "axios";
+import { queryKeys } from "../../lib/react-query/queryKeys";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft as faBack,
@@ -27,6 +29,7 @@ const INITIAL_CUSTOMER_STATE = {
 function EditCustomer() {
   const { customerId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
 
@@ -148,6 +151,8 @@ function EditCustomer() {
         error: (err) => err.response?.data?.msg || "Failed to update customer",
       });
 
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+
       // Navigate back to customers list after successful update
       navigate(-1);
     } catch (error) {
@@ -259,7 +264,7 @@ function EditCustomer() {
               validationType="name"
               onValidation={handleValidation("name")}
               isSubmitAttempted={isSubmitAttempted}
-              className="rounded-3xl"
+              className="rounded-lg"
             />
 
             <div className="relative">
@@ -273,7 +278,7 @@ function EditCustomer() {
                 maxLength={10}
                 placeholder="Enter mobile number"
                 className={`
-                  rounded-3xl focus:border-brand-500 focus:ring-brand-500
+                  rounded-lg focus:border-brand-500 focus:ring-brand-500
                   ${!validationStates.mobile
                     ? "border-error-500"
                     : "border-gray-300"

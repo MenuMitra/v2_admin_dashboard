@@ -23,61 +23,43 @@ const StatusToggleButton = ({
 }) => {
   const label = isActive ? activeLabel : inactiveLabel;
 
+  // Improved check for isActive as requested
+  const isReallyActive = [1, "1", true].includes(isActive);
+
   return (
     <button
       onClick={onToggle}
       disabled={disabled}
       className={`
-        rounded-full font-medium cursor-pointer hover:opacity-80 transition-opacity
-        flex items-center justify-center gap-1.5
-        px-3 py-1.5 text-sm
-        min-w-[72px] min-h-8
-        ${isActive ? "text-brand-500" : ""}
-        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+        rounded-full font-medium transition-all duration-200
+        flex items-center gap-2
+        px-2 py-1 text-sm
+        ${disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-50"}
         ${className}
       `}
     >
-{isActive ? (
-        <FontAwesomeIcon
-          icon={faToggleOn}
-          size="lg"
-          className="text-brand-500"
-          style={{ fontSize: '28px' }}
-        />
-      ) : (
-        <div 
-          className="relative inline-flex items-center justify-center" 
-          style={{ 
-            width:"32px",
-            height: '28px'
-          }}
-        >
-          <div 
-            className="bg-gray-300 rounded-full relative" 
-            style={{ 
-              width: '32px', 
-              height: '20px'
-            }}
-          >
-            <div 
-              className="absolute bg-white rounded-full" 
-              style={{ 
-                width: '12px', 
-                height: '12px', 
-                left: '2px', 
-                top: '50%', 
-                transform: 'translateY(-50%)'
-              }}
-            ></div>
-          </div>
-        </div>
-      )}
-      <span 
-        className={`${isActive ? "text-brand-500" : ""}`}
-        style={!isActive ? { color: '#921f1fff' } : {}}
+      <div
+        className={`
+          relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none 
+          ${isReallyActive ? 'bg-brand-500' : 'bg-gray-300'}
+        `}
       >
-        {label}
-      </span>
+        <span
+          className={`
+            pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out
+          `}
+          style={{
+            transform: isReallyActive ? "translateX(1.25rem)" : "translateX(0)",
+          }}
+        />
+      </div>
+      {label && (
+        <span
+          className={`transition-colors duration-200 ${isReallyActive ? "text-brand-500" : "text-error-500"}`}
+        >
+          {label}
+        </span>
+      )}
     </button>
   );
 };
