@@ -6,7 +6,7 @@ import {
   faPlus,
   faRotate,
 } from "@fortawesome/free-solid-svg-icons";
-import { createAlphanumericChangeHandler } from "../../utils/inputValidation";
+import { createSearchChangeHandler } from "../../utils/inputValidation";
 
 function TablesViewHeader({
   title = "",
@@ -115,7 +115,7 @@ function TablesViewHeader({
                 className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-10 w-[250px] rounded-3xl border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
                 type="text"
                 value={searchTerm}
-                onChange={createAlphanumericChangeHandler((e) => onSearchChange(e.target.value))}
+                onChange={createSearchChangeHandler((e) => onSearchChange(e.target.value))}
               />
             </div>
           )}

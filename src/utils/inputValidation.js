@@ -13,6 +13,33 @@ export const sanitizeAlphanumericInput = (value) => {
 };
 
 /**
+ * Sanitizes search input: letters, numbers, and spaces (for names/phrases).
+ * @param {string} value
+ * @returns {string}
+ */
+export const sanitizeSearchInput = (value) => {
+  return value.replace(/[^a-zA-Z0-9\s]/g, '');
+};
+
+/**
+ * Handles input change for search fields (allows spaces between words).
+ * @param {Function} onChange
+ * @returns {Function}
+ */
+export const createSearchChangeHandler = (onChange) => {
+  return (e) => {
+    const sanitizedValue = sanitizeSearchInput(e.target.value);
+    onChange({
+      ...e,
+      target: {
+        ...e.target,
+        value: sanitizedValue,
+      },
+    });
+  };
+};
+
+/**
  * Handles input change event to restrict to alphanumeric characters only
  * @param {Function} onChange - The original onChange handler
  * @returns {Function} - Enhanced onChange handler that filters special characters

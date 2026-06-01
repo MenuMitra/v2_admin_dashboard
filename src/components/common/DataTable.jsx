@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CustomSelect from "./CustomSelect";
-import { createAlphanumericChangeHandler } from "../../utils/inputValidation";
+import { createSearchChangeHandler } from "../../utils/inputValidation";
 import {
   faSort,
   faSortUp,
@@ -847,7 +847,7 @@ function DataTable({
           className="sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
           type="text"
           value={searchTerm}
-          onChange={createAlphanumericChangeHandler((e) => onSearchChange(e.target.value))}
+          onChange={createSearchChangeHandler((e) => onSearchChange(e.target.value))}
           ref={(input) => {
             if (input) {
               input.searchInputRef = input;
