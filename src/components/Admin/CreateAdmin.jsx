@@ -2,15 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { TextInput } from "../forms/FormElements";
-import { API_CONFIG } from "../../config/appConfig";
-import axios from "axios";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import { toastController } from "../../utils/toastController";
 import { useAdmins } from "../../lib/react-query/hooks/useAdmins";
-
-const { BASE_URL, API_VERSION } = API_CONFIG;
+import { validationPatterns } from "../../utils/validationPatterns";
 
 function CreateAdmin() {
   const navigate = useNavigate();
@@ -20,14 +17,15 @@ function CreateAdmin() {
     name: "",
     mobile: "",
     email: "",
+    pin: "",
     password: "",
-    role: "admin"
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
     email: true,
     mobile: true,
     mobileMessage: '',
+    pin: true,
     password: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
@@ -111,6 +109,15 @@ function CreateAdmin() {
         [name]: alphaOnly
       }));
       return;
+    } else if (name === 'pin') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 4);
+      const isValid = validationPatterns.ownerLoginPin.pattern.test(numbersOnly);
+      setAdminData(prev => ({ ...prev, pin: numbersOnly }));
+      setValidationStates(prev => ({
+        ...prev,
+        pin: isValid,
+      }));
+      return;
     } else {
       setAdminData(prev => ({
         ...prev,
@@ -131,10 +138,12 @@ function CreateAdmin() {
       adminData.name?.trim() &&
       adminData.mobile?.trim() &&
       adminData.email?.trim() &&
+      adminData.pin?.trim() &&
       adminData.password?.trim() &&
       validationStates.name &&
       validationStates.mobile &&
       validationStates.email &&
+      validationStates.pin &&
       validationStates.password
     );
   };
@@ -149,9 +158,19 @@ function CreateAdmin() {
       return;
     }
     try {
-      createAdmin(adminData, {
+      const payload = {
+        name: adminData.name.trim(),
+        mobile: adminData.mobile.trim(),
+        email: adminData.email.trim(),
+        pin: adminData.pin,
+        password: adminData.password,
+      };
+
+      createAdmin(payload, {
         onSuccess: (data) => {
-          toastController.success("Admin created successfully");
+          toastController.success(
+            data?.detail || "Admin created successfully"
+          );
           navigate("/admins");
         },
         onError: (err) => {
@@ -267,6 +286,36 @@ function CreateAdmin() {
                   <p className="text-error-500 text-sm mt-1">{emailApiError}</p>
                 )}
               </div>
+
+              <TextInput
+                label="PIN"
+                name="pin"
+                type="password"
+                value={adminData.pin}
+                onChange={handleChange}
+                placeholder="4-digit PIN"
+                required
+                maxLength={4}
+                autoComplete="new-password"
+                inputMode="numeric"
+                onValidation={handleValidation("pin")}
+                isSubmitAttempted={isSubmitAttempted}
+                className="rounded-lg"
+                customValidator={(val) => {
+                  if (!val?.trim()) {
+                    return { isValid: false, message: "PIN is required" };
+                  }
+                  const isValid = validationPatterns.ownerLoginPin.pattern.test(
+                    val.trim()
+                  );
+                  return {
+                    isValid,
+                    message: isValid
+                      ? ""
+                      : validationPatterns.ownerLoginPin.message,
+                  };
+                }}
+              />
 
               <TextInput
                 label="Password"
