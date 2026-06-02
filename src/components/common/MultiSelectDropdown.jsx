@@ -1,7 +1,7 @@
 // src/components/common/MultiSelectDropdown.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { createAlphanumericChangeHandler } from "../../utils/inputValidation";
+import { createSearchChangeHandler } from "../../utils/inputValidation";
 import './MultiSelectDropdown.css';
 
 const MultiSelectDropdown = ({
@@ -126,7 +126,7 @@ const MultiSelectDropdown = ({
                 className="w-full px-3 py-2 pr-8 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                 placeholder={searchPlaceholder}
                 value={searchTerm}
-                onChange={createAlphanumericChangeHandler((e) => setSearchTerm(e.target.value))}
+                onChange={createSearchChangeHandler((e) => setSearchTerm(e.target.value))}
                 onClick={(e) => e.stopPropagation()}
                 autoFocus
               />

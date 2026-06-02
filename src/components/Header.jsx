@@ -72,9 +72,9 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
       globalThis.process?.env?.VITE_API_BASE_URL) ||
     (typeof import.meta !== "undefined" &&
       import.meta.env?.VITE_API_BASE_URL);
-  // Treat menu4.xyz /v2.2 API as production, regardless of frontend hostname
+  // Treat menu4.xyz /v2.3 API as production, regardless of frontend hostname
   const isUsingProductionApi =
-    typeof BASE_URL === "string" && BASE_URL.includes("/v2.2");
+    typeof BASE_URL === "string" && BASE_URL.includes("/v2.3");
 
   // Show testing banner only when NOT on a production domain,
   // API env is not configured, and not using the production API

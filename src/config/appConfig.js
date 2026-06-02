@@ -12,7 +12,7 @@ const getApiBaseUrl = () => {
   }
 
   // Default fallback for local development (production API)
-  return "https://menu4.xyz/v2.2";
+  return "https://menu4.xyz/v2.3";
 
 };
 
@@ -30,9 +30,31 @@ const getCustomerAppUrl = () => {
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: getApiBaseUrl(), // Full URL including /v2
+  BASE_URL: getApiBaseUrl(), // Full URL including /v2.3
   CUSTOMER_APP_URL: getCustomerAppUrl(), // Customer app base URL
-  VERSION: "2.2.0",
+  VERSION: "2.3.0",
+  /** Login / verify_pin app type */
+  APP_TYPE: import.meta.env.VITE_APP_TYPE || "admin",
+  /**
+   * Reset PIN flow — use owner_app for send/verify/reset_user_pin APIs.
+   */
+  RESET_APP_TYPE: import.meta.env.VITE_RESET_APP_TYPE || "owner_app",
+  /** outlet_id for reset PIN APIs (send_reset_pin_otp, reset_user_pin) */
+  OUTLET_ID: import.meta.env.VITE_OUTLET_ID
+    ? parseInt(import.meta.env.VITE_OUTLET_ID, 10)
+    : 4,
+  /** OTP send endpoint (relative to BASE_URL) */
+  OTP_SEND_PATH: import.meta.env.VITE_OTP_SEND_PATH || "common/login",
+  /** OTP verify endpoint (legacy) */
+  OTP_VERIFY_PATH:
+    import.meta.env.VITE_OTP_VERIFY_PATH || "admin/admin_verify_otp",
+  /** PIN verify — POST /common/verify_pin */
+  PIN_VERIFY_PATH:
+    import.meta.env.VITE_PIN_VERIFY_PATH || "common/verify_pin",
+  /** Final reset step — POST /common/reset_user_pin */
+  RESET_USER_PIN_PATH:
+    import.meta.env.VITE_RESET_USER_PIN_PATH || "common/reset_user_pin",
+  PIN_LENGTH: 4,
 };
 
 // Protected Users Configuration

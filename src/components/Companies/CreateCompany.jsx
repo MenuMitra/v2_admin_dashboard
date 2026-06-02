@@ -52,6 +52,7 @@ function CreateCompany() {
         pan: "",
         email: "",
         address: "",
+        pin: "",
       },
     ],
   });
@@ -64,6 +65,7 @@ function CreateCompany() {
   const [ownerNameErrors, setOwnerNameErrors] = useState({});
   const [ownerMobileErrors, setOwnerMobileErrors] = useState({});
   const [ownerPanErrors, setOwnerPanErrors] = useState({});
+  const [ownerPinErrors, setOwnerPinErrors] = useState({});
   const [contactNumberErrors, setContactNumberErrors] = useState({});
   const [cityErrors, setCityErrors] = useState({});
   const [pinErrors, setPinErrors] = useState({});
@@ -261,6 +263,7 @@ function CreateCompany() {
           pan: "",
           email: "",
           address: "",
+          pin: "",
         },
       ],
     }));
@@ -272,6 +275,7 @@ function CreateCompany() {
         ...prev,
         company_owners: prev.company_owners.filter((_, i) => i !== index),
       }));
+      setOwnerPinErrors({});
     }
   };
 
@@ -466,6 +470,33 @@ function CreateCompany() {
       return;
     }
 
+    // Owner login PIN (4 digits, numeric only)
+    if (field === "pin") {
+      const filteredValue = value.replace(/\D/g, "").slice(0, 4);
+      const pinPattern = validationPatterns.ownerLoginPin.pattern;
+
+      if (filteredValue.length === 4 && !pinPattern.test(filteredValue)) {
+        setOwnerPinErrors((prev) => ({
+          ...prev,
+          [index]: validationPatterns.ownerLoginPin.message,
+        }));
+      } else {
+        setOwnerPinErrors((prev) => {
+          const next = { ...prev };
+          delete next[index];
+          return next;
+        });
+      }
+
+      setOwnerData((prev) => ({
+        ...prev,
+        company_owners: prev.company_owners.map((owner, i) =>
+          i === index ? { ...owner, pin: filteredValue } : owner
+        ),
+      }));
+      return;
+    }
+
     setOwnerData((prev) => ({
       ...prev,
       company_owners: prev.company_owners.map((owner, i) =>
@@ -624,6 +655,7 @@ function CreateCompany() {
     }
 
     // At least one owner with all required fields
+    const ownerPinPattern = validationPatterns.ownerLoginPin.pattern;
     const ownersValid = ownerData.company_owners.every(
       (o) =>
         o.name?.trim() &&
@@ -632,7 +664,9 @@ function CreateCompany() {
         o.aadhar.trim().length === 12 &&
         o.pan?.trim() &&
         o.email?.trim() &&
-        o.address?.trim()
+        o.address?.trim() &&
+        o.pin?.trim() &&
+        ownerPinPattern.test(o.pin.trim())
     );
     if (ownerData.company_owners.length === 0) {
       return false;
@@ -649,6 +683,7 @@ function CreateCompany() {
       Object.keys(ownerNameErrors).length > 0 ||
       Object.keys(ownerMobileErrors).length > 0 ||
       Object.keys(ownerPanErrors).length > 0 ||
+      Object.keys(ownerPinErrors).length > 0 ||
       Object.keys(contactNumberErrors).length > 0 ||
       Object.keys(cityErrors).length > 0 ||
       Object.keys(pinErrors).length > 0
@@ -688,9 +723,11 @@ function CreateCompany() {
           pan: "",
           email: "",
           address: "",
+          pin: "",
         },
       ],
     });
+    setOwnerPinErrors({});
   };
 
   const handleSubmit = async (e, stayOnPage = false) => {
@@ -738,10 +775,9 @@ function CreateCompany() {
           pan: owner.pan,
           email: owner.email,
           address: owner.address,
+          pin: owner.pin,
         })),
       };
-
-      console.log('Create company payload:', JSON.stringify(payload, null, 2));
 
       await toastController.promise(
         axios.post(`${BASE_URL}/admin/create_company`, payload, {
@@ -1306,6 +1342,42 @@ function CreateCompany() {
                       }
                       placeholder="Enter complete address"
                       required
+                    />
+
+                    <TextInput
+                      label="Owner PIN"
+                      name={`owner_login_pin_${index}`}
+                      type="password"
+                      value={owner.pin}
+                      onChange={(e) =>
+                        updateOwner(index, "pin", e.target.value)
+                      }
+                      placeholder="4-digit login PIN"
+                      required
+                      maxLength={4}
+                      autoComplete="new-password"
+                      inputMode="numeric"
+                      error={!!ownerPinErrors[index]}
+                      errorMessage={ownerPinErrors[index]}
+                      isSubmitAttempted={isSubmitAttempted}
+                      customValidator={(val) => {
+                        if (!val?.trim()) {
+                          return {
+                            isValid: false,
+                            message: "Owner PIN is required",
+                          };
+                        }
+                        const isValid =
+                          validationPatterns.ownerLoginPin.pattern.test(
+                            val.trim()
+                          );
+                        return {
+                          isValid,
+                          message: isValid
+                            ? ""
+                            : validationPatterns.ownerLoginPin.message,
+                        };
+                      }}
                     />
                   </div>
                 </div>

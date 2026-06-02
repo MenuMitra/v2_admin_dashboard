@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CustomSelect from "./CustomSelect";
-import { createAlphanumericChangeHandler } from "../../utils/inputValidation";
+import { createSearchChangeHandler } from "../../utils/inputValidation";
 import {
   faSort,
   faSortUp,
@@ -145,6 +145,9 @@ function DataTable({
   onExecutionTimeFilterChange = () => { },
   forceTopControls = false,
   getRowId = defaultGetRowId,
+  initialPage = 1,
+  onPageChange,
+  onSortChange,
 }) {
   // Add data validation at the start of the component
   const safeData = Array.isArray(data) ? data : [];
@@ -177,7 +180,9 @@ function DataTable({
   );
   const [sortOrder, setSortOrder] = useState(defaultSortOrder || "desc");
   const [sortCount, setSortCount] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(
+    Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1
+  );
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
@@ -189,11 +194,16 @@ function DataTable({
     Make sure we're on a valid page after every filter / data change
     ------------------------------------------------------------ */
   useEffect(() => {
-    // Go back to page-1 whenever the search term changes
-    // or the number of items changes (avoid resetting when parent
-    // passes a new array reference with same contents).
+    // When search term changes, always reset to first page
     setCurrentPage(1);
-  }, [searchTerm, safeData.length]);
+  }, [searchTerm]);
+
+  // Keep internal page in sync when parent changes initialPage (e.g. via URL)
+  useEffect(() => {
+    const next =
+      Number.isFinite(initialPage) && initialPage > 0 ? initialPage : 1;
+    setCurrentPage(next);
+  }, [initialPage]);
 
   // Sync internal itemsPerPage with prop changes
   useEffect(() => {
@@ -228,29 +238,41 @@ function DataTable({
   const handleSort = (field) => {
     if (!enableSort) return;
 
+    let nextField = sortField;
+    let nextOrder = sortOrder;
+    let nextCount = sortCount;
+
     if (sortField === field) {
       if (sortCount === 0) {
-        setSortOrder("asc");
-        setSortCount(1);
+        nextOrder = "asc";
+        nextCount = 1;
       } else if (sortCount === 1) {
-        setSortOrder("desc");
-        setSortCount(2);
+        nextOrder = "desc";
+        nextCount = 2;
       } else {
         // Reset to created_at/desc if available, otherwise clear sort
         if (hasCreatedAt) {
-          setSortField("created_at");
-          setSortOrder("desc");
-          setSortCount(0);
+          nextField = "created_at";
+          nextOrder = "desc";
+          nextCount = 0;
         } else {
-          setSortField(null);
-          setSortOrder("asc");
-          setSortCount(0);
+          nextField = null;
+          nextOrder = "asc";
+          nextCount = 0;
         }
       }
     } else {
-      setSortField(field);
-      setSortOrder("asc");
-      setSortCount(1);
+      nextField = field;
+      nextOrder = "asc";
+      nextCount = 1;
+    }
+
+    setSortField(nextField);
+    setSortOrder(nextOrder);
+    setSortCount(nextCount);
+
+    if (onSortChange) {
+      onSortChange(nextField, nextOrder);
     }
   };
 
@@ -432,6 +454,9 @@ function DataTable({
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    if (onPageChange) {
+      onPageChange(pageNumber);
+    }
     // Prevent auto-scroll to bottom by scrolling table into view smoothly
     if (tableContainerRef.current) {
       tableContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -680,6 +705,25 @@ function DataTable({
     next: () => currentPage === totalPages,
   };
 
+  // Ensure current page is always within valid bounds when data or page size changes
+  useEffect(() => {
+    if (totalPages === 0) {
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+        if (onPageChange) onPageChange(1);
+      }
+      return;
+    }
+
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+      if (onPageChange) onPageChange(totalPages);
+    } else if (currentPage < 1) {
+      setCurrentPage(1);
+      if (onPageChange) onPageChange(1);
+    }
+  }, [totalPages]);
+
   // Add this helper function
   const isAllCurrentItemsSelected = () => {
     const selectableItems = currentItems.filter((item) =>
@@ -803,7 +847,7 @@ function DataTable({
           className="sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
           type="text"
           value={searchTerm}
-          onChange={createAlphanumericChangeHandler((e) => onSearchChange(e.target.value))}
+          onChange={createSearchChangeHandler((e) => onSearchChange(e.target.value))}
           ref={(input) => {
             if (input) {
               input.searchInputRef = input;

@@ -18,7 +18,7 @@ import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import CustomSelect from "../common/CustomSelect";
 import { SelectInput, TextInput } from "../forms/FormElements";
-import { createAlphanumericValueSetter } from "../../utils/inputValidation";
+import { sanitizeSearchInput } from "../../utils/inputValidation";
 import { useNavigate } from "react-router-dom";
 import { toastController } from "../../utils/toastController";
 import { API_CONFIG } from "../../config/appConfig";
@@ -130,15 +130,9 @@ const Search = () => {
       val = limitedNumbers;
     }
     
-    // Name search validation - allow only characters and spaces
-    if (searchType === "name") {
-      // Allow only letters (a-z, A-Z) and spaces
-      val = val.replace(/[^a-zA-Z\s]/g, "");
-    }
-    
-    // For all other search types, allow only alphanumeric characters
-    else if (searchType !== "mobile") {
-      val = val.replace(/[^a-zA-Z0-9]/g, "");
+    // Text search — allow letters, numbers, and spaces
+    if (searchType !== "mobile") {
+      val = sanitizeSearchInput(val);
     }
     
     setSearchInput(val);

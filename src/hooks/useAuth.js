@@ -50,40 +50,53 @@ export const useAuth = () => {
   }, [authData]);
 
   const login = (response) => {
+    const data = response.data ?? response;
+    const accessToken = data.token || data.access_token || null;
     const newAuthData = {
-      access_token: response.data.access_token,
-      token_type: response.data.token_type,
-      expires_on: response.data.expires_at || response.data.expires_on, // Handle both field names
-      user_id: response.data.user_id, // Store user_id for dynamic usage
+      access_token: accessToken,
+      role: data.role || null,
+      mobile: data.mobile ?? data.user?.mobile ?? null,
+      refresh_token: data.refresh_token || null,
+      token_type: data.token_type || 'Bearer',
+      expires_on: data.expires_at || data.expires_on || null,
+      user_id: data.user?.id ?? data.user_id ?? null,
     };
     setAuthData(newAuthData);
   };
 
   const isAuthenticated = useCallback(() => {
-    if (!authData || !authData.access_token) {
+    if (!authData) {
       return false;
     }
-    
-    // If expires_on is not available, consider token valid (for backward compatibility)
+
+    // PIN login may return role only (no JWT in body)
+    if (authData.role && !authData.access_token) {
+      return true;
+    }
+
+    if (!authData.access_token) {
+      return false;
+    }
+
     if (!authData.expires_on) {
       return true;
     }
-    
+
     try {
-      // Parse the date string (format: "10 Sep 2025")
       const expirationDate = new Date(authData.expires_on);
       const currentDate = new Date();
-      
-      // Check if the date is valid and not expired
       return !isNaN(expirationDate.getTime()) && expirationDate > currentDate;
-    } catch (error) {
-      
+    } catch {
       return false;
     }
   }, [authData]);
 
   const getToken = useCallback(() => {
-    return authData ? `Bearer ${authData.access_token}` : null;
+    if (!authData?.access_token) {
+      return null;
+    }
+    const token = authData.access_token;
+    return token.startsWith('Bearer ') ? token : `Bearer ${token}`;
   }, [authData]);
 
   const getUserId = useCallback(() => {
