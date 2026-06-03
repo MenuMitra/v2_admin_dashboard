@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import { toastController } from "../../utils/toastController";
 import { useAdmins } from "../../lib/react-query/hooks/useAdmins";
-import { validationPatterns } from "../../utils/validationPatterns";
+import { validatePin } from "../../utils/validationPatterns";
 
 function CreateAdmin() {
   const navigate = useNavigate();
@@ -18,18 +18,16 @@ function CreateAdmin() {
     mobile: "",
     email: "",
     pin: "",
-    password: "",
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
     email: true,
     mobile: true,
     mobileMessage: '',
-    pin: true,
-    password: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const [emailApiError, setEmailApiError] = useState("");
+  const [pinError, setPinError] = useState("");
 
   // Breadcrumb configuration
   const breadcrumbItems = [
@@ -111,18 +109,9 @@ function CreateAdmin() {
       return;
     } else if (name === 'pin') {
       const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 4);
-      const isValid = validationPatterns.ownerLoginPin.pattern.test(numbersOnly);
       setAdminData(prev => ({ ...prev, pin: numbersOnly }));
-      setValidationStates(prev => ({
-        ...prev,
-        pin: isValid,
-      }));
+      if (pinError) setPinError('');
       return;
-    } else {
-      setAdminData(prev => ({
-        ...prev,
-        [name]: value
-      }));
     }
   };
 
@@ -138,13 +127,9 @@ function CreateAdmin() {
       adminData.name?.trim() &&
       adminData.mobile?.trim() &&
       adminData.email?.trim() &&
-      adminData.pin?.trim() &&
-      adminData.password?.trim() &&
       validationStates.name &&
       validationStates.mobile &&
-      validationStates.email &&
-      validationStates.pin &&
-      validationStates.password
+      validationStates.email
     );
   };
 
@@ -152,6 +137,14 @@ function CreateAdmin() {
     e.preventDefault();
     setIsSubmitAttempted(true);
     setEmailApiError("");
+    setPinError("");
+
+    const pinValidation = validatePin(adminData.pin, { required: true });
+    if (!pinValidation.isValid) {
+      setPinError(pinValidation.message);
+      toastController.error(pinValidation.message);
+      return;
+    }
 
     if (!isFormValid()) {
       toastController.error("Please fill all required fields correctly");
@@ -163,7 +156,6 @@ function CreateAdmin() {
         mobile: adminData.mobile.trim(),
         email: adminData.email.trim(),
         pin: adminData.pin,
-        password: adminData.password,
       };
 
       createAdmin(payload, {
@@ -298,36 +290,10 @@ function CreateAdmin() {
                 maxLength={4}
                 autoComplete="new-password"
                 inputMode="numeric"
-                onValidation={handleValidation("pin")}
+                validateOnChange={false}
                 isSubmitAttempted={isSubmitAttempted}
-                className="rounded-lg"
-                customValidator={(val) => {
-                  if (!val?.trim()) {
-                    return { isValid: false, message: "PIN is required" };
-                  }
-                  const isValid = validationPatterns.ownerLoginPin.pattern.test(
-                    val.trim()
-                  );
-                  return {
-                    isValid,
-                    message: isValid
-                      ? ""
-                      : validationPatterns.ownerLoginPin.message,
-                  };
-                }}
-              />
-
-              <TextInput
-                label="Password"
-                name="password"
-                type="password"
-                value={adminData.password}
-                onChange={handleChange}
-                placeholder="Enter password"
-                required
-                validationType="password"
-                onValidation={handleValidation("password")}
-                isSubmitAttempted={isSubmitAttempted}
+                error={!!pinError}
+                errorMessage={pinError}
                 className="rounded-lg"
               />
             </div>

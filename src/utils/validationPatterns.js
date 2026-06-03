@@ -28,9 +28,30 @@ export const validationPatterns = {
   /** Owner login PIN (4 digits) */
   ownerLoginPin: {
     pattern: /^[0-9]{4}$/,
-    message: "PIN must be exactly 4 digits",
+    message: "PIN must be 4 digits",
   },
   // Add more patterns as needed
+};
+
+/**
+ * Validates PIN for create/update flows.
+ * Empty PIN is valid when optional (update); required on create.
+ */
+export const validatePin = (value, { required = false } = {}) => {
+  const trimmed = (value ?? "").trim();
+
+  if (!trimmed) {
+    if (required) {
+      return { isValid: false, message: "Please enter PIN" };
+    }
+    return { isValid: true, message: "" };
+  }
+
+  if (trimmed.length < 4) {
+    return { isValid: false, message: "PIN must be 4 digits" };
+  }
+
+  return { isValid: true, message: "" };
 };
 
 // Validation helper function

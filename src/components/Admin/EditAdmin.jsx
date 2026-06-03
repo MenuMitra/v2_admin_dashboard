@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSave, faChevronLeft as faBack, faCheck } from '@fortawesome/free-solid-svg-icons';
 import SaveButton from '../common/SaveButton';
 import { toastController } from '../../utils/toastController';
+import { validatePin } from '../../utils/validationPatterns';
 import { API_CONFIG } from '../../config/appConfig';
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -28,6 +29,7 @@ function EditAdmin() {
     name: '',
     mobile: '',
     email: '',
+    pin: '',
     is_active: true,
     role: 'admin'
   });
@@ -40,6 +42,7 @@ function EditAdmin() {
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const [emailApiError, setEmailApiError] = useState('');
+  const [pinError, setPinError] = useState('');
 
   // Status options for the select input
   const statusOptions = [
@@ -64,7 +67,8 @@ function EditAdmin() {
         email: admin.email,
         is_active: admin.is_active,
         role: "admin",
-        app_source: "admin",
+        app_source: "admin_app",
+        pin: '',
       });
     }
   }, [admin]);
@@ -162,6 +166,12 @@ function EditAdmin() {
       }));
       return;
     }
+    else if (name === 'pin') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 4);
+      setAdminDetails(prev => ({ ...prev, pin: numbersOnly }));
+      if (pinError) setPinError('');
+      return;
+    }
     else {
       setAdminDetails(prev => ({
         ...prev,
@@ -193,6 +203,14 @@ function EditAdmin() {
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setIsSubmitAttempted(true);
+    setPinError('');
+
+    const pinValidation = validatePin(adminDetails.pin, { required: false });
+    if (!pinValidation.isValid) {
+      setPinError(pinValidation.message);
+      toastController.error(pinValidation.message);
+      return;
+    }
 
     if (!isFormValid()) {
       toastController.error("Please fill all required fields correctly");
@@ -209,17 +227,24 @@ function EditAdmin() {
 
       await toastController.promise(
         new Promise((resolve, reject) => {
+          const payload = {
+            user_id: adminData.user_id,
+            admin_id: parseInt(adminId),
+            name: adminDetails.name,
+            email: adminDetails.email,
+            mobile: adminDetails.mobile,
+            is_active: adminDetails.is_active ? 1 : 0,
+            role: adminDetails.role,
+            app_source: "admin_app",
+          };
+
+          const trimmedPin = adminDetails.pin?.trim();
+          if (trimmedPin) {
+            payload.pin = trimmedPin;
+          }
+
           updateAdmin(
-            {
-              user_id: adminData.user_id,
-              admin_id: parseInt(adminId),
-              name: adminDetails.name,
-              email: adminDetails.email,
-              mobile: adminDetails.mobile,
-              is_active: adminDetails.is_active ? 1 : 0,
-              role: adminDetails.role,
-              app_source: "admin"
-            },
+            payload,
             {
               onSuccess: (data) => {
                 resolve(data);
@@ -367,6 +392,23 @@ function EditAdmin() {
                 required
                 options={statusOptions}
                 placeholder="Select Status"
+              />
+
+              <TextInput
+                label="PIN"
+                name="pin"
+                type="password"
+                value={adminDetails.pin}
+                onChange={handleChange}
+                placeholder="Leave blank to keep current PIN"
+                maxLength={4}
+                autoComplete="new-password"
+                inputMode="numeric"
+                validateOnChange={false}
+                isSubmitAttempted={isSubmitAttempted}
+                error={!!pinError}
+                errorMessage={pinError}
+                className="rounded-lg"
               />
             </div>
           </form>

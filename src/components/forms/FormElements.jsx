@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePickerInput from "../common/DatePickerInput";
 import TimePickerInput from "../common/TimePickerInput";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -46,31 +46,35 @@ const TextInput = React.forwardRef(
       onFocus,
       errorMessage = "",
       error: errorProp = false,
+      validateOnChange = true,
       ...props
     },
     ref
   ) => {
     const [localError, setLocalError] = useState("");
+    const [hasBlurred, setHasBlurred] = useState(false);
 
     const showError =
-      (required && isSubmitAttempted && !value) || localError || errorProp;
+      (required && isSubmitAttempted && !value) ||
+      ((validateOnChange || isSubmitAttempted || hasBlurred) && localError) ||
+      errorProp;
 
-    const validateInput = (value) => {
+    const runValidation = (val) => {
       // Skip validation if field is not required and empty
-      if (!required && !value) {
+      if (!required && !val) {
         setLocalError("");
         return true;
       }
 
       // Required field validation
-      if (required && !value) {
+      if (required && !val) {
         setLocalError("This field is required");
         return false;
       }
 
       // Custom validator function takes precedence
       if (customValidator) {
-        const { isValid, message } = customValidator(value);
+        const { isValid, message } = customValidator(val);
         setLocalError(message);
         return isValid;
       }
@@ -80,17 +84,17 @@ const TextInput = React.forwardRef(
         const { minLength, maxLength, pattern, patternMessage } =
           validationRules;
 
-        if (minLength && value.length < minLength) {
+        if (minLength && val.length < minLength) {
           setLocalError(`Minimum ${minLength} characters required`);
           return false;
         }
 
-        if (maxLength && value.length > maxLength) {
+        if (maxLength && val.length > maxLength) {
           setLocalError(`Maximum ${maxLength} characters allowed`);
           return false;
         }
 
-        if (pattern && !pattern.test(value)) {
+        if (pattern && !pattern.test(val)) {
           setLocalError(patternMessage || "Invalid format");
           return false;
         }
@@ -100,11 +104,31 @@ const TextInput = React.forwardRef(
       return true;
     };
 
+    useEffect(() => {
+      if (isSubmitAttempted && !validateOnChange) {
+        runValidation(value);
+      }
+    }, [isSubmitAttempted]);
+
     const handleChange = (e) => {
       const newValue = e.target.value;
-      const isValid = validateInput(newValue);
-      onValidation(isValid);
+      if (validateOnChange) {
+        const isValid = runValidation(newValue);
+        onValidation(isValid);
+      } else if (localError) {
+        setLocalError("");
+        onValidation(true);
+      }
       onChange?.(e);
+    };
+
+    const handleBlur = (e) => {
+      setHasBlurred(true);
+      if (!validateOnChange) {
+        const isValid = runValidation(e.target.value);
+        onValidation(isValid);
+      }
+      props.onBlur?.(e);
     };
 
     return (
@@ -118,6 +142,7 @@ const TextInput = React.forwardRef(
           placeholder={placeholder}
           value={value}
           onChange={handleChange}
+          onBlur={handleBlur}
           onFocus={onFocus}
           required={required}
           className={`
@@ -129,9 +154,9 @@ const TextInput = React.forwardRef(
         `}
           {...props}
         />
-        {(localError || (errorProp && errorMessage)) && (
+        {(showError && (localError || errorMessage)) && (
           <p className="mt-1 text-sm text-error-500">
-            {localError || (errorProp ? errorMessage : "")}
+            {localError || errorMessage}
           </p>
         )}
       </div>
