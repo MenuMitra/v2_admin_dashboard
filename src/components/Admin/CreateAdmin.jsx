@@ -2,15 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { TextInput } from "../forms/FormElements";
-import { API_CONFIG } from "../../config/appConfig";
-import axios from "axios";
 import Breadcrumb from "../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import { toastController } from "../../utils/toastController";
 import { useAdmins } from "../../lib/react-query/hooks/useAdmins";
-
-const { BASE_URL, API_VERSION } = API_CONFIG;
+import { validatePin } from "../../utils/validationPatterns";
 
 function CreateAdmin() {
   const navigate = useNavigate();
@@ -20,18 +17,17 @@ function CreateAdmin() {
     name: "",
     mobile: "",
     email: "",
-    password: "",
-    role: "admin"
+    pin: "",
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
     email: true,
     mobile: true,
     mobileMessage: '',
-    password: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const [emailApiError, setEmailApiError] = useState("");
+  const [pinError, setPinError] = useState("");
 
   // Breadcrumb configuration
   const breadcrumbItems = [
@@ -111,11 +107,11 @@ function CreateAdmin() {
         [name]: alphaOnly
       }));
       return;
-    } else {
-      setAdminData(prev => ({
-        ...prev,
-        [name]: value
-      }));
+    } else if (name === 'pin') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 4);
+      setAdminData(prev => ({ ...prev, pin: numbersOnly }));
+      if (pinError) setPinError('');
+      return;
     }
   };
 
@@ -131,11 +127,9 @@ function CreateAdmin() {
       adminData.name?.trim() &&
       adminData.mobile?.trim() &&
       adminData.email?.trim() &&
-      adminData.password?.trim() &&
       validationStates.name &&
       validationStates.mobile &&
-      validationStates.email &&
-      validationStates.password
+      validationStates.email
     );
   };
 
@@ -143,15 +137,32 @@ function CreateAdmin() {
     e.preventDefault();
     setIsSubmitAttempted(true);
     setEmailApiError("");
+    setPinError("");
+
+    const pinValidation = validatePin(adminData.pin, { required: true });
+    if (!pinValidation.isValid) {
+      setPinError(pinValidation.message);
+      toastController.error(pinValidation.message);
+      return;
+    }
 
     if (!isFormValid()) {
       toastController.error("Please fill all required fields correctly");
       return;
     }
     try {
-      createAdmin(adminData, {
+      const payload = {
+        name: adminData.name.trim(),
+        mobile: adminData.mobile.trim(),
+        email: adminData.email.trim(),
+        pin: adminData.pin,
+      };
+
+      createAdmin(payload, {
         onSuccess: (data) => {
-          toastController.success("Admin created successfully");
+          toastController.success(
+            data?.detail || "Admin created successfully"
+          );
           navigate("/admins");
         },
         onError: (err) => {
@@ -269,16 +280,20 @@ function CreateAdmin() {
               </div>
 
               <TextInput
-                label="Password"
-                name="password"
+                label="PIN"
+                name="pin"
                 type="password"
-                value={adminData.password}
+                value={adminData.pin}
                 onChange={handleChange}
-                placeholder="Enter password"
+                placeholder="4-digit PIN"
                 required
-                validationType="password"
-                onValidation={handleValidation("password")}
+                maxLength={4}
+                autoComplete="new-password"
+                inputMode="numeric"
+                validateOnChange={false}
                 isSubmitAttempted={isSubmitAttempted}
+                error={!!pinError}
+                errorMessage={pinError}
                 className="rounded-lg"
               />
             </div>
