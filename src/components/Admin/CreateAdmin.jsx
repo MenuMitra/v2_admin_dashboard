@@ -17,13 +17,17 @@ function CreateAdmin() {
     name: "",
     mobile: "",
     email: "",
+    password: "",
     pin: "",
+    role: "admin"
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
     email: true,
     mobile: true,
     mobileMessage: '',
+    password: true,
+    pin: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const [emailApiError, setEmailApiError] = useState("");
@@ -88,6 +92,14 @@ function CreateAdmin() {
         [name]: value
       }));
       return;
+    } else if (name === "pin") {
+      const digitsOnly = value.replace(/[^0-9]/g, "").slice(0, 4);
+      setAdminData((prev) => ({ ...prev, pin: digitsOnly }));
+      setValidationStates((prev) => ({
+        ...prev,
+        pin: digitsOnly.length === 4,
+      }));
+      return;
     } else if (name === 'name') {
       // Only allow alphabets and spaces
       const alphaOnly = value.replace(/[^A-Za-z ]/g, '');
@@ -127,9 +139,13 @@ function CreateAdmin() {
       adminData.name?.trim() &&
       adminData.mobile?.trim() &&
       adminData.email?.trim() &&
+      adminData.password?.trim() &&
+      adminData.pin?.trim() &&
       validationStates.name &&
       validationStates.mobile &&
-      validationStates.email
+      validationStates.email &&
+      validationStates.password &&
+      validationStates.pin
     );
   };
 
@@ -280,20 +296,36 @@ function CreateAdmin() {
               </div>
 
               <TextInput
+                label="Password"
+                name="password"
+                type="password"
+                value={adminData.pin}
+                onChange={handleChange}
+                placeholder="Enter password"
+                required
+                validationType="password"
+                onValidation={handleValidation("password")}
+                isSubmitAttempted={isSubmitAttempted}
+                className="rounded-lg"
+              />
+
+              <TextInput
                 label="PIN"
                 name="pin"
                 type="password"
                 value={adminData.pin}
                 onChange={handleChange}
-                placeholder="4-digit PIN"
+                placeholder="Enter 4-digit PIN"
                 required
-                maxLength={4}
-                autoComplete="new-password"
                 inputMode="numeric"
-                validateOnChange={false}
+                autoComplete="new-password"
+                maxLength={4}
+                customValidator={(v) => ({
+                  isValid: /^\d{4}$/.test(v),
+                  message: "PIN must be exactly 4 digits",
+                })}
+                onValidation={handleValidation("pin")}
                 isSubmitAttempted={isSubmitAttempted}
-                error={!!pinError}
-                errorMessage={pinError}
                 className="rounded-lg"
               />
             </div>

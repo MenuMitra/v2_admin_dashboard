@@ -38,6 +38,7 @@ function EditAdmin() {
     email: true,
     mobile: true,
     mobileMessage: '',
+    pin: true,
     is_active: true
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
@@ -65,6 +66,7 @@ function EditAdmin() {
         name: admin.name,
         mobile: admin.mobile,
         email: admin.email,
+        pin: '',
         is_active: admin.is_active,
         role: "admin",
         app_source: "admin_app",
@@ -124,6 +126,15 @@ function EditAdmin() {
       setAdminDetails(prev => ({
         ...prev,
         [name]: value
+      }));
+      return;
+    }
+    else if (name === "pin") {
+      const digitsOnly = value.replace(/[^0-9]/g, "").slice(0, 4);
+      setAdminDetails((prev) => ({ ...prev, pin: digitsOnly }));
+      setValidationStates((prev) => ({
+        ...prev,
+        pin: digitsOnly.length === 0 ? true : digitsOnly.length === 4,
       }));
       return;
     }
@@ -192,6 +203,7 @@ function EditAdmin() {
       adminDetails.name?.trim() &&
       adminDetails.mobile?.trim() &&
       adminDetails.email?.trim() &&
+      (adminDetails.pin?.trim() ? validationStates.pin : true) &&
       adminDetails.is_active !== undefined &&
       validationStates.name &&
       validationStates.mobile &&
@@ -227,24 +239,18 @@ function EditAdmin() {
 
       await toastController.promise(
         new Promise((resolve, reject) => {
-          const payload = {
-            user_id: adminData.user_id,
-            admin_id: parseInt(adminId),
-            name: adminDetails.name,
-            email: adminDetails.email,
-            mobile: adminDetails.mobile,
-            is_active: adminDetails.is_active ? 1 : 0,
-            role: adminDetails.role,
-            app_source: "admin_app",
-          };
-
-          const trimmedPin = adminDetails.pin?.trim();
-          if (trimmedPin) {
-            payload.pin = trimmedPin;
-          }
-
           updateAdmin(
-            payload,
+            {
+              user_id: adminData.user_id,
+              admin_id: parseInt(adminId),
+              name: adminDetails.name,
+              email: adminDetails.email,
+              mobile: adminDetails.mobile,
+              is_active: adminDetails.is_active ? 1 : 0,
+              role: adminDetails.role,
+              ...(adminDetails.pin?.trim() ? { pin: adminDetails.pin } : {}),
+              app_source: "admin"
+            },
             {
               onSuccess: (data) => {
                 resolve(data);
@@ -381,6 +387,25 @@ function EditAdmin() {
                   <p className="text-error-500 text-sm mt-1">{emailApiError}</p>
                 )}
               </div>
+
+              <TextInput
+                label="PIN"
+                name="pin"
+                type="password"
+                value={adminDetails.pin}
+                onChange={handleChange}
+                placeholder="Enter 4-digit PIN (optional)"
+                inputMode="numeric"
+                autoComplete="new-password"
+                maxLength={4}
+                customValidator={(v) => ({
+                  isValid: v ? /^\d{4}$/.test(v) : true,
+                  message: "PIN must be exactly 4 digits",
+                })}
+                onValidation={handleValidation("pin")}
+                isSubmitAttempted={isSubmitAttempted}
+                className="rounded-lg"
+              />
 
               <CustomDropdown
                 label="Status"
