@@ -4,18 +4,14 @@ import { useAuth } from '../../hooks/useAuth';
 import { useAdmin } from '../../hooks/useAdmin';
 import { useAdmins } from '../../lib/react-query/hooks/useAdmins';
 import { useAdminDetails } from '../../lib/react-query/hooks/useAdminDetails';
-import { TextInput, SelectInput } from '../forms/FormElements';
-import axios from 'axios';
+import { TextInput } from '../forms/FormElements';
 import CustomDropdown from '../common/CustomDropdown';
 import Breadcrumb from '../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSave, faChevronLeft as faBack, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
 import SaveButton from '../common/SaveButton';
 import { toastController } from '../../utils/toastController';
 import { validatePin } from '../../utils/validationPatterns';
-import { API_CONFIG } from '../../config/appConfig';
-
-const { BASE_URL, API_VERSION } = API_CONFIG;
 
 function EditAdmin() {
   const { adminId } = useParams();
@@ -31,7 +27,7 @@ function EditAdmin() {
     email: '',
     pin: '',
     is_active: true,
-    role: 'admin'
+    role: 'admin',
   });
   const [validationStates, setValidationStates] = useState({
     name: true,
@@ -39,23 +35,21 @@ function EditAdmin() {
     mobile: true,
     mobileMessage: '',
     pin: true,
-    is_active: true
+    is_active: true,
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const [emailApiError, setEmailApiError] = useState('');
   const [pinError, setPinError] = useState('');
 
-  // Status options for the select input
   const statusOptions = [
     { value: true, label: 'Active' },
-    { value: false, label: 'Inactive' }
+    { value: false, label: 'Inactive' },
   ];
 
-  // Breadcrumb configuration
   const breadcrumbItems = [
     { label: 'Home', path: '/home' },
     { label: 'Admins', path: '/admins' },
-    { label: 'Edit Admin', path: `/edit-admin/${adminId}` }
+    { label: 'Edit Admin', path: `/edit-admin/${adminId}` },
   ];
 
   const { admin, isLoading } = useAdminDetails(adminId);
@@ -68,9 +62,7 @@ function EditAdmin() {
         email: admin.email,
         pin: '',
         is_active: admin.is_active,
-        role: "admin",
-        app_source: "admin_app",
-        pin: '',
+        role: 'admin',
       });
     }
   }, [admin]);
@@ -99,94 +91,64 @@ function EditAdmin() {
       const firstDigit = numbersOnly.charAt(0);
 
       if (firstDigit && ['0', '1', '2', '3', '4', '5'].includes(firstDigit)) {
-        setValidationStates(prev => ({
+        setValidationStates((prev) => ({
           ...prev,
           mobile: false,
-          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9'
+          mobileMessage: 'Mobile number must start with 6, 7, 8, or 9',
         }));
         return;
       }
 
-      setAdminDetails(prev => ({ ...prev, [name]: numbersOnly }));
+      setAdminDetails((prev) => ({ ...prev, [name]: numbersOnly }));
       const { isValid, message } = isMobileValid(numbersOnly);
-      setValidationStates(prev => ({
+      setValidationStates((prev) => ({
         ...prev,
         mobile: isValid,
-        mobileMessage: message
+        mobileMessage: message,
       }));
-    }
-    else if (name === 'email') {
-      // Gmail validation
+    } else if (name === 'email') {
       const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
       if (value && !gmailPattern.test(value)) {
         setEmailApiError('Email format is incorrect');
       } else {
         setEmailApiError('');
       }
-      setAdminDetails(prev => ({
+      setAdminDetails((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
-      return;
-    }
-    else if (name === "pin") {
-      const digitsOnly = value.replace(/[^0-9]/g, "").slice(0, 4);
+    } else if (name === 'pin') {
+      const digitsOnly = value.replace(/[^0-9]/g, '').slice(0, 4);
       setAdminDetails((prev) => ({ ...prev, pin: digitsOnly }));
       setValidationStates((prev) => ({
         ...prev,
-        pin: digitsOnly.length === 0 ? true : digitsOnly.length === 4,
+        pin: digitsOnly.length === 0 || digitsOnly.length === 4,
       }));
-      return;
-    }
-    else if (name === 'is_active') {
-      // Handle both boolean and string values
-      const boolValue = value === true || value === 'true';
-      setAdminDetails(prev => ({
-        ...prev,
-        [name]: boolValue
-      }));
-      if (value === '' || value === null || value === undefined) {
-        setValidationStates(prev => ({
-          ...prev,
-          is_active: false
-        }));
-      } else {
-        setValidationStates(prev => ({
-          ...prev,
-          is_active: true
-        }));
-      }
-    }
-    else if (name === 'name') {
-      // Only allow alphabets and spaces
-      const alphaOnly = value.replace(/[^A-Za-z ]/g, '');
-      if (value !== alphaOnly) {
-        setValidationStates(prev => ({
-          ...prev,
-          name: false,
-        }));
-      } else {
-        setValidationStates(prev => ({
-          ...prev,
-          name: true,
-        }));
-      }
-      setAdminDetails(prev => ({
-        ...prev,
-        [name]: alphaOnly
-      }));
-      return;
-    }
-    else if (name === 'pin') {
-      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 4);
-      setAdminDetails(prev => ({ ...prev, pin: numbersOnly }));
       if (pinError) setPinError('');
-      return;
-    }
-    else {
-      setAdminDetails(prev => ({
+    } else if (name === 'is_active') {
+      const boolValue = value === true || value === 'true';
+      setAdminDetails((prev) => ({
         ...prev,
-        [name]: value
+        [name]: boolValue,
+      }));
+      setValidationStates((prev) => ({
+        ...prev,
+        is_active: value !== '' && value !== null && value !== undefined,
+      }));
+    } else if (name === 'name') {
+      const alphaOnly = value.replace(/[^A-Za-z ]/g, '');
+      setValidationStates((prev) => ({
+        ...prev,
+        name: value === alphaOnly,
+      }));
+      setAdminDetails((prev) => ({
+        ...prev,
+        [name]: alphaOnly,
+      }));
+    } else {
+      setAdminDetails((prev) => ({
+        ...prev,
+        [name]: value,
       }));
     }
   };
@@ -225,7 +187,7 @@ function EditAdmin() {
     }
 
     if (!isFormValid()) {
-      toastController.error("Please fill all required fields correctly");
+      toastController.error('Please fill all required fields correctly');
       return;
     }
 
@@ -242,14 +204,14 @@ function EditAdmin() {
           updateAdmin(
             {
               user_id: adminData.user_id,
-              admin_id: parseInt(adminId),
+              admin_id: parseInt(adminId, 10),
               name: adminDetails.name,
               email: adminDetails.email,
               mobile: adminDetails.mobile,
               is_active: adminDetails.is_active ? 1 : 0,
               role: adminDetails.role,
               ...(adminDetails.pin?.trim() ? { pin: adminDetails.pin } : {}),
-              app_source: "admin"
+              app_source: 'admin',
             },
             {
               onSuccess: (data) => {
@@ -257,30 +219,23 @@ function EditAdmin() {
               },
               onError: (error) => {
                 reject(error);
-              }
+              },
             }
           );
         }),
         {
-          loading: "Updating admin...",
-          success: "Admin updated successfully",
-          error: (err) => err.response?.data?.detail || "Failed to update admin"
+          loading: 'Updating admin...',
+          success: 'Admin updated successfully',
+          error: (err) => err.response?.data?.detail || 'Failed to update admin',
         }
       );
 
       navigate('/admins');
-    } catch (error) {
-
+    } catch {
+      // Errors surfaced via toastController.promise
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleFocus = (fieldName) => {
-    setValidationStates(prev => ({
-      ...prev,
-      [fieldName]: false
-    }));
   };
 
   if (isLoading) {
@@ -295,10 +250,8 @@ function EditAdmin() {
     <>
       <Breadcrumb items={breadcrumbItems} />
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] mt-4">
-        {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
-            {/* Back Button */}
             <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
@@ -307,25 +260,28 @@ function EditAdmin() {
               <span>Back</span>
             </button>
 
-            {/* Title */}
             <h1 className="text-xl font-semibold text-gray-800 dark:text-white/90">
               Edit Admin
             </h1>
 
-            {/* Save Button */}
             <SaveButton
               onClick={handleSubmit}
               disabled={isSubmitting || isUpdating || !isFormValid()}
               isLoading={isSubmitting || isUpdating}
             >
-              {isSubmitting || isUpdating ? "Saving..." : "Save"}
+              {isSubmitting || isUpdating ? 'Saving...' : 'Save'}
             </SaveButton>
           </div>
         </div>
 
-        {/* Form Content */}
         <div className="p-6">
-          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className="space-y-6"
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
               <div className="relative">
                 <TextInput
@@ -336,7 +292,7 @@ function EditAdmin() {
                   placeholder="Enter admin name"
                   required
                   validationType="name"
-                  onValidation={handleValidation("name")}
+                  onValidation={handleValidation('name')}
                   isSubmitAttempted={isSubmitAttempted}
                   className="rounded-lg"
                 />
@@ -357,6 +313,7 @@ function EditAdmin() {
                   placeholder="Enter mobile number"
                   required
                   maxLength={10}
+                  inputMode="numeric"
                   className={`
                     rounded-lg focus:border-brand-500 focus:ring-brand-500
                     ${!validationStates.mobile ? 'border-error-500' : 'border-gray-300'}
@@ -379,7 +336,7 @@ function EditAdmin() {
                   placeholder="Enter email address"
                   required
                   validationType="email"
-                  onValidation={handleValidation("email")}
+                  onValidation={handleValidation('email')}
                   isSubmitAttempted={isSubmitAttempted}
                   className="rounded-lg"
                 />
@@ -391,19 +348,17 @@ function EditAdmin() {
               <TextInput
                 label="PIN"
                 name="pin"
-                type="password"
+                type="tel"
                 value={adminDetails.pin}
                 onChange={handleChange}
-                placeholder="Enter 4-digit PIN (optional)"
+                placeholder="Leave blank to keep current PIN"
                 inputMode="numeric"
-                autoComplete="new-password"
+                pattern="[0-9]*"
                 maxLength={4}
-                customValidator={(v) => ({
-                  isValid: v ? /^\d{4}$/.test(v) : true,
-                  message: "PIN must be exactly 4 digits",
-                })}
-                onValidation={handleValidation("pin")}
+                validateOnChange={false}
                 isSubmitAttempted={isSubmitAttempted}
+                error={!!pinError}
+                errorMessage={pinError}
                 className="rounded-lg"
               />
 
@@ -417,23 +372,6 @@ function EditAdmin() {
                 required
                 options={statusOptions}
                 placeholder="Select Status"
-              />
-
-              <TextInput
-                label="PIN"
-                name="pin"
-                type="password"
-                value={adminDetails.pin}
-                onChange={handleChange}
-                placeholder="Leave blank to keep current PIN"
-                maxLength={4}
-                autoComplete="new-password"
-                inputMode="numeric"
-                validateOnChange={false}
-                isSubmitAttempted={isSubmitAttempted}
-                error={!!pinError}
-                errorMessage={pinError}
-                className="rounded-lg"
               />
             </div>
           </form>

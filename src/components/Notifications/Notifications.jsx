@@ -13,7 +13,7 @@ import { toastController } from "../../utils/toastController";
 const Notifications = () => {
   const navigate = useNavigate();
   const { getToken } = useAuth();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { BASE_URL } = API_CONFIG;
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(10);

@@ -74,7 +74,9 @@ const TextInput = React.forwardRef(
 
       // Custom validator function takes precedence
       if (customValidator) {
-        const { isValid, message } = customValidator(val);
+        const { isValid, message } = customValidator(val, {
+          isSubmitAttempted,
+        });
         setLocalError(message);
         return isValid;
       }
@@ -105,8 +107,9 @@ const TextInput = React.forwardRef(
     };
 
     useEffect(() => {
-      if (isSubmitAttempted && !validateOnChange) {
-        runValidation(value);
+      if (isSubmitAttempted) {
+        const isValid = runValidation(value);
+        onValidation(isValid);
       }
     }, [isSubmitAttempted]);
 
