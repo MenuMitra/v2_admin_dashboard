@@ -6,7 +6,7 @@ import { toastController } from "../utils/toastController";
 import { API_CONFIG } from "../config/appConfig";
 import { useAuth } from "../hooks/useAuth";
 import { useOtpTimer } from "../hooks/useOtpTimer";
-import { verifyPin } from "../services/authService";
+import { checkAdminMobile, verifyPin } from "../services/authService";
 import {
   sendResetPinOtp,
   verifyResetPinOtp,
@@ -75,13 +75,22 @@ function Auth() {
     setResetPinError("");
   };
 
-  const handleContinueMobile = (e) => {
+  const handleContinueMobile = async (e) => {
     e?.preventDefault();
     setError("");
-    if (!validateMobile()) return;
-    setStep(STEP.PIN);
-    setPin("");
-    setPinError("");
+    if (!validateMobile() || loading) return;
+
+    setLoading(true);
+    try {
+      await checkAdminMobile(mobile);
+      setStep(STEP.PIN);
+      setPin("");
+      setPinError("");
+    } catch (err) {
+      setError(err.message || "This mobile number is not registered.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBackToMobile = () => {
@@ -462,6 +471,7 @@ function Auth() {
                                 } else {
                                   setMobileError("");
                                   setMobile(value);
+                                  if (step === STEP.MOBILE) setError("");
                                 }
                               }}
                               placeholder="Enter your mobile number"

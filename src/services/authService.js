@@ -69,6 +69,11 @@ export async function sendOtp(mobile, outletId = OUTLET_ID) {
   }
 }
 
+/** Admin mobile pre-check — POST /common/login (validates number is registered) */
+export async function checkAdminMobile(mobile, outletId = OUTLET_ID) {
+  return sendOtp(mobile, outletId);
+}
+
 /** Payload for POST /common/verify_pin */
 export function buildVerifyPinPayload(mobile, pin) {
   const device = buildDevicePayload();
