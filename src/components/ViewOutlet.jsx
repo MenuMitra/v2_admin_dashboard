@@ -320,6 +320,11 @@ function ViewOutlet() {
     [outletData]
   );
 
+  const outletAnalytics = React.useMemo(
+    () => outletData?.analytics || null,
+    [outletData]
+  );
+
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -1123,10 +1128,12 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.total_order ?? "-"}
+                        {outletAnalytics?.total_orders ??
+                          outletData?.total_order ??
+                          "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Order Count
+                        Total Orders
                       </p>
                     </div>
                   </div>
@@ -1137,12 +1144,58 @@ function ViewOutlet() {
                   <div className="flex items-center gap-3">
                     <div>
                       <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                        {outletData?.total_earning != null
-                          ? formatCurrency(outletData.total_earning)
+                        {outletAnalytics?.avg_order_value != null
+                          ? formatCurrency(outletAnalytics.avg_order_value)
                           : "-"}
                       </h4>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Total Earning
+                        Avg. Order Value
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletAnalytics?.total_bill_amount != null
+                          ? formatCurrency(outletAnalytics.total_bill_amount)
+                          : "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Total Bill
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletAnalytics?.total_revenue != null
+                          ? formatCurrency(outletAnalytics.total_revenue)
+                          : "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Total Revenue
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                        {outletAnalytics?.average_turnover_time || "-"}
+                      </h4>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Avg. Turnover Time
                       </p>
                     </div>
                   </div>
