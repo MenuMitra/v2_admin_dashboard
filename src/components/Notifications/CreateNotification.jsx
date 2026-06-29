@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -9,12 +10,15 @@ import {
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
 import { API_CONFIG } from "../../config/appConfig";
+import { queryKeys } from "../../lib/react-query/queryKeys";
+import { toastController } from "../../utils/toastController";
 import { TextInput, SelectInput, Textarea } from "../forms/FormElements";
 import Breadcrumb from "../Breadcrumb";
 import Modal from "../common/Modal";
 
 function CreateNotification() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { getToken } = useAuth();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
@@ -142,10 +146,18 @@ function CreateNotification() {
       );
 
       if (response.data.notification_id) {
+        toastController.success("Notification created successfully");
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.notifications.all,
+        });
         navigate("/notifications");
       }
     } catch (error) {
-      
+      toastController.error(
+        error.response?.data?.detail ||
+          error.response?.data?.message ||
+          "Failed to create notification"
+      );
     } finally {
       setIsLoading(false);
     }
