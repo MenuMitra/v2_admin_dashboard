@@ -255,6 +255,45 @@ function getDaysSinceLastUsed(lastUsed) {
   return diffDays;
 }
 
+const ORDER_ANALYTICS_PERIODS = [
+  {
+    value: "today",
+    label: "Today",
+    saleKey: "today_sale",
+    orderCountKey: "today_order_count",
+  },
+  {
+    value: "yesterday",
+    label: "Yesterday",
+    saleKey: "yesterday_sale",
+    orderCountKey: "yesterday_order_count",
+  },
+  {
+    value: "this_week",
+    label: "This Week",
+    saleKey: "this_week_sale",
+    orderCountKey: "this_week_order_count",
+  },
+  {
+    value: "last_week",
+    label: "Last Week",
+    saleKey: "last_week_sale",
+    orderCountKey: "last_week_order_count",
+  },
+  {
+    value: "this_month",
+    label: "This Month",
+    saleKey: "this_month_sale",
+    orderCountKey: "this_month_order_count",
+  },
+  {
+    value: "last_month",
+    label: "Last Month",
+    saleKey: "last_month_sale",
+    orderCountKey: "last_month_order_count",
+  },
+];
+
 function ViewOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
@@ -1115,6 +1154,70 @@ function ViewOutlet() {
                 )}
             </div>
           </div>
+          {/* Sales analytics section */}
+          {outletAnalytics && (
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                  Sales
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                {ORDER_ANALYTICS_PERIODS.map((period) => {
+                  const sale = outletAnalytics?.[period.saleKey];
+
+                  return (
+                    <div key={`sale-${period.value}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                              {sale != null ? formatCurrency(sale) : "-"}
+                            </h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {period.label}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {/* Order analytics section */}
+          {outletAnalytics && (
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+                  Orders
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+                {ORDER_ANALYTICS_PERIODS.map((period) => {
+                  const orderCount = outletAnalytics?.[period.orderCountKey];
+
+                  return (
+                    <div key={`order-${period.value}`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div>
+                            <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
+                              {orderCount ?? "-"}
+                            </h4>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {period.label}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {/* Order section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
