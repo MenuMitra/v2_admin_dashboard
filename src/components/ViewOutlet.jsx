@@ -294,6 +294,20 @@ const ORDER_ANALYTICS_PERIODS = [
   },
 ];
 
+const ANALYTICS_STATS_ROW =
+  "flex w-full flex-row items-start justify-between gap-6";
+
+function AnalyticsStatItem({ value, label }) {
+  return (
+    <div className="min-w-0 flex-1">
+      <p className="text-xl font-semibold text-gray-800 dark:text-white/90">
+        {value}
+      </p>
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{label}</p>
+    </div>
+  );
+}
+
 function ViewOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
@@ -1157,64 +1171,38 @@ function ViewOutlet() {
           {/* Sales analytics section */}
           {outletAnalytics && (
             <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                  Sales
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {ORDER_ANALYTICS_PERIODS.map((period) => {
-                  const sale = outletAnalytics?.[period.saleKey];
-
-                  return (
-                    <div key={`sale-${period.value}`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                              {sale != null ? formatCurrency(sale) : "-"}
-                            </h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {period.label}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <h2 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">
+                Sales
+              </h2>
+              <div className={ANALYTICS_STATS_ROW}>
+                {ORDER_ANALYTICS_PERIODS.map((period) => (
+                  <AnalyticsStatItem
+                    key={`sale-${period.value}`}
+                    value={
+                      outletAnalytics?.[period.saleKey] != null
+                        ? formatCurrency(outletAnalytics[period.saleKey])
+                        : "-"
+                    }
+                    label={period.label}
+                  />
+                ))}
               </div>
             </div>
           )}
           {/* Order analytics section */}
           {outletAnalytics && (
             <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-                <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-                  Orders
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                {ORDER_ANALYTICS_PERIODS.map((period) => {
-                  const orderCount = outletAnalytics?.[period.orderCountKey];
-
-                  return (
-                    <div key={`order-${period.value}`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div>
-                            <h4 className="text-lg font-normal text-gray-800 dark:text-white/90">
-                              {orderCount ?? "-"}
-                            </h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {period.label}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+              <h2 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">
+                Orders
+              </h2>
+              <div className={ANALYTICS_STATS_ROW}>
+                {ORDER_ANALYTICS_PERIODS.map((period) => (
+                  <AnalyticsStatItem
+                    key={`order-${period.value}`}
+                    value={outletAnalytics?.[period.orderCountKey] ?? "-"}
+                    label={period.label}
+                  />
+                ))}
               </div>
             </div>
           )}
