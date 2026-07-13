@@ -39,6 +39,7 @@ function Auth() {
   const [error, setError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const [pinError, setPinError] = useState("");
+  const [pinResetKey, setPinResetKey] = useState(0);
   const [otpError, setOtpError] = useState("");
   const [resetPinError, setResetPinError] = useState("");
 
@@ -309,6 +310,8 @@ function Auth() {
         err.message ||
         "Invalid PIN";
       if (/pin|invalid|incorrect/i.test(errorMsg)) {
+        setPin("");
+        setPinResetKey((k) => k + 1);
         setPinError(errorMsg);
         setError("");
       } else {
@@ -494,6 +497,7 @@ function Auth() {
                       {step === STEP.PIN && (
                         <>
                           <PinInput
+                            key={pinResetKey}
                             length={PIN_LENGTH}
                             value={pin}
                             onChange={setPin}

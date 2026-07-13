@@ -255,6 +255,59 @@ function getDaysSinceLastUsed(lastUsed) {
   return diffDays;
 }
 
+const ORDER_ANALYTICS_PERIODS = [
+  {
+    value: "today",
+    label: "Today",
+    saleKey: "today_sale",
+    orderCountKey: "today_order_count",
+  },
+  {
+    value: "yesterday",
+    label: "Yesterday",
+    saleKey: "yesterday_sale",
+    orderCountKey: "yesterday_order_count",
+  },
+  {
+    value: "this_week",
+    label: "This Week",
+    saleKey: "this_week_sale",
+    orderCountKey: "this_week_order_count",
+  },
+  {
+    value: "last_week",
+    label: "Last Week",
+    saleKey: "last_week_sale",
+    orderCountKey: "last_week_order_count",
+  },
+  {
+    value: "this_month",
+    label: "This Month",
+    saleKey: "this_month_sale",
+    orderCountKey: "this_month_order_count",
+  },
+  {
+    value: "last_month",
+    label: "Last Month",
+    saleKey: "last_month_sale",
+    orderCountKey: "last_month_order_count",
+  },
+];
+
+const ANALYTICS_STATS_ROW =
+  "flex w-full flex-row items-start justify-between gap-6";
+
+function AnalyticsStatItem({ value, label }) {
+  return (
+    <div className="min-w-0 flex-1">
+      <p className="text-xl font-semibold text-gray-800 dark:text-white/90">
+        {value}
+      </p>
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{label}</p>
+    </div>
+  );
+}
+
 function ViewOutlet() {
   const { getToken } = useAuth();
   const { adminData } = useAdmin();
@@ -1115,6 +1168,44 @@ function ViewOutlet() {
                 )}
             </div>
           </div>
+          {/* Sales analytics section */}
+          {outletAnalytics && (
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+              <h2 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">
+                Sales
+              </h2>
+              <div className={ANALYTICS_STATS_ROW}>
+                {ORDER_ANALYTICS_PERIODS.map((period) => (
+                  <AnalyticsStatItem
+                    key={`sale-${period.value}`}
+                    value={
+                      outletAnalytics?.[period.saleKey] != null
+                        ? formatCurrency(outletAnalytics[period.saleKey])
+                        : "-"
+                    }
+                    label={period.label}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Order analytics section */}
+          {outletAnalytics && (
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
+              <h2 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90">
+                Orders
+              </h2>
+              <div className={ANALYTICS_STATS_ROW}>
+                {ORDER_ANALYTICS_PERIODS.map((period) => (
+                  <AnalyticsStatItem
+                    key={`order-${period.value}`}
+                    value={outletAnalytics?.[period.orderCountKey] ?? "-"}
+                    label={period.label}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
           {/* Order section with divider */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6">
             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
