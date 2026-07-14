@@ -9,6 +9,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
+import { useAdmin } from "../../hooks/useAdmin";
 import { API_CONFIG } from "../../config/appConfig";
 import { queryKeys } from "../../lib/react-query/queryKeys";
 import { toastController } from "../../utils/toastController";
@@ -20,7 +21,8 @@ function CreateNotification() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { getToken } = useAuth();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
+  const { adminData } = useAdmin();
+  const { BASE_URL } = API_CONFIG;
   const [isLoading, setIsLoading] = useState(false);
   const [outlets, setOutlets] = useState({});
   const [roles, setRoles] = useState([]);
@@ -218,27 +220,53 @@ function CreateNotification() {
       if (!token) {
         throw new Error("No authentication token available");
       }
+      if (!adminData?.user_id) {
+        return;
+      }
 
-      const response = await axios.get(
-        `${BASE_URL}/common/get_list/outlets`,
+      // Use listview_outlet (same as Outlets page) — get_list/outlets no longer returns outlet_list
+      const response = await axios.post(
+        `${BASE_URL}/common/listview_outlet`,
+        {
+          user_id: adminData.user_id,
+          app_source: "admin_app",
+        },
         {
           headers: {
             Authorization: token,
+            "Content-Type": "application/json",
           },
         }
       );
 
       if (response.data.detail === "Successfully retrieved outlets") {
-        setOutlets(response.data.outlet_list);
+        const outletMap = {};
+        (response.data.data || []).forEach((outlet) => {
+          if (outlet?.outlet_name != null && outlet?.outlet_id != null) {
+            outletMap[outlet.outlet_name] = outlet.outlet_id;
+          }
+        });
+        setOutlets(outletMap);
+      } else {
+        throw new Error(
+          response.data.message || "Failed to fetch outlets"
+        );
       }
     } catch (error) {
-      
+      toastController.error(
+        error.response?.data?.detail ||
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to fetch outlets"
+      );
     }
   };
 
   useEffect(() => {
-    fetchOutlets();
-  }, []);
+    if (adminData?.user_id) {
+      fetchOutlets();
+    }
+  }, [adminData?.user_id]);
 
   const getFilteredOutlets = () => {
     if (!outlets || Object.keys(outlets).length === 0) {
@@ -260,71 +288,108 @@ function CreateNotification() {
     );
   };
 
-  const fetchFilterOptions = async (outletId, selectedRole = null) => {
+  const toApiOutletId = (outletValue) =>
+    !outletValue || outletValue === "all" ? "0" : String(outletValue);
+
+  const toApiRole = (roleValue) =>
+    !roleValue || roleValue === "all" ? "0" : String(roleValue);
+
+  const normalizeRoles = (rawRoles) =>
+    (Array.isArray(rawRoles) ? rawRoles : [])
+      .map((role) => {
+        if (typeof role === "string") {
+          return { role, count: 0 };
+        }
+        const roleKey = role?.role || role?.role_name || role?.id;
+        if (!roleKey) return null;
+        return { role: String(roleKey), count: role.count ?? 0 };
+      })
+      .filter(Boolean);
+
+  const normalizeUsers = (rawUsers) =>
+    (Array.isArray(rawUsers) ? rawUsers : [])
+      .map((user) => ({
+        user_id: String(user.user_id ?? user.id ?? ""),
+        name: user.name || user.user_name || "-",
+        role: user.role || "",
+      }))
+      .filter((user) => user.user_id);
+
+  const fetchFilterOptions = async (outletValue, roleValue = "all") => {
     try {
       const token = getToken();
       if (!token) {
         throw new Error("No authentication token available");
       }
 
-      const payload = selectedRole
-        ? { outlet_id: outletId, role: selectedRole }
-        : { outlet_id: outletId };
+      const outlet_id = toApiOutletId(outletValue);
+      const commonPayload = {
+        outlet_id,
+        user_id: adminData?.user_id,
+        app_source: "admin_app",
+      };
 
-      const response = await axios.post(
+      // Roles: call without role param (API returns roles list)
+      const rolesResponse = await axios.post(
         `${BASE_URL}/common/notification_filter_options`,
-        payload,
+        commonPayload,
         {
           headers: {
             Authorization: token,
+            "Content-Type": "application/json",
           },
         }
       );
+      const rolesPayload =
+        rolesResponse.data?.data || rolesResponse.data || {};
+      setRoles(normalizeRoles(rolesPayload.roles));
 
-      if (response.data) {
-        if (selectedRole) {
-          setUsers(response.data.users || []);
-        } else {
-          setRoles(response.data.roles || []);
-          setUsers([]);
-          setFormData((prev) => ({
-            ...prev,
-            role: "all",
-            user: "all",
-          }));
+      // Users: role "0" = all users for outlet; specific role filters users
+      const usersResponse = await axios.post(
+        `${BASE_URL}/common/notification_filter_options`,
+        {
+          ...commonPayload,
+          role: toApiRole(roleValue),
+        },
+        {
+          headers: {
+            Authorization: token,
+            "Content-Type": "application/json",
+          },
         }
-      }
+      );
+      const usersPayload =
+        usersResponse.data?.data || usersResponse.data || {};
+      setUsers(normalizeUsers(usersPayload.users));
     } catch (error) {
-      
+      toastController.error(
+        error.response?.data?.detail ||
+          error.response?.data?.message ||
+          error.message ||
+          "Failed to fetch roles / users"
+      );
       setRoles([]);
       setUsers([]);
     }
   };
 
   useEffect(() => {
-    if (formData.outlet !== "all") {
-      fetchFilterOptions(formData.outlet);
-    } else {
-      setRoles([]);
-      setUsers([]);
-    }
-  }, [formData.outlet]);
+    fetchFilterOptions(formData.outlet, formData.role);
+  }, [formData.outlet, formData.role, adminData?.user_id]);
 
-  useEffect(() => {
-    if (formData.outlet !== "all" && formData.role !== "all") {
-      fetchFilterOptions(formData.outlet, formData.role);
-    } else {
-      setUsers([]);
-    }
-  }, [formData.role]);
+  const formatRoleLabel = (roleValue) => {
+    if (!roleValue || roleValue === "all") return "All Roles";
+    return (
+      String(roleValue).charAt(0).toUpperCase() +
+      String(roleValue).slice(1).replace(/_/g, " ")
+    );
+  };
 
   const getFilteredRoles = () => {
-    const allRolesOption = { role: "all", name: "All Roles" };
+    const allRolesOption = { id: "all", name: "All Roles" };
     const formattedRoles = roles.map((role) => ({
       id: role.role,
-      name:
-        role.role.charAt(0).toUpperCase() +
-        role.role.slice(1).replace("_", " "),
+      name: formatRoleLabel(role.role),
     }));
 
     const allRoles = [allRolesOption, ...formattedRoles];
@@ -338,7 +403,7 @@ function CreateNotification() {
     const allUsersOption = { user_id: "all", name: "All Users", role: "" };
     const formattedUsers = users.map((user) => ({
       ...user,
-      user_id: user.user_id.toString(),
+      user_id: String(user.user_id),
     }));
 
     const allUsers = [allUsersOption, ...formattedUsers];
@@ -566,12 +631,12 @@ function CreateNotification() {
                               }
                             `}
                             onClick={() => {
-                              handleInputChange({
-                                target: {
-                                  name: "outlet",
-                                  value: outlet.outlet_id,
-                                },
-                              });
+                              setFormData((prev) => ({
+                                ...prev,
+                                outlet: outlet.outlet_id,
+                                role: "all",
+                                user: "all",
+                              }));
                               setDropdownStates((prev) => ({
                                 ...prev,
                                 outlet: false,
@@ -622,14 +687,7 @@ function CreateNotification() {
                       <div className="text-gray-900">
                         {formData.role === "all"
                           ? "All Roles"
-                          : roles
-                              .find((r) => r.role === formData.role)
-                              ?.role.charAt(0)
-                              .toUpperCase() +
-                              roles
-                                .find((r) => r.role === formData.role)
-                                ?.role.slice(1)
-                                .replace("_", " ") || "Select Role"}
+                          : formatRoleLabel(formData.role)}
                       </div>
                     </div>
                   </div>
@@ -683,9 +741,11 @@ function CreateNotification() {
                               }
                             `}
                             onClick={() => {
-                              handleInputChange({
-                                target: { name: "role", value: role.id },
-                              });
+                              setFormData((prev) => ({
+                                ...prev,
+                                role: role.id,
+                                user: "all",
+                              }));
                               setDropdownStates((prev) => ({
                                 ...prev,
                                 role: false,

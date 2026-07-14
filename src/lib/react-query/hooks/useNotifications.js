@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAuth } from '../../../hooks/useAuth';
+import { useAdmin } from '../../../hooks/useAdmin';
 import { queryKeys } from '../queryKeys';
 import { API_CONFIG } from '../../../config/appConfig';
 import { toastController } from '../../../utils/toastController';
@@ -34,8 +35,9 @@ function resolveOutletDisplayName(notification, outletById) {
 
 export const useNotifications = (selectedOutlet = '') => {
   const { getToken } = useAuth();
+  const { adminData } = useAdmin();
 
-  // Outlets List Query
+  // Outlets List Query — same API as Outlets page (get_list/outlets is broken/outdated)
   const {
     data: outlets = [],
     isLoading: isLoadingOutlets,
@@ -48,25 +50,33 @@ export const useNotifications = (selectedOutlet = '') => {
         throw new Error('No authentication token available');
       }
 
-      const response = await axios.get(
-        `${BASE_URL}/common/get_list/outlets`,
+      const response = await axios.post(
+        `${BASE_URL}/common/listview_outlet`,
+        {
+          user_id: adminData?.user_id,
+          app_source: 'admin_app',
+        },
         {
           headers: {
             Authorization: token,
+            'Content-Type': 'application/json',
           },
         }
       );
 
-      if (response.data.detail !== "Successfully retrieved outlets") {
-        throw new Error('Failed to fetch outlets');
+      if (response.data.detail !== 'Successfully retrieved outlets') {
+        throw new Error(response.data.message || 'Failed to fetch outlets');
       }
 
-      return Object.entries(response.data.outlet_list).map(([name, id]) => ({
-        outlet_id: id.toString(),
-        outlet_name: name,
-        outlet_code: id.toString()
+      return (response.data.data || []).map((outlet) => ({
+        outlet_id: String(outlet.outlet_id),
+        outlet_name: outlet.outlet_name,
+        outlet_code: outlet.outlet_code != null
+          ? String(outlet.outlet_code)
+          : String(outlet.outlet_id),
       }));
     },
+    enabled: !!adminData?.user_id,
     onError: (error) => {
       toastController.error(error.message || 'Failed to fetch outlets');
     },
@@ -85,27 +95,44 @@ export const useNotifications = (selectedOutlet = '') => {
         throw new Error('No authentication token available');
       }
 
+      const outlet_id =
+        !selectedOutlet || selectedOutlet === 'all' ? '0' : String(selectedOutlet);
+
       const response = await axios.post(
         `${BASE_URL}/common/notification_filter_options`,
-        { outlet_id: selectedOutlet },
+        {
+          outlet_id,
+          user_id: adminData?.user_id,
+          app_source: 'admin_app',
+        },
         {
           headers: {
             Authorization: token,
+            'Content-Type': 'application/json',
           },
         }
       );
 
-      if (!response.data.roles) {
+      const payload = response.data?.data || response.data || {};
+      if (!Array.isArray(payload.roles)) {
         throw new Error('Failed to fetch roles');
       }
 
-      return response.data.roles.map(role => ({
-        role_id: role.role,
-        role_name: role.role.charAt(0).toUpperCase() + role.role.slice(1).replace('_', ' '),
-        count: role.count
-      }));
+      return payload.roles.map((role) => {
+        const roleKey =
+          typeof role === 'string'
+            ? role
+            : role.role || role.role_name || role.id;
+        return {
+          role_id: String(roleKey),
+          role_name:
+            String(roleKey).charAt(0).toUpperCase() +
+            String(roleKey).slice(1).replace(/_/g, ' '),
+          count: role.count ?? 0,
+        };
+      });
     },
-    enabled: !!selectedOutlet,
+    enabled: selectedOutlet !== undefined && selectedOutlet !== null && selectedOutlet !== '',
     onError: (error) => {
       toastController.error(error.message || 'Failed to fetch roles');
     },
