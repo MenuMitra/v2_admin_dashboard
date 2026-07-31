@@ -16,6 +16,7 @@ import { useAuth } from "../hooks/useAuth";
 import { API_CONFIG } from "../config/appConfig";
 import logo from "../assets/images/logo/logo.png";
 import Modal from "./common/Modal";
+import { SyncStatusBadge } from "../offline";
 
 // Helper function to convert to Title Case
 const toTitleCase = (str) => {
@@ -142,7 +143,8 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
           {/* Right Section - Admin Profile */}
           {adminData && (
-            <div className="flex items-center">
+            <div className="flex items-center gap-3">
+              <SyncStatusBadge className="hidden sm:inline-flex" />
               <div className="relative" ref={dropdownRef}>
                 <button
                   className="flex items-center gap-2 rounded-3xl px-2 py-1.5 pr-2 text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"

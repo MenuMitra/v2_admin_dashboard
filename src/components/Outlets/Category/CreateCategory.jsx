@@ -1,16 +1,10 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { useAdmin } from "../../../hooks/useAdmin";
-import { useAuth } from "../../../hooks/useAuth";
-import { queryKeys } from "../../../lib/react-query/queryKeys";
-import { API_CONFIG } from "../../../config/appConfig";
+import { useOfflineCategories, useOnlineStatus } from "../../../offline";
 import { TextInput } from "../../forms/FormElements";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faChevronLeft as faBack,
-} from "@fortawesome/free-solid-svg-icons";
+import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../../Breadcrumb";
 import { toastController } from "../../../utils/toastController";
 import SaveButton from "../../common/SaveButton";
@@ -18,51 +12,34 @@ import SaveButton from "../../common/SaveButton";
 function CreateCategory() {
   const { outletId } = useParams();
   const { adminData } = useAdmin();
-  const { getToken } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { BASE_URL } = API_CONFIG;
+  const online = useOnlineStatus();
 
   const [categoryName, setCategoryName] = useState("");
   const [loading, setLoading] = useState(false);
-  // Add state for name error
   const [nameError, setNameError] = useState("");
 
-  // Ref for form submission from Save button
   const formRef = React.useRef();
+  const { createMutation } = useOfflineCategories(outletId, adminData?.user_id);
 
-  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (nameError || !categoryName.trim()) {
+      toastController.error("Enter a valid category name");
+      return;
+    }
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        `${BASE_URL}/common/menu_category_create`,
-        {
-          outlet_id: outletId,
-          category_name: categoryName,
-          user_id: adminData?.user_id,
-          app_source: "admin_app",
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
-          },
-        }
+      await createMutation.mutateAsync({ name: categoryName });
+      toastController.success(
+        online
+          ? "Category saved — syncing"
+          : "Category saved offline — will sync when online"
       );
-
-      toastController.success(response.data.detail || "Success");
-      // Invalidate categories cache to refresh the list
-      queryClient.invalidateQueries({ queryKey: queryKeys.categories.list(outletId) });
-      setTimeout(() => navigate(-1), 1200);
+      setTimeout(() => navigate(-1), 800);
     } catch (err) {
-      toastController.error(
-        err.response?.data?.message ||
-          err.response?.data?.detail ||
-          "Failed to create category"
-      );
+      toastController.error(err.message || "Failed to create category");
     } finally {
       setLoading(false);
     }
@@ -70,7 +47,6 @@ function CreateCategory() {
 
   return (
     <div className="">
-      {/* Breadcrumb */}
       <Breadcrumb
         items={[
           { label: "Home", path: "/home" },
@@ -80,10 +56,8 @@ function CreateCategory() {
         ]}
       />
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
-        {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
-            {/* Back Button */}
             <button
               onClick={() => navigate(-1)}
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-sm"
@@ -93,12 +67,10 @@ function CreateCategory() {
               <span>Back</span>
             </button>
 
-            {/* Title */}
             <h2 className="text-lg font-semibold text-gray-800 text-center">
               Create Category
             </h2>
 
-            {/* Save Button */}
             <SaveButton
               onClick={() => formRef.current?.requestSubmit()}
               disabled={loading}
@@ -110,7 +82,12 @@ function CreateCategory() {
           </div>
         </div>
 
-        {/* Form Content */}
+        {!online && (
+          <div className="mx-6 mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            You are offline. This category will sync when you reconnect.
+          </div>
+        )}
+
         <div className="p-6">
           <form
             ref={formRef}
@@ -119,7 +96,7 @@ function CreateCategory() {
           >
             <div className="sm:col-span-1">
               <TextInput
-                className = "rounded-lg"
+                className="rounded-lg"
                 label="Category Name"
                 required
                 value={categoryName}
@@ -141,7 +118,6 @@ function CreateCategory() {
               )}
             </div>
 
-            {/* Submit button hidden */}
             <button
               type="submit"
               disabled={loading}

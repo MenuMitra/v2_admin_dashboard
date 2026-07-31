@@ -112,8 +112,8 @@ function App() {
               path="/menu-details/:outletId/:menuId"
               element={<MenuDetails />}
             />
-            {/* <Route path="/create-menu/:outletId" element={<CreateMenu />} />
-            <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} /> */}
+            <Route path="/create-menu/:outletId" element={<CreateMenu />} />
+            <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} />
             {/* Enquiry Routes */}
             <Route path="/enquiries" element={<EnquiryList />} />
             <Route path="/view-enquiry/:enquiry_id" element={<ViewEnquiry />} />

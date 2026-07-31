@@ -1,18 +1,13 @@
 import React, { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAdmin } from "../../../hooks/useAdmin";
-import { useAuth } from "../../../hooks/useAuth";
-import { API_CONFIG } from "../../../config/appConfig";
-import { queryKeys } from "../../../lib/react-query/queryKeys";
+import { useOfflineMenus, SyncStatusBadge } from "../../../offline";
 import { toastController } from "../../../utils/toastController";
 import DataTable from "../../common/DataTable";
 import Breadcrumb from "../../Breadcrumb";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faEye,
-  faPenToSquare,
   faTrash,
   faPlus,
   faCircleCheck,
@@ -33,19 +28,14 @@ const toTitleCase = (str) =>
 function ManageMenus() {
   const { outletId } = useParams();
   const { adminData } = useAdmin();
-  const { getToken } = useAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const { BASE_URL } = API_CONFIG;
 
-  // Local state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Normalize data helper
   const normaliseData = React.useCallback(
     (menus) =>
       menus.map((menu) => ({
@@ -55,100 +45,56 @@ function ManageMenus() {
     []
   );
 
-  // Fetch menus query
+  const {
+    menusQuery,
+    deleteMutation: offlineDeleteMutation,
+    bulkActionMutation: offlineBulkMutation,
+  } = useOfflineMenus(outletId, adminData?.user_id);
+
   const {
     data: menuResponse,
     isLoading,
     error,
-  } = useQuery({
-    queryKey: queryKeys.menus.list(outletId),
-    queryFn: async () => {
-      const token = getToken();
-      const response = await axios.post(
-        `${BASE_URL}/common/menu_list`,
+  } = menusQuery;
+
+  const deleteMutation = {
+    isPending: offlineDeleteMutation.isPending,
+    mutate: () => {
+      if (!selectedMenu) return;
+      offlineDeleteMutation.mutate(
         {
-          outlet_id: outletId,
-          user_id: adminData?.user_id,
-          app_source: "admin_app",
+          menuIdOrUuid: selectedMenu.sync_uuid || selectedMenu.menu_id,
         },
         {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
+          onSuccess: () => {
+            toastController.success("Menu deleted (will sync when online)");
+            setShowDeleteModal(false);
+            setSelectedMenu(null);
           },
-        }
-      );
-      return response.data;
-    },
-    enabled: Boolean(adminData?.user_id) && Boolean(outletId),
-  });
-
-  // Delete menu mutation
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      const token = getToken();
-      return axios.delete(`${BASE_URL}/common/menu_delete`, {
-        data: {
-          outlet_id: Number(outletId),
-          user_id: adminData?.user_id,
-          menu_id: selectedMenu.menu_id,
-          app_source: "admin_app",
-        },
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
-      });
-    },
-    onSuccess: () => {
-      toastController.success("Menu deleted successfully");
-      setShowDeleteModal(false);
-      setSelectedMenu(null);
-      queryClient.invalidateQueries(queryKeys.menus.list(outletId));
-    },
-    onError: (error) => {
-      toastController.error(
-        error.response?.data?.message || "Failed to delete menu"
-      );
-    },
-  });
-
-  // Bulk action mutation
-  const bulkActionMutation = useMutation({
-    mutationFn: async ({ action, selectedIds }) => {
-      const token = getToken();
-      const selectedMenuIds = menuData
-        .filter((menu) => selectedIds.includes(menu.user_id))
-        .map((menu) => menu.menu_id);
-
-      return axios.post(
-        `${BASE_URL}/common/bulk_menu_action`,
-        {
-          user_id: adminData?.user_id,
-          outlet_id: Number(outletId),
-          action: action,
-          app_source: "admin_app",
-          menu_ids: selectedMenuIds,
-        },
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
+          onError: (err) => {
+            toastController.error(err.message || "Failed to delete menu");
           },
         }
       );
     },
-    onSuccess: () => {
-      toastController.success("Bulk action completed successfully");
-      setSelectedItems([]);
-      queryClient.invalidateQueries(queryKeys.menus.list(outletId));
-    },
-    onError: (error) => {
-      toastController.error(
-        error.response?.data?.message || "Failed to perform bulk action"
+  };
+
+  const bulkActionMutation = {
+    mutate: ({ action, selectedIds }) => {
+      offlineBulkMutation.mutate(
+        { action, selectedIds },
+        {
+          onSuccess: () => {
+            toastController.success("Bulk action saved locally");
+            setSelectedItems([]);
+          },
+          onError: (err) => {
+            toastController.error(err.message || "Failed to perform bulk action");
+          },
+        }
       );
     },
-  });
+  };
 
   // Memoized data processing
   const menuData = React.useMemo(
@@ -387,8 +333,9 @@ function ManageMenus() {
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <Breadcrumb items={breadcrumbItems} />
+        <SyncStatusBadge outletId={outletId} />
       </div>
       <DataTable
         data={filteredData}
@@ -431,7 +378,7 @@ function ManageMenus() {
             : item.is_active === 0;
         }}
         createButton={{
-          show: false,
+          show: true,
           label: (
             <>
               <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />
