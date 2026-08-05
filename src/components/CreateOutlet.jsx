@@ -402,7 +402,7 @@ function CreateOutlet() {
         `${BASE_URL}/admin/get_company_with_owners`,
         {
           user_id: getUserId() || adminData?.user_id,
-          company_id: parseInt(companyId)
+          company_id: parseInt(companyId, 10),
         },
         {
           headers: {
@@ -412,20 +412,43 @@ function CreateOutlet() {
         }
       );
 
-      if (response.data.detail === "Company details retrieved successfully") {
-        const owners = response.data.data.owners || [];
-        setCompanyOwners(owners);
-        // Clear selected owners when company changes
+      const owners =
+        response.data?.data?.owners ||
+        response.data?.owners ||
+        [];
+
+      if (
+        response.data.detail === "Company details retrieved successfully" ||
+        (response.data.success !== false && Array.isArray(owners))
+      ) {
+        setCompanyOwners(
+          owners.map((owner) => ({
+            user_id: owner.user_id ?? owner.owner_id,
+            name: owner.name || owner.owner_name || "Owner",
+            mobile: owner.mobile || "",
+            email: owner.email || "",
+          }))
+        );
         setOutletData((prev) => ({
           ...prev,
           owner_id: [],
         }));
         setPrimaryOwnerId(null);
+        return;
       }
+
+      setCompanyOwners([]);
     } catch (error) {
+      const isNotFound =
+        error.response?.status === 404 ||
+        /not found/i.test(error.response?.data?.message || "");
       console.error("Error fetching company owners:", error);
       setCompanyOwners([]);
-      toastController.error("Failed to fetch company owners");
+      toastController.error(
+        isNotFound
+          ? "Selected company was not found"
+          : "Failed to fetch company owners"
+      );
     } finally {
       setIsLoadingCompanyOwners(false);
     }

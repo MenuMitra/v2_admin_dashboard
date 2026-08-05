@@ -154,6 +154,14 @@ function OutletConfiguration() {
           ? apiInterval
           : localInterval;
 
+      if (apiInterval === 10 || apiInterval === 15 || apiInterval === 30) {
+        try {
+          await setSyncIntervalDays(outletId, apiInterval);
+        } catch {
+          // keep local default
+        }
+      }
+
       setConfigFormData({
         service_charge_value: configData.service_charge_value ?? "",
         service_charge_type: configData.service_charge_type === "percentage" ? "percent" : configData.service_charge_type || "percent",

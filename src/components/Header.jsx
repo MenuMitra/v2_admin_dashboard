@@ -186,7 +186,7 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
           {/* Right Section - Admin Profile */}
           {adminData && (
             <div className="flex items-center gap-3">
-              <SyncStatusBadge className="hidden sm:inline-flex" />
+              <SyncStatusBadge className="inline-flex" />
               <div className="relative" ref={dropdownRef}>
                 <button
                   className="flex items-center gap-2 rounded-3xl px-2 py-1.5 pr-2 text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"

@@ -37,7 +37,19 @@ function emitSyncState(state) {
 }
 
 async function getAuthHeaders() {
-  const token = localStorage.getItem("token");
+  let token = localStorage.getItem("token");
+  if (!token) {
+    try {
+      const auth = JSON.parse(localStorage.getItem("auth") || "null");
+      if (auth?.access_token) {
+        token = auth.access_token.startsWith("Bearer ")
+          ? auth.access_token
+          : `Bearer ${auth.access_token}`;
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }
   return {
     Authorization: token,
     "Content-Type": "application/json",
@@ -104,6 +116,48 @@ async function setLastSyncAt(outletId, serverTime) {
   });
 }
 
+/** Map local rows → POST /v1/sync push payloads (sync_uuid FK refs per API contract). */
+function rowToPushPayload(table, row) {
+  const active = Boolean(row.is_active !== false && !row.deleted);
+
+  switch (table) {
+    case "combo_master":
+      return {
+        sync_uuid: row.sync_uuid,
+        outlet_id: Number(row.outlet_id),
+        name: row.name,
+        combo_price: Number(row.combo_price ?? 0),
+        food_type: row.food_type || "",
+        is_active: active,
+      };
+    case "combo_menu_mapping":
+      return {
+        sync_uuid: row.sync_uuid,
+        combo_master_id: row.combo_master_sync_uuid,
+        menu_id: row.menu_sync_uuid,
+        menu_portions_id: row.menu_portions_id ?? null,
+      };
+    case "orders":
+      return {
+        sync_uuid: row.sync_uuid,
+        outlet_id: Number(row.outlet_id),
+        order_type: row.order_type,
+        order_status: row.order_status,
+        total_amount: Number(row.total_amount ?? 0),
+      };
+    case "order_menu_mappings":
+      return {
+        sync_uuid: row.sync_uuid,
+        order_id: row.order_sync_uuid,
+        menu_id: row.menu_sync_uuid,
+        quantity: Number(row.quantity ?? 1),
+        price: Number(row.price ?? 0),
+      };
+    default:
+      return null;
+  }
+}
+
 async function collectDirtyPush(outletId) {
   const oid = Number(outletId);
   const push = {};
@@ -126,7 +180,6 @@ async function collectDirtyPush(outletId) {
     push.menus = dirtyMenus.map(menuToPushPayload);
   }
 
-  // Combos / orders tables are ready for future UI; push if dirty
   for (const table of [
     "combo_master",
     "combo_menu_mapping",
@@ -139,16 +192,7 @@ async function collectDirtyPush(outletId) {
       .filter((r) => r.dirty)
       .toArray();
     if (dirty.length) {
-      push[table] = dirty.map((r) => {
-        const {
-          dirty: _dirty,
-          deleted,
-          updated_at: _updatedAt,
-          created_at: _createdAt,
-          ...rest
-        } = r;
-        return { ...rest, is_active: rest.is_active !== false && !deleted };
-      });
+      push[table] = dirty.map((r) => rowToPushPayload(table, r));
     }
   }
 

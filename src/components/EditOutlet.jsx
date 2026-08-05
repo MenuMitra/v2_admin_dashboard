@@ -32,6 +32,47 @@ import SaveButton from "./common/SaveButton";
 import MultiSelectDropdown from "./common/MultiSelectDropdown";
 import SingleSelectDropdown from "./common/SingleSelectDropdown";
 
+function normalizeOwnersForDropdown(owners = []) {
+  return owners
+    .map((owner) => ({
+      user_id: owner.user_id ?? owner.owner_id,
+      name:
+        owner.name ||
+        owner.owner_name ||
+        owner.full_name ||
+        "Owner",
+      mobile: owner.mobile || "",
+      email: owner.email || "",
+    }))
+    .filter((o) => o.user_id != null);
+}
+
+function extractOwnersFromCompanyResponse(responseData) {
+  const data = responseData?.data ?? responseData;
+  return data?.owners || data?.company_owners || [];
+}
+
+function isCompanyOwnersSuccess(responseData) {
+  if (!responseData || responseData.success === false) return false;
+  if (responseData.detail === "Company details retrieved successfully") return true;
+  const owners = extractOwnersFromCompanyResponse(responseData);
+  return Array.isArray(owners) && owners.length >= 0 && responseData.data != null;
+}
+
+function ensureCompanyOption(companies, companyId, companyName) {
+  if (!companyId) return companies;
+  const id = Number(companyId);
+  if (companies.some((c) => Number(c.company_id) === id)) return companies;
+  return [
+    ...companies,
+    {
+      company_id: id,
+      company_name: companyName || `Company #${id} (unavailable)`,
+      company_code: "",
+    },
+  ];
+}
+
 function EditOutlet() {
   const { getToken, getUserId } = useAuth();
   const { adminData } = useAdmin();
@@ -81,6 +122,7 @@ function EditOutlet() {
   const [companyOwners, setCompanyOwners] = useState([]);
   const [primaryOwnerId, setPrimaryOwnerId] = useState(null);
   const [allCompanies, setAllCompanies] = useState([]);
+  const [outletCompanyName, setOutletCompanyName] = useState("");
   const [isLoadingCompanyOwners, setIsLoadingCompanyOwners] = useState(false);
   // Modules for Assign Subscription edit
   const [modules, setModules] = useState([]);
@@ -182,14 +224,15 @@ function EditOutlet() {
     }
   }, [adminData?.user_id, outletId]);
 
-  // Fetch company owners when company is manually changed (not during initial load)
-  useEffect(() => {
-    // Only fetch if not loading and company_id exists and it's a manual change
-    if (outletData.company_id && !isLoading && !isLoadingCompanyOwners) {
-      // This will handle manual company changes in the dropdown
-      console.log("Edit Outlet - Company changed manually, fetching owners for:", outletData.company_id);
-    }
-  }, [outletData.company_id]);
+  const companyOptions = React.useMemo(
+    () =>
+      ensureCompanyOption(
+        allCompanies,
+        outletData.company_id,
+        outletCompanyName
+      ),
+    [allCompanies, outletData.company_id, outletCompanyName]
+  );
 
   // Preserve selected owners when company owners are loaded
   useEffect(() => {
@@ -387,11 +430,21 @@ function EditOutlet() {
           // ignore
         }
 
-        // After setting outlet data, immediately fetch company owners if company_id exists
+        // After setting outlet data, seed owners from outlet (works even if company API 404s)
+        const outletOwners = normalizeOwnersForDropdown(data.owners || []);
+        if (outletOwners.length) {
+          setCompanyOwners(outletOwners);
+        }
+
+        setOutletCompanyName(
+          data.company_name ||
+            data.company?.company_name ||
+            data.company?.name ||
+            ""
+        );
+
         if (data.company_id) {
-          console.log("Edit Outlet - Fetching company owners for company:", data.company_id);
-          // Fetch company owners immediately after setting outlet data, preserving existing owners
-          fetchCompanyOwners(String(data.company_id), true);
+          fetchCompanyOwners(String(data.company_id), true, data.owners || []);
         }
 
         setIsLoading(false);
@@ -485,7 +538,12 @@ function EditOutlet() {
     }
   };
 
-  const fetchCompanyOwners = async (companyId, preserveExistingOwners = false) => {
+  const fetchCompanyOwners = async (
+    companyId,
+    preserveExistingOwners = false,
+    fallbackOwners = []
+  ) => {
+    const fallback = normalizeOwnersForDropdown(fallbackOwners);
     try {
       setIsLoadingCompanyOwners(true);
       const token = getToken();
@@ -497,7 +555,7 @@ function EditOutlet() {
         `${BASE_URL}/admin/get_company_with_owners`,
         {
           user_id: getUserId() || adminData?.user_id,
-          company_id: parseInt(companyId)
+          company_id: parseInt(companyId, 10),
         },
         {
           headers: {
@@ -507,21 +565,17 @@ function EditOutlet() {
         }
       );
 
-      if (response.data.detail === "Company details retrieved successfully") {
-        const owners = response.data.data.owners || [];
-        console.log("Edit Outlet - Company Owners Loaded:", {
-          companyId,
-          owners,
-          currentOwnerIds: outletData.owner_ids,
-          preserveExistingOwners
-        });
-        setCompanyOwners(owners);
+      if (isCompanyOwnersSuccess(response.data)) {
+        const owners = normalizeOwnersForDropdown(
+          extractOwnersFromCompanyResponse(response.data)
+        );
+        setCompanyOwners(owners.length ? owners : fallback);
 
-        // Only clear owners if this is a manual company change, not initial load
         if (!preserveExistingOwners) {
-          // Clear selected owners when company changes (only if it's a new company selection)
-          if (!outletData.owner_ids.length || companyId !== outletData.company_id) {
-            // Only clear owners if this is a different company, not the initial load
+          if (
+            !outletData.owner_ids.length ||
+            companyId !== outletData.company_id
+          ) {
             if (outletData.company_id && companyId !== outletData.company_id) {
               setOutletData((prev) => ({
                 ...prev,
@@ -531,11 +585,39 @@ function EditOutlet() {
             }
           }
         }
+        return;
+      }
+
+      if (fallback.length) {
+        setCompanyOwners(fallback);
+      } else {
+        setCompanyOwners([]);
       }
     } catch (error) {
-      console.error("Error fetching company owners:", error);
-      setCompanyOwners([]);
-      toastController.error("Failed to fetch company owners");
+      const status = error.response?.status;
+      const msg = error.response?.data?.message || "";
+      const isNotFound =
+        status === 404 || /not found/i.test(msg);
+
+      if (fallback.length) {
+        setCompanyOwners(fallback);
+        if (isNotFound && preserveExistingOwners) {
+          console.warn(
+            "Company not found on server — using owners from outlet details"
+          );
+        } else if (isNotFound) {
+          toastController.error("Selected company was not found");
+        } else {
+          toastController.error("Failed to fetch company owners");
+        }
+      } else {
+        setCompanyOwners([]);
+        if (!isNotFound) {
+          toastController.error("Failed to fetch company owners");
+        } else if (!preserveExistingOwners) {
+          toastController.error("Selected company was not found");
+        }
+      }
     } finally {
       setIsLoadingCompanyOwners(false);
     }
@@ -911,7 +993,7 @@ function EditOutlet() {
                 <div className="flex flex-col">
                   <SingleSelectDropdown
                     label="Select Company"
-                    options={allCompanies}
+                    options={companyOptions}
                     selectedValue={outletData.company_id}
                     onChange={(companyId) => {
                       console.log("Edit Outlet - Company changed:", { companyId, previousCompanyId: outletData.company_id });

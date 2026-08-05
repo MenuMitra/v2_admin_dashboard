@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCloudArrowUp,
@@ -8,17 +8,28 @@ import {
   faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import { useSync } from "../hooks/useSync";
+import { toastController } from "../../utils/toastController";
 
 /**
- * Compact sync indicator for Header / outlet pages.
+ * Sync button for Header (profile area) and outlet pages.
+ * Manual click → POST /v1/sync with force (bypasses auto-sync interval).
  */
 export default function SyncStatusBadge({ outletId, className = "" }) {
-  const { online, status, message, pending, syncNow, setActiveOutlet } =
-    useSync();
+  const {
+    online,
+    status,
+    message,
+    pending,
+    lastOutletId,
+    syncNow,
+    setActiveOutlet,
+  } = useSync();
 
   React.useEffect(() => {
     if (outletId) setActiveOutlet(Number(outletId));
   }, [outletId, setActiveOutlet]);
+
+  const activeOutlet = outletId || lastOutletId;
 
   const label = !online
     ? "Offline"
@@ -27,8 +38,8 @@ export default function SyncStatusBadge({ outletId, className = "" }) {
       : pending > 0
         ? `${pending} pending`
         : status === "error"
-          ? "Sync issue"
-          : "Synced";
+          ? "Sync failed"
+          : "Sync";
 
   const color = !online
     ? "bg-amber-100 text-amber-800 border-amber-200"
@@ -48,22 +59,55 @@ export default function SyncStatusBadge({ outletId, className = "" }) {
         ? faCloudArrowUp
         : faCloudArrowDown;
 
+  const handleClick = useCallback(async () => {
+    if (!online) {
+      toastController.error("You are offline — sync when back online.");
+      return;
+    }
+    if (!activeOutlet) {
+      toastController.error("Open an outlet page first, then tap Sync.");
+      return;
+    }
+
+    const result = await syncNow(activeOutlet);
+
+    if (result?.ok) {
+      toastController.success(
+        result.pending
+          ? `Synced — ${result.pending} change(s) still pending`
+          : "All data synced successfully"
+      );
+    } else if (result?.reason === "sync_api_error") {
+      toastController.error(
+        message || "Sync API failed — changes saved locally"
+      );
+    } else if (result?.reason === "offline") {
+      toastController.error("You are offline");
+    } else if (result?.reason !== "not_due") {
+      toastController.error(message || "Sync failed");
+    }
+  }, [online, activeOutlet, syncNow, message]);
+
+  const tooltip = !online
+    ? "Offline — sync when connected"
+    : !activeOutlet
+      ? "Open an outlet to enable sync"
+      : message ||
+        (pending > 0
+          ? `${pending} local change(s) — tap to sync now`
+          : "Tap to sync now (manual sync bypasses auto-sync interval)");
+
   return (
     <button
       type="button"
-      title={
-        message ||
-        (online
-          ? "Tap to sync now (bypasses sync interval)"
-          : "You are offline")
-      }
-      onClick={() => syncNow(outletId)}
+      title={tooltip}
+      onClick={handleClick}
       disabled={status === "syncing" || !online}
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium transition ${color} ${className} disabled:opacity-70`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition sm:gap-2 sm:px-3 ${color} ${className} disabled:opacity-70`}
     >
       <FontAwesomeIcon
         icon={online ? icon : faWifi}
-        className={`w-3.5 h-3.5 ${status === "syncing" ? "animate-spin" : ""}`}
+        className={`h-3.5 w-3.5 ${status === "syncing" ? "animate-spin" : ""}`}
       />
       <span>{label}</span>
     </button>
