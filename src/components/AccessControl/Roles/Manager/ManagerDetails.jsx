@@ -36,7 +36,7 @@ function ManagerDetails() {
     queryFn: async () => {
       const token = getToken();
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/manager_view`,
+        `${BASE_URL}/common/manager_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -59,7 +59,7 @@ function ManagerDetails() {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const token = getToken();
-      return axios.delete(`${BASE_URL}/${API_VERSION}/common/manager_delete`, {
+      return axios.delete(`${BASE_URL}/common/manager_delete`, {
         data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),

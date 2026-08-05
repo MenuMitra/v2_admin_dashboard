@@ -11,8 +11,8 @@ const getApiBaseUrl = () => {
     return import.meta.env.VITE_API_BASE_URL;
   }
 
-  // Default fallback for local development (production API)
-  return "https://menu4.xyz/v2.3";
+  // Default fallback for local development
+  return "https://menusmitra.xyz/v1";
 
 };
 
@@ -32,21 +32,16 @@ const getSyncUrl = () => {
   if (import.meta.env.VITE_SYNC_URL) {
     return import.meta.env.VITE_SYNC_URL;
   }
-  // Sync lives on /v1 regardless of admin API version (/v2.3)
-  try {
-    const base = new URL(getApiBaseUrl());
-    return `${base.origin}/v1/sync`;
-  } catch {
-    return "https://menusmitra.xyz/v1/sync";
-  }
+  const base = getApiBaseUrl().replace(/\/$/, "");
+  return `${base}/sync`;
 };
 
 // API Configuration
 export const API_CONFIG = {
-  BASE_URL: getApiBaseUrl(), // Full URL including /v2.3
-  SYNC_URL: getSyncUrl(), // Offline sync: POST /v1/sync
+  BASE_URL: getApiBaseUrl(), // e.g. https://menusmitra.xyz/v1
+  SYNC_URL: getSyncUrl(), // e.g. https://menusmitra.xyz/v1/sync
   CUSTOMER_APP_URL: getCustomerAppUrl(), // Customer app base URL
-  VERSION: "2.3.0",
+  VERSION: "1.0.0",
   /** Login / verify_pin app type */
   APP_TYPE: import.meta.env.VITE_APP_TYPE || "admin",
   /**

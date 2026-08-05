@@ -1,126 +1,114 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useAdmin } from "../../../hooks/useAdmin";
-import { useOfflineCategories, useOnlineStatus } from "../../../offline";
-import { ensureOutletHydrated } from "../../../offline/syncService";
-import { db } from "../../../offline/db";
-import { getCategoryById } from "../../../offline/repositories/categoriesRepo";
-import { listMenusByCategory } from "../../../offline/repositories/menusRepo";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAdmin } from '../../../hooks/useAdmin';
+import { useAuth } from '../../../hooks/useAuth';
+import { API_CONFIG } from '../../../config/appConfig';
+
+const { BASE_URL } = API_CONFIG;
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUtensils,
   faCircleCheck,
   faCircleXmark,
   faCalendarPlus,
   faCalendarCheck,
+  faUser,
   faChevronLeft,
-} from "@fortawesome/free-solid-svg-icons";
-import DeleteConfirmModal from "../../common/DeleteConfirmModal/DeleteConfirmModal";
-import Breadcrumb from "../../Breadcrumb";
-import { toastController } from "../../../utils/toastController";
+} from '@fortawesome/free-solid-svg-icons';
+import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
+import Breadcrumb from '../../Breadcrumb';
+import { toastController } from '../../../utils/toastController';
 
+// Helper to convert strings to Title Case
 const toTitleCase = (str) =>
   str
     ? str
         .toString()
         .toLowerCase()
         .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1))
-    : "";
-
-function formatDate(iso) {
-  if (!iso) return "-";
-  try {
-    return new Date(iso).toLocaleDateString();
-  } catch {
-    return iso;
-  }
-}
+    : '';
 
 function CategoryDetails() {
   const { outletId, menuCategoryId } = useParams();
   const { adminData } = useAdmin();
+  const { getToken } = useAuth();
   const navigate = useNavigate();
-  const online = useOnlineStatus();
 
   const [category, setCategory] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { deleteMutation } = useOfflineCategories(outletId, adminData?.user_id);
-
+  // Breadcrumb items (uses category data for outlet/category names)
   const getBreadcrumbItems = () => [
-    { label: "Home", path: "/home" },
-    { label: "Outlets", path: "/outlets" },
+    { label: 'Home', path: '/home' },
+    { label: 'Outlets', path: '/outlets' },
     {
-      label: category?.outlet_name
-        ? toTitleCase(category.outlet_name)
-        : "Outlet",
+      label: category?.outlet_name ? toTitleCase(category.outlet_name) : 'Outlet',
       path: `/view-outlet/${outletId}`,
     },
-    { label: "Categories", path: `/categories/${outletId}` },
     {
-      label: category?.name ? toTitleCase(category.name) : "Category Details",
+      label: 'Categories',
+      path: `/categories/${outletId}`,
+    },
+    {
+      label: category?.name ? toTitleCase(category.name) : 'Category Details',
     },
   ];
 
   useEffect(() => {
-    const load = async () => {
+    const fetchCategoryDetails = async () => {
       setLoading(true);
       setError(null);
       try {
-        await ensureOutletHydrated(outletId, adminData?.user_id, {
-          waitIfEmpty: true,
-        });
-        const cat = await getCategoryById(outletId, menuCategoryId);
-        if (!cat) {
-          setError("Category not found locally");
-          setCategory(null);
-          return;
-        }
-
-        const outletInfo = await db.outletCache.get(Number(outletId));
-        const menu_list = await listMenusByCategory(
-          outletId,
-          cat.sync_uuid || cat.menu_cat_id
+        const token = getToken();
+        const response = await axios.post(
+          `${BASE_URL}/common/menu_category_view`,
+          {
+            menu_cat_id: Number(menuCategoryId),
+            outlet_id: Number(outletId),
+            user_id: adminData?.user_id,
+            app_source: 'admin_app',
+          },
+          {
+            headers: {
+              Authorization: token,
+              'Content-Type': 'application/json',
+            },
+          }
         );
-
-        setCategory({
-          name: cat.category_name || cat.name,
-          is_active: Boolean(cat.is_active),
-          menu_count: menu_list.length,
-          menu_list,
-          outlet_name: outletInfo?.outlet_name || "",
-          created_on: formatDate(cat.created_at),
-          updated_on: formatDate(cat.updated_at),
-          sync_uuid: cat.sync_uuid,
-          menu_cat_id: cat.menu_cat_id,
-        });
+        setCategory(response.data.data);
       } catch (err) {
-        setError(err.message || "Failed to fetch category details");
+        setError(err.response?.data?.message || 'Failed to fetch category details');
       } finally {
         setLoading(false);
       }
     };
 
     if (adminData?.user_id && menuCategoryId && outletId) {
-      load();
+      fetchCategoryDetails();
     }
   }, [adminData?.user_id, menuCategoryId, outletId]);
 
   const handleDeleteCategory = async () => {
     try {
-      await deleteMutation.mutateAsync({
-        menuCatIdOrUuid: category?.sync_uuid || menuCategoryId,
+      const token = getToken();
+      await axios.delete(`${BASE_URL}/common/menu_category_delete`, {
+        data: {
+          menu_cat_id: Number(menuCategoryId),
+          outlet_id: Number(outletId),
+          user_id: adminData?.user_id,
+          app_source: 'admin_app',
+        },
+        headers: {
+          Authorization: token,
+          'Content-Type': 'application/json',
+        },
       });
-      toastController.success(
-        online
-          ? "Category deleted — syncing"
-          : "Category deleted offline — will sync when online"
-      );
       navigate(-1);
-    } catch (err) {
-      toastController.error(err.message || "Failed to delete category");
+    } catch (error) {
+      toastController.error(error.response?.data?.message || 'Failed to delete category');
     }
   };
 
@@ -130,13 +118,16 @@ function CategoryDetails() {
 
   return (
     <>
+      {/* Breadcrumb */}
       <div className="mb-6">
         <Breadcrumb items={getBreadcrumbItems()} />
       </div>
 
       <div className="rounded-2xl border border-gray-200 bg-white">
+        {/* Header Section */}
         <div className="overflow-hidden pt-4">
           <div className="flex items-center px-6 mb-3">
+            {/* Left Side - Back Button */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate(-1)}
@@ -146,22 +137,17 @@ function CategoryDetails() {
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
+            {/* Center - Title */}
             <div className="flex-1 text-center text-base sm:text-lg font-semibold text-gray-800">
               Category Details
             </div>
+            {/* Right Side - Action Buttons */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() =>
-                  navigate(`/edit-category/${outletId}/${menuCategoryId}`)
-                }
+                onClick={() => navigate(`/edit-category/${outletId}/${menuCategoryId}`)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -175,12 +161,7 @@ function CategoryDetails() {
                 onClick={() => setShowDeleteModal(true)}
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-error-500 shadow-theme-xs hover:bg-error-600"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -192,130 +173,184 @@ function CategoryDetails() {
               </button>
             </div>
           </div>
+          {/* Main Content */}
           <div className="px-6 pb-6">
             <div className="mb-6">
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <FontAwesomeIcon
-                  icon={faUtensils}
-                  className="w-6 h-6 text-brand-500"
-                />
+                <FontAwesomeIcon icon={faUtensils} className="w-6 h-6 text-brand-500" />
                 {toTitleCase(category.name)}
               </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              {/* Status */}
               <div className="flex items-center p-3 rounded-lg bg-gray-50">
                 <div className="w-8 h-8 flex items-center justify-center">
                   <FontAwesomeIcon
                     icon={category.is_active ? faCircleCheck : faCircleXmark}
-                    className={`w-5 h-5 ${
-                      category.is_active ? "text-success-500" : "text-error-500"
-                    }`}
+                    className={`w-5 h-5 ${category.is_active ? 'text-success-500' : 'text-error-500'}`}
                   />
                 </div>
                 <div className="ml-3">
-                  <div
-                    className={`text-base font-medium ${
-                      category.is_active ? "text-success-700" : "text-error-700"
-                    }`}
-                  >
-                    {category.is_active ? "Active" : "Inactive"}
-                  </div>
+                  <div className={`text-base font-medium ${category.is_active ? 'text-success-700' : 'text-error-700'}`}>{category.is_active ? 'Active' : 'Inactive'}</div>
                   <div className="text-sm text-gray-500">Status</div>
                 </div>
               </div>
+              {/* Menu Count */}
               <div className="flex items-center p-3 rounded-lg bg-gray-50">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon
-                    icon={faUtensils}
-                    className="w-5 h-5 text-gray-400"
-                  />
+                  <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">
-                    {category.menu_count}
-                  </div>
+                  <div className="text-base font-medium">{category.menu_count}</div>
                   <div className="text-sm text-gray-500">Menu Count</div>
                 </div>
               </div>
+              {/* Created On */}
               <div className="flex items-center p-3 rounded-lg bg-gray-50">
                 <div className="w-8 h-8 flex items-center justify-center">
-                  <FontAwesomeIcon
-                    icon={faCalendarPlus}
-                    className="w-5 h-5 text-gray-400"
-                  />
+                  <FontAwesomeIcon icon={faCalendarPlus} className="w-5 h-5 text-gray-400" />
                 </div>
                 <div className="ml-3">
-                  <div className="text-base font-medium">
-                    {category.created_on}
-                  </div>
+                  <div className="text-base font-medium">{category.created_on}</div>
                   <div className="text-sm text-gray-500">Created On</div>
                 </div>
               </div>
-              {category.updated_on && category.updated_on !== "-" && (
+              {/* Created By */}
+              {category.created_by && (
                 <div className="flex items-center p-3 rounded-lg bg-gray-50">
                   <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faCalendarCheck}
-                      className="w-5 h-5 text-gray-400"
-                    />
+                    <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
                   </div>
                   <div className="ml-3">
                     <div className="text-base font-medium">
-                      {category.updated_on}
+                      {toTitleCase(category.created_by)}
                     </div>
+                    <div className="text-sm text-gray-500">Created By</div>
+                  </div>
+                </div>
+              )}
+              {/* Updated On */}
+              {category.updated_on && (
+                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faCalendarCheck} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">{category.updated_on}</div>
                     <div className="text-sm text-gray-500">Updated On</div>
+                  </div>
+                </div>
+              )}
+              {/* Updated By */}
+              {category.updated_by && (
+                <div className="flex items-center p-3 rounded-lg bg-gray-50">
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <FontAwesomeIcon icon={faUser} className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="ml-3">
+                    <div className="text-base font-medium">
+                      {toTitleCase(category.updated_by)}
+                    </div>
+                    <div className="text-sm text-gray-500">Updated By</div>
                   </div>
                 </div>
               )}
             </div>
 
+            {/* Menu Items Section */}
             {category.menu_list && category.menu_list.length > 0 && (
               <div className="mt-8">
                 <h3 className="text-lg font-lato text-gray-800 mb-4 flex items-center gap-2">
-                  <FontAwesomeIcon
-                    icon={faUtensils}
-                    className="w-5 h-5 text-brand-500"
-                  />
+                  <FontAwesomeIcon icon={faUtensils} className="w-5 h-5 text-brand-500" />
                   Menu Items ({category.menu_count})
                 </h3>
+                
                 <div className="flex flex-wrap gap-4 justify-start">
                   {category.menu_list.map((menu) => (
                     <div
-                      key={menu.menu_id || menu.sync_uuid}
+                      key={menu.menu_id}
                       className="group relative bg-white border-1 border-gray-200 rounded-2xl p-3 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 cursor-pointer overflow-hidden w-[100px] h-[100px] flex flex-col justify-between flex-shrink-0"
-                      onClick={() =>
-                        navigate(
-                          `/menu-details/${outletId}/${menu.menu_id || menu.sync_uuid}`
-                        )
-                      }
+                      style={{
+                        '--hover-border': '#66c9daff',
+                        '--hover-bg': 'rgba(6, 182, 212, 0.1)',
+                        '--hover-text': '#0891b2'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#a4d7e0ff';
+                        e.currentTarget.style.backgroundColor = 'rgba(173, 226, 235, 0.1)';
+                        const nameEl = e.currentTarget.querySelector('.menu-name');
+                        const iconEl = e.currentTarget.querySelector('.menu-icon');
+                        const foodTypeEl = e.currentTarget.querySelector('.food-type');
+                        const priceEl = e.currentTarget.querySelector('.price-text');
+                        if (nameEl) nameEl.style.color = '#000000ff';
+                        if (iconEl) iconEl.style.color = '#777777ff';
+                        if (foodTypeEl) foodTypeEl.style.color = '#000000ff';
+                        if (priceEl) priceEl.style.color = '#000000ff';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = '#e5e7eb';
+                        e.currentTarget.style.backgroundColor = 'white';
+                        const nameEl = e.currentTarget.querySelector('.menu-name');
+                        const iconEl = e.currentTarget.querySelector('.menu-icon');
+                        const foodTypeEl = e.currentTarget.querySelector('.food-type');
+                        const priceEl = e.currentTarget.querySelector('.price-text');
+                        if (nameEl) nameEl.style.color = '#1f2937';
+                        if (iconEl) iconEl.style.color = '#a5a6a7ff';
+                        if (foodTypeEl) foodTypeEl.style.color = '';
+                        if (priceEl) priceEl.style.color = '#059669';
+                      }}
                     >
+                      {/* Top Row: Menu Name (Left) + Icon (Right) */}
                       <div className="flex items-start justify-between mb-2">
-                        <h4 className="menu-name text-xs font-lato text-gray-900 line-clamp-2 leading-tight flex-1 pr-1">
+                        {/* Menu Name - Left Top */}
+                        <h4 className="menu-name text-xs font-lato text-gray-900 line-clamp-2 transition-colors duration-300 leading-tight flex-1 pr-1">
                           {toTitleCase(menu.menu_name)}
                         </h4>
+                        
+                        {/* Menu Icon - Right Top */}
                         <div className="flex-shrink-0">
-                          <div className="w-5 h-5 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
-                            <FontAwesomeIcon
-                              icon={faUtensils}
-                              className="menu-icon w-2.5 h-2.5 text-gray-400"
+                          <div className="w-5 h-5 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center transition-all duration-300 group-hover:scale-110">
+                            <FontAwesomeIcon 
+                              icon={faUtensils} 
+                              className="menu-icon w-2.5 h-2.5 text-gray-400 transition-colors duration-300" 
                             />
                           </div>
                         </div>
                       </div>
+
+                      {/* Bottom Row: Food Type (Left) + Price (Right) */}
                       <div className="flex items-end justify-between mt-auto gap-3 w-full">
+                        {/* Food Type Badge - Left Bottom */}
                         <span
-                          className={`food-type inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-lato flex-shrink-0 ${
-                            menu.food_type === "veg"
-                              ? "bg-green-100 text-green-800"
-                              : menu.food_type === "nonveg"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-gray-100 text-gray-800"
+                          className={`food-type inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-lato transition-all duration-300 flex-shrink-0 ${
+                            menu.food_type === 'veg'
+                              ? 'bg-green-100 text-green-800 group-hover:bg-green-200'
+                              : menu.food_type === 'nonveg'
+                              ? 'bg-red-100 text-red-800 group-hover:bg-red-200'
+                              : 'bg-gray-100 text-gray-800 group-hover:bg-gray-200'
                           }`}
                         >
-                          {toTitleCase(menu.food_type || "other")}
+                          <span
+                            className={`w-1 h-1 rounded-full mr-0.5 ${
+                              menu.food_type === 'veg'
+                                ? 'bg-green-500'
+                                : menu.food_type === 'nonveg'
+                                ? 'bg-red-500'
+                                : 'bg-gray-500'
+                            }`}
+                          />
+                          {toTitleCase(
+                            menu.food_type === 'veg'
+                              ? 'veg'
+                              : menu.food_type === 'nonveg'
+                              ? 'nonveg'
+                              : menu.food_type || 'other'
+                          )}
                         </span>
+
+                        {/* Price - Right Bottom (uses default_price from API) */}
                         {menu.default_price != null && (
-                          <span className="price-text text-xs font-lato text-success-600 flex-shrink-0 ml-auto">
+                          <span className="price-text text-xs font-lato text-success-600 group-hover:text-success-700 transition-all duration-300 flex-shrink-0 ml-auto">
                             ₹{Number(menu.default_price).toFixed(2)}
                           </span>
                         )}
@@ -323,22 +358,19 @@ function CategoryDetails() {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
 
-            {category.menu_count === 0 && (
-              <div className="mt-8 text-center py-8">
-                <FontAwesomeIcon
-                  icon={faUtensils}
-                  className="w-12 h-12 text-gray-300 mb-4"
-                />
-                <p className="text-gray-500 text-sm">
-                  No menu items found in this category
-                </p>
+                {/* Empty State for Menu Items */}
+                {category.menu_count === 0 && (
+                  <div className="text-center py-8">
+                    <FontAwesomeIcon icon={faUtensils} className="w-12 h-12 text-gray-300 mb-4" />
+                    <p className="text-gray-500 text-sm">No menu items found in this category</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
+        {/* Delete Confirmation Modal */}
         <DeleteConfirmModal
           isOpen={showDeleteModal}
           onClose={() => setShowDeleteModal(false)}

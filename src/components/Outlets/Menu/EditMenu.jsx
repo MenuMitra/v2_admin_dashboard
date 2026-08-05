@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
-import { useOfflineMenus, useOnlineStatus } from '../../../offline';
-import { getMenuById as getLocalMenuById } from '../../../offline/repositories/menusRepo';
-import { ensureOutletHydrated } from '../../../offline/syncService';
-import { db } from '../../../offline/db';
-import { listCategories } from '../../../offline/repositories/categoriesRepo';
+import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
 } from '../../forms/FormElements';
 import Breadcrumb from '../../Breadcrumb';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft as faBack, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { toastController } from '../../../utils/toastController';
 import { API_CONFIG } from '../../../config/appConfig';
 import SaveButton from '../../common/SaveButton';
@@ -171,21 +168,17 @@ const CategorySingleSelect = ({
 };
 
 function EditMenu() {
-  const { BASE_URL } = API_CONFIG;
+  const { BASE_URL, API_VERSION } = API_CONFIG;
   const { outletId, menuId } = useParams();
   const { adminData } = useAdmin();
   const { getToken } = useAuth();
   const navigate = useNavigate();
-  const online = useOnlineStatus();
-  const { updateMutation } = useOfflineMenus(
-    outletId,
-    adminData?.user_id
-  );
+  const queryClient = useQueryClient();
 
   // Add state for menu categories
   const [categories, setCategories] = useState([]);
   const [foodTypes, setFoodTypes] = useState([]);
-  const [, setSpicyIndexOptions] = useState([]);
+  const [spicyIndexOptions, setSpicyIndexOptions] = useState([]);
 
   // Form state
   const [name, setName] = useState('');
@@ -197,7 +190,6 @@ function EditMenu() {
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
   const [error, setError] = useState('');
-  const [localSyncUuid, setLocalSyncUuid] = useState(null);
 
   const [existingImages, setExistingImages] = useState([]);
 
@@ -257,7 +249,8 @@ function EditMenu() {
 
       setImages(prev => [...prev, ...base64Array]);
       setPreviews(prev => [...prev, ...base64Array]);
-    } catch {
+    } catch (error) {
+
       toastController.error('Error processing images');
     }
 
@@ -292,62 +285,75 @@ function EditMenu() {
     );
   };
 
-  // Fetch existing menu data (local-first)
+  // Fetch existing menu data
   useEffect(() => {
     const fetchMenuDetails = async () => {
       try {
-        await ensureOutletHydrated(outletId, adminData?.user_id, {
-          waitIfEmpty: true,
-        });
+        const response = await axios.post(
+          `${BASE_URL}/common/menu_view`,
+          {
+            menu_id: Number(menuId),
+            outlet_id: Number(outletId),
+            user_id: adminData?.user_id,
+            app_source: 'admin_app',
+          },
+          {
+            headers: {
+              Authorization: getToken(),
+            }
+          }
+        );
 
-        const menuData = await getLocalMenuById(outletId, menuId);
-        if (!menuData) {
-          toastController.error('Menu not found locally');
-          return;
-        }
-
-        const outletInfo = await db.outletCache.get(Number(outletId));
-        setLocalSyncUuid(menuData.sync_uuid || null);
+        const menuData = response.data.detail || {};
         setName(menuData.name || '');
-        setOutletName(outletInfo?.outlet_name || menuData.outlet_name || '');
+        setOutletName(menuData.outlet_name || '');
         setMenuCatId(
-          menuData.menu_cat_id != null
-            ? String(menuData.menu_cat_id)
-            : menuData.menu_cat_sync_uuid
-              ? String(menuData.menu_cat_sync_uuid)
-              : ''
+          menuData.menu_cat_id !== null && menuData.menu_cat_id !== undefined
+            ? menuData.menu_cat_id.toString()
+            : ''
         );
         setFoodType(menuData.food_type || '');
         setSpicyIndex(
-          menuData.spicy_index != null && menuData.spicy_index !== ''
-            ? String(menuData.spicy_index)
+          menuData.spicy_index !== null && menuData.spicy_index !== undefined
+            ? menuData.spicy_index.toString()
             : ''
         );
         setIngredients(menuData.ingredients || '');
-        setPrice(
-          menuData.price != null && menuData.price !== ''
-            ? String(menuData.price)
-            : ''
-        );
-
-        const formattedExistingImages = Array.isArray(menuData.images)
-          ? menuData.images.map((img, index) => {
-              if (typeof img === 'string') {
-                return { id: `local-${index}`, url: img, flag: 1 };
-              }
-              return {
-                id: img.image_id || img.id || `local-${index}`,
-                url: img.image || img.url || '',
-                flag: 1,
-              };
-            })
-          : [];
+        // Format existing images
+        const formattedExistingImages =
+          Array.isArray(menuData.images)
+            ? menuData.images.map(img => ({
+              id: img.image_id,
+              url: img.image,
+              flag: 1, // Initially all images are kept
+            }))
+            : [];
 
         setExistingImages(formattedExistingImages);
-        setPreviews([]);
-        setImages([]);
-      } catch {
+        setPreviews([]); // Clear previews for new images
+        setImages([]); // Clear new images array
+        const portions = Array.isArray(menuData.portions)
+          ? menuData.portions
+          : [];
+
+        if (portions.length > 0) {
+          const primary = portions[0];
+          setPrice(
+            primary.price !== null && primary.price !== undefined
+              ? primary.price.toString()
+              : ''
+          );
+        } else if (
+          menuData.default_price !== null &&
+          menuData.default_price !== undefined
+        ) {
+          setPrice(menuData.default_price.toString());
+        } else {
+          setPrice('');
+        }
+      } catch (err) {
         toastController.error('Failed to load menu details');
+        // Do not set the global form error here to avoid showing a stuck error message
       }
     };
 
@@ -356,48 +362,32 @@ function EditMenu() {
     }
   }, [menuId, outletId, adminData?.user_id]);
 
-  // Fetch categories (local-first)
+  // Fetch categories
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const local = await listCategories(outletId);
-        if (local.length) {
-          setCategories(
-            local.map((c) => ({
-              menu_cat_id: c.menu_cat_id,
-              sync_uuid: c.sync_uuid,
-              category_name: c.category_name,
-            }))
-          );
-          return;
-        }
-
-        if (!navigator.onLine) {
-          setCategories([]);
-          return;
-        }
-
         const token = getToken();
         const response = await axios.post(
           `${BASE_URL}/common/menu_category_list`,
           {
             outlet_id: outletId,
             user_id: adminData?.user_id,
-            app_source: 'admin_app',
+            app_source: 'admin_app'
           },
           {
             headers: {
-              Authorization: token,
-            },
+              Authorization: token
+            }
           }
         );
 
         const validCategories = response.data.data.menucat_details.filter(
-          (cat) => cat.menu_cat_id !== null
+          cat => cat.menu_cat_id !== null
         );
         setCategories(validCategories);
-      } catch {
+      } catch (err) {
         toastController.error('Failed to load menu categories');
+        // Keep this as a toast only; don't show persistent form error
       }
     };
 
@@ -426,13 +416,9 @@ function EditMenu() {
         }));
 
         setFoodTypes(types);
-      } catch {
-        setFoodTypes([
-          { value: 'veg', label: 'Veg' },
-          { value: 'nonveg', label: 'Nonveg' },
-          { value: 'vegan', label: 'Vegan' },
-          { value: 'egg', label: 'Egg' },
-        ]);
+      } catch (err) {
+        toastController.error('Failed to load food types');
+        // Avoid setting global error so the page doesn't show a permanent error banner
       }
     };
 
@@ -459,20 +445,16 @@ function EditMenu() {
         }));
 
         setSpicyIndexOptions(indexOptions);
-      } catch {
-        setSpicyIndexOptions([
-          { value: '0', label: 'Level 0' },
-          { value: '1', label: 'Level 1' },
-          { value: '2', label: 'Level 2' },
-          { value: '3', label: 'Level 3' },
-        ]);
+      } catch (err) {
+        toastController.error('Failed to load spicy index options');
+        // Only use a toast for this background error
       }
     };
 
     fetchSpicyIndexList();
   }, []);
 
-  // Form submit — local-first, sync via /v1/sync
+  // Form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name || !menuCatId || !foodType || !price) {
@@ -486,35 +468,57 @@ function EditMenu() {
     setSuccessMsg('');
 
     try {
-      const keptImages = existingImages
-        .filter((img) => img.flag === 1)
-        .map((img) => img.url);
-      const mergedImages = [...keptImages, ...images];
+      const token = getToken();
 
-      await updateMutation.mutateAsync({
-        menuIdOrUuid: localSyncUuid || menuId,
-        menuCatId,
-        name: name.trim(),
-        price: parseFloat(price),
-        foodType,
-        spicyIndex,
-        ingredients: ingredients.trim(),
-        images: mergedImages,
-      });
+      // Build portion data from single price field
+      const formattedPortionData = [
+        {
+          portion_name: 'Default',
+          price: parseInt(price, 10),
+          unit_value: '',
+          unit_type: '',
+          flag: 1,
+        },
+      ];
 
-      toastController.success(
-        online
-          ? 'Menu updated — syncing'
-          : 'Menu updated offline — will sync when online'
+      // Construct the JSON payload
+      const payload = {
+        menu_id: Number(menuId),
+        outlet_id: Number(outletId),
+        user_id: adminData?.user_id,
+        name: name?.trim() || '',
+        portion_data: formattedPortionData, // Use formatted portion data from single price
+        food_type: foodType,
+        menu_cat_id: Number(menuCatId),
+        spicy_index: spicyIndex ? spicyIndex.toString() : null,
+        ingredients: ingredients?.trim() || '',
+        images: images,
+        existing_image_ids: existingImages
+          .filter(img => img.flag === 0)
+          .map(img => img.id),
+        flag: 0,
+        app_source: 'admin_app'
+      };
+
+      const response = await axios.put(
+        `${BASE_URL}/common/menu_update`,
+        payload,
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+        }
       );
-      setSuccessMsg('Menu updated successfully');
-      setTimeout(() => navigate(-1), 800);
+
+      toastController.success('Menu updated successfully');
+      setSuccessMsg(response.data.detail || 'Menu updated successfully');
+      // Invalidate menus cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.list(outletId) });
+      setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      const errorMessage =
-        err.message ||
-        err.response?.data?.message ||
-        err.response?.data?.detail ||
-        'Failed to update menu';
+
+      const errorMessage = err.response?.data?.message || err.response?.data?.detail || 'Failed to update menu';
       toastController.error(errorMessage);
       setError(errorMessage);
     } finally {
@@ -559,12 +563,6 @@ function EditMenu() {
             </SaveButton>
           </div>
         </div>
-
-        {!online && (
-          <div className="mx-6 mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            You are offline. Changes will sync when you reconnect.
-          </div>
-        )}
 
         {/* Form Content */}
         <div className="p-6">

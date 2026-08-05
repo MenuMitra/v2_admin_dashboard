@@ -38,7 +38,7 @@ function WaiterDetails() {
     queryKey: queryKeys.waiters.details(outletId, userId),
     queryFn: async () => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/waiter_view`,
+        `${BASE_URL}/common/waiter_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -60,7 +60,7 @@ function WaiterDetails() {
   // Delete waiter mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      return axios.delete(`${BASE_URL}/${API_VERSION}/common/waiter_delete`, {
+      return axios.delete(`${BASE_URL}/common/waiter_delete`, {
         data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -89,7 +89,7 @@ function WaiterDetails() {
   const updateMutation = useMutation({
     mutationFn: async (updatedData) => {
       return axios.put(
-        `${BASE_URL}/${API_VERSION}/common/waiter_update`,
+        `${BASE_URL}/common/waiter_update`,
         {
           ...updatedData,
           update_user_id: adminData?.user_id,

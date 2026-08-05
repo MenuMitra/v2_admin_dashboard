@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { useAdmin } from '../../../hooks/useAdmin';
 import { useAuth } from '../../../hooks/useAuth';
-import {
-  useOfflineMenus,
-  useOnlineStatus,
-} from '../../../offline';
+import { queryKeys } from '../../../lib/react-query/queryKeys';
 import {
   TextInput,
 } from '../../forms/FormElements';
@@ -16,7 +15,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft as faBack, faPlus, faTrash, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { toastController } from '../../../utils/toastController';
 import { API_CONFIG } from '../../../config/appConfig';
-import axios from 'axios';
 
 // Single Select Dropdown with Vertical Scrolling
 const CategorySingleSelect = ({
@@ -175,10 +173,9 @@ function CreateMenu() {
   const { getToken } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const online = useOnlineStatus();
+  const queryClient = useQueryClient();
   const outletName = location.state?.outletName || '';
   const { BASE_URL } = API_CONFIG;
-  const { createMutation } = useOfflineMenus(outletId, adminData?.user_id);
 
   // Add state for menu categories
   const [categories, setCategories] = useState([]);
@@ -267,26 +264,6 @@ function CreateMenu() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { listCategories } = await import(
-          '../../../offline/repositories/categoriesRepo'
-        );
-        const local = await listCategories(outletId);
-        if (local.length) {
-          setCategories(
-            local.map((c) => ({
-              menu_cat_id: c.menu_cat_id,
-              sync_uuid: c.sync_uuid,
-              category_name: c.category_name,
-            }))
-          );
-          return;
-        }
-
-        if (!navigator.onLine) {
-          setCategories([]);
-          return;
-        }
-
         const token = getToken();
         const response = await axios.post(
           `${BASE_URL}/common/menu_category_list`,
@@ -338,12 +315,8 @@ function CreateMenu() {
 
         setFoodTypes(types);
       } catch (err) {
-        setFoodTypes([
-          { value: 'veg', label: 'Veg' },
-          { value: 'nonveg', label: 'Nonveg' },
-          { value: 'vegan', label: 'Vegan' },
-          { value: 'egg', label: 'Egg' },
-        ]);
+        toastController.error('Failed to load food types');
+        setError('Failed to load food types');
       }
     };
 
@@ -371,12 +344,8 @@ function CreateMenu() {
 
         setSpicyIndexOptions(indexOptions);
       } catch (err) {
-        setSpicyIndexOptions([
-          { value: '0', label: 'Level 0' },
-          { value: '1', label: 'Level 1' },
-          { value: '2', label: 'Level 2' },
-          { value: '3', label: 'Level 3' },
-        ]);
+        toastController.error('Failed to load spicy index options');
+        setError('Failed to load spicy index options');
       }
     };
 
@@ -398,29 +367,50 @@ function CreateMenu() {
     setSuccessMsg('');
 
     try {
-      await createMutation.mutateAsync({
-        menuCatId,
-        name: name.trim(),
-        price: parseFloat(price),
-        foodType,
-        spicyIndex,
-        ingredients: ingredients.trim(),
-        images,
-      });
+      const token = getToken();
 
-      toastController.success(
-        online
-          ? 'Menu saved — syncing'
-          : 'Menu saved offline — will sync when online'
+      // Construct the JSON payload
+      const payload = {
+        outlet_id: outletId,
+        menu_cat_id: menuCatId,
+        user_id: adminData?.user_id,
+        name: name.trim(),
+        food_type: foodType,
+        spicy_index: spicyIndex,
+        ingredients: ingredients.trim(),
+        app_source: 'admin_app',
+        // Backend still expects portion_data; send a single default portion using the main price
+        portion_data: [
+          {
+            portion_name: 'Default',
+            price: parseInt(price, 10),
+            unit_value: '',
+            unit_type: '',
+            flag: 1,
+          },
+        ],
+        images: images // This will now directly receive base64 strings from ImageUploader
+      };
+
+      const response = await axios.post(
+        `${BASE_URL}/common/menu_create`,
+        payload,
+        {
+          headers: {
+            Authorization: token,
+            'Content-Type': 'application/json',
+          },
+        }
       );
-      setSuccessMsg('Menu saved successfully');
-      setTimeout(() => navigate(-1), 800);
+
+      toastController.success('Menu created successfully');
+      setSuccessMsg(response.data.detail || 'Menu created successfully');
+      // Invalidate menus cache to refresh the list
+      queryClient.invalidateQueries({ queryKey: queryKeys.menus.list(outletId) });
+      setTimeout(() => navigate(-1), 1200);
     } catch (err) {
-      const errorMessage =
-        err.message ||
-        err.response?.data?.message ||
-        err.response?.data?.detail ||
-        'Failed to create menu';
+
+      const errorMessage = err.response?.data?.message || err.response?.data?.detail || 'Failed to create menu';
       toastController.error(errorMessage);
       setError(errorMessage);
     } finally {

@@ -9,11 +9,6 @@ import { useAdmin } from "../hooks/useAdmin";
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 import { queryKeys } from "../lib/react-query/queryKeys";
-import {
-  getSyncIntervalDays,
-  setSyncIntervalDays,
-  DEFAULT_SYNC_INTERVAL_DAYS,
-} from "../offline";
 import Breadcrumb from "./Breadcrumb";
 import SaveButton from "./common/SaveButton";
 import CustomDropdown from "./common/CustomDropdown";
@@ -58,7 +53,6 @@ function OutletConfiguration() {
     reset_bill_number: null,
     reset_kot_number: null,
     is_open: null,
-    sync_interval_days: 15,
   });
 
   // Time state for dropdowns
@@ -136,24 +130,9 @@ function OutletConfiguration() {
     };
   };
 
-  // Prefill form data from outlet config API response + local sync interval
+  // Prefill form data from outlet config API response
   useEffect(() => {
-    if (!configData) return;
-
-    const load = async () => {
-      let localInterval = DEFAULT_SYNC_INTERVAL_DAYS;
-      try {
-        localInterval = await getSyncIntervalDays(outletId);
-      } catch {
-        // keep default
-      }
-
-      const apiInterval = Number(configData.sync_interval_days);
-      const syncInterval =
-        apiInterval === 10 || apiInterval === 15 || apiInterval === 30
-          ? apiInterval
-          : localInterval;
-
+    if (configData) {
       setConfigFormData({
         service_charge_value: configData.service_charge_value ?? "",
         service_charge_type: configData.service_charge_type === "percentage" ? "percent" : configData.service_charge_type || "percent",
@@ -176,9 +155,9 @@ function OutletConfiguration() {
         reset_bill_number: configData.reset_bill_number ?? null,
         reset_kot_number: configData.reset_kot_number ?? null,
         is_open: configData.is_open === true ? 1 : configData.is_open === false ? 0 : null,
-        sync_interval_days: syncInterval,
       });
 
+      // Parse opening time
       if (configData.opening_time) {
         const parsed = parseTime(configData.opening_time);
         setOpeningHour(parsed.hour);
@@ -186,16 +165,15 @@ function OutletConfiguration() {
         setOpeningPeriod(parsed.period);
       }
 
+      // Parse closing time
       if (configData.closing_time) {
         const parsed = parseTime(configData.closing_time);
         setClosingHour(parsed.hour);
         setClosingMinute(parsed.minute);
         setClosingPeriod(parsed.period);
       }
-    };
-
-    load();
-  }, [configData, outletId]);
+    }
+  }, [configData]);
 
   const isLoading = isLoadingOutlet || isLoadingConfig;
 
@@ -327,49 +305,18 @@ function OutletConfiguration() {
         payload.reset_kot_number = String(configFormData.reset_kot_number);
       }
 
-      // Offline sync interval (10 / 15 / 30 days)
-      const syncInterval = Number(configFormData.sync_interval_days) || DEFAULT_SYNC_INTERVAL_DAYS;
-      payload.sync_interval_days = syncInterval;
-
       console.log("Outlet Configuration payload:", payload);
 
-      // Always persist locally so offline sync respects the setting
-      await setSyncIntervalDays(outletId, syncInterval);
-
-      let response;
-      try {
-        response = await axios.patch(
-          `${BASE_URL}/admin/update_outlet_config`,
-          payload,
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      } catch {
-        // Backend may not support sync_interval_days yet — retry without it
-        const { sync_interval_days: _syncDays, ...payloadWithoutSync } = payload;
-        response = await axios.patch(
-          `${BASE_URL}/admin/update_outlet_config`,
-          payloadWithoutSync,
-          {
-            headers: {
-              Authorization: getToken(),
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        toastController.success(
-          "Configuration saved. Sync interval stored locally for offline sync."
-        );
-        await queryClient.refetchQueries({
-          queryKey: ["outletConfig", outletId],
-        });
-        setTimeout(() => navigate(-1), 1000);
-        return;
-      }
+      const response = await axios.patch(
+        `${BASE_URL}/admin/update_outlet_config`,
+        payload,
+        {
+          headers: {
+            Authorization: getToken(),
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       // Handle successful response
       if (response.data?.message) {
@@ -407,7 +354,6 @@ function OutletConfiguration() {
       console.error("Update outlet config error:", error);
       console.error("Error response:", error.response?.data);
 
-      // Local sync interval may still have been saved
       toastController.error(
         error.response?.data?.message ||
         error.response?.data?.detail ||
@@ -849,36 +795,6 @@ function OutletConfiguration() {
                     ]}
                     placeholder="Daily"
                   />
-                </div>
-
-                {/* Offline Sync Interval */}
-                <div className="w-full">
-                  <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                    Sync Interval
-                  </label>
-                  <CustomDropdown
-                    name="sync_interval_days"
-                    className="w-full h-10"
-                    value={String(
-                      configFormData.sync_interval_days || DEFAULT_SYNC_INTERVAL_DAYS
-                    )}
-                    onChange={(e) =>
-                      handleConfigFormChange(
-                        "sync_interval_days",
-                        Number(e.target.value) || DEFAULT_SYNC_INTERVAL_DAYS
-                      )
-                    }
-                    options={[
-                      { value: "10", label: "10 Days" },
-                      { value: "15", label: "15 Days" },
-                      { value: "30", label: "30 Days" },
-                    ]}
-                    placeholder="15 Days"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Auto-sync runs every {configFormData.sync_interval_days || 15}{" "}
-                    days. Tap the sync badge anytime to sync now.
-                  </p>
                 </div>
 
                 {/* Reset Bill Number */}

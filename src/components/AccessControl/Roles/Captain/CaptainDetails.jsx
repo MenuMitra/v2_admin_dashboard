@@ -37,7 +37,7 @@ function CaptainDetails() {
     queryKey: queryKeys.captains.details(outletId, userId),
     queryFn: async () => {
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/captain_view`,
+        `${BASE_URL}/common/captain_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -59,7 +59,7 @@ function CaptainDetails() {
   // Delete captain mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      return axios.delete(`${BASE_URL}/${API_VERSION}/common/captain_delete`, {
+      return axios.delete(`${BASE_URL}/common/captain_delete`, {
         data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),

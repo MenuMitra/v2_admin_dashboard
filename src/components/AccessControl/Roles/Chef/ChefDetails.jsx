@@ -37,7 +37,7 @@ function ChefDetails() {
     queryFn: async () => {
       const token = getToken();
       const response = await axios.post(
-        `${BASE_URL}/${API_VERSION}/common/chef_view`,
+        `${BASE_URL}/common/chef_view`,
         {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),
@@ -60,7 +60,7 @@ function ChefDetails() {
   const deleteMutation = useMutation({
     mutationFn: async () => {
       const token = getToken();
-      return axios.delete(`${BASE_URL}/${API_VERSION}/common/chef_delete`, {
+      return axios.delete(`${BASE_URL}/common/chef_delete`, {
         data: {
           update_user_id: adminData?.user_id,
           user_id: Number(userId),

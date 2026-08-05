@@ -5,7 +5,8 @@ import { API_CONFIG } from "../../config/appConfig";
 const TestEnvironmentBanner = () => {
   const isUsingProductionApi = () =>
     typeof API_CONFIG?.BASE_URL === "string" &&
-    API_CONFIG.BASE_URL.includes("/v2.3");
+    (API_CONFIG.BASE_URL.includes("menusmitra.xyz/v1") ||
+      API_CONFIG.BASE_URL.includes("/v2.3"));
 
   // Check if current domain is production
   const isProductionDomain = () => {
