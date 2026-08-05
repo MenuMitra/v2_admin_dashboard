@@ -28,9 +28,23 @@ const getCustomerAppUrl = () => {
   return 'https://test-menumitra-customer-v2.netlify.app';
 };
 
+const getSyncUrl = () => {
+  if (import.meta.env.VITE_SYNC_URL) {
+    return import.meta.env.VITE_SYNC_URL;
+  }
+  // Sync lives on /v1 regardless of admin API version (/v2.3)
+  try {
+    const base = new URL(getApiBaseUrl());
+    return `${base.origin}/v1/sync`;
+  } catch {
+    return "https://menusmitra.xyz/v1/sync";
+  }
+};
+
 // API Configuration
 export const API_CONFIG = {
   BASE_URL: getApiBaseUrl(), // Full URL including /v2.3
+  SYNC_URL: getSyncUrl(), // Offline sync: POST /v1/sync
   CUSTOMER_APP_URL: getCustomerAppUrl(), // Customer app base URL
   VERSION: "2.3.0",
   /** Login / verify_pin app type */

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../../hooks/useAdmin';
-import { useAuth } from '../../../hooks/useAuth';
-import { API_CONFIG } from '../../../config/appConfig';
-
-const { BASE_URL } = API_CONFIG;
+import { useOfflineMenus, useOnlineStatus } from '../../../offline';
+import { ensureOutletHydrated } from '../../../offline/syncService';
+import { getMenuById } from '../../../offline/repositories/menusRepo';
+import { db } from '../../../offline/db';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUtensils,
@@ -16,7 +15,6 @@ import {
   faUser,
   faChevronLeft,
   faFire,
-  faPercent,
   faList,
   faStar,
   faLeaf,
@@ -27,6 +25,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import DeleteConfirmModal from '../../common/DeleteConfirmModal/DeleteConfirmModal';
 import Breadcrumb from '../../Breadcrumb';
+import { toastController } from '../../../utils/toastController';
 
 // Helper to convert strings to Title Case
 const toTitleCase = (str) =>
@@ -37,15 +36,38 @@ const toTitleCase = (str) =>
       .replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1))
     : '';
 
+function formatDate(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString();
+  } catch {
+    return iso;
+  }
+}
+
+function normalizeImages(images = []) {
+  return images.map((img, index) => {
+    if (typeof img === 'string') {
+      return { image: img, image_id: `local-${index}` };
+    }
+    return {
+      image: img.image || img.url || img,
+      image_id: img.image_id || img.id || `local-${index}`,
+    };
+  });
+}
+
 function MenuDetails() {
   const { outletId, menuId } = useParams();
   const { adminData } = useAdmin();
-  const { getToken } = useAuth();
   const navigate = useNavigate();
+  const online = useOnlineStatus();
 
   const [menu, setMenu] = useState(null);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const { deleteMutation } = useOfflineMenus(outletId, adminData?.user_id);
 
   useEffect(() => {
     const fetchMenuDetails = async () => {
@@ -53,25 +75,29 @@ function MenuDetails() {
 
       setError(null);
       try {
-        const token = getToken();
-        const response = await axios.post(
-          `${BASE_URL}/common/menu_view`,
-          {
-            menu_id: Number(menuId),
-            outlet_id: Number(outletId),
-            user_id: adminData?.user_id,
-            app_source: 'admin_app',
-          },
-          {
-            headers: {
-              Authorization: token,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-        setMenu(response.data.detail);
+        await ensureOutletHydrated(outletId, adminData.user_id, {
+          waitIfEmpty: true,
+        });
+        const local = await getMenuById(outletId, menuId);
+        if (!local) {
+          setError('Menu not found locally');
+          setMenu(null);
+          return;
+        }
+
+        const outletInfo = await db.outletCache.get(Number(outletId));
+        setMenu({
+          ...local,
+          outlet_name: outletInfo?.outlet_name || local.outlet_name || '',
+          default_price: local.price,
+          is_active: Boolean(local.is_active),
+          images: normalizeImages(local.images),
+          created_on: formatDate(local.created_at),
+          updated_on: formatDate(local.updated_at),
+          sync_uuid: local.sync_uuid,
+        });
       } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch menu details');
+        setError(err.message || 'Failed to fetch menu details');
       }
     };
 
@@ -80,22 +106,17 @@ function MenuDetails() {
 
   const handleDeleteMenu = async () => {
     try {
-      const token = getToken();
-      await axios.delete(`${BASE_URL}/common/menu_delete`, {
-        data: {
-          menu_id: Number(menuId),
-          outlet_id: Number(outletId),
-          user_id: adminData?.user_id,
-          app_source: 'admin_app'
-        },
-        headers: {
-          Authorization: `${token}`,
-          'Content-Type': 'application/json',
-        },
+      await deleteMutation.mutateAsync({
+        menuIdOrUuid: menu?.sync_uuid || menuId,
       });
+      toastController.success(
+        online
+          ? 'Menu deleted — syncing'
+          : 'Menu deleted offline — will sync when online'
+      );
       navigate(-1);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to delete menu');
+      setError(err.message || 'Failed to delete menu');
       setShowDeleteModal(false);
     }
   };

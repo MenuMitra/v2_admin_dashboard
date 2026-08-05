@@ -1,103 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { useAdmin } from '../../../hooks/useAdmin';
-import { useAuth } from '../../../hooks/useAuth';
-import { API_CONFIG } from '../../../config/appConfig';
-import { queryKeys } from '../../../lib/react-query/queryKeys';
-import { TextInput } from '../../forms/FormElements';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronLeft as faBack } from '@fortawesome/free-solid-svg-icons';
-import Breadcrumb from '../../Breadcrumb';
-import { toastController } from '../../../utils/toastController';
-import SaveButton from '../../common/SaveButton';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAdmin } from "../../../hooks/useAdmin";
+import { useOfflineCategories, useOnlineStatus } from "../../../offline";
+import { TextInput } from "../../forms/FormElements";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "../../Breadcrumb";
+import { toastController } from "../../../utils/toastController";
+import SaveButton from "../../common/SaveButton";
 
 function EditCategory() {
   const { outletId, menuCategoryId } = useParams();
   const { adminData } = useAdmin();
-  const { getToken } = useAuth();
-  const queryClient = useQueryClient();
-  const { BASE_URL } = API_CONFIG;
   const navigate = useNavigate();
+  const online = useOnlineStatus();
 
-  const [categoryName, setCategoryName] = useState('');
+  const [categoryName, setCategoryName] = useState("");
   const [loading, setLoading] = useState(false);
-  // Add state for name error
-  const [nameError, setNameError] = useState('');
-  // Add state to track if initial data has been loaded
+  const [nameError, setNameError] = useState("");
   const [hasLoadedData, setHasLoadedData] = useState(false);
 
-  // Ref for form submission from Save button
   const formRef = React.useRef();
+  const { updateMutation, getCategoryById } = useOfflineCategories(
+    outletId,
+    adminData?.user_id
+  );
 
-  // Fetch current category details for editing
   useEffect(() => {
-    if (!hasLoadedData && adminData?.user_id && menuCategoryId && outletId) {
-      const fetchCategory = async () => {
+    if (!hasLoadedData && menuCategoryId && outletId) {
+      const load = async () => {
         setLoading(true);
         try {
-          const response = await axios.post(
-            `${BASE_URL}/common/menu_category_view`,
-            {
-              menu_cat_id: Number(menuCategoryId),
-              outlet_id: Number(outletId),
-              user_id: adminData?.user_id,
-              app_source: 'admin_app',
-            },
-            {
-              headers: {
-                Authorization: getToken(),
-                'Content-Type': 'application/json',
-              },
-            }
-          );
-          setCategoryName(response.data.data.name || '');
+          const cat = await getCategoryById(menuCategoryId);
+          if (!cat) {
+            toastController.error("Category not found locally");
+            return;
+          }
+          setCategoryName(cat.category_name || cat.name || "");
           setHasLoadedData(true);
-        } catch (error) {
-          toastController.error(error.response?.data?.message || 'Failed to fetch category details');
+        } catch {
+          toastController.error("Failed to load category");
         } finally {
           setLoading(false);
         }
       };
-      fetchCategory();
+      load();
     }
-  }, [adminData?.user_id, menuCategoryId, outletId, hasLoadedData, getToken, BASE_URL]);
+  }, [menuCategoryId, outletId, hasLoadedData, getCategoryById]);
 
-  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const response = await axios.patch(
-        `${BASE_URL}/common/menu_category_update`,
-        {
-          outlet_id: Number(outletId),
-          menu_cat_id: Number(menuCategoryId),
-          user_id: adminData?.user_id,
-          category_name: categoryName,
-          app_source: 'admin_app',
-          remove_image_flag: true // Keep this if needed by the API
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-            'Content-Type': 'application/json',
-          },
-        }
+      await updateMutation.mutateAsync({
+        menuCatIdOrUuid: menuCategoryId,
+        name: categoryName,
+      });
+      toastController.success(
+        online
+          ? "Category updated — syncing"
+          : "Category updated offline — will sync when online"
       );
-      
-      toastController.success(response.data.detail || 'Menu Category updated successfully');
-      // Invalidate categories cache to refresh the list
-      queryClient.invalidateQueries({ queryKey: queryKeys.categories.list(outletId) });
-      setTimeout(() => navigate(-1), 1200);
+      setTimeout(() => navigate(-1), 800);
     } catch (err) {
-      toastController.error(
-        err.response?.data?.message ||
-        err.response?.data?.detail ||
-        'Failed to update category'
-      );
+      toastController.error(err.message || "Failed to update category");
     } finally {
       setLoading(false);
     }
@@ -107,10 +74,10 @@ function EditCategory() {
     <div className="">
       <Breadcrumb
         items={[
-          { label: 'Home', path: '/home' },
-          { label: 'Outlets', path: '/outlets' },
-          { label: 'Categories', path: `/categories/${outletId}` },
-          { label: 'Edit Category' }
+          { label: "Home", path: "/home" },
+          { label: "Outlets", path: "/outlets" },
+          { label: "Categories", path: `/categories/${outletId}` },
+          { label: "Edit Category" },
         ]}
       />
       <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
@@ -124,11 +91,9 @@ function EditCategory() {
               <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
               <span>Back</span>
             </button>
-
             <h2 className="text-lg font-semibold text-gray-800 text-center">
               Edit Category
             </h2>
-
             <SaveButton
               onClick={() => formRef.current?.requestSubmit()}
               disabled={loading}
@@ -140,21 +105,27 @@ function EditCategory() {
           </div>
         </div>
 
+        {!online && (
+          <div className="mx-6 mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            You are offline. Changes will sync when you reconnect.
+          </div>
+        )}
+
         <div className="p-6">
-        <form
+          <form
             ref={formRef}
             onSubmit={handleSubmit}
             className="grid grid-cols-1 sm:grid-cols-2 gap-4"
           >
             <div className="sm:col-span-1">
               <TextInput
+                className="rounded-lg"
                 label="Category Name"
-                className = "rounded-lg"
                 required
                 value={categoryName}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (!/^[A-Za-z\u0900-\u097F\s]*$/.test(value)) {
+                  if (!/^[A-Za-z\s]*$/.test(value)) {
                     setNameError(
                       "Category name should only contain alphabets and spaces"
                     );
@@ -169,15 +140,6 @@ function EditCategory() {
                 <p className="text-error-500 text-sm mt-1">{nameError}</p>
               )}
             </div>
-
-            {/* Submit button hidden */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="hidden w-full py-2 rounded-3lg bg-brand-500 text-white font-semibold hover:bg-brand-600 transition"
-            >
-              {loading ? "Creating..." : "Create Category"}
-            </button>
           </form>
         </div>
       </div>

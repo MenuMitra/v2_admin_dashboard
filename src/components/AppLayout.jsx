@@ -3,6 +3,7 @@ import Sidebar from "./Sidebar";
 import Header from "./Header";
 import TestEnvironmentBanner from "./Banner/TestEnvironmentBanner";
 import { FullscreenProvider, useFullscreen } from "./FullscreenContext";
+import { SyncProvider } from "../offline";
 
 function AppLayoutInner({ children }) {
   const [sidebarToggle, setSidebarToggle] = useState(false);
@@ -39,7 +40,9 @@ function AppLayoutInner({ children }) {
 function AppLayout(props) {
   return (
     <FullscreenProvider>
-      <AppLayoutInner {...props} />
+      <SyncProvider>
+        <AppLayoutInner {...props} />
+      </SyncProvider>
     </FullscreenProvider>
   );
 }
