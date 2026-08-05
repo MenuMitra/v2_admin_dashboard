@@ -29,6 +29,7 @@ function CreateAdmin() {
   });
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const [emailApiError, setEmailApiError] = useState("");
+  const [mobileApiError, setMobileApiError] = useState("");
   const [pinError, setPinError] = useState("");
 
   const breadcrumbItems = [
@@ -36,6 +37,19 @@ function CreateAdmin() {
     { label: "Admins", path: "/admins" },
     { label: "Create Admin", path: "/create-admin" },
   ];
+
+  /** API returns e.g. "ADM_45965 - 400 - Mobile Number already exists" */
+  const parseApiErrorMessage = (data) => {
+    const raw =
+      data?.message ||
+      data?.detail ||
+      data?.error ||
+      (typeof data === "string" ? data : "");
+    if (!raw) return "Failed to create admin";
+    // Strip "ADM_xxxxx - 400 - " style prefixes for a cleaner UI message
+    const cleaned = String(raw).replace(/^[A-Z]+_\d+\s*-\s*\d+\s*-\s*/i, "").trim();
+    return cleaned || String(raw);
+  };
 
   const isMobileValid = (mobile) => {
     if (!mobile) return { isValid: false, message: "Mobile number is required" };
@@ -79,6 +93,7 @@ function CreateAdmin() {
         mobile: isValid,
         mobileMessage: message,
       }));
+      if (mobileApiError) setMobileApiError("");
     } else if (name === "email") {
       const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
       if (value && !gmailPattern.test(value)) {
@@ -135,6 +150,7 @@ function CreateAdmin() {
     e.preventDefault();
     setIsSubmitAttempted(true);
     setEmailApiError("");
+    setMobileApiError("");
     setPinError("");
 
     const pinValidation = validatePin(adminData.pin, { required: true });
@@ -159,20 +175,36 @@ function CreateAdmin() {
 
       createAdmin(payload, {
         onSuccess: (data) => {
-          toastController.success(data?.detail || "Admin created successfully");
+          toastController.success(
+            data?.detail || data?.message || "Admin created successfully"
+          );
           navigate("/admins");
         },
         onError: (err) => {
-          if (err.response?.data?.detail === "Email format is incorrect") {
-            setEmailApiError("Email format is incorrect");
+          const apiMessage = parseApiErrorMessage(err.response?.data);
+          const lower = apiMessage.toLowerCase();
+
+          if (lower.includes("email")) {
+            setEmailApiError(apiMessage);
+          } else if (
+            lower.includes("mobile") ||
+            lower.includes("phone") ||
+            lower.includes("already exists")
+          ) {
+            setMobileApiError(apiMessage);
+            setValidationStates((prev) => ({
+              ...prev,
+              mobile: false,
+              mobileMessage: apiMessage,
+            }));
           }
-          toastController.error(
-            err.response?.data?.detail || "Failed to create admin"
-          );
+
+          toastController.error(apiMessage);
         },
       });
     } catch (error) {
       console.error("Create admin error:", error);
+      toastController.error("Failed to create admin");
     }
   };
 
@@ -256,6 +288,9 @@ function CreateAdmin() {
                   <p className="text-error-500 text-sm mt-1">
                     {validationStates.mobileMessage}
                   </p>
+                )}
+                {mobileApiError && validationStates.mobile && (
+                  <p className="text-error-500 text-sm mt-1">{mobileApiError}</p>
                 )}
               </div>
 
