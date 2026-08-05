@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
@@ -16,13 +16,20 @@ const CustomDropdown = ({
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
   const dropdownRef = useRef(null);
 
-  // Find selected option
-  useEffect(() => {
-    const option = options.find(opt => opt.value === value);
-    setSelectedOption(option);
+  // Derive selection during render — avoid useEffect + options[] deps
+  // (inline options arrays are new every render and caused update loops).
+  const selectedOption = useMemo(() => {
+    if (value === null || value === undefined || value === "") return null;
+    const str = String(value);
+    return (
+      options.find((opt) => String(opt.value) === str) ||
+      options.find(
+        (opt) => String(opt.value).toLowerCase() === str.toLowerCase()
+      ) ||
+      null
+    );
   }, [value, options]);
 
   // Close dropdown when clicking outside
@@ -38,7 +45,6 @@ const CustomDropdown = ({
   }, []);
 
   const handleSelect = (option) => {
-    setSelectedOption(option);
     setIsOpen(false);
 
     // Create synthetic event for compatibility

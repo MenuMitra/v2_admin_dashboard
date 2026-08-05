@@ -36,6 +36,40 @@ import CustomDropdown from "./common/CustomDropdown";
 import MultiSelectDropdown from "./common/MultiSelectDropdown";
 import SingleSelectDropdown from "./common/SingleSelectDropdown";
 
+const FALLBACK_OUTLET_TYPES = {
+  outlet: "outlet",
+  hotel: "hotel",
+  mess: "mess",
+  canteen: "canteen",
+  cafe: "cafe",
+  bakery: "bakery",
+};
+
+function toOutletTypeOptions(list) {
+  const source =
+    list && typeof list === "object" && !Array.isArray(list)
+      ? list
+      : Array.isArray(list)
+        ? Object.fromEntries(
+            list.map((item) => {
+              if (typeof item === "string") return [item, item];
+              const key =
+                item?.value || item?.key || item?.outlet_type || item?.name;
+              const label = item?.label || item?.name || key;
+              return [key, label];
+            }).filter(([key]) => key)
+          )
+        : FALLBACK_OUTLET_TYPES;
+
+  return Object.entries(source).map(([key, value]) => {
+    const label = String(value ?? key);
+    return {
+      value: key,
+      label: label.charAt(0).toUpperCase() + label.slice(1).replace(/_/g, " "),
+    };
+  });
+}
+
 function formatDateToDDMMMYYYY(dateStr) {
   if (!dateStr) return "";
   const months = [
@@ -58,10 +92,10 @@ function formatDateToDDMMMYYYY(dateStr) {
 
 function CreateOutlet() {
   const navigate = useNavigate();
-  const { getToken, getUserId } = useAuth();
+  const { getToken, getUserId, authData } = useAuth();
   const { adminData } = useAdmin();
   const queryClient = useQueryClient();
-  const [outletTypes, setOutletTypes] = useState({});
+  const [outletTypeOptions, setOutletTypeOptions] = useState([]);
   const [companyOwners, setCompanyOwners] = useState([]);
   const [primaryOwnerId, setPrimaryOwnerId] = useState(null);
   const [allCompanies, setAllCompanies] = useState([]);
@@ -153,6 +187,9 @@ function CreateOutlet() {
   ];
 
   useEffect(() => {
+    const token = getToken();
+    if (!token) return;
+
     const initializeData = async () => {
       try {
         setIsLoading(true);
@@ -164,7 +201,6 @@ function CreateOutlet() {
         // fetch modules for subscription assign
         try {
           setLoadingModules(true);
-          const token = getToken();
           const resp = await axios.get(
             `${BASE_URL}/admin/get_modules`,
             {
@@ -192,7 +228,7 @@ function CreateOutlet() {
     };
 
     initializeData();
-  }, []);
+  }, [authData?.access_token]);
 
 
 
@@ -336,10 +372,12 @@ function CreateOutlet() {
   }, []);
 
   const fetchOutletTypes = async () => {
+    const fallback = toOutletTypeOptions(FALLBACK_OUTLET_TYPES);
     try {
       const token = getToken();
       if (!token) {
-        throw new Error("No authentication token available");
+        setOutletTypeOptions(fallback);
+        return;
       }
 
       const response = await axios.get(
@@ -351,11 +389,17 @@ function CreateOutlet() {
         }
       );
 
-      if (response.data.detail === "Successfully retrieved outlet types") {
-        setOutletTypes(response.data.outlet_type_list);
-      }
-    } catch (error) {
+      const list =
+        response.data?.outlet_type_list ||
+        response.data?.data?.outlet_type_list ||
+        response.data?.data ||
+        null;
 
+      const options = toOutletTypeOptions(list);
+      setOutletTypeOptions(options.length ? options : fallback);
+    } catch (error) {
+      console.error("Error fetching outlet types:", error);
+      setOutletTypeOptions(fallback);
     }
   };
 
@@ -1195,14 +1239,7 @@ function CreateOutlet() {
                       validationStates.outlet_type && !outletData.outlet_type
                     }
                     required
-                    options={Object.entries(outletTypes).map(
-                      ([key, value]) => ({
-                        value: key,
-                        label:
-                          value.charAt(0).toUpperCase() +
-                          value.slice(1).replace(/_/g, " "),
-                      })
-                    )}
+                    options={outletTypeOptions}
                     placeholder="Select Outlet Type"
                   />
 
