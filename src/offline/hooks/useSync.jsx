@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useAdmin } from "../../hooks/useAdmin";
@@ -30,42 +31,69 @@ export function SyncProvider({ children }) {
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(0);
   const [lastOutletId, setLastOutletId] = useState(null);
+  const lastOutletRef = useRef(null);
+  const autoSyncTimer = useRef(null);
+
+  useEffect(() => {
+    lastOutletRef.current = lastOutletId;
+  }, [lastOutletId]);
 
   useEffect(() => subscribeOnlineStatus(setOnline), []);
 
   useEffect(() => {
     return subscribeSyncState((state) => {
-      setStatus(state.status || "idle");
-      setMessage(state.message || "");
-      if (state.outletId != null) setLastOutletId(state.outletId);
-      if (typeof state.pending === "number") setPending(state.pending);
+      // Avoid re-rendering the whole app when nothing meaningful changed
+      if (state.status != null) {
+        setStatus((prev) => (prev === state.status ? prev : state.status));
+      }
+      if (state.message != null) {
+        setMessage((prev) => (prev === state.message ? prev : state.message));
+      }
+      if (state.outletId != null) {
+        setLastOutletId((prev) =>
+          prev === state.outletId ? prev : state.outletId
+        );
+      }
+      if (typeof state.pending === "number") {
+        setPending((prev) => (prev === state.pending ? prev : state.pending));
+      }
     });
   }, []);
 
-  // Auto-sync last outlet when coming back online (only if interval is due)
+  // Debounced auto-sync when coming online / outlet changes
   useEffect(() => {
     if (!online || !lastOutletId || !adminData?.user_id) return;
-    syncOutlet(lastOutletId, {
-      userId: adminData.user_id,
-      force: false,
-    }).then(async (res) => {
-      if (lastOutletId) {
-        setPending(await getPendingDirtyCount(lastOutletId));
-      }
-      return res;
-    });
+
+    if (autoSyncTimer.current) clearTimeout(autoSyncTimer.current);
+    autoSyncTimer.current = setTimeout(() => {
+      syncOutlet(lastOutletId, {
+        userId: adminData.user_id,
+        force: false,
+      }).then(async () => {
+        const oid = lastOutletRef.current;
+        if (oid) setPending(await getPendingDirtyCount(oid));
+      });
+    }, 400);
+
+    return () => {
+      if (autoSyncTimer.current) clearTimeout(autoSyncTimer.current);
+    };
   }, [online, lastOutletId, adminData?.user_id]);
 
   const syncNow = useCallback(
     async (outletId) => {
-      const oid = outletId || lastOutletId;
+      const oid = outletId || lastOutletRef.current;
       if (!oid) return { ok: false, reason: "missing_outlet" };
       setLastOutletId(Number(oid));
-      // Manual tap always syncs immediately
       return syncOutlet(oid, { userId: adminData?.user_id, force: true });
     },
-    [adminData?.user_id, lastOutletId]
+    [adminData?.user_id]
   );
+
+  const setActiveOutlet = useCallback((id) => {
+    const next = id == null ? null : Number(id);
+    setLastOutletId((prev) => (prev === next ? prev : next));
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -75,9 +103,9 @@ export function SyncProvider({ children }) {
       pending,
       lastOutletId,
       syncNow,
-      setActiveOutlet: setLastOutletId,
+      setActiveOutlet,
     }),
-    [online, status, message, pending, lastOutletId, syncNow]
+    [online, status, message, pending, lastOutletId, syncNow, setActiveOutlet]
   );
 
   return (

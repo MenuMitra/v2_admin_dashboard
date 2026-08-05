@@ -18,8 +18,25 @@ export function useOfflineCategories(outletId, userId) {
   const categoriesQuery = useQuery({
     queryKey: queryKeys.categories.list(outletId),
     queryFn: async () => {
-      await ensureOutletHydrated(outletId, userId);
       const menucat_details = await listCategories(outletId);
+
+      if (menucat_details.length === 0 && isOnline() && userId) {
+        // First visit only — wait once to seed IndexedDB
+        await ensureOutletHydrated(outletId, userId, { waitIfEmpty: true });
+        const seeded = await listCategories(outletId);
+        const outletInfo = await db.outletCache.get(Number(outletId));
+        return {
+          detail: "ok",
+          data: {
+            menucat_details: seeded,
+            outlet_info: outletInfo || null,
+          },
+        };
+      }
+
+      // Instant path — hydrate/sync in background
+      ensureOutletHydrated(outletId, userId);
+
       const outletInfo = await db.outletCache.get(Number(outletId));
       return {
         detail: "ok",
@@ -30,6 +47,8 @@ export function useOfflineCategories(outletId, userId) {
       };
     },
     enabled: Boolean(outletId && userId),
+    staleTime: 30_000,
+    placeholderData: (prev) => prev,
   });
 
   const invalidate = () => {
@@ -42,7 +61,7 @@ export function useOfflineCategories(outletId, userId) {
     mutationFn: async ({ name }) => createCategory({ outletId, name }),
     onSuccess: async () => {
       invalidate();
-      if (isOnline()) await syncOutlet(outletId, { userId, force: false });
+      if (isOnline()) syncOutlet(outletId, { userId, force: false }).catch(() => {});
     },
   });
 
@@ -51,7 +70,7 @@ export function useOfflineCategories(outletId, userId) {
       updateCategory({ outletId, menuCatIdOrUuid, name, isActive }),
     onSuccess: async () => {
       invalidate();
-      if (isOnline()) await syncOutlet(outletId, { userId, force: false });
+      if (isOnline()) syncOutlet(outletId, { userId, force: false }).catch(() => {});
     },
   });
 
@@ -60,7 +79,7 @@ export function useOfflineCategories(outletId, userId) {
       deleteCategory(outletId, menuCatIdOrUuid),
     onSuccess: async () => {
       invalidate();
-      if (isOnline()) await syncOutlet(outletId, { userId, force: false });
+      if (isOnline()) syncOutlet(outletId, { userId, force: false }).catch(() => {});
     },
   });
 
@@ -71,7 +90,7 @@ export function useOfflineCategories(outletId, userId) {
     },
     onSuccess: async () => {
       invalidate();
-      if (isOnline()) await syncOutlet(outletId, { userId, force: false });
+      if (isOnline()) syncOutlet(outletId, { userId, force: false }).catch(() => {});
     },
   });
 

@@ -75,7 +75,9 @@ function MenuDetails() {
 
       setError(null);
       try {
-        await ensureOutletHydrated(outletId, adminData.user_id);
+        await ensureOutletHydrated(outletId, adminData.user_id, {
+          waitIfEmpty: true,
+        });
         const local = await getMenuById(outletId, menuId);
         if (!local) {
           setError('Menu not found locally');

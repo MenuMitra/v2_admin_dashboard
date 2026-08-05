@@ -296,7 +296,9 @@ function EditMenu() {
   useEffect(() => {
     const fetchMenuDetails = async () => {
       try {
-        await ensureOutletHydrated(outletId, adminData?.user_id);
+        await ensureOutletHydrated(outletId, adminData?.user_id, {
+          waitIfEmpty: true,
+        });
 
         const menuData = await getLocalMenuById(outletId, menuId);
         if (!menuData) {

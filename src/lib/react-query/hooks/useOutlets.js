@@ -79,8 +79,9 @@ export const useOutlets = () => {
       throw new Error(response.data.message || "Failed to fetch outlets");
     },
     enabled: !!adminData?.user_id,
-    staleTime: 0, // Data is immediately considered stale
-    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+    staleTime: 5 * 60 * 1000, // 5 minutes — avoid refetch on every navigation
+    gcTime: 30 * 60 * 1000,
+    placeholderData: (prev) => prev,
   });
 
   // Delete Mutation

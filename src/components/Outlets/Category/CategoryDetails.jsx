@@ -69,7 +69,9 @@ function CategoryDetails() {
       setLoading(true);
       setError(null);
       try {
-        await ensureOutletHydrated(outletId, adminData?.user_id);
+        await ensureOutletHydrated(outletId, adminData?.user_id, {
+          waitIfEmpty: true,
+        });
         const cat = await getCategoryById(outletId, menuCategoryId);
         if (!cat) {
           setError("Category not found locally");

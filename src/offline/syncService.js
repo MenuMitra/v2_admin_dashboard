@@ -236,26 +236,41 @@ async function applyPull(outletId, pull = {}) {
 
 /**
  * Bootstrap local DB from existing online list APIs when sync pull is empty.
+ * Runs category + menu fetches in parallel with a short timeout.
  */
 export async function bootstrapOutletFromOnlineApis(outletId, userId) {
   if (!isOnline() || !userId) return { categories: 0, menus: 0 };
 
   const headers = await getAuthHeaders();
   const oid = Number(outletId);
+  const timeout = 8000;
 
   let categories = 0;
   let menus = 0;
 
-  try {
-    const catRes = await axios.post(
+  const [catResult, menuResult] = await Promise.allSettled([
+    axios.post(
       `${BASE_URL}/common/menu_category_list`,
       {
         outlet_id: oid,
         user_id: userId,
         app_source: "admin_app",
       },
-      { headers }
-    );
+      { headers, timeout }
+    ),
+    axios.post(
+      `${BASE_URL}/common/menu_list`,
+      {
+        outlet_id: oid,
+        user_id: userId,
+        app_source: "admin_app",
+      },
+      { headers, timeout }
+    ),
+  ]);
+
+  if (catResult.status === "fulfilled") {
+    const catRes = catResult.value;
     const list = catRes.data?.data?.menucat_details || [];
     await upsertCategoriesFromServer(oid, list);
     categories = list.length;
@@ -266,21 +281,10 @@ export async function bootstrapOutletFromOnlineApis(outletId, userId) {
         ...catRes.data.data.outlet_info,
       });
     }
-  } catch {
-    // keep local data if bootstrap fails
   }
 
-  try {
-    const menuRes = await axios.post(
-      `${BASE_URL}/common/menu_list`,
-      {
-        outlet_id: oid,
-        user_id: userId,
-        app_source: "admin_app",
-      },
-      { headers }
-    );
-    // menu_list returns detail as array (ManageMenus uses response.data.detail)
+  if (menuResult.status === "fulfilled") {
+    const menuRes = menuResult.value;
     const list =
       (Array.isArray(menuRes.data?.detail) && menuRes.data.detail) ||
       menuRes.data?.data?.menus ||
@@ -300,8 +304,6 @@ export async function bootstrapOutletFromOnlineApis(outletId, userId) {
         outlet_name: outletName,
       });
     }
-  } catch {
-    // keep local data
   }
 
   return { categories, menus };
@@ -341,19 +343,13 @@ export async function syncOutlet(
   }
 
   syncInFlight = (async () => {
-    emitSyncState({ status: "syncing", outletId: Number(outletId) });
+    const oid = Number(outletId);
 
     try {
       if (!isOnline()) {
-        emitSyncState({
-          status: "offline",
-          outletId: Number(outletId),
-          message: "Offline — changes saved locally",
-        });
         return { ok: false, reason: "offline" };
       }
 
-      const oid = Number(outletId);
       const localCatCount = await db.menu_categories
         .where("outlet_id")
         .equals(oid)
@@ -361,7 +357,7 @@ export async function syncOutlet(
       const localMenuCount = await db.menus.where("outlet_id").equals(oid).count();
       const isEmpty = localCatCount === 0 && localMenuCount === 0;
 
-      // Respect sync interval unless forced or first hydrate
+      // Respect sync interval unless forced or first hydrate — check BEFORE UI "syncing"
       if (!force && !forceBootstrap && !isEmpty) {
         const due = await isSyncDue(oid);
         if (!due) {
@@ -384,6 +380,8 @@ export async function syncOutlet(
         }
       }
 
+      emitSyncState({ status: "syncing", outletId: oid });
+
       if (forceBootstrap || isEmpty) {
         await bootstrapOutletFromOnlineApis(oid, userId);
       }
@@ -400,10 +398,12 @@ export async function syncOutlet(
       let responseData = null;
 
       try {
-        const res = await axios.post(SYNC_URL, payload, { headers });
+        const res = await axios.post(SYNC_URL, payload, {
+          headers,
+          timeout: 10000,
+        });
         responseData = res.data?.data ?? res.data;
       } catch (err) {
-        // Sync endpoint may be unavailable — still keep local + bootstrap
         emitSyncState({
           status: "error",
           outletId: oid,
@@ -412,7 +412,8 @@ export async function syncOutlet(
             err.response?.data?.message ||
             "Sync API unavailable — using local cache",
         });
-        if (userId) {
+        // Only bootstrap if local store is empty — avoid double network wait
+        if (userId && isEmpty) {
           await bootstrapOutletFromOnlineApis(oid, userId);
         }
         return { ok: false, reason: "sync_api_error", error: err };
@@ -422,7 +423,6 @@ export async function syncOutlet(
       await markAppliedClean(responseData?.applied || {});
       await applyPull(oid, responseData?.pull || {});
 
-      // If pull empty after first sync, refresh from list APIs once
       const afterCats = await db.menu_categories
         .where("outlet_id")
         .equals(oid)
@@ -465,14 +465,61 @@ export async function syncOutlet(
   return syncInFlight;
 }
 
-export async function ensureOutletHydrated(outletId, userId) {
+const hydrateInFlight = new Map();
+
+/**
+ * Non-blocking hydrate by default: UI can read IndexedDB immediately.
+ * Pass { waitIfEmpty: true } on detail screens that need data on first visit.
+ */
+export async function ensureOutletHydrated(
+  outletId,
+  userId,
+  { waitIfEmpty = false } = {}
+) {
   const oid = Number(outletId);
-  const count = await db.menu_categories.where("outlet_id").equals(oid).count();
+  if (!oid) return;
+
+  const count = await db.menu_categories
+    .where("outlet_id")
+    .equals(oid)
+    .count();
+
   if (count === 0 && isOnline() && userId) {
-    await bootstrapOutletFromOnlineApis(oid, userId);
+    if (!hydrateInFlight.has(oid)) {
+      const job = (async () => {
+        try {
+          await bootstrapOutletFromOnlineApis(oid, userId);
+          try {
+            const { queryClient } = await import(
+              "../lib/react-query/queryClient"
+            );
+            const { queryKeys } = await import("../lib/react-query/queryKeys");
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.categories.list(oid),
+            });
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.menus.list(String(oid)),
+            });
+            queryClient.invalidateQueries({
+              queryKey: queryKeys.menus.list(oid),
+            });
+          } catch {
+            // ignore
+          }
+        } finally {
+          hydrateInFlight.delete(oid);
+        }
+      })();
+      hydrateInFlight.set(oid, job);
+    }
+    if (waitIfEmpty) {
+      await hydrateInFlight.get(oid);
+    }
+    return;
   }
-  // Background sync only when interval is due (or never synced)
-  if (isOnline() && userId) {
+
+  // Local data exists — sync in background only when due
+  if (isOnline() && userId && !hydrateInFlight.has(oid)) {
     syncOutlet(oid, { userId, force: false }).catch(() => {});
   }
 }

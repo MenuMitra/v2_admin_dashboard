@@ -18,11 +18,29 @@ export function useOfflineMenus(outletId, userId) {
   const menusQuery = useQuery({
     queryKey: queryKeys.menus.list(outletId),
     queryFn: async () => {
-      await ensureOutletHydrated(outletId, userId);
       const menus = await listMenus(outletId);
+
+      if (menus.length === 0 && isOnline() && userId) {
+        await ensureOutletHydrated(outletId, userId, { waitIfEmpty: true });
+        const seeded = await listMenus(outletId);
+        const outletInfo = await db.outletCache.get(Number(outletId));
+        const outletName = outletInfo?.outlet_name || "";
+        return {
+          detail: seeded.map((m) => ({
+            ...m,
+            outlet_name: m.outlet_name || outletName,
+          })),
+          data: {
+            menus: seeded,
+            outlet_info: outletInfo || null,
+          },
+        };
+      }
+
+      ensureOutletHydrated(outletId, userId);
+
       const outletInfo = await db.outletCache.get(Number(outletId));
       const outletName = outletInfo?.outlet_name || "";
-      // Match online menu_list shape: response.data.detail = array
       return {
         detail: menus.map((m) => ({
           ...m,
@@ -35,6 +53,8 @@ export function useOfflineMenus(outletId, userId) {
       };
     },
     enabled: Boolean(outletId && userId),
+    staleTime: 30_000,
+    placeholderData: (prev) => prev,
   });
 
   const invalidate = () => {
@@ -47,7 +67,7 @@ export function useOfflineMenus(outletId, userId) {
     mutationFn: async (payload) => createMenu({ outletId, ...payload }),
     onSuccess: async () => {
       invalidate();
-      if (isOnline()) await syncOutlet(outletId, { userId, force: false });
+      if (isOnline()) syncOutlet(outletId, { userId, force: false }).catch(() => {});
     },
   });
 
@@ -55,7 +75,7 @@ export function useOfflineMenus(outletId, userId) {
     mutationFn: async (payload) => updateMenu({ outletId, ...payload }),
     onSuccess: async () => {
       invalidate();
-      if (isOnline()) await syncOutlet(outletId, { userId, force: false });
+      if (isOnline()) syncOutlet(outletId, { userId, force: false }).catch(() => {});
     },
   });
 
@@ -64,7 +84,7 @@ export function useOfflineMenus(outletId, userId) {
       deleteMenu(outletId, menuIdOrUuid),
     onSuccess: async () => {
       invalidate();
-      if (isOnline()) await syncOutlet(outletId, { userId, force: false });
+      if (isOnline()) syncOutlet(outletId, { userId, force: false }).catch(() => {});
     },
   });
 
@@ -75,7 +95,7 @@ export function useOfflineMenus(outletId, userId) {
     },
     onSuccess: async () => {
       invalidate();
-      if (isOnline()) await syncOutlet(outletId, { userId, force: false });
+      if (isOnline()) syncOutlet(outletId, { userId, force: false }).catch(() => {});
     },
   });
 
