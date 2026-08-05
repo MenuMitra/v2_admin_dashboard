@@ -27,6 +27,46 @@ function toTitleCase(str) {
     : "";
 }
 
+/** Normalize sync days from API (`sync_days` or `sync_interval_days`) to 10 / 15 / 30. */
+function normalizeSyncDays(value, fallback = DEFAULT_SYNC_INTERVAL_DAYS) {
+  const days = Number(value);
+  if (days === 10 || days === 15 || days === 30) return days;
+  if (!Number.isFinite(days) || days <= 0) return fallback;
+  const options = [10, 15, 30];
+  return options.reduce((best, opt) =>
+    Math.abs(opt - days) < Math.abs(best - days) ? opt : best
+  );
+}
+
+/**
+ * GET /admin/get_outlet_config/{outlet_id}
+ * Outlet id is a path param (required by API). Returns null if config does not exist yet.
+ */
+async function fetchOutletConfig({ baseUrl, outletId, token }) {
+  const headers = {
+    Authorization: token,
+    "Content-Type": "application/json",
+  };
+  const oid = Number(outletId);
+
+  try {
+    const response = await axios.get(
+      `${baseUrl}/admin/get_outlet_config/${oid}`,
+      { headers }
+    );
+    return response.data?.data ?? response.data;
+  } catch (err) {
+    const status = err.response?.status;
+    const msg =
+      err.response?.data?.message || err.response?.data?.detail || "";
+    // No config created yet for this outlet — open empty form instead of failing
+    if (status === 404 || /configuration not found/i.test(String(msg))) {
+      return null;
+    }
+    throw err;
+  }
+}
+
 function OutletConfiguration() {
   const { outletId } = useParams();
   const navigate = useNavigate();
@@ -92,22 +132,17 @@ function OutletConfiguration() {
     enabled: Boolean(outletId) && Boolean(adminData?.user_id),
   });
 
-  // Fetch outlet configuration
+  // Fetch outlet configuration — GET /admin/get_outlet_config/{outlet_id}
   const { data: configResponse, isLoading: isLoadingConfig } = useQuery({
     queryKey: ["outletConfig", outletId],
-    queryFn: async () => {
-      const response = await axios.get(
-        `${BASE_URL}/admin/get_outlet_config/${outletId}`,
-        {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return response.data;
-    },
-    enabled: Boolean(outletId),
+    queryFn: async () =>
+      fetchOutletConfig({
+        baseUrl: BASE_URL,
+        outletId,
+        token: getToken(),
+      }),
+    enabled: Boolean(outletId) && Boolean(adminData?.user_id),
+    retry: false,
   });
 
   const outletData = outletResponse?.data || null;
@@ -148,15 +183,15 @@ function OutletConfiguration() {
         // keep default
       }
 
-      const apiInterval = Number(configData.sync_interval_days);
-      const syncInterval =
-        apiInterval === 10 || apiInterval === 15 || apiInterval === 30
-          ? apiInterval
-          : localInterval;
+      const apiInterval = normalizeSyncDays(
+        configData.sync_days ?? configData.sync_interval_days,
+        localInterval
+      );
+      const syncInterval = apiInterval;
 
-      if (apiInterval === 10 || apiInterval === 15 || apiInterval === 30) {
+      if (syncInterval === 10 || syncInterval === 15 || syncInterval === 30) {
         try {
-          await setSyncIntervalDays(outletId, apiInterval);
+          await setSyncIntervalDays(outletId, syncInterval);
         } catch {
           // keep local default
         }
@@ -335,10 +370,10 @@ function OutletConfiguration() {
         payload.reset_kot_number = String(configFormData.reset_kot_number);
       }
 
-      // Offline sync interval (10 / 15 / 30 days)
+      // Offline sync interval (10 / 15 / 30 days) — API field is `sync_days`
       const syncInterval =
         Number(configFormData.sync_interval_days) || DEFAULT_SYNC_INTERVAL_DAYS;
-      payload.sync_interval_days = syncInterval;
+      payload.sync_days = syncInterval;
 
       console.log("Outlet Configuration payload:", payload);
 
@@ -358,8 +393,8 @@ function OutletConfiguration() {
           }
         );
       } catch {
-        // Backend may not support sync_interval_days yet — retry without it
-        const { sync_interval_days: _syncDays, ...payloadWithoutSync } = payload;
+        // Backend may reject unknown fields — retry without sync_days
+        const { sync_days: _syncDays, ...payloadWithoutSync } = payload;
         response = await axios.patch(
           `${BASE_URL}/admin/update_outlet_config`,
           payloadWithoutSync,
