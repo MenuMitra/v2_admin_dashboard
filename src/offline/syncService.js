@@ -36,24 +36,59 @@ function emitSyncState(state) {
   });
 }
 
-async function getAuthHeaders() {
-  let token = localStorage.getItem("token");
+function normalizeAuthToken(raw) {
+  if (!raw || typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed === "null" || trimmed === "undefined") return null;
+  return trimmed.startsWith("Bearer ") ? trimmed : `Bearer ${trimmed}`;
+}
+
+function getAuthHeaders() {
+  let token = normalizeAuthToken(localStorage.getItem("token"));
+  if (!token) {
+    token = normalizeAuthToken(localStorage.getItem("mm_last_access_token"));
+  }
   if (!token) {
     try {
       const auth = JSON.parse(localStorage.getItem("auth") || "null");
-      if (auth?.access_token) {
-        token = auth.access_token.startsWith("Bearer ")
-          ? auth.access_token
-          : `Bearer ${auth.access_token}`;
-      }
+      token = normalizeAuthToken(auth?.access_token);
     } catch {
       // ignore parse errors
     }
+  }
+  if (!token) {
+    return null;
   }
   return {
     Authorization: token,
     "Content-Type": "application/json",
   };
+}
+
+/** Human-readable error from sync API / axios failures. */
+function formatSyncError(err) {
+  const data = err?.response?.data;
+  if (typeof data === "string" && data.trim()) return data.trim();
+  if (data?.message) return String(data.message);
+  if (data?.detail) {
+    return typeof data.detail === "string"
+      ? data.detail
+      : JSON.stringify(data.detail);
+  }
+  if (err?.code === "ECONNABORTED") {
+    return "Sync timed out — try again";
+  }
+  if (!err?.response) {
+    return "Cannot reach sync server — check your connection";
+  }
+  const status = err.response.status;
+  if (status === 401 || status === 403) {
+    return "Not authenticated — please login again";
+  }
+  if (status === 404) {
+    return data?.message || "Outlet not found for sync";
+  }
+  return `Sync failed (HTTP ${status})`;
 }
 
 async function getLastSyncAt(outletId) {
@@ -285,7 +320,8 @@ async function applyPull(outletId, pull = {}) {
 export async function bootstrapOutletFromOnlineApis(outletId, userId) {
   if (!isOnline() || !userId) return { categories: 0, menus: 0 };
 
-  const headers = await getAuthHeaders();
+  const headers = getAuthHeaders();
+  if (!headers) return { categories: 0, menus: 0 };
   const oid = Number(outletId);
   const timeout = 8000;
 
@@ -424,48 +460,71 @@ export async function syncOutlet(
         }
       }
 
-      emitSyncState({ status: "syncing", outletId: oid });
+      emitSyncState({ status: "syncing", outletId: oid, message: "Syncing…" });
+
+      const headers = getAuthHeaders();
+      if (!headers?.Authorization) {
+        const message = "Not authenticated — please login again";
+        emitSyncState({ status: "error", outletId: oid, message });
+        return { ok: false, reason: "no_auth", message };
+      }
 
       if (forceBootstrap || isEmpty) {
         await bootstrapOutletFromOnlineApis(oid, userId);
       }
 
+      // Match POST /v1/sync contract: always send push object (may be empty)
       const push = await collectDirtyPush(oid);
       const payload = {
         outlet_id: oid,
         device_id: getDeviceId(),
         last_sync_at: await getLastSyncAt(oid),
-        push,
+        push: push || {},
       };
 
-      const headers = await getAuthHeaders();
+      const syncUrl = SYNC_URL || `${BASE_URL}/sync`;
       let responseData = null;
 
       try {
-        const res = await axios.post(SYNC_URL, payload, {
+        const res = await axios.post(syncUrl, payload, {
           headers,
-          timeout: 10000,
+          timeout: 30000,
         });
-        responseData = res.data?.data ?? res.data;
+        // API returns body at top level (server_time, applied, id_mappings, pull)
+        const body = res.data;
+        if (body?.success === false) {
+          throw Object.assign(new Error(body.message || "Sync rejected"), {
+            response: { status: res.status, data: body },
+          });
+        }
+        responseData = body?.data && body?.server_time == null ? body.data : body;
       } catch (err) {
+        const message = formatSyncError(err);
         emitSyncState({
           status: "error",
           outletId: oid,
-          message:
-            err.response?.data?.detail ||
-            err.response?.data?.message ||
-            "Sync API unavailable — using local cache",
+          message,
         });
-        // Only bootstrap if local store is empty — avoid double network wait
         if (userId && isEmpty) {
           await bootstrapOutletFromOnlineApis(oid, userId);
         }
-        return { ok: false, reason: "sync_api_error", error: err };
+        return {
+          ok: false,
+          reason: "sync_api_error",
+          message,
+          status: err.response?.status,
+          error: err,
+        };
       }
 
-      await applyIdMappings(responseData?.id_mappings || {});
-      await markAppliedClean(responseData?.applied || {});
-      await applyPull(oid, responseData?.pull || {});
+      try {
+        await applyIdMappings(responseData?.id_mappings || {});
+        await markAppliedClean(responseData?.applied || {});
+        await applyPull(oid, responseData?.pull || {});
+      } catch (applyErr) {
+        console.error("Sync apply error:", applyErr);
+        // Still mark last sync — server accepted the push
+      }
 
       const afterCats = await db.menu_categories
         .where("outlet_id")
@@ -478,29 +537,32 @@ export async function syncOutlet(
       await setLastSyncAt(oid, responseData?.server_time);
 
       const pending = await getPendingDirtyCount(oid);
+      const message = pending
+        ? `${pending} change(s) still pending`
+        : "All changes synced";
       emitSyncState({
         status: "synced",
         outletId: oid,
         serverTime: responseData?.server_time,
         conflicts: responseData?.conflicts || [],
         pending,
-        message: pending
-          ? `${pending} change(s) still pending`
-          : "All changes synced",
+        message,
       });
 
       return {
         ok: true,
         data: responseData,
         pending,
+        message,
       };
     } catch (error) {
+      const message = error.message || "Sync failed";
       emitSyncState({
         status: "error",
         outletId: Number(outletId),
-        message: error.message || "Sync failed",
+        message,
       });
-      return { ok: false, reason: "unexpected", error };
+      return { ok: false, reason: "unexpected", message, error };
     } finally {
       syncInFlight = null;
     }

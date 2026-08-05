@@ -12,7 +12,7 @@ import { toastController } from "../../utils/toastController";
 
 /**
  * Sync button for Header (profile area) and outlet pages.
- * Manual click → POST /v1/sync with force (bypasses auto-sync interval).
+ * Manual click → POST https://menusmitra.xyz/v1/sync (force, bypasses interval).
  */
 export default function SyncStatusBadge({ outletId, className = "" }) {
   const {
@@ -70,6 +70,7 @@ export default function SyncStatusBadge({ outletId, className = "" }) {
     }
 
     const result = await syncNow(activeOutlet);
+    const errMsg = result?.message || message;
 
     if (result?.ok) {
       toastController.success(
@@ -77,15 +78,25 @@ export default function SyncStatusBadge({ outletId, className = "" }) {
           ? `Synced — ${result.pending} change(s) still pending`
           : "All data synced successfully"
       );
-    } else if (result?.reason === "sync_api_error") {
-      toastController.error(
-        message || "Sync API failed — changes saved locally"
-      );
-    } else if (result?.reason === "offline") {
-      toastController.error("You are offline");
-    } else if (result?.reason !== "not_due") {
-      toastController.error(message || "Sync failed");
+      return;
     }
+
+    if (result?.reason === "missing_outlet" || result?.reason === "no_auth") {
+      toastController.error(errMsg || "Cannot sync — open an outlet / login again");
+      return;
+    }
+
+    if (result?.reason === "offline") {
+      toastController.error("You are offline");
+      return;
+    }
+
+    if (result?.reason === "not_due") {
+      return;
+    }
+
+    // sync_api_error / unexpected — show real API message (e.g. outlet not found)
+    toastController.error(errMsg || "Sync failed");
   }, [online, activeOutlet, syncNow, message]);
 
   const tooltip = !online
@@ -95,7 +106,7 @@ export default function SyncStatusBadge({ outletId, className = "" }) {
       : message ||
         (pending > 0
           ? `${pending} local change(s) — tap to sync now`
-          : "Tap to sync now (manual sync bypasses auto-sync interval)");
+          : "Tap to sync now via /v1/sync");
 
   return (
     <button
