@@ -101,6 +101,7 @@ const MultiSelectDropdown = ({
               >
                 <span className="truncate max-w-[150px]" style={{ textTransform: 'capitalize' }}>{option[displayKey]}</span>
                 <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleSelect(value);

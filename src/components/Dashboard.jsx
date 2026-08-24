@@ -456,7 +456,7 @@ function Dashboard() {
                   icon={faEnvelope}
                   className="mb-1 text-brand-500"
                 />
-                <span className="text-xs font-medium text-dark">Partner Enquiries</span>
+                <span className="text-xs font-medium text-dark">Enquiry</span>
               </Link>
 
               <Link

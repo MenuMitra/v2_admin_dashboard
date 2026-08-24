@@ -43,6 +43,12 @@ const menuGroups = [
       { title: "Admins", path: "/admins", id: "admins", icon: faUser },
       { title: "Companies", path: "/companies", id: "companies", icon: faBuilding },
       {
+        title: "Enquiry",
+        path: "/enquiries",
+        id: "enquiries",
+        icon: faEnvelope,
+      },
+      {
         title: "Partners",
         path: "/partners",
         id: "partners",
@@ -88,12 +94,6 @@ const menuGroups = [
   },
   {
     items: [
-      {
-        title: "Partner Enquiries",
-        path: "/enquiries",
-        id: "enquiries",
-        icon: faEnvelope,
-      },
       {
         title: "Website Bookings",
         path: "/bookings",
@@ -185,6 +185,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
         ],
         admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
         companies: ["/companies", "/create-company", "/company-details/", "/edit-company/"],
+        enquiries: ["/enquiries", "/view-enquiry/", "/edit-enquiry/"],
         "qr-templates": [
           "/qr-templates",
           "/create-template",

@@ -1,440 +1,304 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { API_CONFIG } from "../../config/appConfig";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faChevronLeft as faBack,
+  faRotate,
   faBuilding,
   faUser,
   faPhone,
+  faEnvelope,
+  faIdCard,
   faLocationDot,
-  faMapMarkerAlt,
+  faStore,
+  faIndianRupeeSign,
   faCalendarAlt,
   faCheckCircle,
-  faTimesCircle,
   faClock,
-  faCalendarCheck,
-  faBell,
+  faHashtag,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import { useAuth } from "../../hooks/useAuth";
+import { useEnquiryDetails } from "../../lib/react-query/hooks/useEnquiryDetails";
+
+const toTitleCase = (str) =>
+  str
+    ? String(str).replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "-";
+
+const displayValue = (value) =>
+  value === null || value === undefined || value === "" ? "-" : value;
+
+const formatPrice = (value) => {
+  if (value === null || value === undefined || value === "") return "-";
+  const number = Number(value);
+  if (Number.isNaN(number)) return value;
+  return `₹${number.toLocaleString("en-IN")}`;
+};
+
+function DetailItem({ icon, value, label, valueClassName = "" }) {
+  return (
+    <div className="flex items-center p-3 rounded-lg">
+      <div className="flex items-center justify-center w-8 h-8">
+        <FontAwesomeIcon icon={icon} className="w-5 h-5 text-gray-400" />
+      </div>
+      <div className="ml-3">
+        <div className={`text-base font-medium ${valueClassName}`}>
+          {displayValue(value)}
+        </div>
+        <div className="text-sm text-gray-500">{label}</div>
+      </div>
+    </div>
+  );
+}
 
 function ViewEnquiry() {
   const { enquiry_id } = useParams();
   const navigate = useNavigate();
   const { getToken } = useAuth();
-  const [
-    enquiry, setEnquiry] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const { BASE_URL } = API_CONFIG;
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    async function fetchEnquiry() {
-      setLoading(true);
-      try {
-        const token = getToken();
-        if (!token) throw new Error("No authentication token available");
-        const response = await axios.post(
-          `${BASE_URL}/common/view_enquiry`,
-          { enquiry_id: Number(enquiry_id) },
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.data && response.data.data) {
-          setEnquiry(response.data.data);
-          setError(null);
-        } else {
-          setError("No enquiry details found.");
-        }
-      } catch (err) {
-        setError(err.message || "Failed to fetch enquiry details.");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchEnquiry();
-  }, [enquiry_id]);
+  const {
+    enquiry,
+    isLoading,
+    error,
+    refetch,
+    activateEnquiry,
+    isActivating,
+  } = useEnquiryDetails(enquiry_id, getToken());
 
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
-    { label: "Enquiries", path: "/enquiries" },
+    { label: "Enquiry", path: "/enquiries" },
     { label: "View Enquiry" },
   ];
 
-  if (!enquiry && loading) {
-    return <div className="p-6 text-center">Loading...</div>;
+  const handleActivate = async () => {
+    if (
+      !window.confirm(
+        "Activate this onboarding? This will create the company and outlet."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await activateEnquiry(enquiry_id);
+    } catch {
+      // Error toast is handled in the mutation
+    }
+  };
+
+  const status = (enquiry?.status || "").toLowerCase();
+  const statusClass =
+    status === "active"
+      ? "text-success-700"
+      : status === "rejected"
+        ? "text-error-700"
+        : "text-warning-600";
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-12 h-12 border-b-2 rounded-full animate-spin border-brand-500"></div>
+      </div>
+    );
   }
-  if (error) {
-    return <div className="p-6 text-center text-red-500">{error}</div>;
+
+  if (error || !enquiry) {
+    return (
+      <div className="max-w-7xl mx-auto p-6">
+        <Breadcrumb items={breadcrumbItems} />
+        <div className="p-6 text-center text-red-500">
+          {error?.response?.data?.detail ||
+            error?.message ||
+            "No enquiry details found."}
+        </div>
+      </div>
+    );
   }
-  if (!enquiry) {
-    return <div className="p-6 text-center">No enquiry found.</div>;
-  }
+
+  const company = enquiry.company || {};
+  const owner = enquiry.owner || {};
+  const outlet = enquiry.outlet || {};
+  const subscription = enquiry.subscription || {};
 
   return (
     <div className="max-w-7xl mx-auto p-6">
       <Breadcrumb items={breadcrumbItems} />
       <div className="rounded-2xl border border-gray-200 bg-white">
         <div className="overflow-hidden pt-4">
-          {/* Header Section */}
           <div className="flex items-center px-6 mb-3">
-            {/* Left Side - Back Button */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() => {
-                  try {
-                    if (window.history && window.history.length > 1) {
-                      navigate(-1);
-                    } else {
-                      navigate("/enquiries");
-                    }
-                  } catch (e) {
-                    navigate("/enquiries");
-                  }
-                }}
-                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover shadow-theme-xs"
+                onClick={() => navigate("/enquiries")}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 transition rounded-full border border-gray-300 bg-white hover:bg-gray-50 shadow-theme-xs"
               >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
+                <FontAwesomeIcon icon={faBack} className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
             </div>
-
-            {/* Center - Title */}
             <div className="flex-1 text-center text-base sm:text-lg font-semibold text-gray-800">
               Enquiry Details
             </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => refetch()}
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-gray-200 bg-white hover:bg-gray-50 shadow-theme-xs disabled:opacity-60"
+                title="Reload"
+              >
+                <FontAwesomeIcon
+                  icon={faRotate}
+                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
+                />
+              </button>
+              <button
+                onClick={() => navigate(`/edit-enquiry/${enquiry_id}`)}
+                className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-warning-500 shadow-theme-xs hover:bg-warning-600"
+              >
+                <span className="hidden sm:inline">Edit</span>
+              </button>
+              {status === "pending" && (
+                <button
+                  onClick={handleActivate}
+                  disabled={isActivating}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full bg-success-500 shadow-theme-xs hover:bg-success-600 disabled:opacity-60"
+                >
+                  <FontAwesomeIcon icon={faCheckCircle} className="w-4 h-4" />
+                  <span className="hidden sm:inline">Activate</span>
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Content Section */}
           <div className="px-6 py-4">
-            {/* Hotel Information Card */}
-            <h2 className="text-base font-medium mb-4 text-gray-800">
-              Hotel Information
-            </h2>
+            <h2 className="text-base font-medium mb-4 text-gray-800">Status</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {/* Hotel Name */}
-              {enquiry.hotel_name && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faBuilding}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.hotel_name}
-                    </div>
-                    <div className="text-sm text-gray-500">Hotel Name</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Owner Name */}
-              {enquiry.owner_name && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faUser}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.owner_name}
-                    </div>
-                    <div className="text-sm text-gray-500">Owner Name</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Owner Number */}
-              {enquiry.owner_number && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faPhone}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.owner_number}
-                    </div>
-                    <div className="text-sm text-gray-500">Owner Number</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Location */}
-              {enquiry.location && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faLocationDot}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.location}
-                    </div>
-                    <div className="text-sm text-gray-500">Location</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Address */}
-              {enquiry.address && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faMapMarkerAlt}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.address}
-                    </div>
-                    <div className="text-sm text-gray-500">Address</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Hotel Mobile 1 */}
-              {enquiry.hotel_mobile_1 && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faPhone}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.hotel_mobile_1}
-                    </div>
-                    <div className="text-sm text-gray-500">Hotel Mobile 1</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Hotel Mobile 2 */}
-              {enquiry.hotel_mobile_2 && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faPhone}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.hotel_mobile_2}
-                    </div>
-                    <div className="text-sm text-gray-500">Hotel Mobile 2</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Previous Software Name */}
-              {enquiry.previous_software_name && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faBuilding}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.previous_software_name}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Previous Software
-                    </div>
-                  </div>
-                </div>
-              )}
+              <DetailItem
+                icon={faHashtag}
+                value={enquiry.enquiry_id}
+                label="Enquiry ID"
+              />
+              <DetailItem
+                icon={faCheckCircle}
+                value={toTitleCase(enquiry.status)}
+                label="Status"
+                valueClassName={statusClass}
+              />
+              <DetailItem
+                icon={faClock}
+                value={enquiry.enquiry_status}
+                label="Enquiry Status"
+              />
+              <DetailItem
+                icon={faCalendarAlt}
+                value={enquiry.created_on}
+                label="Created On"
+              />
+              <DetailItem
+                icon={faCalendarAlt}
+                value={enquiry.activated_at}
+                label="Activated At"
+              />
+              <DetailItem
+                icon={faCalendarAlt}
+                value={enquiry.updated_on}
+                label="Updated On"
+              />
             </div>
 
-            {/* Status Information Card */}
-            <h2 className="text-base font-medium mb-4 text-gray-800 mt-8">
-              Status Information
+            <h2 className="text-base font-medium mb-4 mt-8 text-gray-800">
+              Company
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-              {/* Status */}
-              {enquiry.enquiry_status && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={
-                        enquiry.enquiry_status === "Onboard"
-                          ? faCheckCircle
-                          : enquiry.enquiry_status === "Positive"
-                          ? faCheckCircle
-                          : faTimesCircle
-                      }
-                      className={`w-5 h-5`}
-                      style={{
-                        color: enquiry.enquiry_status === "Onboard" 
-                          ? "#12b76a" 
-                          : enquiry.enquiry_status === "Positive"
-                          ? "#1d4ed8"
-                          : "#f04438"
-                      }}
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div
-                      className="text-base font-medium"
-                      style={{
-                        color: enquiry.enquiry_status === "Onboard" 
-                          ? "#027a48" 
-                          : enquiry.enquiry_status === "Positive"
-                          ? "#1d4ed8"
-                          : "#b42318"
-                      }}
-                    >
-                      {enquiry.enquiry_status}
-                    </div>
-                    <div className="text-sm text-gray-500">Status</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Enquiry Date */}
-              {enquiry.enquiry_datetime && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faCalendarAlt}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.enquiry_datetime}
-                    </div>
-                    <div className="text-sm text-gray-500">Enquiry Date</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Onboard Date */}
-              {enquiry.onboard_datetime && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faCalendarCheck}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.onboard_datetime}
-                    </div>
-                    <div className="text-sm text-gray-500">Onboard Date</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Next Discussion Reminder */}
-              {enquiry.next_discussion_reminder_datetime && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faBell}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.next_discussion_reminder_datetime}
-                    </div>
-                    <div className="text-sm text-gray-500">Next Discussion</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Previous Software Expiry */}
-              {enquiry.previous_software_expiry_date && (
-                <div className="flex items-center p-3 rounded-lg">
-                  <div className="w-8 h-8 flex items-center justify-center">
-                    <FontAwesomeIcon
-                      icon={faClock}
-                      className="w-5 h-5 text-gray-400"
-                    />
-                  </div>
-                  <div className="ml-3">
-                    <div className="text-base font-medium">
-                      {enquiry.previous_software_expiry_date}
-                    </div>
-                    <div className="text-sm text-gray-500">Software Expiry</div>
-                  </div>
-                </div>
-              )}
+              <DetailItem
+                icon={faBuilding}
+                value={toTitleCase(company.company_name)}
+                label="Company Name"
+              />
+              <DetailItem
+                icon={faBuilding}
+                value={toTitleCase((company.company_type || "").replace(/_/g, " "))}
+                label="Company Type"
+              />
+              <DetailItem icon={faIdCard} value={company.pan} label="PAN" />
+              <DetailItem icon={faIdCard} value={company.fssai} label="FSSAI" />
+              <DetailItem icon={faIdCard} value={company.tan} label="TAN" />
+              <DetailItem icon={faIdCard} value={company.cin} label="CIN" />
             </div>
 
-            {/* Status Logs Section */}
-            {enquiry.status_logs && enquiry.status_logs.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-base font-medium mb-4 text-gray-800">
-                  Status Logs
-                </h2>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Partner Name
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Previous Status
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          New Status
-                        </th>
-                        <th className="px-4 py-2 border-b text-left text-xs font-semibold text-gray-700">
-                          Datetime
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {enquiry.status_logs.map((log) => (
-                        <tr
-                          key={log.status_log_id}
-                          className="border-b last:border-b-0"
-                        >
-                          <td className="px-4 py-2">{log.partner_name}</td>
-                          <td className="px-4 py-2">{log.previous_status}</td>
-                          <td className="px-4 py-2">{log.new_status}</td>
-                          <td className="px-4 py-2">{log.datetime}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+            <h2 className="text-base font-medium mb-4 mt-8 text-gray-800">
+              Owner
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <DetailItem icon={faUser} value={toTitleCase(owner.name)} label="Name" />
+              <DetailItem icon={faPhone} value={owner.mobile} label="Mobile" />
+              <DetailItem icon={faEnvelope} value={owner.email} label="Email" />
+              <DetailItem icon={faIdCard} value={owner.aadhar} label="Aadhar" />
+              <DetailItem icon={faIdCard} value={owner.pan} label="PAN" />
+              <DetailItem icon={faLocationDot} value={owner.address} label="Address" />
+            </div>
+
+            <h2 className="text-base font-medium mb-4 mt-8 text-gray-800">
+              Outlet
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <DetailItem icon={faStore} value={toTitleCase(outlet.name)} label="Name" />
+              <DetailItem icon={faPhone} value={outlet.mobile} label="Mobile" />
+              <DetailItem
+                icon={faStore}
+                value={toTitleCase(outlet.outlet_type)}
+                label="Outlet Type"
+              />
+              <DetailItem
+                icon={faStore}
+                value={toTitleCase(outlet.veg_nonveg)}
+                label="Food Type"
+              />
+              <DetailItem icon={faLocationDot} value={outlet.address} label="Address" />
+              <DetailItem
+                icon={faIdCard}
+                value={outlet.fssainumber}
+                label="FSSAI Number"
+              />
+              <DetailItem
+                icon={faIdCard}
+                value={outlet.gstnumber}
+                label="GST Number"
+              />
+            </div>
+
+            <h2 className="text-base font-medium mb-4 mt-8 text-gray-800">
+              Subscription
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
+              <DetailItem
+                icon={faIndianRupeeSign}
+                value={subscription.name}
+                label="Plan"
+              />
+              <DetailItem
+                icon={faIndianRupeeSign}
+                value={formatPrice(subscription.price)}
+                label="Price"
+              />
+              <DetailItem
+                icon={faCalendarAlt}
+                value={subscription.tenure}
+                label="Tenure"
+              />
+              <DetailItem
+                icon={faHashtag}
+                value={
+                  Array.isArray(subscription.module_ids) &&
+                  subscription.module_ids.length
+                    ? subscription.module_ids.join(", ")
+                    : "-"
+                }
+                label="Module IDs"
+              />
+            </div>
           </div>
         </div>
       </div>

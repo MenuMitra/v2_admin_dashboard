@@ -18,6 +18,7 @@ import EditPartner from "./components/Partner/EditPartner";
 import CreatePartner from "./components/Partner/CreatePartner";
 import Roles from "./components/AccessControl/Roles/Roles";
 import ViewEnquiry from "./components/Enquiry/ViewEnquiry";
+import EditEnquiry from "./components/Enquiry/EditEnquiry";
 import Search from "./components/Search/Search";
 import Customer from "./components/Customer/Customer";
 import CustomerDetails from "./components/Customer/CustomerDetails";
@@ -117,6 +118,7 @@ function App() {
             {/* Enquiry Routes */}
             <Route path="/enquiries" element={<EnquiryList />} />
             <Route path="/view-enquiry/:enquiry_id" element={<ViewEnquiry />} />
+            <Route path="/edit-enquiry/:enquiry_id" element={<EditEnquiry />} />
             {/* Booking Routes */}
             <Route path="/bookings" element={<BookingEnquiry />} />
 

@@ -1,327 +1,211 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQueryClient } from "@tanstack/react-query";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPlus,
   faEye,
-  faEdit,
-  faTrash,
+  faPenToSquare,
+  faCheck,
 } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
 import { useAuth } from "../../hooks/useAuth";
-import { API_CONFIG } from "../../config/appConfig";
-import { queryKeys } from "../../lib/react-query/queryKeys";
+import { useEnquiries } from "../../lib/react-query/hooks/useEnquiries";
 import Breadcrumb from "../Breadcrumb";
 import DataTable from "../common/DataTable";
-import { toastController } from "../../utils/toastController";
+
+const toTitleCase = (str) =>
+  str
+    ? str.replace(/\w\S*/g, (txt) =>
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      )
+    : "-";
+
+const formatPrice = (value) => {
+  if (value === null || value === undefined || value === "") return "-";
+  const number = Number(value);
+  if (Number.isNaN(number)) return value;
+  return `₹${number.toLocaleString("en-IN")}`;
+};
 
 const EnquiryList = () => {
   const navigate = useNavigate();
   const { getToken } = useAuth();
-  const queryClient = useQueryClient();
-  const { BASE_URL, API_VERSION } = API_CONFIG;
-
-  const [enquiries, setEnquiries] = useState([]);
-  // Calculate counts for stats row (after enquiries is defined)
-  const counts = {
-    total: enquiries.length,
-    enquiry: enquiries.filter((e) => e.enquiry_status === "Enquiry").length,
-    positive: enquiries.filter((e) => e.enquiry_status === "Positive").length,
-    onboard: enquiries.filter((e) => e.enquiry_status === "Onboard").length,
-  };
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [itemsPerPage, setItemsPerPage] = useState(50);
-  // Default to showing all entries on load
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const handleBack = () => navigate(-1);
-  // Fetch enquiries using new API
-  const fetchEnquiries = async (
-    page = 1,
-    limit = itemsPerPage,
-    status = statusFilter
-  ) => {
-    try {
-      setIsLoading(true);
-      const token = getToken();
-      if (!token) throw new Error("No authentication token available");
+  const { enquiries, isLoading, refetch, activateEnquiry, isActivating } =
+    useEnquiries(getToken(), {
+      status: "all",
+      page: 1,
+      page_size: 200,
+    });
 
-      const requestBody = {
-        page,
-        limit,
-      };
+  const visibleEnquiries =
+    statusFilter === "all"
+      ? enquiries
+      : enquiries.filter((item) => item.status === statusFilter);
 
-      // Only add status_filter if it's not empty and not "all"
-      if (status && status !== "" && status !== "all") {
-        requestBody.status_filter = status;
-      }
-
-      const response = await axios.post(
-        `${BASE_URL}/common/list_enquiries`,
-        requestBody,
-        {
-          headers: {
-            Authorization: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data && response.data.data) {
-        const apiData = response.data.data;
-        setEnquiries(apiData.enquiries || []);
-      } else {
-        setEnquiries([]);
-      }
-    } catch (error) {
-      
-      setError(error.message || "Failed to fetch enquiries");
-      toastController.showError("Failed to fetch enquiries");
-    } finally {
-      setIsLoading(false);
-    }
+  const counts = {
+    total: enquiries.length,
+    pending: enquiries.filter((item) => item.status === "pending").length,
+    enquiryActive: enquiries.filter((item) => item.status === "active").length,
+    rejected: enquiries.filter((item) => item.status === "rejected").length,
   };
 
-  useEffect(() => {
-    fetchEnquiries(1, itemsPerPage, statusFilter);
-  }, [itemsPerPage, statusFilter]);
+  const handleActivate = async (enquiry) => {
+    if (enquiry.status !== "pending") return;
+    if (
+      !window.confirm(
+        `Activate onboarding for ${enquiry.company_name || "this enquiry"}? This will create the company and outlet.`
+      )
+    ) {
+      return;
+    }
 
-  // Filter enquiries based on search term and status
-  const getFilteredEnquiries = () => {
-    return enquiries.filter((enquiry) => {
-      const matchesSearch =
-        !searchTerm ||
-        enquiry.hotel_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        enquiry.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        enquiry.hotel_mobile_1
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        String(enquiry.enquiry_id).includes(searchTerm);
-
-      // Only apply status filter if statusFilter is not empty and not "all"
-      const matchesStatus =
-        !statusFilter ||
-        statusFilter === "" ||
-        statusFilter === "all" ||
-        enquiry.enquiry_status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
+    try {
+      await activateEnquiry(enquiry.enquiry_id);
+    } catch {
+      // Error toast is handled in the mutation
+    }
   };
 
   const columns = [
     {
-      field: "hotel_name",
-      header: "Hotel Name",
+      field: "company_name",
+      header: "Company",
       sortable: true,
-      render: (value) => <span>{value || "-"}</span>,
+      render: (value) => (
+        <span className="font-medium text-gray-800">{toTitleCase(value)}</span>
+      ),
     },
     {
-      field: "location",
-      header: "Location",
+      field: "owner_name",
+      header: "Owner",
       sortable: true,
-      render: (value) => <span>{value || "-"}</span>,
+      render: (value, row) => (
+        <div>
+          <p className="text-gray-800">{toTitleCase(value)}</p>
+          <p className="text-xs text-gray-500">{row.owner_number || "-"}</p>
+        </div>
+      ),
     },
     {
-      field: "hotel_mobile_1",
-      header: "Hotel Mobile 1",
+      field: "outlet_name",
+      header: "Outlet",
       sortable: true,
-      render: (value) => <span>{value || "-"}</span>,
+      render: (value, row) => (
+        <div>
+          <p className="text-gray-800">{toTitleCase(value)}</p>
+          <p className="text-xs text-gray-500">
+            {toTitleCase(row.outlet_type)} · {row.outlet_mobile || "-"}
+          </p>
+        </div>
+      ),
     },
-
     {
-      field: "enquiry_datetime",
-      header: "Enquiry Date",
+      field: "subscription_name",
+      header: "Subscription",
       sortable: true,
-      render: (value) => <span>{value || "-"}</span>,
+      render: (value, row) => (
+        <div>
+          <p className="text-gray-800">{value || "-"}</p>
+          <p className="text-xs text-gray-500">
+            {formatPrice(row.subscription_price)} · {row.subscription_tenure || "-"}
+          </p>
+        </div>
+      ),
     },
     {
-      field: "enquiry_status",
+      field: "status",
       header: "Status",
       sortable: true,
-      render: (value) => {
-        if (!value) return <span>-</span>;
-
-        let statusClass = "";
-        switch (value) {
-          case "Enquiry":
-            statusClass = "bg-warning-100 text-warning-500";
-            break;
-          case "Positive":
-            statusClass = "bg-blue-100";
-            break;
-          case "Onboard":
-            statusClass = "bg-success-100 text-success-700";
-            break;
-          default:
-            statusClass = "text-gray-700";
-        }
+      render: (value, row) => {
+        const status = (value || "").toLowerCase();
+        let statusClass = "bg-gray-100 text-gray-700";
+        if (status === "pending") statusClass = "bg-warning-100 text-warning-500";
+        if (status === "active") statusClass = "bg-success-100 text-success-700";
+        if (status === "rejected") statusClass = "bg-error-100 text-error-700";
 
         return (
-          <span 
-            className={`font-medium px-2 py-1 rounded ${statusClass}`}
-            style={value === "Positive" ? { color: "#2563eb" } : {}}
-          >
-            {value}
-          </span>
+          <div>
+            <span className={`font-medium px-2 py-1 rounded ${statusClass}`}>
+              {toTitleCase(value)}
+            </span>
+            {row.enquiry_status && (
+              <p className="mt-1 text-xs text-gray-500">{row.enquiry_status}</p>
+            )}
+          </div>
         );
       },
+    },
+    {
+      field: "created_on",
+      header: "Created",
+      sortable: true,
+      render: (value) => <span>{value || "-"}</span>,
     },
     {
       field: "action",
       header: "Action",
       sortable: false,
       render: (_, enquiry) => (
-        <button
-          onClick={() => navigate(`/view-enquiry/${enquiry.enquiry_id}`)}
-          className="text-theme-sm shadow-theme-xs inline-flex items-center gap-2 rounded-3xl bg-brand-500 px-2 py-2 font-medium text-white hover:bg-brand-600"
-        >
-          <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
-        </button>
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() => navigate(`/view-enquiry/${enquiry.enquiry_id}`)}
+            className="flex items-center justify-center w-8 h-8 text-white transition bg-brand-500 hover:bg-brand-600 rounded-3xl shadow-theme-xs"
+            title="View Enquiry"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => navigate(`/edit-enquiry/${enquiry.enquiry_id}`)}
+            className="flex items-center justify-center w-8 h-8 text-white transition bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs"
+            title="Update Enquiry"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          {enquiry.status === "pending" && (
+            <button
+              onClick={() => handleActivate(enquiry)}
+              disabled={isActivating}
+              className="flex items-center justify-center w-8 h-8 text-white transition bg-success-500 hover:bg-success-600 rounded-3xl shadow-theme-xs disabled:opacity-60"
+              title="Activate Enquiry"
+            >
+              <FontAwesomeIcon icon={faCheck} className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       ),
     },
   ];
 
-  const handleViewEnquiry = (enquiry) => {
-    // Navigate to enquiry details page
-    navigate(`/enquiry-details/${enquiry.enquiry_id}`);
-  };
-
-  const handleEditEnquiry = (enquiry) => {
-    // Navigate to edit enquiry page
-    navigate(`/edit-enquiry/${enquiry.enquiry_id}`);
-  };
-
-  const handleDeleteEnquiry = async (enquiry) => {
-    if (window.confirm("Are you sure you want to delete this enquiry?")) {
-      try {
-        const token = getToken();
-        if (!token) throw new Error("No authentication token available");
-
-        const response = await axios.delete(
-          `${BASE_URL}/admin/delete_enquiry/${enquiry.id}`,
-          {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.data && response.data.success) {
-          toastController.showSuccess("Enquiry deleted successfully");
-          // Invalidate enquiries cache to refresh the list
-          queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
-          fetchEnquiries(); // Also refresh local state
-        } else {
-          throw new Error(response.data?.message || "Failed to delete enquiry");
-        }
-      } catch (error) {
-        
-        toastController.showError(error.message || "Failed to delete enquiry");
-      }
-    }
-  };
-
-  const handleBulkAction = async (action, selectedIds) => {
-    try {
-      const token = getToken();
-      if (!token) throw new Error("No authentication token available");
-
-      let response;
-      switch (action) {
-        case "delete":
-          response = await axios.post(
-            `${BASE_URL}/admin/bulk_delete_enquiries`,
-            { enquiry_ids: selectedIds },
-            {
-              headers: {
-                Authorization: token,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          break;
-        case "update_status":
-          response = await axios.post(
-            `${BASE_URL}/admin/bulk_update_enquiry_status`,
-            { enquiry_ids: selectedIds, status: "resolved" },
-            {
-              headers: {
-                Authorization: token,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          break;
-        default:
-          throw new Error("Invalid action");
-      }
-
-      if (response.data && response.data.success) {
-        toastController.showSuccess("Bulk action completed successfully");
-        // Invalidate enquiries cache to refresh the list
-        queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
-        fetchEnquiries(); // Also refresh local state
-        setSelectedItems([]);
-      } else {
-        throw new Error(
-          response.data?.message || "Failed to perform bulk action"
-        );
-      }
-    } catch (error) {
-      
-      toastController.showError(
-        error.message || "Failed to perform bulk action"
-      );
-    }
-  };
-
   const breadcrumbItems = [
     { label: "Home", path: "/home" },
-    { label: "Enquiries", path: "/enquiries" },
+    { label: "Enquiry", path: "/enquiries" },
   ];
 
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-
       <DataTable
-        data={getFilteredEnquiries()}
-        title="Partner Enquiries"
+        data={visibleEnquiries}
+        title="Enquiry"
         columns={columns}
         counts={counts}
         isLoading={isLoading}
-        error={error}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        searchPlaceholder="Search by ID, hotel name, location or contact number..."
-        selectedItems={selectedItems}
-        onSelectionChange={setSelectedItems}
-        itemsPerPage={itemsPerPage}
-        itemsPerPageOptions={[25, 50, 100, 200]}
-        onItemsPerPageChange={setItemsPerPage}
-        onBulkAction={handleBulkAction}
-        onBackClick={handleBack}
-        bulkActions={[
-          { label: "Delete Selected", value: "delete" },
-          { label: "Mark as Resolved", value: "update_status" },
-        ]}
-        enableEnquiry={true}
+        searchPlaceholder="Search company, owner, outlet or mobile..."
+        onBackClick={() => navigate(-1)}
         createButton={{ show: false, label: "", onClick: () => {} }}
         enableStatusFilter={false}
+        enableEnquiry={true}
         enquiryFilter={statusFilter}
-        onEnquiryFilterChange={(value) => {
-          setStatusFilter(value);
-          fetchEnquiries(1, itemsPerPage, value);
-        }}
+        onEnquiryFilterChange={setStatusFilter}
         showSearch={true}
-        showBulkActions={true}
+        enableSelection={false}
         showPagination={true}
+        onReload={refetch}
+        emptyStateMessage="No enquiries found."
+        getRowId={(item) => item.enquiry_id}
       />
     </>
   );

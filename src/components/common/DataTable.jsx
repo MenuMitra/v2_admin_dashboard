@@ -978,6 +978,21 @@ function DataTable({
                       Enquiry: {counts.enquiry}
                     </span>
                   )}
+                  {typeof counts.pending === "number" && (
+                    <span className="font-medium bg-warning-100 text-warning-500 px-2 py-0.5 rounded">
+                      Pending: {counts.pending}
+                    </span>
+                  )}
+                  {typeof counts.enquiryActive === "number" && (
+                    <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
+                      Active: {counts.enquiryActive}
+                    </span>
+                  )}
+                  {typeof counts.rejected === "number" && (
+                    <span className="font-medium bg-error-100 text-error-700 px-2 py-0.5 rounded">
+                      Rejected: {counts.rejected}
+                    </span>
+                  )}
                   {typeof counts.positive === "number" && (
                     <span 
                       className="font-medium bg-blue-100 px-2 py-0.5 rounded"
@@ -1131,17 +1146,17 @@ function DataTable({
                   )}
                   {/* Enquiry Filter */}
                   {enableEnquiry && (
-                    <div className="mr-2 text-gray-600 w-28">
+                    <div className="mr-2 text-gray-600 w-36">
                       <CustomSelect
                         value={enquiryFilter || "all"}
                         onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
                         options={[
-                          { value: "all", label: "Enquiry Type" },
-                          { value: "Enquiry", label: "Enquiry" },
-                          { value: "Positive", label: "Positive" },
-                          { value: "Onboard", label: "Onboard" }
+                          { value: "all", label: "All Status" },
+                          { value: "pending", label: "Pending" },
+                          { value: "active", label: "Active" },
+                          { value: "rejected", label: "Rejected" }
                         ]}
-                        placeholder="Enquiry Type"
+                        placeholder="All Status"
                         className="text-sm text-gray-700"
                       />
                     </div>
