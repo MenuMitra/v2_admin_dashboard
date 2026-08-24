@@ -17,37 +17,10 @@ import { API_CONFIG } from "../config/appConfig";
 import logo from "../assets/images/logo/logo.png";
 import Modal from "./common/Modal";
 
-// Determine if current domain is a production domain
-const isProductionDomain = () => {
-  if (typeof window === "undefined") return false;
-  const hostname = window.location.hostname;
-  return (
-    hostname === "menumitra.com" ||
-    hostname === "user.menumitra.com" ||
-    hostname === "www.menumitra.com" ||
-    hostname === "www.user.menumitra.com" ||
-    hostname === "admin-v2.menumitra.com" ||
-    hostname === "www.admin-v2.menumitra.com" ||
-    hostname === "admin.menumitra.com" ||
-    hostname === "www.admin.menumitra.com"
-  );
-};
-
 // Helper function to capitalize first letter
 const capitalizeFirstLetter = (str) => {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-};
-
-// Determine if current build is production
-const isProductionBuild = () => {
-  if (typeof import.meta !== "undefined" && import.meta.env?.MODE) {
-    return import.meta.env.MODE === "production";
-  }
-  if (typeof process !== "undefined" && process.env?.NODE_ENV) {
-    return process.env.NODE_ENV === "production";
-  }
-  return false;
 };
 
 const Header = ({ sidebarToggle, setSidebarToggle }) => {
@@ -67,19 +40,6 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
   const navigate = useNavigate();
   const { BASE_URL, API_VERSION } = API_CONFIG;
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const configuredApiBaseUrl =
-    (typeof globalThis !== "undefined" &&
-      globalThis.process?.env?.VITE_API_BASE_URL) ||
-    (typeof import.meta !== "undefined" &&
-      import.meta.env?.VITE_API_BASE_URL);
-  // Treat menu4.xyz API as production, regardless of frontend hostname
-  const isUsingProductionApi =
-    typeof BASE_URL === "string" && BASE_URL.includes("menu4.xyz");
-
-  // Show testing banner only when NOT on a production domain,
-  // API env is not configured, and not using the production API
-  const shouldShowTestingBanner =
-    !isProductionDomain() && !configuredApiBaseUrl && !isUsingProductionApi;
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -126,30 +86,8 @@ const Header = ({ sidebarToggle, setSidebarToggle }) => {
 
   return (
     <>
-      {/* Testing Environment Banner (visible when API env is not configured) */}
-      {shouldShowTestingBanner && (
-        <div
-          style={{
-            width: "100%",
-            backgroundColor: "#b22222",
-            color: "#fff",
-            textAlign: "center",
-            padding: "3px 0",
-            fontSize: "14px",
-            fontWeight: "bold",
-            position: "fixed",
-            top: 0,
-            left: 0,
-            zIndex: 1100,
-          }}
-        >
-          Testing Environment
-        </div>
-      )}
-
       <header
         className="sticky top-0 z-99999 flex w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
-        style={{ marginTop: shouldShowTestingBanner ? "30px" : "0px" }}
       >
         <div className="flex w-full items-center justify-between px-4 py-2 lg:px-6">
           {/* Left Section - Logo and Toggle */}

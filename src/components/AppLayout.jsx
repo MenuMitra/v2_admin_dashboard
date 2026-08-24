@@ -9,10 +9,10 @@ function AppLayoutInner({ children }) {
   const { isFullscreen } = useFullscreen();
 
   return (
-    <div>
+    <div className="flex flex-col h-screen overflow-hidden">
       {/* Hide banner in fullscreen */}
-      {/* {!isFullscreen && <TestEnvironmentBanner />} */}
-      <div className="flex h-screen overflow-hidden">
+      {!isFullscreen && <TestEnvironmentBanner />}
+      <div className="flex flex-1 overflow-hidden">
         {/* Add overlay for mobile */}
         {sidebarToggle && (
           <div

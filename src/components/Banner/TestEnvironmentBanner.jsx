@@ -7,6 +7,10 @@ const TestEnvironmentBanner = () => {
     typeof API_CONFIG?.BASE_URL === "string" &&
     API_CONFIG.BASE_URL.includes("menu4.xyz");
 
+  const isUsingTestingApi = () =>
+    typeof API_CONFIG?.BASE_URL === "string" &&
+    API_CONFIG.BASE_URL.includes("menusmitra.xyz");
+
   // Check if current domain is production
   const isProductionDomain = () => {
     const hostname = window.location.hostname;
@@ -14,21 +18,31 @@ const TestEnvironmentBanner = () => {
       hostname === "menumitra.com" ||
       hostname === "user.menumitra.com" ||
       hostname === "www.menumitra.com" ||
-      hostname === "www.user.menumitra.com"
+      hostname === "www.user.menumitra.com" ||
+      hostname === "admin-v2.menumitra.com" ||
+      hostname === "www.admin-v2.menumitra.com" ||
+      hostname === "admin.menumitra.com" ||
+      hostname === "www.admin.menumitra.com"
     );
   };
 
-  // Return null (render nothing) if on production domain or using production API
-  if (isProductionDomain() || isUsingProductionApi()) {
+  // Show banner only for testing environments
+  const shouldShow =
+    isUsingTestingApi() || (!isProductionDomain() && !isUsingProductionApi());
+
+  if (!shouldShow) {
     return null;
   }
 
   return (
-    <div className="flex justify-between items-center px-2 py-1 text-white bg-warning-500 shadow-md transition-all duration-300">
+    <div className="relative flex justify-center items-center px-2 py-1 text-white bg-warning-500 shadow-md transition-all duration-300">
+      <span className="text-sm font-bold tracking-wide">
+        Testing Environment
+      </span>
 
       <Link
         to="https://admin-v2.menumitra.com"
-        className="flex items-center p-3 py-1 bg-gray-50 rounded-full font-semibold text-sm shadow-md transition-all duration-200 text-gray-700"
+        className="absolute right-2 flex items-center p-3 py-1 bg-gray-50 rounded-full font-semibold text-sm shadow-md transition-all duration-200 text-gray-700"
         target="_blank"
         rel="noopener noreferrer"
       >
