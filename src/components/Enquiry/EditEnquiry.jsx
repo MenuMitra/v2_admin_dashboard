@@ -209,20 +209,40 @@ function EditEnquiry() {
     };
 
     const fetchModules = async () => {
-      try {
-        const response = await axios.get(`${BASE_URL}/admin/modules`, {
-          headers: { Authorization: token },
-        });
-        const list = Array.isArray(response.data)
-          ? response.data
-          : response.data?.data || response.data?.modules || [];
-        setModules(
-          (Array.isArray(list) ? list : []).map((item) => ({
+      const normalizeModules = (raw) => {
+        const list = Array.isArray(raw)
+          ? raw
+          : raw?.data || raw?.modules || raw?.data?.modules || [];
+        return (Array.isArray(list) ? list : [])
+          .map((item) => ({
             ...item,
             module_id: Number(item.module_id ?? item.id),
-            name: item.name || item.module_name || `Module ${item.module_id ?? item.id}`,
+            name:
+              item.name ||
+              item.module_name ||
+              `Module ${item.module_id ?? item.id}`,
           }))
-        );
+          .filter((item) => !Number.isNaN(item.module_id));
+      };
+
+      const tryFetch = async (path) => {
+        const response = await axios.get(`${BASE_URL}${path}`, {
+          headers: { Authorization: token },
+        });
+        return normalizeModules(response.data);
+      };
+
+      try {
+        let list = [];
+        try {
+          list = await tryFetch("/admin/get_modules");
+        } catch {
+          list = [];
+        }
+        if (!list.length) {
+          list = await tryFetch("/admin/modules");
+        }
+        setModules(list);
       } catch {
         toastController.error("Failed to fetch modules");
       }
@@ -317,7 +337,7 @@ function EditEnquiry() {
   return (
     <>
       <Breadcrumb items={breadcrumbItems} />
-      <div className="rounded-2xl border border-gray-200 bg-white">
+      <div className="overflow-visible rounded-2xl border border-gray-200 bg-white">
         <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between min-h-[60px]">
             <button
@@ -626,7 +646,7 @@ function EditEnquiry() {
                 error={!!fieldErrors.subscription_tenure}
                 errorMessage={fieldErrors.subscription_tenure}
               />
-              <div>
+              <div className="relative z-20 overflow-visible">
                 <MultiSelectDropdown
                   label="Modules"
                   options={modules}
