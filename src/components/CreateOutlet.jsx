@@ -606,7 +606,7 @@ function CreateOutlet() {
   };
 
   const isAddressValid = (address) => {
-    return address && address.length >= 3 && address.length <= 50;
+    return address && address.length >= 3 && address.length <= 100;
   };
 
   // GST Number validation function
@@ -1267,7 +1267,7 @@ function CreateOutlet() {
                       placeholder="Enter Address"
                       required
                       rows={3}
-                      maxLength={50}
+                      maxLength={100}
                       className="rounded-lg"
                     />
                     {validationStates.address && (
@@ -1276,7 +1276,7 @@ function CreateOutlet() {
                           ? "Address is required"
                           : outletData.address.length < 3
                             ? "Minimum 3 characters required"
-                            : "Address must not exceed 50 characters"}
+                            : "Address must not exceed 100 characters"}
                       </p>
                     )}
                   </div>
