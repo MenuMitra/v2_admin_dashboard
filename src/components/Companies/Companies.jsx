@@ -49,8 +49,15 @@ function Companies() {
     refetch: reloadfetchCompanies,
   } = useCompanies(getToken(), adminData?.user_id);
 
-  // Ensure companies is always an array
-  const companies = Array.isArray(companiesData) ? companiesData : [];
+  // Ensure companies is always an array and derive outlet_count from outlet_ids
+  const companies = Array.isArray(companiesData)
+    ? companiesData.map((company) => ({
+        ...company,
+        outlet_count: Array.isArray(company.outlet_ids)
+          ? company.outlet_ids.length
+          : 0,
+      }))
+    : [];
 
   // Debug logging (can be removed in production)
   console.log('Companies loaded:', companies?.length || 0, 'companies');
@@ -155,6 +162,12 @@ function Companies() {
     {
       field: "owner_count",
       header: "Owner Count",
+      sortable: true,
+      render: (value) => value !== undefined && value !== null ? value : 0,
+    },
+    {
+      field: "outlet_count",
+      header: "Outlet Count",
       sortable: true,
       render: (value) => value !== undefined && value !== null ? value : 0,
     },
