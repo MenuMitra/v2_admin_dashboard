@@ -13,6 +13,7 @@ import {
   faUserCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
+import AuditInfo from "../common/AuditInfo";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import StatusToggleButton from "../common/StatusToggleButton";
 import { toastController } from "../../utils/toastController";
@@ -23,6 +24,20 @@ const toTitleCase = (str) => {
   if (!str) return "";
   return str.replace(/\w\S*/g, (txt) =>
     txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  );
+};
+
+const hasOrderStatistics = (stats) => {
+  if (!stats) return false;
+  return (
+    stats.total_orders > 0 ||
+    stats.paid_orders > 0 ||
+    stats.cancelled_orders > 0 ||
+    stats.cooking_orders > 0 ||
+    stats.placed_orders > 0 ||
+    stats.served_orders > 0 ||
+    stats.total_spent > 0 ||
+    stats.average_order_value > 0
   );
 };
 
@@ -190,14 +205,6 @@ function CustomerDetails() {
             </div>
           )}
 
-        {/* Created On */}
-        <div>
-          <p className="text-base font-medium text-gray-800">
-            {customerData?.customer_details?.created_on}
-          </p>
-          <p className="text-sm text-gray-500">Created On</p>
-        </div>
-
         {/* Last Login */}
         {customerData?.customer_details?.last_login && (
           <div>
@@ -258,6 +265,8 @@ function CustomerDetails() {
   );
 
   const renderOrderStatistics = () => {
+    if (!hasOrderStatistics(customerData?.order_statistics)) return null;
+
     return (
       <div className="p-6 border-t">
         <h2 className="text-xl font-medium mb-6 text-gray-800">
@@ -442,6 +451,39 @@ function CustomerDetails() {
         {/* Updated Content Sections */}
         {renderCustomerDetails()}
         {renderOrderStatistics()}
+
+        <div className="px-7 pb-4">
+          <AuditInfo
+            createdOn={customerData?.customer_details?.created_on}
+            updatedOn={customerData?.customer_details?.updated_on}
+            createdBy={
+              customerData?.customer_details?.created_by_name ||
+              customerData?.customer_details?.created_by_full_name ||
+              customerData?.customer_details?.created_by_user_name ||
+              customerData?.customer_details?.created_by
+                ? toTitleCase(
+                    customerData?.customer_details?.created_by_name ||
+                      customerData?.customer_details?.created_by_full_name ||
+                      customerData?.customer_details?.created_by_user_name ||
+                      customerData?.customer_details?.created_by
+                  )
+                : null
+            }
+            updatedBy={
+              customerData?.customer_details?.updated_by_name ||
+              customerData?.customer_details?.updated_by_full_name ||
+              customerData?.customer_details?.updated_by_user_name ||
+              customerData?.customer_details?.updated_by
+                ? toTitleCase(
+                    customerData?.customer_details?.updated_by_name ||
+                      customerData?.customer_details?.updated_by_full_name ||
+                      customerData?.customer_details?.updated_by_user_name ||
+                      customerData?.customer_details?.updated_by
+                  )
+                : null
+            }
+          />
+        </div>
       </div>
 
       {/* Delete Confirmation Modal */}
