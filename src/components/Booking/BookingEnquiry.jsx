@@ -128,6 +128,16 @@ const BookingEnquiry = () => {
         showBulkActions={false}
         enableStatusFilter={false}
         enableEnquiry={false}
+        headerAction={
+          <a
+            href="https://menumitra.com/book-demo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium text-white transition rounded-full shadow-theme-xs bg-brand-500 hover:bg-brand-600"
+          >
+            Book a Demo
+          </a>
+        }
         counts={{
           total: filtered.length,
           active: null,

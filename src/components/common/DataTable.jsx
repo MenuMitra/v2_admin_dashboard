@@ -148,6 +148,7 @@ function DataTable({
   initialPage = 1,
   onPageChange,
   onSortChange,
+  headerAction = null,
 }) {
   // Add data validation at the start of the component
   const safeData = Array.isArray(data) ? data : [];
@@ -955,11 +956,12 @@ function DataTable({
 
               {/* Right Side */}
               <div
-                className={`flex items-center justify-end ${mergedCreateButton.position === "right"
+                className={`flex items-center justify-end gap-2 ${mergedCreateButton.position === "right"
                     ? "order-3"
                     : "order-2"
                   }`}
               >
+                {headerAction}
                 {mergedCreateButton.position === "right" &&
                   renderCreateButton()}
               </div>
@@ -1797,6 +1799,7 @@ DataTable.propTypes = {
   onExecutionTimeFilterChange: PropTypes.func,
   forceTopControls: PropTypes.bool,
   getRowId: PropTypes.func,
+  headerAction: PropTypes.node,
 };
 
 DataTable.defaultProps = {
@@ -1904,6 +1907,7 @@ DataTable.defaultProps = {
   onExecutionTimeFilterChange: () => { },
   forceTopControls: false,
   getRowId: defaultGetRowId,
+  headerAction: null,
 };
 
 export default DataTable;
