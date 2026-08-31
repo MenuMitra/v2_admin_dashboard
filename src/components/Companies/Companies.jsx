@@ -100,6 +100,28 @@ function Companies() {
     }
   };
 
+  const handleToggleCompanyActive = (company) => {
+    const isActive = company.is_active === true || company.is_active === 1;
+    const action = isActive ? "inactive" : "active";
+
+    bulkAction(
+      { companyIds: [company.company_id], action },
+      {
+        onSuccess: (data) => {
+          toastController.success(
+            data.detail ||
+              `Company marked as ${action === "active" ? "Active" : "Inactive"}`
+          );
+        },
+        onError: (err) => {
+          toastController.error(
+            err.response?.data?.detail || "Failed to update company status"
+          );
+        },
+      }
+    );
+  };
+
   const handleBulkAction = async (action, selectedIds) => {
     try {
       bulkAction(
@@ -175,6 +197,24 @@ function Companies() {
       field: "is_active",
       header: "Status",
       sortable: true,
+      render: (value, company) => {
+        const isActive = value === true || value === 1;
+
+        return (
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => handleToggleCompanyActive(company)}
+              disabled={isBulkActioning}
+              className={`text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                isActive ? "text-success-600" : "text-error-600"
+              } ${isBulkActioning ? "opacity-50 cursor-not-allowed" : ""}`}
+              title={`Click to mark as ${isActive ? "Inactive" : "Active"}`}
+            >
+              {isActive ? "Active" : "Inactive"}
+            </button>
+          </div>
+        );
+      },
     },
     {
       field: "actions",
