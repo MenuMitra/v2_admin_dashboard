@@ -325,7 +325,6 @@ const Search = () => {
                       { value: "", label: "All Roles" },
                       { value: "owner", label: "Owner" },
                       { value: "customer", label: "Customer" },
-                      { value: "partner", label: "Partner" }
                     ]}
                     placeholder="All Roles"
                     className="w-full sm:w-max sm:min-w-[200px]"
