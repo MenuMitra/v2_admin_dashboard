@@ -33,6 +33,11 @@ const transformOutletData = (outlets) => {
     total_menu: outlet.total_menu,
     total_category: outlet.total_category,
     last_order_date: outlet.last_order_date,
+    subscription_end_date:
+      outlet.subscription_end_date ||
+      outlet.subscription_details?.subscription_end_date ||
+      outlet.subscription?.subscription_end_date ||
+      null,
   }));
 };
 

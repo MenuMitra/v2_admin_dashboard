@@ -34,6 +34,62 @@ const toTitleCase = (str) =>
       )
     : "";
 
+const getDateOnly = (value) => {
+  if (!value) return null;
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+const getLastOrderTextClass = (value) => {
+  const lastOrderDate = getDateOnly(value);
+  if (!lastOrderDate) return "text-gray-700";
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffInDays = Math.floor(
+    (today.getTime() - lastOrderDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diffInDays <= 7) return "text-success-600";
+  if (diffInDays <= 30) return "text-brand-500";
+  return "text-black";
+};
+
+const getSubscriptionStatus = (subscriptionEndDate) => {
+  const endDate = getDateOnly(subscriptionEndDate);
+  if (!endDate) {
+    return { label: "-", className: "text-gray-500" };
+  }
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffInDays = Math.floor(
+    (endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diffInDays >= 0) {
+    return {
+      label: `${diffInDays} Day${diffInDays === 1 ? "" : "s"} Pending`,
+      className: diffInDays <= 5 ? "text-warning-600" : "text-success-600",
+    };
+  }
+
+  const expiredDays = Math.abs(diffInDays);
+  return {
+    label:
+      expiredDays === 0
+        ? "Expired Today"
+        : `${expiredDays} Day${expiredDays === 1 ? "" : "s"} Expired`,
+    className: "text-error-600",
+  };
+};
+
 function Outlets() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -325,16 +381,6 @@ function Outlets() {
         </span>
       ),
     },
-    {
-      field: "total_paid_count",
-      header: "Total Paid",
-      sortable: true,
-      render: (value) => (
-        <span className="text-gray-700 font-medium text-xs flex justify-center">
-          {(value ?? 0).toLocaleString()}
-        </span>
-      ),
-    },
     // {
     //   field: "total_cancel_count",
     //   header: "Total Cancelled ",
@@ -360,8 +406,28 @@ function Outlets() {
           }
         }
         return (
-          <span className="text-gray-700 font-medium text-xs flex justify-center">
+          <span
+            className={`${getLastOrderTextClass(
+              value
+            )} font-medium text-xs flex justify-center`}
+          >
             {formatted || "-"}
+          </span>
+        );
+      },
+    },
+    {
+      field: "subscription_end_date",
+      header: "Pending Day / Expired",
+      sortable: true,
+      render: (value) => {
+        const subscriptionStatus = getSubscriptionStatus(value);
+
+        return (
+          <span
+            className={`${subscriptionStatus.className} font-medium text-xs flex justify-center`}
+          >
+            {subscriptionStatus.label}
           </span>
         );
       },
