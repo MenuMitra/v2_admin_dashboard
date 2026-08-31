@@ -41,7 +41,7 @@ const TestEnvironmentBanner = () => {
       </span>
 
       <Link
-        to="https://admin-v2.menumitra.com"
+        to="https://admin.2.3.menumitra.com"
         className="absolute right-2 flex items-center p-3 py-1 bg-gray-50 rounded-full font-semibold text-sm shadow-md transition-all duration-200 text-gray-700"
         target="_blank"
         rel="noopener noreferrer"
