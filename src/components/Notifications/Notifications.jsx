@@ -7,6 +7,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
 import DataTable from "../common/DataTable";
+import Modal from "../common/Modal";
 import { useNotifications } from "../../lib/react-query/hooks/useNotifications";
 import { toastController } from "../../utils/toastController";
 
@@ -22,6 +23,8 @@ const Notifications = () => {
   const [resendingNotifications, setResendingNotifications] = useState(
     new Set()
   );
+  const [resendConfirmNotification, setResendConfirmNotification] =
+    useState(null);
 
   const {
     notifications,
@@ -188,7 +191,9 @@ const Notifications = () => {
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-brand-500 hover:bg-brand-600"
             }`}
-            onClick={() => !isResending && handleResend(row)}
+            onClick={() =>
+              !isResending && setResendConfirmNotification(row)
+            }
             title="Resend"
             disabled={isResending}
           >
@@ -214,6 +219,13 @@ const Notifications = () => {
 
   // Get filtered notifications
   const filteredNotifications = getFilteredNotifications();
+
+  const handleConfirmResend = async () => {
+    if (!resendConfirmNotification) return;
+    const notification = resendConfirmNotification;
+    setResendConfirmNotification(null);
+    await handleResend(notification);
+  };
 
   const handleResend = async (notification) => {
     const notificationId = notification.id || notification.notification_id;
@@ -317,6 +329,40 @@ const Notifications = () => {
         onReload={refetchNotifications}
         error={notificationsError}
       />
+
+      <Modal
+        isOpen={!!resendConfirmNotification}
+        onClose={() => setResendConfirmNotification(null)}
+        type="info"
+        title="Resend Notification"
+        size="small"
+        actionButtons={
+          <div className="flex justify-between w-full gap-4">
+            <button
+              type="button"
+              onClick={() => setResendConfirmNotification(null)}
+              className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs sm:w-auto border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleConfirmResend}
+              className="flex-1 flex justify-center rounded-full px-4 py-3 text-theme-sm font-medium shadow-theme-xs sm:w-auto text-white bg-brand-500 hover:bg-brand-600"
+            >
+              Resend
+            </button>
+          </div>
+        }
+      >
+        <p className="text-theme-sm text-gray-500 dark:text-gray-400">
+          Are you sure you want to resend this notification
+          {resendConfirmNotification?.title
+            ? ` "${resendConfirmNotification.title}"`
+            : ""}
+          ?
+        </p>
+      </Modal>
     </>
   );
 };
