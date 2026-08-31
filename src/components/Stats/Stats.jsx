@@ -346,8 +346,7 @@ function Stats() {
           <h2 className="text-sm font-semibold">App Usage</h2>
         </div>
 
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between mb-2">
-          <div className="flex flex-wrap items-end gap-3 flex-1 min-w-[320px]">
+        <div className="flex flex-wrap items-end justify-end gap-3 mb-2">
             <div className="w-40 mb-2 sm:w-44">
               <CustomDropdown
                 label="Select App"
@@ -387,9 +386,8 @@ function Stats() {
                 className="w-full text-xs py-1 px-2 rounded-lg"
               />
             </div>
-          </div>
 
-          <div className="flex items-end gap-3 w-full lg:w-auto lg:justify-end">
+          <div className="flex items-end gap-3">
             <div className="relative w-full sm:w-60 lg:w-64">
               <label className="sr-only">Search</label>
               <span className="absolute left-4 top-1/2 pb-2 -translate-y-1/2 text-gray-400 pointer-events-none">

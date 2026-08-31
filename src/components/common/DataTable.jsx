@@ -898,6 +898,8 @@ function DataTable({
     enableOpenCloseStatusFilter ||
     enableOutletTypeFilter ||
     enableOwnerCountFilter ||
+    enableActiveSessionFilter ||
+    enableOutletCountFilter ||
     enableEnquiry ||
     shouldShowBottomSearch ||
     shouldShowBottomReload;
@@ -1188,11 +1190,12 @@ function DataTable({
             {/* Toolbar Row - stats + filters + search/reload on one line */}
             {showsBottomToolbar && (
               <div className="flex flex-wrap items-center justify-between gap-2 px-0 pl-2 mb-4">
-                <div className="flex flex-wrap items-center flex-1 gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {showStatsInBottomToolbar && renderCounts()}
-                  {/* Enquiry Filter */}
+                </div>
+                <div className="flex flex-wrap items-center justify-end gap-2 ml-auto shrink-0">
                   {enableEnquiry && (
-                    <div className="mr-2 text-gray-600 w-36">
+                    <div className="text-gray-600 w-36">
                       <CustomSelect
                         value={enquiryFilter || "all"}
                         onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
@@ -1207,9 +1210,8 @@ function DataTable({
                       />
                     </div>
                   )}
-                  {/* Account Type Filter */}
                   {enableAccountTypeFilter && (
-                    <div className="mr-2 text-gray-600 w-28">
+                    <div className="text-gray-600 w-28">
                       <CustomSelect
                         value={accountType || "all"}
                         onChange={(e) => onAccountTypeChange && onAccountTypeChange(e.target.value)}
@@ -1223,9 +1225,8 @@ function DataTable({
                       />
                     </div>
                   )}
-                  {/* Open/Close Filter */}
                   {enableOpenCloseStatusFilter && (
-                    <div className="mr-2 text-gray-600 w-28">
+                    <div className="text-gray-600 w-28">
                       <CustomSelect
                         value={openCloseStatus || "all"}
                         onChange={(e) => onOpenCloseStatusChange && onOpenCloseStatusChange(e.target.value)}
@@ -1239,9 +1240,8 @@ function DataTable({
                       />
                     </div>
                   )}
-                  {/* Active Session Filter */}
                   {enableActiveSessionFilter && (
-                    <div className="mr-2 text-gray-600 w-28">
+                    <div className="text-gray-600 w-28">
                       <CustomSelect
                         value={activeSessionFilter || "all"}
                         onChange={(e) => {
@@ -1262,9 +1262,8 @@ function DataTable({
                       />
                     </div>
                   )}
-                  {/* Outlet Count Filter */}
                   {enableOutletCountFilter && (
-                    <div className="mr-2 text-gray-600 w-28">
+                    <div className="text-gray-600 w-28">
                       <CustomSelect
                         value={outletCountFilter || "all"}
                         onChange={(e) => {
@@ -1285,9 +1284,8 @@ function DataTable({
                       />
                     </div>
                   )}
-                  {/* Outlet Type Filter */}
                   {enableOutletTypeFilter && (
-                    <div className="mr-2 text-gray-600 w-36">
+                    <div className="text-gray-600 w-36">
                       <CustomSelect
                         value={outletTypeFilter || "all"}
                         onChange={(e) => {
@@ -1301,17 +1299,14 @@ function DataTable({
                           { value: "Mess", label: "Mess" },
                           { value: "Cafe", label: "Cafe" },
                           { value: "Bakery", label: "Bakery" },
-
-
                         ]}
                         placeholder="All Types"
                         className="text-sm text-gray-700"
                       />
                     </div>
                   )}
-                  {/* Owner Count Filter */}
                   {enableOwnerCountFilter && (
-                    <div className="w-32 mr-2 text-gray-600">
+                    <div className="w-32 text-gray-600">
                       <CustomSelect
                         value={ownerCountFilter || "all"}
                         onChange={(e) => {
@@ -1332,8 +1327,6 @@ function DataTable({
                       />
                     </div>
                   )}
-                </div>
-                <div className="flex flex-wrap items-center justify-end gap-2 ml-auto shrink-0">
                   {renderStatusFilter()}
                   {shouldShowBottomReload && renderReloadButton("")}
                   {shouldShowBottomSearch && renderSearchInput("")}

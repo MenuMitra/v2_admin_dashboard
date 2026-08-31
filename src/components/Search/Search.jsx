@@ -312,11 +312,9 @@ const Search = () => {
           <div className="px-4 sm:px-6 py-3 sm:py-4">
             <form
               onSubmit={handleSearch}
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8"
+              className="flex flex-col sm:flex-row sm:flex-wrap sm:justify-end gap-3 sm:gap-4 mb-6 sm:mb-8"
             >
-              {/* Mobile: Stacked Layout for Filters */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-                {/* Role Select */}
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:justify-end gap-3 sm:gap-4 w-full">
                 <div className="w-full sm:w-auto sm:min-w-[200px] relative z-10">
                   <CustomSelect
                     value={selectedRole}
@@ -331,7 +329,6 @@ const Search = () => {
                   />
                 </div>
 
-                {/* Search Type Select */}
                 <div className="w-full sm:w-auto sm:min-w-[200px] relative z-10">
                   <CustomSelect
                     value={searchType}
@@ -345,10 +342,8 @@ const Search = () => {
                     className="w-full sm:w-max sm:min-w-[200px]"
                   />
                 </div>
-              </div>
 
-              {/* Search Input and Button Group */}
-              <div className="flex gap-2 sm:gap-4 flex-1">
+              <div className="flex gap-2 sm:gap-4 w-full sm:w-auto sm:min-w-[280px]">
                 <div className="flex-1 relative">
                   <div className="relative">
                     <input
@@ -408,6 +403,7 @@ const Search = () => {
                     <FontAwesomeIcon icon={faSearch} className="w-4 h-4" />
                   </button>
                 </div>
+              </div>
               </div>
             </form>
 
