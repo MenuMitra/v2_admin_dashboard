@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import CustomDropdown from "./CustomDropdown";
 
 const ActiveSessionsTable = ({
   activeSessions = [],
@@ -8,12 +9,57 @@ const ActiveSessionsTable = ({
   showAction = true,
   className = "",
 }) => {
+  const [appTypeFilter, setAppTypeFilter] = useState("all");
+
+  const appTypeOptions = useMemo(() => {
+    const types = [
+      ...new Set(
+        activeSessions
+          .map((s) => s.app_type?.toUpperCase())
+          .filter(Boolean)
+      ),
+    ].sort();
+
+    return [
+      { value: "all", label: "All App Types" },
+      ...types.map((type) => ({ value: type, label: type })),
+    ];
+  }, [activeSessions]);
+
+  useEffect(() => {
+    if (
+      appTypeFilter !== "all" &&
+      !appTypeOptions.some((opt) => opt.value === appTypeFilter)
+    ) {
+      setAppTypeFilter("all");
+    }
+  }, [appTypeFilter, appTypeOptions]);
+
+  const filteredSessions = useMemo(() => {
+    if (appTypeFilter === "all") return activeSessions;
+    return activeSessions.filter(
+      (s) => s.app_type?.toUpperCase() === appTypeFilter
+    );
+  }, [activeSessions, appTypeFilter]);
+
   if (!activeSessions || activeSessions.length === 0) {
     return null;
   }
 
   return (
-    <div className={`overflow-x-auto ${className}`}>
+    <div className={className}>
+      <div className="flex justify-end mb-3 mt-2">
+        <div className="w-44">
+          <CustomDropdown
+            label="App Type"
+            options={appTypeOptions}
+            value={appTypeFilter}
+            onChange={(e) => setAppTypeFilter(e.target.value)}
+            placeholder="All App Types"
+          />
+        </div>
+      </div>
+      <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-200 rounded-lg">
         <thead>
           <tr>
@@ -40,7 +86,17 @@ const ActiveSessionsTable = ({
           </tr>
         </thead>
         <tbody>
-          {activeSessions.map((session, idx) => (
+          {filteredSessions.length === 0 ? (
+            <tr>
+              <td
+                colSpan={showAction ? 6 : 5}
+                className="px-4 py-6 text-center text-sm text-gray-500"
+              >
+                No sessions found for the selected app type.
+              </td>
+            </tr>
+          ) : (
+          filteredSessions.map((session, idx) => (
             <tr key={idx} className="border-b last:border-b-0">
               <td className="px-4 py-2 text-sm text-gray-800">
                 {session.device_model || "-"}
@@ -68,9 +124,10 @@ const ActiveSessionsTable = ({
                 </td>
               )}
             </tr>
-          ))}
+          )))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };
