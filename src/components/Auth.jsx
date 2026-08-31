@@ -13,7 +13,6 @@ import {
   resetUserPin,
 } from "../services/resetPinService";
 import PinInput from "./auth/PinInput";
-import YouTubePlayer from "./YouTubePlayer";
 
 const PIN_LENGTH = API_CONFIG.PIN_LENGTH || 4;
 const OTP_LENGTH = 4;
@@ -726,9 +725,6 @@ function AuthHero() {
           <p className="mt-2 max-w-xs text-sm text-brand-100/90">
           
           </p>
-        </div>
-        <div className="w-full max-w-md">
-          <YouTubePlayer videoId="j2e2stCcICo" />
         </div>
       </div>
     </div>
