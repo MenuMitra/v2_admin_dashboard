@@ -69,6 +69,25 @@ export const useCustomers = (statusFilter = 'all') => {
     },
   });
 
+  // Update Customer Mutation
+  const updateCustomerMutation = useMutation({
+    mutationFn: async (customerData) => {
+      const response = await axios.patch(
+        `${BASE_URL}/admin/customer_update`,
+        customerData,
+        {
+          headers: {
+            Authorization: getToken(),
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.customers.all });
+    },
+  });
+
   // Bulk Action Mutation
   const bulkActionMutation = useMutation({
     mutationFn: async ({ action, customerIds }) => {
@@ -104,6 +123,8 @@ export const useCustomers = (statusFilter = 'all') => {
     refetch,
     deleteCustomer: deleteMutation.mutate,
     isDeleting: deleteMutation.isPending,
+    updateCustomer: updateCustomerMutation.mutate,
+    isUpdating: updateCustomerMutation.isPending,
     bulkAction: bulkActionMutation.mutate,
     isBulkActioning: bulkActionMutation.isPending,
   };

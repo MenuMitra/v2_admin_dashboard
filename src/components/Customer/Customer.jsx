@@ -5,13 +5,13 @@ import {
   faEye,
   faTrash,
   faPenToSquare,
-  faCircleCheck,
-  faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
 import { useCustomers } from "../../lib/react-query/hooks/useCustomers";
+import { useAdmin } from "../../hooks/useAdmin";
+import { toastController } from "../../utils/toastController";
 
 // Capitalize first letter of every word (title case)
 const toTitleCase = (str) =>
@@ -23,6 +23,7 @@ const toTitleCase = (str) =>
 
 function Customer() {
   const navigate = useNavigate();
+  const { adminData } = useAdmin();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [selectedItems, setSelectedItems] = useState([]);
@@ -42,6 +43,8 @@ function Customer() {
     refetch,
     deleteCustomer,
     isDeleting,
+    updateCustomer,
+    isUpdating,
     bulkAction,
     isBulkActioning,
   } = useCustomers(statusFilter);
@@ -69,6 +72,35 @@ function Customer() {
     setStatusFilter(status.toLowerCase());
   };
 
+  const handleToggleCustomerActive = (customer) => {
+    const isActive = customer.is_active === true || customer.is_active === 1;
+    const nextIsActive = isActive ? 0 : 1;
+
+    updateCustomer(
+      {
+        user_id: adminData?.user_id,
+        customer_id: Number(customer.user_id),
+        name: customer.name || "",
+        mobile: customer.mobile || "",
+        is_active: nextIsActive,
+        outlet_id: customer.outlet_id || "",
+        app_source: "admin_app",
+      },
+      {
+        onSuccess: () => {
+          toastController.success(
+            `Customer marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
+          );
+        },
+        onError: (err) => {
+          toastController.error(
+            err.response?.data?.msg || "Failed to update customer status"
+          );
+        },
+      }
+    );
+  };
+
   const columns = [
     {
       field: "name",
@@ -93,16 +125,24 @@ function Customer() {
       field: "is_active",
       header: "Status",
       sortable: true,
-      render: (value) => (
-        <div className="flex items-center justify-center gap-2">
-          <FontAwesomeIcon
-            icon={value ? faCircleCheck : faCircleXmark}
-            className={`w-5 h-5 ${
-              value ? "text-success-500" : "text-error-500"
-            }`}
-          />
-        </div>
-      ),
+      render: (value, customer) => {
+        const isActive = value === true || value === 1;
+
+        return (
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => handleToggleCustomerActive(customer)}
+              disabled={isUpdating}
+              className={`text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                isActive ? "text-success-600" : "text-error-600"
+              } ${isUpdating ? "opacity-50 cursor-not-allowed" : ""}`}
+              title={`Click to mark as ${isActive ? "Inactive" : "Active"}`}
+            >
+              {isActive ? "Active" : "Inactive"}
+            </button>
+          </div>
+        );
+      },
     },
     {
       field: "action",
