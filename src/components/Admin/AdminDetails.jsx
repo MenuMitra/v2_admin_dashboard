@@ -286,7 +286,6 @@ function AdminDetails() {
                 </h3>
                 <ActiveSessionsTable
                   activeSessions={activeSessions}
-                  lastLogin={admin.last_login}
                   onLogout={handleLogout}
                   showAction={
                     admin && !PROTECTED_MOBILES.includes(String(admin.mobile))

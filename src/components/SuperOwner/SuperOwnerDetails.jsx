@@ -695,7 +695,6 @@ function SuperOwnerDetails() {
                 </h2>
                 <ActiveSessionsTable
                   activeSessions={activeSessions}
-                  lastLogin={superOwnerData?.last_login}
                   onLogout={handleLogout}
                   showAction={true}
                 />

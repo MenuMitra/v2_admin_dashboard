@@ -396,7 +396,6 @@ function PartnerDetails() {
                 </h2>
                 <ActiveSessionsTable
                   activeSessions={activeSessions}
-                  lastLogin={partner.last_login}
                   onLogout={handleLogout}
                   showAction={true}
                 />

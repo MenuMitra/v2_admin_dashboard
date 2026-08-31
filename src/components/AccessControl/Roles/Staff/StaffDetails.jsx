@@ -320,7 +320,6 @@ function StaffDetails() {
                 </h2>
                 <ActiveSessionsTable
                   activeSessions={data.active_sessions}
-                  lastLogin={data.last_login}
                   onLogout={(deviceId) => {
                     // delegate to existing partner/owner style logout if needed
                     // no-op here; you can implement logout via API similar to OwnerDetails
