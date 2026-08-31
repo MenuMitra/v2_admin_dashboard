@@ -50,6 +50,8 @@ function Admins() {
     bulkAction,
     isBulkActioning,
     bulkActionError,
+    updateAdmin,
+    isUpdating,
     refetch: reloadfetchAdmins,
   } = useAdmins(getToken());
 
@@ -142,6 +144,38 @@ function Admins() {
     setSelectedAdmins(filteredSelection);
   };
 
+  const handleToggleAdminActive = (admin) => {
+    if (PROTECTED_MOBILES.includes(admin.mobile)) return;
+
+    const isActive = admin.is_active === true || admin.is_active === 1;
+    const nextIsActive = isActive ? 0 : 1;
+
+    updateAdmin(
+      {
+        user_id: adminData?.user_id,
+        admin_id: Number(admin.admin_id || admin.user_id),
+        name: admin.name || "",
+        email: admin.email || "",
+        mobile: admin.mobile || "",
+        is_active: nextIsActive,
+        role: admin.role || "admin",
+        app_source: "admin",
+      },
+      {
+        onSuccess: () => {
+          toastController.success(
+            `Admin marked as ${nextIsActive === 1 ? "Active" : "Inactive"}`
+          );
+        },
+        onError: (err) => {
+          toastController.error(
+            err.response?.data?.detail || "Failed to update admin status"
+          );
+        },
+      }
+    );
+  };
+
   // Define columns for DataTable
   const columns = [
     {
@@ -176,6 +210,33 @@ function Admins() {
       field: "is_active",
       header: "Status",
       sortable: true,
+      render: (value, admin) => {
+        const isActive = value === true || value === 1;
+        const isProtected = PROTECTED_MOBILES.includes(admin.mobile);
+
+        return (
+          <div className="flex items-center justify-center">
+            <button
+              onClick={() => handleToggleAdminActive(admin)}
+              disabled={isUpdating || isProtected}
+              className={`text-sm font-medium transition-opacity ${
+                isActive ? "text-success-600" : "text-error-600"
+              } ${
+                isProtected
+                  ? "cursor-not-allowed"
+                  : "cursor-pointer hover:opacity-80"
+              } ${isUpdating ? "opacity-50 cursor-not-allowed" : ""}`}
+              title={
+                isProtected
+                  ? "Status cannot be changed"
+                  : `Click to mark as ${isActive ? "Inactive" : "Active"}`
+              }
+            >
+              {isActive ? "Active" : "Inactive"}
+            </button>
+          </div>
+        );
+      },
     },
     {
       field: "actions",
