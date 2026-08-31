@@ -16,16 +16,45 @@ const getApiBaseUrl = () => {
 
 };
 
+const PRODUCTION_CUSTOMER_APP_URL = "https://customer.2.3.menumitra.com";
+const TESTING_CUSTOMER_APP_URL =
+  "https://test-menumitra-customer-v2.netlify.app";
+
+const isProductionEnvironment = () => {
+  const apiBaseUrl = getApiBaseUrl();
+  if (typeof apiBaseUrl === "string" && apiBaseUrl.includes("menu4.xyz")) {
+    return true;
+  }
+
+  if (typeof window !== "undefined") {
+    const productionHosts = [
+      "menumitra.com",
+      "user.menumitra.com",
+      "www.menumitra.com",
+      "www.user.menumitra.com",
+      "admin-v2.menumitra.com",
+      "www.admin-v2.menumitra.com",
+      "admin.menumitra.com",
+      "www.admin.menumitra.com",
+      "admin.2.3.menumitra.com",
+      "www.admin.2.3.menumitra.com",
+    ];
+    return productionHosts.includes(window.location.hostname);
+  }
+
+  return false;
+};
+
 // Get Customer App base URL from environment variable (Netlify)
-// Falls back to testing app if not set
+// Falls back based on production vs testing environment
 const getCustomerAppUrl = () => {
-  // Check for Vite environment variable (set in Netlify)
   if (import.meta.env.VITE_CUSTOMER_APP_URL) {
     return import.meta.env.VITE_CUSTOMER_APP_URL;
   }
 
-  // Default fallback for local development
-  return 'https://test-menumitra-customer-v2.netlify.app';
+  return isProductionEnvironment()
+    ? PRODUCTION_CUSTOMER_APP_URL
+    : TESTING_CUSTOMER_APP_URL;
 };
 
 // API Configuration

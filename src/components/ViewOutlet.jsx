@@ -678,7 +678,7 @@ function ViewOutlet() {
                 />
               </button>
               <a
-                href={`${CUSTOMER_APP_URL}/o${outletData?.outlet_code}/`}
+                href={`${CUSTOMER_APP_URL}/all-outlets`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium transition rounded-full border border-brand-500 text-brand-500 bg-white hover:bg-brand-50 shadow-theme-xs"
