@@ -10,7 +10,6 @@ import {
   faSpinner,
   faChevronLeft as faBack,
   faRotate,
-  faUserCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumb from "../Breadcrumb";
 import AuditInfo from "../common/AuditInfo";
@@ -218,36 +217,29 @@ function CustomerDetails() {
         {/* Account Status */}
         {customerData?.customer_details?.is_active !== null &&
           customerData?.customer_details?.is_active !== undefined && (
-            <div className="flex items-center p-3 rounded-lg">
-              <div className="w-8 h-8 flex items-center justify-center">
-                <FontAwesomeIcon
-                  icon={faUserCheck}
-                  className="w-5 h-5 text-gray-400"
-                />
-              </div>
-              <div className="ml-1.5 flex items-center">
-                <div>
-                  <p
-                    className={`text-base font-medium ${
-                      customerData.customer_details.is_active
-                        ? "text-success-700"
-                        : "text-error-700"
-                    }`}
-                  >
-                    {customerData.customer_details.is_active
-                      ? "Active"
-                      : "Inactive"}
-                  </p>
-                  <div className="text-sm text-gray-500">Account Status</div>
-                </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <p
+                  className={`text-base font-medium ${
+                    customerData.customer_details.is_active
+                      ? "text-success-700"
+                      : "text-error-700"
+                  }`}
+                >
+                  {customerData.customer_details.is_active
+                    ? "Active"
+                    : "Inactive"}
+                </p>
                 <StatusToggleButton
                   isActive={customerData.customer_details.is_active === 1}
                   onToggle={handleToggleCustomerActive}
                   disabled={isTogglingActive}
                   activeLabel=""
                   inactiveLabel=""
+                  className="!px-0 !py-0"
                 />
               </div>
+              <p className="text-sm text-gray-500">Account Status</p>
             </div>
           )}
 
