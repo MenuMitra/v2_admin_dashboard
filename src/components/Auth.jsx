@@ -653,16 +653,36 @@ function AuthFooter() {
   return (
     <div className="flex flex-col items-center gap-3">
       <nav className="flex gap-10 text-sm text-gray-500 dark:text-gray-400">
-        <a href="https://menumitra.com/" className="hover:text-gray-700">
+        <a
+          href="https://menumitra.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-gray-700"
+        >
           Home
         </a>
-        <a href="https://menumitra.com/book-demo" className="hover:text-gray-700">
+        <a
+          href="https://menumitra.com/book-demo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-gray-700"
+        >
           Book a demo
         </a>
-        <a href="https://menumitra.com/about" className="hover:text-gray-700">
+        <a
+          href="https://menumitra.com/about"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-gray-700"
+        >
           Contact
         </a>
-        <a href="https://menumitra.com/contact" className="hover:text-gray-700">
+        <a
+          href="https://menumitra.com/contact"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-gray-700"
+        >
           Support
         </a>
       </nav>
@@ -688,6 +708,8 @@ function AuthFooter() {
           <a
             key={s.href}
             href={s.href}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-gray-300 bg-white transition-all duration-250 hover:shadow-md hover:-translate-y-0.5"
           >
             <i className={`${s.icon} text-2xl`} style={{ color: s.color }} />
