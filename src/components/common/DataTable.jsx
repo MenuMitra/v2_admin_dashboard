@@ -892,6 +892,129 @@ function DataTable({
   const shouldShowBottomSearch = !shouldShowTopSearchAndReload && showSearch;
   const shouldShowBottomReload = !shouldShowTopSearchAndReload && !!onReload;
 
+  const showsBottomToolbar =
+    enableStatusFilter ||
+    enableAccountTypeFilter ||
+    enableOpenCloseStatusFilter ||
+    enableOutletTypeFilter ||
+    enableOwnerCountFilter ||
+    enableEnquiry ||
+    shouldShowBottomSearch ||
+    shouldShowBottomReload;
+
+  const hasTopControlsInStatsRow =
+    !!dashboardTitle ||
+    enableExecutionTimeFilter ||
+    (customFilters && customFilters.length > 0) ||
+    shouldShowTopSearchAndReload;
+
+  const showStatsInBottomToolbar = showsBottomToolbar && !hasTopControlsInStatsRow;
+
+  const renderCounts = () => {
+    if (!counts) return null;
+
+    return (
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span className="font-medium text-gray-800 dark:text-white/90">
+          Total: {processedData.length}
+        </span>
+        {typeof counts.enquiry === "number" && (
+          <span className="font-medium bg-warning-100 text-warning-500 px-2 py-0.5 rounded">
+            Enquiry: {counts.enquiry}
+          </span>
+        )}
+        {typeof counts.pending === "number" && (
+          <span className="font-medium bg-warning-100 text-warning-500 px-2 py-0.5 rounded">
+            Pending: {counts.pending}
+          </span>
+        )}
+        {typeof counts.enquiryActive === "number" && (
+          <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
+            Active: {counts.enquiryActive}
+          </span>
+        )}
+        {typeof counts.rejected === "number" && (
+          <span className="font-medium bg-error-100 text-error-700 px-2 py-0.5 rounded">
+            Rejected: {counts.rejected}
+          </span>
+        )}
+        {typeof counts.positive === "number" && (
+          <span
+            className="font-medium bg-blue-100 px-2 py-0.5 rounded"
+            style={{ color: "#1d4ed8" }}
+          >
+            Positive: {counts.positive}
+          </span>
+        )}
+        {typeof counts.onboard === "number" && (
+          <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
+            Onboard: {counts.onboard}
+          </span>
+        )}
+        {typeof counts.active === "number" && (
+          <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">
+            Active:{" "}
+            {
+              processedData.filter((item) =>
+                normalizeStatus(item[statusField])
+              ).length
+            }
+          </span>
+        )}
+        {typeof counts.inactive === "number" && (
+          <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">
+            Inactive:{" "}
+            {
+              processedData.filter(
+                (item) => !normalizeStatus(item[statusField])
+              ).length
+            }
+          </span>
+        )}
+        {typeof counts.total_api_calls === "number" && (
+          <span className="font-medium  text-brand-500 px-2 py-0.5 rounded">
+            Total API Calls: {counts.total_api_calls}
+          </span>
+        )}
+        {counts.average_execution_time && (
+          <span className="font-medium bg-warning-100 text-warning-700 px-2 py-0.5 rounded">
+            Avg Execution Time: {counts.average_execution_time}
+          </span>
+        )}
+        {typeof counts.tables_with_data === "number" && (
+          <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
+            Tables With Data: {counts.tables_with_data}
+          </span>
+        )}
+        {typeof counts.empty_tables === "number" && (
+          <span className="font-medium bg-error-100 text-error-700 px-2 py-0.5 rounded">
+            Empty Tables: {counts.empty_tables}
+          </span>
+        )}
+      </div>
+    );
+  };
+
+  const renderStatusFilter = () => {
+    if (!enableStatusFilter) return null;
+
+    return (
+      <div className="text-gray-600 w-28">
+        <CustomSelect
+          value={statusFilter}
+          onChange={(e) => onStatusFilterChange(e.target.value)}
+          options={[
+            { value: "all", label: "All Status" },
+            { value: "active", label: "Active" },
+            { value: "inactive", label: "Inactive" },
+          ]}
+          placeholder="All Status"
+          className="text-sm text-gray-700"
+        />
+      </div>
+    );
+  };
+
   // Add error boundary wrapper
   try {
     // Set default bulk actions if not provided
@@ -980,90 +1103,11 @@ function DataTable({
               </div>
             </div>
 
-            {/* Stats Row */}
+            {/* Stats Row - hidden when stats move to the toolbar row below */}
+            {!showStatsInBottomToolbar && (counts || hasTopControlsInStatsRow) && (
             <div className="flex flex-col flex-wrap justify-between gap-4 px-0 pl-2 mb-2 sm:flex-row sm:gap-0 sm:items-center">
               {/* Left: Stats as badges */}
-              {counts && (
-                <div className="flex flex-wrap items-center gap-2 text-sm">
-                  <span className="font-medium text-gray-800 dark:text-white/90">
-                    Total: {processedData.length}
-                  </span>
-                  {typeof counts.enquiry === "number" && (
-                    <span className="font-medium bg-warning-100 text-warning-500 px-2 py-0.5 rounded">
-                      Enquiry: {counts.enquiry}
-                    </span>
-                  )}
-                  {typeof counts.pending === "number" && (
-                    <span className="font-medium bg-warning-100 text-warning-500 px-2 py-0.5 rounded">
-                      Pending: {counts.pending}
-                    </span>
-                  )}
-                  {typeof counts.enquiryActive === "number" && (
-                    <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
-                      Active: {counts.enquiryActive}
-                    </span>
-                  )}
-                  {typeof counts.rejected === "number" && (
-                    <span className="font-medium bg-error-100 text-error-700 px-2 py-0.5 rounded">
-                      Rejected: {counts.rejected}
-                    </span>
-                  )}
-                  {typeof counts.positive === "number" && (
-                    <span 
-                      className="font-medium bg-blue-100 px-2 py-0.5 rounded"
-                      style={{ color: "#1d4ed8" }}
-                    >
-                      Positive: {counts.positive}
-                    </span>
-                  )}
-                  {typeof counts.onboard === "number" && (
-                    <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
-                      Onboard: {counts.onboard}
-                    </span>
-                  )}
-                  {typeof counts.active === "number" && (
-                    <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">
-                      Active:{" "}
-                      {
-                        processedData.filter((item) =>
-                          normalizeStatus(item[statusField])
-                        ).length
-                      }
-                    </span>
-                  )}
-                  {typeof counts.inactive === "number" && (
-                    <span className="font-medium bg-error-100 text-error-700 dark:text-white/90">
-                      Inactive:{" "}
-                      {
-                        processedData.filter(
-                          (item) => !normalizeStatus(item[statusField])
-                        ).length
-                      }
-                    </span>
-                  )}
-                  {/* Custom count properties for Stats */}
-                  {typeof counts.total_api_calls === "number" && (
-                    <span className="font-medium  text-brand-500 px-2 py-0.5 rounded">
-                      Total API Calls: {counts.total_api_calls}
-                    </span>
-                  )}
-                  {counts.average_execution_time && (
-                    <span className="font-medium bg-warning-100 text-warning-700 px-2 py-0.5 rounded">
-                      Avg Execution Time: {counts.average_execution_time}
-                    </span>
-                  )}
-                  {typeof counts.tables_with_data === "number" && (
-                    <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
-                      Tables With Data: {counts.tables_with_data}
-                    </span>
-                  )}
-                  {typeof counts.empty_tables === "number" && (
-                    <span className="font-medium bg-error-100 text-error-700 px-2 py-0.5 rounded">
-                      Empty Tables: {counts.empty_tables}
-                    </span>
-                  )}
-                </div>
-              )}
+              {renderCounts()}
               {/* Right: Controls */}
               <div className="flex flex-wrap items-center justify-end flex-1 w-full gap-4 sm:w-auto">
                 {/* Reload, Search, etc. */}
@@ -1139,26 +1183,13 @@ function DataTable({
 
               </div>
             </div>
+            )}
 
-            {/* Filters Row - Below Stats */}
-            {(enableStatusFilter || enableAccountTypeFilter || enableOpenCloseStatusFilter || enableOutletTypeFilter || enableOwnerCountFilter || enableEnquiry || showSearch || onReload) && (
-              <div className="flex items-center gap-2 px-0 pl-2 mb-4">
+            {/* Toolbar Row - stats + filters + search/reload on one line */}
+            {showsBottomToolbar && (
+              <div className="flex flex-wrap items-center justify-between gap-2 px-0 pl-2 mb-4">
                 <div className="flex flex-wrap items-center flex-1 gap-2">
-                  {enableStatusFilter && (
-                    <div className="mr-2 text-gray-600 w-28">
-                      <CustomSelect
-                        value={statusFilter}
-                        onChange={(e) => onStatusFilterChange(e.target.value)}
-                        options={[
-                          { value: "all", label: "All Status" },
-                          { value: "active", label: "Active" },
-                          { value: "inactive", label: "Inactive" }
-                        ]}
-                        placeholder="All Status"
-                        className="text-sm text-gray-700"
-                      />
-                    </div>
-                  )}
+                  {showStatsInBottomToolbar && renderCounts()}
                   {/* Enquiry Filter */}
                   {enableEnquiry && (
                     <div className="mr-2 text-gray-600 w-36">
@@ -1302,11 +1333,10 @@ function DataTable({
                     </div>
                   )}
                 </div>
-                <div className="flex items-center gap-2 ml-auto">
-                  {/* Reload Button */}
-                  {shouldShowBottomReload && renderReloadButton("mr-2")}
-                  {/* Search Input */}
-                  {shouldShowBottomSearch && renderSearchInput("mr-2")}
+                <div className="flex flex-wrap items-center justify-end gap-2 ml-auto shrink-0">
+                  {renderStatusFilter()}
+                  {shouldShowBottomReload && renderReloadButton("")}
+                  {shouldShowBottomSearch && renderSearchInput("")}
                 </div>
               </div>
             )}
