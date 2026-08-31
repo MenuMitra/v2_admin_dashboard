@@ -29,6 +29,17 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import PropTypes from "prop-types";
 
+const getValidItemsPerPage = (value, options) => {
+  const numericValue = Number(value);
+  if (options.includes(numericValue)) {
+    return numericValue;
+  }
+  if (options.includes(25)) {
+    return 25;
+  }
+  return options[0] ?? 25;
+};
+
 const defaultGetRowId = (item) => {
   if (!item || typeof item !== "object") return null;
   const possibleKeys = [
@@ -53,7 +64,7 @@ const defaultGetRowId = (item) => {
 function DataTable({
   data = [],
   columns,
-  itemsPerPage = 50,
+  itemsPerPage = 25,
   itemsPerPageOptions = [25, 50, 100, 200],
   enableSort = true,
   enablePagination = true,
@@ -186,7 +197,9 @@ function DataTable({
   );
   const [isActionDropdownOpen, setIsActionDropdownOpen] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
+  const [internalItemsPerPage, setInternalItemsPerPage] = useState(() =>
+    getValidItemsPerPage(itemsPerPage, itemsPerPageOptions)
+  );
   const [isHorizontalScrolling, setIsHorizontalScrolling] = useState(false);
   const actionDropdownRef = useRef(null);
   const tableContainerRef = useRef(null);
@@ -208,8 +221,8 @@ function DataTable({
 
   // Sync internal itemsPerPage with prop changes
   useEffect(() => {
-    setInternalItemsPerPage(itemsPerPage);
-  }, [itemsPerPage]);
+    setInternalItemsPerPage(getValidItemsPerPage(itemsPerPage, itemsPerPageOptions));
+  }, [itemsPerPage, itemsPerPageOptions]);
 
   // Check for horizontal scrolling
   useEffect(() => {
@@ -1805,7 +1818,7 @@ DataTable.propTypes = {
 DataTable.defaultProps = {
   data: [],
   columns: [],
-  itemsPerPage: 50,
+  itemsPerPage: 25,
   itemsPerPageOptions: [25, 50, 100, 200],
   enableSort: true,
   enablePagination: true,

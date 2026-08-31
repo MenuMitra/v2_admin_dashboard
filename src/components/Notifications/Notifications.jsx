@@ -16,7 +16,7 @@ const Notifications = () => {
   const { BASE_URL } = API_CONFIG;
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItems, setSelectedItems] = useState([]);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(25);
   const [selectedOutlet, setSelectedOutlet] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [resendingNotifications, setResendingNotifications] = useState(
