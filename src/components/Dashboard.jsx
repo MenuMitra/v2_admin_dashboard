@@ -22,7 +22,6 @@ import {
   faSearch,
   faBell,
   faChartLine,
-  faEnvelope,
   faShoppingCart,
   faCalendarCheck,
   faLock,
@@ -249,38 +248,7 @@ function Dashboard() {
               isFullscreen ? "flex-row" : "flex-col md:flex-row"
             } justify-center`}
           >
-            {/* 1. Enquiry Section */}
-            <div className="flex-1 p-4 border border-gray-200 rounded-lg bg-gray-50">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-gray-700">Enquiry</h3>
-                <FontAwesomeIcon
-                  icon={faEnvelope}
-                  className="text-sm text-brand-500"
-                />
-              </div>
-              <div className="flex items-center justify-between space-x-4">
-                <div className="flex flex-col items-center text-center">
-                  <div className="text-sm font-semibold text-gray-800">
-                    {cardData.total_enquiries?.toLocaleString() || "0"}
-                  </div>
-                  <div className="text-xs text-gray-600">Enquiry</div>
-                </div>
-                <div className="flex flex-col items-center text-center">
-                  <div className="text-sm font-semibold text-green-600">
-                    {cardData.onboard_count?.toLocaleString() || "0"}
-                  </div>
-                  <div className="text-xs text-gray-600">Onboard</div>
-                </div>
-                <div className="flex flex-col items-center text-center">
-                  <div className="text-sm font-semibold text-blue-600">
-                    {cardData.positive_count?.toLocaleString() || "0"}
-                  </div>
-                  <div className="text-xs text-gray-600">Positive</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Outlet Section */}
+            {/* 1. Outlet Section */}
             <div className="flex-1 p-4 border border-gray-200 rounded-lg bg-gray-50">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-gray-700">Outlets</h3>
@@ -311,7 +279,7 @@ function Dashboard() {
               </div>
             </div>
 
-            {/* 3. Order Section */}
+            {/* 2. Order Section */}
             <div className="flex-1 p-4 border border-gray-200 rounded-lg bg-gray-50">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-gray-700">Orders</h3>
@@ -433,17 +401,6 @@ function Dashboard() {
                 <span className="text-xs font-medium text-dark">
                   Notifications
                 </span>
-              </Link>
-
-              <Link
-                to="/enquiries"
-                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
-              >
-                <FontAwesomeIcon
-                  icon={faEnvelope}
-                  className="mb-1 text-brand-500"
-                />
-                <span className="text-xs font-medium text-dark">Enquiry</span>
               </Link>
 
               <Link

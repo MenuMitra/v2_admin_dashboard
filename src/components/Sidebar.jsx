@@ -21,7 +21,6 @@ import {
   faMobileScreenButton,
   faBell,
   faChartLine,
-  faEnvelope,
   faCalendarCheck,
   faUpload,
   faBuilding,
@@ -41,12 +40,6 @@ const menuGroups = [
       { title: "Outlets", path: "/outlets", id: "outlets", icon: faStore },
       { title: "Admins", path: "/admins", id: "admins", icon: faUser },
       { title: "Companies", path: "/companies", id: "companies", icon: faBuilding },
-      {
-        title: "Enquiry",
-        path: "/enquiries",
-        id: "enquiries",
-        icon: faEnvelope,
-      },
       // {
       //   title: "Partners",
       //   path: "/partners",
@@ -184,7 +177,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
         ],
         admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
         companies: ["/companies", "/create-company", "/company-details/", "/edit-company/"],
-        enquiries: ["/enquiries", "/view-enquiry/", "/edit-enquiry/"],
         "qr-templates": [
           "/qr-templates",
           "/create-template",

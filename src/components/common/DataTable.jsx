@@ -49,7 +49,6 @@ const defaultGetRowId = (item) => {
     "menu_id",
     "role_id",
     "notification_id",
-    "enquiry_id",
     "uuid",
     "_id",
   ];
@@ -134,9 +133,6 @@ function DataTable({
   onOpenCloseStatusChange = () => { },
   enableAccountTypeFilter = false,
   enableOpenCloseStatusFilter = false,
-  enableEnquiry = false,
-  enquiryFilter = "all",
-  onEnquiryFilterChange = () => { },
   enableActiveSessionFilter = false,
   activeSessionFilter = "all",
   onActiveSessionFilterChange = () => { },
@@ -900,7 +896,6 @@ function DataTable({
     enableOwnerCountFilter ||
     enableActiveSessionFilter ||
     enableOutletCountFilter ||
-    enableEnquiry ||
     shouldShowBottomSearch ||
     shouldShowBottomReload;
 
@@ -920,39 +915,6 @@ function DataTable({
         <span className="font-medium text-gray-800 dark:text-white/90">
           Total: {processedData.length}
         </span>
-        {typeof counts.enquiry === "number" && (
-          <span className="font-medium bg-warning-100 text-warning-500 px-2 py-0.5 rounded">
-            Enquiry: {counts.enquiry}
-          </span>
-        )}
-        {typeof counts.pending === "number" && (
-          <span className="font-medium bg-warning-100 text-warning-500 px-2 py-0.5 rounded">
-            Pending: {counts.pending}
-          </span>
-        )}
-        {typeof counts.enquiryActive === "number" && (
-          <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
-            Active: {counts.enquiryActive}
-          </span>
-        )}
-        {typeof counts.rejected === "number" && (
-          <span className="font-medium bg-error-100 text-error-700 px-2 py-0.5 rounded">
-            Rejected: {counts.rejected}
-          </span>
-        )}
-        {typeof counts.positive === "number" && (
-          <span
-            className="font-medium bg-blue-100 px-2 py-0.5 rounded"
-            style={{ color: "#1d4ed8" }}
-          >
-            Positive: {counts.positive}
-          </span>
-        )}
-        {typeof counts.onboard === "number" && (
-          <span className="font-medium bg-success-100 text-success-700 px-2 py-0.5 rounded">
-            Onboard: {counts.onboard}
-          </span>
-        )}
         {typeof counts.active === "number" && (
           <span className="font-medium bg-success-100 text-success-700 dark:text-white/90">
             Active:{" "}
@@ -1194,22 +1156,6 @@ function DataTable({
                   {showStatsInBottomToolbar && renderCounts()}
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2 ml-auto shrink-0">
-                  {enableEnquiry && (
-                    <div className="text-gray-600 w-36">
-                      <CustomSelect
-                        value={enquiryFilter || "all"}
-                        onChange={(e) => onEnquiryFilterChange && onEnquiryFilterChange(e.target.value)}
-                        options={[
-                          { value: "all", label: "All Status" },
-                          { value: "pending", label: "Pending" },
-                          { value: "active", label: "Active" },
-                          { value: "rejected", label: "Rejected" }
-                        ]}
-                        placeholder="All Status"
-                        className="text-sm text-gray-700"
-                      />
-                    </div>
-                  )}
                   {enableAccountTypeFilter && (
                     <div className="text-gray-600 w-28">
                       <CustomSelect
@@ -1794,7 +1740,6 @@ DataTable.propTypes = {
   enableOpenCloseStatusFilter: PropTypes.bool,
   defaultSortField: PropTypes.string,
   defaultSortOrder: PropTypes.oneOf(["asc", "desc"]),
-  enableEnquiry: PropTypes.bool,
   enableOutletCountFilter: PropTypes.bool,
   outletCountFilter: PropTypes.oneOf([
     "all",
@@ -1928,7 +1873,6 @@ DataTable.defaultProps = {
   enableOpenCloseStatusFilter: false,
   defaultSortField: "created_at",
   defaultSortOrder: "desc",
-  enableEnquiry: false,
   enableOutletCountFilter: false,
   outletCountFilter: "all",
   onOutletCountFilterChange: () => { },

@@ -127,7 +127,6 @@ const BookingEnquiry = () => {
         createButton={{ show: false, label: "", onClick: () => {} }}
         showBulkActions={false}
         enableStatusFilter={false}
-        enableEnquiry={false}
         headerAction={
           <a
             href="https://menumitra.com/book-demo"

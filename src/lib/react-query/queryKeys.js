@@ -55,11 +55,6 @@ export const queryKeys = {
     detail: (id) => [...queryKeys.companies.all, "detail", id],
   },
 
-  enquiries: {
-    all: ["enquiries"],
-    list: (filters) => [...queryKeys.enquiries.all, "list", filters],
-    detail: (id) => [...queryKeys.enquiries.all, "detail", id],
-  },
 
 
   // Super Owner related queries

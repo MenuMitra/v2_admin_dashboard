@@ -60,7 +60,7 @@ export const useDashboard = () => {
     });
   };
 
-  // Card data query with auto-refresh (API returns { detail, data: { metrics, enquiry_count, order_count, ... } })
+  // Card data query with auto-refresh (API returns { detail, data: { metrics, order_count, ... } })
   const useCardData = () => {
     return useQuery({
       queryKey: queryKeys.dashboard.home(),
@@ -69,7 +69,6 @@ export const useDashboard = () => {
         const data = response?.data ?? response;
         const metrics = data.metrics || {};
         const counts = data.counts || {};
-        const enquiry = data.enquiry_count || {};
         const orderCount = data.order_count || {};
 
         const toFiniteNumber = (v) => {
@@ -132,14 +131,6 @@ export const useDashboard = () => {
             Number(metrics.total_earning) ??
             Number(counts.total_earning_count) ??
             0,
-
-          // Enquiry (from enquiry_count: enquiry, positive, onboard)
-          total_enquiries:
-            Number(enquiry.enquiry) ?? Number(counts.enquiry_count) ?? 0,
-          positive_count:
-            Number(enquiry.positive) ?? Number(counts.positive_count) ?? 0,
-          onboard_count:
-            Number(enquiry.onboard) ?? Number(counts.onboard_count) ?? 0,
         };
       },
       refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
