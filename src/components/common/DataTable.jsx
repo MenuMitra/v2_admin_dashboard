@@ -849,12 +849,12 @@ function DataTable({
 
     return (
       <div className={`relative ${extraWrapperClasses}`}>
-        <span className="absolute text-gray-400 -translate-y-1/2 left-5 top-1/2">
-          <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+          <FontAwesomeIcon icon={faMagnifyingGlass} className="h-4 w-4 shrink-0" />
         </span>
         <input
           placeholder={searchPlaceholder}
-          className="sm:w-[250px] h-10 rounded-3xl border border-gray-300 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500 focus:border-brand-300 focus:outline-none"
+          className="h-10 w-full rounded-3xl border border-gray-300 bg-transparent pr-4 pl-12 text-sm text-gray-700 placeholder:text-gray-400 focus:border-brand-300 focus:outline-none focus:ring-2 focus:ring-brand-500 sm:w-[250px]"
           type="text"
           value={searchTerm}
           onChange={createSearchChangeHandler((e) => onSearchChange(e.target.value))}
@@ -875,9 +875,9 @@ function DataTable({
                 searchInput.focus();
               }
             }}
-            className="absolute text-gray-400 transition-colors -translate-y-1/2 right-5 top-1/2 hover:text-gray-600"
+            className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 transition-colors hover:text-gray-600"
           >
-            <FontAwesomeIcon icon={faTimes} className="w-4 h-4" />
+            <FontAwesomeIcon icon={faTimes} className="h-4 w-4 shrink-0" />
           </button>
         )}
       </div>

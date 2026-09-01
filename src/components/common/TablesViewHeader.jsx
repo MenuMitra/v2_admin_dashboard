@@ -107,12 +107,12 @@ function TablesViewHeader({
 
           {showSearch && (
             <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">
-                <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 dark:text-gray-500">
+                <FontAwesomeIcon icon={faMagnifyingGlass} className="h-4 w-4 shrink-0" />
               </span>
               <input
                 placeholder={searchPlaceholder}
-                className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-10 w-[250px] rounded-3xl border border-gray-200 bg-transparent py-2 pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
+                className="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-10 w-[250px] rounded-3xl border border-gray-200 bg-transparent pr-4 pl-12 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30"
                 type="text"
                 value={searchTerm}
                 onChange={createSearchChangeHandler((e) => onSearchChange(e.target.value))}
