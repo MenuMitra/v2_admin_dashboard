@@ -4,6 +4,7 @@ import { useAdmin } from "../../../hooks/useAdmin";
 import { API_CONFIG } from "../../../config/appConfig";
 import axios from "axios";
 import { toastController } from "../../../utils/toastController";
+import { getApiErrorMessage } from "../../../utils/apiError";
 import { queryKeys } from "../queryKeys";
 
 const { BASE_URL, API_VERSION } = API_CONFIG;
@@ -77,11 +78,9 @@ export const useAdminDetails = (adminId) => {
       return response.data;
     },
     onError: (err) => {
-      const errorMessage =
-        err.response?.data?.detail ||
-        err.message ||
-        "Failed to fetch admin details";
-      toastController.error(errorMessage);
+      toastController.error(
+        getApiErrorMessage(err, "Failed to fetch admin details")
+      );
     },
   });
 
@@ -148,9 +147,7 @@ export const useAdminDetails = (adminId) => {
       }
     },
     onError: (err) => {
-      const errorMessage =
-        err.response?.data?.detail || err.message || "Failed to delete admin";
-      toastController.error(errorMessage);
+      toastController.error(getApiErrorMessage(err, "Failed to delete admin"));
     },
   });
 

@@ -17,6 +17,7 @@ import DataTable from "../common/DataTable";
 import Breadcrumb from "../Breadcrumb";
 import { API_CONFIG } from "../../config/appConfig";
 import { toastController } from "../../utils/toastController";
+import { getApiErrorMessage } from "../../utils/apiError";
 import DeleteConfirmModal from "../../components/common/DeleteConfirmModal";
 import { useAdmins } from "../../lib/react-query/hooks/useAdmins";
 
@@ -105,7 +106,7 @@ function Admins() {
           },
           onError: (err) => {
             toastController.error(
-              err.response?.data?.detail || "Failed to delete admin"
+              getApiErrorMessage(err, "Failed to delete admin")
             );
           },
         }
@@ -126,7 +127,7 @@ function Admins() {
           },
           onError: (err) => {
             toastController.error(
-              err.response?.data?.detail || `Failed to ${action} admins`
+              getApiErrorMessage(err, `Failed to ${action} admins`)
             );
           },
         }
@@ -169,7 +170,7 @@ function Admins() {
         },
         onError: (err) => {
           toastController.error(
-            err.response?.data?.detail || "Failed to update admin status"
+            getApiErrorMessage(err, "Failed to update admin status")
           );
         },
       }
@@ -275,7 +276,7 @@ function Admins() {
             </button>
             <button
               onClick={() => {
-                setAdminToDelete(admin.user_id);
+                setAdminToDelete(admin.admin_id || admin.user_id);
                 setShowDeleteModal(true);
               }}
               className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
