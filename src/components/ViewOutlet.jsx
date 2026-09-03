@@ -31,6 +31,7 @@ import StatusToggleButton from "./common/StatusToggleButton";
 import { API_CONFIG } from "../config/appConfig";
 import { toastController } from "../utils/toastController";
 import AuditInfo from "./common/AuditInfo";
+import OutletAppUsage from "./Outlets/OutletAppUsage";
 
 function toTitleCase(str) {
   return str
@@ -832,6 +833,7 @@ function ViewOutlet() {
               </div>
             </div>
           </div>
+          <OutletAppUsage appUsage={outletData?.app_usage} />
           <div className="border-t border-gray-200 dark:border-gray-700 pt-6 mt-6 flex flex-wrap items-center justify-between gap-3 mb-6">
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white/90">
               Basic Information
