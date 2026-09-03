@@ -31,7 +31,7 @@ export const queryKeys = {
   // Owner related queries
   owners: {
     all: ["owners"],
-    list: () => [...queryKeys.owners.all, "list"],
+    list: (filters = {}) => [...queryKeys.owners.all, "list", filters],
     detail: (id) => [...queryKeys.owners.all, "detail", id],
   },
 

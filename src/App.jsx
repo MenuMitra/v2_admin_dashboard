@@ -15,6 +15,10 @@ import Partners from "./components/Partner/Partners";
 import PartnerDetails from "./components/Partner/PartnerDetails";
 import EditPartner from "./components/Partner/EditPartner";
 import CreatePartner from "./components/Partner/CreatePartner";
+import Owners from "./components/Owner/Owners";
+import CreateOwner from "./components/Owner/CreateOwner";
+import OwnerDetails from "./components/Owner/OwnerDetails";
+import EditOwner from "./components/Owner/EditOwner";
 import Roles from "./components/AccessControl/Roles/Roles";
 import Search from "./components/Search/Search";
 import Customer from "./components/Customer/Customer";
@@ -123,6 +127,12 @@ function App() {
             />
             <Route path="/edit-partner/:partnerId" element={<EditPartner />} />
             <Route path="/create-partner" element={<CreatePartner />} />
+
+            {/* Owner Routes */}
+            <Route path="/owners" element={<Owners />} />
+            <Route path="/create-owner" element={<CreateOwner />} />
+            <Route path="/owner-details/:ownerId" element={<OwnerDetails />} />
+            <Route path="/edit-owner/:ownerId" element={<EditOwner />} />
 
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />

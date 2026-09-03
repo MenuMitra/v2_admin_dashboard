@@ -40,6 +40,7 @@ const menuGroups = [
       { title: "Outlets", path: "/outlets", id: "outlets", icon: faStore },
       { title: "Admins", path: "/admins", id: "admins", icon: faUser },
       { title: "Companies", path: "/companies", id: "companies", icon: faBuilding },
+      { title: "Owners", path: "/owners", id: "owners", icon: faUserShield },
       // {
       //   title: "Partners",
       //   path: "/partners",
@@ -177,6 +178,7 @@ const Sidebar = ({ sidebarToggle = false }) => {
         ],
         admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
         companies: ["/companies", "/create-company", "/company-details/", "/edit-company/"],
+        owners: ["/owners", "/create-owner", "/owner-details/", "/edit-owner/"],
         "qr-templates": [
           "/qr-templates",
           "/create-template",

@@ -520,9 +520,14 @@ function ViewOutlet() {
   const handleDelete = () => setShowDeleteModal(true);
   const confirmDelete = () => deleteMutation.mutate();
   const handleEdit = () => navigate(`/edit-outlet/${outletId}`);
-  // In outlet response, owners are company owners. Redirect to company details.
-  // Prefer company_id from outletData if present; otherwise fallback to owner-details.
+  // Outlet owners → owner details when owner_id is available
   const handleOwnerClick = (owner) => {
+    const ownerId = owner?.owner_id ?? owner?.user_id ?? null;
+    if (ownerId) {
+      navigate(`/owner-details/${ownerId}`);
+      return;
+    }
+
     const companyId =
       owner?.company_id ??
       owner?.companyId ??
@@ -532,12 +537,7 @@ function ViewOutlet() {
 
     if (companyId) {
       navigate(`/company-details/${companyId}`);
-      return;
     }
-
-    // fallback (older payloads)
-    const ownerId = owner?.owner_id ?? owner;
-    navigate(`/owner-details/${ownerId}`);
   };
 
   // Toggle handlers
