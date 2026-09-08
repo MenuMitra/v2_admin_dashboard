@@ -42,12 +42,6 @@ function OutletConfiguration() {
     show_customer_count: null,
     opening_time: "",
     closing_time: "",
-    website: "",
-    whatsapp: "",
-    facebook: "",
-    instagram: "",
-    google_business_link: "",
-    google_review: "",
     dynamic_pricing: null,
     order_number_sequence: "daily",
     reset_bill_number: null,
@@ -144,12 +138,6 @@ function OutletConfiguration() {
         show_customer_count: configData.show_customer_count === true ? 1 : configData.show_customer_count === false ? 0 : null,
         opening_time: configData.opening_time || "",
         closing_time: configData.closing_time || "",
-        website: configData.website || "",
-        whatsapp: configData.whatsapp || "",
-        facebook: configData.facebook || "",
-        instagram: configData.instagram || "",
-        google_business_link: configData.google_business_link || "",
-        google_review: configData.google_review || "",
         dynamic_pricing: configData.dynamic_pricing === true ? 1 : configData.dynamic_pricing === false ? 0 : null,
         order_number_sequence: configData.order_number_sequence || "daily",
         reset_bill_number: configData.reset_bill_number ?? null,
@@ -251,18 +239,6 @@ function OutletConfiguration() {
       if (configFormData.has_udhari !== null) {
         payload.has_udhari = configFormData.has_udhari === 1;
       }
-      if (configFormData.whatsapp) {
-        payload.whatsapp = configFormData.whatsapp;
-      }
-      if (configFormData.facebook) {
-        payload.facebook = configFormData.facebook;
-      }
-      if (configFormData.instagram) {
-        payload.instagram = configFormData.instagram;
-      }
-      if (configFormData.website) {
-        payload.website = configFormData.website;
-      }
 
       // Add other configuration fields
       if (configFormData.service_charge_value) {
@@ -285,12 +261,6 @@ function OutletConfiguration() {
       }
       if (configFormData.show_customer_count !== null) {
         payload.show_customer_count = configFormData.show_customer_count === 1;
-      }
-      if (configFormData.google_business_link) {
-        payload.google_business_link = configFormData.google_business_link;
-      }
-      if (configFormData.google_review) {
-        payload.google_review = configFormData.google_review;
       }
       if (configFormData.dynamic_pricing !== null) {
         payload.dynamic_pricing = configFormData.dynamic_pricing === 1;
@@ -852,113 +822,6 @@ function OutletConfiguration() {
                     placeholder="No"
                   />
                 </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Social Media Section */}
-          <section className="p-4 mt-6 bg-white rounded-lg shadow sm:p-6">
-            <h2 className="flex items-center mb-4 text-lg font-medium">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                />
-              </svg>
-              Social Media
-            </h2>
-
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              <div className="w-full">
-                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  Website
-                </label>
-                <input
-                  type="url"
-                  name="website"
-                  value={configFormData.website}
-                  onChange={(e) => handleConfigFormChange("website", e.target.value)}
-                  placeholder="https://example.com"
-                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="w-full">
-                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  WhatsApp Number
-                </label>
-                <input
-                  type="tel"
-                  name="whatsapp"
-                  value={configFormData.whatsapp}
-                  onChange={(e) => handleConfigFormChange("whatsapp", e.target.value)}
-                  placeholder="Enter 10 digit mobile number"
-                  maxLength={10}
-                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="w-full">
-                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  Facebook
-                </label>
-                <input
-                  type="url"
-                  name="facebook"
-                  value={configFormData.facebook}
-                  onChange={(e) => handleConfigFormChange("facebook", e.target.value)}
-                  placeholder="https://facebook.com/yourpage"
-                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="w-full">
-                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  Instagram
-                </label>
-                <input
-                  type="url"
-                  name="instagram"
-                  value={configFormData.instagram}
-                  onChange={(e) => handleConfigFormChange("instagram", e.target.value)}
-                  placeholder="https://instagram.com/yourhandle"
-                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="w-full">
-                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  Google Business Link
-                </label>
-                <input
-                  type="url"
-                  name="google_business_link"
-                  value={configFormData.google_business_link}
-                  onChange={(e) => handleConfigFormChange("google_business_link", e.target.value)}
-                  placeholder="https://business.google.com/yourpage"
-                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="w-full">
-                <label className="block mb-1 text-xs font-medium text-gray-700 sm:text-sm">
-                  Google Review Link
-                </label>
-                <input
-                  type="url"
-                  name="google_review"
-                  value={configFormData.google_review}
-                  onChange={(e) => handleConfigFormChange("google_review", e.target.value)}
-                  placeholder="https://g.page/r/yourreviewpage"
-                  className="w-full h-10 px-3 text-sm border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
               </div>
             </div>
           </section>
