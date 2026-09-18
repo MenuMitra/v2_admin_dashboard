@@ -1,5 +1,7 @@
 import React from "react";
 import BookingEnquiry from "./components/Booking/BookingEnquiry";
+import BookingDetails from "./components/Booking/BookingDetails";
+import EditBooking from "./components/Booking/EditBooking";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Auth from "./components/Auth";
@@ -118,6 +120,14 @@ function App() {
             <Route path="/edit-menu/:outletId/:menuId" element={<EditMenu />} /> */}
             {/* Booking Routes */}
             <Route path="/bookings" element={<BookingEnquiry />} />
+            <Route
+              path="/booking-details/:bookingId"
+              element={<BookingDetails />}
+            />
+            <Route
+              path="/edit-booking/:bookingId"
+              element={<EditBooking />}
+            />
 
             {/* Partner Routes */}
             <Route path="/partners" element={<Partners />} />

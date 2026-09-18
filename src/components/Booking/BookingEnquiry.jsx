@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
-import Breadcrumb from "../Breadcrumb";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faPenToSquare, faTrash } from "@fortawesome/free-solid-svg-icons";
+import Breadcrumb from "../Breadcrumb";
 import DataTable from "../common/DataTable";
-import axios from "axios";
-import { useAuth } from "../../hooks/useAuth";
-import { API_CONFIG } from "../../config/appConfig";
+import DeleteConfirmModal from "../common/DeleteConfirmModal/DeleteConfirmModal";
+import { useWebsiteBookings } from "../../lib/react-query/hooks/useWebsiteBookings";
+import { toastController } from "../../utils/toastController";
 
-// Capitalize first letter of every word (title case)
 const toTitleCase = (str) =>
   str
     ? String(str).replace(/\w\S*/g, (txt) =>
@@ -15,68 +16,69 @@ const toTitleCase = (str) =>
     : "";
 
 const BookingEnquiry = () => {
-  const { getToken } = useAuth();
-  const { BASE_URL } = API_CONFIG;
-  const [bookings, setBookings] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [itemsPerPage, setItemsPerPage] = useState(50);
-
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [bookingToDelete, setBookingToDelete] = useState(null);
 
-  const handleBack = () => navigate(-1);
+  const {
+    bookings,
+    isLoading,
+    error,
+    refetch,
+    deleteMutation,
+    updateMutation,
+    counts,
+  } = useWebsiteBookings({
+    status: statusFilter,
+    page: 1,
+    page_size: 200,
+  });
 
-  const fetchBookings = async () => {
+  const isUpdating = updateMutation.isPending || updateMutation.isLoading;
+
+  const handleDelete = async () => {
     try {
-      setIsLoading(true);
-      const token = getToken();
-      // Using public endpoint from user-provided API — no token required, fall back to GET
-      const url = `${BASE_URL}/website_api/listview_website_booking`;
-      const resp = await axios.get(url, {
-        headers: token
-          ? { Authorization: token, "Content-Type": "application/json" }
-          : { "Content-Type": "application/json" },
-      });
-
-      if (resp.data && Array.isArray(resp.data.data)) {
-        setBookings(resp.data.data || []);
-      } else if (resp.data && resp.data.data?.data) {
-        setBookings(resp.data.data.data || []);
-      } else {
-        setBookings([]);
-      }
-    } catch (err) {
-      
-      setError(err.message || "Failed to fetch bookings");
-    } finally {
-      setIsLoading(false);
+      await deleteMutation.mutateAsync(bookingToDelete.booking_id);
+      setIsDeleteModalOpen(false);
+      setBookingToDelete(null);
+    } catch {
+      // handled in hook
     }
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  const handleToggleActive = (booking) => {
+    const isActive =
+      booking.is_active === true || Number(booking.is_active) === 1;
 
-  const filtered = bookings.filter((b) => {
-    if (!searchTerm) return true;
-    const q = searchTerm.toLowerCase();
-    return (
-      String(b.booking_id).includes(q) ||
-      (b.name || "").toLowerCase().includes(q) ||
-      (b.mobile || "").toLowerCase().includes(q) ||
-      (b.outlet_name || "").toLowerCase().includes(q) ||
-      (b.city || "").toLowerCase().includes(q) ||
-      (b.email || "").toLowerCase().includes(q)
+    updateMutation.mutate(
+      {
+        booking_id: Number(booking.booking_id),
+        is_active: !isActive,
+        notes: booking.notes || "",
+      },
+      {
+        onSuccess: () => {
+          toastController.success(
+            `Booking marked as ${!isActive ? "Active" : "Inactive"}`
+          );
+        },
+      }
     );
-  });
+  };
 
   const columns = [
     {
       field: "name",
       header: "Name",
       sortable: true,
-      render: (value) => toTitleCase(value),
+      render: (value) => (
+        <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+          {toTitleCase(value)}
+        </p>
+      ),
     },
     { field: "mobile", header: "Mobile", sortable: true },
     {
@@ -97,8 +99,71 @@ const BookingEnquiry = () => {
       sortable: true,
       render: (value) => toTitleCase(value),
     },
-    { field: "email", header: "Email", sortable: true },
+    {
+      field: "email",
+      header: "Email",
+      sortable: true,
+      render: (value) => value || "-",
+    },
+    {
+      field: "is_active",
+      header: "Status",
+      sortable: true,
+      render: (value, booking) => {
+        const isActive = value === true || Number(value) === 1;
+        return (
+          <div className="flex items-center justify-center">
+            <button
+              type="button"
+              onClick={() => handleToggleActive(booking)}
+              disabled={isUpdating}
+              className={`text-sm font-medium cursor-pointer hover:opacity-80 transition-opacity ${
+                isActive ? "text-success-600" : "text-error-600"
+              } ${isUpdating ? "opacity-50 cursor-not-allowed" : ""}`}
+              title={`Click to mark as ${isActive ? "Inactive" : "Active"}`}
+            >
+              {isActive ? "Active" : "Inactive"}
+            </button>
+          </div>
+        );
+      },
+    },
     { field: "created_on", header: "Created On", sortable: true },
+    {
+      field: "actions",
+      header: "Actions",
+      sortable: false,
+      render: (_, booking) => (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            onClick={() =>
+              navigate(`/booking-details/${booking.booking_id}`)
+            }
+            className="w-8 h-8 flex items-center justify-center text-white bg-brand-500 hover:bg-brand-600 rounded-3xl shadow-theme-xs transition"
+            title="View Booking"
+          >
+            <FontAwesomeIcon icon={faEye} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => navigate(`/edit-booking/${booking.booking_id}`)}
+            className="w-8 h-8 flex items-center justify-center text-white bg-warning-500 hover:bg-warning-600 rounded-3xl shadow-theme-xs transition"
+            title="Edit Booking"
+          >
+            <FontAwesomeIcon icon={faPenToSquare} className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => {
+              setBookingToDelete({ booking_id: booking.booking_id });
+              setIsDeleteModalOpen(true);
+            }}
+            className="w-8 h-8 flex items-center justify-center text-white bg-error-500 hover:bg-error-600 rounded-3xl shadow-theme-xs transition"
+            title="Delete Booking"
+          >
+            <FontAwesomeIcon icon={faTrash} className="w-4 h-4" />
+          </button>
+        </div>
+      ),
+    },
   ];
 
   const breadcrumbItems = [
@@ -110,23 +175,42 @@ const BookingEnquiry = () => {
     <>
       <Breadcrumb items={breadcrumbItems} />
 
+      {error && (
+        <div className="mb-4 p-4 text-sm text-red-500 bg-red-50 rounded-lg">
+          {error?.response?.data?.detail ||
+            error?.message ||
+            "Failed to load website bookings"}
+        </div>
+      )}
+
       <DataTable
-        data={filtered}
+        data={bookings}
         title="Website Bookings"
         columns={columns}
-        isLoading={isLoading}
-        error={error}
+        isLoading={
+          isLoading ||
+          deleteMutation.isPending ||
+          deleteMutation.isLoading ||
+          isUpdating
+        }
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         itemsPerPage={itemsPerPage}
         itemsPerPageOptions={[25, 50, 100, 200]}
         onItemsPerPageChange={setItemsPerPage}
-        onBackClick={handleBack}
+        onBackClick={() => navigate(-1)}
         enablePagination={true}
         showSearch={true}
+        enableSort={true}
         createButton={{ show: false, label: "", onClick: () => {} }}
         showBulkActions={false}
-        enableStatusFilter={false}
+        enableStatusFilter={true}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        onReload={refetch}
+        idField="booking_id"
+        counts={counts}
+        emptyStateMessage="No website bookings found."
         headerAction={
           <a
             href="https://menumitra.com/book-demo"
@@ -137,11 +221,17 @@ const BookingEnquiry = () => {
             Book a Demo
           </a>
         }
-        counts={{
-          total: filtered.length,
-          active: null,
-          inactive: null,
+      />
+
+      <DeleteConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setBookingToDelete(null);
         }}
+        onDelete={handleDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this website booking?"
       />
     </>
   );

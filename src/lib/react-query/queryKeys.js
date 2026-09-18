@@ -111,6 +111,12 @@ export const queryKeys = {
     roles: (outletId) => [...queryKeys.notifications.all, "roles", outletId],
   },
 
+  websiteBookings: {
+    all: ["websiteBookings"],
+    list: (filters = {}) => [...queryKeys.websiteBookings.all, "list", filters],
+    detail: (id) => [...queryKeys.websiteBookings.all, "detail", id],
+  },
+
   stats: {
     all: ["stats"],
     apiUsage: (filters) => [...queryKeys.stats.all, "api-usage", filters],
