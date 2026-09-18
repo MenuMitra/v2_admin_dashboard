@@ -12,6 +12,7 @@ import { TextInput, Textarea } from "../forms/FormElements.jsx";
 import CustomDropdown from "../common/CustomDropdown";
 import Breadcrumb from "../Breadcrumb";
 import { toastController } from "../../utils/toastController";
+import { validatePin } from "../../utils/validationPatterns";
 
 function CreateOwner() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ function CreateOwner() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [pinError, setPinError] = useState("");
   const [form, setForm] = useState({
     company_id: "",
     name: "",
@@ -29,6 +31,7 @@ function CreateOwner() {
     email: "",
     aadhar: "",
     pan: "",
+    pin: "",
     address: "",
     outlet_ids: [],
   });
@@ -96,7 +99,9 @@ function CreateOwner() {
     form.name.trim() &&
     form.mobile.trim().length === 10 &&
     form.email.trim() &&
-    !emailError;
+    form.pin.trim().length === 4 &&
+    !emailError &&
+    !pinError;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -117,6 +122,13 @@ function CreateOwner() {
 
     if (name === "pan") {
       setForm((prev) => ({ ...prev, pan: value.toUpperCase().slice(0, 10) }));
+      return;
+    }
+
+    if (name === "pin") {
+      const digitsOnly = value.replace(/\D/g, "").slice(0, 4);
+      setForm((prev) => ({ ...prev, pin: digitsOnly }));
+      if (pinError) setPinError("");
       return;
     }
 
@@ -149,7 +161,16 @@ function CreateOwner() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isFormValid() || isSubmitting) return;
+    if (isSubmitting) return;
+
+    const pinValidation = validatePin(form.pin, { required: true });
+    if (!pinValidation.isValid) {
+      setPinError(pinValidation.message);
+      toastController.error(pinValidation.message);
+      return;
+    }
+
+    if (!isFormValid()) return;
 
     setIsSubmitting(true);
     try {
@@ -160,6 +181,7 @@ function CreateOwner() {
         name: form.name.trim(),
         mobile: form.mobile.trim(),
         email: form.email.trim(),
+        pin: form.pin.trim(),
         aadhar: form.aadhar.trim() || undefined,
         pan: form.pan.trim() || undefined,
         address: form.address.trim() || undefined,
@@ -304,6 +326,22 @@ function CreateOwner() {
                   onChange={handleChange}
                   placeholder="Enter PAN"
                   maxLength={10}
+                />
+              </div>
+              <div>
+                <TextInput
+                  label="Owner PIN"
+                  name="pin"
+                  type="password"
+                  value={form.pin}
+                  onChange={handleChange}
+                  placeholder="4-digit login PIN"
+                  required
+                  maxLength={4}
+                  autoComplete="new-password"
+                  inputMode="numeric"
+                  error={!!pinError}
+                  errorMessage={pinError}
                 />
               </div>
               <div className="sm:col-span-2">

@@ -12,6 +12,7 @@ import { TextInput, Textarea } from "../forms/FormElements.jsx";
 import Breadcrumb from "../Breadcrumb";
 import SaveButton from "../common/SaveButton";
 import { toastController } from "../../utils/toastController";
+import { validatePin } from "../../utils/validationPatterns";
 
 function EditOwner() {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ function EditOwner() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [pinError, setPinError] = useState("");
   const [companyId, setCompanyId] = useState(null);
   const [form, setForm] = useState({
     name: "",
@@ -31,6 +33,7 @@ function EditOwner() {
     email: "",
     aadhar: "",
     pan: "",
+    pin: "",
     address: "",
     outlet_ids: [],
   });
@@ -62,6 +65,7 @@ function EditOwner() {
           email: data.email || "",
           aadhar: data.aadhar || "",
           pan: data.pan || "",
+          pin: String(data.pin ?? data.login_pin ?? ""),
           address: data.address || "",
           outlet_ids: Array.isArray(data.outlets)
             ? data.outlets.map((o) => Number(o.outlet_id)).filter(Boolean)
@@ -109,7 +113,9 @@ function EditOwner() {
     form.name.trim() &&
     form.mobile.trim().length === 10 &&
     form.email.trim() &&
-    !emailError;
+    !emailError &&
+    !pinError &&
+    (form.pin.trim().length === 0 || form.pin.trim().length === 4);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -130,6 +136,13 @@ function EditOwner() {
 
     if (name === "pan") {
       setForm((prev) => ({ ...prev, pan: value.toUpperCase().slice(0, 10) }));
+      return;
+    }
+
+    if (name === "pin") {
+      const digitsOnly = value.replace(/\D/g, "").slice(0, 4);
+      setForm((prev) => ({ ...prev, pin: digitsOnly }));
+      if (pinError) setPinError("");
       return;
     }
 
@@ -162,7 +175,16 @@ function EditOwner() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!isFormValid() || isSubmitting) return;
+    if (isSubmitting) return;
+
+    const pinValidation = validatePin(form.pin, { required: false });
+    if (!pinValidation.isValid) {
+      setPinError(pinValidation.message);
+      toastController.error(pinValidation.message);
+      return;
+    }
+
+    if (!isFormValid()) return;
 
     setIsSubmitting(true);
     try {
@@ -179,6 +201,7 @@ function EditOwner() {
           pan: form.pan.trim() || undefined,
           address: form.address.trim() || undefined,
           outlet_ids: form.outlet_ids,
+          ...(form.pin.trim() ? { pin: form.pin.trim() } : {}),
         },
         {
           headers: {
@@ -296,6 +319,21 @@ function EditOwner() {
                   value={form.pan}
                   onChange={handleChange}
                   maxLength={10}
+                />
+              </div>
+              <div>
+                <TextInput
+                  label="Owner PIN"
+                  name="pin"
+                  type="password"
+                  value={form.pin}
+                  onChange={handleChange}
+                  placeholder="Leave blank to keep current PIN"
+                  maxLength={4}
+                  autoComplete="new-password"
+                  inputMode="numeric"
+                  error={!!pinError}
+                  errorMessage={pinError}
                 />
               </div>
               <div className="sm:col-span-2">
