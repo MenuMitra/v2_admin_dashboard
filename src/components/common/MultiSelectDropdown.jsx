@@ -1,5 +1,6 @@
 // src/components/common/MultiSelectDropdown.jsx
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import PropTypes from "prop-types";
 import { createSearchChangeHandler } from "../../utils/inputValidation";
 import "./MultiSelectDropdown.css";
@@ -23,11 +24,59 @@ const MultiSelectDropdown = ({
   const isDisabled = Boolean(disabled);
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [menuStyle, setMenuStyle] = useState(null);
   const dropdownRef = useRef(null);
+  const triggerRef = useRef(null);
+  const menuRef = useRef(null);
+
+  const updateMenuPosition = useCallback(() => {
+    if (!triggerRef.current) return;
+    const rect = triggerRef.current.getBoundingClientRect();
+    const width = Math.max(rect.width, 250);
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const menuMaxHeight = 320;
+    const openUpward = spaceBelow < menuMaxHeight && spaceAbove > spaceBelow;
+
+    setMenuStyle({
+      position: "fixed",
+      left: rect.left,
+      width,
+      zIndex: 99999,
+      ...(openUpward
+        ? { bottom: window.innerHeight - rect.top + 4, top: "auto" }
+        : { top: rect.bottom + 4, bottom: "auto" }),
+    });
+  }, []);
+
+  const safeOptions = Array.isArray(options) ? options : [];
+  const safeSelected = Array.isArray(selectedValues) ? selectedValues : [];
+  const searchFields = searchKeys.length ? searchKeys : [displayKey];
+
+  useLayoutEffect(() => {
+    if (!isOpen || isDisabled) {
+      setMenuStyle(null);
+      return;
+    }
+
+    updateMenuPosition();
+
+    const handleReposition = () => updateMenuPosition();
+    window.addEventListener("resize", handleReposition);
+    // Capture scroll on any ancestor so the menu stays aligned
+    window.addEventListener("scroll", handleReposition, true);
+
+    return () => {
+      window.removeEventListener("resize", handleReposition);
+      window.removeEventListener("scroll", handleReposition, true);
+    };
+  }, [isOpen, isDisabled, updateMenuPosition, safeSelected.length]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      const inTrigger = dropdownRef.current?.contains(event.target);
+      const inMenu = menuRef.current?.contains(event.target);
+      if (!inTrigger && !inMenu) {
         setIsOpen(false);
       }
     };
@@ -36,9 +85,6 @@ const MultiSelectDropdown = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const safeOptions = Array.isArray(options) ? options : [];
-  const safeSelected = Array.isArray(selectedValues) ? selectedValues : [];
-  const searchFields = searchKeys.length ? searchKeys : [displayKey];
 
   const filteredOptions = safeOptions.filter((option) => {
     if (!searchTerm) return true;
@@ -71,64 +117,14 @@ const MultiSelectDropdown = ({
     return `${safeSelected.length} item${safeSelected.length > 1 ? "s" : ""} selected`;
   };
 
-  return (
-    <div
-      className={`relative w-full flex flex-col multi-select-dropdown ${
-        isOpen ? "z-[9999]" : "z-auto"
-      }`}
-      ref={dropdownRef}
-    >
-      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
-        {required && <span className="text-error-600 text-red-500 mr-1">*</span>}
-        {label}
-      </label>
-
-      <div className="relative">
-        <div
-          onClick={() => !isDisabled && setIsOpen(!isOpen)}
-          className={`w-full p-2 text-left border shadow-sm min-h-[42px] ${className || "rounded-lg"}
-                   ${
-                     isDisabled
-                       ? "bg-gray-100 cursor-not-allowed text-gray-400"
-                       : "bg-white hover:bg-gray-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-500"
-                   }`}
-          role="combobox"
-          aria-expanded={isOpen}
-          aria-haspopup="listbox"
-          aria-disabled={disabled}
-        >
-          <div className="flex items-center justify-between gap-2">
-            <span
-              className={`${
-                safeSelected.length === 0
-                  ? "text-gray-500"
-                  : isDisabled
-                    ? "text-gray-400"
-                    : "text-gray-900"
-              } truncate`}
-            >
-              {getSelectedText()}
-            </span>
-            <svg
-              className={`w-5 h-5 flex-shrink-0 transition-transform ${
-                isDisabled ? "text-gray-300" : "text-gray-400"
-              } ${isOpen ? "transform rotate-180" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </div>
-        </div>
-
-        {isOpen && !isDisabled && (
-          <div className="absolute left-0 right-0 top-full mt-1 z-[9999] w-full min-w-[250px] bg-white border rounded-lg shadow-xl">
+  const dropdownMenu =
+    isOpen && !isDisabled && menuStyle
+      ? createPortal(
+          <div
+            ref={menuRef}
+            className="bg-white border rounded-lg shadow-xl"
+            style={menuStyle}
+          >
             <div className="p-2 border-b bg-white">
               <div className="relative">
                 <input
@@ -249,8 +245,69 @@ const MultiSelectDropdown = ({
                 })
               )}
             </div>
+          </div>,
+          document.body
+        )
+      : null;
+
+  return (
+    <div
+      className={`relative w-full flex flex-col multi-select-dropdown ${
+        isOpen ? "z-[9999]" : "z-auto"
+      }`}
+      ref={dropdownRef}
+    >
+      <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-1">
+        {required && <span className="text-error-600 text-red-500 mr-1">*</span>}
+        {label}
+      </label>
+
+      <div className="relative">
+        <div
+          ref={triggerRef}
+          onClick={() => !isDisabled && setIsOpen(!isOpen)}
+          className={`w-full p-2 text-left border shadow-sm min-h-[42px] ${className || "rounded-lg"}
+                   ${
+                     isDisabled
+                       ? "bg-gray-100 cursor-not-allowed text-gray-400"
+                       : "bg-white hover:bg-gray-50 cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-500"
+                   }`}
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+          aria-disabled={disabled}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className={`${
+                safeSelected.length === 0
+                  ? "text-gray-500"
+                  : isDisabled
+                    ? "text-gray-400"
+                    : "text-gray-900"
+              } truncate`}
+            >
+              {getSelectedText()}
+            </span>
+            <svg
+              className={`w-5 h-5 flex-shrink-0 transition-transform ${
+                isDisabled ? "text-gray-300" : "text-gray-400"
+              } ${isOpen ? "transform rotate-180" : ""}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
           </div>
-        )}
+        </div>
+
+        {dropdownMenu}
       </div>
 
       {safeSelected.length > 0 && (
