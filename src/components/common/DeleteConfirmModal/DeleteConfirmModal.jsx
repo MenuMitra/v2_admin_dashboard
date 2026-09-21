@@ -10,7 +10,8 @@ const DeleteConfirmModal = ({
   onClose, 
   onDelete,
   title = "Confirm Delete",
-  message = "Are you sure ?"
+  message = "Are you sure ?",
+  confirmLabel = "Delete",
 }) => {
   return (
     <Modal
@@ -33,7 +34,7 @@ const DeleteConfirmModal = ({
             onClick={onDelete}
             className={deleteButtonClasses}
           >
-            Delete
+            {confirmLabel}
           </button>
         </div>
       }

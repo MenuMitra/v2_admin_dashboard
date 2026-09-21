@@ -117,6 +117,12 @@ export const queryKeys = {
     detail: (id) => [...queryKeys.websiteBookings.all, "detail", id],
   },
 
+  onboarding: {
+    all: ["onboarding"],
+    list: (filters = {}) => [...queryKeys.onboarding.all, "list", filters],
+    detail: (id) => [...queryKeys.onboarding.all, "detail", id],
+  },
+
   stats: {
     all: ["stats"],
     apiUsage: (filters) => [...queryKeys.stats.all, "api-usage", filters],

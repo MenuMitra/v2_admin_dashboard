@@ -21,6 +21,9 @@ import Owners from "./components/Owner/Owners";
 import CreateOwner from "./components/Owner/CreateOwner";
 import OwnerDetails from "./components/Owner/OwnerDetails";
 import EditOwner from "./components/Owner/EditOwner";
+import Onboarding from "./components/Onboarding/Onboarding";
+import OnboardingDetails from "./components/Onboarding/OnboardingDetails";
+import EditOnboarding from "./components/Onboarding/EditOnboarding";
 import Roles from "./components/AccessControl/Roles/Roles";
 import Search from "./components/Search/Search";
 import Customer from "./components/Customer/Customer";
@@ -143,6 +146,17 @@ function App() {
             <Route path="/create-owner" element={<CreateOwner />} />
             <Route path="/owner-details/:ownerId" element={<OwnerDetails />} />
             <Route path="/edit-owner/:ownerId" element={<EditOwner />} />
+
+            {/* Onboarding Routes */}
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route
+              path="/onboarding-details/:onboardingId"
+              element={<OnboardingDetails />}
+            />
+            <Route
+              path="/edit-onboarding/:onboardingId"
+              element={<EditOnboarding />}
+            />
 
             {/* Roles Routes */}
             <Route path="/roles" element={<Roles />} />
