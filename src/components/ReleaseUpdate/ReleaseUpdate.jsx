@@ -14,7 +14,10 @@ import { API_CONFIG } from "../../config/appConfig";
 import Breadcrumb from "../Breadcrumb";
 
 const allowedBinaryExtensions = ["apk", "exe"];
-const allowedConfigExtensions = ["yml"];
+const allowedConfigExtensions = ["yml", "yaml"];
+const binaryFileAccept =
+  ".apk,.exe,application/vnd.android.package-archive,application/x-msdownload,application/octet-stream";
+const configFileAccept = ".yml,.yaml,text/yaml,application/x-yaml,text/plain";
 
 const initialState = {
   binaryFile: null,
@@ -31,25 +34,13 @@ const ReleaseUpdate = () => {
   const { adminData } = useAdmin();
   const { BASE_URL } = API_CONFIG;
 
-  const disableSubmit = useMemo(() => {
-    if (submitting) return true;
-    return !(formState.binaryFile && formState.configFile);
-  }, [formState, submitting]);
-
-  const breadcrumbItems = [
-    { label: "Home", path: "/home" },
-    { label: "Release Update" },
-  ];
-
-  const handleBinaryFileChange = (event) => {
-    const file = event.target.files?.[0] ?? null;
-    setFormState((prev) => ({ ...prev, binaryFile: file }));
+  const getFileExtension = (fileName) => {
+    if (!fileName) return "";
+    const parts = fileName.split(".");
+    return parts.length > 1 ? parts.pop().toLowerCase() : "";
   };
 
-  const handleConfigFileChange = (event) => {
-    const file = event.target.files?.[0] ?? null;
-    setFormState((prev) => ({ ...prev, configFile: file }));
-
+  const parseYamlPreview = (file) => {
     if (!file) {
       setYamlPreview({ data: null, error: null });
       return;
@@ -79,37 +70,111 @@ const ReleaseUpdate = () => {
     reader.readAsText(file);
   };
 
-  const getFileExtension = (fileName) => {
-    if (!fileName) return "";
-    const parts = fileName.split(".");
-    return parts.length > 1 ? parts.pop().toLowerCase() : "";
+  const binaryExt = useMemo(
+    () => getFileExtension(formState.binaryFile?.name),
+    [formState.binaryFile]
+  );
+  const isDesktopBuild = binaryExt === "exe";
+  const isMobileBuild = binaryExt === "apk";
+  // .yml is only needed for desktop; hide the config picker for APK uploads
+  const showConfigPicker = !isMobileBuild;
+
+  const disableSubmit = useMemo(() => {
+    if (submitting) return true;
+    if (!formState.binaryFile) return true;
+    if (isDesktopBuild && !formState.configFile) return true;
+    return false;
+  }, [formState, submitting, isDesktopBuild]);
+
+  const breadcrumbItems = [
+    { label: "Home", path: "/home" },
+    { label: "Release Update" },
+  ];
+
+  const handleBinaryFileChange = (event) => {
+    const file = event.target.files?.[0] ?? null;
+    const ext = getFileExtension(file?.name);
+
+    // If user picks a yml here by mistake, treat it as the config file
+    if (file && allowedConfigExtensions.includes(ext)) {
+      setFormState((prev) => ({ ...prev, configFile: file }));
+      parseYamlPreview(file);
+      event.target.value = "";
+      return;
+    }
+
+    setFormState((prev) => ({
+      ...prev,
+      binaryFile: file,
+      // Clear unused config when switching to an APK-only upload
+      configFile: ext === "apk" ? null : prev.configFile,
+    }));
+
+    if (ext === "apk") {
+      setYamlPreview({ data: null, error: null });
+    }
+
+    event.target.value = "";
+  };
+
+  const handleConfigFileChange = (event) => {
+    const file = event.target.files?.[0] ?? null;
+    const ext = getFileExtension(file?.name);
+
+    // If user picks an APK/EXE in the config picker, assign it as the build file
+    if (file && allowedBinaryExtensions.includes(ext)) {
+      setFormState((prev) => ({
+        ...prev,
+        binaryFile: file,
+        configFile: ext === "apk" ? null : prev.configFile,
+      }));
+      if (ext === "apk") {
+        setYamlPreview({ data: null, error: null });
+      }
+      event.target.value = "";
+      return;
+    }
+
+    setFormState((prev) => ({ ...prev, configFile: file }));
+    parseYamlPreview(file);
+    event.target.value = "";
   };
 
   const validateFiles = () => {
-    if (!formState.binaryFile || !formState.configFile) {
-      return { valid: false, message: "Please select both build and config files." };
+    if (!formState.binaryFile) {
+      return { valid: false, message: "Please select a build file (.apk or .exe)." };
     }
 
-    const binaryExt = getFileExtension(formState.binaryFile.name);
-    const configExt = getFileExtension(formState.configFile.name);
+    const selectedBinaryExt = getFileExtension(formState.binaryFile.name);
 
-    if (!allowedBinaryExtensions.includes(binaryExt)) {
+    if (!allowedBinaryExtensions.includes(selectedBinaryExt)) {
       return {
         valid: false,
         message: "Build file must be a .apk or .exe file.",
       };
     }
 
-    if (!allowedConfigExtensions.includes(configExt)) {
+    // .yml required for desktop builds only; not needed for APK
+    if (selectedBinaryExt === "exe" && !formState.configFile) {
       return {
         valid: false,
-        message: "Config file must be a .yml file.",
+        message: "Desktop builds require a .yml config file along with the .exe.",
       };
+    }
+
+    if (formState.configFile) {
+      const configExt = getFileExtension(formState.configFile.name);
+      if (!allowedConfigExtensions.includes(configExt)) {
+        return {
+          valid: false,
+          message: "Config file must be a .yml or .yaml file.",
+        };
+      }
     }
 
     return {
       valid: true,
-      fileType: binaryExt === "exe" ? "desktop" : "mobile",
+      fileType: selectedBinaryExt === "exe" ? "desktop" : "mobile",
     };
   };
 
@@ -150,7 +215,9 @@ const ReleaseUpdate = () => {
 
       const formData = new FormData();
       formData.append("file", formState.binaryFile);
-      formData.append("config_file", formState.configFile);
+      if (formState.configFile) {
+        formData.append("config_file", formState.configFile);
+      }
       formData.append("file_type", validation.fileType);
       formData.append("user_id", adminData?.user_id || "");
       formData.append("app_source", "admin_panel");
@@ -180,7 +247,9 @@ const ReleaseUpdate = () => {
       const message =
         response?.data?.message ||
         response?.data?.detail ||
-        `Release package (${formState.binaryFile.name}) uploaded with ${formState.configFile.name}.`;
+        (formState.configFile
+          ? `Release package (${formState.binaryFile.name}) uploaded with ${formState.configFile.name}.`
+          : `Release package (${formState.binaryFile.name}) uploaded successfully.`);
 
       setStatus({
         type: "success",
@@ -291,22 +360,22 @@ const ReleaseUpdate = () => {
           )}
 
           <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className={`grid grid-cols-1 gap-3 sm:gap-4 ${showConfigPicker ? "sm:grid-cols-2" : ""}`}>
               <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-white/70 bg-white/70 p-4 text-center shadow-sm">
                 <FontAwesomeIcon icon={faUpload} className="h-8 w-8 text-brand-500" />
                 <div>
                   <p className="text-sm font-semibold text-gray-900">Build Artifact</p>
                   <p className="text-xs text-gray-500">
-                    Upload the main .apk (mobile) or .exe (desktop) binary.
+                    Select your .apk (mobile) or .exe (desktop) file from Downloads or any folder.
                   </p>
                 </div>
                 <label className="inline-flex cursor-pointer items-center rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-600 hover:bg-brand-100">
-                  Choose build file
+                  Choose APK / EXE
                   <input
                     type="file"
                     className="hidden"
                     onChange={handleBinaryFileChange}
-                    accept=".apk,.exe"
+                    accept={binaryFileAccept}
                   />
                 </label>
                 {formState.binaryFile && (
@@ -316,20 +385,25 @@ const ReleaseUpdate = () => {
                 )}
               </div>
 
+              {showConfigPicker && (
               <div className="flex flex-col gap-3 rounded-xl border border-white/70 bg-white/70 p-4 shadow-sm">
                 <div className="flex flex-col items-center justify-center gap-3 text-center">
                   <FontAwesomeIcon icon={faUpload} className="h-8 w-8 text-success-500" />
                   <div>
                     <p className="text-sm font-semibold text-gray-900">Deployment Config</p>
-                    <p className="text-xs text-gray-500">Upload the required .yml manifest.</p>
+                    <p className="text-xs text-gray-500">
+                      {isDesktopBuild
+                        ? "Required .yml / .yaml manifest for desktop (.exe) builds."
+                        : "Optional .yml for desktop. Or select an .apk / .exe here and it will be used as the build file."}
+                    </p>
                   </div>
                   <label className="inline-flex cursor-pointer items-center rounded-full bg-success-50 px-4 py-2 text-sm font-semibold text-success-600 hover:bg-success-100">
-                    Choose config file
+                    Choose file
                     <input
                       type="file"
                       className="hidden"
                       onChange={handleConfigFileChange}
-                      accept=".yml"
+                      accept={`${binaryFileAccept},${configFileAccept}`}
                     />
                   </label>
                   {formState.configFile && (
@@ -359,9 +433,14 @@ const ReleaseUpdate = () => {
                   </div>
                 )}
               </div>
+              )}
             </div>
             <p className="mt-4 text-center text-xs text-gray-500">
-              Upload must include either (.exe + .yml) for desktop or (.apk + .yml) for mobile builds.
+              {isMobileBuild
+                ? "APK selected — no .yml file needed. Click Upload Release to continue."
+                : isDesktopBuild
+                  ? "Desktop build selected — please also upload the .yml / .yaml config file."
+                  : "Use Choose APK / EXE to select your build. .yml is only required for .exe (desktop) uploads."}
             </p>
           </div>
 
