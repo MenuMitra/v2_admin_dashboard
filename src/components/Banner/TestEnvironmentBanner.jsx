@@ -1,36 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { API_CONFIG } from "../../config/appConfig";
+import { isProductionEnvironment } from "../../config/appConfig";
 
 const TestEnvironmentBanner = () => {
-  const isUsingProductionApi = () =>
-    typeof API_CONFIG?.BASE_URL === "string" &&
-    API_CONFIG.BASE_URL.includes("menu4.xyz");
-
-  const isUsingTestingApi = () =>
-    typeof API_CONFIG?.BASE_URL === "string" &&
-    API_CONFIG.BASE_URL.includes("menusmitra.xyz");
-
-  // Check if current domain is production
-  const isProductionDomain = () => {
-    const hostname = window.location.hostname;
-    return (
-      hostname === "menumitra.com" ||
-      hostname === "user.menumitra.com" ||
-      hostname === "www.menumitra.com" ||
-      hostname === "www.user.menumitra.com" ||
-      hostname === "admin-v2.menumitra.com" ||
-      hostname === "www.admin-v2.menumitra.com" ||
-      hostname === "admin.menumitra.com" ||
-      hostname === "www.admin.menumitra.com"
-    );
-  };
-
-  // Show banner only for testing environments
-  const shouldShow =
-    isUsingTestingApi() || (!isProductionDomain() && !isUsingProductionApi());
-
-  if (!shouldShow) {
+  // Hide banner in production (production API or production host)
+  if (isProductionEnvironment()) {
     return null;
   }
 

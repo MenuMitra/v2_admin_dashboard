@@ -4,42 +4,42 @@
  */
 
 // Get API base URL from environment variable (Netlify)
-// Falls back to testing API if not set (testing_v2_3 branch)
+// Falls back to production API if not set (production_v2_3 branch)
 const getApiBaseUrl = () => {
   // Check for Vite environment variable (set in Netlify)
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
   }
 
-  // Default fallback for local development (testing API)
-  return "https://menusmitra.xyz/v2.3";
-
+  // Default fallback for production environment
+  return "https://menu4.xyz/v2.3";
 };
 
 const PRODUCTION_CUSTOMER_APP_URL = "https://customer.2.3.menumitra.com";
 const TESTING_CUSTOMER_APP_URL =
   "https://test-menumitra-customer-v2.netlify.app";
 
-const isProductionEnvironment = () => {
+const PRODUCTION_HOSTS = [
+  "menumitra.com",
+  "user.menumitra.com",
+  "www.menumitra.com",
+  "www.user.menumitra.com",
+  "admin-v2.menumitra.com",
+  "www.admin-v2.menumitra.com",
+  "admin.menumitra.com",
+  "www.admin.menumitra.com",
+  "admin.2.3.menumitra.com",
+  "www.admin.2.3.menumitra.com",
+];
+
+export const isProductionEnvironment = () => {
   const apiBaseUrl = getApiBaseUrl();
   if (typeof apiBaseUrl === "string" && apiBaseUrl.includes("menu4.xyz")) {
     return true;
   }
 
   if (typeof window !== "undefined") {
-    const productionHosts = [
-      "menumitra.com",
-      "user.menumitra.com",
-      "www.menumitra.com",
-      "www.user.menumitra.com",
-      "admin-v2.menumitra.com",
-      "www.admin-v2.menumitra.com",
-      "admin.menumitra.com",
-      "www.admin.menumitra.com",
-      "admin.2.3.menumitra.com",
-      "www.admin.2.3.menumitra.com",
-    ];
-    return productionHosts.includes(window.location.hostname);
+    return PRODUCTION_HOSTS.includes(window.location.hostname);
   }
 
   return false;
