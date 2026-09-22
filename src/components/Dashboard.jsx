@@ -353,6 +353,17 @@ function Dashboard() {
               </Link>
 
               <Link
+                to="/owners"
+                className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
+              >
+                <FontAwesomeIcon
+                  icon={faUserShield}
+                  className="mb-1 text-brand-500"
+                />
+                <span className="text-xs font-medium text-dark">Owners</span>
+              </Link>
+
+              <Link
                 to="/ubac_tree"
                 className="flex flex-col items-center justify-center w-40 h-40 p-3 bg-white border border-gray-200 rounded-3xl hover:border-brand-500 hover:shadow-lg"
               >
