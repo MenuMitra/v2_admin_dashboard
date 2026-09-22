@@ -391,9 +391,6 @@ function PartnerDetails() {
             {/* Active Sessions Section */}
             {activeSessions && activeSessions.length > 0 && (
               <div className="p-6 border-t">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white/90 mb-6">
-                  Active Sessions
-                </h2>
                 <ActiveSessionsTable
                   activeSessions={activeSessions}
                   onLogout={handleLogout}

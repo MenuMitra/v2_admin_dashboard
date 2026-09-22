@@ -281,9 +281,6 @@ function AdminDetails() {
             {/* Active Sessions Section */}
             {activeSessions && activeSessions.length > 0 && (
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 ">
-                  Active Sessions
-                </h3>
                 <ActiveSessionsTable
                   activeSessions={activeSessions}
                   onLogout={handleLogout}

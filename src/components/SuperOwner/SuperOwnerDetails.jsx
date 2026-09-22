@@ -687,12 +687,9 @@ function SuperOwnerDetails() {
               </div>
             )}
 
-            {/* Active Sessions Section }
+            {/* Active Sessions Section */}
             {activeSessions && activeSessions.length > 0 && (
               <div className="mt-8">
-                <h2 className="text-base font-medium mb-4 text-gray-800">
-                  Active Sessions
-                </h2>
                 <ActiveSessionsTable
                   activeSessions={activeSessions}
                   onLogout={handleLogout}
