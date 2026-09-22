@@ -24,7 +24,6 @@ import {
   faCalendarCheck,
   faUpload,
   faBuilding,
-  faClipboardList,
 } from "@fortawesome/free-solid-svg-icons";
 
 // Import your logo images
@@ -42,12 +41,6 @@ const menuGroups = [
       { title: "Admins", path: "/admins", id: "admins", icon: faUser },
       { title: "Companies", path: "/companies", id: "companies", icon: faBuilding },
       { title: "Owners", path: "/owners", id: "owners", icon: faUserShield },
-      {
-        title: "Onboarding",
-        path: "/onboarding",
-        id: "onboarding",
-        icon: faClipboardList,
-      },
       // {
       //   title: "Partners",
       //   path: "/partners",
@@ -186,11 +179,6 @@ const Sidebar = ({ sidebarToggle = false }) => {
         admins: ["/admins", "/create-admin", "/admin-details/", "/edit-admin/"],
         companies: ["/companies", "/create-company", "/company-details/", "/edit-company/"],
         owners: ["/owners", "/create-owner", "/owner-details/", "/edit-owner/"],
-        onboarding: [
-          "/onboarding",
-          "/onboarding-details/",
-          "/edit-onboarding/",
-        ],
         "qr-templates": [
           "/qr-templates",
           "/create-template",
