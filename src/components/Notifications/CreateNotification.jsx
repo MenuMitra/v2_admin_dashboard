@@ -468,7 +468,7 @@ function CreateNotification() {
 
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 gap-3">
+            <div className="max-w-md">
               <Textarea
                 label="Message"
                 name="message"
