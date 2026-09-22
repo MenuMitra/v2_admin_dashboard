@@ -41,6 +41,17 @@ const FALLBACK_OUTLET_TYPES = {
   bakery: "bakery",
 };
 
+const FALLBACK_VEG_NONVEG = {
+  veg: "veg",
+  nonveg: "nonveg",
+};
+
+function formatDropdownLabel(raw, key) {
+  const text = String(raw ?? key ?? "");
+  if (key === "nonveg" || text.toLowerCase() === "nonveg") return "Non-Veg";
+  return text.charAt(0).toUpperCase() + text.slice(1).replace(/_/g, " ");
+}
+
 function toOutletTypeOptions(list) {
   const source =
     list && typeof list === "object" && !Array.isArray(list)
@@ -64,6 +75,85 @@ function toOutletTypeOptions(list) {
       label: label.charAt(0).toUpperCase() + label.slice(1).replace(/_/g, " "),
     };
   });
+}
+
+function toVegNonvegOptions(list) {
+  const source =
+    list && typeof list === "object" && !Array.isArray(list)
+      ? list
+      : Array.isArray(list)
+        ? Object.fromEntries(
+            list
+              .map((item) => {
+                if (typeof item === "string") return [item, item];
+                const key =
+                  item?.value ||
+                  item?.key ||
+                  item?.veg_nonveg ||
+                  item?.name;
+                const label = item?.label || item?.name || key;
+                return [key, label];
+              })
+              .filter(([key]) => key)
+          )
+        : FALLBACK_VEG_NONVEG;
+
+  const options = Object.entries(source).map(([key, value]) => {
+    const keyStr = String(key);
+    const valueStr = String(value ?? key);
+    // Some APIs return { "1": "veg", "2": "nonveg" } — use semantic value as option value
+    const compactValue = valueStr.toLowerCase().replace(/[\s_-]+/g, "");
+    const useValueAsKey =
+      /^\d+$/.test(keyStr) &&
+      (compactValue === "veg" ||
+        compactValue === "nonveg" ||
+        compactValue === "vegetarian" ||
+        compactValue === "nonvegetarian");
+    const optionValue = useValueAsKey
+      ? normalizeVegNonvegValue(valueStr)
+      : keyStr;
+
+    return {
+      value: optionValue || keyStr,
+      label: formatDropdownLabel(valueStr, optionValue || keyStr),
+    };
+  });
+
+  if (options.length) return options;
+
+  return Object.entries(FALLBACK_VEG_NONVEG).map(([key, value]) => ({
+    value: String(key),
+    label: formatDropdownLabel(value, key),
+  }));
+}
+
+/** Map API variants (non_veg, Non-Veg, Vegetarian, etc.) to option values. */
+function normalizeVegNonvegValue(value, options = []) {
+  if (value == null || value === "") return "";
+  const str = String(value).trim();
+  const lower = str.toLowerCase();
+
+  const byValue = options.find(
+    (opt) => String(opt.value).toLowerCase() === lower
+  );
+  if (byValue) return byValue.value;
+
+  const byLabel = options.find(
+    (opt) => String(opt.label).toLowerCase() === lower
+  );
+  if (byLabel) return byLabel.value;
+
+  const compact = lower.replace(/[\s_-]+/g, "");
+  if (compact === "veg" || compact === "vegetarian") return "veg";
+  if (
+    compact === "nonveg" ||
+    compact === "nonvegetarian" ||
+    compact === "nonvegitarian"
+  ) {
+    return "nonveg";
+  }
+
+  return str;
 }
 
 function EditOutlet() {
@@ -111,7 +201,9 @@ function EditOutlet() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [outletTypeOptions, setOutletTypeOptions] = useState([]);
-  const [vegOrNonveg, setVegOrNonveg] = useState({});
+  const [vegNonvegOptions, setVegNonvegOptions] = useState(() =>
+    toVegNonvegOptions(FALLBACK_VEG_NONVEG)
+  );
   const [companyOwners, setCompanyOwners] = useState([]);
   const [primaryOwnerId, setPrimaryOwnerId] = useState(null);
   const [allCompanies, setAllCompanies] = useState([]);
@@ -317,7 +409,10 @@ function EditOutlet() {
             data.fssainumber === "None" ? "" : data.fssainumber || "",
           gstnumber: data.gstnumber || "",
           mobile: data.mobile || "",
-          veg_nonveg: data.veg_nonveg || "",
+          veg_nonveg: normalizeVegNonvegValue(
+            data.veg_nonveg || data.food_type || "",
+            toVegNonvegOptions(FALLBACK_VEG_NONVEG)
+          ),
           service_charges: data.service_charges || "",
           gst: data.gst || "",
           address: (data.address || "").trim(),
@@ -472,10 +567,12 @@ function EditOutlet() {
   };
 
   const fetchVegOrNonveg = async () => {
+    const fallback = toVegNonvegOptions(FALLBACK_VEG_NONVEG);
     try {
       const token = getToken();
       if (!token) {
-        throw new Error("No authentication token available");
+        setVegNonvegOptions(fallback);
+        return;
       }
 
       const response = await axios.get(
@@ -487,11 +584,25 @@ function EditOutlet() {
         }
       );
 
-      if (response.data.veg_or_nonveg_list) {
-        setVegOrNonveg(response.data.veg_or_nonveg_list);
-      }
-    } catch (error) {
+      const list =
+        response.data?.veg_or_nonveg_list ||
+        response.data?.data?.veg_or_nonveg_list ||
+        response.data?.data ||
+        null;
 
+      const options = toVegNonvegOptions(list);
+      setVegNonvegOptions(options.length ? options : fallback);
+
+      // Re-normalize any already-loaded value against the final options
+      setOutletData((prev) => {
+        if (!prev.veg_nonveg) return prev;
+        const normalized = normalizeVegNonvegValue(prev.veg_nonveg, options);
+        if (normalized === prev.veg_nonveg) return prev;
+        return { ...prev, veg_nonveg: normalized };
+      });
+    } catch (error) {
+      console.error("Error fetching food types:", error);
+      setVegNonvegOptions(fallback);
     }
   };
 
@@ -1124,12 +1235,7 @@ function EditOutlet() {
                   value={outletData.veg_nonveg}
                   onChange={handleInputChange}
                   required
-                  options={Object.entries(vegOrNonveg).map(([key, value]) => ({
-                    value: key,
-                    label:
-                      value.charAt(0).toUpperCase() +
-                      value.slice(1).replace(/_/g, " "),
-                  }))}
+                  options={vegNonvegOptions}
                   placeholder="Select Food Type"
                 />
 
