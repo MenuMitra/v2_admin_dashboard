@@ -62,10 +62,28 @@ export default function AuditInfo({
   const createdActorName = getAuditActorName(createdBy);
   const updatedActorName = getAuditActorName(updatedBy);
 
-  const showCreated = Boolean(createdTextDate);
-  const showUpdated = Boolean(updatedTextDate);
+  const showCreated = Boolean(createdTextDate || createdActorName);
+  const showUpdated = Boolean(updatedTextDate || updatedActorName);
 
   if (!showCreated && !showUpdated) return null;
+
+  const createdLabel = (() => {
+    if (createdActorName && createdTextDate) {
+      return `Created By ${createdActorName} On ${createdTextDate}`;
+    }
+    if (createdActorName) return `Created By ${createdActorName}`;
+    if (createdTextDate) return `Created On ${createdTextDate}`;
+    return "";
+  })();
+
+  const updatedLabel = (() => {
+    if (updatedActorName && updatedTextDate) {
+      return `Updated By ${updatedActorName} On ${updatedTextDate}`;
+    }
+    if (updatedActorName) return `Updated By ${updatedActorName}`;
+    if (updatedTextDate) return `Updated On ${updatedTextDate}`;
+    return "";
+  })();
 
   return (
     <div
@@ -76,21 +94,13 @@ export default function AuditInfo({
       ].join(" ")}
     >
       {showCreated ? (
-        <span title={createdOn ? String(createdOn) : ""}>
-          {createdActorName
-            ? `Created By ${createdActorName} On ${createdTextDate}`
-            : `Created On ${createdTextDate}`}
-        </span>
+        <span title={createdOn ? String(createdOn) : ""}>{createdLabel}</span>
       ) : (
         <span />
       )}
 
       {showUpdated ? (
-        <span title={updatedOn ? String(updatedOn) : ""}>
-          {updatedActorName
-            ? `Updated By ${updatedActorName} On ${updatedTextDate}`
-            : `Updated On ${updatedTextDate}`}
-        </span>
+        <span title={updatedOn ? String(updatedOn) : ""}>{updatedLabel}</span>
       ) : null}
     </div>
   );

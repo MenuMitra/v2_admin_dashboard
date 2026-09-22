@@ -365,7 +365,7 @@ function CustomerDetails() {
       <div className="rounded-2xl border border-gray-200 bg-white">
         {/* Header Section */}
         <div className="overflow-hidden pt-4">
-          <div className="flex items-center px-6 mb-3">
+          <div className="flex items-center px-6 mb-6">
             {/* Back Button */}
             <div className="flex items-center gap-2 order-1">
               <button
@@ -446,33 +446,33 @@ function CustomerDetails() {
 
         <div className="px-7 pb-4">
           <AuditInfo
-            createdOn={customerData?.customer_details?.created_on}
-            updatedOn={customerData?.customer_details?.updated_on}
+            createdOn={
+              customerData?.customer_details?.created_on ||
+              customerData?.created_on
+            }
+            updatedOn={
+              customerData?.customer_details?.updated_on ||
+              customerData?.updated_on
+            }
             createdBy={
               customerData?.customer_details?.created_by_name ||
               customerData?.customer_details?.created_by_full_name ||
               customerData?.customer_details?.created_by_user_name ||
-              customerData?.customer_details?.created_by
-                ? toTitleCase(
-                    customerData?.customer_details?.created_by_name ||
-                      customerData?.customer_details?.created_by_full_name ||
-                      customerData?.customer_details?.created_by_user_name ||
-                      customerData?.customer_details?.created_by
-                  )
-                : null
+              customerData?.customer_details?.created_by ||
+              customerData?.created_by_name ||
+              customerData?.created_by_full_name ||
+              customerData?.created_by_user_name ||
+              customerData?.created_by
             }
             updatedBy={
               customerData?.customer_details?.updated_by_name ||
               customerData?.customer_details?.updated_by_full_name ||
               customerData?.customer_details?.updated_by_user_name ||
-              customerData?.customer_details?.updated_by
-                ? toTitleCase(
-                    customerData?.customer_details?.updated_by_name ||
-                      customerData?.customer_details?.updated_by_full_name ||
-                      customerData?.customer_details?.updated_by_user_name ||
-                      customerData?.customer_details?.updated_by
-                  )
-                : null
+              customerData?.customer_details?.updated_by ||
+              customerData?.updated_by_name ||
+              customerData?.updated_by_full_name ||
+              customerData?.updated_by_user_name ||
+              customerData?.updated_by
             }
           />
         </div>
