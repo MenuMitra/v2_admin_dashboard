@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft as faBack } from "@fortawesome/free-solid-svg-icons";
@@ -26,7 +26,6 @@ function EditOwner() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [pinError, setPinError] = useState("");
-  const [companyId, setCompanyId] = useState(null);
   const [form, setForm] = useState({
     name: "",
     mobile: "",
@@ -35,7 +34,6 @@ function EditOwner() {
     pan: "",
     pin: "",
     address: "",
-    outlet_ids: [],
   });
 
   useEffect(() => {
@@ -58,7 +56,6 @@ function EditOwner() {
           }
         );
         const data = response.data?.data || response.data || {};
-        setCompanyId(data.company?.company_id || data.company_id || null);
         setForm({
           name: data.name || "",
           mobile: data.mobile || "",
@@ -67,9 +64,6 @@ function EditOwner() {
           pan: data.pan || "",
           pin: String(data.pin ?? data.login_pin ?? ""),
           address: data.address || "",
-          outlet_ids: Array.isArray(data.outlets)
-            ? data.outlets.map((o) => Number(o.outlet_id)).filter(Boolean)
-            : [],
         });
       } catch (err) {
         toastController.error(
@@ -81,33 +75,6 @@ function EditOwner() {
     };
     fetchOwner();
   }, [adminData?.user_id, ownerId, BASE_URL, getToken]);
-
-  const { data: outlets = [] } = useQuery({
-    queryKey: [...queryKeys.outlets.list(), "for-owner-edit", companyId],
-    queryFn: async () => {
-      const response = await axios.post(
-        `${BASE_URL}/common/listview_outlet`,
-        {
-          user_id: adminData.user_id,
-          app_source: "admin_app",
-        },
-        {
-          headers: {
-            Authorization: getToken(),
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const list =
-        response.data?.data || response.data?.outlets || response.data || [];
-      const raw = Array.isArray(list) ? list : [];
-      if (!companyId) return raw;
-      return raw.filter(
-        (o) => String(o.company_id ?? o.companyId ?? "") === String(companyId)
-      );
-    },
-    enabled: !!adminData?.user_id && !!companyId,
-  });
 
   const isFormValid = () =>
     form.name.trim() &&
@@ -160,19 +127,6 @@ function EditOwner() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const toggleOutlet = (outletId) => {
-    setForm((prev) => {
-      const id = Number(outletId);
-      const exists = prev.outlet_ids.includes(id);
-      return {
-        ...prev,
-        outlet_ids: exists
-          ? prev.outlet_ids.filter((x) => x !== id)
-          : [...prev.outlet_ids, id],
-      };
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSubmitting) return;
@@ -200,7 +154,6 @@ function EditOwner() {
           aadhar: form.aadhar.trim() || undefined,
           pan: form.pan.trim() || undefined,
           address: form.address.trim() || undefined,
-          outlet_ids: form.outlet_ids,
           ...(form.pin.trim() ? { pin: form.pin.trim() } : {}),
         },
         {
@@ -345,36 +298,6 @@ function EditOwner() {
                   rows={3}
                 />
               </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">
-                Mapped Outlets
-              </h3>
-              {outlets.length === 0 ? (
-                <p className="text-sm text-gray-500">No outlets available.</p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {outlets.map((outlet) => {
-                    const id = Number(outlet.outlet_id);
-                    const selected = form.outlet_ids.includes(id);
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => toggleOutlet(id)}
-                        className={`px-3 py-1.5 rounded-full text-sm border transition ${
-                          selected
-                            ? "bg-brand-100 text-brand-700 border-brand-200"
-                            : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                        }`}
-                      >
-                        {outlet.outlet_name || outlet.name || `Outlet ${id}`}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           </form>
         </div>
