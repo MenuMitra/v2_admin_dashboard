@@ -4,16 +4,17 @@
  */
 
 // Get API base URL from environment variable (Netlify)
-// Falls back to testing API if not set (testing_v2_3 branch)
+// Falls back to menusmitra.xyz/v2.4 if not set
 const getApiBaseUrl = () => {
+  const normalize = (url) => String(url).replace(/\/+$/, "");
+
   // Check for Vite environment variable (set in Netlify)
   if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
+    return normalize(import.meta.env.VITE_API_BASE_URL);
   }
 
-  // Default fallback for local development (testing API)
-  return "https://menusmitra.xyz/v2.4";
-
+  // Default API base
+  return normalize("https://menusmitra.xyz/v2.4");
 };
 
 const PRODUCTION_CUSTOMER_APP_URL = "https://customer.2.3.menumitra.com";
